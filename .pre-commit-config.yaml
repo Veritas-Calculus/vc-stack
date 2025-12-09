@@ -27,10 +27,12 @@ repos:
     hooks:
       - id: go-fmt
       - id: go-vet
+        args: ['-tags=cgo']
       - id: go-imports
       - id: go-mod-tidy
+        args: ['-compat=1.21']
       - id: golangci-lint
-        args: ['--fast']
+        args: ['--timeout=5m']
 
   # YAML linting
   - repo: https://github.com/adrienverge/yamllint
@@ -69,6 +71,3 @@ repos:
         language: system
         files: ^web/console/.*\.(ts|tsx|js|jsx|json|css|scss)$
         pass_filenames: false
-
-
-

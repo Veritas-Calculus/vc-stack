@@ -31,7 +31,7 @@
 
 ### ✅ 2. SonarQube 集成
 
-#### 已完成的文件
+#### SonarQube 配置文件
 
 1. **`sonar-project.properties`** - SonarQube 项目配置
    - 项目基本信息

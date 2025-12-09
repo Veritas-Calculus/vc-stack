@@ -10,26 +10,46 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.21'
-      
+          go-version: '1.24'
+          cache: true
+
+      - name: Cache Go tools
+        uses: actions/cache@v4
+        with:
+          path: ~/go/bin
+          key: ${{ runner.os }}-go-tools-${{ hashFiles('Makefile') }}
+          restore-keys: |
+            ${{ runner.os }}-go-tools-
+
+      - name: Install Go tools
+        run: |
+          # Check if tools are already installed
+          if ! command -v goimports &> /dev/null; then
+            go install golang.org/x/tools/cmd/goimports@latest
+          fi
+          if ! command -v golangci-lint &> /dev/null; then
+            go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.61.0
+          fi
+          echo "$HOME/go/bin" >> $GITHUB_PATH
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-      
+
       - name: Install web dependencies
         run: |
           cd web/console
           npm ci
-      
+
       - name: Run pre-commit
         uses: pre-commit/action@v3.0.0

@@ -29,7 +29,7 @@ case ${1:-"help"} in
         ;;
     "logs")
         echo "📋 查看数据库日志..."
-        docker-compose -f $DB_COMPOSE_FILE logs -f ${2:-""}
+        docker-compose -f $DB_COMPOSE_FILE logs -f "${2:-""}"
         ;;
     "status")
         echo "📊 数据库状态:"
@@ -57,7 +57,7 @@ case ${1:-"help"} in
     "backup")
         BACKUP_FILE="backup_$(date +%Y%m%d_%H%M%S).sql"
         echo "💾 备份数据库到 $BACKUP_FILE..."
-        docker exec vc-stack-postgres pg_dump -U vcstack vcstack > $BACKUP_FILE
+        docker exec vc-stack-postgres pg_dump -U vcstack vcstack > "$BACKUP_FILE"
         echo "✅ 备份完成: $BACKUP_FILE"
         ;;
     "restore")
@@ -67,7 +67,7 @@ case ${1:-"help"} in
             exit 1
         fi
         echo "📥 从 $2 恢复数据库..."
-        docker exec -i vc-stack-postgres psql -U vcstack vcstack < $2
+        docker exec -i vc-stack-postgres psql -U vcstack vcstack < "$2"
         echo "✅ 恢复完成"
         ;;
     "help"|*)

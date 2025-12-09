@@ -1,6 +1,7 @@
 # vcctl - VC Stack CLI
 
-`vcctl` is a unified command-line interface for VC Stack, inspired by AWS CLI. It provides intuitive commands to manage your cloud infrastructure.
+`vcctl` is a unified command-line interface for VC Stack, inspired by AWS CLI.
+It provides intuitive commands to manage your cloud infrastructure.
 
 ## Quick Start
 
