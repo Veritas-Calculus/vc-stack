@@ -96,12 +96,12 @@ issues:
         - typecheck
         - all
 
-    # Exclude Sentry SDK files
+    # Exclude Sentry SDK files (typecheck fails with CGO_ENABLED=0)
     - path: pkg/sentry/
       linters:
         - typecheck
 
-    # Exclude JWT authentication files
+    # Exclude JWT authentication files (typecheck fails with CGO_ENABLED=0)
     - path: internal/controlplane/identity/service\.go
       linters:
         - typecheck
