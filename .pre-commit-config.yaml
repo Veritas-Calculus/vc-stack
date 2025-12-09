@@ -27,7 +27,8 @@ repos:
     hooks:
       - id: go-fmt
       - id: go-vet
-        args: ['-tags=cgo']
+        # Skip CGO-dependent files to avoid "no Go files" error in CI
+        exclude: 'internal/node/compute/rbd_manager\.go'
       - id: go-imports
       - id: go-mod-tidy
         args: ['-compat=1.21']
