@@ -3,6 +3,7 @@ package controlplane
 import (
 	"time"
 
+	"github.com/Veritas-Calculus/vc-stack/internal/controlplane/compute"
 	"github.com/Veritas-Calculus/vc-stack/internal/controlplane/event"
 	"github.com/Veritas-Calculus/vc-stack/internal/controlplane/gateway"
 	"github.com/Veritas-Calculus/vc-stack/internal/controlplane/host"
@@ -28,6 +29,7 @@ type Config struct {
 // Service composes all control plane services.
 // and exposes a single SetupRoutes to register their routes on a router.
 type Service struct {
+	Compute    *compute.Service
 	Identity   *identity.Service
 	Network    *network.Service
 	Host       *host.Service
@@ -82,8 +84,8 @@ func New(cfg Config) (*Service, error) {
 	gwCfg.Services.Identity = gateway.ServiceEndpoint{Host: "localhost", Port: 8083}
 	gwCfg.Services.Network = gateway.ServiceEndpoint{Host: "localhost", Port: 8082}
 	gwCfg.Services.Scheduler = gateway.ServiceEndpoint{Host: "localhost", Port: 8092}
-	gwCfg.Services.Compute = gateway.ServiceEndpoint{Host: "localhost", Port: 8081}
-	gwCfg.Services.Lite = gateway.ServiceEndpoint{Host: "localhost", Port: 8081} // Lite runs on same port as compute (vc-node)
+	// Compute is now built-in to controller; Lite is optional for legacy vc-node access.
+	// gwCfg.Services.Lite = gateway.ServiceEndpoint{Host: "localhost", Port: 8081}
 	gwSvc, err := gateway.NewService(&gwCfg)
 	if err != nil {
 		return nil, err
@@ -109,7 +111,13 @@ func New(cfg Config) (*Service, error) {
 		return nil, err
 	}
 
+	compSvc, err := compute.NewService(compute.Config{DB: cfg.DB, Logger: cfg.Logger.Named("compute")})
+	if err != nil {
+		return nil, err
+	}
+
 	return &Service{
+		Compute:    compSvc,
 		Identity:   idSvc,
 		Network:    netSvc,
 		Host:       hostSvc,
@@ -129,6 +137,7 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 
 	// Register specific service routes before gateway's wildcard routes.
 	// This ensures specific routes take precedence.
+	s.Compute.SetupRoutes(router)
 	s.Identity.SetupRoutes(router)
 	s.Network.SetupRoutes(router)
 	s.Host.SetupRoutes(router)

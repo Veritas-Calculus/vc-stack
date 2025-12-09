@@ -60,6 +60,8 @@ todo:
 - document
 - IaC
   - terraform
+- Debug
+  - 操作失败要有对应的uuid 可以在日志里面进行查询。
 
 OKR：
 

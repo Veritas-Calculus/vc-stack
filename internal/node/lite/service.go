@@ -49,6 +49,11 @@ type Config struct {
 	CephCloneFlatten    bool
 	RbdCommand          string
 	RbdTimeoutSeconds   int
+	// QEMU/KVM driver configuration.
+	UseQEMU     bool   // Use QEMU driver instead of libvirt
+	QEMURunDir  string // Runtime directory for QEMU
+	QEMUCfgDir  string // Configuration directory for QEMU
+	QEMUTmplDir string // Template directory for QEMU
 }
 
 type Service struct {

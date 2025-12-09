@@ -42,12 +42,12 @@ type Config struct {
 }
 
 // ServicesConfig contains configuration for backend services.
+// Note: Compute is now built-in to the controller; Lite is only used for legacy node access.
 type ServicesConfig struct {
 	Identity  ServiceEndpoint
-	Compute   ServiceEndpoint
 	Network   ServiceEndpoint
-	Lite      ServiceEndpoint
 	Scheduler ServiceEndpoint
+	Lite      ServiceEndpoint // Optional: for legacy vc-node fallback only
 }
 
 // ServiceEndpoint represents a backend service endpoint.
@@ -128,26 +128,6 @@ func (s *Service) initializeProxies() error {
 		HealthOK: true,
 	}
 
-	// Compute service.
-	computeURL, err := url.Parse(fmt.Sprintf("http://%s:%d",
-		s.config.Services.Compute.Host, s.config.Services.Compute.Port))
-	if err != nil {
-		return fmt.Errorf("invalid compute service URL: %w", err)
-	}
-
-	compProxy := httputil.NewSingleHostReverseProxy(computeURL)
-	compProxy.FlushInterval = 200 * time.Millisecond
-	compProxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
-		s.logger.Error("proxy error", zap.String("service", "compute"), zap.Error(err))
-		http.Error(w, "Bad Gateway", http.StatusBadGateway)
-	}
-	s.services["compute"] = &ServiceProxy{
-		Name:     "compute",
-		Target:   computeURL,
-		Proxy:    compProxy,
-		HealthOK: true,
-	}
-
 	// Network service.
 	networkURL, err := url.Parse(fmt.Sprintf("http://%s:%d",
 		s.config.Services.Network.Host, s.config.Services.Network.Port))
@@ -168,23 +148,25 @@ func (s *Service) initializeProxies() error {
 		HealthOK: true,
 	}
 
-	// Lite (node agent) service.
-	liteURL, err := url.Parse(fmt.Sprintf("http://%s:%d",
-		s.config.Services.Lite.Host, s.config.Services.Lite.Port))
-	if err != nil {
-		return fmt.Errorf("invalid lite service URL: %w", err)
-	}
-	liteProxy := httputil.NewSingleHostReverseProxy(liteURL)
-	liteProxy.FlushInterval = 200 * time.Millisecond
-	liteProxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
-		s.logger.Error("proxy error", zap.String("service", "lite"), zap.Error(err))
-		http.Error(w, "Bad Gateway", http.StatusBadGateway)
-	}
-	s.services["lite"] = &ServiceProxy{
-		Name:     "lite",
-		Target:   liteURL,
-		Proxy:    liteProxy,
-		HealthOK: true,
+	// Lite (node agent) service - optional, only if configured.
+	if s.config.Services.Lite.Host != "" && s.config.Services.Lite.Port > 0 {
+		liteURL, err := url.Parse(fmt.Sprintf("http://%s:%d",
+			s.config.Services.Lite.Host, s.config.Services.Lite.Port))
+		if err != nil {
+			return fmt.Errorf("invalid lite service URL: %w", err)
+		}
+		liteProxy := httputil.NewSingleHostReverseProxy(liteURL)
+		liteProxy.FlushInterval = 200 * time.Millisecond
+		liteProxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
+			s.logger.Error("proxy error", zap.String("service", "lite"), zap.Error(err))
+			http.Error(w, "Bad Gateway", http.StatusBadGateway)
+		}
+		s.services["lite"] = &ServiceProxy{
+			Name:     "lite",
+			Target:   liteURL,
+			Proxy:    liteProxy,
+			HealthOK: true,
+		}
 	}
 
 	// Scheduler service.
@@ -416,32 +398,15 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	router.GET("/ws/webshell", s.webShellHandler)
 }
 
-// SetupComputeProxyRoutes sets up routes for proxying to external compute/node services only.
-// Used in unified controller mode where identity/network routes are registered directly.
+// SetupComputeProxyRoutes sets up routes for proxying to external node services only.
+// Now compute is built-in to controller; this only proxies optional vc-lite access and console.
 func (s *Service) SetupComputeProxyRoutes(router *gin.Engine) {
-	// API routes - only proxy compute and firecracker routes to vc-node.
 	api := router.Group("/api")
-	// Compute service routes (proxy to vc-node)
-	api.Any("/v1/instances", s.proxyHandler("compute"))
-	api.Any("/v1/instances/*path", s.proxyHandler("compute"))
-	api.Any("/v1/flavors", s.proxyHandler("compute"))
-	api.Any("/v1/flavors/*path", s.proxyHandler("compute"))
-	api.Any("/v1/images", s.proxyHandler("compute"))
-	api.Any("/v1/images/*path", s.proxyHandler("compute"))
-	api.Any("/v1/volumes", s.proxyHandler("compute"))
-	api.Any("/v1/volumes/*path", s.proxyHandler("compute"))
-	api.Any("/v1/snapshots", s.proxyHandler("compute"))
-	api.Any("/v1/snapshots/*path", s.proxyHandler("compute"))
-	api.Any("/v1/hypervisors", s.proxyHandler("compute"))
-	api.Any("/v1/hypervisors/*path", s.proxyHandler("compute"))
-	api.Any("/v1/ssh-keys", s.proxyHandler("compute"))
-	api.Any("/v1/ssh-keys/*path", s.proxyHandler("compute"))
-	api.Any("/v1/firecracker", s.proxyHandler("compute"))
-	api.Any("/v1/firecracker/*path", s.proxyHandler("compute"))
-	api.Any("/v1/audit", s.proxyHandler("compute"))
 
-	// Lite service routes (scheduler-to-node or admin)
-	api.Any("/v1/vms/*path", s.proxyHandler("lite"))
+	// Lite service routes (scheduler-to-node or admin) - only if lite is configured.
+	if _, ok := s.services["lite"]; ok {
+		api.Any("/v1/vms/*path", s.proxyHandler("lite"))
+	}
 
 	// WebShell session management API.
 	api.GET("/v1/webshell/sessions", s.listWebShellSessions)
@@ -451,8 +416,10 @@ func (s *Service) SetupComputeProxyRoutes(router *gin.Engine) {
 
 	// WebSocket proxy for console with dynamic node routing.
 	router.GET("/ws/console/:node_id", s.consoleWebSocketHandler)
-	// Fallback for old-style console URLs (no node_id)
-	router.GET("/ws/console", s.proxyHandler("lite"))
+	// Fallback for old-style console URLs (no node_id) - only if lite is configured.
+	if _, ok := s.services["lite"]; ok {
+		router.GET("/ws/console", s.proxyHandler("lite"))
+	}
 
 	// WebShell WebSocket endpoint.
 	router.GET("/ws/webshell", s.webShellHandler)

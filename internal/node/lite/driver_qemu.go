@@ -1,6 +1,7 @@
 package lite
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -12,6 +13,9 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/node/lite/qemu"
+	"github.com/google/uuid"
 )
 
 // qemuDriver is a lightweight driver that manages QEMU processes directly.
@@ -19,8 +23,10 @@ import (
 // and basic tap networking attached to br-int. It's enabled by building.
 // with `-tags qemu`.
 type qemuDriver struct {
-	cfg    Config
-	runDir string // runtime directory for pid and artifacts
+	cfg       Config
+	runDir    string // runtime directory for pid and artifacts
+	qemuDrv   *qemu.Driver
+	useNewDrv bool // use new qemu driver
 }
 
 func newDriver(cfg Config) (Driver, error) {
@@ -28,10 +34,35 @@ func newDriver(cfg Config) (Driver, error) {
 	if env := os.Getenv("VC_LITE_RUN_DIR"); env != "" {
 		rd = env
 	}
+	if cfg.QEMURunDir != "" {
+		rd = cfg.QEMURunDir
+	}
 	if err := os.MkdirAll(rd, 0o755); err != nil {
 		return nil, fmt.Errorf("create run dir: %w", err)
 	}
-	return &qemuDriver{cfg: cfg, runDir: rd}, nil
+
+	d := &qemuDriver{cfg: cfg, runDir: rd}
+
+	// Use new QEMU driver if enabled.
+	if cfg.UseQEMU {
+		cfgDir := cfg.QEMUCfgDir
+		if cfgDir == "" {
+			cfgDir = "/etc/vc-lite/vms"
+		}
+		tmplDir := cfg.QEMUTmplDir
+		if tmplDir == "" {
+			tmplDir = "/etc/vc-lite/templates"
+		}
+
+		qemuDrv, err := qemu.NewDriver(cfg.Logger, rd, cfgDir, tmplDir)
+		if err != nil {
+			return nil, fmt.Errorf("create qemu driver: %w", err)
+		}
+		d.qemuDrv = qemuDrv
+		d.useNewDrv = true
+	}
+
+	return d, nil
 }
 
 // helper: pid file path.
@@ -59,6 +90,12 @@ type vmMeta struct {
 }
 
 func (d *qemuDriver) CreateVM(req CreateVMRequest) (*VM, error) {
+	// Use new QEMU driver if enabled.
+	if d.useNewDrv {
+		return d.createVMNew(req)
+	}
+
+	// Legacy implementation.
 	now := time.Now()
 	id := sanitizeName(req.Name)
 	if id == "" {
@@ -182,7 +219,154 @@ func (d *qemuDriver) CreateVM(req CreateVMRequest) (*VM, error) {
 	return vm, nil
 }
 
+// createVMNew creates a VM using the new QEMU driver.
+func (d *qemuDriver) createVMNew(req CreateVMRequest) (*VM, error) {
+	now := time.Now()
+	id := sanitizeName(req.Name)
+	if id == "" {
+		id = fmt.Sprintf("vm-%d", now.UnixNano())
+	}
+
+	// Build VM configuration from request.
+	cfg := qemu.DefaultConfig(req.Name)
+	cfg.ID = id
+	cfg.UUID = uuid.New().String()
+	cfg.VCPUs = req.VCPUs
+	cfg.MemoryMB = req.MemoryMB
+
+	// UEFI/TPM.
+	cfg.UEFI = req.UEFI
+	if req.UEFI {
+		cfg.UEFIPath = d.cfg.OVMFCodePath
+		if cfg.UEFIPath == "" {
+			cfg.UEFIPath = "/usr/share/OVMF/OVMF_CODE.fd"
+		}
+		nvramPath := filepath.Join(d.cfg.NvramDir, id+"_VARS.fd")
+		if d.cfg.NvramDir != "" {
+			cfg.NVRAMPath = nvramPath
+			// Copy OVMF_VARS template.
+			varsTemplate := d.cfg.OVMFVarsPath
+			if varsTemplate == "" {
+				varsTemplate = "/usr/share/OVMF/OVMF_VARS.fd"
+			}
+			if _, err := os.Stat(varsTemplate); err == nil {
+				varsData, _ := os.ReadFile(varsTemplate)
+				_ = os.WriteFile(nvramPath, varsData, 0o644)
+			}
+		}
+	}
+
+	cfg.TPM = req.TPM
+	if req.TPM {
+		cfg.TPMPath = filepath.Join(d.runDir, id+"-swtpm.sock")
+		// TODO: Start swtpm in background.
+	}
+
+	// Disks.
+	if strings.TrimSpace(req.Image) != "" {
+		// Create disk from image.
+		diskPath := filepath.Join(d.runDir, id+"-disk.qcow2")
+
+		// Create qcow2 disk with backing file.
+		if req.DiskGB > 0 {
+			// Create with specified size.
+			cmd := exec.Command("qemu-img", "create", "-f", "qcow2",
+				"-F", "qcow2", "-b", req.Image, diskPath,
+				fmt.Sprintf("%dG", req.DiskGB))
+			if err := cmd.Run(); err != nil {
+				return nil, fmt.Errorf("create disk image: %w", err)
+			}
+		} else {
+			// Create with backing file only (auto-size).
+			cmd := exec.Command("qemu-img", "create", "-f", "qcow2",
+				"-F", "qcow2", "-b", req.Image, diskPath)
+			if err := cmd.Run(); err != nil {
+				return nil, fmt.Errorf("create disk image: %w", err)
+			}
+		}
+
+		disk := qemu.DiskConfig{
+			Type:   "file",
+			Path:   diskPath,
+			Format: "qcow2",
+			Bus:    "virtio",
+			Cache:  "none",
+			AIO:    "native",
+			SizeGB: req.DiskGB,
+		}
+		cfg.Disks = append(cfg.Disks, disk)
+	} else if strings.TrimSpace(req.RootRBDImage) != "" {
+		disk := qemu.DiskConfig{
+			Type:   "rbd",
+			Path:   "rbd:" + req.RootRBDImage,
+			Format: "rbd",
+			Bus:    "virtio",
+			Cache:  "none",
+		}
+		cfg.Disks = append(cfg.Disks, disk)
+	}
+
+	if strings.TrimSpace(req.ISO) != "" {
+		cdrom := qemu.DiskConfig{
+			Type:     "file",
+			Path:     req.ISO,
+			Format:   "raw",
+			Bus:      "ide",
+			ReadOnly: true,
+		}
+		cfg.Disks = append(cfg.Disks, cdrom)
+	}
+
+	// NICs.
+	for i, nic := range req.Nics {
+		nicCfg := qemu.NICConfig{
+			Type:   "tap",
+			MAC:    nic.MAC,
+			Model:  "virtio-net-pci",
+			TapDev: fmt.Sprintf("tap-%s-%d", id[:8], i),
+			PortID: nic.PortID,
+		}
+		cfg.NICs = append(cfg.NICs, nicCfg)
+	}
+
+	// Add default NIC if none specified.
+	if len(cfg.NICs) == 0 {
+		cfg.NICs = append(cfg.NICs, qemu.NICConfig{
+			Type:   "tap",
+			Model:  "virtio-net-pci",
+			TapDev: fmt.Sprintf("tap-%s-0", id[:8]),
+		})
+	}
+
+	// Create VM.
+	ctx := context.Background()
+	if err := d.qemuDrv.CreateVM(ctx, cfg); err != nil {
+		return nil, fmt.Errorf("create vm: %w", err)
+	}
+
+	vm := &VM{
+		ID:        id,
+		Name:      req.Name,
+		VCPUs:     req.VCPUs,
+		MemoryMB:  req.MemoryMB,
+		DiskGB:    req.DiskGB,
+		Image:     req.Image,
+		Status:    "active",
+		Power:     "running",
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+	return vm, nil
+}
+
 func (d *qemuDriver) DeleteVM(id string, force bool) error {
+	// Use new QEMU driver if enabled.
+	if d.useNewDrv {
+		ctx := context.Background()
+		return d.qemuDrv.DeleteVM(ctx, id, force)
+	}
+
+	// Legacy implementation.
 	// Stop process if running. Prefer pid file, fallback to metadata.
 	var pid int
 	pidbs, err := os.ReadFile(d.pidPath(id))
@@ -235,11 +419,25 @@ func (d *qemuDriver) DeleteVM(id string, force bool) error {
 }
 
 func (d *qemuDriver) StartVM(id string) error {
+	// Use new QEMU driver if enabled.
+	if d.useNewDrv {
+		ctx := context.Background()
+		return d.qemuDrv.StartVM(ctx, id)
+	}
+
+	// Legacy implementation.
 	// If exists but not running, start qemu from prior command is non-trivial; return unsupported.
 	return fmt.Errorf("start after shutdown not supported by qemu driver (recreate VM instead)")
 }
 
 func (d *qemuDriver) StopVM(id string, force bool) error {
+	// Use new QEMU driver if enabled.
+	if d.useNewDrv {
+		ctx := context.Background()
+		return d.qemuDrv.StopVM(ctx, id, force)
+	}
+
+	// Legacy implementation.
 	pidbs, err := os.ReadFile(d.pidPath(id))
 	if err != nil {
 		return fmt.Errorf("vm not found")
@@ -252,6 +450,13 @@ func (d *qemuDriver) StopVM(id string, force bool) error {
 }
 
 func (d *qemuDriver) RebootVM(id string, force bool) error {
+	// Use new QEMU driver if enabled.
+	if d.useNewDrv {
+		ctx := context.Background()
+		return d.qemuDrv.RebootVM(ctx, id, force)
+	}
+
+	// Legacy implementation.
 	pidbs, err := os.ReadFile(d.pidPath(id))
 	if err != nil {
 		return fmt.Errorf("vm not found")
@@ -263,6 +468,16 @@ func (d *qemuDriver) RebootVM(id string, force bool) error {
 }
 
 func (d *qemuDriver) VMStatus(id string) (exists, running bool) {
+	// Use new QEMU driver if enabled.
+	if d.useNewDrv {
+		isRunning, err := d.qemuDrv.IsRunning(id)
+		if err != nil {
+			return false, false
+		}
+		return isRunning, isRunning
+	}
+
+	// Legacy implementation.
 	pidbs, err := os.ReadFile(d.pidPath(id))
 	var pid int
 	if err == nil {
