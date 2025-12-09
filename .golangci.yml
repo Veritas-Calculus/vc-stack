@@ -97,7 +97,7 @@ issues:
         - all
 
     # Exclude Sentry SDK files (typecheck fails with CGO_ENABLED=0)
-    - path: pkg/sentry/
+    - path: pkg/sentry/.*\.go
       linters:
         - typecheck
 
