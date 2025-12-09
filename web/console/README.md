@@ -9,7 +9,7 @@ npm install
 npm run dev
 ```
 
-访问 http://localhost:5173
+访问 <http://localhost:5173>
 
 ## 构建
 
@@ -33,9 +33,11 @@ VITE_API_BASE_URL=https://api.example.com
 ```
 
 ## 目录
+
 - `src/components`：布局和通用组件
 - `src/features/*`：功能模块路由与页面
 - `src/lib`：API 客户端与状态管理（待添加）
 
 ## 注意
+
 - 部分功能（如 VPC/LB/安全组、K8S/镜像/快照、存储后端、项目/通知）目前为 UI 占位，需等后端接口整理后接入。

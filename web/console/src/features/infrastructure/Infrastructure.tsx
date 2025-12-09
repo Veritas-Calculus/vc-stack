@@ -11,13 +11,22 @@ import { Modal } from '@/components/ui/Modal'
 function Overview() {
   return (
     <div className="space-y-3">
-      <PageHeader title="Infrastructure - Overview" subtitle="Summary of infrastructure components" />
+      <PageHeader
+        title="Infrastructure - Overview"
+        subtitle="Summary of infrastructure components"
+      />
       <div className="card p-4">Overview placeholder</div>
     </div>
   )
 }
 
-type ZoneRow = { id: string; name: string; allocation: 'enabled' | 'disabled'; type: 'core' | 'edge'; networkType: 'Basic' | 'Advanced' }
+type ZoneRow = {
+  id: string
+  name: string
+  allocation: 'enabled' | 'disabled'
+  type: 'core' | 'edge'
+  networkType: 'Basic' | 'Advanced'
+}
 function Zones() {
   const [rows, setRows] = useState<ZoneRow[]>([])
   const [loading, setLoading] = useState(false)
@@ -32,36 +41,66 @@ function Zones() {
     setLoading(true)
     try {
       const list = await fetchZones()
-      setRows(list.map((z) => ({ id: z.id, name: z.name, allocation: z.allocation, type: z.type, networkType: z.network_type })))
+      setRows(
+        list.map((z) => ({
+          id: z.id,
+          name: z.name,
+          allocation: z.allocation,
+          type: z.type,
+          networkType: z.network_type
+        }))
+      )
     } finally {
       setLoading(false)
     }
   }
 
-  useEffect(() => { void load() }, [])
+  useEffect(() => {
+    void load()
+  }, [])
 
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase()
     if (!s) return rows
-    return rows.filter((r) => [r.name, r.type, r.networkType, r.allocation].some((v) => String(v).toLowerCase().includes(s)))
+    return rows.filter((r) =>
+      [r.name, r.type, r.networkType, r.allocation].some((v) => String(v).toLowerCase().includes(s))
+    )
   }, [q, rows])
 
-  const columns: { key: keyof ZoneRow | string; header: string; render?: (row: ZoneRow) => React.ReactNode }[] = [
+  const columns: {
+    key: keyof ZoneRow | string
+    header: string
+    render?: (row: ZoneRow) => React.ReactNode
+  }[] = [
     { key: 'name', header: 'Name' },
-    { key: 'allocation', header: 'Allocation state', render: (r) => <Badge variant={r.allocation === 'enabled' ? 'success' : 'warning'}>{r.allocation}</Badge> },
+    {
+      key: 'allocation',
+      header: 'Allocation state',
+      render: (r) => (
+        <Badge variant={r.allocation === 'enabled' ? 'success' : 'warning'}>{r.allocation}</Badge>
+      )
+    },
     { key: 'type', header: 'Type', render: (r) => <span className="uppercase">{r.type}</span> },
-    { key: 'networkType', header: 'Network Type' },
+    { key: 'networkType', header: 'Network Type' }
   ]
 
   return (
     <div className="space-y-3">
-      <PageHeader title="Zones" subtitle="Resource zones" actions={
-        <div className="flex items-center gap-2">
-          <button className="btn" onClick={load} disabled={loading}>{loading ? 'Refreshing…' : 'Refresh'}</button>
-          <button className="btn btn-primary" onClick={() => setOpen(true)}>Add Zone</button>
-          <TableToolbar placeholder="Search zones" onSearch={setQ} />
-        </div>
-      } />
+      <PageHeader
+        title="Zones"
+        subtitle="Resource zones"
+        actions={
+          <div className="flex items-center gap-2">
+            <button className="btn" onClick={load} disabled={loading}>
+              {loading ? 'Refreshing…' : 'Refresh'}
+            </button>
+            <button className="btn btn-primary" onClick={() => setOpen(true)}>
+              Add Zone
+            </button>
+            <TableToolbar placeholder="Search zones" onSearch={setQ} />
+          </div>
+        }
+      />
       <DataTable columns={columns} data={filtered} empty={loading ? 'Loading…' : 'No zones'} />
       <Modal
         title="Add Zone"
@@ -69,14 +108,28 @@ function Zones() {
         onClose={() => setOpen(false)}
         footer={
           <>
-            <button className="btn" onClick={() => setOpen(false)}>Cancel</button>
+            <button className="btn" onClick={() => setOpen(false)}>
+              Cancel
+            </button>
             <button
               className="btn btn-primary"
               onClick={async () => {
                 if (!name) return
                 const z = await createZone({ name, type, network_type: networkType, allocation })
-                setRows((prev) => [...prev, { id: z.id, name: z.name, allocation: z.allocation, type: z.type, networkType: z.network_type }])
-                setName(''); setType('core'); setNetworkType('Advanced'); setAllocation('enabled')
+                setRows((prev) => [
+                  ...prev,
+                  {
+                    id: z.id,
+                    name: z.name,
+                    allocation: z.allocation,
+                    type: z.type,
+                    networkType: z.network_type
+                  }
+                ])
+                setName('')
+                setType('core')
+                setNetworkType('Advanced')
+                setAllocation('enabled')
                 setOpen(false)
               }}
             >
@@ -88,19 +141,31 @@ function Zones() {
         <div className="space-y-3">
           <div>
             <label className="label">Name</label>
-            <input className="input w-full" value={name} onChange={(e) => setName(e.target.value)} />
+            <input
+              className="input w-full"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="label">Type</label>
-              <select className="input w-full" value={type} onChange={(e) => setType(e.target.value as 'core' | 'edge')}>
+              <select
+                className="input w-full"
+                value={type}
+                onChange={(e) => setType(e.target.value as 'core' | 'edge')}
+              >
                 <option value="core">core</option>
                 <option value="edge">edge</option>
               </select>
             </div>
             <div>
               <label className="label">Network Type</label>
-              <select className="input w-full" value={networkType} onChange={(e) => setNetworkType(e.target.value as 'Basic' | 'Advanced')}>
+              <select
+                className="input w-full"
+                value={networkType}
+                onChange={(e) => setNetworkType(e.target.value as 'Basic' | 'Advanced')}
+              >
                 <option value="Basic">Basic</option>
                 <option value="Advanced">Advanced</option>
               </select>
@@ -108,7 +173,11 @@ function Zones() {
           </div>
           <div>
             <label className="label">Allocation state</label>
-            <select className="input w-full" value={allocation} onChange={(e) => setAllocation(e.target.value as 'enabled' | 'disabled')}>
+            <select
+              className="input w-full"
+              value={allocation}
+              onChange={(e) => setAllocation(e.target.value as 'enabled' | 'disabled')}
+            >
               <option value="enabled">enabled</option>
               <option value="disabled">disabled</option>
             </select>
@@ -119,13 +188,19 @@ function Zones() {
   )
 }
 function Clusters() {
-  return <div className="card p-4"><PageHeader title="Clusters" subtitle="Compute clusters" /></div>
+  return (
+    <div className="card p-4">
+      <PageHeader title="Clusters" subtitle="Compute clusters" />
+    </div>
+  )
 }
 function Hosts() {
   const [loading, setLoading] = useState(false)
   const [nodes, setNodes] = useState<NodeInfo[]>([])
   const [q, setQ] = useState('')
-  const [stateFilter, setStateFilter] = useState<'all' | 'up' | 'down' | 'enabled' | 'disabled' | 'alarm'>('all')
+  const [stateFilter, setStateFilter] = useState<
+    'all' | 'up' | 'down' | 'enabled' | 'disabled' | 'alarm'
+  >('all')
   const [showAdd, setShowAdd] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
@@ -170,8 +245,10 @@ function Hosts() {
         const arch = n.labels?.arch || ''
         const hypervisor = n.labels?.hypervisor || n.labels?.driver || ''
         const version = n.labels?.kernel || n.labels?.version || ''
-        const state: 'up' | 'down' = alive ? 'up' as const : 'down' as const
-        const resourceState: 'enabled' | 'disabled' = enabled ? 'enabled' as const : 'disabled' as const
+        const state: 'up' | 'down' = alive ? ('up' as const) : ('down' as const)
+        const resourceState: 'enabled' | 'disabled' = enabled
+          ? ('enabled' as const)
+          : ('disabled' as const)
         return {
           id: n.id,
           name: n.hostname || n.id,
@@ -208,7 +285,13 @@ function Hosts() {
       })
   }, [nodes, q, stateFilter])
 
-  const columns: { key: keyof HostRow | string; header: string; render?: (row: HostRow) => React.ReactNode; headerRender?: React.ReactNode; className?: string }[] = [
+  const columns: {
+    key: keyof HostRow | string
+    header: string
+    render?: (row: HostRow) => React.ReactNode
+    headerRender?: React.ReactNode
+    className?: string
+  }[] = [
     {
       key: '__sel__',
       header: '',
@@ -216,9 +299,9 @@ function Hosts() {
         <input
           type="checkbox"
           aria-label="Select all"
-          checked={rows.length > 0 && rows.every(r => selectedIds.has(r.id))}
+          checked={rows.length > 0 && rows.every((r) => selectedIds.has(r.id))}
           onChange={(e) => {
-            if (e.target.checked) setSelectedIds(new Set(rows.map(r => r.id)))
+            if (e.target.checked) setSelectedIds(new Set(rows.map((r) => r.id)))
             else setSelectedIds(new Set())
           }}
         />
@@ -232,7 +315,8 @@ function Hosts() {
             e.stopPropagation()
             setSelectedIds((prev) => {
               const next = new Set(prev)
-              if (e.target.checked) next.add(r.id); else next.delete(r.id)
+              if (e.target.checked) next.add(r.id)
+              else next.delete(r.id)
               return next
             })
           }}
@@ -245,12 +329,18 @@ function Hosts() {
     {
       key: 'state',
       header: 'State',
-      render: (r: HostRow) => <Badge variant={r.state === 'up' ? 'success' : 'danger'}>{r.state}</Badge>
+      render: (r: HostRow) => (
+        <Badge variant={r.state === 'up' ? 'success' : 'danger'}>{r.state}</Badge>
+      )
     },
     {
       key: 'resourceState',
       header: 'Resource State',
-      render: (r: HostRow) => <Badge variant={r.resourceState === 'enabled' ? 'success' : 'warning'}>{r.resourceState}</Badge>
+      render: (r: HostRow) => (
+        <Badge variant={r.resourceState === 'enabled' ? 'success' : 'warning'}>
+          {r.resourceState}
+        </Badge>
+      )
     },
     { key: 'ip', header: 'IP' },
     { key: 'arch', header: 'Arch' },
@@ -264,7 +354,9 @@ function Hosts() {
       <div className="card p-3 space-y-3">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <button className="btn" onClick={load} disabled={loading}>{loading ? 'Refreshing…' : 'Refresh'}</button>
+            <button className="btn" onClick={load} disabled={loading}>
+              {loading ? 'Refreshing…' : 'Refresh'}
+            </button>
             <select
               className="select"
               value={stateFilter}
@@ -288,7 +380,7 @@ function Hosts() {
                   if (!confirm(`Delete ${selectedIds.size} host(s) from scheduler?`)) return
                   try {
                     await Promise.all(Array.from(selectedIds).map((id) => deleteNode(id)))
-                    toast.success(`Deleted ${selectedIds.size} host(s)`) 
+                    toast.success(`Deleted ${selectedIds.size} host(s)`)
                     setSelectedIds(new Set())
                     await load()
                   } catch {
@@ -299,7 +391,9 @@ function Hosts() {
                 Delete Selected
               </button>
             )}
-            <button className="btn btn-primary" onClick={() => setShowAdd(true)}>Add Host</button>
+            <button className="btn btn-primary" onClick={() => setShowAdd(true)}>
+              Add Host
+            </button>
             <TableToolbar placeholder="Search by IP or hostname" onSearch={setQ} />
           </div>
         </div>
@@ -311,7 +405,8 @@ function Hosts() {
             const r = row as HostRow
             setSelectedIds((prev) => {
               const next = new Set(prev)
-              if (next.has(r.id)) next.delete(r.id); else next.add(r.id)
+              if (next.has(r.id)) next.delete(r.id)
+              else next.add(r.id)
               return next
             })
           }}
@@ -322,12 +417,19 @@ function Hosts() {
         title="Add Host"
         open={showAdd}
         onClose={() => setShowAdd(false)}
-        footer={<button className="btn" onClick={() => setShowAdd(false)}>Close</button>}
+        footer={
+          <button className="btn" onClick={() => setShowAdd(false)}>
+            Close
+          </button>
+        }
       >
         <div className="text-sm text-gray-300 space-y-2">
           <p>On the target node (Debian 12):</p>
           <ol className="list-decimal list-inside space-y-1">
-            <li>Install dependencies: qemu-kvm, libvirt-daemon-system, libvirt-clients; enable libvirtd.</li>
+            <li>
+              Install dependencies: qemu-kvm, libvirt-daemon-system, libvirt-clients; enable
+              libvirtd.
+            </li>
             <li>Copy vc-lite binary to /opt/tiger/bin/ and make it executable.</li>
             <li>Create /opt/tiger/configs/env with:</li>
           </ol>
@@ -360,16 +462,32 @@ WantedBy=multi-user.target`}</pre>
   )
 }
 function PrimaryStorage() {
-  return <div className="card p-4"><PageHeader title="Primary Storage (S3)" subtitle="Primary storage backends" /></div>
+  return (
+    <div className="card p-4">
+      <PageHeader title="Primary Storage (S3)" subtitle="Primary storage backends" />
+    </div>
+  )
 }
 function SecondaryStorage() {
-  return <div className="card p-4"><PageHeader title="Secondary Storage (Ceph RBD)" subtitle="Secondary storage backends" /></div>
+  return (
+    <div className="card p-4">
+      <PageHeader title="Secondary Storage (Ceph RBD)" subtitle="Secondary storage backends" />
+    </div>
+  )
 }
 function DBUsage() {
-  return <div className="card p-4"><PageHeader title="DB / Usage Server" subtitle="Database and usage services" /></div>
+  return (
+    <div className="card p-4">
+      <PageHeader title="DB / Usage Server" subtitle="Database and usage services" />
+    </div>
+  )
 }
 function Alarms() {
-  return <div className="card p-4"><PageHeader title="Alarms" subtitle="Infrastructure alarms" /></div>
+  return (
+    <div className="card p-4">
+      <PageHeader title="Alarms" subtitle="Infrastructure alarms" />
+    </div>
+  )
 }
 
 export function Infrastructure() {

@@ -8,6 +8,18 @@ const map: Record<Variant, string> = {
   info: 'bg-sky-900/40 text-sky-300 border-sky-800'
 }
 
-export function Badge({ children, variant = 'default' }: { children: React.ReactNode; variant?: Variant }) {
-  return <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs ${map[variant]}`}>{children}</span>
+export function Badge({
+  children,
+  variant = 'default'
+}: {
+  children: React.ReactNode
+  variant?: Variant
+}) {
+  return (
+    <span
+      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs ${map[variant]}`}
+    >
+      {children}
+    </span>
+  )
 }

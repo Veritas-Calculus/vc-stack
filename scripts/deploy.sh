@@ -16,7 +16,6 @@ REMOTE_DATA_DIR="/var/lib/vc-stack"
 # 本地目录
 LOCAL_BIN_DIR="./bin"
 LOCAL_WEB_DIR="./web/console/dist"
-LOCAL_CONFIG_DIR="./configs"
 
 # 构建信息
 VERSION=$(git describe --tags --always --dirty 2>/dev/null || echo "v0.0.0-dev")
@@ -56,52 +55,47 @@ check_ssh() {
 # 构建二进制文件（linux/amd64）
 build_binaries() {
     log_info "开始构建 linux/amd64 二进制文件..."
-    
+
     # 清理旧的构建
     rm -rf "${LOCAL_BIN_DIR}"
     mkdir -p "${LOCAL_BIN_DIR}"
-    
+
     # 构建所有服务
-    GOOS=linux GOARCH=amd64 make build
-    
-    if [ $? -eq 0 ]; then
-        log_info "二进制构建完成"
-        ls -lh "${LOCAL_BIN_DIR}"
-    else
+    if ! GOOS=linux GOARCH=amd64 make build; then
         log_error "构建失败"
         exit 1
     fi
+
+    log_info "二进制构建完成"
+    ls -lh "${LOCAL_BIN_DIR}"
 }
 
 # 构建前端
 build_frontend() {
     log_info "开始构建前端..."
-    
+
     cd web/console
-    
+
     # 安装依赖（如果需要）
     if [ ! -d "node_modules" ]; then
         log_info "安装前端依赖..."
         npm install
     fi
-    
+
     # 构建前端
-    npm run build:verify
-    
-    if [ $? -eq 0 ]; then
-        log_info "前端构建完成"
-        cd ../..
-    else
+    if ! npm run build:verify; then
         log_error "前端构建失败"
-        cd ../..
         exit 1
     fi
+
+    log_info "前端构建完成"
+    cd ../..
 }
 
 # 停止远程服务
 stop_remote_services() {
     log_info "停止远程服务..."
-    
+
     ssh "${REMOTE_USER}@${REMOTE_HOST}" << 'EOF'
 # 停止 systemd 服务
 sudo systemctl stop vc-controller 2>/dev/null || true
@@ -127,14 +121,15 @@ fi
 
 echo "所有服务已停止"
 EOF
-    
+
     log_info "远程服务已停止"
 }
 
 # 创建远程目录
 create_remote_dirs() {
     log_info "创建远程目录..."
-    
+
+    # shellcheck disable=SC2087
     ssh "${REMOTE_USER}@${REMOTE_HOST}" << EOF
 sudo mkdir -p ${REMOTE_BIN_DIR}
 sudo mkdir -p ${REMOTE_CONFIG_DIR}
@@ -154,7 +149,8 @@ EOF
 # 备份旧版本
 backup_old_version() {
     log_info "备份旧版本..."
-    
+
+    # shellcheck disable=SC2087
     ssh "${REMOTE_USER}@${REMOTE_HOST}" << EOF
 BACKUP_DIR="/opt/tiger/backup/\$(date +%Y%m%d_%H%M%S)"
 sudo mkdir -p "\${BACKUP_DIR}"
@@ -176,11 +172,12 @@ EOF
 # 部署二进制文件
 deploy_binaries() {
     log_info "部署二进制文件..."
-    
+
     # 先复制到临时目录
     scp -r "${LOCAL_BIN_DIR}"/* "${REMOTE_USER}@${REMOTE_HOST}:/tmp/"
-    
+
     # 然后使用 sudo 移动到目标目录并设置权限
+    # shellcheck disable=SC2087
     ssh "${REMOTE_USER}@${REMOTE_HOST}" << EOF
 sudo mv /tmp/vc-controller ${REMOTE_BIN_DIR}/ 2>/dev/null || true
 sudo mv /tmp/vc-node ${REMOTE_BIN_DIR}/ 2>/dev/null || true
@@ -193,46 +190,47 @@ sudo chmod +x ${REMOTE_BIN_DIR}/vcctl
 echo "二进制文件部署完成"
 ls -lh ${REMOTE_BIN_DIR}
 EOF
-    
+
     log_info "二进制文件部署完成"
 }
 
 # 部署配置文件
 deploy_configs() {
     log_info "配置通过环境变量管理，跳过配置文件部署..."
-    
+
     # 创建配置目录（如果需要）
     ssh "${REMOTE_USER}@${REMOTE_HOST}" << 'EOF'
 sudo mkdir -p /opt/tiger/configs
 echo "配置目录已创建"
 EOF
-    
+
     log_info "配置文件部署完成"
 }
 
 # 部署前端
 deploy_frontend() {
     log_info "部署前端..."
-    
+
     # 先复制到临时目录
     ssh "${REMOTE_USER}@${REMOTE_HOST}" "mkdir -p /tmp/vc-web-dist"
     scp -r "${LOCAL_WEB_DIR}"/* "${REMOTE_USER}@${REMOTE_HOST}:/tmp/vc-web-dist/"
-    
+
     # 清空远程 web 目录并复制
+    # shellcheck disable=SC2087
     ssh "${REMOTE_USER}@${REMOTE_HOST}" << EOF
 sudo rm -rf ${REMOTE_WEB_DIR}/*
 sudo cp -r /tmp/vc-web-dist/* ${REMOTE_WEB_DIR}/
 sudo rm -rf /tmp/vc-web-dist
 echo "前端部署完成"
 EOF
-    
+
     log_info "前端部署完成"
 }
 
 # 部署 systemd 服务文件
 deploy_systemd_services() {
     log_info "部署 systemd 服务文件..."
-    
+
     # 创建临时服务文件
     cat > /tmp/vc-controller.service << 'EOF'
 [Unit]
@@ -315,7 +313,7 @@ EOF
     # 复制到远程
     scp /tmp/vc-controller.service "${REMOTE_USER}@${REMOTE_HOST}:/tmp/"
     scp /tmp/vc-node.service "${REMOTE_USER}@${REMOTE_HOST}:/tmp/"
-    
+
     # 安装服务文件
     ssh "${REMOTE_USER}@${REMOTE_HOST}" << 'EOFREMOTE'
 sudo mv /tmp/vc-controller.service /etc/systemd/system/
@@ -324,24 +322,24 @@ sudo mv /tmp/vc-node.service /etc/systemd/system/
 sudo systemctl daemon-reload
 echo "systemd 服务文件已更新"
 EOFREMOTE
-    
+
     # 清理本地临时文件
     rm -f /tmp/vc-controller.service /tmp/vc-node.service
-    
+
     log_info "systemd 服务文件部署完成"
 }
 
 # 部署 nginx 配置
 deploy_nginx_config() {
     log_info "部署 nginx 配置文件..."
-    
+
     if [ ! -f "configs/nginx/vc-stack.conf" ]; then
         log_warn "nginx 配置文件不存在，跳过部署"
         return 0
     fi
-    
+
     scp configs/nginx/vc-stack.conf "${REMOTE_USER}@${REMOTE_HOST}:/tmp/vc-stack.conf"
-    
+
     ssh "${REMOTE_USER}@${REMOTE_HOST}" << 'EOF'
 # 部署 nginx 配置
 sudo mv /tmp/vc-stack.conf /etc/nginx/sites-enabled/vc-stack.conf
@@ -357,14 +355,14 @@ sudo systemctl reload nginx
 
 echo "nginx 配置已更新"
 EOF
-    
+
     log_info "nginx 配置文件部署完成"
 }
 
 # 检查数据库容器
 check_database() {
     log_info "检查数据库容器..."
-    
+
     ssh "${REMOTE_USER}@${REMOTE_HOST}" << 'EOF'
 if docker ps | grep -q vc-stack-postgres; then
     echo "数据库容器正在运行"
@@ -378,7 +376,7 @@ EOF
 # 启动服务
 start_services() {
     log_info "启动服务..."
-    
+
     ssh "${REMOTE_USER}@${REMOTE_HOST}" << 'EOF'
 # 启动 controller
 sudo systemctl enable vc-controller
@@ -420,14 +418,14 @@ sudo systemctl status vc-controller --no-pager -l
 echo ""
 sudo systemctl status vc-node --no-pager -l
 EOF
-    
+
     log_info "服务启动完成"
 }
 
 # 验证部署
 verify_deployment() {
     log_info "验证部署..."
-    
+
     ssh "${REMOTE_USER}@${REMOTE_HOST}" << 'EOF'
 echo ""
 echo "=== 部署验证 ==="
@@ -491,53 +489,53 @@ main() {
     echo "  VC Stack 部署脚本"
     echo "=========================================="
     echo ""
-    
+
     # 检查 SSH 连接
     check_ssh || exit 1
-    
+
     # 构建
     log_info "步骤 1/10: 构建二进制文件"
     build_binaries
-    
+
     log_info "步骤 2/10: 构建前端"
     build_frontend
-    
+
     # 部署
     log_info "步骤 3/10: 停止远程服务"
     stop_remote_services
-    
+
     log_info "步骤 4/10: 创建远程目录"
     create_remote_dirs
-    
+
     log_info "步骤 5/10: 备份旧版本"
     backup_old_version
-    
+
     log_info "步骤 6/10: 部署二进制文件"
     deploy_binaries
-    
+
     log_info "步骤 7/10: 部署配置文件"
     deploy_configs
-    
+
     log_info "步骤 8/10: 部署前端"
     deploy_frontend
-    
+
     log_info "步骤 9/11: 部署 systemd 服务"
     deploy_systemd_services
-    
+
     log_info "步骤 10/11: 部署 nginx 配置"
     deploy_nginx_config
-    
+
     log_info "步骤 11/11: 启动服务"
     check_database
     start_services
-    
+
     # 验证
     verify_deployment
-    
+
     # 显示部署信息
     echo ""
     show_deployment_info
-    
+
     log_info "部署完成！"
 }
 

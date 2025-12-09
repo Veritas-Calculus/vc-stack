@@ -27,7 +27,7 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   const token = useAuthStore((s) => s.token)
   const location = useLocation()
   const [isReady, setIsReady] = useState(false)
-  
+
   // Helper to log to both console and localStorage for debugging
   const debugLog = (msg: string) => {
     // eslint-disable-next-line no-console
@@ -42,7 +42,7 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
       // ignore
     }
   }
-  
+
   // Wait for Zustand persist to hydrate from localStorage
   // This prevents the flash of redirect before token is loaded
   useEffect(() => {
@@ -56,7 +56,7 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
           if (parsed?.state?.token) {
             debugLog('[RequireAuth] Token found in localStorage, waiting for Zustand hydration...')
             // Token exists in localStorage, wait a bit for Zustand to catch up
-            await new Promise(resolve => setTimeout(resolve, 100))
+            await new Promise((resolve) => setTimeout(resolve, 100))
           }
         }
       } catch {
@@ -66,21 +66,23 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
     }
     checkAuth()
   }, [])
-  
+
   // Don't render anything until we've checked localStorage
   if (!isReady) {
     return null
   }
-  
+
   // Now check the Zustand store
-  debugLog(`[RequireAuth] Ready. Token in Zustand store: ${token ? 'Found' : 'Not found'} at ${location.pathname}`)
-  
+  debugLog(
+    `[RequireAuth] Ready. Token in Zustand store: ${token ? 'Found' : 'Not found'} at ${location.pathname}`
+  )
+
   if (!token) {
     debugLog(`[RequireAuth] No token, redirecting to /login from: ${location.pathname}`)
     // Save the location they were trying to access
     return <Navigate to="/login" state={{ from: location }} replace />
   }
-  
+
   debugLog(`[RequireAuth] Authenticated, rendering children for: ${location.pathname}`)
   return <>{children}</>
 }
@@ -91,11 +93,11 @@ export default function App() {
     // eslint-disable-next-line no-console
     console.log('[App] VC Console loaded - Version: 2025-12-08-23:20')
   }, [])
-  
+
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
-  <Route path="/auth/oidc/callback" element={<OidcCallback />} />
+      <Route path="/auth/oidc/callback" element={<OidcCallback />} />
       <Route
         path="/*"
         element={

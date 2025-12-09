@@ -18,7 +18,8 @@ export function SettingsIndex() {
       <aside className="card p-2 h-fit">
         <nav className="space-y-1">
           {items.map((it) => {
-            const active = pathname.endsWith(`/settings/${it.to}`) || pathname.endsWith(`/settings/${it.to}/`)
+            const active =
+              pathname.endsWith(`/settings/${it.to}`) || pathname.endsWith(`/settings/${it.to}/`)
             return (
               <Link
                 key={it.to}

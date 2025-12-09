@@ -1,5 +1,9 @@
 import axios from 'axios'
-import type { Instance as UIInstance, Flavor as UIFlavor, Snapshot as UISnapshot } from './dataStore'
+import type {
+  Instance as UIInstance,
+  Flavor as UIFlavor,
+  Snapshot as UISnapshot
+} from './dataStore'
 
 declare global {
   interface Window {
@@ -28,11 +32,14 @@ api.interceptors.request.use((config) => {
     try {
       const parsed = JSON.parse(authData)
       token = parsed?.state?.token || null
+      // eslint-disable-next-line no-console
       console.log('[API] Token from localStorage:', token ? 'Found' : 'Not found')
     } catch {
+      // eslint-disable-next-line no-console
       console.log('[API] Failed to parse auth data')
     }
   } else {
+    // eslint-disable-next-line no-console
     console.log('[API] No auth data in localStorage')
   }
   if (token) {
@@ -50,7 +57,7 @@ api.interceptors.response.use(
       const msg = `[API] 401 Unauthorized from: ${url}`
       // eslint-disable-next-line no-console
       console.error(msg)
-      
+
       // Log to persistent storage
       try {
         const logs = JSON.parse(localStorage.getItem('debug_logs') || '[]')
@@ -60,10 +67,10 @@ api.interceptors.response.use(
       } catch {
         // ignore
       }
-      
+
       // Clear the token on 401 to prevent redirect loop
       localStorage.removeItem('auth')
-      
+
       // Don't redirect if we're already on the login page
       if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
         // eslint-disable-next-line no-console
@@ -83,47 +90,54 @@ function withProjectHeader(projectId?: string) {
 }
 
 // Backend response shapes
-type ListInstancesResponse = { instances: Array<{
-  id: number
-  name: string
-  uuid: string
-  vm_id?: string
-  power_state?: string
-  status?: string
-  project_id?: number
-  user_id?: number
-  host_id?: string
-}> }
+type ListInstancesResponse = {
+  instances: Array<{
+    id: number
+    name: string
+    uuid: string
+    vm_id?: string
+    power_state?: string
+    status?: string
+    project_id?: number
+    user_id?: number
+    host_id?: string
+  }>
+}
 
-type ListFlavorsResponse = { flavors: Array<{
-  id: number
-  name: string
-  vcpus: number
-  ram: number // MB
-}> }
+type ListFlavorsResponse = {
+  flavors: Array<{
+    id: number
+    name: string
+    vcpus: number
+    ram: number // MB
+  }>
+}
 
-type ListSnapshotsResponse = { snapshots: Array<{
-  id: number
-  name: string
-  volume_id?: number
-  project_id?: number
-  status?: string
-}> }
+type ListSnapshotsResponse = {
+  snapshots: Array<{
+    id: number
+    name: string
+    volume_id?: number
+    project_id?: number
+    status?: string
+  }>
+}
 
 // Mappers to UI types
-const mapInstance = (p: string | undefined) => (x: ListInstancesResponse['instances'][number]): UIInstance => ({
-  id: String(x.id),
-  projectId: p ?? String(x.project_id ?? ''),
-  name: x.name,
-  ip: '',
-  // Check both status and power_state for running state
-  // Backend may return status='running' or 'active', and power_state='running'
-  state: (
-    x.power_state === 'running' || 
-    x.status === 'active' || 
-    x.status === 'running'
-  ) ? 'running' : 'stopped'
-})
+const mapInstance =
+  (p: string | undefined) =>
+  (x: ListInstancesResponse['instances'][number]): UIInstance => ({
+    id: String(x.id),
+    projectId: p ?? String(x.project_id ?? ''),
+    name: x.name,
+    ip: '',
+    // Check both status and power_state for running state
+    // Backend may return status='running' or 'active', and power_state='running'
+    state:
+      x.power_state === 'running' || x.status === 'active' || x.status === 'running'
+        ? 'running'
+        : 'stopped'
+  })
 
 const mapFlavor = (x: ListFlavorsResponse['flavors'][number]): UIFlavor => ({
   id: String(x.id),
@@ -170,10 +184,22 @@ export async function fetchFlavors(): Promise<UIFlavor[]> {
   return (res.data.flavors ?? []).map(mapFlavor)
 }
 
-export async function createFlavor(body: { name: string; vcpus: number; ram: number; disk?: number }): Promise<UIFlavor> {
-  const res = await api.post<{ flavor: { id: number; name: string; vcpus: number; ram: number; disk?: number } }>('/v1/flavors', body)
+export async function createFlavor(body: {
+  name: string
+  vcpus: number
+  ram: number
+  disk?: number
+}): Promise<UIFlavor> {
+  const res = await api.post<{
+    flavor: { id: number; name: string; vcpus: number; ram: number; disk?: number }
+  }>('/v1/flavors', body)
   const f = res.data.flavor
-  return { id: String(f.id), name: f.name, vcpu: f.vcpus, memoryGiB: Math.round((f.ram || 0) / 1024) }
+  return {
+    id: String(f.id),
+    name: f.name,
+    vcpu: f.vcpus,
+    memoryGiB: Math.round((f.ram || 0) / 1024)
+  }
 }
 
 export async function deleteFlavor(id: string): Promise<void> {
@@ -181,26 +207,75 @@ export async function deleteFlavor(id: string): Promise<void> {
 }
 
 // Images for create modal
-type ListImagesResponse = { images: Array<{ id: number; name: string; size?: number; status?: string; min_disk?: number; disk_format?: string; owner_id?: number }> }
-export type UIImage = { id: string; name: string; sizeGiB: number; minDiskGiB?: number; status: 'available' | 'uploading' | 'queued' | 'active'; disk_format?: 'qcow2' | 'raw' | 'iso' | string; owner?: string }
+type ListImagesResponse = {
+  images: Array<{
+    id: number
+    name: string
+    size?: number
+    status?: string
+    min_disk?: number
+    disk_format?: string
+    owner_id?: number
+  }>
+}
+export type UIImage = {
+  id: string
+  name: string
+  sizeGiB: number
+  minDiskGiB?: number
+  status: 'available' | 'uploading' | 'queued' | 'active'
+  disk_format?: 'qcow2' | 'raw' | 'iso' | string
+  owner?: string
+}
 export async function fetchImages(projectId?: string): Promise<UIImage[]> {
   const res = await api.get<ListImagesResponse>('/v1/images', withProjectHeader(projectId))
-  const toGiB = (bytes?: number) => Math.max(1, Math.ceil(((bytes ?? 0) / (1024 ** 3))))
+  const toGiB = (bytes?: number) => Math.max(1, Math.ceil((bytes ?? 0) / 1024 ** 3))
   const norm = (s?: string): UIImage['status'] => {
     if (s === 'available' || s === 'uploading') return s
     if (s === 'queued' || s === 'active') return s
     return 'available'
   }
-  const asFmt = (f?: string): UIImage['disk_format'] => (f as UIImage['disk_format'])
-  return (res.data.images ?? []).map((x) => ({ id: String(x.id), name: x.name, sizeGiB: toGiB(x.size), minDiskGiB: x.min_disk ? Math.max(1, x.min_disk) : undefined, status: norm(x.status), disk_format: asFmt(x.disk_format), owner: x.owner_id ? String(x.owner_id) : undefined }))
+  const asFmt = (f?: string): UIImage['disk_format'] => f as UIImage['disk_format']
+  return (res.data.images ?? []).map((x) => ({
+    id: String(x.id),
+    name: x.name,
+    sizeGiB: toGiB(x.size),
+    minDiskGiB: x.min_disk ? Math.max(1, x.min_disk) : undefined,
+    status: norm(x.status),
+    disk_format: asFmt(x.disk_format),
+    owner: x.owner_id ? String(x.owner_id) : undefined
+  }))
 }
 
-export async function registerImage(body: { name: string; description?: string; visibility?: 'public' | 'private'; disk_format?: string; min_disk?: number; min_ram?: number; size?: number; checksum?: string; file_path?: string; rbd_pool?: string; rbd_image?: string; rbd_snap?: string; rgw_url?: string }): Promise<{ id: string }> {
+export async function registerImage(body: {
+  name: string
+  description?: string
+  visibility?: 'public' | 'private'
+  disk_format?: string
+  min_disk?: number
+  min_ram?: number
+  size?: number
+  checksum?: string
+  file_path?: string
+  rbd_pool?: string
+  rbd_image?: string
+  rbd_snap?: string
+  rgw_url?: string
+}): Promise<{ id: string }> {
   const res = await api.post<{ image: { id: number } }>('/v1/images/register', body)
   return { id: String(res.data.image.id) }
 }
 
-export async function importImage(id: string, body?: { file_path?: string; rbd_pool?: string; rbd_image?: string; rbd_snap?: string; source_url?: string }): Promise<void> {
+export async function importImage(
+  id: string,
+  body?: {
+    file_path?: string
+    rbd_pool?: string
+    rbd_image?: string
+    rbd_snap?: string
+    source_url?: string
+  }
+): Promise<void> {
   await api.post(`/v1/images/${id}/import`, body ?? {})
 }
 
@@ -209,7 +284,9 @@ export async function uploadImage(file: File, opts?: { name?: string }): Promise
   const form = new FormData()
   form.append('file', file)
   if (opts?.name) form.append('name', opts.name)
-  const res = await api.post<{ image: { id: number } }>('/v1/images/upload', form, { headers: { 'Content-Type': 'multipart/form-data' } })
+  const res = await api.post<{ image: { id: number } }>('/v1/images/upload', form, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
   return { id: String(res.data.image.id) }
 }
 
@@ -220,9 +297,20 @@ export async function deleteImage(id: string): Promise<void> {
 // Create instance
 export async function createInstance(
   projectId: string | undefined,
-  body: { name: string; flavor_id: number; image_id: number; root_disk_gb?: number; networks?: Array<{ uuid?: string; port?: string; fixed_ip?: string }>; ssh_key?: string }
+  body: {
+    name: string
+    flavor_id: number
+    image_id: number
+    root_disk_gb?: number
+    networks?: Array<{ uuid?: string; port?: string; fixed_ip?: string }>
+    ssh_key?: string
+  }
 ): Promise<BackendInstance> {
-  const res = await api.post<{ instance: BackendInstance }>('/v1/instances', body, withProjectHeader(projectId))
+  const res = await api.post<{ instance: BackendInstance }>(
+    '/v1/instances',
+    body,
+    withProjectHeader(projectId)
+  )
   return res.data.instance
 }
 
@@ -232,9 +320,26 @@ export async function fetchSnapshots(): Promise<UISnapshot[]> {
 }
 
 // Volumes API
-export type UIVolume = { id: string; name: string; sizeGiB: number; status: string; projectId?: string; rbd?: string }
+export type UIVolume = {
+  id: string
+  name: string
+  sizeGiB: number
+  status: string
+  projectId?: string
+  rbd?: string
+}
 export async function fetchVolumes(projectId?: string): Promise<UIVolume[]> {
-  const res = await api.get<{ volumes: Array<{ id: number; name: string; size_gb: number; status?: string; project_id?: number; rbd_pool?: string; rbd_image?: string }> }>('/v1/volumes', withProjectHeader(projectId))
+  const res = await api.get<{
+    volumes: Array<{
+      id: number
+      name: string
+      size_gb: number
+      status?: string
+      project_id?: number
+      rbd_pool?: string
+      rbd_image?: string
+    }>
+  }>('/v1/volumes', withProjectHeader(projectId))
   return (res.data.volumes ?? []).map((v) => ({
     id: String(v.id),
     name: v.name,
@@ -242,11 +347,24 @@ export async function fetchVolumes(projectId?: string): Promise<UIVolume[]> {
     status: v.status ?? 'available',
     projectId: v.project_id ? String(v.project_id) : undefined,
     // Show best-effort RBD string even if only pool or image is present
-    rbd: [v.rbd_pool, v.rbd_image].filter(Boolean).join('/') || undefined,
+    rbd: [v.rbd_pool, v.rbd_image].filter(Boolean).join('/') || undefined
   }))
 }
-export async function createVolume(projectId: string, body: { name: string; size_gb: number }): Promise<UIVolume> {
-  const res = await api.post<{ volume: { id: number; name: string; size_gb: number; status?: string; project_id?: number; rbd_pool?: string; rbd_image?: string } }>('/v1/volumes', body, withProjectHeader(projectId))
+export async function createVolume(
+  projectId: string,
+  body: { name: string; size_gb: number }
+): Promise<UIVolume> {
+  const res = await api.post<{
+    volume: {
+      id: number
+      name: string
+      size_gb: number
+      status?: string
+      project_id?: number
+      rbd_pool?: string
+      rbd_image?: string
+    }
+  }>('/v1/volumes', body, withProjectHeader(projectId))
   const v = res.data.volume
   return {
     id: String(v.id),
@@ -254,14 +372,24 @@ export async function createVolume(projectId: string, body: { name: string; size
     sizeGiB: v.size_gb,
     status: v.status ?? 'available',
     projectId: v.project_id ? String(v.project_id) : projectId,
-    rbd: [v.rbd_pool, v.rbd_image].filter(Boolean).join('/') || undefined,
+    rbd: [v.rbd_pool, v.rbd_image].filter(Boolean).join('/') || undefined
   }
 }
 export async function deleteVolume(id: string): Promise<void> {
   await api.delete(`/v1/volumes/${id}`)
 }
 export async function resizeVolume(id: string, newSizeGB: number): Promise<UIVolume> {
-  const res = await api.post<{ volume: { id: number; name: string; size_gb: number; status?: string; project_id?: number; rbd_pool?: string; rbd_image?: string } }>(`/v1/volumes/${id}/resize`, { new_size_gb: newSizeGB })
+  const res = await api.post<{
+    volume: {
+      id: number
+      name: string
+      size_gb: number
+      status?: string
+      project_id?: number
+      rbd_pool?: string
+      rbd_image?: string
+    }
+  }>(`/v1/volumes/${id}/resize`, { new_size_gb: newSizeGB })
   const v = res.data.volume
   return {
     id: String(v.id),
@@ -269,48 +397,119 @@ export async function resizeVolume(id: string, newSizeGB: number): Promise<UIVol
     sizeGiB: v.size_gb,
     status: v.status ?? 'available',
     projectId: v.project_id ? String(v.project_id) : undefined,
-    rbd: [v.rbd_pool, v.rbd_image].filter(Boolean).join('/') || undefined,
+    rbd: [v.rbd_pool, v.rbd_image].filter(Boolean).join('/') || undefined
   }
 }
 
 // Instance Volumes API
 export async function fetchInstanceVolumes(instanceId: string): Promise<UIVolume[]> {
-  const res = await api.get<{ volumes: Array<{ id: number; name: string; size_gb: number; status?: string; project_id?: number; rbd_pool?: string; rbd_image?: string }> }>(`/v1/instances/${instanceId}/volumes`)
+  const res = await api.get<{
+    volumes: Array<{
+      id: number
+      name: string
+      size_gb: number
+      status?: string
+      project_id?: number
+      rbd_pool?: string
+      rbd_image?: string
+    }>
+  }>(`/v1/instances/${instanceId}/volumes`)
   return (res.data.volumes ?? []).map((v) => ({
     id: String(v.id),
     name: v.name,
     sizeGiB: v.size_gb,
     status: v.status ?? 'in-use',
     projectId: v.project_id ? String(v.project_id) : undefined,
-    rbd: [v.rbd_pool, v.rbd_image].filter(Boolean).join('/') || undefined,
+    rbd: [v.rbd_pool, v.rbd_image].filter(Boolean).join('/') || undefined
   }))
 }
-export async function attachVolumeToInstance(instanceId: string, volumeId: string, device?: string): Promise<void> {
+export async function attachVolumeToInstance(
+  instanceId: string,
+  volumeId: string,
+  device?: string
+): Promise<void> {
   await api.post(`/v1/instances/${instanceId}/volumes`, { volume_id: Number(volumeId), device })
 }
-export async function detachVolumeFromInstance(instanceId: string, volumeId: string): Promise<void> {
+export async function detachVolumeFromInstance(
+  instanceId: string,
+  volumeId: string
+): Promise<void> {
   await api.delete(`/v1/instances/${instanceId}/volumes/${volumeId}`)
 }
 
 // Volume Snapshots API
-export type UIVolumeSnapshot = { id: string; name: string; volumeId: string; status: string; backup?: string }
-export async function fetchVolumeSnapshots(projectId?: string): Promise<UIVolumeSnapshot[]> {
-  const res = await api.get<{ snapshots: Array<{ id: number; name: string; volume_id: number; status?: string; project_id?: number; backup_pool?: string; backup_image?: string }> }>('/v1/snapshots', withProjectHeader(projectId))
-  return (res.data.snapshots ?? []).map((s) => ({ id: String(s.id), name: s.name, volumeId: String(s.volume_id), status: s.status ?? 'available', backup: s.backup_pool && s.backup_image ? `${s.backup_pool}/${s.backup_image}` : undefined }))
+export type UIVolumeSnapshot = {
+  id: string
+  name: string
+  volumeId: string
+  status: string
+  backup?: string
 }
-export async function createVolumeSnapshot(projectId: string, body: { name: string; volume_id: number }): Promise<UIVolumeSnapshot> {
-  const res = await api.post<{ snapshot: { id: number; name: string; volume_id: number; status?: string; backup_pool?: string; backup_image?: string } }>('/v1/snapshots', body, withProjectHeader(projectId))
+export async function fetchVolumeSnapshots(projectId?: string): Promise<UIVolumeSnapshot[]> {
+  const res = await api.get<{
+    snapshots: Array<{
+      id: number
+      name: string
+      volume_id: number
+      status?: string
+      project_id?: number
+      backup_pool?: string
+      backup_image?: string
+    }>
+  }>('/v1/snapshots', withProjectHeader(projectId))
+  return (res.data.snapshots ?? []).map((s) => ({
+    id: String(s.id),
+    name: s.name,
+    volumeId: String(s.volume_id),
+    status: s.status ?? 'available',
+    backup: s.backup_pool && s.backup_image ? `${s.backup_pool}/${s.backup_image}` : undefined
+  }))
+}
+export async function createVolumeSnapshot(
+  projectId: string,
+  body: { name: string; volume_id: number }
+): Promise<UIVolumeSnapshot> {
+  const res = await api.post<{
+    snapshot: {
+      id: number
+      name: string
+      volume_id: number
+      status?: string
+      backup_pool?: string
+      backup_image?: string
+    }
+  }>('/v1/snapshots', body, withProjectHeader(projectId))
   const s = res.data.snapshot
-  return { id: String(s.id), name: s.name, volumeId: String(s.volume_id), status: s.status ?? 'available', backup: s.backup_pool && s.backup_image ? `${s.backup_pool}/${s.backup_image}` : undefined }
+  return {
+    id: String(s.id),
+    name: s.name,
+    volumeId: String(s.volume_id),
+    status: s.status ?? 'available',
+    backup: s.backup_pool && s.backup_image ? `${s.backup_pool}/${s.backup_image}` : undefined
+  }
 }
 export async function deleteVolumeSnapshot(id: string): Promise<void> {
   await api.delete(`/v1/snapshots/${id}`)
 }
 
 // Audit API (basic)
-export type UIAudit = { id: number; resource: string; resource_id: number; action: string; status: string; message?: string; created_at?: string }
-export async function fetchAudit(projectId?: string, filters?: { resource?: string; action?: string }): Promise<UIAudit[]> {
-  const res = await api.get<{ audit: UIAudit[] }>('/v1/audit', { params: filters, ...(withProjectHeader(projectId) ?? {}) })
+export type UIAudit = {
+  id: number
+  resource: string
+  resource_id: number
+  action: string
+  status: string
+  message?: string
+  created_at?: string
+}
+export async function fetchAudit(
+  projectId?: string,
+  filters?: { resource?: string; action?: string }
+): Promise<UIAudit[]> {
+  const res = await api.get<{ audit: UIAudit[] }>('/v1/audit', {
+    params: filters,
+    ...(withProjectHeader(projectId) ?? {})
+  })
   return res.data.audit ?? []
 }
 
@@ -336,14 +535,16 @@ export async function deleteNode(id: string): Promise<void> {
 
 export async function startConsole(instanceId: string): Promise<string> {
   // Compute service endpoint, which proxies to vc-lite based on scheduled node
-  const res = await api.post<{ ws: string; token_expires_in: number }>(`/v1/instances/${instanceId}/console`)
-  
+  const res = await api.post<{ ws: string; token_expires_in: number }>(
+    `/v1/instances/${instanceId}/console`
+  )
+
   // Build full WebSocket URL
   // Backend returns relative path like: /ws/console/slchris?token=xxx
   // We need to convert this to ws://gateway-host/ws/console/slchris?token=xxx
   const wsPath = res.data.ws
   const apiBase = resolveApiBase()
-  
+
   // Parse API base to get the host
   let wsUrl: string
   if (apiBase.startsWith('http://') || apiBase.startsWith('https://')) {
@@ -356,7 +557,7 @@ export async function startConsole(instanceId: string): Promise<string> {
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
     wsUrl = `${wsProtocol}//${window.location.host}${wsPath}`
   }
-  
+
   return wsUrl
 }
 
@@ -404,36 +605,35 @@ export async function fetchDeletionStatus(instanceId: string): Promise<DeletionT
   return res.data
 }
 
-
 // Networks
-export type UINetwork = { 
-  id: string; 
-  name: string; 
-  cidr?: string; 
-  description?: string; 
-  zone?: string; 
-  tenant_id?: string; 
-  status?: string;
+export type UINetwork = {
+  id: string
+  name: string
+  cidr?: string
+  description?: string
+  zone?: string
+  tenant_id?: string
+  status?: string
   // OpenStack-style network types
-  network_type?: string;  // vxlan, vlan, flat, gre, geneve, local
-  physical_network?: string;  // for flat/vlan networks
-  segmentation_id?: number;  // VLAN ID or VNI
-  shared?: boolean;  // shared network flag
-  external?: boolean;  // external network flag
-  mtu?: number;  // MTU size
+  network_type?: string // vxlan, vlan, flat, gre, geneve, local
+  physical_network?: string // for flat/vlan networks
+  segmentation_id?: number // VLAN ID or VNI
+  shared?: boolean // shared network flag
+  external?: boolean // external network flag
+  mtu?: number // MTU size
 }
 export async function fetchNetworks(projectId?: string): Promise<UINetwork[]> {
-  const res = await api.get<{ networks: Array<UINetwork> }>(
-    '/v1/networks',
-    { params: projectId ? { tenant_id: projectId } : undefined, ...(withProjectHeader(projectId) ?? {}) }
-  )
-  return (res.data.networks ?? []).map((n) => ({ 
-    id: String(n.id), 
-    name: n.name, 
-    cidr: n.cidr, 
-    description: n.description, 
-    zone: n.zone, 
-    tenant_id: n.tenant_id, 
+  const res = await api.get<{ networks: Array<UINetwork> }>('/v1/networks', {
+    params: projectId ? { tenant_id: projectId } : undefined,
+    ...(withProjectHeader(projectId) ?? {})
+  })
+  return (res.data.networks ?? []).map((n) => ({
+    id: String(n.id),
+    name: n.name,
+    cidr: n.cidr,
+    description: n.description,
+    zone: n.zone,
+    tenant_id: n.tenant_id,
     status: n.status,
     network_type: n.network_type,
     physical_network: n.physical_network,
@@ -443,37 +643,40 @@ export async function fetchNetworks(projectId?: string): Promise<UINetwork[]> {
     mtu: n.mtu
   }))
 }
-export async function createNetwork(projectId: string, body: { 
-  name: string; 
-  cidr: string; 
-  description?: string; 
-  zone?: string; 
-  dns1?: string; 
-  dns2?: string; 
-  start?: boolean;
-  enable_dhcp?: boolean;
-  dhcp_lease_time?: number;
-  gateway?: string;
-  allocation_start?: string;
-  allocation_end?: string;
-  // OpenStack-style network type fields
-  network_type?: string;  // vxlan, vlan, flat, gre, geneve, local
-  physical_network?: string;  // for flat/vlan networks
-  segmentation_id?: number;  // VLAN ID or VNI
-  shared?: boolean;
-  external?: boolean;
-  mtu?: number;
-}): Promise<UINetwork> {
+export async function createNetwork(
+  projectId: string,
+  body: {
+    name: string
+    cidr: string
+    description?: string
+    zone?: string
+    dns1?: string
+    dns2?: string
+    start?: boolean
+    enable_dhcp?: boolean
+    dhcp_lease_time?: number
+    gateway?: string
+    allocation_start?: string
+    allocation_end?: string
+    // OpenStack-style network type fields
+    network_type?: string // vxlan, vlan, flat, gre, geneve, local
+    physical_network?: string // for flat/vlan networks
+    segmentation_id?: number // VLAN ID or VNI
+    shared?: boolean
+    external?: boolean
+    mtu?: number
+  }
+): Promise<UINetwork> {
   const res = await api.post<{ network: UINetwork }>(
     '/v1/networks',
-    { 
-      name: body.name, 
-      cidr: body.cidr, 
-      description: body.description ?? '', 
-      zone: body.zone, 
-      dns1: body.dns1, 
-      dns2: body.dns2, 
-      start: body.start ?? true, 
+    {
+      name: body.name,
+      cidr: body.cidr,
+      description: body.description ?? '',
+      zone: body.zone,
+      dns1: body.dns1,
+      dns2: body.dns2,
+      start: body.start ?? true,
       tenant_id: projectId,
       enable_dhcp: body.enable_dhcp,
       dhcp_lease_time: body.dhcp_lease_time,
@@ -485,18 +688,18 @@ export async function createNetwork(projectId: string, body: {
       segmentation_id: body.segmentation_id,
       shared: body.shared,
       external: body.external,
-      mtu: body.mtu,
+      mtu: body.mtu
     },
     withProjectHeader(projectId)
   )
   const n = res.data.network
-  return { 
-    id: String(n.id), 
-    name: n.name, 
-    cidr: n.cidr, 
-    description: n.description, 
-    zone: n.zone, 
-    tenant_id: n.tenant_id, 
+  return {
+    id: String(n.id),
+    name: n.name,
+    cidr: n.cidr,
+    description: n.description,
+    zone: n.zone,
+    tenant_id: n.tenant_id,
     status: n.status,
     network_type: n.network_type,
     physical_network: n.physical_network,
@@ -524,10 +727,9 @@ export type UISubnet = {
 }
 
 export async function fetchSubnets(projectId?: string): Promise<UISubnet[]> {
-  const res = await api.get<{ subnets?: UISubnet[] } | UISubnet[]>(
-    '/v1/subnets',
-    { params: projectId ? { tenant_id: projectId } : undefined }
-  )
+  const res = await api.get<{ subnets?: UISubnet[] } | UISubnet[]>('/v1/subnets', {
+    params: projectId ? { tenant_id: projectId } : undefined
+  })
   const subnets = Array.isArray(res.data) ? res.data : (res.data.subnets ?? [])
   return subnets.map((s) => ({
     id: String(s.id),
@@ -564,11 +766,25 @@ export type UIPort = {
   device_owner?: string
   status?: string
 }
-export async function fetchPorts(filters?: { tenant_id?: string; network_id?: string; device_id?: string }): Promise<UIPort[]> {
-  const res = await api.get<{ ports: Array<{ id: string; name?: string; network_id: string; subnet_id?: string; mac_address?: string; fixed_ips?: Array<{ ip: string; subnet_id?: string }>; security_groups?: string; device_id?: string; device_owner?: string; status?: string }> }>(
-    '/v1/ports',
-    { params: filters }
-  )
+export async function fetchPorts(filters?: {
+  tenant_id?: string
+  network_id?: string
+  device_id?: string
+}): Promise<UIPort[]> {
+  const res = await api.get<{
+    ports: Array<{
+      id: string
+      name?: string
+      network_id: string
+      subnet_id?: string
+      mac_address?: string
+      fixed_ips?: Array<{ ip: string; subnet_id?: string }>
+      security_groups?: string
+      device_id?: string
+      device_owner?: string
+      status?: string
+    }>
+  }>('/v1/ports', { params: filters })
   return (res.data.ports ?? []).map((p) => ({
     id: String(p.id),
     name: p.name,
@@ -583,13 +799,38 @@ export async function fetchPorts(filters?: { tenant_id?: string; network_id?: st
   }))
 }
 // SSH Keys
-export type UISSHKey = { id: string; name: string; public_key: string; project_id?: number; user_id?: number }
-export async function fetchSSHKeys(projectId?: string): Promise<UISSHKey[]> {
-  const res = await api.get<{ ssh_keys: Array<{ id: number; name: string; public_key: string; project_id?: number; user_id?: number }> }>('/v1/ssh-keys', withProjectHeader(projectId))
-  return (res.data.ssh_keys ?? []).map((k) => ({ id: String(k.id), name: k.name, public_key: k.public_key, project_id: k.project_id, user_id: k.user_id }))
+export type UISSHKey = {
+  id: string
+  name: string
+  public_key: string
+  project_id?: number
+  user_id?: number
 }
-export async function createSSHKey(projectId: string, body: { name: string; public_key: string }): Promise<UISSHKey> {
-  const res = await api.post<{ ssh_key: { id: number; name: string; public_key: string; project_id?: number } }>('/v1/ssh-keys', body, withProjectHeader(projectId))
+export async function fetchSSHKeys(projectId?: string): Promise<UISSHKey[]> {
+  const res = await api.get<{
+    ssh_keys: Array<{
+      id: number
+      name: string
+      public_key: string
+      project_id?: number
+      user_id?: number
+    }>
+  }>('/v1/ssh-keys', withProjectHeader(projectId))
+  return (res.data.ssh_keys ?? []).map((k) => ({
+    id: String(k.id),
+    name: k.name,
+    public_key: k.public_key,
+    project_id: k.project_id,
+    user_id: k.user_id
+  }))
+}
+export async function createSSHKey(
+  projectId: string,
+  body: { name: string; public_key: string }
+): Promise<UISSHKey> {
+  const res = await api.post<{
+    ssh_key: { id: number; name: string; public_key: string; project_id?: number }
+  }>('/v1/ssh-keys', body, withProjectHeader(projectId))
   const k = res.data.ssh_key
   return { id: String(k.id), name: k.name, public_key: k.public_key, project_id: k.project_id }
 }
@@ -598,66 +839,189 @@ export async function deleteSSHKey(projectId: string, id: string): Promise<void>
 }
 
 // Floating IPs
-export type UIFloatingIP = { id: string; address: string; status: 'available' | 'associated'; network_id?: string; fixed_ip?: string; port_id?: string }
-export async function fetchFloatingIPs(projectId?: string): Promise<UIFloatingIP[]> {
-  const res = await api.get<{ floating_ips: Array<{ id: string; floating_ip: string; fixed_ip?: string; port_id?: string; network_id: string; status: string }> }>(
-    '/v1/floating-ips',
-    { params: projectId ? { tenant_id: projectId } : undefined, ...(withProjectHeader(projectId) ?? {}) }
-  )
-  return (res.data.floating_ips ?? []).map((x) => ({ id: String(x.id), address: x.floating_ip, status: (x.status === 'associated' ? 'associated' : 'available'), network_id: x.network_id, fixed_ip: x.fixed_ip, port_id: x.port_id }))
+export type UIFloatingIP = {
+  id: string
+  address: string
+  status: 'available' | 'associated'
+  network_id?: string
+  fixed_ip?: string
+  port_id?: string
 }
-export async function allocateFloatingIP(projectId: string, body: { network_id: string; subnet_id?: string; port_id?: string; fixed_ip?: string }): Promise<UIFloatingIP> {
-  const res = await api.post<{ floating_ip: { id: string; floating_ip: string; status: string; network_id: string; fixed_ip?: string; port_id?: string } }>(
+export async function fetchFloatingIPs(projectId?: string): Promise<UIFloatingIP[]> {
+  const res = await api.get<{
+    floating_ips: Array<{
+      id: string
+      floating_ip: string
+      fixed_ip?: string
+      port_id?: string
+      network_id: string
+      status: string
+    }>
+  }>('/v1/floating-ips', {
+    params: projectId ? { tenant_id: projectId } : undefined,
+    ...(withProjectHeader(projectId) ?? {})
+  })
+  return (res.data.floating_ips ?? []).map((x) => ({
+    id: String(x.id),
+    address: x.floating_ip,
+    status: x.status === 'associated' ? 'associated' : 'available',
+    network_id: x.network_id,
+    fixed_ip: x.fixed_ip,
+    port_id: x.port_id
+  }))
+}
+export async function allocateFloatingIP(
+  projectId: string,
+  body: { network_id: string; subnet_id?: string; port_id?: string; fixed_ip?: string }
+): Promise<UIFloatingIP> {
+  const res = await api.post<{
+    floating_ip: {
+      id: string
+      floating_ip: string
+      status: string
+      network_id: string
+      fixed_ip?: string
+      port_id?: string
+    }
+  }>(
     '/v1/floating-ips',
-    { tenant_id: projectId, network_id: body.network_id, subnet_id: body.subnet_id, port_id: body.port_id, fixed_ip: body.fixed_ip },
+    {
+      tenant_id: projectId,
+      network_id: body.network_id,
+      subnet_id: body.subnet_id,
+      port_id: body.port_id,
+      fixed_ip: body.fixed_ip
+    },
     withProjectHeader(projectId)
   )
   const f = res.data.floating_ip
-  return { id: String(f.id), address: f.floating_ip, status: (f.status === 'associated' ? 'associated' : 'available'), network_id: f.network_id, fixed_ip: f.fixed_ip, port_id: f.port_id }
+  return {
+    id: String(f.id),
+    address: f.floating_ip,
+    status: f.status === 'associated' ? 'associated' : 'available',
+    network_id: f.network_id,
+    fixed_ip: f.fixed_ip,
+    port_id: f.port_id
+  }
 }
 export async function deleteFloatingIP(id: string): Promise<void> {
   await api.delete(`/v1/floating-ips/${id}`)
 }
 
 // Associate/Disassociate Floating IP
-export async function updateFloatingIP(id: string, body: { fixed_ip?: string; port_id?: string }): Promise<UIFloatingIP> {
-  const res = await api.put<{ floating_ip: { id: string; floating_ip: string; fixed_ip?: string; port_id?: string; network_id: string; status: string } }>(`/v1/floating-ips/${id}`, body)
+export async function updateFloatingIP(
+  id: string,
+  body: { fixed_ip?: string; port_id?: string }
+): Promise<UIFloatingIP> {
+  const res = await api.put<{
+    floating_ip: {
+      id: string
+      floating_ip: string
+      fixed_ip?: string
+      port_id?: string
+      network_id: string
+      status: string
+    }
+  }>(`/v1/floating-ips/${id}`, body)
   const f = res.data.floating_ip
-  return { id: String(f.id), address: f.floating_ip, status: (f.status === 'associated' ? 'associated' : 'available'), network_id: f.network_id, fixed_ip: f.fixed_ip, port_id: f.port_id }
+  return {
+    id: String(f.id),
+    address: f.floating_ip,
+    status: f.status === 'associated' ? 'associated' : 'available',
+    network_id: f.network_id,
+    fixed_ip: f.fixed_ip,
+    port_id: f.port_id
+  }
 }
 
 // Zones (Infrastructure)
-export type UIZone = { id: string; name: string; allocation: 'enabled' | 'disabled'; type: 'core' | 'edge'; network_type: 'Basic' | 'Advanced' }
-export async function fetchZones(): Promise<UIZone[]> {
-  const res = await api.get<{ zones: Array<{ id: string; name: string; allocation: string; type: string; network_type: string }> }>(
-    '/v1/zones'
-  )
-  return (res.data.zones ?? []).map((z) => ({ id: String(z.id), name: z.name, allocation: (z.allocation === 'disabled' ? 'disabled' : 'enabled'), type: (z.type === 'edge' ? 'edge' : 'core'), network_type: (z.network_type === 'Basic' ? 'Basic' : 'Advanced') }))
+export type UIZone = {
+  id: string
+  name: string
+  allocation: 'enabled' | 'disabled'
+  type: 'core' | 'edge'
+  network_type: 'Basic' | 'Advanced'
 }
-export async function createZone(body: { name: string; allocation?: 'enabled' | 'disabled'; type: 'core' | 'edge'; network_type?: 'Basic' | 'Advanced' }): Promise<UIZone> {
-  const res = await api.post<{ zone: { id: string; name: string; allocation: string; type: string; network_type: string } }>(
-    '/v1/zones',
-    { name: body.name, allocation: body.allocation ?? 'enabled', type: body.type, network_type: body.network_type ?? 'Advanced' }
-  )
+export async function fetchZones(): Promise<UIZone[]> {
+  const res = await api.get<{
+    zones: Array<{
+      id: string
+      name: string
+      allocation: string
+      type: string
+      network_type: string
+    }>
+  }>('/v1/zones')
+  return (res.data.zones ?? []).map((z) => ({
+    id: String(z.id),
+    name: z.name,
+    allocation: z.allocation === 'disabled' ? 'disabled' : 'enabled',
+    type: z.type === 'edge' ? 'edge' : 'core',
+    network_type: z.network_type === 'Basic' ? 'Basic' : 'Advanced'
+  }))
+}
+export async function createZone(body: {
+  name: string
+  allocation?: 'enabled' | 'disabled'
+  type: 'core' | 'edge'
+  network_type?: 'Basic' | 'Advanced'
+}): Promise<UIZone> {
+  const res = await api.post<{
+    zone: { id: string; name: string; allocation: string; type: string; network_type: string }
+  }>('/v1/zones', {
+    name: body.name,
+    allocation: body.allocation ?? 'enabled',
+    type: body.type,
+    network_type: body.network_type ?? 'Advanced'
+  })
   const z = res.data.zone
-  return { id: String(z.id), name: z.name, allocation: (z.allocation === 'disabled' ? 'disabled' : 'enabled'), type: (z.type === 'edge' ? 'edge' : 'core'), network_type: (z.network_type === 'Basic' ? 'Basic' : 'Advanced') }
+  return {
+    id: String(z.id),
+    name: z.name,
+    allocation: z.allocation === 'disabled' ? 'disabled' : 'enabled',
+    type: z.type === 'edge' ? 'edge' : 'core',
+    network_type: z.network_type === 'Basic' ? 'Basic' : 'Advanced'
+  }
 }
 
 // Identity: Projects and Users (for name mapping)
 export type UIProject = { id: string; name: string; description?: string; user_id?: string }
 export async function fetchProjects(): Promise<UIProject[]> {
-  const res = await api.get<{ projects: Array<{ id: number; name: string; description?: string; user_id?: number }> }>(
-    '/v1/projects'
-  )
-  return (res.data.projects ?? []).map((p) => ({ id: String(p.id), name: p.name, description: p.description, user_id: p.user_id ? String(p.user_id) : undefined }))
+  const res = await api.get<{
+    projects: Array<{ id: number; name: string; description?: string; user_id?: number }>
+  }>('/v1/projects')
+  return (res.data.projects ?? []).map((p) => ({
+    id: String(p.id),
+    name: p.name,
+    description: p.description,
+    user_id: p.user_id ? String(p.user_id) : undefined
+  }))
 }
 
-export type UIUser = { id: string; username?: string; email?: string; first_name?: string; last_name?: string }
+export type UIUser = {
+  id: string
+  username?: string
+  email?: string
+  first_name?: string
+  last_name?: string
+}
 export async function fetchUsers(): Promise<UIUser[]> {
-  const res = await api.get<{ users: Array<{ id: number; username?: string; email?: string; first_name?: string; last_name?: string }> }>(
-    '/v1/users'
-  )
-  return (res.data.users ?? []).map((u) => ({ id: String(u.id), username: u.username, email: u.email, first_name: u.first_name, last_name: u.last_name }))
+  const res = await api.get<{
+    users: Array<{
+      id: number
+      username?: string
+      email?: string
+      first_name?: string
+      last_name?: string
+    }>
+  }>('/v1/users')
+  return (res.data.users ?? []).map((u) => ({
+    id: String(u.id),
+    username: u.username,
+    email: u.email,
+    first_name: u.first_name,
+    last_name: u.last_name
+  }))
 }
 
 // Routers (L3 routing for connecting networks)
@@ -697,10 +1061,9 @@ export type UIRouterInterface = {
 }
 
 export async function fetchRouters(projectId?: string): Promise<UIRouter[]> {
-  const res = await api.get<{ routers?: UIRouter[] } | UIRouter[]>(
-    '/v1/routers',
-    { params: projectId ? { tenant_id: projectId } : undefined }
-  )
+  const res = await api.get<{ routers?: UIRouter[] } | UIRouter[]>('/v1/routers', {
+    params: projectId ? { tenant_id: projectId } : undefined
+  })
   // Handle both array response and object with routers key
   const routers = Array.isArray(res.data) ? res.data : (res.data.routers ?? [])
   return routers.map((r) => ({
@@ -729,12 +1092,15 @@ export async function createRouter(body: {
   return res.data
 }
 
-export async function updateRouter(id: string, body: {
-  name?: string
-  description?: string
-  enable_snat?: boolean
-  admin_up?: boolean
-}): Promise<UIRouter> {
+export async function updateRouter(
+  id: string,
+  body: {
+    name?: string
+    description?: string
+    enable_snat?: boolean
+    admin_up?: boolean
+  }
+): Promise<UIRouter> {
   const res = await api.put<UIRouter>(`/v1/routers/${id}`, body)
   return res.data
 }
@@ -748,7 +1114,10 @@ export async function fetchRouterInterfaces(routerId: string): Promise<UIRouterI
   return Array.isArray(res.data) ? res.data : []
 }
 
-export async function addRouterInterface(routerId: string, subnetId: string): Promise<UIRouterInterface> {
+export async function addRouterInterface(
+  routerId: string,
+  subnetId: string
+): Promise<UIRouterInterface> {
   const res = await api.post<UIRouterInterface>(`/v1/routers/${routerId}/add-interface`, {
     subnet_id: subnetId
   })
@@ -761,7 +1130,10 @@ export async function removeRouterInterface(routerId: string, subnetId: string):
   })
 }
 
-export async function setRouterGateway(routerId: string, externalNetworkId: string): Promise<UIRouter> {
+export async function setRouterGateway(
+  routerId: string,
+  externalNetworkId: string
+): Promise<UIRouter> {
   const res = await api.post<UIRouter>(`/v1/routers/${routerId}/set-gateway`, {
     external_network_id: externalNetworkId
   })
@@ -797,11 +1169,17 @@ export type UITopologyNode = {
   state?: string
   ip?: string
 }
-export type UITopologyEdge = { source: string; target: string; type: 'l2' | 'l3' | 'l3-gateway' | 'attachment' }
-export async function fetchTopology(projectId?: string): Promise<{ nodes: UITopologyNode[]; edges: UITopologyEdge[] }> {
-  const res = await api.get<{ nodes: UITopologyNode[]; edges: UITopologyEdge[] }>(
-    '/v1/topology',
-    { params: projectId ? { tenant_id: projectId } : undefined, ...(withProjectHeader(projectId) ?? {}) }
-  )
+export type UITopologyEdge = {
+  source: string
+  target: string
+  type: 'l2' | 'l3' | 'l3-gateway' | 'attachment'
+}
+export async function fetchTopology(
+  projectId?: string
+): Promise<{ nodes: UITopologyNode[]; edges: UITopologyEdge[] }> {
+  const res = await api.get<{ nodes: UITopologyNode[]; edges: UITopologyEdge[] }>('/v1/topology', {
+    params: projectId ? { tenant_id: projectId } : undefined,
+    ...(withProjectHeader(projectId) ?? {})
+  })
   return { nodes: res.data.nodes || [], edges: res.data.edges || [] }
 }

@@ -7,7 +7,12 @@ import { useDataStore } from '@/lib/dataStore'
 import { ToastContainer } from '@/components/ToastContainer'
 
 type LinkItem = { type: 'link'; to: string; label: string }
-type GroupItem = { type: 'group'; label: string; base: string; children: Array<{ to: string; label: string }> }
+type GroupItem = {
+  type: 'group'
+  label: string
+  base: string
+  children: Array<{ to: string; label: string }>
+}
 
 function getProjectId(pathname: string): string | null {
   const m = pathname.match(/^\/project\/([^/]+)/)
@@ -35,7 +40,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const toggleSidebar = useAppStore((s) => s.toggleSidebar)
   const projectId = urlProjectId ?? activeProjectId
   const { projects, notices } = useDataStore()
-  const unreadNotices = useMemo(() => notices.filter((n) => n.status === 'unread').length, [notices])
+  const unreadNotices = useMemo(
+    () => notices.filter((n) => n.status === 'unread').length,
+    [notices]
+  )
   const [projMenuOpen, setProjMenuOpen] = useState(false)
   const projMenuRef = useRef<HTMLDivElement | null>(null)
 
@@ -103,7 +111,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           { to: `${prefix}/network/acl`, label: 'Network ACL' }
         ]
       },
-  // Global modules (visible when a project is selected)
+      // Global modules (visible when a project is selected)
       {
         type: 'group',
         label: 'Images',
@@ -165,7 +173,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
     }
   }, [location.pathname, setProjectContext])
   return (
-    <div className={`min-h-screen grid ${sidebarCollapsed ? 'grid-cols-[64px_1fr]' : 'grid-cols-[248px_1fr]'} grid-rows-[56px_1fr]`}>
+    <div
+      className={`min-h-screen grid ${sidebarCollapsed ? 'grid-cols-[64px_1fr]' : 'grid-cols-[248px_1fr]'} grid-rows-[56px_1fr]`}
+    >
       <aside className="row-span-2 bg-oxide-900 border-r border-oxide-800">
         <div className="h-14 flex items-center px-4 gap-2 border-b border-oxide-800">
           {logo ? (
@@ -174,7 +184,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <img src="/logo-42.svg" alt="logo" className="h-6 w-6 rounded object-contain" />
           )}
           {!sidebarCollapsed && (
-            <Link to="/" className="font-semibold">VC Console</Link>
+            <Link to="/" className="font-semibold">
+              VC Console
+            </Link>
           )}
         </div>
         <nav className={`p-2 space-y-1 ${sidebarCollapsed ? 'px-1' : ''}`}>
@@ -210,7 +222,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 onMouseLeave={() => {
                   if (!sidebarCollapsed) return
                   if (flyoutTimer.current) window.clearTimeout(flyoutTimer.current)
-                  flyoutTimer.current = window.setTimeout(() => setCollapsedFlyout((v) => (v === s.base ? null : v)), 160)
+                  flyoutTimer.current = window.setTimeout(
+                    () => setCollapsedFlyout((v) => (v === s.base ? null : v)),
+                    160
+                  )
                 }}
               >
                 <button
@@ -223,7 +238,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     }
                   }}
                   className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center px-2 py-2' : 'justify-between px-3 py-2 text-sm'} rounded-md hover:bg-oxide-800 ${
-                    location.pathname.startsWith(s.base) ? 'bg-oxide-800 text-white' : 'text-gray-300'
+                    location.pathname.startsWith(s.base)
+                      ? 'bg-oxide-800 text-white'
+                      : 'text-gray-300'
                   }`}
                 >
                   <span className="flex items-center gap-2">
@@ -256,7 +273,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     }}
                     onMouseLeave={() => {
                       if (flyoutTimer.current) window.clearTimeout(flyoutTimer.current)
-                      flyoutTimer.current = window.setTimeout(() => setCollapsedFlyout((v) => (v === s.base ? null : v)), 160)
+                      flyoutTimer.current = window.setTimeout(
+                        () => setCollapsedFlyout((v) => (v === s.base ? null : v)),
+                        160
+                      )
                     }}
                   >
                     {s.children.map((c) => (
@@ -309,13 +329,31 @@ export function Layout({ children }: { children: React.ReactNode }) {
           >
             {sidebarCollapsed ? (
               // expand icon (chevrons right)
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M6 4l6 8-6 8" />
                 <path d="M12 4l6 8-6 8" />
               </svg>
             ) : (
               // collapse icon (chevrons left)
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M18 4l-6 8 6 8" />
                 <path d="M12 4l-6 8 6 8" />
               </svg>
@@ -386,10 +424,54 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   setCreateOpen(true)
                 }}
               >
-                <button className="w-full text-left px-3 py-1.5 text-sm text-gray-200 hover:bg-oxide-800" onClick={() => navigate(projectContext && projectId ? `/project/${projectId}/compute/instances` : '/projects')}>Instance</button>
-                <button className="w-full text-left px-3 py-1.5 text-sm text-gray-200 hover:bg-oxide-800" onClick={() => navigate(projectContext && projectId ? `/project/${projectId}/compute/k8s` : '/projects')}>Kubernetes</button>
-                <button className="w-full text-left px-3 py-1.5 text-sm text-gray-200 hover:bg-oxide-800" onClick={() => navigate(projectContext && projectId ? `/project/${projectId}/storage/volumes` : '/projects')}>Volume</button>
-                <button className="w-full text-left px-3 py-1.5 text-sm text-gray-200 hover:bg-oxide-800" onClick={() => navigate(projectContext && projectId ? `/project/${projectId}/network/vpc` : '/projects')}>VPC</button>
+                <button
+                  className="w-full text-left px-3 py-1.5 text-sm text-gray-200 hover:bg-oxide-800"
+                  onClick={() =>
+                    navigate(
+                      projectContext && projectId
+                        ? `/project/${projectId}/compute/instances`
+                        : '/projects'
+                    )
+                  }
+                >
+                  Instance
+                </button>
+                <button
+                  className="w-full text-left px-3 py-1.5 text-sm text-gray-200 hover:bg-oxide-800"
+                  onClick={() =>
+                    navigate(
+                      projectContext && projectId
+                        ? `/project/${projectId}/compute/k8s`
+                        : '/projects'
+                    )
+                  }
+                >
+                  Kubernetes
+                </button>
+                <button
+                  className="w-full text-left px-3 py-1.5 text-sm text-gray-200 hover:bg-oxide-800"
+                  onClick={() =>
+                    navigate(
+                      projectContext && projectId
+                        ? `/project/${projectId}/storage/volumes`
+                        : '/projects'
+                    )
+                  }
+                >
+                  Volume
+                </button>
+                <button
+                  className="w-full text-left px-3 py-1.5 text-sm text-gray-200 hover:bg-oxide-800"
+                  onClick={() =>
+                    navigate(
+                      projectContext && projectId
+                        ? `/project/${projectId}/network/vpc`
+                        : '/projects'
+                    )
+                  }
+                >
+                  VPC
+                </button>
               </div>
             )}
           </div>
@@ -400,7 +482,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
             onClick={() => navigate('/webshell')}
             title="WebShell"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M4 4h16v16H4z" />
               <path d="M7 9l3 3-3 3" />
               <path d="M12 16h5" />
@@ -413,7 +504,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
             title="Notifications"
             onClick={() => navigate('/notifications')}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M18 8a6 6 0 10-12 0c0 7-3 8-3 8h18s-3-1-3-8" />
               <path d="M13.73 21a2 2 0 01-3.46 0" />
             </svg>
@@ -433,7 +533,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
             />
             {userMenuOpen && (
               <div className="absolute right-0 z-40 mt-2 w-44 rounded-md border border-oxide-700 bg-oxide-900 shadow-card py-1">
-                <Link to="/settings" className="block px-3 py-1.5 text-sm text-gray-200 hover:bg-oxide-800" onClick={() => setUserMenuOpen(false)}>
+                <Link
+                  to="/settings"
+                  className="block px-3 py-1.5 text-sm text-gray-200 hover:bg-oxide-800"
+                  onClick={() => setUserMenuOpen(false)}
+                >
                   Settings
                 </Link>
                 <button
@@ -466,118 +570,594 @@ function NavIcon({ name, small }: { name: string; small?: boolean }) {
   const c = 'currentColor'
   const map: Record<string, JSX.Element> = {
     Docs: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5V4a2 2 0 0 1 2-2h7l5 5v12.5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M13 2v6h6"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M4 19.5V4a2 2 0 0 1 2-2h7l5 5v12.5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" />
+        <path d="M13 2v6h6" />
+      </svg>
     ),
     Project: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7h5l2 2h11v11H3z"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M3 7h5l2 2h11v11H3z" />
+      </svg>
     ),
     Images: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="3" y="3" width="18" height="18" rx="2" />
+        <circle cx="8.5" cy="8.5" r="1.5" />
+        <path d="M21 15l-5-5L5 21" />
+      </svg>
     ),
     Utilization: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="M19 9l-5 5-4-4-3 3"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M3 3v18h18" />
+        <path d="M19 9l-5 5-4-4-3 3" />
+      </svg>
     ),
     Compute: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="3" y="3" width="7" height="7" />
+        <rect x="14" y="3" width="7" height="7" />
+        <rect x="14" y="14" width="7" height="7" />
+        <rect x="3" y="14" width="7" height="7" />
+      </svg>
     ),
     Storage: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v6c0 1.7 4 3 9 3s9-1.3 9-3V5"/><path d="M3 11v6c0 1.7 4 3 9 3s9-1.3 9-3v-6"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <ellipse cx="12" cy="5" rx="9" ry="3" />
+        <path d="M3 5v6c0 1.7 4 3 9 3s9-1.3 9-3V5" />
+        <path d="M3 11v6c0 1.7 4 3 9 3s9-1.3 9-3v-6" />
+      </svg>
     ),
     Network: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="12" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M8.7 10.7 15.3 8.3"/><path d="M8.7 13.3 15.3 15.7"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle cx="6" cy="12" r="3" />
+        <circle cx="18" cy="6" r="3" />
+        <circle cx="18" cy="18" r="3" />
+        <path d="M8.7 10.7 15.3 8.3" />
+        <path d="M8.7 13.3 15.3 15.7" />
+      </svg>
     ),
     Templates: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="3" y="3" width="7" height="7" rx="1" />
+        <rect x="14" y="3" width="7" height="7" rx="1" />
+        <rect x="3" y="14" width="7" height="7" rx="1" />
+        <rect x="14" y="14" width="7" height="7" rx="1" />
+      </svg>
     ),
     IAM: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a6.5 6.5 0 0 1 13 0"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle cx="12" cy="7" r="4" />
+        <path d="M5.5 21a6.5 6.5 0 0 1 13 0" />
+      </svg>
     ),
     Accounts: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2 21a6 6 0 0 1 6-6h0"/><path d="M22 21a6 6 0 0 0-6-6h0"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle cx="8" cy="8" r="3" />
+        <circle cx="16" cy="8" r="3" />
+        <path d="M2 21a6 6 0 0 1 6-6h0" />
+        <path d="M22 21a6 6 0 0 0-6-6h0" />
+      </svg>
     ),
     Infrastructure: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="8" rx="2"/><rect x="7" y="16" width="10" height="4" rx="1"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="3" y="4" width="18" height="8" rx="2" />
+        <rect x="7" y="16" width="10" height="4" rx="1" />
+      </svg>
     ),
     Notifications: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M18 8a6 6 0 10-12 0c0 7-3 8-3 8h18s-3-1-3-8" />
+        <path d="M13.73 21a2 2 0 01-3.46 0" />
+      </svg>
     ),
     Instances: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="14" rx="2"/><path d="M8 21h8"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="3" y="3" width="18" height="14" rx="2" />
+        <path d="M8 21h8" />
+      </svg>
     ),
     Flavors: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 14h16"/><path d="M4 10h16"/><path d="M4 6h16"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M4 14h16" />
+        <path d="M4 10h16" />
+        <path d="M4 6h16" />
+      </svg>
     ),
     'VM Snapshots': (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7l2-3h4l2 3"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="3" y="7" width="18" height="14" rx="2" />
+        <path d="M8 7l2-3h4l2 3" />
+      </svg>
     ),
     Kubernetes: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 19 7 19 17 12 22 5 17 5 7"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <polygon points="12 2 19 7 19 17 12 22 5 17 5 7" />
+      </svg>
     ),
     'SSH Keypairs': (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="M14 12l7-7"/><path d="M13 7h8v8"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle cx="7.5" cy="15.5" r="5.5" />
+        <path d="M14 12l7-7" />
+        <path d="M13 7h8v8" />
+      </svg>
     ),
     Volumes: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="4" y="4" width="16" height="16" rx="2" />
+      </svg>
     ),
     Snapshots: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M5 7h3l2-2h4l2 2h3v10H5z"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle cx="12" cy="12" r="3" />
+        <path d="M5 7h3l2-2h4l2 2h3v10H5z" />
+      </svg>
     ),
     Backups: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20v-6"/><path d="M6 14l6-6 6 6"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M12 20v-6" />
+        <path d="M6 14l6-6 6 6" />
+      </svg>
     ),
     VPC: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7h18v10H3z"/><path d="M7 7V3h10v4"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M3 7h18v10H3z" />
+        <path d="M7 7V3h10v4" />
+      </svg>
     ),
     'Security Groups': (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      </svg>
     ),
     'Public IPs': (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 0 20"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <path d="M2 12h20" />
+        <path d="M12 2a15.3 15.3 0 0 1 0 20" />
+      </svg>
     ),
     ASNs: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12h16"/><path d="M4 6h16"/><path d="M4 18h16"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M4 12h16" />
+        <path d="M4 6h16" />
+        <path d="M4 18h16" />
+      </svg>
     ),
     VPN: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="3" y="11" width="18" height="10" rx="2" />
+        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+      </svg>
     ),
     'Network ACL': (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10"/><path d="M7 12h10"/><path d="M7 16h6"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="3" y="4" width="18" height="16" rx="2" />
+        <path d="M7 8h10" />
+        <path d="M7 12h10" />
+        <path d="M7 16h6" />
+      </svg>
     ),
     Topology: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="7" r="3"/><circle cx="5" cy="17" r="3"/><circle cx="19" cy="17" r="3"/><path d="M12 10v4"/><path d="M9 17h6"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle cx="12" cy="7" r="3" />
+        <circle cx="5" cy="17" r="3" />
+        <circle cx="19" cy="17" r="3" />
+        <path d="M12 10v4" />
+        <path d="M9 17h6" />
+      </svg>
     ),
     ISO: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle cx="12" cy="12" r="8" />
+        <circle cx="12" cy="12" r="2" />
+      </svg>
     ),
     'K8s ISO': (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 19 7 19 17 12 22 5 17 5 7"/><circle cx="12" cy="12" r="2"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <polygon points="12 2 19 7 19 17 12 22 5 17 5 7" />
+        <circle cx="12" cy="12" r="2" />
+      </svg>
     ),
     Overview: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12l9-9 9 9"/><path d="M9 21V9h6v12"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M3 12l9-9 9 9" />
+        <path d="M9 21V9h6v12" />
+      </svg>
     ),
     Zones: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="3" y="3" width="7" height="7" />
+        <rect x="14" y="3" width="7" height="7" />
+        <rect x="3" y="14" width="7" height="7" />
+        <rect x="14" y="14" width="7" height="7" />
+      </svg>
     ),
     Clusters: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><circle cx="12" cy="16" r="3"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle cx="8" cy="8" r="3" />
+        <circle cx="16" cy="8" r="3" />
+        <circle cx="12" cy="16" r="3" />
+      </svg>
     ),
     Hosts: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="8" rx="2"/><rect x="7" y="16" width="10" height="4" rx="1"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="3" y="4" width="18" height="8" rx="2" />
+        <rect x="7" y="16" width="10" height="4" rx="1" />
+      </svg>
     ),
     'Primary Storage': (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <ellipse cx="12" cy="5" rx="9" ry="3" />
+      </svg>
     ),
     'Secondary Storage': (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <ellipse cx="12" cy="5" rx="9" ry="3" />
+      </svg>
     ),
     'DB / Usage': (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 11c0 1.7 4 3 9 3s9-1.3 9-3"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <ellipse cx="12" cy="5" rx="9" ry="3" />
+        <path d="M3 11c0 1.7 4 3 9 3s9-1.3 9-3" />
+      </svg>
     ),
     Alarms: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 5l-5-3"/><path d="M2 5l5-3"/><circle cx="12" cy="13" r="7"/><path d="M12 10v4l2 2"/></svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M22 5l-5-3" />
+        <path d="M2 5l5-3" />
+        <circle cx="12" cy="13" r="7" />
+        <path d="M12 10v4l2 2" />
+      </svg>
     )
   }
-  return map[name] ?? (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="2"/></svg>
+  return (
+    map[name] ?? (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle cx="12" cy="12" r="2" />
+      </svg>
+    )
   )
 }

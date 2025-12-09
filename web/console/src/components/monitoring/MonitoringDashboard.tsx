@@ -1,54 +1,48 @@
-import React, { useState, useCallback } from 'react';
-import { useMonitoring } from '../../hooks/useMonitoring';
+import React, { useState, useCallback } from 'react'
+import { useMonitoring } from '../../hooks/useMonitoring'
 
 interface MetricData {
-  [key: string]: unknown;
+  [key: string]: unknown
 }
 
 export function MonitoringDashboard() {
-  const {
-    loading,
-    error,
-    getSystemMetrics,
-    getHTTPMetrics,
-    analyzePerformance,
-  } = useMonitoring();
+  const { loading, error, getSystemMetrics, getHTTPMetrics, analyzePerformance } = useMonitoring()
 
-  const [systemMetrics, setSystemMetrics] = useState<MetricData[]>([]);
-  const [httpMetrics, setHTTPMetrics] = useState<MetricData[]>([]);
+  const [systemMetrics, setSystemMetrics] = useState<MetricData[]>([])
+  const [httpMetrics, setHTTPMetrics] = useState<MetricData[]>([])
   const [analysis, setAnalysis] = useState<{
-    issues: string[];
-    recommendations: string[];
-  } | null>(null);
-  const [duration, setDuration] = useState('1h');
+    issues: string[]
+    recommendations: string[]
+  } | null>(null)
+  const [duration, setDuration] = useState('1h')
 
   const loadMetrics = useCallback(async () => {
-    const system = await getSystemMetrics(duration);
+    const system = await getSystemMetrics(duration)
     if (system) {
-      setSystemMetrics(system.metrics);
+      setSystemMetrics(system.metrics)
     }
 
-    const http = await getHTTPMetrics(duration);
+    const http = await getHTTPMetrics(duration)
     if (http) {
-      setHTTPMetrics(http.metrics);
+      setHTTPMetrics(http.metrics)
     }
-  }, [duration, getSystemMetrics, getHTTPMetrics]);
+  }, [duration, getSystemMetrics, getHTTPMetrics])
 
   const runAnalysis = async () => {
-    const result = await analyzePerformance('5m');
+    const result = await analyzePerformance('5m')
     if (result) {
       setAnalysis({
         issues: result.issues,
-        recommendations: result.recommendations,
-      });
+        recommendations: result.recommendations
+      })
     }
-  };
+  }
 
   React.useEffect(() => {
-    loadMetrics();
-    const interval = setInterval(loadMetrics, 30000);
-    return () => clearInterval(interval);
-  }, [loadMetrics]);
+    loadMetrics()
+    const interval = setInterval(loadMetrics, 30000)
+    return () => clearInterval(interval)
+  }, [loadMetrics])
 
   return (
     <div className="p-6 space-y-6">
@@ -80,9 +74,7 @@ export function MonitoringDashboard() {
         </div>
       </div>
 
-      {error && (
-        <div className="p-4 bg-red-100 text-red-700 rounded">{error}</div>
-      )}
+      {error && <div className="p-4 bg-red-100 text-red-700 rounded">{error}</div>}
 
       {loading && <div className="text-center py-8">Loading metrics...</div>}
 
@@ -126,18 +118,11 @@ export function MonitoringDashboard() {
             {systemMetrics.length > 0 ? (
               <div className="space-y-2">
                 <p>
-                  Memory:{' '}
-                  {String(
-                    systemMetrics[systemMetrics.length - 1].memory_alloc_mb ||
-                      'N/A'
-                  )}{' '}
+                  Memory: {String(systemMetrics[systemMetrics.length - 1].memory_alloc_mb || 'N/A')}{' '}
                   MB
                 </p>
                 <p>
-                  Goroutines:{' '}
-                  {String(
-                    systemMetrics[systemMetrics.length - 1].goroutines || 'N/A'
-                  )}
+                  Goroutines: {String(systemMetrics[systemMetrics.length - 1].goroutines || 'N/A')}
                 </p>
               </div>
             ) : (
@@ -153,15 +138,9 @@ export function MonitoringDashboard() {
               <div className="space-y-2">
                 <p>
                   Avg Response Time:{' '}
-                  {String(
-                    httpMetrics[httpMetrics.length - 1].duration_ms || 'N/A'
-                  )}{' '}
-                  ms
+                  {String(httpMetrics[httpMetrics.length - 1].duration_ms || 'N/A')} ms
                 </p>
-                <p>
-                  Request Count:{' '}
-                  {String(httpMetrics[httpMetrics.length - 1].count || 'N/A')}
-                </p>
+                <p>Request Count: {String(httpMetrics[httpMetrics.length - 1].count || 'N/A')}</p>
               </div>
             ) : (
               <p>No data available</p>
@@ -170,5 +149,5 @@ export function MonitoringDashboard() {
         </div>
       </div>
     </div>
-  );
+  )
 }

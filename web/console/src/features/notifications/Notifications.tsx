@@ -10,7 +10,11 @@ export function Notifications() {
     { key: 'time', header: 'Time', className: 'text-gray-400' },
     { key: 'resource', header: 'Resource' },
     { key: 'type', header: 'Type' },
-    { key: 'status', header: 'Status', render: (n) => <Badge variant={n.status === 'unread' ? 'info' : 'default'}>{n.status}</Badge> },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (n) => <Badge variant={n.status === 'unread' ? 'info' : 'default'}>{n.status}</Badge>
+    },
     {
       key: 'actions',
       header: '',

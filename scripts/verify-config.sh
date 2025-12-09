@@ -18,7 +18,7 @@ echo ""
 check_file_exists() {
     local file=$1
     local required=$2
-    
+
     if [ -f "$file" ]; then
         echo -e "${GREEN}✓${NC} 找到: $file"
         return 0
@@ -36,12 +36,12 @@ check_file_exists() {
 # 检查 YAML 语法
 check_yaml_syntax() {
     local file=$1
-    
+
     if ! command -v python3 &> /dev/null; then
         echo -e "${YELLOW}⚠${NC} Python3 未安装，跳过 YAML 语法检查"
         return 0
     fi
-    
+
     if python3 -c "import yaml; yaml.safe_load(open('$file'))" 2>/dev/null; then
         echo -e "${GREEN}✓${NC} YAML 语法正确: $file"
         return 0
@@ -54,8 +54,9 @@ check_yaml_syntax() {
 # 检查配置文件权限
 check_file_permissions() {
     local file=$1
-    local perms=$(stat -f "%OLp" "$file" 2>/dev/null || stat -c "%a" "$file" 2>/dev/null)
-    
+    local perms
+    perms=$(stat -f "%OLp" "$file" 2>/dev/null || stat -c "%a" "$file" 2>/dev/null)
+
     if [ "$perms" = "600" ] || [ "$perms" = "400" ]; then
         echo -e "${GREEN}✓${NC} 权限正确 ($perms): $file"
         return 0
@@ -71,9 +72,9 @@ check_database() {
     local port=$2
     local db=$3
     local user=$4
-    
+
     echo "检查数据库连接: $user@$host:$port/$db"
-    
+
     if command -v psql &> /dev/null; then
         if PGPASSWORD=$DATABASE_PASSWORD psql -h "$host" -p "$port" -U "$user" -d "$db" -c "SELECT 1;" &>/dev/null; then
             echo -e "${GREEN}✓${NC} 数据库连接成功"
@@ -92,7 +93,7 @@ check_database() {
 check_port() {
     local port=$1
     local name=$2
-    
+
     if lsof -i :"$port" &>/dev/null || netstat -an | grep ":$port " &>/dev/null; then
         echo -e "${YELLOW}⚠${NC} 端口 $port ($name) 已被占用"
         return 1
@@ -105,7 +106,7 @@ check_port() {
 # 检查服务依赖
 check_service() {
     local service=$1
-    
+
     if systemctl is-active --quiet "$service" 2>/dev/null; then
         echo -e "${GREEN}✓${NC} 服务运行中: $service"
         return 0

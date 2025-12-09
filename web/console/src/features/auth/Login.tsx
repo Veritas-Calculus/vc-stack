@@ -21,13 +21,23 @@ export function Login() {
   const idpRedirectUrl = useSettingsStore((s) => s.idpRedirectUrl)
 
   const oidcSupported = idpProvider === 'OIDC' && !!idpIssuer && !!idpClientId
-  const redirectUrl = useMemo(() => idpRedirectUrl || `${window.location.origin}/auth/oidc/callback`, [idpRedirectUrl])
-  const authUrl = useMemo(() => (idpIssuer ? `${idpIssuer.replace(/\/$/, '')}/authorize` : ''), [idpIssuer])
+  const redirectUrl = useMemo(
+    () => idpRedirectUrl || `${window.location.origin}/auth/oidc/callback`,
+    [idpRedirectUrl]
+  )
+  const authUrl = useMemo(
+    () => (idpIssuer ? `${idpIssuer.replace(/\/$/, '')}/authorize` : ''),
+    [idpIssuer]
+  )
 
   function startOidc() {
     if (!oidcSupported) return
     const state = Math.random().toString(36).slice(2)
-  try { sessionStorage.setItem('oidc_state', state) } catch { /* ignore */ }
+    try {
+      sessionStorage.setItem('oidc_state', state)
+    } catch {
+      /* ignore */
+    }
     const url = new URL(authUrl)
     url.searchParams.set('client_id', idpClientId!)
     url.searchParams.set('redirect_uri', redirectUrl)
@@ -47,13 +57,15 @@ export function Login() {
       // Only clear app state, NOT the auth token
       setActiveProjectId(null)
       setProjectContext(false)
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, [setActiveProjectId, setProjectContext])
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    
+
     const debugLog = (msg: string) => {
       // eslint-disable-next-line no-console
       console.log(msg)
@@ -66,7 +78,7 @@ export function Login() {
         // ignore
       }
     }
-    
+
     try {
       if (!username || !password) return
       debugLog(`[Login] Attempting login for user: ${username}`)
@@ -75,10 +87,10 @@ export function Login() {
       if (token) {
         debugLog('[Login] Login successful, token received')
         login(token)
-        
+
         // Wait a bit to ensure token is persisted to localStorage
-        await new Promise(resolve => setTimeout(resolve, 100))
-        
+        await new Promise((resolve) => setTimeout(resolve, 100))
+
         // Verify token was saved
         const savedAuth = localStorage.getItem('auth')
         debugLog(`[Login] Token saved to localStorage: ${savedAuth ? 'Yes' : 'No'}`)
@@ -86,7 +98,7 @@ export function Login() {
           debugLog('[Login] Warning: Token may not have been saved correctly')
           alert('Warning: Token may not have been saved correctly')
         }
-        
+
         // Navigate to the page they were trying to access, or /projects by default
         const state = location.state as { from?: { pathname: string } } | null
         const from = state?.from?.pathname || '/projects'
@@ -103,7 +115,10 @@ export function Login() {
 
   return (
     <div className="min-h-screen grid place-items-center bg-oxide-950 px-4">
-  <form onSubmit={onSubmit} className="w-full max-w-sm p-6 rounded-lg border border-oxide-700 bg-oxide-800 shadow-card space-y-4 text-gray-100">
+      <form
+        onSubmit={onSubmit}
+        className="w-full max-w-sm p-6 rounded-lg border border-oxide-700 bg-oxide-800 shadow-card space-y-4 text-gray-100"
+      >
         <div className="flex items-center gap-2">
           {logoDataUrl ? (
             <img src={logoDataUrl} alt="logo" className="h-6 w-6 rounded object-contain" />
@@ -130,7 +145,9 @@ export function Login() {
           </div>
         )}
         <div className="space-y-2">
-          <label className="label text-gray-300" htmlFor="username">Username</label>
+          <label className="label text-gray-300" htmlFor="username">
+            Username
+          </label>
           <input
             id="username"
             className="input w-full rounded-md bg-oxide-900 border border-oxide-700 px-3 py-2 text-sm text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-oxide-600"
@@ -139,7 +156,9 @@ export function Login() {
           />
         </div>
         <div className="space-y-2">
-          <label className="label text-gray-300" htmlFor="password">Password</label>
+          <label className="label text-gray-300" htmlFor="password">
+            Password
+          </label>
           <input
             id="password"
             type="password"

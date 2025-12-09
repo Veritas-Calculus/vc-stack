@@ -18,7 +18,13 @@ type Props<T> = {
   isRowSelected?: (row: T) => boolean
 }
 
-export function DataTable<T extends Record<string, unknown>>({ columns, data, empty = 'No data', onRowClick, isRowSelected }: Props<T>) {
+export function DataTable<T extends Record<string, unknown>>({
+  columns,
+  data,
+  empty = 'No data',
+  onRowClick,
+  isRowSelected
+}: Props<T>) {
   const [sortKey, setSortKey] = useState<string | null>(null)
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
 
@@ -26,8 +32,8 @@ export function DataTable<T extends Record<string, unknown>>({ columns, data, em
     if (!sortKey) return data
     const copy = [...data]
     copy.sort((a, b) => {
-  const av = a[sortKey as keyof T] as unknown
-  const bv = b[sortKey as keyof T] as unknown
+      const av = a[sortKey as keyof T] as unknown
+      const bv = b[sortKey as keyof T] as unknown
       const as = String(av ?? '')
       const bs = String(bv ?? '')
       return sortDir === 'asc' ? as.localeCompare(bs) : bs.localeCompare(as)
@@ -56,7 +62,13 @@ export function DataTable<T extends Record<string, unknown>>({ columns, data, em
               >
                 <span className="inline-flex items-center gap-1 cursor-pointer">
                   {c.headerRender ?? c.header}
-                  {c.sortable === false ? null : (sortKey === c.key && <span className="text-xs text-gray-500">{sortDir === 'asc' ? '▲' : '▼'}</span>)}
+                  {c.sortable === false
+                    ? null
+                    : sortKey === c.key && (
+                        <span className="text-xs text-gray-500">
+                          {sortDir === 'asc' ? '▲' : '▼'}
+                        </span>
+                      )}
                 </span>
               </th>
             ))}
@@ -79,7 +91,10 @@ export function DataTable<T extends Record<string, unknown>>({ columns, data, em
                   onClick={onRowClick ? () => onRowClick(row) : undefined}
                 >
                   {columns.map((c) => (
-                    <td key={String(c.key)} className={`px-3 py-2 text-gray-200 ${c.className ?? ''}`}>
+                    <td
+                      key={String(c.key)}
+                      className={`px-3 py-2 text-gray-200 ${c.className ?? ''}`}
+                    >
                       {c.render ? c.render(row) : String(row[c.key as keyof T])}
                     </td>
                   ))}

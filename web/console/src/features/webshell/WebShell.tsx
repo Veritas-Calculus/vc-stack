@@ -41,7 +41,11 @@ function TreeNode({ node, onPick, openMap, setOpenMap, query }: TreeNodeProps) {
     const group = node as CmdbGroup
     return (
       <div className="ml-2">
-        <button type="button" className="text-left text-sm text-gray-200 hover:underline" onClick={() => setOpenMap(group.id, !isOpen)}>
+        <button
+          type="button"
+          className="text-left text-sm text-gray-200 hover:underline"
+          onClick={() => setOpenMap(group.id, !isOpen)}
+        >
           {isOpen ? '▾' : '▸'} {group.name}
         </button>
         {isOpen && (
@@ -49,7 +53,14 @@ function TreeNode({ node, onPick, openMap, setOpenMap, query }: TreeNodeProps) {
             {group.children
               .filter((child) => matchNode(child, query))
               .map((child) => (
-                <TreeNode key={child.id} node={child} onPick={onPick} openMap={openMap} setOpenMap={setOpenMap} query={query} />
+                <TreeNode
+                  key={child.id}
+                  node={child}
+                  onPick={onPick}
+                  openMap={openMap}
+                  setOpenMap={setOpenMap}
+                  query={query}
+                />
               ))}
           </div>
         )}
@@ -83,7 +94,10 @@ function matchNode(node: CmdbNode, query: string): boolean {
   const searchTerm = query.toLowerCase()
   if (node.kind === 'group') {
     const group = node as CmdbGroup
-    return group.name.toLowerCase().includes(searchTerm) || group.children.some((child) => matchNode(child, query))
+    return (
+      group.name.toLowerCase().includes(searchTerm) ||
+      group.children.some((child) => matchNode(child, query))
+    )
   }
 
   const host = node as CmdbHost
@@ -155,7 +169,7 @@ export function WebShell() {
       import('xterm'),
       import('@xterm/addon-fit'),
       import('@xterm/addon-web-links'),
-      import('xterm/css/xterm.css'),
+      import('xterm/css/xterm.css')
     ])
 
     const terminal = new Terminal({
@@ -164,7 +178,7 @@ export function WebShell() {
       fontFamily: 'Menlo, Monaco, "Courier New", monospace',
       cursorBlink: true,
       cursorStyle: 'block',
-      allowProposedApi: true,
+      allowProposedApi: true
     })
 
     const fitAddon = new FitAddon()
@@ -250,7 +264,7 @@ export function WebShell() {
           user,
           auth_method: authMethod,
           password: authMethod === 'password' ? password : '',
-          private_key: authMethod === 'key' ? keyContent : '',
+          private_key: authMethod === 'key' ? keyContent : ''
         }
         ws.send(JSON.stringify(request))
       }
@@ -288,32 +302,44 @@ export function WebShell() {
             if (fitAddonRef.current) {
               const dimensions = fitAddonRef.current.proposeDimensions()
               if (dimensions && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({ type: 'resize', cols: dimensions.cols, rows: dimensions.rows }))
+                ws.send(
+                  JSON.stringify({ type: 'resize', cols: dimensions.cols, rows: dimensions.rows })
+                )
               }
             }
           } else if (message.type === 'output') {
             terminal.write(message.data)
           } else if (message.type === 'error') {
             const errorMsg = message.data
-            terminal.writeln('\r\n\x1b[1;31m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m')
+            terminal.writeln(
+              '\r\n\x1b[1;31m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m'
+            )
             terminal.writeln('\x1b[1;31m✗ Connection Failed\x1b[0m')
             terminal.writeln('\x1b[1;31m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m')
             terminal.writeln('\x1b[33m' + errorMsg + '\x1b[0m')
             terminal.writeln('')
-            
+
             // Check if it's an authentication error
-            if (errorMsg.includes('unable to authenticate') || errorMsg.includes('authentication failed') || errorMsg.includes('password')) {
+            if (
+              errorMsg.includes('unable to authenticate') ||
+              errorMsg.includes('authentication failed') ||
+              errorMsg.includes('password')
+            ) {
               terminal.writeln('\x1b[36mPossible reasons:\x1b[0m')
               terminal.writeln('  • \x1b[33mIncorrect password or SSH key\x1b[0m')
               terminal.writeln('  • \x1b[33mUser account does not exist\x1b[0m')
               terminal.writeln('  • \x1b[33mSSH key not authorized on server\x1b[0m')
               terminal.writeln('')
               terminal.writeln('\x1b[1;32mPlease check your credentials and try again.\x1b[0m')
-              setError('❌ Authentication failed. Please check your password or SSH key and try again.')
+              setError(
+                '❌ Authentication failed. Please check your password or SSH key and try again.'
+              )
             } else {
               setError('❌ ' + errorMsg)
             }
-            terminal.writeln('\x1b[1;31m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m\r\n')
+            terminal.writeln(
+              '\x1b[1;31m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m\r\n'
+            )
             setConnecting(false)
             setConnected(false)
             ws.close()
@@ -425,7 +451,12 @@ export function WebShell() {
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center gap-2"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           </svg>
           会话记录
         </button>
@@ -439,7 +470,12 @@ export function WebShell() {
               <div className="text-sm font-medium text-gray-200">CMDB</div>
               <span className="text-xs text-gray-500">Select a host</span>
             </div>
-            <input className="input w-full mb-2" placeholder="Search hosts/groups..." value={query} onChange={(e) => setQuery(e.target.value)} />
+            <input
+              className="input w-full mb-2"
+              placeholder="Search hosts/groups..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
             <div className="max-h-56 overflow-auto rounded border border-oxide-800 p-2 bg-oxide-950">
               {filteredTree.map((node) => (
                 <TreeNode
@@ -462,17 +498,35 @@ export function WebShell() {
           {/* Connection Settings */}
           <div>
             <label className="label">Host</label>
-            <input className="input w-full" placeholder="10.0.0.10 or hostname" value={host} onChange={(e) => setHost(e.target.value)} disabled={connected} />
+            <input
+              className="input w-full"
+              placeholder="10.0.0.10 or hostname"
+              value={host}
+              onChange={(e) => setHost(e.target.value)}
+              disabled={connected}
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="label">Port</label>
-              <input className="input w-full" type="number" placeholder="22" value={port} onChange={(e) => setPort(e.target.value ? Number(e.target.value) : '')} disabled={connected} />
+              <input
+                className="input w-full"
+                type="number"
+                placeholder="22"
+                value={port}
+                onChange={(e) => setPort(e.target.value ? Number(e.target.value) : '')}
+                disabled={connected}
+              />
             </div>
             <div>
               <label className="label">User</label>
-              <input className="input w-full" value={user} onChange={(e) => setUser(e.target.value)} disabled={connected} />
+              <input
+                className="input w-full"
+                value={user}
+                onChange={(e) => setUser(e.target.value)}
+                disabled={connected}
+              />
             </div>
           </div>
 
@@ -481,11 +535,23 @@ export function WebShell() {
             <label className="label">Auth Method</label>
             <div className="flex items-center gap-4 text-sm text-gray-200">
               <label className="inline-flex items-center gap-2">
-                <input type="radio" name="auth" checked={authMethod === 'password'} onChange={() => setAuthMethod('password')} disabled={connected} />
+                <input
+                  type="radio"
+                  name="auth"
+                  checked={authMethod === 'password'}
+                  onChange={() => setAuthMethod('password')}
+                  disabled={connected}
+                />
                 Password
               </label>
               <label className="inline-flex items-center gap-2">
-                <input type="radio" name="auth" checked={authMethod === 'key'} onChange={() => setAuthMethod('key')} disabled={connected} />
+                <input
+                  type="radio"
+                  name="auth"
+                  checked={authMethod === 'key'}
+                  onChange={() => setAuthMethod('key')}
+                  disabled={connected}
+                />
                 SSH Key
               </label>
             </div>
@@ -495,7 +561,13 @@ export function WebShell() {
           {authMethod === 'password' ? (
             <div>
               <label className="label">Password</label>
-              <input className="input w-full" type="password" value={password} onChange={(e) => setPassword(e.target.value)} disabled={connected} />
+              <input
+                className="input w-full"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={connected}
+              />
             </div>
           ) : (
             <div>
@@ -532,7 +604,7 @@ export function WebShell() {
                     <li>• Make sure the user account exists on the server</li>
                     <li>• Verify SSH key is in ~/.ssh/authorized_keys</li>
                   </ul>
-                  <button 
+                  <button
                     className="mt-3 text-xs bg-red-700 hover:bg-red-600 text-white px-3 py-1.5 rounded"
                     onClick={() => {
                       setError('')
@@ -555,7 +627,13 @@ export function WebShell() {
           <div className="flex gap-2">
             {!connected ? (
               <>
-                <button className="btn-primary" disabled={!host || connecting || (authMethod === 'password' ? !password : !keyContent)} onClick={connect}>
+                <button
+                  className="btn-primary"
+                  disabled={
+                    !host || connecting || (authMethod === 'password' ? !password : !keyContent)
+                  }
+                  onClick={connect}
+                >
                   {connecting ? 'Connecting…' : error ? 'Retry Connection' : 'Connect'}
                 </button>
                 <button className="btn-secondary" onClick={clearForm} disabled={connecting}>

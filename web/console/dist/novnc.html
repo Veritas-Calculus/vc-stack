@@ -1,357 +1,367 @@
 <!doctype html>
 <html>
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>noVNC</title>
-  <style>
-    html, body { 
-      margin: 0; 
-      height: 100%; 
-      background: #0b0f19; 
-      font-family: system-ui, -apple-system, sans-serif;
-      display: flex;
-      flex-direction: column;
-    }
-    #controls {
-      background: rgba(0,0,0,0.9);
-      padding: 12px 16px;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      flex-shrink: 0;
-    }
-    #screen-container {
-      flex: 1;
-      position: relative;
-      overflow: hidden;
-    }
-    #screen { 
-      width: 100%;
-      height: 100%;
-    }
-    #status { 
-      position: absolute; 
-      top: 10px; 
-      left: 10px; 
-      background: rgba(0,0,0,0.7); 
-      color: #fff; 
-      padding: 10px; 
-      border-radius: 4px;
-      font-family: monospace;
-      font-size: 12px;
-      max-width: 400px;
-      z-index: 1000;
-    }
-    .control-btn {
-      padding: 8px 16px;
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.2);
-      color: #fff;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 13px;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-    .control-btn:hover {
-      background: rgba(255,255,255,0.2);
-      border-color: rgba(255,255,255,0.3);
-    }
-    .control-btn:active {
-      transform: scale(0.95);
-    }
-    .control-btn.danger {
-      background: rgba(220, 38, 38, 0.3);
-      border-color: rgba(220, 38, 38, 0.5);
-    }
-    .control-btn.danger:hover {
-      background: rgba(220, 38, 38, 0.5);
-    }
-    .control-btn.success {
-      background: rgba(34, 197, 94, 0.3);
-      border-color: rgba(34, 197, 94, 0.5);
-    }
-    .control-btn.success:hover {
-      background: rgba(34, 197, 94, 0.5);
-    }
-    .control-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    .btn-back {
-      background: rgba(59, 130, 246, 0.3);
-      border-color: rgba(59, 130, 246, 0.5);
-    }
-    .btn-back:hover {
-      background: rgba(59, 130, 246, 0.5);
-    }
-    .divider {
-      width: 1px;
-      height: 24px;
-      background: rgba(255,255,255,0.2);
-      margin: 0 4px;
-    }
-  </style>
-</head>
-<body>
-  <div id="controls">
-    <button class="control-btn btn-back" id="btn-back" title="Back to Instance List">← Back</button>
-    <div class="divider"></div>
-    <button class="control-btn success" id="btn-start" title="Start Instance">▶ Start</button>
-    <button class="control-btn" id="btn-reboot" title="Reboot Instance">↻ Reboot</button>
-    <button class="control-btn danger" id="btn-stop" title="Stop Instance">■ Stop</button>
-    <button class="control-btn danger" id="btn-force-stop" title="Force Stop">⚠ Force Stop</button>
-    <div class="divider"></div>
-    <button class="control-btn" id="btn-ctrlaltdel" title="Send Ctrl+Alt+Del">Ctrl+Alt+Del</button>
-  </div>
-  <div id="screen-container">
-    <div id="status">Connecting...</div>
-    <div id="screen"></div>
-  </div>
-  
-  <!-- 加载本地打包的noVNC库 -->
-  <script>
-    // 动态加载novnc bundle
-    const script = document.createElement('script');
-    script.type = 'module';
-    script.src = '/assets/novnc-CZfb_VLC.js'; // 将在构建后被替换为实际的hash文件名
-    script.onerror = () => {
-      document.getElementById('status').textContent = 'Error: Failed to load noVNC library';
-      document.getElementById('status').style.background = 'rgba(255,0,0,0.7)';
-    };
-    document.head.appendChild(script);
-  </script>
-  
-  <script type="module">
-    // 等待RFB加载完成
-    function waitForRFB() {
-      return new Promise((resolve) => {
-        if (window.RFB) {
-          resolve(window.RFB);
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>noVNC</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #0b0f19;
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        display: flex;
+        flex-direction: column;
+      }
+      #controls {
+        background: rgba(0, 0, 0, 0.9);
+        padding: 12px 16px;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        flex-shrink: 0;
+      }
+      #screen-container {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+      }
+      #screen {
+        width: 100%;
+        height: 100%;
+      }
+      #status {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        padding: 10px;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 12px;
+        max-width: 400px;
+        z-index: 1000;
+      }
+      .control-btn {
+        padding: 8px 16px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #fff;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.2s;
+        white-space: nowrap;
+      }
+      .control-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.3);
+      }
+      .control-btn:active {
+        transform: scale(0.95);
+      }
+      .control-btn.danger {
+        background: rgba(220, 38, 38, 0.3);
+        border-color: rgba(220, 38, 38, 0.5);
+      }
+      .control-btn.danger:hover {
+        background: rgba(220, 38, 38, 0.5);
+      }
+      .control-btn.success {
+        background: rgba(34, 197, 94, 0.3);
+        border-color: rgba(34, 197, 94, 0.5);
+      }
+      .control-btn.success:hover {
+        background: rgba(34, 197, 94, 0.5);
+      }
+      .control-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .btn-back {
+        background: rgba(59, 130, 246, 0.3);
+        border-color: rgba(59, 130, 246, 0.5);
+      }
+      .btn-back:hover {
+        background: rgba(59, 130, 246, 0.5);
+      }
+      .divider {
+        width: 1px;
+        height: 24px;
+        background: rgba(255, 255, 255, 0.2);
+        margin: 0 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="controls">
+      <button class="control-btn btn-back" id="btn-back" title="Back to Instance List">
+        ← Back
+      </button>
+      <div class="divider"></div>
+      <button class="control-btn success" id="btn-start" title="Start Instance">▶ Start</button>
+      <button class="control-btn" id="btn-reboot" title="Reboot Instance">↻ Reboot</button>
+      <button class="control-btn danger" id="btn-stop" title="Stop Instance">■ Stop</button>
+      <button class="control-btn danger" id="btn-force-stop" title="Force Stop">
+        ⚠ Force Stop
+      </button>
+      <div class="divider"></div>
+      <button class="control-btn" id="btn-ctrlaltdel" title="Send Ctrl+Alt+Del">
+        Ctrl+Alt+Del
+      </button>
+    </div>
+    <div id="screen-container">
+      <div id="status">Connecting...</div>
+      <div id="screen"></div>
+    </div>
+
+    <!-- 加载本地打包的noVNC库 -->
+    <script>
+      // 动态加载novnc bundle
+      const script = document.createElement('script')
+      script.type = 'module'
+      script.src = '/assets/novnc-CZfb_VLC.js' // 将在构建后被替换为实际的hash文件名
+      script.onerror = () => {
+        document.getElementById('status').textContent = 'Error: Failed to load noVNC library'
+        document.getElementById('status').style.background = 'rgba(255,0,0,0.7)'
+      }
+      document.head.appendChild(script)
+    </script>
+
+    <script type="module">
+      // 等待RFB加载完成
+      function waitForRFB() {
+        return new Promise((resolve) => {
+          if (window.RFB) {
+            resolve(window.RFB)
+          } else {
+            const checkInterval = setInterval(() => {
+              if (window.RFB) {
+                clearInterval(checkInterval)
+                resolve(window.RFB)
+              }
+            }, 50)
+          }
+        })
+      }
+
+      const statusEl = document.getElementById('status')
+
+      async function initVNC() {
+        // 等待RFB库加载
+        const RFB = await waitForRFB()
+
+        function qs(name) {
+          const u = new URL(window.location.href)
+          return u.searchParams.get(name) || ''
+        }
+
+        const path = qs('path')
+        if (!path) {
+          statusEl.textContent = 'Error: Missing path parameter'
+          statusEl.style.background = 'rgba(255,0,0,0.7)'
         } else {
-          const checkInterval = setInterval(() => {
-            if (window.RFB) {
-              clearInterval(checkInterval);
-              resolve(window.RFB);
+          // The path parameter is now a complete WebSocket URL (ws:// or wss://)
+          // No need to parse and rebuild, just use it directly
+          let wsUrl = path
+
+          // If it's not already a WebSocket URL, build it (backward compatibility)
+          if (!wsUrl.startsWith('ws://') && !wsUrl.startsWith('wss://')) {
+            const url = new URL(path, window.location.origin)
+            url.protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+            wsUrl = url.toString()
+          }
+
+          console.log('Connecting to:', wsUrl)
+          statusEl.textContent = 'Connecting to ' + wsUrl
+
+          try {
+            const rfb = new RFB(document.getElementById('screen'), wsUrl)
+            rfb.viewOnly = false
+            rfb.scaleViewport = true
+            rfb.background = '#0b0f19'
+
+            rfb.addEventListener('connect', () => {
+              console.log('Connected to VNC')
+              statusEl.textContent = 'Connected'
+              setTimeout(() => (statusEl.style.display = 'none'), 2000)
+            })
+
+            rfb.addEventListener('disconnect', (e) => {
+              console.log('Disconnected:', e.detail)
+              statusEl.textContent = 'Disconnected: ' + (e.detail.clean ? 'Normal' : 'Error')
+              statusEl.style.display = 'block'
+              statusEl.style.background = 'rgba(255,0,0,0.7)'
+            })
+
+            rfb.addEventListener('credentialsrequired', () => {
+              console.log('Credentials required')
+              statusEl.textContent = 'Authentication required'
+            })
+
+            // Setup control buttons
+            const instanceId = getInstanceIdFromPath()
+            setupControlButtons(rfb, instanceId, statusEl)
+
+            window.rfb = rfb
+          } catch (err) {
+            console.error('Failed to create RFB:', err)
+            statusEl.textContent = 'Error: ' + err.message
+            statusEl.style.background = 'rgba(255,0,0,0.7)'
+          }
+        } // Close else block
+      }
+
+      // 初始化VNC连接
+      initVNC().catch((err) => {
+        console.error('Failed to initialize VNC:', err)
+        statusEl.textContent = 'Initialization error: ' + err.message
+        statusEl.style.background = 'rgba(255,0,0,0.7)'
+      })
+
+      // Extract instance ID from URL path
+      function getInstanceIdFromPath() {
+        // URL format: /project/1/compute/instances/36/console
+        const match = window.top.location.pathname.match(/\/instances\/(\d+)\/console/)
+        return match ? match[1] : null
+      }
+
+      // Setup control button handlers
+      function setupControlButtons(rfb, instanceId, statusEl) {
+        const apiBase = window.top.__VC_CONFIG__?.apiBase || '/api'
+
+        // Get auth token from parent window if available
+        function getAuthHeaders() {
+          const token = window.top.localStorage.getItem('token')
+          return token ? { Authorization: `Bearer ${token}` } : { 'X-User-ID': '1' }
+        }
+
+        // Back button
+        document.getElementById('btn-back').addEventListener('click', () => {
+          window.top.history.back()
+        })
+
+        // Send Ctrl+Alt+Del to VM
+        document.getElementById('btn-ctrlaltdel').addEventListener('click', () => {
+          if (rfb) {
+            rfb.sendCtrlAltDel()
+            showStatus('Sent Ctrl+Alt+Del', 'info')
+          }
+        })
+
+        // Start instance
+        document.getElementById('btn-start').addEventListener('click', async () => {
+          if (!instanceId) {
+            showStatus('Cannot determine instance ID', 'error')
+            return
+          }
+          try {
+            showStatus('Starting instance...', 'info')
+            const res = await fetch(`${apiBase}/v1/instances/${instanceId}/start`, {
+              method: 'POST',
+              headers: getAuthHeaders()
+            })
+            if (res.ok) {
+              showStatus('Instance started', 'success')
+              setTimeout(() => window.top.location.reload(), 2000)
+            } else {
+              showStatus('Start failed: ' + res.statusText, 'error')
             }
-          }, 50);
-        }
-      });
-    }
-    
-    const statusEl = document.getElementById('status');
-    
-    async function initVNC() {
-      // 等待RFB库加载
-      const RFB = await waitForRFB();
-      
-      function qs(name) {
-        const u = new URL(window.location.href);
-        return u.searchParams.get(name) || '';
-      }
-      
-      const path = qs('path');
-      if (!path) {
-        statusEl.textContent = 'Error: Missing path parameter';
-        statusEl.style.background = 'rgba(255,0,0,0.7)';
-      } else {
-      // The path parameter is now a complete WebSocket URL (ws:// or wss://)
-      // No need to parse and rebuild, just use it directly
-      let wsUrl = path;
-      
-      // If it's not already a WebSocket URL, build it (backward compatibility)
-      if (!wsUrl.startsWith('ws://') && !wsUrl.startsWith('wss://')) {
-        const url = new URL(path, window.location.origin);
-        url.protocol = (window.location.protocol === 'https:' ? 'wss:' : 'ws:');
-        wsUrl = url.toString();
-      }
-      
-      console.log('Connecting to:', wsUrl);
-      statusEl.textContent = 'Connecting to ' + wsUrl;
-      
-      try {
-        const rfb = new RFB(document.getElementById('screen'), wsUrl);
-        rfb.viewOnly = false;
-        rfb.scaleViewport = true;
-        rfb.background = '#0b0f19';
-        
-        rfb.addEventListener('connect', () => {
-          console.log('Connected to VNC');
-          statusEl.textContent = 'Connected';
-          setTimeout(() => statusEl.style.display = 'none', 2000);
-        });
-        
-        rfb.addEventListener('disconnect', (e) => {
-          console.log('Disconnected:', e.detail);
-          statusEl.textContent = 'Disconnected: ' + (e.detail.clean ? 'Normal' : 'Error');
-          statusEl.style.display = 'block';
-          statusEl.style.background = 'rgba(255,0,0,0.7)';
-        });
-        
-        rfb.addEventListener('credentialsrequired', () => {
-          console.log('Credentials required');
-          statusEl.textContent = 'Authentication required';
-        });
-        
-        // Setup control buttons
-        const instanceId = getInstanceIdFromPath();
-        setupControlButtons(rfb, instanceId, statusEl);
-        
-        window.rfb = rfb;
-      } catch (err) {
-        console.error('Failed to create RFB:', err);
-        statusEl.textContent = 'Error: ' + err.message;
-        statusEl.style.background = 'rgba(255,0,0,0.7)';
-      }
-      } // Close else block
-    }
-    
-    // 初始化VNC连接
-    initVNC().catch(err => {
-      console.error('Failed to initialize VNC:', err);
-      statusEl.textContent = 'Initialization error: ' + err.message;
-      statusEl.style.background = 'rgba(255,0,0,0.7)';
-    });
-    
-    // Extract instance ID from URL path
-    function getInstanceIdFromPath() {
-      // URL format: /project/1/compute/instances/36/console
-      const match = window.top.location.pathname.match(/\/instances\/(\d+)\/console/);
-      return match ? match[1] : null;
-    }
-    
-    // Setup control button handlers
-    function setupControlButtons(rfb, instanceId, statusEl) {
-      const apiBase = window.top.__VC_CONFIG__?.apiBase || '/api';
-      
-      // Get auth token from parent window if available
-      function getAuthHeaders() {
-        const token = window.top.localStorage.getItem('token');
-        return token ? { 'Authorization': `Bearer ${token}` } : { 'X-User-ID': '1' };
-      }
-      
-      // Back button
-      document.getElementById('btn-back').addEventListener('click', () => {
-        window.top.history.back();
-      });
-      
-      // Send Ctrl+Alt+Del to VM
-      document.getElementById('btn-ctrlaltdel').addEventListener('click', () => {
-        if (rfb) {
-          rfb.sendCtrlAltDel();
-          showStatus('Sent Ctrl+Alt+Del', 'info');
-        }
-      });
-      
-      // Start instance
-      document.getElementById('btn-start').addEventListener('click', async () => {
-        if (!instanceId) {
-          showStatus('Cannot determine instance ID', 'error');
-          return;
-        }
-        try {
-          showStatus('Starting instance...', 'info');
-          const res = await fetch(`${apiBase}/v1/instances/${instanceId}/start`, {
-            method: 'POST',
-            headers: getAuthHeaders()
-          });
-          if (res.ok) {
-            showStatus('Instance started', 'success');
-            setTimeout(() => window.top.location.reload(), 2000);
-          } else {
-            showStatus('Start failed: ' + res.statusText, 'error');
+          } catch (err) {
+            showStatus('Start error: ' + err.message, 'error')
           }
-        } catch (err) {
-          showStatus('Start error: ' + err.message, 'error');
-        }
-      });
-      
-      // Reboot instance
-      document.getElementById('btn-reboot').addEventListener('click', async () => {
-        if (!instanceId) {
-          showStatus('Cannot determine instance ID', 'error');
-          return;
-        }
-        if (!confirm('Reboot this instance?')) return;
-        try {
-          showStatus('Rebooting instance...', 'info');
-          const res = await fetch(`${apiBase}/v1/instances/${instanceId}/reboot`, {
-            method: 'POST',
-            headers: getAuthHeaders()
-          });
-          if (res.ok) {
-            showStatus('Instance rebooting', 'success');
-          } else {
-            showStatus('Reboot failed: ' + res.statusText, 'error');
+        })
+
+        // Reboot instance
+        document.getElementById('btn-reboot').addEventListener('click', async () => {
+          if (!instanceId) {
+            showStatus('Cannot determine instance ID', 'error')
+            return
           }
-        } catch (err) {
-          showStatus('Reboot error: ' + err.message, 'error');
-        }
-      });
-      
-      // Stop instance (graceful)
-      document.getElementById('btn-stop').addEventListener('click', async () => {
-        if (!instanceId) {
-          showStatus('Cannot determine instance ID', 'error');
-          return;
-        }
-        if (!confirm('Stop this instance?')) return;
-        try {
-          showStatus('Stopping instance...', 'info');
-          const res = await fetch(`${apiBase}/v1/instances/${instanceId}/stop`, {
-            method: 'POST',
-            headers: getAuthHeaders()
-          });
-          if (res.ok) {
-            showStatus('Instance stopping', 'success');
-          } else {
-            showStatus('Stop failed: ' + res.statusText, 'error');
+          if (!confirm('Reboot this instance?')) return
+          try {
+            showStatus('Rebooting instance...', 'info')
+            const res = await fetch(`${apiBase}/v1/instances/${instanceId}/reboot`, {
+              method: 'POST',
+              headers: getAuthHeaders()
+            })
+            if (res.ok) {
+              showStatus('Instance rebooting', 'success')
+            } else {
+              showStatus('Reboot failed: ' + res.statusText, 'error')
+            }
+          } catch (err) {
+            showStatus('Reboot error: ' + err.message, 'error')
           }
-        } catch (err) {
-          showStatus('Stop error: ' + err.message, 'error');
-        }
-      });
-      
-      // Force stop instance
-      document.getElementById('btn-force-stop').addEventListener('click', async () => {
-        if (!instanceId) {
-          showStatus('Cannot determine instance ID', 'error');
-          return;
-        }
-        if (!confirm('Force stop this instance? This may cause data loss!')) return;
-        try {
-          showStatus('Force stopping instance...', 'info');
-          const res = await fetch(`${apiBase}/v1/instances/${instanceId}/stop?force=true`, {
-            method: 'POST',
-            headers: getAuthHeaders()
-          });
-          if (res.ok) {
-            showStatus('Instance force stopped', 'success');
-          } else {
-            showStatus('Force stop failed: ' + res.statusText, 'error');
+        })
+
+        // Stop instance (graceful)
+        document.getElementById('btn-stop').addEventListener('click', async () => {
+          if (!instanceId) {
+            showStatus('Cannot determine instance ID', 'error')
+            return
           }
-        } catch (err) {
-          showStatus('Force stop error: ' + err.message, 'error');
-        }
-      });
-      
-      function showStatus(msg, type) {
-        statusEl.textContent = msg;
-        statusEl.style.display = 'block';
-        if (type === 'error') {
-          statusEl.style.background = 'rgba(220, 38, 38, 0.8)';
-        } else if (type === 'success') {
-          statusEl.style.background = 'rgba(34, 197, 94, 0.8)';
-        } else {
-          statusEl.style.background = 'rgba(0,0,0,0.7)';
-        }
-        if (type === 'success' || type === 'info') {
-          setTimeout(() => statusEl.style.display = 'none', 3000);
+          if (!confirm('Stop this instance?')) return
+          try {
+            showStatus('Stopping instance...', 'info')
+            const res = await fetch(`${apiBase}/v1/instances/${instanceId}/stop`, {
+              method: 'POST',
+              headers: getAuthHeaders()
+            })
+            if (res.ok) {
+              showStatus('Instance stopping', 'success')
+            } else {
+              showStatus('Stop failed: ' + res.statusText, 'error')
+            }
+          } catch (err) {
+            showStatus('Stop error: ' + err.message, 'error')
+          }
+        })
+
+        // Force stop instance
+        document.getElementById('btn-force-stop').addEventListener('click', async () => {
+          if (!instanceId) {
+            showStatus('Cannot determine instance ID', 'error')
+            return
+          }
+          if (!confirm('Force stop this instance? This may cause data loss!')) return
+          try {
+            showStatus('Force stopping instance...', 'info')
+            const res = await fetch(`${apiBase}/v1/instances/${instanceId}/stop?force=true`, {
+              method: 'POST',
+              headers: getAuthHeaders()
+            })
+            if (res.ok) {
+              showStatus('Instance force stopped', 'success')
+            } else {
+              showStatus('Force stop failed: ' + res.statusText, 'error')
+            }
+          } catch (err) {
+            showStatus('Force stop error: ' + err.message, 'error')
+          }
+        })
+
+        function showStatus(msg, type) {
+          statusEl.textContent = msg
+          statusEl.style.display = 'block'
+          if (type === 'error') {
+            statusEl.style.background = 'rgba(220, 38, 38, 0.8)'
+          } else if (type === 'success') {
+            statusEl.style.background = 'rgba(34, 197, 94, 0.8)'
+          } else {
+            statusEl.style.background = 'rgba(0,0,0,0.7)'
+          }
+          if (type === 'success' || type === 'info') {
+            setTimeout(() => (statusEl.style.display = 'none'), 3000)
+          }
         }
       }
-    }
-  </script>
-</body>
+    </script>
+  </body>
 </html>

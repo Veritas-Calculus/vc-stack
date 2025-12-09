@@ -16,7 +16,9 @@ export function Utilization() {
 
   const totals = useMemo(() => {
     // aggregate last point per project within range
-    let vcpu = 0, mem = 0, storage = 0
+    let vcpu = 0,
+      mem = 0,
+      storage = 0
     for (const s of utilization) {
       const pts = s.points.filter((p) => p.t >= cutoff)
       const last = pts[pts.length - 1]
@@ -35,23 +37,42 @@ export function Utilization() {
       <div className="grid md:grid-cols-3 gap-3">
         <div className="card p-4">
           <div className="text-gray-400">vCPU used</div>
-          <div className="text-2xl font-semibold">{totals.vcpu} / {capacity.vcpu}</div>
+          <div className="text-2xl font-semibold">
+            {totals.vcpu} / {capacity.vcpu}
+          </div>
           <div className="h-2 bg-oxide-800 rounded mt-2">
-            <div className="h-2 bg-oxide-500 rounded" style={{ width: `${Math.min(100, (totals.vcpu / capacity.vcpu) * 100).toFixed(0)}%` }} />
+            <div
+              className="h-2 bg-oxide-500 rounded"
+              style={{ width: `${Math.min(100, (totals.vcpu / capacity.vcpu) * 100).toFixed(0)}%` }}
+            />
           </div>
         </div>
         <div className="card p-4">
           <div className="text-gray-400">Memory used (GiB)</div>
-          <div className="text-2xl font-semibold">{totals.memGiB} / {capacity.memGiB}</div>
+          <div className="text-2xl font-semibold">
+            {totals.memGiB} / {capacity.memGiB}
+          </div>
           <div className="h-2 bg-oxide-800 rounded mt-2">
-            <div className="h-2 bg-oxide-500 rounded" style={{ width: `${Math.min(100, (totals.memGiB / capacity.memGiB) * 100).toFixed(0)}%` }} />
+            <div
+              className="h-2 bg-oxide-500 rounded"
+              style={{
+                width: `${Math.min(100, (totals.memGiB / capacity.memGiB) * 100).toFixed(0)}%`
+              }}
+            />
           </div>
         </div>
         <div className="card p-4">
           <div className="text-gray-400">Storage used (GiB)</div>
-          <div className="text-2xl font-semibold">{totals.storageGiB} / {capacity.storageGiB}</div>
+          <div className="text-2xl font-semibold">
+            {totals.storageGiB} / {capacity.storageGiB}
+          </div>
           <div className="h-2 bg-oxide-800 rounded mt-2">
-            <div className="h-2 bg-oxide-500 rounded" style={{ width: `${Math.min(100, (totals.storageGiB / capacity.storageGiB) * 100).toFixed(0)}%` }} />
+            <div
+              className="h-2 bg-oxide-500 rounded"
+              style={{
+                width: `${Math.min(100, (totals.storageGiB / capacity.storageGiB) * 100).toFixed(0)}%`
+              }}
+            />
           </div>
         </div>
       </div>
@@ -61,7 +82,11 @@ export function Utilization() {
         <div className="text-sm text-gray-300">Utilization by project</div>
         <div className="flex items-center gap-2">
           <label className="label">Range</label>
-          <select className="input" value={range} onChange={(e) => setRange(e.target.value as Range)}>
+          <select
+            className="input"
+            value={range}
+            onChange={(e) => setRange(e.target.value as Range)}
+          >
             <option value="24h">Last 24h</option>
             <option value="7d">Last 7d</option>
             <option value="30d">Last 30d</option>

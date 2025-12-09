@@ -28,7 +28,7 @@ export default function RouterManagement() {
   const [subnets, setSubnets] = useState<UISubnet[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  
+
   // Modals
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showInterfacesModal, setShowInterfacesModal] = useState(false)
@@ -42,14 +42,14 @@ export default function RouterManagement() {
   const [enableSnat, setEnableSnat] = useState(true)
   const [adminUp, setAdminUp] = useState(true)
   const [externalGatewayNetworkId, setExternalGatewayNetworkId] = useState('')
-  
+
   // Interface/Gateway Form states
   const [selectedSubnetId, setSelectedSubnetId] = useState('')
   const [gatewayNetworkId, setGatewayNetworkId] = useState('')
 
   const externalNetworks = useMemo(() => networks.filter((n) => n.external), [networks])
-  const availableSubnets = useMemo(() => 
-    subnets.filter((s) => !routerInterfaces.some((i) => i.subnet_id === s.id)),
+  const availableSubnets = useMemo(
+    () => subnets.filter((s) => !routerInterfaces.some((i) => i.subnet_id === s.id)),
     [subnets, routerInterfaces]
   )
 
@@ -118,12 +118,12 @@ export default function RouterManagement() {
         enable_snat: enableSnat,
         admin_up: adminUp
       })
-      
+
       // If external gateway is selected, set it after creation
       if (externalGatewayNetworkId) {
         await setRouterGateway(newRouter.id, externalGatewayNetworkId)
       }
-      
+
       await loadRouters()
       setShowCreateModal(false)
       setRouterName('')
@@ -214,7 +214,10 @@ export default function RouterManagement() {
   }
 
   const handleClearGateway = async (router: UIRouter) => {
-    if (!confirm(`Are you sure you want to clear the external gateway for router "${router.name}"?`)) return
+    if (
+      !confirm(`Are you sure you want to clear the external gateway for router "${router.name}"?`)
+    )
+      return
 
     setLoading(true)
     setError(null)
@@ -259,9 +262,7 @@ export default function RouterManagement() {
     {
       key: 'status',
       header: 'Status',
-      render: (r) => (
-        <span className="text-xs text-gray-300">{r.status || 'ACTIVE'}</span>
-      )
+      render: (r) => <span className="text-xs text-gray-300">{r.status || 'ACTIVE'}</span>
     },
     {
       key: 'actions',
@@ -398,7 +399,9 @@ export default function RouterManagement() {
             />
             <label htmlFor="enable-snat" className="label m-0 cursor-pointer">
               Enable SNAT
-              <span className="text-xs text-gray-400 ml-2">(for private network internet access)</span>
+              <span className="text-xs text-gray-400 ml-2">
+                (for private network internet access)
+              </span>
             </label>
           </div>
           <div className="flex items-center gap-2">
@@ -456,9 +459,14 @@ export default function RouterManagement() {
             </select>
           </div>
           <div className="p-3 bg-blue-900/20 border border-blue-800/30 rounded text-sm text-gray-300">
-            <p>After setting gateway, internal networks connected to this router can access the internet.</p>
+            <p>
+              After setting gateway, internal networks connected to this router can access the
+              internet.
+            </p>
             {selectedRouter?.enable_snat && (
-              <p className="mt-2">SNAT is enabled, internal IPs will be translated to external gateway IP.</p>
+              <p className="mt-2">
+                SNAT is enabled, internal IPs will be translated to external gateway IP.
+              </p>
             )}
           </div>
         </div>
@@ -525,7 +533,9 @@ export default function RouterManagement() {
                       className="flex items-center justify-between p-3 bg-oxide-900 rounded border border-oxide-800"
                     >
                       <div>
-                        <div className="text-sm font-medium text-gray-200">{subnet?.cidr || iface.subnet_id}</div>
+                        <div className="text-sm font-medium text-gray-200">
+                          {subnet?.cidr || iface.subnet_id}
+                        </div>
                         <div className="text-xs text-gray-400">
                           Network: {network?.name || 'Unknown'} • IP: {iface.ip_address}
                         </div>

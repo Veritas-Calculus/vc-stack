@@ -36,27 +36,29 @@ export function ActionMenu({ actions }: { actions: Action[] }) {
           <circle cx="19" cy="12" r="2" />
         </svg>
       </button>
-      {open && pos && createPortal(
-        <div
-          style={{ position: 'fixed', top: pos.y + 4, left: pos.x - 144 }}
-          className="z-50 w-36 rounded-md border border-oxide-700 bg-oxide-900 shadow-card py-1"
-        >
-          {actions.map((a, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => {
-                setOpen(false)
-                a.onClick()
-              }}
-              className={`w-full text-left px-3 py-1.5 text-sm hover:bg-oxide-800 ${a.danger ? 'text-rose-300' : 'text-gray-200'}`}
-            >
-              {a.label}
-            </button>
-          ))}
-        </div>,
-        document.body
-      )}
+      {open &&
+        pos &&
+        createPortal(
+          <div
+            style={{ position: 'fixed', top: pos.y + 4, left: pos.x - 144 }}
+            className="z-50 w-36 rounded-md border border-oxide-700 bg-oxide-900 shadow-card py-1"
+          >
+            {actions.map((a, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => {
+                  setOpen(false)
+                  a.onClick()
+                }}
+                className={`w-full text-left px-3 py-1.5 text-sm hover:bg-oxide-800 ${a.danger ? 'text-rose-300' : 'text-gray-200'}`}
+              >
+                {a.label}
+              </button>
+            ))}
+          </div>,
+          document.body
+        )}
     </div>
   )
 }

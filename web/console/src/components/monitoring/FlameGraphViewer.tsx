@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { useMonitoring } from '../../hooks/useMonitoring';
+import { useState, useCallback } from 'react'
+import { useMonitoring } from '../../hooks/useMonitoring'
 
 export function FlameGraphViewer() {
   const {
@@ -7,38 +7,33 @@ export function FlameGraphViewer() {
     error,
     generateCPUFlameGraph,
     generateHeapFlameGraph,
-    generateGoroutineFlameGraph,
-  } = useMonitoring();
+    generateGoroutineFlameGraph
+  } = useMonitoring()
 
-  const [svgUrl, setSvgUrl] = useState<string | null>(null);
-  const [profileType, setProfileType] = useState<string>('');
-  const [duration, setDuration] = useState('30s');
+  const [svgUrl, setSvgUrl] = useState<string | null>(null)
+  const [profileType, setProfileType] = useState<string>('')
+  const [duration, setDuration] = useState('30s')
 
   const generateFlameGraph = useCallback(
     async (type: 'cpu' | 'heap' | 'goroutine') => {
-      setSvgUrl(null);
-      setProfileType(type);
+      setSvgUrl(null)
+      setProfileType(type)
 
-      let result;
+      let result
       if (type === 'cpu') {
-        result = await generateCPUFlameGraph(duration);
+        result = await generateCPUFlameGraph(duration)
       } else if (type === 'heap') {
-        result = await generateHeapFlameGraph();
+        result = await generateHeapFlameGraph()
       } else {
-        result = await generateGoroutineFlameGraph();
+        result = await generateGoroutineFlameGraph()
       }
 
       if (result && result.success) {
-        setSvgUrl(result.download_svg);
+        setSvgUrl(result.download_svg)
       }
     },
-    [
-      duration,
-      generateCPUFlameGraph,
-      generateHeapFlameGraph,
-      generateGoroutineFlameGraph,
-    ]
-  );
+    [duration, generateCPUFlameGraph, generateHeapFlameGraph, generateGoroutineFlameGraph]
+  )
 
   return (
     <div className="p-6 space-y-6">
@@ -51,9 +46,7 @@ export function FlameGraphViewer() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div>
-            <label className="block text-sm font-medium mb-2">
-              CPU Profile Duration
-            </label>
+            <label className="block text-sm font-medium mb-2">CPU Profile Duration</label>
             <select
               value={duration}
               onChange={(e) => setDuration(e.target.value)}
@@ -74,18 +67,14 @@ export function FlameGraphViewer() {
             disabled={loading}
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-300"
           >
-            {loading && profileType === 'cpu'
-              ? 'Generating...'
-              : 'Generate CPU Flamegraph'}
+            {loading && profileType === 'cpu' ? 'Generating...' : 'Generate CPU Flamegraph'}
           </button>
           <button
             onClick={() => generateFlameGraph('heap')}
             disabled={loading}
             className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-300"
           >
-            {loading && profileType === 'heap'
-              ? 'Generating...'
-              : 'Generate Heap Flamegraph'}
+            {loading && profileType === 'heap' ? 'Generating...' : 'Generate Heap Flamegraph'}
           </button>
           <button
             onClick={() => generateFlameGraph('goroutine')}
@@ -98,19 +87,14 @@ export function FlameGraphViewer() {
           </button>
         </div>
 
-        {error && (
-          <div className="mt-4 p-4 bg-red-100 text-red-700 rounded">
-            {error}
-          </div>
-        )}
+        {error && <div className="mt-4 p-4 bg-red-100 text-red-700 rounded">{error}</div>}
       </div>
 
       {svgUrl && (
         <div className="bg-white p-6 rounded-lg shadow">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">
-              {profileType.charAt(0).toUpperCase() + profileType.slice(1)}{' '}
-              Flamegraph
+              {profileType.charAt(0).toUpperCase() + profileType.slice(1)} Flamegraph
             </h2>
             <a
               href={svgUrl}
@@ -121,11 +105,7 @@ export function FlameGraphViewer() {
             </a>
           </div>
           <div className="border rounded p-4 overflow-auto">
-            <iframe
-              src={svgUrl}
-              className="w-full h-96 border-0"
-              title="Flamegraph"
-            />
+            <iframe src={svgUrl} className="w-full h-96 border-0" title="Flamegraph" />
           </div>
         </div>
       )}
@@ -145,5 +125,5 @@ export function FlameGraphViewer() {
         </ul>
       </div>
     </div>
-  );
+  )
 }

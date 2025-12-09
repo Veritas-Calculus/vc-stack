@@ -135,7 +135,7 @@ export function Firecracker() {
           disk_gb: parseInt(diskGB) || 10,
           image_id: parseInt(imageId),
           kernel_path: kernelPath || undefined,
-          type: vmType,
+          type: vmType
         },
         config
       )
@@ -157,45 +157,54 @@ export function Firecracker() {
     }
   }
 
-  const handleStart = useCallback(async (id: number) => {
-    try {
-      await api.post(`/v1/firecracker/${id}/start`)
-      toast.success('Firecracker instance started')
-      refresh()
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to start instance'
-      toast.error(message)
-    }
-  }, [refresh])
+  const handleStart = useCallback(
+    async (id: number) => {
+      try {
+        await api.post(`/v1/firecracker/${id}/start`)
+        toast.success('Firecracker instance started')
+        refresh()
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Failed to start instance'
+        toast.error(message)
+      }
+    },
+    [refresh]
+  )
 
-  const handleStop = useCallback(async (id: number) => {
-    try {
-      await api.post(`/v1/firecracker/${id}/stop`)
-      toast.success('Firecracker instance stopped')
-      refresh()
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to stop instance'
-      toast.error(message)
-    }
-  }, [refresh])
+  const handleStop = useCallback(
+    async (id: number) => {
+      try {
+        await api.post(`/v1/firecracker/${id}/stop`)
+        toast.success('Firecracker instance stopped')
+        refresh()
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Failed to stop instance'
+        toast.error(message)
+      }
+    },
+    [refresh]
+  )
 
-  const handleDelete = useCallback(async (id: number) => {
-    if (!confirm('Are you sure you want to delete this Firecracker instance?')) return
-    try {
-      await api.delete(`/v1/firecracker/${id}`)
-      toast.success('Firecracker instance deleted')
-      refresh()
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to delete instance'
-      toast.error(message)
-    }
-  }, [refresh])
+  const handleDelete = useCallback(
+    async (id: number) => {
+      if (!confirm('Are you sure you want to delete this Firecracker instance?')) return
+      try {
+        await api.delete(`/v1/firecracker/${id}`)
+        toast.success('Firecracker instance deleted')
+        refresh()
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Failed to delete instance'
+        toast.error(message)
+      }
+    },
+    [refresh]
+  )
 
   const columns: Column<FirecrackerInstance>[] = useMemo(
     () => [
-      { 
-        key: 'name', 
-        header: 'Name', 
+      {
+        key: 'name',
+        header: 'Name',
         render: (r) => <span className="text-primary-400">{r.name}</span>
       },
       {
@@ -205,7 +214,7 @@ export function Firecracker() {
           <Badge variant={r.type === 'microvm' ? 'info' : 'warning'}>
             {r.type === 'microvm' ? 'MicroVM' : 'Function'}
           </Badge>
-        ),
+        )
       },
       {
         key: 'status',
@@ -213,29 +222,30 @@ export function Firecracker() {
         render: (r) => {
           if (r.status === 'building') return <Badge variant="warning">building</Badge>
           if (r.status === 'error') return <Badge variant="danger">error</Badge>
-          if (r.status === 'active' && r.power_state === 'running') return <Badge variant="success">running</Badge>
+          if (r.status === 'active' && r.power_state === 'running')
+            return <Badge variant="success">running</Badge>
           return <Badge>stopped</Badge>
-        },
+        }
       },
-      { 
-        key: 'vm_id', 
-        header: 'Internal name', 
-        render: (r) => r.vm_id || r.uuid 
+      {
+        key: 'vm_id',
+        header: 'Internal name',
+        render: (r) => r.vm_id || r.uuid
       },
-      { 
-        key: 'vcpus', 
-        header: 'vCPUs', 
-        render: (r) => r.vcpus 
+      {
+        key: 'vcpus',
+        header: 'vCPUs',
+        render: (r) => r.vcpus
       },
-      { 
-        key: 'memory_mb', 
-        header: 'Memory', 
-        render: (r) => `${r.memory_mb} MB` 
+      {
+        key: 'memory_mb',
+        header: 'Memory',
+        render: (r) => `${r.memory_mb} MB`
       },
-      { 
-        key: 'disk_gb', 
-        header: 'Disk', 
-        render: (r) => `${r.disk_gb || '-'} GB` 
+      {
+        key: 'disk_gb',
+        header: 'Disk',
+        render: (r) => `${r.disk_gb || '-'} GB`
       },
       {
         key: 'actions',
@@ -243,37 +253,46 @@ export function Firecracker() {
         render: (r) => (
           <div className="flex gap-1">
             <button
-              onClick={(e) => { e.stopPropagation(); handleStart(r.id) }}
+              onClick={(e) => {
+                e.stopPropagation()
+                handleStart(r.id)
+              }}
               disabled={r.power_state === 'running'}
               className="icon-btn text-green-400 disabled:opacity-30 disabled:cursor-not-allowed"
               title="Start"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M8 5v14l11-7z"/>
+                <path d="M8 5v14l11-7z" />
               </svg>
             </button>
             <button
-              onClick={(e) => { e.stopPropagation(); handleStop(r.id) }}
+              onClick={(e) => {
+                e.stopPropagation()
+                handleStop(r.id)
+              }}
               disabled={r.power_state === 'shutdown'}
               className="icon-btn text-yellow-400 disabled:opacity-30 disabled:cursor-not-allowed"
               title="Stop"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M6 6h12v12H6z"/>
+                <path d="M6 6h12v12H6z" />
               </svg>
             </button>
             <button
-              onClick={(e) => { e.stopPropagation(); handleDelete(r.id) }}
+              onClick={(e) => {
+                e.stopPropagation()
+                handleDelete(r.id)
+              }}
               className="icon-btn text-rose-400"
               title="Delete"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M6 7h12l-1 14H7L6 7zm3-3h6l1 2H8l1-2z"/>
+                <path d="M6 7h12l-1 14H7L6 7zm3-3h6l1 2H8l1-2z" />
               </svg>
             </button>
           </div>
-        ),
-      },
+        )
+      }
     ],
     [handleStart, handleStop, handleDelete]
   )
@@ -281,13 +300,17 @@ export function Firecracker() {
   return (
     <div className="space-y-3">
       <PageHeader title="Firecracker" subtitle="Lightweight microVMs and function containers" />
-      
+
       <TableToolbar placeholder="Search name/uuid" onSearch={setQ}>
         <div className="flex items-center gap-2">
           <button className="btn-secondary h-9" onClick={refresh} disabled={loading}>
             Refresh
           </button>
-          <select className="input h-9" value={filter} onChange={(e) => setFilter(e.target.value as Filter)}>
+          <select
+            className="input h-9"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value as Filter)}
+          >
             <option value="all">All</option>
             <option value="running">Running</option>
             <option value="stopped">Stopped</option>
@@ -298,11 +321,7 @@ export function Firecracker() {
         </div>
       </TableToolbar>
 
-      <DataTable
-        data={filtered}
-        columns={columns}
-        empty="No Firecracker instances"
-      />
+      <DataTable data={filtered} columns={columns} empty="No Firecracker instances" />
 
       {/* Create Modal */}
       <Modal

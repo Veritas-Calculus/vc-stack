@@ -35,9 +35,9 @@ export default defineConfig({
         // 为novnc-entry创建独立的输出
         entryFileNames: (chunkInfo) => {
           if (chunkInfo.name === 'novnc') {
-            return 'assets/novnc-[hash].js';
+            return 'assets/novnc-[hash].js'
           }
-          return 'assets/[name]-[hash].js';
+          return 'assets/[name]-[hash].js'
         }
       }
     },

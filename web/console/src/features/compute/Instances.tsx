@@ -7,7 +7,31 @@ import { PageHeader } from '@/components/ui/PageHeader'
 import { TableToolbar } from '@/components/ui/TableToolbar'
 import { Modal } from '@/components/ui/Modal'
 import { DeletionProgress } from './DeletionProgress'
-import { fetchFlavors, fetchImages, fetchInstancesRaw, createInstance, fetchNetworks, createNetwork, fetchSSHKeys, createSSHKey, startInstance, stopInstance, rebootInstance, destroyInstance, forceDeleteInstance, startConsole, fetchPorts, fetchProjects as fetchIdentityProjects, fetchUsers, type BackendInstance, type UIImage, type UINetwork, type UISSHKey, type UIProject, type UIUser } from '@/lib/api'
+import {
+  fetchFlavors,
+  fetchImages,
+  fetchInstancesRaw,
+  createInstance,
+  fetchNetworks,
+  createNetwork,
+  fetchSSHKeys,
+  createSSHKey,
+  startInstance,
+  stopInstance,
+  rebootInstance,
+  destroyInstance,
+  forceDeleteInstance,
+  startConsole,
+  fetchPorts,
+  fetchProjects as fetchIdentityProjects,
+  fetchUsers,
+  type BackendInstance,
+  type UIImage,
+  type UINetwork,
+  type UISSHKey,
+  type UIProject,
+  type UIUser
+} from '@/lib/api'
 import { toast } from '@/lib/toast'
 
 function errMessage(e: unknown): string {
@@ -67,9 +91,7 @@ export function Instances() {
   const refresh = useCallback(async () => {
     setLoading(true)
     try {
-      const [list] = await Promise.all([
-        fetchInstancesRaw(projectId)
-      ])
+      const [list] = await Promise.all([fetchInstancesRaw(projectId)])
       setItems(list)
     } finally {
       setLoading(false)
@@ -81,9 +103,15 @@ export function Instances() {
     setLoading(true)
     // Fetch instances first so the table shows up even if other calls fail
     fetchInstancesRaw(projectId)
-      .then((inst) => { if (alive) setItems(inst) })
-      .catch(() => { if (alive) setItems([]) })
-      .finally(() => { if (alive) setLoading(false) })
+      .then((inst) => {
+        if (alive) setItems(inst)
+      })
+      .catch(() => {
+        if (alive) setItems([])
+      })
+      .finally(() => {
+        if (alive) setLoading(false)
+      })
 
     // Fire-and-forget the rest; don't block initial render
     Promise.allSettled([
@@ -102,17 +130,27 @@ export function Instances() {
       if (keys.status === 'fulfilled') setSshKeys(keys.value)
       if (projects.status === 'fulfilled') {
         const pmap: Record<string, string> = {}
-        projects.value.forEach((p: UIProject) => { pmap[String(p.id)] = p.name })
+        projects.value.forEach((p: UIProject) => {
+          pmap[String(p.id)] = p.name
+        })
         setProjNames(pmap)
       }
       if (users.status === 'fulfilled') {
         const umap: Record<string, string> = {}
-        users.value.forEach((u: UIUser) => { umap[String(u.id)] = u.username || `${u.first_name ?? ''} ${u.last_name ?? ''}`.trim() || u.email || String(u.id) })
+        users.value.forEach((u: UIUser) => {
+          umap[String(u.id)] =
+            u.username ||
+            `${u.first_name ?? ''} ${u.last_name ?? ''}`.trim() ||
+            u.email ||
+            String(u.id)
+        })
         setUserNames(umap)
       }
     })
 
-    return () => { alive = false }
+    return () => {
+      alive = false
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId])
 
@@ -135,15 +173,18 @@ export function Instances() {
   useEffect(() => {
     let abort = false
     async function loadIPs() {
-      const pairs = await Promise.all(items.map(async (it) => {
-        try {
-          const ports = await fetchPorts({ tenant_id: projectId, device_id: it.uuid })
-          const ip = ports.find((p) => (p.fixed_ips && p.fixed_ips.length > 0))?.fixed_ips?.[0]?.ip || ''
-          return [String(it.id), ip] as const
-        } catch {
-          return [String(it.id), ''] as const
-        }
-      }))
+      const pairs = await Promise.all(
+        items.map(async (it) => {
+          try {
+            const ports = await fetchPorts({ tenant_id: projectId, device_id: it.uuid })
+            const ip =
+              ports.find((p) => p.fixed_ips && p.fixed_ips.length > 0)?.fixed_ips?.[0]?.ip || ''
+            return [String(it.id), ip] as const
+          } catch {
+            return [String(it.id), ''] as const
+          }
+        })
+      )
       if (!abort) {
         const next: Record<string, string> = {}
         for (const [id, ip] of pairs) next[id] = ip
@@ -152,21 +193,29 @@ export function Instances() {
     }
     if (items.length > 0) loadIPs()
     else setIpMap({})
-    return () => { abort = true }
+    return () => {
+      abort = true
+    }
   }, [items, projectId])
 
   const filtered = useMemo(() => {
     const byState = items.filter((it) => {
       if (filter === 'all') return true
-      const isRunning = it.power_state === 'running' || it.status === 'active' || it.status === 'running'
+      const isRunning =
+        it.power_state === 'running' || it.status === 'active' || it.status === 'running'
       return filter === 'running' ? isRunning : !isRunning
     })
     const kw = q.trim().toLowerCase()
     if (!kw) return byState
-    return byState.filter((it) =>
-      it.name.toLowerCase().includes(kw) ||
-      String(it.uuid || '').toLowerCase().includes(kw) ||
-      String(it.host_id || '').toLowerCase().includes(kw)
+    return byState.filter(
+      (it) =>
+        it.name.toLowerCase().includes(kw) ||
+        String(it.uuid || '')
+          .toLowerCase()
+          .includes(kw) ||
+        String(it.host_id || '')
+          .toLowerCase()
+          .includes(kw)
     )
   }, [items, filter, q])
 
@@ -179,7 +228,8 @@ export function Instances() {
   const toggleOne = (id: string, checked: boolean) => {
     setSelectedIds((prev) => {
       const next = new Set(prev)
-      if (checked) next.add(id); else next.delete(id)
+      if (checked) next.add(id)
+      else next.delete(id)
       return next
     })
   }
@@ -207,46 +257,75 @@ export function Instances() {
       ),
       className: 'w-8'
     },
-    { key: 'name', header: 'Name', render: (r) => (
-      <button className="text-primary-400 hover:underline" onClick={async (e) => {
-        e.stopPropagation()
-        await startConsole(String(r.id))
-        // Navigate to console viewer route (same as existing console page)
-        window.location.href = `/project/${projectId}/compute/instances/${r.id}/console`
-      }}>{r.name}</button>
-    ) },
-    { key: 'status', header: 'state', render: (r) => {
-      const pid = String(r.id)
-      if (pendingIds.has(pid)) return <Badge variant="info">provisioning<span className="ml-1 inline-block animate-spin">⏳</span></Badge>
-      if (r.status === 'building' || r.status === 'spawning') return <Badge variant="warning">building</Badge>
-      if (r.status === 'error') return <Badge variant="danger">error</Badge>
-      // Check both status and power_state for running state
-      if (
-        r.power_state === 'running' || 
-        r.status === 'active' || 
-        r.status === 'running'
-      ) return <Badge variant="success">running</Badge>
-      return <Badge>stopped</Badge>
-    } },
+    {
+      key: 'name',
+      header: 'Name',
+      render: (r) => (
+        <button
+          className="text-primary-400 hover:underline"
+          onClick={async (e) => {
+            e.stopPropagation()
+            await startConsole(String(r.id))
+            // Navigate to console viewer route (same as existing console page)
+            window.location.href = `/project/${projectId}/compute/instances/${r.id}/console`
+          }}
+        >
+          {r.name}
+        </button>
+      )
+    },
+    {
+      key: 'status',
+      header: 'state',
+      render: (r) => {
+        const pid = String(r.id)
+        if (pendingIds.has(pid))
+          return (
+            <Badge variant="info">
+              provisioning<span className="ml-1 inline-block animate-spin">⏳</span>
+            </Badge>
+          )
+        if (r.status === 'building' || r.status === 'spawning')
+          return <Badge variant="warning">building</Badge>
+        if (r.status === 'error') return <Badge variant="danger">error</Badge>
+        // Check both status and power_state for running state
+        if (r.power_state === 'running' || r.status === 'active' || r.status === 'running')
+          return <Badge variant="success">running</Badge>
+        return <Badge>stopped</Badge>
+      }
+    },
     { key: 'vm_id', header: 'Internal name', render: (r) => r.vm_id || r.uuid },
     { key: 'ip', header: 'ip address', render: (r) => ipMap[String(r.id)] || '' },
     { key: 'host_id', header: 'Host' },
-    { key: 'user_id', header: 'Account', render: (r) => (r.user_id ? (userNames[String(r.user_id)] ?? String(r.user_id)) : '') },
-    { key: 'project_id', header: 'Zone', render: (r) => (r.project_id ? (projNames[String(r.project_id)] ?? String(r.project_id)) : '') }
-    ,{ key: 'actions', header: 'disks', className: 'w-24 text-right', render: (r) => (
-      <div className="flex justify-end">
-        <button
-          className="text-blue-400 hover:underline"
-          title="View instance disks"
-          onClick={(e) => {
-            e.stopPropagation()
-            window.location.href = `/project/${projectId}/compute/instances/${r.id}/volumes`
-          }}
-        >
-          View disks
-        </button>
-      </div>
-    ) }
+    {
+      key: 'user_id',
+      header: 'Account',
+      render: (r) => (r.user_id ? (userNames[String(r.user_id)] ?? String(r.user_id)) : '')
+    },
+    {
+      key: 'project_id',
+      header: 'Zone',
+      render: (r) => (r.project_id ? (projNames[String(r.project_id)] ?? String(r.project_id)) : '')
+    },
+    {
+      key: 'actions',
+      header: 'disks',
+      className: 'w-24 text-right',
+      render: (r) => (
+        <div className="flex justify-end">
+          <button
+            className="text-blue-400 hover:underline"
+            title="View instance disks"
+            onClick={(e) => {
+              e.stopPropagation()
+              window.location.href = `/project/${projectId}/compute/instances/${r.id}/volumes`
+            }}
+          >
+            View disks
+          </button>
+        </div>
+      )
+    }
   ]
 
   async function onCreate() {
@@ -254,7 +333,14 @@ export function Instances() {
     if (!networkId) return
     setSubmitting(true)
     try {
-  const body: { name: string; flavor_id: number; image_id: number; root_disk_gb?: number; networks?: Array<{ uuid?: string; port?: string; fixed_ip?: string }>; ssh_key?: string } = { name: newName, flavor_id: Number(flavorId), image_id: Number(imageId) }
+      const body: {
+        name: string
+        flavor_id: number
+        image_id: number
+        root_disk_gb?: number
+        networks?: Array<{ uuid?: string; port?: string; fixed_ip?: string }>
+        ssh_key?: string
+      } = { name: newName, flavor_id: Number(flavorId), image_id: Number(imageId) }
       const d = Number(disk)
       if (!Number.isNaN(d) && d > 0) body.root_disk_gb = d
       body.networks = [{ uuid: networkId }]
@@ -282,14 +368,26 @@ export function Instances() {
               if (isRunning || isError) break
             }
           }
-        } catch { /* ignore */ }
-        finally {
-          setPendingIds((prev) => { const next = new Set(prev); next.delete(cid); return next })
+        } catch {
+          /* ignore */
+        } finally {
+          setPendingIds((prev) => {
+            const next = new Set(prev)
+            next.delete(cid)
+            return next
+          })
         }
       })()
       setOpen(false)
-      setNewName(''); setFlavorId(''); setImageId(''); setDisk(''); setNetworkId(''); setSshKeyId('')
-    } finally { setSubmitting(false) }
+      setNewName('')
+      setFlavorId('')
+      setImageId('')
+      setDisk('')
+      setNetworkId('')
+      setSshKeyId('')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -297,26 +395,39 @@ export function Instances() {
       <PageHeader title="Instances" subtitle="Virtual machines" />
       <TableToolbar placeholder="Search name/uuid/host" onSearch={setQ}>
         <div className="flex items-center gap-2">
-          <button className="btn-secondary h-9" onClick={refresh} disabled={loading}>Refresh</button>
-          <select className="input h-9" value={filter} onChange={(e) => setFilter(e.target.value as Filter)}>
+          <button className="btn-secondary h-9" onClick={refresh} disabled={loading}>
+            Refresh
+          </button>
+          <select
+            className="input h-9"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value as Filter)}
+          >
             <option value="all">All</option>
             <option value="running">Running</option>
             <option value="stopped">Stopped</option>
           </select>
-          <button className="btn-primary h-9 w-40" onClick={async () => {
-            setOpen(true)
-            // Ensure latest images/networks/ssh keys are shown when opening the modal
-            try {
-              const [im, nw, keys] = await Promise.allSettled([
-                fetchImages(projectId),
-                fetchNetworks(projectId),
-                fetchSSHKeys(projectId)
-              ])
-              if (im.status === 'fulfilled') setImgs(im.value)
-              if (nw.status === 'fulfilled') setNets(nw.value)
-              if (keys.status === 'fulfilled') setSshKeys(keys.value)
-            } catch { /* noop */ }
-          }}>Add Instance</button>
+          <button
+            className="btn-primary h-9 w-40"
+            onClick={async () => {
+              setOpen(true)
+              // Ensure latest images/networks/ssh keys are shown when opening the modal
+              try {
+                const [im, nw, keys] = await Promise.allSettled([
+                  fetchImages(projectId),
+                  fetchNetworks(projectId),
+                  fetchSSHKeys(projectId)
+                ])
+                if (im.status === 'fulfilled') setImgs(im.value)
+                if (nw.status === 'fulfilled') setNets(nw.value)
+                if (keys.status === 'fulfilled') setSshKeys(keys.value)
+              } catch {
+                /* noop */
+              }
+            }}
+          >
+            Add Instance
+          </button>
           {selectedIds.size > 0 && (
             <div className="flex items-center gap-2 ml-2">
               <button
@@ -326,7 +437,7 @@ export function Instances() {
                 onClick={async () => {
                   try {
                     await Promise.all(Array.from(selectedIds).map((id) => startInstance(id)))
-                    toast.success(`Started ${selectedIds.size} instance(s)`) 
+                    toast.success(`Started ${selectedIds.size} instance(s)`)
                   } catch (e) {
                     toast.error(`Start failed: ${errMessage(e)}`)
                   } finally {
@@ -334,7 +445,9 @@ export function Instances() {
                   }
                 }}
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
               </button>
               <button
                 className="icon-btn"
@@ -343,7 +456,7 @@ export function Instances() {
                 onClick={async () => {
                   try {
                     await Promise.all(Array.from(selectedIds).map((id) => stopInstance(id)))
-                    toast.info(`Stopped ${selectedIds.size} instance(s)`) 
+                    toast.info(`Stopped ${selectedIds.size} instance(s)`)
                   } catch (e) {
                     toast.error(`Stop failed: ${errMessage(e)}`)
                   } finally {
@@ -351,7 +464,9 @@ export function Instances() {
                   }
                 }}
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h12v12H6z"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M6 6h12v12H6z" />
+                </svg>
               </button>
               <button
                 className="icon-btn"
@@ -360,7 +475,7 @@ export function Instances() {
                 onClick={async () => {
                   try {
                     await Promise.all(Array.from(selectedIds).map((id) => rebootInstance(id)))
-                    toast.info(`Restarted ${selectedIds.size} instance(s)`) 
+                    toast.info(`Restarted ${selectedIds.size} instance(s)`)
                   } catch (e) {
                     toast.error(`Restart failed: ${errMessage(e)}`)
                   } finally {
@@ -368,7 +483,9 @@ export function Instances() {
                   }
                 }}
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 6V3L8 7l4 4V8a4 4 0 1 1-4 4H6a6 6 0 1 0 6-6z"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 6V3L8 7l4 4V8a4 4 0 1 1-4 4H6a6 6 0 1 0 6-6z" />
+                </svg>
               </button>
               <button
                 className="icon-btn text-rose-300"
@@ -380,7 +497,7 @@ export function Instances() {
                     // Start deletion for all selected instances
                     const idsArray = Array.from(selectedIds)
                     await Promise.all(idsArray.map((id) => destroyInstance(id)))
-                    
+
                     // Show progress modal
                     setDeletingIds(idsArray)
                     setShowDeletionProgress(true)
@@ -391,23 +508,32 @@ export function Instances() {
                   }
                 }}
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 7h12l-1 14H7L6 7zm3-3h6l1 2H8l1-2z"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M6 7h12l-1 14H7L6 7zm3-3h6l1 2H8l1-2z" />
+                </svg>
               </button>
               <button
                 className="icon-btn text-rose-500"
                 aria-label="Force delete (orphaned VMs)"
                 title="Force delete - removes database records for VMs stuck in 'deleting' state"
                 onClick={async () => {
-                  const selectedItems = Array.from(selectedIds).map(id => items.find(i => String(i.id) === id)).filter(Boolean) as BackendInstance[]
-                  const deletingItems = selectedItems.filter(i => i.status === 'deleting')
-                  
+                  const selectedItems = Array.from(selectedIds)
+                    .map((id) => items.find((i) => String(i.id) === id))
+                    .filter(Boolean) as BackendInstance[]
+                  const deletingItems = selectedItems.filter((i) => i.status === 'deleting')
+
                   if (deletingItems.length === 0) {
                     toast.info('Force delete only works on instances stuck in "deleting" status')
                     return
                   }
-                  
-                  if (!confirm(`Force delete ${deletingItems.length} instance(s) stuck in deleting state?\n\nThis will remove database records but NOT delete VMs from hypervisor.`)) return
-                  
+
+                  if (
+                    !confirm(
+                      `Force delete ${deletingItems.length} instance(s) stuck in deleting state?\n\nThis will remove database records but NOT delete VMs from hypervisor.`
+                    )
+                  )
+                    return
+
                   try {
                     await Promise.all(deletingItems.map((i) => forceDeleteInstance(String(i.id))))
                     toast.success(`Force deleted ${deletingItems.length} instance(s)`)
@@ -419,7 +545,9 @@ export function Instances() {
                   }
                 }}
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                </svg>
               </button>
             </div>
           )}
@@ -436,57 +564,126 @@ export function Instances() {
         isRowSelected={(row) => selectedIds.has(String((row as BackendInstance).id))}
       />
 
-      <Modal title="Create Instance" open={open} onClose={() => { setOpen(false); void refresh() }} footer={<>
-        <button className="btn-secondary" onClick={() => setOpen(false)} disabled={submitting}>Cancel</button>
-        <button className="btn-primary" onClick={onCreate} disabled={submitting || !newName || !flavorId || !imageId || !networkId}>Create</button>
-      </>}>
+      <Modal
+        title="Create Instance"
+        open={open}
+        onClose={() => {
+          setOpen(false)
+          void refresh()
+        }}
+        footer={
+          <>
+            <button className="btn-secondary" onClick={() => setOpen(false)} disabled={submitting}>
+              Cancel
+            </button>
+            <button
+              className="btn-primary"
+              onClick={onCreate}
+              disabled={submitting || !newName || !flavorId || !imageId || !networkId}
+            >
+              Create
+            </button>
+          </>
+        }
+      >
         <div className="space-y-3">
           <div>
             <label className="label">Name</label>
-            <input className="input w-full" value={newName} onChange={(e) => setNewName(e.target.value)} />
+            <input
+              className="input w-full"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+            />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="label">Flavor</label>
-              <select className="input w-full" value={flavorId} onChange={(e) => setFlavorId(e.target.value)}>
+              <select
+                className="input w-full"
+                value={flavorId}
+                onChange={(e) => setFlavorId(e.target.value)}
+              >
                 <option value="">Select</option>
-                {flavors.map((f: Flavor) => <option key={f.id} value={f.id}>{f.name} • {f.vcpu} vCPU / {f.memoryGiB} GiB</option>)}
+                {flavors.map((f: Flavor) => (
+                  <option key={f.id} value={f.id}>
+                    {f.name} • {f.vcpu} vCPU / {f.memoryGiB} GiB
+                  </option>
+                ))}
               </select>
             </div>
             <div>
               <label className="label">Image</label>
-              <select className="input w-full" value={imageId} onChange={(e) => setImageId(e.target.value)}>
+              <select
+                className="input w-full"
+                value={imageId}
+                onChange={(e) => setImageId(e.target.value)}
+              >
                 <option value="">Select</option>
-                {imgs.map((im) => <option key={im.id} value={im.id}>{im.name} • {im.sizeGiB} GiB</option>)}
+                {imgs.map((im) => (
+                  <option key={im.id} value={im.id}>
+                    {im.name} • {im.sizeGiB} GiB
+                  </option>
+                ))}
               </select>
             </div>
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div>
               <label className="label">Root Disk (GiB)</label>
-              <input className="input w-full" type="number" min={minDiskGiB} placeholder={`${minDiskGiB}+`}
-                value={disk} onChange={(e) => setDisk(e.target.value)} />
-              <p className="text-xs text-muted mt-1">Minimum {minDiskGiB} GiB based on flavor/image</p>
+              <input
+                className="input w-full"
+                type="number"
+                min={minDiskGiB}
+                placeholder={`${minDiskGiB}+`}
+                value={disk}
+                onChange={(e) => setDisk(e.target.value)}
+              />
+              <p className="text-xs text-muted mt-1">
+                Minimum {minDiskGiB} GiB based on flavor/image
+              </p>
             </div>
             <div>
               <label className="label">Network</label>
-              <select className="input w-full" value={networkId} onChange={(e) => {
-                if (e.target.value === '__create__') { setNetModal(true); return }
-                setNetworkId(e.target.value)
-              }}>
+              <select
+                className="input w-full"
+                value={networkId}
+                onChange={(e) => {
+                  if (e.target.value === '__create__') {
+                    setNetModal(true)
+                    return
+                  }
+                  setNetworkId(e.target.value)
+                }}
+              >
                 <option value="">Select</option>
-                {nets.map((n) => <option key={n.id} value={n.id}>{n.name}{n.cidr ? ` • ${n.cidr}` : ''}</option>)}
+                {nets.map((n) => (
+                  <option key={n.id} value={n.id}>
+                    {n.name}
+                    {n.cidr ? ` • ${n.cidr}` : ''}
+                  </option>
+                ))}
                 <option value="__create__">+ Create new network…</option>
               </select>
             </div>
             <div>
               <label className="label">SSH Key</label>
-              <select className="input w-full" value={sshKeyId} onChange={(e) => {
-                if (e.target.value === '__create__') { setSshModal(true); return }
-                setSshKeyId(e.target.value)
-              }}>
+              <select
+                className="input w-full"
+                value={sshKeyId}
+                onChange={(e) => {
+                  if (e.target.value === '__create__') {
+                    setSshModal(true)
+                    return
+                  }
+                  setSshKeyId(e.target.value)
+                }}
+              >
                 <option value="">None</option>
-                {sshKeys.map((k) => <option key={k.id} value={k.id}>{k.name}</option>)}
+                {sshKeys.map((k) => (
+                  <option key={k.id} value={k.id}>
+                    {k.name}
+                  </option>
+                ))}
                 <option value="__create__">+ Add new SSH key…</option>
               </select>
             </div>
@@ -495,47 +692,101 @@ export function Instances() {
       </Modal>
 
       {/* Inline modal: create SSH key */}
-      <Modal title="Add SSH Key" open={sshModal} onClose={() => setSshModal(false)} footer={<>
-        <button className="btn-secondary" onClick={() => setSshModal(false)}>Cancel</button>
-        <button className="btn-primary" onClick={async () => {
-          if (projectId && sshName && sshPub) {
-            const created = await createSSHKey(projectId, { name: sshName, public_key: sshPub })
-            setSshKeys((prev) => [...prev, created])
-            setSshKeyId(created.id)
-            setSshName(''); setSshPub(''); setSshModal(false)
-          }
-        }}>Add</button>
-      </>}>
+      <Modal
+        title="Add SSH Key"
+        open={sshModal}
+        onClose={() => setSshModal(false)}
+        footer={
+          <>
+            <button className="btn-secondary" onClick={() => setSshModal(false)}>
+              Cancel
+            </button>
+            <button
+              className="btn-primary"
+              onClick={async () => {
+                if (projectId && sshName && sshPub) {
+                  const created = await createSSHKey(projectId, {
+                    name: sshName,
+                    public_key: sshPub
+                  })
+                  setSshKeys((prev) => [...prev, created])
+                  setSshKeyId(created.id)
+                  setSshName('')
+                  setSshPub('')
+                  setSshModal(false)
+                }
+              }}
+            >
+              Add
+            </button>
+          </>
+        }
+      >
         <div className="space-y-3">
           <div>
             <label className="label">Name</label>
-            <input className="input w-full" value={sshName} onChange={(e) => setSshName(e.target.value)} />
+            <input
+              className="input w-full"
+              value={sshName}
+              onChange={(e) => setSshName(e.target.value)}
+            />
           </div>
           <div>
             <label className="label">Public Key</label>
-            <textarea className="input w-full h-28" value={sshPub} onChange={(e) => setSshPub(e.target.value)} />
+            <textarea
+              className="input w-full h-28"
+              value={sshPub}
+              onChange={(e) => setSshPub(e.target.value)}
+            />
           </div>
         </div>
       </Modal>
 
       {/* Inline modal: create Network */}
-      <Modal title="Create Network" open={netModal} onClose={() => setNetModal(false)} footer={<>
-        <button className="btn-secondary" onClick={() => setNetModal(false)}>Cancel</button>
-        <button className="btn-primary" onClick={async () => {
-          if (projectId && netName && netCIDR) {
-            const n = await createNetwork(projectId, { name: netName, cidr: netCIDR })
-            setNets((prev) => [...prev, n]); setNetworkId(n.id); setNetName(''); setNetCIDR('10.0.0.0/24'); setNetModal(false)
-          }
-        }}>Create</button>
-      </>}>
+      <Modal
+        title="Create Network"
+        open={netModal}
+        onClose={() => setNetModal(false)}
+        footer={
+          <>
+            <button className="btn-secondary" onClick={() => setNetModal(false)}>
+              Cancel
+            </button>
+            <button
+              className="btn-primary"
+              onClick={async () => {
+                if (projectId && netName && netCIDR) {
+                  const n = await createNetwork(projectId, { name: netName, cidr: netCIDR })
+                  setNets((prev) => [...prev, n])
+                  setNetworkId(n.id)
+                  setNetName('')
+                  setNetCIDR('10.0.0.0/24')
+                  setNetModal(false)
+                }
+              }}
+            >
+              Create
+            </button>
+          </>
+        }
+      >
         <div className="space-y-3">
           <div>
             <label className="label">Name</label>
-            <input className="input w-full" value={netName} onChange={(e) => setNetName(e.target.value)} />
+            <input
+              className="input w-full"
+              value={netName}
+              onChange={(e) => setNetName(e.target.value)}
+            />
           </div>
           <div>
             <label className="label">CIDR</label>
-            <input className="input w-full" placeholder="10.0.0.0/24" value={netCIDR} onChange={(e) => setNetCIDR(e.target.value)} />
+            <input
+              className="input w-full"
+              placeholder="10.0.0.0/24"
+              value={netCIDR}
+              onChange={(e) => setNetCIDR(e.target.value)}
+            />
           </div>
         </div>
       </Modal>

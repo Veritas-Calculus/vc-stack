@@ -10,6 +10,6 @@ describe('app smoke', () => {
         <App />
       </BrowserRouter>
     )
-  expect(getByRole('heading', { name: 'Sign in to VC Console' })).toBeInTheDocument()
+    expect(getByRole('heading', { name: 'Sign in to VC Console' })).toBeInTheDocument()
   })
 })

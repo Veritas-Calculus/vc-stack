@@ -30,15 +30,17 @@ log_error() {
 # 列出可用的备份
 list_backups() {
     log_info "可用的备份版本:"
+    # shellcheck disable=SC2029
     ssh "${REMOTE_USER}@${REMOTE_HOST}" "ls -lt ${BACKUP_BASE_DIR} 2>/dev/null || echo '无可用备份'"
 }
 
 # 回滚到指定备份
 rollback() {
     local backup_dir=$1
-    
+
     log_info "开始回滚到: ${backup_dir}"
-    
+
+    # shellcheck disable=SC2087
     ssh "${REMOTE_USER}@${REMOTE_HOST}" << EOF
 # 停止服务
 sudo systemctl stop vc-controller
@@ -65,7 +67,7 @@ sudo systemctl start vc-node
 
 echo "回滚完成"
 EOF
-    
+
     log_info "回滚完成，请检查服务状态"
 }
 
@@ -76,17 +78,17 @@ main() {
     echo "  VC Stack 回滚脚本"
     echo "=========================================="
     echo ""
-    
+
     list_backups
-    
+
     echo ""
-    read -p "请输入要回滚的备份目录名称（或按 Ctrl+C 取消）: " backup_name
-    
+    read -r -p "请输入要回滚的备份目录名称（或按 Ctrl+C 取消）: " backup_name
+
     if [ -z "$backup_name" ]; then
         log_error "未指定备份目录"
         exit 1
     fi
-    
+
     rollback "${BACKUP_BASE_DIR}/${backup_name}"
 }
 

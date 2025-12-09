@@ -7,7 +7,12 @@ export function SettingsGlobal() {
       <h2 className="text-lg font-semibold">Global Parameters</h2>
       <div>
         <label className="label">Backend API URL</label>
-        <input className="input w-full" value={apiBaseUrl} onChange={(e) => setApiBaseUrl(e.target.value)} placeholder="https://api.example.com" />
+        <input
+          className="input w-full"
+          value={apiBaseUrl}
+          onChange={(e) => setApiBaseUrl(e.target.value)}
+          placeholder="https://api.example.com"
+        />
       </div>
     </section>
   )

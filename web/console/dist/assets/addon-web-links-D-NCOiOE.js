@@ -1,1 +1,191 @@
-import{g as $}from"./react-vendor-B-2j4S7D.js";function O(b,m){for(var _=0;_<m.length;_++){const l=m[_];if(typeof l!="string"&&!Array.isArray(l)){for(const p in l)if(p!=="default"&&!(p in b)){const L=Object.getOwnPropertyDescriptor(l,p);L&&Object.defineProperty(b,p,L.get?L:{enumerable:!0,get:()=>l[p]})}}}return Object.freeze(Object.defineProperty(b,Symbol.toStringTag,{value:"Module"}))}var P={exports:{}};(function(b,m){(function(_,l){b.exports=l()})(self,()=>(()=>{var _={6:(u,d)=>{function h(s){try{const e=new URL(s),t=e.password&&e.username?`${e.protocol}//${e.username}:${e.password}@${e.host}`:e.username?`${e.protocol}//${e.username}@${e.host}`:`${e.protocol}//${e.host}`;return s.toLocaleLowerCase().startsWith(t.toLocaleLowerCase())}catch{return!1}}Object.defineProperty(d,"__esModule",{value:!0}),d.LinkComputer=d.WebLinkProvider=void 0,d.WebLinkProvider=class{constructor(s,e,t,r={}){this._terminal=s,this._regex=e,this._handler=t,this._options=r}provideLinks(s,e){const t=f.computeLink(s,this._regex,this._terminal,this._handler);e(this._addCallbacks(t))}_addCallbacks(s){return s.map(e=>(e.leave=this._options.leave,e.hover=(t,r)=>{if(this._options.hover){const{range:c}=e;this._options.hover(t,r,c)}},e))}};class f{static computeLink(e,t,r,c){const g=new RegExp(t.source,(t.flags||"")+"g"),[n,o]=f._getWindowedLineStrings(e-1,r),i=n.join("");let a;const x=[];for(;a=g.exec(i);){const v=a[0];if(!h(v))continue;const[k,W]=f._mapStrIdx(r,o,0,a.index),[w,y]=f._mapStrIdx(r,k,W,v.length);if(k===-1||W===-1||w===-1||y===-1)continue;const S={start:{x:W+1,y:k+1},end:{x:y,y:w+1}};x.push({range:S,text:v,activate:c})}return x}static _getWindowedLineStrings(e,t){let r,c=e,g=e,n=0,o="";const i=[];if(r=t.buffer.active.getLine(e)){const a=r.translateToString(!0);if(r.isWrapped&&a[0]!==" "){for(n=0;(r=t.buffer.active.getLine(--c))&&n<2048&&(o=r.translateToString(!0),n+=o.length,i.push(o),r.isWrapped&&o.indexOf(" ")===-1););i.reverse()}for(i.push(a),n=0;(r=t.buffer.active.getLine(++g))&&r.isWrapped&&n<2048&&(o=r.translateToString(!0),n+=o.length,i.push(o),o.indexOf(" ")===-1););}return[i,c]}static _mapStrIdx(e,t,r,c){const g=e.buffer.active,n=g.getNullCell();let o=r;for(;c;){const i=g.getLine(t);if(!i)return[-1,-1];for(let a=o;a<i.length;++a){i.getCell(a,n);const x=n.getChars();if(n.getWidth()&&(c-=x.length||1,a===i.length-1&&x==="")){const v=g.getLine(t+1);v&&v.isWrapped&&(v.getCell(0,n),n.getWidth()===2&&(c+=1))}if(c<0)return[t,a]}t++,o=0}return[t,o]}}d.LinkComputer=f}},l={};function p(u){var d=l[u];if(d!==void 0)return d.exports;var h=l[u]={exports:{}};return _[u](h,h.exports,p),h.exports}var L={};return(()=>{var u=L;Object.defineProperty(u,"__esModule",{value:!0}),u.WebLinksAddon=void 0;const d=p(6),h=/(https?|HTTPS?):[/]{2}[^\s"'!*(){}|\\\^<>`]*[^\s"':,.!?{}|\\\^~\[\]`()<>]/;function f(s,e){const t=window.open();if(t){try{t.opener=null}catch{}t.location.href=e}else console.warn("Opening link blocked as opener could not be cleared")}u.WebLinksAddon=class{constructor(s=f,e={}){this._handler=s,this._options=e}activate(s){this._terminal=s;const e=this._options,t=e.urlRegex||h;this._linkProvider=this._terminal.registerLinkProvider(new d.WebLinkProvider(this._terminal,t,this._handler,e))}dispose(){this._linkProvider?.dispose()}}})(),L})())})(P);var C=P.exports;const j=$(C),A=O({__proto__:null,default:j},[C]);export{A as a};
+import { g as $ } from './react-vendor-B-2j4S7D.js'
+function O(b, m) {
+  for (var _ = 0; _ < m.length; _++) {
+    const l = m[_]
+    if (typeof l != 'string' && !Array.isArray(l)) {
+      for (const p in l)
+        if (p !== 'default' && !(p in b)) {
+          const L = Object.getOwnPropertyDescriptor(l, p)
+          L && Object.defineProperty(b, p, L.get ? L : { enumerable: !0, get: () => l[p] })
+        }
+    }
+  }
+  return Object.freeze(Object.defineProperty(b, Symbol.toStringTag, { value: 'Module' }))
+}
+var P = { exports: {} }
+;(function (b, m) {
+  ;(function (_, l) {
+    b.exports = l()
+  })(self, () =>
+    (() => {
+      var _ = {
+          6: (u, d) => {
+            function h(s) {
+              try {
+                const e = new URL(s),
+                  t =
+                    e.password && e.username
+                      ? `${e.protocol}//${e.username}:${e.password}@${e.host}`
+                      : e.username
+                        ? `${e.protocol}//${e.username}@${e.host}`
+                        : `${e.protocol}//${e.host}`
+                return s.toLocaleLowerCase().startsWith(t.toLocaleLowerCase())
+              } catch {
+                return !1
+              }
+            }
+            ;(Object.defineProperty(d, '__esModule', { value: !0 }),
+              (d.LinkComputer = d.WebLinkProvider = void 0),
+              (d.WebLinkProvider = class {
+                constructor(s, e, t, r = {}) {
+                  ;((this._terminal = s),
+                    (this._regex = e),
+                    (this._handler = t),
+                    (this._options = r))
+                }
+                provideLinks(s, e) {
+                  const t = f.computeLink(s, this._regex, this._terminal, this._handler)
+                  e(this._addCallbacks(t))
+                }
+                _addCallbacks(s) {
+                  return s.map(
+                    (e) => (
+                      (e.leave = this._options.leave),
+                      (e.hover = (t, r) => {
+                        if (this._options.hover) {
+                          const { range: c } = e
+                          this._options.hover(t, r, c)
+                        }
+                      }),
+                      e
+                    )
+                  )
+                }
+              }))
+            class f {
+              static computeLink(e, t, r, c) {
+                const g = new RegExp(t.source, (t.flags || '') + 'g'),
+                  [n, o] = f._getWindowedLineStrings(e - 1, r),
+                  i = n.join('')
+                let a
+                const x = []
+                for (; (a = g.exec(i)); ) {
+                  const v = a[0]
+                  if (!h(v)) continue
+                  const [k, W] = f._mapStrIdx(r, o, 0, a.index),
+                    [w, y] = f._mapStrIdx(r, k, W, v.length)
+                  if (k === -1 || W === -1 || w === -1 || y === -1) continue
+                  const S = { start: { x: W + 1, y: k + 1 }, end: { x: y, y: w + 1 } }
+                  x.push({ range: S, text: v, activate: c })
+                }
+                return x
+              }
+              static _getWindowedLineStrings(e, t) {
+                let r,
+                  c = e,
+                  g = e,
+                  n = 0,
+                  o = ''
+                const i = []
+                if ((r = t.buffer.active.getLine(e))) {
+                  const a = r.translateToString(!0)
+                  if (r.isWrapped && a[0] !== ' ') {
+                    for (
+                      n = 0;
+                      (r = t.buffer.active.getLine(--c)) &&
+                      n < 2048 &&
+                      ((o = r.translateToString(!0)),
+                      (n += o.length),
+                      i.push(o),
+                      r.isWrapped && o.indexOf(' ') === -1);
+
+                    );
+                    i.reverse()
+                  }
+                  for (
+                    i.push(a), n = 0;
+                    (r = t.buffer.active.getLine(++g)) &&
+                    r.isWrapped &&
+                    n < 2048 &&
+                    ((o = r.translateToString(!0)),
+                    (n += o.length),
+                    i.push(o),
+                    o.indexOf(' ') === -1);
+
+                  );
+                }
+                return [i, c]
+              }
+              static _mapStrIdx(e, t, r, c) {
+                const g = e.buffer.active,
+                  n = g.getNullCell()
+                let o = r
+                for (; c; ) {
+                  const i = g.getLine(t)
+                  if (!i) return [-1, -1]
+                  for (let a = o; a < i.length; ++a) {
+                    i.getCell(a, n)
+                    const x = n.getChars()
+                    if (n.getWidth() && ((c -= x.length || 1), a === i.length - 1 && x === '')) {
+                      const v = g.getLine(t + 1)
+                      v && v.isWrapped && (v.getCell(0, n), n.getWidth() === 2 && (c += 1))
+                    }
+                    if (c < 0) return [t, a]
+                  }
+                  ;(t++, (o = 0))
+                }
+                return [t, o]
+              }
+            }
+            d.LinkComputer = f
+          }
+        },
+        l = {}
+      function p(u) {
+        var d = l[u]
+        if (d !== void 0) return d.exports
+        var h = (l[u] = { exports: {} })
+        return (_[u](h, h.exports, p), h.exports)
+      }
+      var L = {}
+      return (
+        (() => {
+          var u = L
+          ;(Object.defineProperty(u, '__esModule', { value: !0 }), (u.WebLinksAddon = void 0))
+          const d = p(6),
+            h = /(https?|HTTPS?):[/]{2}[^\s"'!*(){}|\\\^<>`]*[^\s"':,.!?{}|\\\^~\[\]`()<>]/
+          function f(s, e) {
+            const t = window.open()
+            if (t) {
+              try {
+                t.opener = null
+              } catch {}
+              t.location.href = e
+            } else console.warn('Opening link blocked as opener could not be cleared')
+          }
+          u.WebLinksAddon = class {
+            constructor(s = f, e = {}) {
+              ;((this._handler = s), (this._options = e))
+            }
+            activate(s) {
+              this._terminal = s
+              const e = this._options,
+                t = e.urlRegex || h
+              this._linkProvider = this._terminal.registerLinkProvider(
+                new d.WebLinkProvider(this._terminal, t, this._handler, e)
+              )
+            }
+            dispose() {
+              this._linkProvider?.dispose()
+            }
+          }
+        })(),
+        L
+      )
+    })()
+  )
+})(P)
+var C = P.exports
+const j = $(C),
+  A = O({ __proto__: null, default: j }, [C])
+export { A as a }

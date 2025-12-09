@@ -37,12 +37,18 @@ export const useToastStore = create<ToastState>((set, get) => ({
 
 export const toast = {
   success(message: string, opts?: { title?: string; timeoutMs?: number }) {
-    return useToastStore.getState().push({ message, variant: 'success', title: opts?.title, timeoutMs: opts?.timeoutMs })
+    return useToastStore
+      .getState()
+      .push({ message, variant: 'success', title: opts?.title, timeoutMs: opts?.timeoutMs })
   },
   error(message: string, opts?: { title?: string; timeoutMs?: number }) {
-    return useToastStore.getState().push({ message, variant: 'error', title: opts?.title, timeoutMs: opts?.timeoutMs ?? 5000 })
+    return useToastStore
+      .getState()
+      .push({ message, variant: 'error', title: opts?.title, timeoutMs: opts?.timeoutMs ?? 5000 })
   },
   info(message: string, opts?: { title?: string; timeoutMs?: number }) {
-    return useToastStore.getState().push({ message, variant: 'info', title: opts?.title, timeoutMs: opts?.timeoutMs })
+    return useToastStore
+      .getState()
+      .push({ message, variant: 'info', title: opts?.title, timeoutMs: opts?.timeoutMs })
   }
 }

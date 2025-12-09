@@ -14,13 +14,26 @@ const rows: Project[] = [
 
 export function Projects() {
   const columns: Column<Project>[] = [
-    { key: 'name', header: 'Name', render: (p) => <Link className="text-oxide-300 hover:underline" to={`/project/${encodeURIComponent(p.id)}`}>{p.name}</Link> },
+    {
+      key: 'name',
+      header: 'Name',
+      render: (p) => (
+        <Link
+          className="text-oxide-300 hover:underline"
+          to={`/project/${encodeURIComponent(p.id)}`}
+        >
+          {p.name}
+        </Link>
+      )
+    },
     { key: 'id', header: 'ID', className: 'text-gray-400' },
     { key: 'role', header: 'Role' },
     {
       key: 'status',
       header: 'Status',
-      render: (p) => <Badge variant={p.status === 'active' ? 'success' : 'warning'}>{p.status}</Badge>
+      render: (p) => (
+        <Badge variant={p.status === 'active' ? 'success' : 'warning'}>{p.status}</Badge>
+      )
     },
     {
       key: 'actions',
@@ -42,7 +55,11 @@ export function Projects() {
 
   return (
     <div className="space-y-4">
-      <PageHeader title="Projects" subtitle="Manage console projects and access" actions={<button className="btn-primary">Create Project</button>} />
+      <PageHeader
+        title="Projects"
+        subtitle="Manage console projects and access"
+        actions={<button className="btn-primary">Create Project</button>}
+      />
       <TableToolbar placeholder="Search projects" />
       <DataTable columns={columns} data={rows} empty="No projects" />
     </div>

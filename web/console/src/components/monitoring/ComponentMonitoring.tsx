@@ -1,46 +1,44 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useMonitoring } from '../../hooks/useMonitoring';
+import { useState, useEffect, useCallback } from 'react'
+import { useMonitoring } from '../../hooks/useMonitoring'
 
 interface ComponentMetric {
-  component: string;
-  cpu_usage_percent?: number;
-  memory_usage_mb?: number;
-  goroutine_count?: number;
-  request_count?: number;
-  error_count?: number;
-  avg_response_time_ms?: number;
-  _time?: string;
+  component: string
+  cpu_usage_percent?: number
+  memory_usage_mb?: number
+  goroutine_count?: number
+  request_count?: number
+  error_count?: number
+  avg_response_time_ms?: number
+  _time?: string
 }
 
 export function ComponentMonitoring() {
-  const { loading, error, getComponentMetrics, getErrorMetrics } =
-    useMonitoring();
+  const { loading, error, getComponentMetrics, getErrorMetrics } = useMonitoring()
 
-  const [selectedComponent, setSelectedComponent] =
-    useState('vc-controller');
-  const [duration, setDuration] = useState('1h');
-  const [metrics, setMetrics] = useState<ComponentMetric[]>([]);
-  const [errors, setErrors] = useState<ComponentMetric[]>([]);
+  const [selectedComponent, setSelectedComponent] = useState('vc-controller')
+  const [duration, setDuration] = useState('1h')
+  const [metrics, setMetrics] = useState<ComponentMetric[]>([])
+  const [errors, setErrors] = useState<ComponentMetric[]>([])
 
   const loadData = useCallback(async () => {
-    const metricsData = await getComponentMetrics(selectedComponent, duration);
+    const metricsData = await getComponentMetrics(selectedComponent, duration)
     if (metricsData) {
-      setMetrics(metricsData.metrics as unknown as ComponentMetric[]);
+      setMetrics(metricsData.metrics as unknown as ComponentMetric[])
     }
 
-    const errorsData = await getErrorMetrics(selectedComponent, duration);
+    const errorsData = await getErrorMetrics(selectedComponent, duration)
     if (errorsData) {
-      setErrors(errorsData.metrics as unknown as ComponentMetric[]);
+      setErrors(errorsData.metrics as unknown as ComponentMetric[])
     }
-  }, [selectedComponent, duration, getComponentMetrics, getErrorMetrics]);
+  }, [selectedComponent, duration, getComponentMetrics, getErrorMetrics])
 
   useEffect(() => {
-    loadData();
-    const interval = setInterval(loadData, 30000);
-    return () => clearInterval(interval);
-  }, [loadData]);
+    loadData()
+    const interval = setInterval(loadData, 30000)
+    return () => clearInterval(interval)
+  }, [loadData])
 
-  const latestMetric = metrics.length > 0 ? metrics[metrics.length - 1] : null;
+  const latestMetric = metrics.length > 0 ? metrics[metrics.length - 1] : null
 
   return (
     <div className="p-6 space-y-6">
@@ -77,9 +75,7 @@ export function ComponentMonitoring() {
         </div>
       </div>
 
-      {error && (
-        <div className="p-4 bg-red-100 text-red-700 rounded">{error}</div>
-      )}
+      {error && <div className="p-4 bg-red-100 text-red-700 rounded">{error}</div>}
 
       {loading && <div className="text-center py-8">Loading metrics...</div>}
 
@@ -93,27 +89,19 @@ export function ComponentMonitoring() {
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <div className="text-sm text-gray-600">Memory Usage</div>
-            <div className="text-2xl font-bold">
-              {latestMetric.memory_usage_mb || 0} MB
-            </div>
+            <div className="text-2xl font-bold">{latestMetric.memory_usage_mb || 0} MB</div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <div className="text-sm text-gray-600">Goroutines</div>
-            <div className="text-2xl font-bold">
-              {latestMetric.goroutine_count || 0}
-            </div>
+            <div className="text-2xl font-bold">{latestMetric.goroutine_count || 0}</div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <div className="text-sm text-gray-600">Requests</div>
-            <div className="text-2xl font-bold">
-              {latestMetric.request_count || 0}
-            </div>
+            <div className="text-2xl font-bold">{latestMetric.request_count || 0}</div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <div className="text-sm text-gray-600">Errors</div>
-            <div className="text-2xl font-bold text-red-600">
-              {latestMetric.error_count || 0}
-            </div>
+            <div className="text-2xl font-bold text-red-600">{latestMetric.error_count || 0}</div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <div className="text-sm text-gray-600">Avg Response Time</div>
@@ -148,9 +136,7 @@ export function ComponentMonitoring() {
                 {errors.slice(0, 10).map((err, idx) => (
                   <tr key={idx}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {err._time
-                        ? new Date(err._time).toLocaleString()
-                        : 'N/A'}
+                      {err._time ? new Date(err._time).toLocaleString() : 'N/A'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {err.component}
@@ -166,5 +152,5 @@ export function ComponentMonitoring() {
         )}
       </div>
     </div>
-  );
+  )
 }
