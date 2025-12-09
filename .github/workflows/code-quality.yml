@@ -43,7 +43,7 @@ jobs:
 
       - name: Run golangci-lint
         run: |
-          golangci-lint run --out-format checkstyle > golangci-lint-report.xml || true
+          CGO_ENABLED=0 golangci-lint run --config .golangci.yml --out-format checkstyle > golangci-lint-report.xml || true
 
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
@@ -92,7 +92,9 @@ jobs:
         uses: golangci/golangci-lint-action@v4
         with:
           version: v1.61.0
-          args: --timeout=5m
+          args: --config .golangci.yml --timeout=5m
+        env:
+          CGO_ENABLED: 0
 
   security:
     name: Security Scan
