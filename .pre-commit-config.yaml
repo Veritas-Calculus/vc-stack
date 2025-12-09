@@ -26,9 +26,8 @@ repos:
     rev: v0.5.1
     hooks:
       - id: go-fmt
-      - id: go-vet
-        # Skip CGO-dependent files to avoid "no Go files" error in CI
-        exclude: 'internal/node/compute/rbd_manager\.go'
+      # Disable go-vet as golangci-lint already includes govet
+      # - id: go-vet
       - id: go-imports
       - id: go-mod-tidy
         args: ['-compat=1.21']

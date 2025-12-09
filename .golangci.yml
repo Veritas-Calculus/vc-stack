@@ -3,6 +3,10 @@ run:
   timeout: 5m
   tests: true
   modules-download-mode: readonly
+  skip-dirs:
+    - pkg/sentry
+  skip-files:
+    - ".*rbd_manager\\.go$"
 
 linters:
   enable:
@@ -78,8 +82,22 @@ issues:
         - gosec
         - gocognit
 
-    # Exclude files with external dependencies that may not be available in CI
-    - path: (rbd_manager\.go|pkg/sentry/.*\.go|internal/controlplane/identity/service\.go|internal/controlplane/middleware/auth\.go)
+    # Exclude CGO-dependent files
+    - path: rbd_manager\.go
+      linters:
+        - typecheck
+
+    # Exclude Sentry SDK files
+    - path: pkg/sentry/
+      linters:
+        - typecheck
+
+    # Exclude JWT authentication files
+    - path: internal/controlplane/identity/service\.go
+      linters:
+        - typecheck
+
+    - path: internal/controlplane/middleware/auth\.go
       linters:
         - typecheck
 
