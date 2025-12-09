@@ -1,0 +1,74 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+
+# Use system default Python 3 to avoid compatibility issues
+default_language_version:
+  python: python3
+
+repos:
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: ['--unsafe']  # Allow custom YAML tags
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: mixed-line-ending
+      - id: detect-private-key
+
+  # Go hooks
+  - repo: https://github.com/dnephin/pre-commit-golang
+    rev: v0.5.1
+    hooks:
+      - id: go-fmt
+      - id: go-vet
+      - id: go-imports
+      - id: go-mod-tidy
+      - id: golangci-lint
+        args: ['--fast']
+
+  # YAML linting
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.37.1
+    hooks:
+      - id: yamllint
+        args: ['-d', '{extends: relaxed, rules: {line-length: {max: 120}}}']
+        files: \.(yaml|yml)$
+
+  # Markdown linting
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.46.0
+    hooks:
+      - id: markdownlint
+        args: ['--fix']
+
+  # Shell script checks
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.11.0.1
+    hooks:
+      - id: shellcheck
+
+  # Local hooks for web development (using local npm)
+  - repo: local
+    hooks:
+      - id: web-eslint
+        name: Web ESLint
+        entry: bash -c 'cd web/console && npm run lint -- --quiet'
+        language: system
+        files: ^web/console/.*\.(ts|tsx|js|jsx)$
+        pass_filenames: false
+
+      - id: web-prettier
+        name: Web Prettier Check
+        entry: bash -c 'cd web/console && npm run format -- --check'
+        language: system
+        files: ^web/console/.*\.(ts|tsx|js|jsx|json|css|scss)$
+        pass_filenames: false
+
+
+

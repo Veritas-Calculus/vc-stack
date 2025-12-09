@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96" role="img" aria-label="VC Console 42 logo">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#374762"/>
+      <stop offset="100%" stop-color="#1c2537"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="6" width="84" height="84" rx="14" fill="url(#bg)" stroke="#2a364c" stroke-width="2"/>
+  <g fill="#e9edf6" font-family="Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif" text-anchor="middle">
+    <text x="48" y="62" font-size="44" font-weight="700">42</text>
+    <text x="48" y="78" font-size="10" opacity="0.85">VC</text>
+  </g>
+</svg>

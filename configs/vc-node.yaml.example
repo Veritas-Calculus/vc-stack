@@ -1,0 +1,291 @@
+# VC Stack Node Configuration
+# This is the compute node server that aggregates:
+# - Compute (Hypervisor Management & VM Operations)
+# - Lite (Lightweight Agent for VM Lifecycle)
+# - Network Plugin (OVN Network Agent)
+
+# Node identification
+node:
+  # Node name (auto-detected from hostname if not specified)
+  name: "compute-node-1"
+  
+  # Node zone/availability zone
+  zone: "zone-1"
+  
+  # Custom labels for scheduling
+  labels:
+    rack: "rack-a"
+    environment: "production"
+    storage_type: "nvme"
+    gpu: "nvidia-a100"
+
+# Database configuration (for network state lookup)
+database:
+  host: localhost
+  port: 5432
+  name: vcstack
+  username: vcstack
+  password: vcstack123
+  sslmode: disable
+  max_idle_conns: 10
+  max_open_conns: 100
+  conn_max_lifetime: 1h
+
+# Agent configuration (auto-registration with controller)
+agent:
+  # Enable automatic node registration
+  enabled: true
+  
+  # Controller URL for registration and heartbeat
+  controller_url: http://localhost:8080
+  
+  # Heartbeat interval
+  heartbeat_interval: 30s
+  
+  # Registration retry settings
+  registration:
+    max_retries: 10
+    retry_interval: 5s
+    backoff_multiplier: 2
+  
+  # Resource capacity (auto-detected if not specified)
+  # Manual override if needed
+  capacity:
+    auto_detect: true
+    # cpu_cores: 32
+    # ram_mb: 65536    # 64 GB
+    # disk_gb: 1000    # 1 TB
+
+# Libvirt hypervisor configuration
+libvirt:
+  # Libvirt connection URI
+  uri: "qemu:///system"
+  
+  # Default network for VMs (bridge created by OVN)
+  network_name: "br-int"
+  
+  # SMBIOS information
+  smbios:
+    manufacturer: "VC Stack"
+    product: "Virtual Machine"
+    version: "1.0"
+  
+  # UEFI firmware paths
+  uefi:
+    ovmf_code: "/usr/share/OVMF/OVMF_CODE.fd"
+    ovmf_vars: "/usr/share/OVMF/OVMF_VARS.fd"
+    nvram_dir: "/var/lib/libvirt/qemu/nvram"
+  
+  # TPM configuration (for Windows 11)
+  tpm:
+    enabled: true
+    model: "tpm-crb"
+    backend: "emulator"
+    version: "2.0"
+  
+  # VM defaults
+  vm_defaults:
+    # Default machine type
+    machine_type: "q35"
+    # CPU mode: host-passthrough, host-model, or custom
+    cpu_mode: "host-passthrough"
+    # Enable nested virtualization
+    nested: true
+    # VNC configuration
+    vnc:
+      enabled: true
+      listen: "0.0.0.0"
+      autoport: true
+    # Serial console
+    serial:
+      enabled: true
+      type: "pty"
+
+# Storage backend configuration
+storage:
+  # Default storage backend: local, rbd (Ceph), nfs
+  default_backend: "local"
+  
+  # Local storage configuration
+  local:
+    enabled: true
+    # Storage pool path
+    pool_path: "/var/lib/libvirt/images"
+    # Image pool
+    images_pool: "default"
+    # Volumes pool
+    volumes_pool: "default"
+  
+  # Ceph/RBD storage configuration
+  rbd:
+    enabled: false
+    monitors:
+      - "10.31.0.3:6789"
+      - "10.31.0.4:6789"
+      - "10.31.0.5:6789"
+    user: "admin"
+    secret_uuid: "your-ceph-secret-uuid-here"
+    keyring_path: "/etc/ceph/ceph.client.admin.keyring"
+    conf: "/etc/ceph/ceph.conf"
+    # Pools
+    images_pool: "images"
+    volumes_pool: "volumes"
+    # VM image prefix
+    vm_image_prefix: "vm-"
+    # Delete images on VM destroy
+    delete_on_destroy: true
+    # Flatten cloned images
+    clone_flatten: false
+    # RBD command timeout
+    rbd_timeout_seconds: 30
+  
+  # NFS storage configuration (optional)
+  nfs:
+    enabled: false
+    server: "nfs.example.com"
+    export_path: "/export/vms"
+    mount_point: "/mnt/nfs/vms"
+    mount_options: "vers=4,soft,timeo=30,retrans=3"
+
+# Network plugin configuration (OVN)
+network_plugin:
+  # OVN configuration
+  ovn:
+    # OVN Southbound database
+    sb_address: tcp:127.0.0.1:6642
+    # Connection timeout
+    timeout: 30s
+  
+  # Integration bridge (OVN managed)
+  integration_bridge: "br-int"
+  
+  # External bridge (for provider networks)
+  external_bridge: "br-provider"
+  
+  # Physical network mapping
+  # Maps network names to bridge/interface names
+  bridge_mappings:
+    provider: "br-provider"
+  
+  # Tunnel configuration
+  tunnel:
+    enabled: true
+    # Tunnel type: geneve, vxlan, gre
+    type: "geneve"
+    # Local tunnel endpoint IP (auto-detected if not specified)
+    local_ip: ""
+
+# Compute service configuration
+compute:
+  # VM operations timeout
+  operation_timeout: 300s
+  
+  # Console proxy (VNC/SPICE)
+  console:
+    # Console type: vnc, spice
+    type: "vnc"
+    # Proxy listen address
+    proxy_host: "0.0.0.0"
+    # Proxy port range
+    proxy_port_min: 5900
+    proxy_port_max: 6000
+  
+  # Live migration settings
+  live_migration:
+    enabled: true
+    # Max bandwidth in Mbps (0 = unlimited)
+    max_bandwidth: 1000
+    # Downtime in milliseconds
+    max_downtime: 500
+    # Compression
+    compression: true
+    # Auto-converge (slow down VM if migration is not progressing)
+    auto_converge: true
+
+# Monitoring and health
+monitoring:
+  # Metrics endpoint
+  metrics:
+    enabled: true
+    port: 9091
+    path: /metrics
+  
+  # Health check
+  health_check:
+    enabled: true
+    interval: 30s
+    # Check hypervisor connection
+    check_hypervisor: true
+    # Check storage backend
+    check_storage: true
+    # Check network connectivity
+    check_network: true
+
+# Logging configuration
+logging:
+  level: info  # debug, info, warn, error
+  format: json # json or text
+  output: stdout # stdout or file
+  file:
+    enabled: false
+    path: /var/log/vc-stack/node.log
+    max_size: 100 # MB
+    max_backups: 10
+    max_age: 30 # days
+    compress: true
+
+# Resource limits and quotas
+resources:
+  # CPU overcommit ratio (how many vCPUs per physical CPU)
+  cpu_overcommit_ratio: 2.0
+  
+  # RAM overcommit ratio
+  ram_overcommit_ratio: 1.5
+  
+  # Reserved resources (not available for VMs)
+  reserved:
+    cpu_cores: 2
+    ram_mb: 4096  # 4 GB for host OS
+    disk_gb: 50   # 50 GB for host OS
+
+# Features
+features:
+  # Enable CPU pinning (NUMA awareness)
+  cpu_pinning:
+    enabled: false
+  
+  # Enable huge pages
+  huge_pages:
+    enabled: false
+    size: 2048 # KB
+  
+  # Enable SR-IOV networking
+  sriov:
+    enabled: false
+    physical_networks:
+      - name: "physnet1"
+        device: "ens1f0"
+        num_vfs: 8
+  
+  # Enable GPU passthrough
+  gpu_passthrough:
+    enabled: false
+    devices:
+      - pci_address: "0000:01:00.0"
+        product_id: "1eb8"
+        vendor_id: "10de"
+
+# Security
+security:
+  # SELinux/AppArmor
+  mandatory_access_control:
+    enabled: false
+  
+  # Secure boot
+  secure_boot:
+    enabled: false
+  
+  # Image signature verification
+  image_verification:
+    enabled: false
+    trusted_certificates: "/etc/vc-stack/trusted-certs"

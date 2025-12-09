@@ -1,0 +1,171 @@
+# Docker Compose for VC Stack Development
+# This provides a complete development environment with all dependencies
+
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:14-alpine
+    container_name: vcstack-postgres
+    environment:
+      POSTGRES_DB: vcstack
+      POSTGRES_USER: vcstack
+      POSTGRES_PASSWORD: vcstack123
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vcstack"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - vcstack
+
+  # Redis (optional, for caching)
+  redis:
+    image: redis:7-alpine
+    container_name: vcstack-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - vcstack
+
+  # VC Stack Controller (Control Plane)
+  vc-controller:
+    build:
+      context: .
+      dockerfile: Dockerfile.controller
+    container_name: vcstack-controller
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Database
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: vcstack
+      DATABASE_USER: vcstack
+      DATABASE_PASSWORD: vcstack123
+      DATABASE_AUTO_MIGRATE: "true"
+      
+      # Server
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: 8080
+      
+      # JWT
+      IDENTITY_JWT_SECRET: dev-secret-change-in-production
+      
+      # Logging
+      LOGGING_LEVEL: debug
+      LOGGING_FORMAT: text
+      
+      # OVN (optional, for network service)
+      NETWORK_OVN_NB_ADDRESS: tcp:ovn-nb:6641
+      NETWORK_OVN_SB_ADDRESS: tcp:ovn-sb:6642
+    ports:
+      - "8080:8080"
+      - "9090:9090"  # Metrics
+    volumes:
+      - ./configs/vc-controller.yaml.example:/etc/vc-stack/controller.yaml:ro
+    networks:
+      - vcstack
+    restart: unless-stopped
+
+  # OVN North DB (optional, for network features)
+  ovn-nb:
+    image: ovn/ovn-daemonset-u:v3.0.1
+    container_name: vcstack-ovn-nb
+    command: ovn-nb-ovsdb
+    environment:
+      OVN_DB_NB_PORT: 6641
+    ports:
+      - "6641:6641"
+    volumes:
+      - ovn-nb-data:/var/lib/openvswitch
+    networks:
+      - vcstack
+    restart: unless-stopped
+
+  # OVN South DB (optional, for network features)
+  ovn-sb:
+    image: ovn/ovn-daemonset-u:v3.0.1
+    container_name: vcstack-ovn-sb
+    command: ovn-sb-ovsdb
+    environment:
+      OVN_DB_SB_PORT: 6642
+    ports:
+      - "6642:6642"
+    volumes:
+      - ovn-sb-data:/var/lib/openvswitch
+    networks:
+      - vcstack
+    restart: unless-stopped
+
+  # Prometheus (optional, for monitoring)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: vcstack-prometheus
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    networks:
+      - vcstack
+    restart: unless-stopped
+
+  # Grafana (optional, for visualization)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: vcstack-grafana
+    depends_on:
+      - prometheus
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_INSTALL_PLUGINS: ""
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - vcstack
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  ovn-nb-data:
+    driver: local
+  ovn-sb-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+
+networks:
+  vcstack:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

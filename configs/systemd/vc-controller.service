@@ -1,0 +1,49 @@
+# Systemd service file for VC Stack Controller
+# Install to: /etc/systemd/system/vc-controller.service
+
+[Unit]
+Description=VC Stack Controller - Control Plane Services
+Documentation=https://github.com/Veritas-Calculus/vc-stack
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=vcstack
+Group=vcstack
+
+# Working directory
+WorkingDirectory=/opt/vc-stack
+
+# Binary location
+ExecStart=/opt/vc-stack/bin/vc-controller --config /etc/vc-stack/controller.yaml
+
+# Restart policy
+Restart=on-failure
+RestartSec=10s
+
+# Resource limits
+LimitNOFILE=65535
+LimitNPROC=4096
+
+# Environment
+Environment="DATABASE_HOST=localhost"
+Environment="DATABASE_PORT=5432"
+Environment="DATABASE_NAME=vcstack"
+Environment="DATABASE_USER=vcstack"
+EnvironmentFile=-/etc/vc-stack/controller.env
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/vc-stack /var/log/vc-stack
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=vc-controller
+
+[Install]
+WantedBy=multi-user.target

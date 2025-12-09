@@ -1,0 +1,241 @@
+# VC Stack Controller Configuration
+# This is the control plane server that aggregates:
+# - Gateway (API Gateway & Web Console)
+# - Identity (Authentication & Authorization)
+# - Network (Virtual Network Management)
+# - Scheduler (VM Placement & Resource Scheduling)
+
+# Server configuration
+server:
+  host: 0.0.0.0
+  port: 8080
+  # Increased timeouts to support large, long-running uploads and streaming
+  read_timeout: 15m
+  write_timeout: 60m
+  idle_timeout: 60m
+
+# Database configuration (PostgreSQL 14+)
+database:
+  host: localhost
+  port: 5432
+  name: vcstack
+  username: vcstack
+  password: vcstack123
+  sslmode: disable
+  max_idle_conns: 10
+  max_open_conns: 100
+  conn_max_lifetime: 1h
+  # Auto-migration on startup (set to false in production after initial setup)
+  auto_migrate: true
+
+# Redis configuration (optional, for caching and session storage)
+redis:
+  enabled: false
+  host: localhost
+  port: 6379
+  password: ""
+  db: 0
+  max_retries: 3
+  pool_size: 10
+
+# Gateway configuration
+gateway:
+  # API prefix
+  api_prefix: /api/v1
+  
+  # Static web console files
+  web_console:
+    enabled: true
+    path: ./web/console/dist
+  
+  # Upload limits
+  max_upload_size: 10GB
+  max_multipart_memory: 128MB
+
+# Identity service configuration
+identity:
+  # JWT token configuration
+  jwt:
+    secret: your-super-secret-jwt-key-change-in-production
+    access_token_expires_in: 24h
+    refresh_token_expires_in: 168h # 7 days
+  
+  # Default admin user (created on first run if not exists)
+  default_admin:
+    username: admin
+    password: admin123
+    email: admin@vcstack.local
+  
+  # External authentication (optional)
+  ldap:
+    enabled: false
+    host: localhost
+    port: 389
+    bind_dn: "cn=admin,dc=example,dc=com"
+    bind_password: "admin"
+    base_dn: "dc=example,dc=com"
+    user_filter: "(uid=%s)"
+    group_filter: "(memberUid=%s)"
+
+# Network service configuration
+network:
+  # OVN configuration
+  ovn:
+    nb_address: tcp:127.0.0.1:6641
+    sb_address: tcp:127.0.0.1:6642
+    # Connection timeout
+    timeout: 30s
+  
+  # Default network settings
+  default_network:
+    name: default
+    subnet: 192.168.100.0/24
+    gateway: 192.168.100.1
+    dhcp_start: 192.168.100.10
+    dhcp_end: 192.168.100.200
+  
+  # Provider network (physical network for external connectivity)
+  provider_network:
+    enabled: true
+    bridge: br-provider
+    interface: eth1
+    vlan_range: "100-200"
+
+# Scheduler configuration
+scheduler:
+  # Scheduling algorithm: least_allocated, most_allocated, random
+  algorithm: least_allocated
+  
+  # Resource overcommit ratios
+  cpu_overcommit_ratio: 2.0
+  ram_overcommit_ratio: 1.5
+  
+  # Node selection criteria
+  node_selection:
+    # Only schedule on nodes with at least this much free CPU (%)
+    min_free_cpu_percent: 10
+    # Only schedule on nodes with at least this much free RAM (MB)
+    min_free_ram_mb: 1024
+    # Only schedule on nodes with at least this much free disk (GB)
+    min_free_disk_gb: 10
+  
+  # Health check for nodes
+  health_check:
+    # Mark node as down after this many missed heartbeats
+    missed_heartbeats_threshold: 3
+    # Heartbeat timeout
+    heartbeat_timeout: 120s
+
+# Security configuration
+security:
+  # CORS configuration
+  cors:
+    allowed_origins:
+      - "http://localhost:3000"
+      - "http://localhost:5173"
+      - "http://127.0.0.1:3000"
+      - "http://127.0.0.1:5173"
+    allowed_methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - PATCH
+      - OPTIONS
+    allowed_headers:
+      - "*"
+    allow_credentials: true
+    max_age: 3600
+  
+  # API rate limiting
+  rate_limit:
+    enabled: true
+    requests_per_minute: 100
+    burst: 200
+
+# Logging configuration
+logging:
+  level: info  # debug, info, warn, error
+  format: json # json or text
+  output: stdout # stdout or file
+  file:
+    enabled: false
+    path: /var/log/vc-stack/controller.log
+    max_size: 100 # MB
+    max_backups: 10
+    max_age: 30 # days
+    compress: true
+
+# Monitoring configuration
+monitoring:
+  # Prometheus metrics
+  metrics:
+    enabled: true
+    path: /metrics
+    port: 9090
+  
+  # InfluxDB for metrics collection and analysis
+  influxdb:
+    enabled: true
+    url: http://localhost:8086
+    token: ""  # Set your InfluxDB token
+    org: vc-stack
+    bucket: monitoring
+  
+  # Flamegraph generation
+  flamegraph:
+    enabled: true
+    output_dir: /tmp/flamegraphs
+  
+  # Health check endpoint
+  health_check:
+    path: /health
+    interval: 30s
+  
+  # Distributed tracing (optional)
+  tracing:
+    enabled: false
+    jaeger_endpoint: http://localhost:14268/api/traces
+    sample_rate: 0.1
+
+# Features flags
+features:
+  # Enable experimental features
+  experimental:
+    enabled: false
+  
+  # Enable multi-tenancy
+  multi_tenancy:
+    enabled: true
+  
+  # Enable resource quotas
+  quotas:
+    enabled: true
+    default_project_quotas:
+      vcpus: 20
+      ram_mb: 51200  # 50 GB
+      disk_gb: 1000
+      instances: 10
+      volumes: 20
+      networks: 5
+      routers: 5
+      floating_ips: 10
+
+# External integrations (optional)
+external:
+  # Prometheus for metrics collection
+  prometheus:
+    enabled: false
+    url: http://localhost:9090
+  
+  # Grafana for visualization
+  grafana:
+    enabled: false
+    url: http://localhost:3000
+    username: admin
+    password: admin
+  
+  # Alert manager
+  alertmanager:
+    enabled: false
+    url: http://localhost:9093

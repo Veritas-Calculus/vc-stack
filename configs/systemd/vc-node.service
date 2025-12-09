@@ -1,0 +1,50 @@
+# Systemd service file for VC Stack Node
+# Install to: /etc/systemd/system/vc-node.service
+
+[Unit]
+Description=VC Stack Node - Compute and Network Agent
+Documentation=https://github.com/Veritas-Calculus/vc-stack
+After=network-online.target libvirtd.service ovs-vswitchd.service
+Wants=network-online.target
+Requires=libvirtd.service
+
+[Service]
+Type=simple
+User=root
+Group=root
+
+# Working directory
+WorkingDirectory=/opt/tiger
+
+# Binary location
+ExecStart=/opt/tiger/bin/vc-node
+
+# Restart policy
+Restart=on-failure
+RestartSec=10s
+
+# Resource limits
+LimitNOFILE=65535
+LimitNPROC=8192
+
+# Environment
+Environment="CONTROLLER_URL=http://localhost:8080"
+Environment="NODE_NAME=node-1"
+Environment="NODE_PORT=8081"
+Environment="DB_HOST=172.17.0.1"
+Environment="DB_PORT=5432"
+Environment="DB_NAME=vcstack"
+Environment="DB_USER=vcstack"
+Environment="DB_PASS=vcstack123"
+
+# Security (less restrictive due to libvirt/KVM requirements)
+NoNewPrivileges=false
+PrivateTmp=false
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=vc-node
+
+[Install]
+WantedBy=multi-user.target

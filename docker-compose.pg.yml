@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: vc-stack-postgres-simple
+    environment:
+      POSTGRES_DB: vcstack
+      POSTGRES_USER: vcstack
+      POSTGRES_PASSWORD: vcstack123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local

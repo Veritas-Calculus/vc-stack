@@ -1,0 +1,223 @@
+syntax = "proto3";
+
+package identity.v1;
+
+option go_package = "github.com/Veritas-Calculus/vc-stack/internal/identity";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+// IdentityService provides authentication and authorization services
+service IdentityService {
+  // Login authenticates a user and returns tokens
+  rpc Login(LoginRequest) returns (LoginResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/auth/login"
+      body: "*"
+    };
+  }
+
+  // RefreshToken generates a new access token using a refresh token
+  rpc RefreshToken(RefreshTokenRequest) returns (LoginResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/auth/refresh"
+      body: "*"
+    };
+  }
+
+  // Logout revokes a refresh token
+  rpc Logout(LogoutRequest) returns (LogoutResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/auth/logout"
+      body: "*"
+    };
+  }
+
+  // ValidateToken validates and parses a JWT token
+  rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
+
+  // GetUser retrieves user information
+  rpc GetUser(GetUserRequest) returns (GetUserResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/users/{user_id}"
+    };
+  }
+
+  // ListUsers returns a list of users
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/users"
+    };
+  }
+
+  // CreateUser creates a new user
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/users"
+      body: "*"
+    };
+  }
+
+  // UpdateUser updates an existing user
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {
+    option (google.api.http) = {
+      put: "/api/v1/users/{user_id}"
+      body: "*"
+    };
+  }
+
+  // DeleteUser deletes a user
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {
+    option (google.api.http) = {
+      delete: "/api/v1/users/{user_id}"
+    };
+  }
+}
+
+// LoginRequest represents a login request
+message LoginRequest {
+  string username = 1;
+  string password = 2;
+}
+
+// LoginResponse represents a login response
+message LoginResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+  int64 expires_in = 3;
+  string token_type = 4;
+  User user = 5;
+}
+
+// RefreshTokenRequest represents a refresh token request
+message RefreshTokenRequest {
+  string refresh_token = 1;
+}
+
+// LogoutRequest represents a logout request
+message LogoutRequest {
+  string refresh_token = 1;
+}
+
+// LogoutResponse represents a logout response
+message LogoutResponse {
+  string message = 1;
+}
+
+// ValidateTokenRequest represents a token validation request
+message ValidateTokenRequest {
+  string token = 1;
+}
+
+// ValidateTokenResponse represents a token validation response
+message ValidateTokenResponse {
+  bool valid = 1;
+  uint32 user_id = 2;
+  string username = 3;
+  string email = 4;
+  bool is_admin = 5;
+  repeated string roles = 6;
+  repeated string permissions = 7;
+}
+
+// GetUserRequest represents a get user request
+message GetUserRequest {
+  uint32 user_id = 1;
+}
+
+// GetUserResponse represents a get user response
+message GetUserResponse {
+  User user = 1;
+}
+
+// ListUsersRequest represents a list users request
+message ListUsersRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+  string search = 3;
+}
+
+// ListUsersResponse represents a list users response
+message ListUsersResponse {
+  repeated User users = 1;
+  int32 total = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+// CreateUserRequest represents a create user request
+message CreateUserRequest {
+  string username = 1;
+  string email = 2;
+  string password = 3;
+  string first_name = 4;
+  string last_name = 5;
+  bool is_admin = 6;
+  repeated uint32 role_ids = 7;
+}
+
+// CreateUserResponse represents a create user response
+message CreateUserResponse {
+  User user = 1;
+}
+
+// UpdateUserRequest represents an update user request
+message UpdateUserRequest {
+  uint32 user_id = 1;
+  string email = 2;
+  string first_name = 3;
+  string last_name = 4;
+  bool is_active = 5;
+  bool is_admin = 6;
+  repeated uint32 role_ids = 7;
+}
+
+// UpdateUserResponse represents an update user response
+message UpdateUserResponse {
+  User user = 1;
+}
+
+// DeleteUserRequest represents a delete user request
+message DeleteUserRequest {
+  uint32 user_id = 1;
+}
+
+// DeleteUserResponse represents a delete user response
+message DeleteUserResponse {
+  string message = 1;
+}
+
+// User represents a user in the system
+message User {
+  uint32 id = 1;
+  string username = 2;
+  string email = 3;
+  string first_name = 4;
+  string last_name = 5;
+  bool is_active = 6;
+  bool is_admin = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+  repeated Role roles = 10;
+}
+
+// Role represents a role in the RBAC system
+message Role {
+  uint32 id = 1;
+  string name = 2;
+  string description = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+  repeated Permission permissions = 6;
+}
+
+// Permission represents a permission in the RBAC system
+message Permission {
+  uint32 id = 1;
+  string name = 2;
+  string resource = 3;
+  string action = 4;
+  string description = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
