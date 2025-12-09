@@ -29,6 +29,7 @@ linters:
     - unparam
     - revive
     - stylecheck
+    - typecheck  # Disabled due to CGO_ENABLED=0 causing false positives
 
 linters-settings:
   errcheck:
@@ -38,12 +39,6 @@ linters-settings:
   govet:
     enable:
       - shadow
-
-  typecheck:
-    skip-files:
-      - "pkg/sentry/.*\\.go"
-      - "internal/controlplane/identity/service\\.go"
-      - "internal/controlplane/middleware/auth\\.go"
 
   gocyclo:
     min-complexity: 30
