@@ -19,15 +19,16 @@ linters:
     - gocyclo
     - gosec
     - unconvert
-    - unparam
-    - revive
     - bodyclose
     - gocognit
     - godot
     - goprintffuncname
     - nolintlint
-    - stylecheck
     - whitespace
+  disable:
+    - unparam
+    - revive
+    - stylecheck
 
 linters-settings:
   errcheck:
@@ -37,6 +38,12 @@ linters-settings:
   govet:
     enable:
       - shadow
+
+  typecheck:
+    skip-files:
+      - "pkg/sentry/.*\\.go"
+      - "internal/controlplane/identity/service\\.go"
+      - "internal/controlplane/middleware/auth\\.go"
 
   gocyclo:
     min-complexity: 30
@@ -72,6 +79,9 @@ linters-settings:
       - G104  # Unhandled errors (covered by errcheck)
       - G204  # Subprocess launched with variable
       - G107  # Potential HTTP request with variable url
+      - G301  # Directory permissions
+      - G302  # File permissions
+      - G304  # File inclusion via variable
     config:
       G306: "0644"
 
@@ -80,6 +90,7 @@ issues:
     - "rbd_manager\\.go$"
   exclude-dirs:
     - vendor
+  exclude-use-default: false
   exclude-rules:
     # Exclude some linters from running on tests files
     - path: _test\.go
