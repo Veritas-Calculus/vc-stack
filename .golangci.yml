@@ -19,17 +19,15 @@ linters:
     - gocyclo
     - gosec
     - unconvert
+    - unparam
+    - revive
     - bodyclose
     - gocognit
     - godot
     - goprintffuncname
     - nolintlint
-    - whitespace
-  disable:
-    - unparam
-    - revive
     - stylecheck
-    - typecheck  # Disabled due to CGO_ENABLED=0 causing false positives
+    - whitespace
 
 linters-settings:
   errcheck:
@@ -39,8 +37,6 @@ linters-settings:
   govet:
     enable:
       - shadow
-    disable:
-      - fieldalignment
 
   gocyclo:
     min-complexity: 30
@@ -76,9 +72,6 @@ linters-settings:
       - G104  # Unhandled errors (covered by errcheck)
       - G204  # Subprocess launched with variable
       - G107  # Potential HTTP request with variable url
-      - G301  # Directory permissions
-      - G302  # File permissions
-      - G304  # File inclusion via variable
     config:
       G306: "0644"
 
@@ -87,18 +80,7 @@ issues:
     - "rbd_manager\\.go$"
   exclude-dirs:
     - vendor
-  exclude-use-default: false
   exclude-rules:
-    # Exclude all typecheck errors (fails with CGO_ENABLED=0)
-    - linters:
-        - typecheck
-      text: ".*"
-
-    # Filter jwt/sentry typecheck errors triggered when CGO is disabled
-    - linters:
-        - typecheck
-      text: "undefined: (jwt|sentry)"
-
     # Exclude some linters from running on tests files
     - path: _test\.go
       linters:
@@ -111,7 +93,22 @@ issues:
     # Exclude CGO-dependent files (Ceph RBD)
     - path: "rbd_manager\\.go"
       linters:
+        - typecheck
         - all
+
+    # Exclude Sentry SDK files
+    - path: pkg/sentry/
+      linters:
+        - typecheck
+
+    # Exclude JWT authentication files
+    - path: internal/controlplane/identity/service\.go
+      linters:
+        - typecheck
+
+    - path: internal/controlplane/middleware/auth\.go
+      linters:
+        - typecheck
 
     # Exclude known issues
     - text: "weak cryptographic primitive"
