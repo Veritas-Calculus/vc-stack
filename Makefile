@@ -73,12 +73,19 @@ vet: ## Run go vet
 
 test: ## Run tests
 	@echo "Running tests..."
-	@go test -race -coverprofile=coverage.out ./...
+	@CGO_ENABLED=0 go test -race -coverprofile=coverage.out ./...
 	@go tool cover -html=coverage.out -o coverage.html
 
 test-coverage: ## Run tests with detailed coverage
 	@echo "Running tests with coverage..."
-	@go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
+	@CGO_ENABLED=0 go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
+	@go tool cover -func=coverage.out
+	@go tool cover -html=coverage.out -o coverage.html
+	@echo "Coverage report: coverage.html"
+
+test-with-cgo: ## Run tests with CGO enabled (requires libvirt, ceph dev libraries)
+	@echo "Running tests with CGO enabled..."
+	@CGO_ENABLED=1 go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
 	@go tool cover -func=coverage.out
 	@go tool cover -html=coverage.out -o coverage.html
 	@echo "Coverage report: coverage.html"
@@ -106,6 +113,17 @@ sonar: ## Run SonarQube analysis locally
 quality-check: lint vet test-coverage ## Run all quality checks
 	@echo "All quality checks passed!"
 
+install-tools: ## Install development tools
+	@echo "Installing development tools..."
+	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.61.0
+	@go install github.com/securego/gosec/v2/cmd/gosec@latest
+	@go install golang.org/x/tools/cmd/goimports@latest
+	@go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+	@go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
+	@go install github.com/swaggo/swag/cmd/swag@latest
+	@echo "Development tools installed successfully"
+
 security-scan: ## Run security scanner (gosec)
 	@echo "Running security scan..."
 	@if ! command -v gosec >/dev/null 2>&1; then \
@@ -114,13 +132,6 @@ security-scan: ## Run security scanner (gosec)
 	fi
 	@gosec -fmt=json -out=gosec-report.json ./... || true
 	@gosec ./...
-
-install-tools: ## Install development tools
-	@echo "Installing development tools..."
-	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.61.0
-	@go install github.com/securego/gosec/v2/cmd/gosec@latest
-	@go install golang.org/x/tools/cmd/goimports@latest
-	@echo "Development tools installed successfully"
 
 ##@ Build
 
@@ -208,15 +219,6 @@ deps-vendor: ## Create vendor directory
 
 ##@ Tools
 
-install-tools: ## Install development tools
-	@echo "Installing development tools..."
-	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-	@go install golang.org/x/tools/cmd/goimports@latest
-	@go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-	@go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
-	@go install github.com/swaggo/swag/cmd/swag@latest
-
 generate: ## Generate code
 	@echo "Generating code..."
 	@go generate ./...
@@ -278,10 +280,6 @@ clean-docker: ## Clean Docker images and containers
 	done
 
 ##@ Security
-
-security-scan: ## Run security scan
-	@echo "Running security scan..."
-	@gosec ./...
 
 vulnerability-check: ## Check for vulnerabilities
 	@echo "Checking for vulnerabilities..."
