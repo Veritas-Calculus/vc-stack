@@ -14,36 +14,36 @@ import (
 
 // listWebShellSessions lists all WebShell sessions with filtering.
 func (s *Service) listWebShellSessions(c *gin.Context) {
-	// Parse query parameters
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
-	if page < 1 {
+	// Parse query parameters.
+	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	if err != nil || page < 1 {
 		page = 1
 	}
-	if pageSize < 1 || pageSize > 100 {
+	pageSize, err := strconv.Atoi(c.DefaultQuery("page_size", "20"))
+	if err != nil || pageSize < 1 || pageSize > 100 {
 		pageSize = 20
 	}
 	offset := (page - 1) * pageSize
 
-	// Build query
+	// Build query.
 	query := s.db.Model(&models.WebShellSession{})
 
-	// Filter by username
+	// Filter by username.
 	if username := c.Query("username"); username != "" {
 		query = query.Where("username LIKE ?", "%"+username+"%")
 	}
 
-	// Filter by remote host
+	// Filter by remote host.
 	if remoteHost := c.Query("remote_host"); remoteHost != "" {
 		query = query.Where("remote_host LIKE ?", "%"+remoteHost+"%")
 	}
 
-	// Filter by status
+	// Filter by status.
 	if status := c.Query("status"); status != "" {
 		query = query.Where("status = ?", status)
 	}
 
-	// Count total
+	// Count total.
 	var total int64
 	if err := query.Count(&total).Error; err != nil {
 		s.logger.Error("Failed to count sessions", zap.Error(err))
@@ -51,7 +51,7 @@ func (s *Service) listWebShellSessions(c *gin.Context) {
 		return
 	}
 
-	// Fetch sessions
+	// Fetch sessions.
 	var sessions []models.WebShellSession
 	if err := query.Order("started_at DESC").
 		Limit(pageSize).
@@ -76,10 +76,10 @@ func (s *Service) getWebShellSession(c *gin.Context) {
 
 	var session models.WebShellSession
 
-	// Try as session_id first (hex string), then as numeric ID
+	// Try as session_id first (hex string), then as numeric ID.
 	err := s.db.Where("session_id = ?", sessionIDParam).First(&session).Error
 	if err != nil {
-		// Try as numeric ID
+		// Try as numeric ID.
 		if id, parseErr := strconv.ParseUint(sessionIDParam, 10, 32); parseErr == nil {
 			err = s.db.First(&session, id).Error
 		}
@@ -98,7 +98,7 @@ func (s *Service) getWebShellSession(c *gin.Context) {
 func (s *Service) getWebShellSessionEvents(c *gin.Context) {
 	sessionIDParam := c.Param("id")
 
-	// Verify session exists and get session_id
+	// Verify session exists and get session_id.
 	var session models.WebShellSession
 	err := s.db.Where("session_id = ?", sessionIDParam).First(&session).Error
 	if err != nil {
@@ -113,7 +113,7 @@ func (s *Service) getWebShellSessionEvents(c *gin.Context) {
 		return
 	}
 
-	// Fetch events for this session
+	// Fetch events for this session.
 	var events []models.WebShellEvent
 	if err := s.db.Where("session_id = ?", session.SessionID).
 		Order("time_offset ASC").
@@ -133,7 +133,7 @@ func (s *Service) getWebShellSessionEvents(c *gin.Context) {
 func (s *Service) exportWebShellSession(c *gin.Context) {
 	sessionIDParam := c.Param("id")
 
-	// Verify session exists
+	// Verify session exists.
 	var session models.WebShellSession
 	err := s.db.Where("session_id = ?", sessionIDParam).First(&session).Error
 	if err != nil {
@@ -148,7 +148,7 @@ func (s *Service) exportWebShellSession(c *gin.Context) {
 		return
 	}
 
-	// Fetch events
+	// Fetch events.
 	var events []models.WebShellEvent
 	if err := s.db.Where("session_id = ?", session.SessionID).
 		Order("time_offset ASC").
@@ -158,8 +158,8 @@ func (s *Service) exportWebShellSession(c *gin.Context) {
 		return
 	}
 
-	// Generate asciinema format
-	// Header line
+	// Generate asciinema format.
+	// Header line.
 	header := map[string]interface{}{
 		"version":   2,
 		"width":     80,
@@ -172,23 +172,45 @@ func (s *Service) exportWebShellSession(c *gin.Context) {
 		"title": fmt.Sprintf("%s@%s:%d", session.Username, session.RemoteHost, session.RemotePort),
 	}
 
-	headerJSON, _ := json.Marshal(header)
+	headerJSON, err := json.Marshal(header)
+	if err != nil {
+		s.logger.Error("Failed to marshal header", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to prepare export"})
+		return
+	}
 	c.Writer.Header().Set("Content-Type", "application/x-asciicast")
 	c.Writer.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=webshell-%s.cast", session.SessionID))
 	c.Writer.WriteHeader(http.StatusOK)
 
-	// Write header
-	c.Writer.Write(headerJSON)
-	c.Writer.Write([]byte("\n"))
+	// Write header.
+	if _, err := c.Writer.Write(headerJSON); err != nil {
+		s.logger.Warn("Failed to write header", zap.Error(err))
+		return
+	}
+	if _, err := c.Writer.WriteString("\n"); err != nil {
+		s.logger.Warn("Failed to write newline", zap.Error(err))
+		return
+	}
 
-	// Write events
+	// Write events.
 	for _, event := range events {
-		if event.EventType == "output" && event.Data != "" {
-			timestamp := float64(event.TimeOffset) / 1000.0 // Convert to seconds
-			eventLine := []interface{}{timestamp, "o", event.Data}
-			eventJSON, _ := json.Marshal(eventLine)
-			c.Writer.Write(eventJSON)
-			c.Writer.Write([]byte("\n"))
+		if event.EventType != "output" || event.Data == "" {
+			continue
+		}
+		timestamp := float64(event.TimeOffset) / 1000.0 // Convert to seconds
+		eventLine := []interface{}{timestamp, "o", event.Data}
+		eventJSON, err := json.Marshal(eventLine)
+		if err != nil {
+			s.logger.Warn("Failed to marshal event", zap.Error(err))
+			continue
+		}
+		if _, err := c.Writer.Write(eventJSON); err != nil {
+			s.logger.Warn("Failed to write event", zap.Error(err))
+			return
+		}
+		if _, err := c.Writer.WriteString("\n"); err != nil {
+			s.logger.Warn("Failed to write newline", zap.Error(err))
+			return
 		}
 	}
 }

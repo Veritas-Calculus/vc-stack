@@ -37,7 +37,7 @@ func (s *Service) getOVNDriver() *OVNDriver {
 func generateUUID() string {
 	b := make([]byte, 16)
 	if _, err := rand.Read(b); err != nil {
-		// fallback to timestamp-based pseudo-uuid
+		// fallback to timestamp-based pseudo-uuid.
 		return fmt.Sprintf("%x-%x-%x-%x-%x", time.Now().UnixNano(), b[4:6], b[6:8], b[8:10], b[10:16])
 	}
 	return fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:16])
@@ -50,14 +50,14 @@ type CreateNetworkRequest struct {
 	CIDR        string `json:"cidr" binding:"required"`
 	VLANID      int    `json:"vlan_id"`
 	Gateway     string `json:"gateway"`
-	// Either provide dns_servers or individual DNS entries
+	// Either provide dns_servers or individual DNS entries.
 	DNSServers string `json:"dns_servers"`
 	DNS1       string `json:"dns1"`
 	DNS2       string `json:"dns2"`
 	Zone       string `json:"zone" binding:"required"`
 	Start      *bool  `json:"start"`
 	TenantID   string `json:"tenant_id" binding:"required"`
-	// DHCP configuration
+	// DHCP configuration.
 	EnableDHCP      *bool  `json:"enable_dhcp"`      // default: true
 	DHCPLeaseTime   int    `json:"dhcp_lease_time"`  // seconds, default: 86400
 	AllocationStart string `json:"allocation_start"` // IP pool start
@@ -80,7 +80,7 @@ type UpdateNetworkRequest struct {
 	Zone        string `json:"zone"`
 	DNS1        string `json:"dns1"`
 	DNS2        string `json:"dns2"`
-	// Updatable provider/overlay fields
+	// Updatable provider/overlay fields.
 	NetworkType     *string `json:"network_type"`
 	PhysicalNetwork *string `json:"physical_network"`
 	SegmentationID  *int    `json:"segmentation_id"`
@@ -89,13 +89,13 @@ type UpdateNetworkRequest struct {
 	MTU             *int    `json:"mtu"`
 }
 
-// listNetworks handles GET /api/v1/networks
+// listNetworks handles GET /api/v1/networks.
 func (s *Service) listNetworks(c *gin.Context) {
 	var networks []Network
 
 	query := s.db
 
-	// Add filtering by tenant_id if provided
+	// Add filtering by tenant_id if provided.
 	if tenantID := c.Query("tenant_id"); tenantID != "" {
 		query = query.Where("tenant_id = ?", tenantID)
 	}
@@ -109,7 +109,9 @@ func (s *Service) listNetworks(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"networks": networks})
 }
 
-// createNetwork handles POST /api/v1/networks
+// createNetwork handles POST /api/v1/networks.
+//
+//nolint:gocognit,gocyclo // Complex network creation logic with multiple validations
 func (s *Service) createNetwork(c *gin.Context) {
 	var req CreateNetworkRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -117,13 +119,13 @@ func (s *Service) createNetwork(c *gin.Context) {
 		return
 	}
 
-	// Validate CIDR
+	// Validate CIDR.
 	if err := ValidateCIDR(req.CIDR); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid CIDR format"})
 		return
 	}
 
-	// Build DNS servers string
+	// Build DNS servers string.
 	dns := req.DNSServers
 	if dns == "" {
 		vals := make([]string, 0, 2)
@@ -136,12 +138,12 @@ func (s *Service) createNetwork(c *gin.Context) {
 		if len(vals) > 0 {
 			dns = strings.Join(vals, ",")
 		} else {
-			// Default to Google DNS
+			// Default to Google DNS.
 			dns = "8.8.8.8,8.8.4.4"
 		}
 	}
 
-	// Default DHCP settings
+	// Default DHCP settings.
 	enableDHCP := true
 	if req.EnableDHCP != nil {
 		enableDHCP = *req.EnableDHCP
@@ -151,10 +153,10 @@ func (s *Service) createNetwork(c *gin.Context) {
 		dhcpLeaseTime = 86400 // 24 hours
 	}
 
-	// Idempotency: if a network with the same (tenant_id, name) already exists, return it
+	// Idempotency: if a network with the same (tenant_id, name) already exists, return it.
 	var existing Network
 	if err := s.db.Where("tenant_id = ? AND name = ?", req.TenantID, req.Name).First(&existing).Error; err == nil {
-		// If CIDR/VLAN mismatch, surface a conflict to avoid silent misconfig
+		// If CIDR/VLAN mismatch, surface a conflict to avoid silent misconfig.
 		if (strings.TrimSpace(existing.CIDR) != strings.TrimSpace(req.CIDR)) || (existing.VLANID != req.VLANID) {
 			c.JSON(http.StatusConflict, gin.H{"error": "Network with same name exists with different CIDR/VLAN", "network": existing})
 			return
@@ -164,17 +166,17 @@ func (s *Service) createNetwork(c *gin.Context) {
 		return
 	}
 
-	// Normalize provider/overlay fields
+	// Normalize provider/overlay fields.
 	nt := strings.ToLower(strings.TrimSpace(req.NetworkType))
 	if nt == "" {
 		nt = "vxlan"
 	}
 	segID := req.SegmentationID
 	if segID == 0 && req.VLANID != 0 {
-		// backward-compat: honor legacy vlan_id
+		// backward-compat: honor legacy vlan_id.
 		segID = req.VLANID
 	}
-	// Defaults for MTU if not explicitly provided
+	// Defaults for MTU if not explicitly provided.
 	mtu := req.MTU
 	if mtu == 0 {
 		switch nt {
@@ -204,7 +206,7 @@ func (s *Service) createNetwork(c *gin.Context) {
 		Zone:        req.Zone,
 		Status:      "creating",
 		TenantID:    req.TenantID,
-		// Provider/overlay fields
+		// Provider/overlay fields.
 		NetworkType:     nt,
 		PhysicalNetwork: req.PhysicalNetwork,
 		SegmentationID:  segID,
@@ -228,8 +230,8 @@ func (s *Service) createNetwork(c *gin.Context) {
 		return
 	}
 
-	// Derive gateway and allocation defaults before persisting, so DB reflects actual intent
-	// This also keeps RouterInterface binding consistent with OVN
+	// Derive gateway and allocation defaults before persisting, so DB reflects actual intent.
+	// This also keeps RouterInterface binding consistent with OVN.
 	gw := strings.TrimSpace(req.Gateway)
 	if gw == "" {
 		if _, ipnet, err := net.ParseCIDR(req.CIDR); err == nil {
@@ -237,12 +239,12 @@ func (s *Service) createNetwork(c *gin.Context) {
 				ip := make(net.IP, len(v4))
 				copy(ip, v4)
 				// default: first usable IP (.1)
-				ip[3] = ip[3] + 1
+				ip[3]++
 				gw = ip.String()
 			}
 		}
 	}
-	// Calculate allocation pool if not provided
+	// Calculate allocation pool if not provided.
 	allocStart := strings.TrimSpace(req.AllocationStart)
 	allocEnd := strings.TrimSpace(req.AllocationEnd)
 	if allocStart == "" || allocEnd == "" {
@@ -251,23 +253,23 @@ func (s *Service) createNetwork(c *gin.Context) {
 				startIP := make(net.IP, len(v4))
 				copy(startIP, v4)
 				// start from .2 (reserve .1 for gateway)
-				startIP[3] = startIP[3] + 2
+				startIP[3] += 2
 				allocStart = startIP.String()
-				// end at last usable
+				// end at last usable.
 				ones, bits := ipnet.Mask.Size()
 				if bits == 32 {
 					hostBits := bits - ones
 					numHosts := (1 << hostBits) - 2
 					endIP := make(net.IP, len(v4))
 					copy(endIP, v4)
-					endIP[3] = endIP[3] + byte(numHosts)
+					endIP[3] += byte(numHosts)
 					allocEnd = endIP.String()
 				}
 			}
 		}
 	}
 
-	// Create default subnet for this network
+	// Create default subnet for this network.
 	subnet := Subnet{
 		ID:              generateUUID(),
 		Name:            req.Name + "-subnet",
@@ -297,7 +299,7 @@ func (s *Service) createNetwork(c *gin.Context) {
 	}
 	if start {
 		if err := s.driver.EnsureNetwork(&network, &subnet); err != nil {
-			// Don't fail the API if SDN backend is unavailable; mark as created and warn
+			// Don't fail the API if SDN backend is unavailable; mark as created and warn.
 			s.logger.Error("SDN ensure network failed", zap.Error(err))
 			network.Status = "created"
 			subnet.Status = "created"
@@ -312,8 +314,8 @@ func (s *Service) createNetwork(c *gin.Context) {
 	s.db.Save(&network)
 	s.db.Save(&subnet)
 
-	// Persist network-level gateway for convenience/binding
-	// If not provided explicitly, mirror from subnet gateway
+	// Persist network-level gateway for convenience/binding.
+	// If not provided explicitly, mirror from subnet gateway.
 	if strings.TrimSpace(network.Gateway) == "" && strings.TrimSpace(subnet.Gateway) != "" {
 		network.Gateway = subnet.Gateway
 		_ = s.db.Save(&network).Error
@@ -330,12 +332,12 @@ func (s *Service) createNetwork(c *gin.Context) {
 		if err := s.db.Create(&router).Error; err != nil {
 			s.logger.Warn("Failed to create router record", zap.Error(err), zap.String("router_id", router.ID))
 		} else {
-			// Ensure router in SDN and connect subnet to router
+			// Ensure router in SDN and connect subnet to router.
 			lrName := router.ID
 			if err := s.driver.EnsureRouter(lrName); err != nil {
 				s.logger.Warn("Failed to ensure router in SDN", zap.Error(err), zap.String("name", lrName))
 			}
-			// Connect subnet to router
+			// Connect subnet to router.
 			routerIface := RouterInterface{
 				ID:        "rif-" + subnet.ID,
 				RouterID:  router.ID,
@@ -348,12 +350,12 @@ func (s *Service) createNetwork(c *gin.Context) {
 				if err := s.driver.ConnectSubnetToRouter(lrName, &network, &subnet); err != nil {
 					s.logger.Warn("Failed to connect subnet to router in SDN", zap.Error(err))
 				}
-				// Best-effort: read back OVN LRP networks to bind DB gateway/interface IP to actual value
+				// Best-effort: read back OVN LRP networks to bind DB gateway/interface IP to actual value.
 				if ovnDrv := s.getOVNDriver(); ovnDrv != nil {
 					lrpName := fmt.Sprintf("lrp-%s-%s", lrName, network.ID)
 					if nets, err := ovnDrv.nbctlOutput("get", "Logical_Router_Port", lrpName, "networks"); err == nil {
 						if ip := parseFirstIPFromNetworks(strings.TrimSpace(nets)); ip != "" {
-							// Update subnet and router interface if needed
+							// Update subnet and router interface if needed.
 							changed := false
 							if subnet.Gateway != ip {
 								subnet.Gateway = ip
@@ -384,7 +386,7 @@ func (s *Service) createNetwork(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"network": network, "subnet": subnet})
 }
 
-// getNetwork handles GET /api/v1/networks/:id
+// getNetwork handles GET /api/v1/networks/:id.
 func (s *Service) getNetwork(c *gin.Context) {
 	id := c.Param("id")
 
@@ -394,11 +396,11 @@ func (s *Service) getNetwork(c *gin.Context) {
 		return
 	}
 
-	// Load associated subnets
+	// Load associated subnets.
 	var subnets []Subnet
 	s.db.Where("network_id = ?", network.ID).Find(&subnets)
 
-	// Build response with subnets
+	// Build response with subnets.
 	response := map[string]interface{}{
 		"id":          network.ID,
 		"name":        network.Name,
@@ -418,7 +420,7 @@ func (s *Service) getNetwork(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"network": response})
 }
 
-// diagnoseNetwork handles GET /api/v1/networks/:id/diagnose
+// diagnoseNetwork handles GET /api/v1/networks/:id/diagnose.
 // Returns DB info and best-effort OVN state for quick troubleshooting.
 func (s *Service) diagnoseNetwork(c *gin.Context) {
 	id := c.Param("id")
@@ -429,13 +431,13 @@ func (s *Service) diagnoseNetwork(c *gin.Context) {
 		return
 	}
 
-	// Load subnets
+	// Load subnets.
 	var subnets []Subnet
 	if err := s.db.Where("network_id = ?", network.ID).Find(&subnets).Error; err != nil {
 		s.logger.Warn("Failed to load subnets", zap.Error(err))
 	}
 
-	// Load router interfaces on these subnets
+	// Load router interfaces on these subnets.
 	subnetIDs := make([]string, 0, len(subnets))
 	for _, sn := range subnets {
 		subnetIDs = append(subnetIDs, sn.ID)
@@ -445,7 +447,7 @@ func (s *Service) diagnoseNetwork(c *gin.Context) {
 		_ = s.db.Where("subnet_id IN ?", subnetIDs).Find(&rifs).Error
 	}
 
-	// Load routers
+	// Load routers.
 	routerIDSet := map[string]struct{}{}
 	for _, rif := range rifs {
 		routerIDSet[rif.RouterID] = struct{}{}
@@ -459,15 +461,15 @@ func (s *Service) diagnoseNetwork(c *gin.Context) {
 		_ = s.db.Where("id IN ?", routerIDs).Find(&routers).Error
 	}
 
-	// Expected OVN object names
+	// Expected OVN object names.
 	lsName := fmt.Sprintf("ls-%s", network.ID)
-	// For each router connected to this network, expect lrp/lsp of pattern lrp-<lr>-<networkID>/lsp-<lr>-<networkID>
+	// For each router connected to this network, expect lrp/lsp of pattern lrp-<lr>-<networkID>/lsp-<lr>-<networkID>.
 	expected := map[string]interface{}{
 		"ls":  lsName,
 		"lrp": []string{},
 		"lsp": []string{},
 	}
-	// Build expected names from known routers; if none, also include lr-<network.ID> as default
+	// Build expected names from known routers; if none, also include lr-<network.ID> as default.
 	lrNames := []string{}
 	if len(routers) == 0 {
 		lrNames = append(lrNames, "lr-"+network.ID)
@@ -492,18 +494,22 @@ func (s *Service) diagnoseNetwork(c *gin.Context) {
 	ovn := map[string]interface{}{}
 	// Best-effort OVN inspection when an OVN driver is available (direct or via fallback)
 	var ovnDrv *OVNDriver
-	if drv, ok := s.driver.(*OVNDriver); ok {
+	switch drv := s.driver.(type) {
+	case *OVNDriver:
 		ovnDrv = drv
-	} else if fb, ok := s.driver.(*FallbackDriver); ok {
-		// Try to extract an OVN driver from primary/secondary
-		if d1, ok := fb.primary.(*OVNDriver); ok {
-			ovnDrv = d1
-		} else if d2, ok := fb.secondary.(*OVNDriver); ok {
-			ovnDrv = d2
+	case *FallbackDriver:
+		// Try to extract an OVN driver from primary/secondary.
+		switch d := drv.primary.(type) {
+		case *OVNDriver:
+			ovnDrv = d
+		default:
+			if d2, ok := drv.secondary.(*OVNDriver); ok {
+				ovnDrv = d2
+			}
 		}
 	}
 	if ovnDrv != nil {
-		// LSP checks
+		// LSP checks.
 		lspInfo := []map[string]string{}
 		for _, lsp := range lspNames {
 			addr, _ := ovnDrv.nbctlOutput("get", "Logical_Switch_Port", lsp, "addresses")
@@ -516,7 +522,7 @@ func (s *Service) diagnoseNetwork(c *gin.Context) {
 		}
 		ovn["lsp"] = lspInfo
 
-		// LRP checks
+		// LRP checks.
 		lrpInfo := []map[string]string{}
 		for _, lrp := range lrpNames {
 			nets, _ := ovnDrv.nbctlOutput("get", "Logical_Router_Port", lrp, "networks")
@@ -542,7 +548,7 @@ func (s *Service) diagnoseNetwork(c *gin.Context) {
 			}
 		}
 
-		// Inspect VM/data ports on this network to verify LSP correctness
+		// Inspect VM/data ports on this network to verify LSP correctness.
 		var ports []NetworkPort
 		if err := s.db.Where("network_id = ?", network.ID).Find(&ports).Error; err == nil {
 			portInfo := []map[string]string{}
@@ -579,7 +585,7 @@ func (s *Service) diagnoseNetwork(c *gin.Context) {
 	})
 }
 
-// diagnoseNetworkByName handles GET /api/v1/networks/diagnose?name=xxx[&tenant_id=yyy]
+// diagnoseNetworkByName handles GET /api/v1/networks/diagnose?name=xxx[&tenant_id=yyy].
 func (s *Service) diagnoseNetworkByName(c *gin.Context) {
 	name := c.Query("name")
 	if strings.TrimSpace(name) == "" {
@@ -595,12 +601,12 @@ func (s *Service) diagnoseNetworkByName(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Network not found"})
 		return
 	}
-	// Delegate to diagnoseNetwork via ID
+	// Delegate to diagnoseNetwork via ID.
 	c.Params = append(c.Params, gin.Param{Key: "id", Value: n.ID})
 	s.diagnoseNetwork(c)
 }
 
-// updateNetwork handles PUT /api/v1/networks/:id
+// updateNetwork handles PUT /api/v1/networks/:id.
 func (s *Service) updateNetwork(c *gin.Context) {
 	id := c.Param("id")
 
@@ -616,7 +622,7 @@ func (s *Service) updateNetwork(c *gin.Context) {
 		return
 	}
 
-	// Update fields
+	// Update fields.
 	if req.Name != "" {
 		network.Name = req.Name
 	}
@@ -626,7 +632,7 @@ func (s *Service) updateNetwork(c *gin.Context) {
 	if req.DNSServers != "" {
 		network.DNSServers = req.DNSServers
 	}
-	// Allow updates via DNS1/DNS2 too
+	// Allow updates via DNS1/DNS2 too.
 	if req.DNS1 != "" || req.DNS2 != "" {
 		vals := make([]string, 0, 2)
 		if req.DNS1 != "" {
@@ -654,8 +660,8 @@ func (s *Service) updateNetwork(c *gin.Context) {
 	}
 	if req.SegmentationID != nil {
 		network.SegmentationID = *req.SegmentationID
-		// keep legacy vlan_id for compatibility if vlan
-		if strings.ToLower(network.NetworkType) == "vlan" {
+		// keep legacy vlan_id for compatibility if vlan.
+		if strings.EqualFold(network.NetworkType, "vlan") {
 			network.VLANID = *req.SegmentationID
 		}
 	}
@@ -678,7 +684,9 @@ func (s *Service) updateNetwork(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"network": network})
 }
 
-// deleteNetwork handles DELETE /api/v1/networks/:id
+// deleteNetwork handles DELETE /api/v1/networks/:id.
+//
+//nolint:gocognit // Complex network deletion with cleanup logic
 func (s *Service) deleteNetwork(c *gin.Context) {
 	id := c.Param("id")
 
@@ -688,9 +696,9 @@ func (s *Service) deleteNetwork(c *gin.Context) {
 		return
 	}
 
-	// Cascade delete related resources in a transaction
+	// Cascade delete related resources in a transaction.
 	if err := s.db.Transaction(func(tx *gorm.DB) error {
-		// Step 1: Find and delete routers associated with this network's subnets
+		// Step 1: Find and delete routers associated with this network's subnets.
 		var subnets []Subnet
 		if err := tx.Where("network_id = ?", id).Find(&subnets).Error; err != nil {
 			return err
@@ -702,7 +710,7 @@ func (s *Service) deleteNetwork(c *gin.Context) {
 				subnetIDs = append(subnetIDs, snt.ID)
 			}
 
-			// Find routers connected to these subnets via router interfaces
+			// Find routers connected to these subnets via router interfaces.
 			var routerInterfaces []RouterInterface
 			if err := tx.Where("subnet_id IN ?", subnetIDs).Find(&routerInterfaces).Error; err != nil {
 				return err
@@ -724,7 +732,7 @@ func (s *Service) deleteNetwork(c *gin.Context) {
 				}
 			}
 
-			// Delete router interfaces
+			// Delete router interfaces.
 			if err := tx.Where("subnet_id IN ?", subnetIDs).Delete(&RouterInterface{}).Error; err != nil {
 				return err
 			}
@@ -735,12 +743,12 @@ func (s *Service) deleteNetwork(c *gin.Context) {
 				routerIDList = append(routerIDList, rid)
 			}
 			if len(routerIDList) > 0 {
-				// Check if router has other interfaces before deleting
+				// Check if router has other interfaces before deleting.
 				for _, rid := range routerIDList {
 					var count int64
 					tx.Model(&RouterInterface{}).Where("router_id = ?", rid).Count(&count)
 					if count == 0 {
-						// No other interfaces, safe to delete
+						// No other interfaces, safe to delete.
 						if err := tx.Where("id = ?", rid).Delete(&Router{}).Error; err != nil {
 							s.logger.Warn("Failed to delete router", zap.String("router_id", rid), zap.Error(err))
 						} else {
@@ -750,13 +758,13 @@ func (s *Service) deleteNetwork(c *gin.Context) {
 				}
 			}
 
-			// Delete IP allocations under these subnets
+			// Delete IP allocations under these subnets.
 			if err := tx.Where("subnet_id IN ?", subnetIDs).Delete(&IPAllocation{}).Error; err != nil {
 				return err
 			}
 		}
 
-		// Step 2: Delete ports, floating IPs, subnets referencing this network
+		// Step 2: Delete ports, floating IPs, subnets referencing this network.
 		if err := tx.Where("network_id = ?", id).Delete(&NetworkPort{}).Error; err != nil {
 			return err
 		}
@@ -767,7 +775,7 @@ func (s *Service) deleteNetwork(c *gin.Context) {
 			return err
 		}
 
-		// Step 3: Finally, delete the network itself
+		// Step 3: Finally, delete the network itself.
 		if err := tx.Delete(&network).Error; err != nil {
 			return err
 		}
@@ -787,8 +795,10 @@ func (s *Service) deleteNetwork(c *gin.Context) {
 	c.JSON(http.StatusNoContent, nil)
 }
 
-// restartNetwork handles POST /api/v1/networks/:id/restart
+// restartNetwork handles POST /api/v1/networks/:id/restart.
 // It re-applies SDN state for the network and marks it active on success.
+//
+//nolint:gocognit // Complex network restart logic with state management
 func (s *Service) restartNetwork(c *gin.Context) {
 	id := c.Param("id")
 
@@ -802,7 +812,7 @@ func (s *Service) restartNetwork(c *gin.Context) {
 	var subnet Subnet
 	s.db.Where("network_id = ?", network.ID).First(&subnet)
 
-	// Try to ensure network via configured driver; if it fails, try direct OVN before giving up
+	// Try to ensure network via configured driver; if it fails, try direct OVN before giving up.
 	ensureErr := s.driver.EnsureNetwork(&network, &subnet)
 	if ensureErr != nil {
 		s.logger.Warn("EnsureNetwork via primary driver failed, trying direct OVN", zap.Error(ensureErr))
@@ -832,14 +842,14 @@ func (s *Service) restartNetwork(c *gin.Context) {
 		return
 	}
 
-	// For tenant/overlay networks, also re-ensure router connectivity so router LSP picks up addresses=router
+	// For tenant/overlay networks, also re-ensure router connectivity so router LSP picks up addresses=router.
 	if !network.External {
-		// Best-effort: disconnect any legacy attachment to lr-main to avoid duplicate router ports
+		// Best-effort: disconnect any legacy attachment to lr-main to avoid duplicate router ports.
 		if err := s.driver.DisconnectSubnetFromRouter("lr-main", &network); err != nil {
 			s.logger.Debug("No legacy lr-main attachment or failed to remove", zap.Error(err))
 		}
 
-		// Upsert per-network router record if missing
+		// Upsert per-network router record if missing.
 		var router Router
 		if err := s.db.First(&router, "id = ?", "lr-"+network.ID).Error; err != nil {
 			router = Router{ID: "lr-" + network.ID, Name: network.Name + "-router", TenantID: network.TenantID, Status: "active"}
@@ -858,7 +868,7 @@ func (s *Service) restartNetwork(c *gin.Context) {
 					s.logger.Warn("Direct OVN EnsureRouter failed (best-effort)", zap.Error(err), zap.String("router", lrName))
 				}
 			}
-			// Upsert router interface record for this subnet if missing
+			// Upsert router interface record for this subnet if missing.
 			var rif RouterInterface
 			if err := s.db.First(&rif, "id = ?", "rif-"+subnet.ID).Error; err != nil {
 				rif = RouterInterface{ID: "rif-" + subnet.ID, RouterID: lrName, SubnetID: subnet.ID, IPAddress: subnet.Gateway}
@@ -872,11 +882,11 @@ func (s *Service) restartNetwork(c *gin.Context) {
 				if err := ovnDrv.ConnectSubnetToRouter(lrName, &network, &subnet); err != nil {
 					s.logger.Warn("Direct OVN ConnectSubnetToRouter failed (best-effort)", zap.Error(err), zap.String("router", lrName), zap.String("subnet", subnet.ID))
 				}
-				// After reconnect, read back LRP networks to bind DB gateway/interface IP
+				// After reconnect, read back LRP networks to bind DB gateway/interface IP.
 				lrpName := fmt.Sprintf("lrp-%s-%s", lrName, network.ID)
 				if nets, err := ovnDrv.nbctlOutput("get", "Logical_Router_Port", lrpName, "networks"); err == nil {
 					if ip := parseFirstIPFromNetworks(strings.TrimSpace(nets)); ip != "" {
-						// Update subnet, network, router interface records if drifted
+						// Update subnet, network, router interface records if drifted.
 						updated := false
 						if subnet.Gateway != ip {
 							subnet.Gateway = ip
@@ -907,19 +917,19 @@ func (s *Service) restartNetwork(c *gin.Context) {
 }
 
 // parseFirstIPFromNetworks extracts the first IPv4 address from an OVN networks field value.
-// Example inputs: "10.10.0.254/24", "[10.10.0.254/24]", "{10.10.0.254/24}"
+// Example inputs: "10.10.0.254/24", "[10.10.0.254/24]", "{10.10.0.254/24}".
 func parseFirstIPFromNetworks(raw string) string {
 	s := strings.TrimSpace(raw)
-	// Remove wrapping quotes/brackets/braces
+	// Remove wrapping quotes/brackets/braces.
 	s = strings.Trim(s, "\"[]{}")
 	if s == "" {
 		return ""
 	}
-	// Split on space or comma and take the first token containing '/'
+	// Split on space or comma and take the first token containing '/'.
 	fields := strings.FieldsFunc(s, func(r rune) bool { return r == ' ' || r == ',' })
 	for _, f := range fields {
 		if strings.Contains(f, "/") {
-			// Extract IP before '/'
+			// Extract IP before '/'.
 			parts := strings.SplitN(f, "/", 2)
 			if len(parts) > 0 {
 				ip := strings.TrimSpace(parts[0])
@@ -929,7 +939,7 @@ func parseFirstIPFromNetworks(raw string) string {
 			}
 		}
 	}
-	// As a fallback, if the whole string looks like CIDR
+	// As a fallback, if the whole string looks like CIDR.
 	if strings.Contains(s, "/") {
 		if parts := strings.SplitN(s, "/", 2); len(parts) > 0 {
 			ip := strings.TrimSpace(parts[0])
@@ -956,7 +966,7 @@ type CreateSubnetRequest struct {
 	TenantID        string `json:"tenant_id" binding:"required"`
 }
 
-// listSubnets handles GET /api/v1/subnets
+// listSubnets handles GET /api/v1/subnets.
 func (s *Service) listSubnets(c *gin.Context) {
 	var subnets []Subnet
 
@@ -979,7 +989,7 @@ func (s *Service) listSubnets(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"subnets": subnets})
 }
 
-// createSubnet handles POST /api/v1/subnets
+// createSubnet handles POST /api/v1/subnets.
 func (s *Service) createSubnet(c *gin.Context) {
 	var req CreateSubnetRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -987,20 +997,20 @@ func (s *Service) createSubnet(c *gin.Context) {
 		return
 	}
 
-	// Validate CIDR
+	// Validate CIDR.
 	if err := ValidateCIDR(req.CIDR); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid CIDR format"})
 		return
 	}
 
-	// Check if network exists
+	// Check if network exists.
 	var network Network
 	if err := s.db.First(&network, "id = ?", req.NetworkID).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Network not found"})
 		return
 	}
 
-	// Default DHCP settings
+	// Default DHCP settings.
 	enableDHCP := true
 	if req.EnableDHCP != nil {
 		enableDHCP = *req.EnableDHCP
@@ -1010,7 +1020,7 @@ func (s *Service) createSubnet(c *gin.Context) {
 		dhcpLeaseTime = 86400 // 24 hours
 	}
 
-	// Default DNS if not specified
+	// Default DNS if not specified.
 	dnsNameservers := req.DNSNameservers
 	if dnsNameservers == "" {
 		dnsNameservers = "8.8.8.8,8.8.4.4"
@@ -1038,11 +1048,11 @@ func (s *Service) createSubnet(c *gin.Context) {
 		return
 	}
 
-	// Configure DHCP if enabled
+	// Configure DHCP if enabled.
 	if enableDHCP {
 		if err := s.driver.EnsureNetwork(&network, &subnet); err != nil {
 			s.logger.Error("Failed to configure DHCP for subnet", zap.Error(err))
-			// Don't fail, just mark as created
+			// Don't fail, just mark as created.
 			subnet.Status = "created"
 		} else {
 			subnet.Status = "active"
@@ -1067,7 +1077,7 @@ func (s *Service) createSubnet(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"subnet": subnet})
 }
 
-// getSubnet handles GET /api/v1/subnets/:id
+// getSubnet handles GET /api/v1/subnets/:id.
 func (s *Service) getSubnet(c *gin.Context) {
 	id := c.Param("id")
 
@@ -1080,7 +1090,7 @@ func (s *Service) getSubnet(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"subnet": subnet})
 }
 
-// updateSubnet handles PUT /api/v1/subnets/:id
+// updateSubnet handles PUT /api/v1/subnets/:id.
 func (s *Service) updateSubnet(c *gin.Context) {
 	id := c.Param("id")
 
@@ -1099,7 +1109,7 @@ func (s *Service) updateSubnet(c *gin.Context) {
 		return
 	}
 
-	// Update fields
+	// Update fields.
 	if req.Name != "" {
 		subnet.Name = req.Name
 	}
@@ -1116,7 +1126,7 @@ func (s *Service) updateSubnet(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"subnet": subnet})
 }
 
-// deleteSubnet handles DELETE /api/v1/subnets/:id
+// deleteSubnet handles DELETE /api/v1/subnets/:id.
 func (s *Service) deleteSubnet(c *gin.Context) {
 	id := c.Param("id")
 
@@ -1136,9 +1146,9 @@ func (s *Service) deleteSubnet(c *gin.Context) {
 	c.JSON(http.StatusNoContent, nil)
 }
 
-// healthCheck handles GET /health
+// healthCheck handles GET /health.
 func (s *Service) healthCheck(c *gin.Context) {
-	// Include driver type for easier troubleshooting
+	// Include driver type for easier troubleshooting.
 	drvType := fmt.Sprintf("%T", s.driver)
 	resp := gin.H{
 		"status":  "healthy",
@@ -1148,11 +1158,14 @@ func (s *Service) healthCheck(c *gin.Context) {
 	if fb, ok := s.driver.(*FallbackDriver); ok {
 		resp["driver_primary"] = fmt.Sprintf("%T", fb.primary)
 		resp["driver_secondary"] = fmt.Sprintf("%T", fb.secondary)
-		// Try to expose OVN NB address from either primary or secondary OVN driver
-		if od, ok := fb.primary.(*OVNDriver); ok {
+		// Try to expose OVN NB address from either primary or secondary OVN driver.
+		switch od := fb.primary.(type) {
+		case *OVNDriver:
 			resp["ovn_nb_address"] = od.cfg.NBAddress
-		} else if od, ok := fb.secondary.(*OVNDriver); ok {
-			resp["ovn_nb_address"] = od.cfg.NBAddress
+		default:
+			if od2, ok := fb.secondary.(*OVNDriver); ok {
+				resp["ovn_nb_address"] = od2.cfg.NBAddress
+			}
 		}
 		if pd, ok := fb.primary.(*PluginDriver); ok {
 			resp["plugin_endpoint"] = pd.cfg.Endpoint
@@ -1163,9 +1176,9 @@ func (s *Service) healthCheck(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-// ===== ASN Handlers =====
+// ===== ASN Handlers =====.
 
-// listASNs returns a list of ASNs
+// listASNs returns a list of ASNs.
 func (s *Service) listASNs(c *gin.Context) {
 	var asns []ASN
 	if err := s.db.Find(&asns).Error; err != nil {
@@ -1176,10 +1189,10 @@ func (s *Service) listASNs(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"asns": asns})
 }
 
-// createASN creates a new ASN
+// createASN creates a new ASN.
 
-// ===== Zone Handlers =====
-// listZones: GET /api/v1/zones
+// ===== Zone Handlers =====.
+// listZones: GET /api/v1/zones.
 func (s *Service) listZones(c *gin.Context) {
 	var zones []Zone
 	if err := s.db.Find(&zones).Error; err != nil {
@@ -1197,7 +1210,7 @@ type createZoneRequest struct {
 	NetworkType string `json:"network_type"`
 }
 
-// createZone: POST /api/v1/zones
+// createZone: POST /api/v1/zones.
 func (s *Service) createZone(c *gin.Context) {
 	var req createZoneRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -1229,7 +1242,7 @@ func (s *Service) createZone(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"zone": z})
 }
 
-// getZone: GET /api/v1/zones/:id
+// getZone: GET /api/v1/zones/:id.
 func (s *Service) getZone(c *gin.Context) {
 	id := c.Param("id")
 	var z Zone
@@ -1240,7 +1253,7 @@ func (s *Service) getZone(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"zone": z})
 }
 
-// updateZone: PUT /api/v1/zones/:id
+// updateZone: PUT /api/v1/zones/:id.
 func (s *Service) updateZone(c *gin.Context) {
 	id := c.Param("id")
 	var z Zone
@@ -1278,7 +1291,7 @@ func (s *Service) updateZone(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"zone": z})
 }
 
-// deleteZone: DELETE /api/v1/zones/:id
+// deleteZone: DELETE /api/v1/zones/:id.
 func (s *Service) deleteZone(c *gin.Context) {
 	id := c.Param("id")
 	if err := s.db.Delete(&Zone{}, "id = ?", id).Error; err != nil {
@@ -1289,8 +1302,8 @@ func (s *Service) deleteZone(c *gin.Context) {
 	c.JSON(http.StatusNoContent, nil)
 }
 
-// repairNetworkL3: POST /api/v1/networks/:id/repair-l3
-// Force-bind LRP networks and LSP router binding in OVN for the given network (quick fix on the machine)
+// repairNetworkL3: POST /api/v1/networks/:id/repair-l3.
+// Force-bind LRP networks and LSP router binding in OVN for the given network (quick fix on the machine).
 func (s *Service) repairNetworkL3(c *gin.Context) {
 	id := c.Param("id")
 
@@ -1307,13 +1320,13 @@ func (s *Service) repairNetworkL3(c *gin.Context) {
 		return
 	}
 
-	// Ensure router name and derive expected OVN port names
+	// Ensure router name and derive expected OVN port names.
 	lrName := "lr-" + network.ID
 	lsName := "ls-" + network.ID
 	lrpName := fmt.Sprintf("lrp-%s-%s", lrName, network.ID)
 	lspName := fmt.Sprintf("lsp-%s-%s", lrName, network.ID)
 
-	// Compute gateway/prefix
+	// Compute gateway/prefix.
 	gw := strings.TrimSpace(subnet.Gateway)
 	prefix := ""
 	if _, ipnet, err := net.ParseCIDR(subnet.CIDR); err == nil {
@@ -1330,7 +1343,7 @@ func (s *Service) repairNetworkL3(c *gin.Context) {
 		return
 	}
 
-	// Try direct OVN if available
+	// Try direct OVN if available.
 	if ovnDrv := s.getOVNDriver(); ovnDrv != nil {
 		errs := []string{}
 		// Ensure LR and LS exist (best-effort)
@@ -1349,7 +1362,7 @@ func (s *Service) repairNetworkL3(c *gin.Context) {
 		if err := ovnDrv.nbctl("lrp-set-addresses", lrpName, fmt.Sprintf("%s %s", mac, prefix)); err != nil {
 			s.logger.Warn("Failed to set LRP addresses", zap.Error(err))
 			errs = append(errs, err.Error())
-			// Fallback: set mac and networks directly for older ovn-nbctl
+			// Fallback: set mac and networks directly for older ovn-nbctl.
 			if err2 := ovnDrv.nbctl("set", "Logical_Router_Port", lrpName, fmt.Sprintf("mac=%s", mac)); err2 != nil {
 				errs = append(errs, err2.Error())
 			}
@@ -1358,7 +1371,7 @@ func (s *Service) repairNetworkL3(c *gin.Context) {
 			}
 		}
 
-		// Ensure LSP exists, bind to router port, and set addresses=router
+		// Ensure LSP exists, bind to router port, and set addresses=router.
 		if err := ovnDrv.nbctl("--", "--may-exist", "lsp-add", lsName, lspName, "--", "lsp-set-type", lspName, "router", "--", "lsp-set-options", lspName, fmt.Sprintf("router-port=%s", lrpName)); err != nil {
 			errs = append(errs, err.Error())
 		}
@@ -1367,7 +1380,7 @@ func (s *Service) repairNetworkL3(c *gin.Context) {
 			errs = append(errs, err.Error())
 		}
 
-		// Read-back state
+		// Read-back state.
 		nets, _ := ovnDrv.nbctlOutput("get", "Logical_Router_Port", lrpName, "networks")
 		addrs, _ := ovnDrv.nbctlOutput("get", "Logical_Switch_Port", lspName, "addresses")
 		opts, _ := ovnDrv.nbctlOutput("get", "Logical_Switch_Port", lspName, "options")
@@ -1384,8 +1397,8 @@ func (s *Service) repairNetworkL3(c *gin.Context) {
 	c.JSON(http.StatusServiceUnavailable, gin.H{"error": "OVN driver unavailable on this node"})
 }
 
-// repairNetworkPorts: POST /api/v1/networks/:id/repair-ports
-// Ensure all VM ports on this network have proper OVN bindings (addresses, port-security, dhcpv4_options)
+// repairNetworkPorts: POST /api/v1/networks/:id/repair-ports.
+// Ensure all VM ports on this network have proper OVN bindings (addresses, port-security, dhcpv4_options).
 func (s *Service) repairNetworkPorts(c *gin.Context) {
 	id := c.Param("id")
 
@@ -1408,7 +1421,7 @@ func (s *Service) repairNetworkPorts(c *gin.Context) {
 		return
 	}
 
-	// Find DHCP options UUID for the subnet
+	// Find DHCP options UUID for the subnet.
 	dhcpUUID := ""
 	if strings.TrimSpace(subnet.CIDR) != "" && subnet.EnableDHCP {
 		if out, err := ovnDrv.nbctlOutput("--bare", "--columns=_uuid", "find", "dhcp_options", fmt.Sprintf("cidr=%s", subnet.CIDR)); err == nil {
@@ -1416,7 +1429,7 @@ func (s *Service) repairNetworkPorts(c *gin.Context) {
 		}
 	}
 
-	// Grab all ports for this network
+	// Grab all ports for this network.
 	var ports []NetworkPort
 	if err := s.db.Where("network_id = ?", id).Find(&ports).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list ports"})
@@ -1427,7 +1440,7 @@ func (s *Service) repairNetworkPorts(c *gin.Context) {
 	for _, p := range ports {
 		lspName := fmt.Sprintf("lsp-%s", p.ID)
 		mac := strings.TrimSpace(p.MACAddress)
-		// Build addresses string: "MAC IP1 IP2 ..."
+		// Build addresses string: "MAC IP1 IP2 ...".
 		addr := mac
 		ips := []string{}
 		for _, f := range p.FixedIPs {
@@ -1436,13 +1449,13 @@ func (s *Service) repairNetworkPorts(c *gin.Context) {
 			}
 		}
 		if mac == "" {
-			// Skip ports without MAC
+			// Skip ports without MAC.
 			continue
 		}
 		if len(ips) > 0 {
 			addr = fmt.Sprintf("%s %s", mac, strings.Join(ips, " "))
 		}
-		// Set addresses and port-security
+		// Set addresses and port-security.
 		perr := []string{}
 		if err := ovnDrv.nbctl("--", "--may-exist", "lsp-add", fmt.Sprintf("ls-%s", network.ID), lspName); err != nil {
 			perr = append(perr, err.Error())
@@ -1453,13 +1466,13 @@ func (s *Service) repairNetworkPorts(c *gin.Context) {
 		if err := ovnDrv.nbctl("lsp-set-port-security", lspName, addr); err != nil {
 			perr = append(perr, err.Error())
 		}
-		// Attach DHCP options if available
+		// Attach DHCP options if available.
 		if dhcpUUID != "" {
 			if err := ovnDrv.nbctl("set", "Logical_Switch_Port", lspName, fmt.Sprintf("dhcpv4_options=%s", dhcpUUID)); err != nil {
 				perr = append(perr, err.Error())
 			}
 		}
-		// Read-back state for this port
+		// Read-back state for this port.
 		addrs, _ := ovnDrv.nbctlOutput("get", "Logical_Switch_Port", lspName, "addresses")
 		opts, _ := ovnDrv.nbctlOutput("get", "Logical_Switch_Port", lspName, "options")
 		dhcp, _ := ovnDrv.nbctlOutput("get", "Logical_Switch_Port", lspName, "dhcpv4_options")
@@ -1494,7 +1507,7 @@ func (s *Service) createASN(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"asn": asn})
 }
 
-// getASN returns a specific ASN by ID
+// getASN returns a specific ASN by ID.
 func (s *Service) getASN(c *gin.Context) {
 	id := c.Param("id")
 	var asn ASN
@@ -1505,7 +1518,7 @@ func (s *Service) getASN(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"asn": asn})
 }
 
-// updateASN updates an ASN
+// updateASN updates an ASN.
 func (s *Service) updateASN(c *gin.Context) {
 	id := c.Param("id")
 	var asn ASN
@@ -1542,7 +1555,7 @@ func (s *Service) updateASN(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"asn": asn})
 }
 
-// deleteASN deletes an ASN
+// deleteASN deletes an ASN.
 func (s *Service) deleteASN(c *gin.Context) {
 	id := c.Param("id")
 	if err := s.db.Delete(&ASN{}, "id = ?", id).Error; err != nil {
@@ -1553,7 +1566,7 @@ func (s *Service) deleteASN(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "ASN deleted"})
 }
 
-// generateID is a simple unique ID generator placeholder; replace with UUID in production
+// generateID is a simple unique ID generator placeholder; replace with UUID in production.
 func generateID() string {
 	return fmt.Sprintf("n-%d", time.Now().UnixNano())
 }

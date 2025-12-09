@@ -17,7 +17,7 @@ type CreateSecurityGroupRequest struct {
 	TenantID    string `json:"tenant_id" binding:"required"`
 }
 
-// listSecurityGroups handles GET /api/v1/security-groups
+// listSecurityGroups handles GET /api/v1/security-groups.
 func (s *Service) listSecurityGroups(c *gin.Context) {
 	var securityGroups []SecurityGroup
 
@@ -36,7 +36,7 @@ func (s *Service) listSecurityGroups(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"security_groups": securityGroups})
 }
 
-// createSecurityGroup handles POST /api/v1/security-groups
+// createSecurityGroup handles POST /api/v1/security-groups.
 func (s *Service) createSecurityGroup(c *gin.Context) {
 	var req CreateSecurityGroupRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -61,7 +61,7 @@ func (s *Service) createSecurityGroup(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"security_group": securityGroup})
 }
 
-// getSecurityGroup handles GET /api/v1/security-groups/:id
+// getSecurityGroup handles GET /api/v1/security-groups/:id.
 func (s *Service) getSecurityGroup(c *gin.Context) {
 	id := c.Param("id")
 
@@ -74,7 +74,7 @@ func (s *Service) getSecurityGroup(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"security_group": securityGroup})
 }
 
-// updateSecurityGroup handles PUT /api/v1/security-groups/:id
+// updateSecurityGroup handles PUT /api/v1/security-groups/:id.
 func (s *Service) updateSecurityGroup(c *gin.Context) {
 	id := c.Param("id")
 
@@ -109,7 +109,7 @@ func (s *Service) updateSecurityGroup(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"security_group": securityGroup})
 }
 
-// deleteSecurityGroup handles DELETE /api/v1/security-groups/:id
+// deleteSecurityGroup handles DELETE /api/v1/security-groups/:id.
 func (s *Service) deleteSecurityGroup(c *gin.Context) {
 	id := c.Param("id")
 
@@ -119,7 +119,7 @@ func (s *Service) deleteSecurityGroup(c *gin.Context) {
 		return
 	}
 
-	// Delete associated rules first
+	// Delete associated rules first.
 	s.db.Where("security_group_id = ?", id).Delete(&SecurityGroupRule{})
 
 	if err := s.db.Delete(&securityGroup).Error; err != nil {
@@ -143,7 +143,7 @@ type CreateSecurityGroupRuleRequest struct {
 	RemoteGroupID   string `json:"remote_group_id"`
 }
 
-// listSecurityGroupRules handles GET /api/v1/security-group-rules
+// listSecurityGroupRules handles GET /api/v1/security-group-rules.
 func (s *Service) listSecurityGroupRules(c *gin.Context) {
 	var rules []SecurityGroupRule
 
@@ -162,7 +162,7 @@ func (s *Service) listSecurityGroupRules(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"security_group_rules": rules})
 }
 
-// createSecurityGroupRule handles POST /api/v1/security-group-rules
+// createSecurityGroupRule handles POST /api/v1/security-group-rules.
 func (s *Service) createSecurityGroupRule(c *gin.Context) {
 	var req CreateSecurityGroupRuleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -170,19 +170,19 @@ func (s *Service) createSecurityGroupRule(c *gin.Context) {
 		return
 	}
 
-	// Validate direction
+	// Validate direction.
 	if req.Direction != "ingress" && req.Direction != "egress" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Direction must be 'ingress' or 'egress'"})
 		return
 	}
 
-	// Validate protocol
+	// Validate protocol.
 	if req.Protocol != "tcp" && req.Protocol != "udp" && req.Protocol != "icmp" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Protocol must be 'tcp', 'udp', or 'icmp'"})
 		return
 	}
 
-	// Check if security group exists
+	// Check if security group exists.
 	var securityGroup SecurityGroup
 	if err := s.db.First(&securityGroup, "id = ?", req.SecurityGroupID).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Security group not found"})
@@ -210,7 +210,7 @@ func (s *Service) createSecurityGroupRule(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"security_group_rule": rule})
 }
 
-// getSecurityGroupRule handles GET /api/v1/security-group-rules/:id
+// getSecurityGroupRule handles GET /api/v1/security-group-rules/:id.
 func (s *Service) getSecurityGroupRule(c *gin.Context) {
 	id := c.Param("id")
 
@@ -223,7 +223,7 @@ func (s *Service) getSecurityGroupRule(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"security_group_rule": rule})
 }
 
-// deleteSecurityGroupRule handles DELETE /api/v1/security-group-rules/:id
+// deleteSecurityGroupRule handles DELETE /api/v1/security-group-rules/:id.
 func (s *Service) deleteSecurityGroupRule(c *gin.Context) {
 	id := c.Param("id")
 
@@ -243,9 +243,9 @@ func (s *Service) deleteSecurityGroupRule(c *gin.Context) {
 	c.JSON(http.StatusNoContent, nil)
 }
 
-// applyPortSecurityACLs compiles SecurityGroup rules to simple ACL rules and pushes to driver
+// applyPortSecurityACLs compiles SecurityGroup rules to simple ACL rules and pushes to driver.
 func (s *Service) applyPortSecurityACLs(port *NetworkPort) error {
-	// Very simplified: if SecurityGroups string contains IDs (comma-separated), load rules and build basic matches
+	// Very simplified: if SecurityGroups string contains IDs (comma-separated), load rules and build basic matches.
 	sgIDs := parseCSV(port.SecurityGroups)
 	if len(sgIDs) == 0 {
 		return s.driver.ReplacePortACLs(port.NetworkID, port.ID, nil)
@@ -291,7 +291,7 @@ func parseCSV(s string) []string {
 }
 
 func buildOVNMatch(r SecurityGroupRule) string {
-	// Basic conversion: protocol + (ports) + remote IP
+	// Basic conversion: protocol + (ports) + remote IP.
 	match := ""
 	if r.Protocol != "" {
 		match += fmt.Sprintf("ip && %s", r.Protocol)
@@ -302,7 +302,7 @@ func buildOVNMatch(r SecurityGroupRule) string {
 		match += fmt.Sprintf(" && ip4.src == %s", r.RemoteIPPrefix)
 	}
 	if r.PortRangeMin > 0 && r.PortRangeMax >= r.PortRangeMin && r.Protocol != "icmp" {
-		// apply to destination port for ingress; for egress，这里简单示例同用 dport
+		// apply to destination port for ingress; for egress，这里简单示例同用 dport.
 		match += fmt.Sprintf(" && %s.dst >= %d && %s.dst <= %d", r.Protocol, r.PortRangeMin, r.Protocol, r.PortRangeMax)
 	}
 	return match

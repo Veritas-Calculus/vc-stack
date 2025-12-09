@@ -31,7 +31,7 @@ type Config struct {
 	TPMModel           string
 	TPMBackend         string
 	TPMVersion         string
-	// Ceph (RBD) integration
+	// Ceph (RBD) integration.
 	CephEnabled     bool
 	CephMonitors    []string
 	CephUser        string // Images pool user
@@ -39,7 +39,7 @@ type Config struct {
 	CephKeyringPath string // Images pool keyring
 	CephConf        string // Path to ceph.conf
 	CephConfigDir   string // Deprecated: directory containing ceph.conf
-	// RBD lifecycle
+	// RBD lifecycle.
 	CephDefaultPool     string // Pool for source images (vcstack-images)
 	CephVolumesPool     string // Pool for VM volumes (vcstack-volumes)
 	CephVolumesUser     string // Volumes pool user (default: vcstack)
@@ -57,7 +57,7 @@ type Service struct {
 	mu     sync.RWMutex
 	vms    map[string]*VM
 	met    *LiteMetrics
-	// console tokens: token -> VNC address and expiry
+	// console tokens: token -> VNC address and expiry.
 	tokens map[string]consoleToken
 }
 
@@ -79,16 +79,16 @@ func NewService(cfg Config) (*Service, error) {
 	return s, nil
 }
 
-// SetupRoutes registers HTTP endpoints for vc-lite
+// SetupRoutes registers HTTP endpoints for vc-lite.
 func (s *Service) SetupRoutes(r *gin.Engine) {
 	r.GET("/api/lite/health", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"status": "healthy", "service": "vc-lite"}) })
 	r.GET("/metrics", func(c *gin.Context) { c.String(http.StatusOK, s.met.RenderProm()) })
-	// WebSocket endpoint for noVNC/websockify
+	// WebSocket endpoint for noVNC/websockify.
 	r.GET("/ws/console", s.consoleWS)
 
 	api := r.Group("/api/v1")
 	{
-		// Node heartbeat and resource report
+		// Node heartbeat and resource report.
 		api.POST("/nodes/heartbeat", s.heartbeat)
 		api.GET("/nodes/status", s.nodeStatus)
 
@@ -113,7 +113,7 @@ func (s *Service) SetupRoutes(r *gin.Engine) {
 func (s *Service) heartbeat(c *gin.Context)  { c.JSON(http.StatusOK, gin.H{"ok": true}) }
 func (s *Service) nodeStatus(c *gin.Context) { c.JSON(http.StatusOK, s.drv.Status()) }
 
-// GetStatus exposes the node status for internal callers (e.g., registration/heartbeat)
+// GetStatus exposes the node status for internal callers (e.g., registration/heartbeat).
 func (s *Service) GetStatus() NodeStatus { return s.drv.Status() }
 func (s *Service) createVM(c *gin.Context) {
 	var req CreateVMRequest
@@ -132,7 +132,7 @@ func (s *Service) createVM(c *gin.Context) {
 		zap.String("root_rbd_image", req.RootRBDImage),
 		zap.String("client_ip", c.ClientIP()))
 
-	// Manual validation: at least one image source must be provided
+	// Manual validation: at least one image source must be provided.
 	if strings.TrimSpace(req.Image) == "" && strings.TrimSpace(req.RootRBDImage) == "" && strings.TrimSpace(req.ISO) == "" && strings.TrimSpace(req.IsoRBDImage) == "" {
 		s.logger.Warn("createVM missing image source", zap.Any("request", req))
 		c.JSON(http.StatusBadRequest, gin.H{"error": "missing image source (image or root_rbd_image or iso)"})
@@ -168,14 +168,14 @@ func (s *Service) deleteVM(c *gin.Context) {
 	id := c.Param("id")
 	start := time.Now()
 
-	// Attempt deletion
+	// Attempt deletion.
 	if err := s.drv.DeleteVM(id, false); err != nil {
 		s.logger.Error("DeleteVM failed", zap.String("id", id), zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Verify deletion - check if VM still exists
+	// Verify deletion - check if VM still exists.
 	if exists, _ := s.drv.VMStatus(id); exists {
 		s.logger.Error("VM still exists after deletion", zap.String("id", id))
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -184,11 +184,11 @@ func (s *Service) deleteVM(c *gin.Context) {
 		return
 	}
 
-	// Update metrics
+	// Update metrics.
 	s.met.Inc(MVMDeleteTotal, 1)
 	s.met.ObserveMs(MVMDeleteMs, float64(time.Since(start).Milliseconds()))
 
-	// Remove from memory map
+	// Remove from memory map.
 	s.mu.Lock()
 	delete(s.vms, id)
 	s.mu.Unlock()
@@ -206,7 +206,7 @@ func (s *Service) rebootVM(c *gin.Context)      { s.powerOp(c, "reboot") }
 func (s *Service) forceStopVM(c *gin.Context)   { s.powerOp(c, "force-stop") }
 func (s *Service) forceRebootVM(c *gin.Context) { s.powerOp(c, "force-reboot") }
 
-// getVM returns VM metadata by ID if present in memory and optionally checks libvirt state
+// getVM returns VM metadata by ID if present in memory and optionally checks libvirt state.
 func (s *Service) getVM(c *gin.Context) {
 	id := c.Param("id")
 	s.mu.RLock()
@@ -218,13 +218,13 @@ func (s *Service) getVM(c *gin.Context) {
 		return
 	}
 	// Optional: verify VM still exists in libvirt (best-effort)
-	// This helps catch cases where VM was defined but failed to start
+	// This helps catch cases where VM was defined but failed to start.
 	if exists, running := s.drv.VMStatus(id); !exists {
 		s.logger.Warn("getVM: vm in memory but not in libvirt", zap.String("id", id))
 		c.JSON(http.StatusNotFound, gin.H{"error": "vm not found in hypervisor"})
 		return
 	} else {
-		// Update power state from live query
+		// Update power state from live query.
 		if running {
 			vm.Power = "running"
 			vm.Status = "active"
@@ -263,16 +263,16 @@ func (s *Service) consoleTicket(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	// Generate ephemeral token
+	// Generate ephemeral token.
 	token := genToken(16)
 	s.mu.Lock()
 	s.tokens[token] = consoleToken{VNCAddr: vncURL, ExpiresAt: time.Now().Add(5 * time.Minute)}
 	s.mu.Unlock()
-	// Return relative WS path so clients can connect via gateway
+	// Return relative WS path so clients can connect via gateway.
 	c.JSON(http.StatusOK, gin.H{"ws": "/ws/console?token=" + token, "token_expires_in": 300})
 }
 
-// consoleWS upgrades to websocket and bridges traffic to the libvirt VNC TCP socket
+// consoleWS upgrades to websocket and bridges traffic to the libvirt VNC TCP socket.
 func (s *Service) consoleWS(c *gin.Context) {
 	token := c.Query("token")
 	if token == "" {
@@ -285,7 +285,7 @@ func (s *Service) consoleWS(c *gin.Context) {
 		ok = false
 		delete(s.tokens, token)
 	}
-	// single-use token
+	// single-use token.
 	if ok {
 		delete(s.tokens, token)
 	}
@@ -295,10 +295,10 @@ func (s *Service) consoleWS(c *gin.Context) {
 		return
 	}
 
-	// Parse VNC address and dial TCP
+	// Parse VNC address and dial TCP.
 	addr := tk.VNCAddr
 	addr = strings.TrimPrefix(addr, "vnc://")
-	// Accept only host:port
+	// Accept only host:port.
 	if _, _, err := net.SplitHostPort(addr); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "invalid VNC address"})
 		return
@@ -320,17 +320,17 @@ func (s *Service) consoleWS(c *gin.Context) {
 	}
 	defer ws.Close()
 
-	// Pump data between WS and TCP
+	// Pump data between WS and TCP.
 	errc := make(chan error, 2)
 	go func() {
-		// WS -> TCP
+		// WS -> TCP.
 		for {
 			mt, data, err := ws.ReadMessage()
 			if err != nil {
 				errc <- err
 				return
 			}
-			// Forward only binary/text payloads
+			// Forward only binary/text payloads.
 			if mt == websocket.BinaryMessage || mt == websocket.TextMessage {
 				if _, err := backend.Write(data); err != nil {
 					errc <- err
@@ -340,7 +340,7 @@ func (s *Service) consoleWS(c *gin.Context) {
 		}
 	}()
 	go func() {
-		// TCP -> WS
+		// TCP -> WS.
 		buf := make([]byte, 32*1024)
 		for {
 			n, err := backend.Read(buf)
@@ -366,7 +366,7 @@ func (s *Service) consoleWS(c *gin.Context) {
 func genToken(n int) string {
 	b := make([]byte, n)
 	if _, err := rand.Read(b); err != nil {
-		// fallback to time-based
+		// fallback to time-based.
 		return hex.EncodeToString([]byte(time.Now().Format(time.RFC3339Nano)))
 	}
 	return hex.EncodeToString(b)

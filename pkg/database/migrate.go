@@ -11,17 +11,17 @@ import (
 
 // AutoMigrate runs automatic database migrations for all models.
 func AutoMigrate(db *gorm.DB) error {
-	// Enable required PostgreSQL extensions
+	// Enable required PostgreSQL extensions.
 	if err := db.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"").Error; err != nil {
 		return fmt.Errorf("failed to create uuid-ossp extension: %w", err)
 	}
 
-	// Create custom types if they don't exist
+	// Create custom types if they don't exist.
 	if err := createCustomTypes(db); err != nil {
 		return fmt.Errorf("failed to create custom types: %w", err)
 	}
 
-	// Auto-migrate models
+	// Auto-migrate models.
 	if err := db.AutoMigrate(
 		&models.Host{},
 	); err != nil {
@@ -41,7 +41,7 @@ func createCustomTypes(db *gorm.DB) error {
 		END $$;`,
 		`DO $$ BEGIN
 			CREATE TYPE host_status AS ENUM (
-				'up', 'down', 'error', 'maintenance', 
+				'up', 'down', 'error', 'maintenance',
 				'disabled', 'connecting', 'disconnected'
 			);
 		EXCEPTION

@@ -12,10 +12,10 @@ func MetricsMiddleware(collector *MetricsCollector) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 
-		// Process request
+		// Process request.
 		c.Next()
 
-		// Record metrics
+		// Record metrics.
 		duration := time.Since(start)
 		collector.RecordHTTPRequest(
 			c.Request.Method,

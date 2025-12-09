@@ -23,7 +23,7 @@ type Service struct {
 	logger *zap.Logger
 }
 
-// QuotaSet represents resource quotas for a tenant/project
+// QuotaSet represents resource quotas for a tenant/project.
 type QuotaSet struct {
 	ID             uint      `gorm:"primaryKey" json:"id"`
 	TenantID       string    `gorm:"uniqueIndex;not null" json:"tenant_id"`
@@ -42,10 +42,10 @@ type QuotaSet struct {
 	UpdatedAt      time.Time `json:"updated_at"`
 }
 
-// TableName sets a custom table name for the QuotaSet model
+// TableName sets a custom table name for the QuotaSet model.
 func (QuotaSet) TableName() string { return "quota_sets" }
 
-// QuotaUsage represents current resource usage for a tenant
+// QuotaUsage represents current resource usage for a tenant.
 type QuotaUsage struct {
 	ID             uint      `gorm:"primaryKey" json:"id"`
 	TenantID       string    `gorm:"uniqueIndex;not null" json:"tenant_id"`
@@ -63,7 +63,7 @@ type QuotaUsage struct {
 	UpdatedAt      time.Time `json:"updated_at"`
 }
 
-// TableName sets a custom table name for the QuotaUsage model
+// TableName sets a custom table name for the QuotaUsage model.
 func (QuotaUsage) TableName() string { return "quota_usage" }
 
 // NewService creates a new quota service.
@@ -77,24 +77,22 @@ func NewService(cfg Config) (*Service, error) {
 // SetupRoutes registers HTTP routes for the quota service.
 func (s *Service) SetupRoutes(router *gin.Engine) {
 	api := router.Group("/api/v1/quotas")
-	{
-		api.GET("/tenants/:tenant_id", s.getQuota)
-		api.PUT("/tenants/:tenant_id", s.updateQuota)
-		api.DELETE("/tenants/:tenant_id", s.resetQuota)
-		api.GET("/tenants/:tenant_id/usage", s.getUsage)
-		api.GET("/defaults", s.getDefaults)
-		api.PUT("/defaults", s.updateDefaults)
-	}
+	api.GET("/tenants/:tenant_id", s.getQuota)
+	api.PUT("/tenants/:tenant_id", s.updateQuota)
+	api.DELETE("/tenants/:tenant_id", s.resetQuota)
+	api.GET("/tenants/:tenant_id/usage", s.getUsage)
+	api.GET("/defaults", s.getDefaults)
+	api.PUT("/defaults", s.updateDefaults)
 }
 
-// getQuota retrieves quota for a tenant
+// getQuota retrieves quota for a tenant.
 func (s *Service) getQuota(c *gin.Context) {
 	tenantID := c.Param("tenant_id")
 
 	var quota QuotaSet
 	if err := s.db.Where("tenant_id = ?", tenantID).First(&quota).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			// Return default quotas
+			// Return default quotas.
 			c.JSON(http.StatusOK, s.getDefaultQuota())
 			return
 		}
@@ -106,7 +104,7 @@ func (s *Service) getQuota(c *gin.Context) {
 	c.JSON(http.StatusOK, quota)
 }
 
-// updateQuota updates quota for a tenant
+// updateQuota updates quota for a tenant.
 func (s *Service) updateQuota(c *gin.Context) {
 	tenantID := c.Param("tenant_id")
 
@@ -118,33 +116,34 @@ func (s *Service) updateQuota(c *gin.Context) {
 
 	req.TenantID = tenantID
 
-	// Upsert quota
+	// Upsert quota.
 	var existing QuotaSet
 	err := s.db.Where("tenant_id = ?", tenantID).First(&existing).Error
-	if err == gorm.ErrRecordNotFound {
-		// Create new quota
+	switch err {
+	case gorm.ErrRecordNotFound:
+		// Create new quota.
 		if err := s.db.Create(&req).Error; err != nil {
 			s.logger.Error("failed to create quota", zap.Error(err))
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create quota"})
 			return
 		}
 		c.JSON(http.StatusCreated, req)
-	} else if err == nil {
-		// Update existing quota
+	case nil:
+		// Update existing quota.
 		if err := s.db.Model(&existing).Updates(&req).Error; err != nil {
 			s.logger.Error("failed to update quota", zap.Error(err))
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update quota"})
 			return
 		}
 		c.JSON(http.StatusOK, req)
-	} else {
+	default:
 		s.logger.Error("failed to query quota", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		return
 	}
 }
 
-// resetQuota deletes custom quota for a tenant (falls back to defaults)
+// resetQuota deletes custom quota for a tenant (falls back to defaults).
 func (s *Service) resetQuota(c *gin.Context) {
 	tenantID := c.Param("tenant_id")
 
@@ -157,14 +156,14 @@ func (s *Service) resetQuota(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "quota reset to defaults"})
 }
 
-// getUsage retrieves current usage for a tenant
+// getUsage retrieves current usage for a tenant.
 func (s *Service) getUsage(c *gin.Context) {
 	tenantID := c.Param("tenant_id")
 
 	var usage QuotaUsage
 	if err := s.db.Where("tenant_id = ?", tenantID).First(&usage).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			// Return zero usage
+			// Return zero usage.
 			c.JSON(http.StatusOK, QuotaUsage{TenantID: tenantID})
 			return
 		}
@@ -173,7 +172,7 @@ func (s *Service) getUsage(c *gin.Context) {
 		return
 	}
 
-	// Also get quota limits for comparison
+	// Also get quota limits for comparison.
 	var quota QuotaSet
 	if err := s.db.Where("tenant_id = ?", tenantID).First(&quota).Error; err != nil {
 		quota = s.getDefaultQuota()
@@ -185,12 +184,12 @@ func (s *Service) getUsage(c *gin.Context) {
 	})
 }
 
-// getDefaults retrieves default quota values
+// getDefaults retrieves default quota values.
 func (s *Service) getDefaults(c *gin.Context) {
 	c.JSON(http.StatusOK, s.getDefaultQuota())
 }
 
-// updateDefaults updates default quota values (stored with tenant_id = "default")
+// updateDefaults updates default quota values (stored with tenant_id = "default").
 func (s *Service) updateDefaults(c *gin.Context) {
 	var req QuotaSet
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -200,22 +199,23 @@ func (s *Service) updateDefaults(c *gin.Context) {
 
 	req.TenantID = "default"
 
-	// Upsert default quota
+	// Upsert default quota.
 	var existing QuotaSet
 	err := s.db.Where("tenant_id = ?", "default").First(&existing).Error
-	if err == gorm.ErrRecordNotFound {
+	switch err {
+	case gorm.ErrRecordNotFound:
 		if err := s.db.Create(&req).Error; err != nil {
 			s.logger.Error("failed to create default quota", zap.Error(err))
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create default quota"})
 			return
 		}
-	} else if err == nil {
+	case nil:
 		if err := s.db.Model(&existing).Updates(&req).Error; err != nil {
 			s.logger.Error("failed to update default quota", zap.Error(err))
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update default quota"})
 			return
 		}
-	} else {
+	default:
 		s.logger.Error("failed to query default quota", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		return
@@ -224,15 +224,15 @@ func (s *Service) updateDefaults(c *gin.Context) {
 	c.JSON(http.StatusOK, req)
 }
 
-// getDefaultQuota returns hard-coded default quota values
+// getDefaultQuota returns hard-coded default quota values.
 func (s *Service) getDefaultQuota() QuotaSet {
-	// Check database for custom defaults first
+	// Check database for custom defaults first.
 	var quota QuotaSet
 	if err := s.db.Where("tenant_id = ?", "default").First(&quota).Error; err == nil {
 		return quota
 	}
 
-	// Return hard-coded defaults
+	// Return hard-coded defaults.
 	return QuotaSet{
 		TenantID:       "default",
 		Instances:      10,
@@ -249,9 +249,9 @@ func (s *Service) getDefaultQuota() QuotaSet {
 	}
 }
 
-// CheckQuota checks if creating a resource would exceed quota
-func (s *Service) CheckQuota(tenantID string, resourceType string, delta int) error {
-	// Get quota
+// CheckQuota checks if creating a resource would exceed quota.
+func (s *Service) CheckQuota(tenantID, resourceType string, delta int) error {
+	// Get quota.
 	var quota QuotaSet
 	if err := s.db.Where("tenant_id = ?", tenantID).First(&quota).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -261,17 +261,17 @@ func (s *Service) CheckQuota(tenantID string, resourceType string, delta int) er
 		}
 	}
 
-	// Get current usage
+	// Get current usage.
 	var usage QuotaUsage
 	if err := s.db.Where("tenant_id = ?", tenantID).First(&usage).Error; err != nil {
 		if err != gorm.ErrRecordNotFound {
 			return err
 		}
-		// No usage record yet, create one
+		// No usage record yet, create one.
 		usage = QuotaUsage{TenantID: tenantID}
 	}
 
-	// Check quota based on resource type
+	// Check quota based on resource type.
 	switch resourceType {
 	case "instances":
 		if quota.Instances >= 0 && usage.Instances+delta > quota.Instances {
@@ -294,8 +294,8 @@ func (s *Service) CheckQuota(tenantID string, resourceType string, delta int) er
 	return nil
 }
 
-// UpdateUsage updates resource usage for a tenant
-func (s *Service) UpdateUsage(tenantID string, resourceType string, delta int) error {
+// UpdateUsage updates resource usage for a tenant.
+func (s *Service) UpdateUsage(tenantID, resourceType string, delta int) error {
 	var usage QuotaUsage
 	err := s.db.Where("tenant_id = ?", tenantID).First(&usage).Error
 	if err == gorm.ErrRecordNotFound {
@@ -307,7 +307,7 @@ func (s *Service) UpdateUsage(tenantID string, resourceType string, delta int) e
 		return err
 	}
 
-	// Update usage based on resource type
+	// Update usage based on resource type.
 	updates := make(map[string]interface{})
 	switch resourceType {
 	case "instances":
@@ -337,7 +337,7 @@ func (s *Service) UpdateUsage(tenantID string, resourceType string, delta int) e
 	return s.db.Model(&usage).Updates(updates).Error
 }
 
-// QuotaExceededError represents a quota exceeded error
+// QuotaExceededError represents a quota exceeded error.
 type QuotaExceededError struct {
 	Resource string
 	Limit    int

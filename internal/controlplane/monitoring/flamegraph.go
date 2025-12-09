@@ -45,8 +45,8 @@ func NewFlameGraphGenerator(cfg FlameGraphConfig) (*FlameGraphGenerator, error) 
 		cfg.OutputDir = "/tmp/flamegraphs"
 	}
 
-	// Create output directory
-	if err := os.MkdirAll(cfg.OutputDir, 0755); err != nil {
+	// Create output directory.
+	if err := os.MkdirAll(cfg.OutputDir, 0o755); err != nil {
 		return nil, fmt.Errorf("failed to create output directory: %w", err)
 	}
 
@@ -61,19 +61,19 @@ func (fg *FlameGraphGenerator) GenerateCPUFlameGraph(ctx context.Context, durati
 	timestamp := time.Now()
 	profilePath := filepath.Join(fg.outputDir, fmt.Sprintf("cpu_%d.prof", timestamp.Unix()))
 
-	// Create profile file
+	// Create profile file.
 	f, err := os.Create(profilePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create profile file: %w", err)
 	}
 	defer f.Close()
 
-	// Start CPU profiling
+	// Start CPU profiling.
 	if err := pprof.StartCPUProfile(f); err != nil {
 		return nil, fmt.Errorf("failed to start CPU profiling: %w", err)
 	}
 
-	// Profile for the specified duration
+	// Profile for the specified duration.
 	select {
 	case <-time.After(duration):
 	case <-ctx.Done():
@@ -83,7 +83,7 @@ func (fg *FlameGraphGenerator) GenerateCPUFlameGraph(ctx context.Context, durati
 
 	pprof.StopCPUProfile()
 
-	// Convert to flamegraph
+	// Convert to flamegraph.
 	svgPath, err := fg.convertToFlameGraph(profilePath, "cpu")
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert to flamegraph: %w", err)
@@ -102,19 +102,19 @@ func (fg *FlameGraphGenerator) GenerateHeapFlameGraph() (*FlameGraphResult, erro
 	timestamp := time.Now()
 	profilePath := filepath.Join(fg.outputDir, fmt.Sprintf("heap_%d.prof", timestamp.Unix()))
 
-	// Create profile file
+	// Create profile file.
 	f, err := os.Create(profilePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create profile file: %w", err)
 	}
 	defer f.Close()
 
-	// Write heap profile
+	// Write heap profile.
 	if err := pprof.WriteHeapProfile(f); err != nil {
 		return nil, fmt.Errorf("failed to write heap profile: %w", err)
 	}
 
-	// Convert to flamegraph
+	// Convert to flamegraph.
 	svgPath, err := fg.convertToFlameGraph(profilePath, "heap")
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert to flamegraph: %w", err)
@@ -133,14 +133,14 @@ func (fg *FlameGraphGenerator) GenerateGoroutineFlameGraph() (*FlameGraphResult,
 	timestamp := time.Now()
 	profilePath := filepath.Join(fg.outputDir, fmt.Sprintf("goroutine_%d.prof", timestamp.Unix()))
 
-	// Create profile file
+	// Create profile file.
 	f, err := os.Create(profilePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create profile file: %w", err)
 	}
 	defer f.Close()
 
-	// Get goroutine profile
+	// Get goroutine profile.
 	profile := pprof.Lookup("goroutine")
 	if profile == nil {
 		return nil, fmt.Errorf("goroutine profile not found")
@@ -150,7 +150,7 @@ func (fg *FlameGraphGenerator) GenerateGoroutineFlameGraph() (*FlameGraphResult,
 		return nil, fmt.Errorf("failed to write goroutine profile: %w", err)
 	}
 
-	// Convert to flamegraph
+	// Convert to flamegraph.
 	svgPath, err := fg.convertToFlameGraph(profilePath, "goroutine")
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert to flamegraph: %w", err)
@@ -168,7 +168,7 @@ func (fg *FlameGraphGenerator) GenerateGoroutineFlameGraph() (*FlameGraphResult,
 func (fg *FlameGraphGenerator) convertToFlameGraph(profilePath, profileType string) (string, error) {
 	svgPath := filepath.Join(fg.outputDir, filepath.Base(profilePath)+".svg")
 
-	// Use go tool pprof to generate collapsed stacks
+	// Use go tool pprof to generate collapsed stacks.
 	collapsedPath := profilePath + ".collapsed"
 	cmd := exec.Command("go", "tool", "pprof", "-raw", profilePath)
 	output, err := cmd.Output()
@@ -176,25 +176,25 @@ func (fg *FlameGraphGenerator) convertToFlameGraph(profilePath, profileType stri
 		return "", fmt.Errorf("failed to run pprof: %w", err)
 	}
 
-	// Parse and collapse the stacks
+	// Parse and collapse the stacks.
 	collapsed, err := fg.collapseStacks(output)
 	if err != nil {
 		return "", fmt.Errorf("failed to collapse stacks: %w", err)
 	}
 
-	// Write collapsed stacks
-	if err := os.WriteFile(collapsedPath, []byte(collapsed), 0644); err != nil {
+	// Write collapsed stacks.
+	if err := os.WriteFile(collapsedPath, []byte(collapsed), 0o644); err != nil {
 		return "", fmt.Errorf("failed to write collapsed stacks: %w", err)
 	}
 
-	// Generate flamegraph using embedded simple generator
+	// Generate flamegraph using embedded simple generator.
 	svg, err := fg.generateSVGFlameGraph(collapsed, profileType)
 	if err != nil {
 		return "", fmt.Errorf("failed to generate SVG: %w", err)
 	}
 
-	// Write SVG file
-	if err := os.WriteFile(svgPath, []byte(svg), 0644); err != nil {
+	// Write SVG file.
+	if err := os.WriteFile(svgPath, []byte(svg), 0o644); err != nil {
 		return "", fmt.Errorf("failed to write SVG: %w", err)
 	}
 
@@ -203,7 +203,7 @@ func (fg *FlameGraphGenerator) convertToFlameGraph(profilePath, profileType stri
 
 // collapseStacks collapses pprof output into flamegraph format.
 func (fg *FlameGraphGenerator) collapseStacks(pprofOutput []byte) (string, error) {
-	// Simple stack collapse implementation
+	// Simple stack collapse implementation.
 	var result bytes.Buffer
 
 	lines := bytes.Split(pprofOutput, []byte("\n"))
@@ -216,14 +216,14 @@ func (fg *FlameGraphGenerator) collapseStacks(pprofOutput []byte) (string, error
 			continue
 		}
 
-		// Parse pprof raw output format
-		// This is a simplified version - production would need more robust parsing
+		// Parse pprof raw output format.
+		// This is a simplified version - production would need more robust parsing.
 		if bytes.Contains(line, []byte("#")) {
-			// Stack frame
+			// Stack frame.
 			frame := string(bytes.TrimSpace(line))
 			stack = append(stack, frame)
 		} else if len(stack) > 0 {
-			// Value line
+			// Value line.
 			fmt.Fprintf(&result, "%s %d\n", joinStack(stack), value)
 			stack = nil
 			value = 0
@@ -235,8 +235,8 @@ func (fg *FlameGraphGenerator) collapseStacks(pprofOutput []byte) (string, error
 
 // generateSVGFlameGraph generates a simple SVG flamegraph.
 func (fg *FlameGraphGenerator) generateSVGFlameGraph(collapsed, profileType string) (string, error) {
-	// Simple SVG flamegraph generator
-	// In production, you might want to use a library or external tool
+	// Simple SVG flamegraph generator.
+	// In production, you might want to use a library or external tool.
 	svg := fmt.Sprintf(`<?xml version="1.0" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg version="1.1" width="1200" height="800" xmlns="http://www.w3.org/2000/svg">

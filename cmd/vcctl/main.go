@@ -1,4 +1,4 @@
-// Package main implements the VC Stack CLI - a unified command-line interface
+// Package main implements the VC Stack CLI - a unified command-line interface.
 // for managing VC Stack infrastructure, inspired by AWS CLI.
 package main
 
@@ -15,7 +15,7 @@ var (
 	Commit    = "unknown"
 	BuildTime = "unknown"
 
-	// Global flags
+	// Global flags.
 	apiEndpoint string
 	output      string
 	profile     string
@@ -56,13 +56,13 @@ For more information, visit: https://github.com/Veritas-Calculus/vc-stack`,
 		SilenceUsage: true,
 	}
 
-	// Global flags
+	// Global flags.
 	cmd.PersistentFlags().StringVar(&apiEndpoint, "endpoint", "", "API endpoint URL (default from config or env)")
 	cmd.PersistentFlags().StringVarP(&output, "output", "o", "table", "Output format: table, json, yaml")
 	cmd.PersistentFlags().StringVar(&profile, "profile", "default", "Configuration profile to use")
 	cmd.PersistentFlags().BoolVar(&debug, "debug", false, "Enable debug logging")
 
-	// Add subcommands
+	// Add subcommands.
 	cmd.AddCommand(newComputeCommand())
 	cmd.AddCommand(newNetworkCommand())
 	cmd.AddCommand(newStorageCommand())

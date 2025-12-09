@@ -152,8 +152,6 @@ func generateOpID() string {
 
 // TaskQueue manages background task execution.
 type TaskQueue struct {
-	mu      sync.Mutex
-	queue   []Task
 	workers int
 	stopCh  chan struct{}
 	taskCh  chan Task

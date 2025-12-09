@@ -24,7 +24,7 @@ func (m *QEMUManager) prepareUEFIVars(varsPath string) error {
 // prepareTPM initializes TPM state directory and starts swtpm.
 func (m *QEMUManager) prepareTPM(tpmDir string) error {
 	// Create TPM state directory.
-	if err := os.MkdirAll(tpmDir, 0750); err != nil {
+	if err := os.MkdirAll(tpmDir, 0o750); err != nil {
 		return fmt.Errorf("create TPM directory: %w", err)
 	}
 
@@ -60,7 +60,7 @@ func (m *QEMUManager) prepareTPM(tpmDir string) error {
 
 	// Store swtpm PID for cleanup.
 	pidPath := filepath.Join(tpmDir, "swtpm.pid")
-	if err := os.WriteFile(pidPath, []byte(fmt.Sprintf("%d", swtpmCmd.Process.Pid)), 0644); err != nil {
+	if err := os.WriteFile(pidPath, []byte(fmt.Sprintf("%d", swtpmCmd.Process.Pid)), 0o644); err != nil {
 		m.logger.Warn("Failed to write swtpm PID", zap.Error(err))
 	}
 
@@ -106,7 +106,7 @@ func copyFile(src, dst string) error {
 		return fmt.Errorf("read source: %w", err)
 	}
 
-	if err := os.WriteFile(dst, input, 0644); err != nil {
+	if err := os.WriteFile(dst, input, 0o644); err != nil {
 		return fmt.Errorf("write destination: %w", err)
 	}
 

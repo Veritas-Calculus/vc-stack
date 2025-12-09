@@ -35,19 +35,19 @@ func NewMonitoringHandlers(mc *MetricsCollector, fg *FlameGraphGenerator, logger
 func (h *MonitoringHandlers) SetupRoutes(router *gin.Engine) {
 	api := router.Group("/api/v1/monitoring")
 	{
-		// Metrics endpoints
+		// Metrics endpoints.
 		api.GET("/metrics/component/:name", h.GetComponentMetrics)
 		api.GET("/metrics/system", h.GetSystemMetrics)
 		api.GET("/metrics/http", h.GetHTTPMetrics)
 		api.GET("/metrics/errors/:component", h.GetErrorMetrics)
 
-		// Flamegraph endpoints
+		// Flamegraph endpoints.
 		api.POST("/flamegraph/cpu", h.GenerateCPUFlameGraph)
 		api.POST("/flamegraph/heap", h.GenerateHeapFlameGraph)
 		api.POST("/flamegraph/goroutine", h.GenerateGoroutineFlameGraph)
 		api.GET("/flamegraph/:filename", h.GetFlameGraph)
 
-		// Profiling data
+		// Profiling data.
 		api.GET("/profile/analyze", h.AnalyzePerformance)
 	}
 }
@@ -192,7 +192,7 @@ func (h *MonitoringHandlers) GenerateCPUFlameGraph(c *gin.Context) {
 		return
 	}
 
-	// Limit duration to prevent abuse
+	// Limit duration to prevent abuse.
 	if duration > 5*time.Minute {
 		duration = 5 * time.Minute
 	}
@@ -280,7 +280,7 @@ func (h *MonitoringHandlers) AnalyzePerformance(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 10*time.Second)
 	defer cancel()
 
-	// Get system metrics
+	// Get system metrics.
 	systemMetrics, err := h.metricsCollector.GetSystemMetrics(ctx, duration)
 	if err != nil {
 		h.logger.Error("failed to get system metrics", zap.Error(err))
@@ -290,13 +290,13 @@ func (h *MonitoringHandlers) AnalyzePerformance(c *gin.Context) {
 		return
 	}
 
-	// Get HTTP metrics
+	// Get HTTP metrics.
 	httpMetrics, err := h.metricsCollector.GetHTTPMetrics(ctx, duration)
 	if err != nil {
 		h.logger.Error("failed to get HTTP metrics", zap.Error(err))
 	}
 
-	// Analyze and identify issues
+	// Analyze and identify issues.
 	issues := h.analyzeMetrics(systemMetrics, httpMetrics)
 
 	c.JSON(http.StatusOK, gin.H{
@@ -313,7 +313,7 @@ func (h *MonitoringHandlers) AnalyzePerformance(c *gin.Context) {
 func (h *MonitoringHandlers) analyzeMetrics(systemMetrics, httpMetrics []map[string]interface{}) []string {
 	var issues []string
 
-	// Analyze system metrics
+	// Analyze system metrics.
 	for _, metric := range systemMetrics {
 		if memPercent, ok := metric["memory_percent"].(float64); ok && memPercent > 80 {
 			issues = append(issues, "High memory usage detected: "+strconv.FormatFloat(memPercent, 'f', 2, 64)+"%")
@@ -324,7 +324,7 @@ func (h *MonitoringHandlers) analyzeMetrics(systemMetrics, httpMetrics []map[str
 		}
 	}
 
-	// Analyze HTTP metrics
+	// Analyze HTTP metrics.
 	for _, metric := range httpMetrics {
 		if duration, ok := metric["duration_ms"].(float64); ok && duration > 1000 {
 			issues = append(issues, "Slow HTTP requests detected: "+strconv.FormatFloat(duration, 'f', 2, 64)+"ms")

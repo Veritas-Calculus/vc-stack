@@ -28,7 +28,7 @@ type Service struct {
 	retentionDays int
 }
 
-// Event represents a system event or audit log entry
+// Event represents a system event or audit log entry.
 type Event struct {
 	ID           string    `gorm:"primaryKey;type:varchar(36)" json:"id"`
 	EventType    string    `gorm:"not null;index" json:"event_type"` // create, update, delete, action
@@ -50,7 +50,7 @@ type Event struct {
 // JSONMap is a custom type for JSONB fields.
 type JSONMap map[string]interface{}
 
-// TableName sets a custom table name for the Event model
+// TableName sets a custom table name for the Event model.
 func (Event) TableName() string { return "system_events" }
 
 // NewService creates a new event service.
@@ -68,7 +68,7 @@ func NewService(cfg Config) (*Service, error) {
 		retentionDays: cfg.RetentionDays,
 	}
 
-	// Start background cleanup task
+	// Start background cleanup task.
 	go s.cleanupOldEvents()
 
 	return s, nil
@@ -77,16 +77,14 @@ func NewService(cfg Config) (*Service, error) {
 // SetupRoutes registers HTTP routes for the event service.
 func (s *Service) SetupRoutes(router *gin.Engine) {
 	api := router.Group("/api/v1/events")
-	{
-		api.POST("", s.createEvent)
-		api.GET("", s.listEvents)
-		api.GET("/:id", s.getEvent)
-		api.GET("/resource/:resource_type/:resource_id", s.getResourceEvents)
-		api.DELETE("/cleanup", s.manualCleanup)
-	}
+	api.POST("", s.createEvent)
+	api.GET("", s.listEvents)
+	api.GET("/:id", s.getEvent)
+	api.GET("/resource/:resource_type/:resource_id", s.getResourceEvents)
+	api.DELETE("/cleanup", s.manualCleanup)
 }
 
-// CreateEventRequest represents an event creation request
+// CreateEventRequest represents an event creation request.
 type CreateEventRequest struct {
 	EventType    string                 `json:"event_type" binding:"required"`
 	ResourceID   string                 `json:"resource_id"`
@@ -99,7 +97,7 @@ type CreateEventRequest struct {
 	ErrorMsg     string                 `json:"error_message"`
 }
 
-// createEvent creates a new event entry
+// createEvent creates a new event entry.
 func (s *Service) createEvent(c *gin.Context) {
 	var req CreateEventRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -133,12 +131,12 @@ func (s *Service) createEvent(c *gin.Context) {
 	c.JSON(http.StatusCreated, event)
 }
 
-// listEvents lists events with optional filters
+// listEvents lists events with optional filters.
 func (s *Service) listEvents(c *gin.Context) {
 	var events []Event
 	query := s.db.Model(&Event{})
 
-	// Apply filters
+	// Apply filters.
 	if resourceType := c.Query("resource_type"); resourceType != "" {
 		query = query.Where("resource_type = ?", resourceType)
 	}
@@ -158,7 +156,7 @@ func (s *Service) listEvents(c *gin.Context) {
 		query = query.Where("tenant_id = ?", tenantID)
 	}
 
-	// Time range filters
+	// Time range filters.
 	if startTime := c.Query("start_time"); startTime != "" {
 		if t, err := time.Parse(time.RFC3339, startTime); err == nil {
 			query = query.Where("timestamp >= ?", t)
@@ -170,19 +168,19 @@ func (s *Service) listEvents(c *gin.Context) {
 		}
 	}
 
-	// Pagination
+	// Pagination.
 	page := 1
 	limit := 50
 	if p := c.Query("page"); p != "" {
 		var tmp int
-		if n, _ := json.Number(p).Int64(); n > 0 {
+		if n, err := json.Number(p).Int64(); err == nil && n > 0 {
 			tmp = int(n)
 			page = tmp
 		}
 	}
 	if l := c.Query("limit"); l != "" {
 		var tmp int
-		if n, _ := json.Number(l).Int64(); n > 0 && n <= 1000 {
+		if n, err := json.Number(l).Int64(); err == nil && n > 0 && n <= 1000 {
 			tmp = int(n)
 			limit = tmp
 		}
@@ -206,7 +204,7 @@ func (s *Service) listEvents(c *gin.Context) {
 	})
 }
 
-// getEvent retrieves a specific event by ID
+// getEvent retrieves a specific event by ID.
 func (s *Service) getEvent(c *gin.Context) {
 	id := c.Param("id")
 	var event Event
@@ -222,7 +220,7 @@ func (s *Service) getEvent(c *gin.Context) {
 	c.JSON(http.StatusOK, event)
 }
 
-// getResourceEvents retrieves all events for a specific resource
+// getResourceEvents retrieves all events for a specific resource.
 func (s *Service) getResourceEvents(c *gin.Context) {
 	resourceType := c.Param("resource_type")
 	resourceID := c.Param("resource_id")
@@ -230,19 +228,19 @@ func (s *Service) getResourceEvents(c *gin.Context) {
 	var events []Event
 	query := s.db.Where("resource_type = ? AND resource_id = ?", resourceType, resourceID)
 
-	// Pagination
+	// Pagination.
 	page := 1
 	limit := 50
 	if p := c.Query("page"); p != "" {
 		var tmp int
-		if n, _ := json.Number(p).Int64(); n > 0 {
+		if n, err := json.Number(p).Int64(); err == nil && n > 0 {
 			tmp = int(n)
 			page = tmp
 		}
 	}
 	if l := c.Query("limit"); l != "" {
 		var tmp int
-		if n, _ := json.Number(l).Int64(); n > 0 && n <= 100 {
+		if n, err := json.Number(l).Int64(); err == nil && n > 0 && n <= 100 {
 			tmp = int(n)
 			limit = tmp
 		}
@@ -266,7 +264,7 @@ func (s *Service) getResourceEvents(c *gin.Context) {
 	})
 }
 
-// manualCleanup triggers manual cleanup of old events
+// manualCleanup triggers manual cleanup of old events.
 func (s *Service) manualCleanup(c *gin.Context) {
 	cutoff := time.Now().AddDate(0, 0, -s.retentionDays)
 	result := s.db.Where("created_at < ?", cutoff).Delete(&Event{})
@@ -283,7 +281,7 @@ func (s *Service) manualCleanup(c *gin.Context) {
 	})
 }
 
-// cleanupOldEvents runs periodically to clean up old events
+// cleanupOldEvents runs periodically to clean up old events.
 func (s *Service) cleanupOldEvents() {
 	ticker := time.NewTicker(24 * time.Hour)
 	defer ticker.Stop()
@@ -302,7 +300,7 @@ func (s *Service) cleanupOldEvents() {
 	}
 }
 
-// LogEvent is a helper function to log events from other services
+// LogEvent is a helper function to log events from other services.
 func (s *Service) LogEvent(eventType, resourceType, resourceID, action, status, userID, tenantID string, details map[string]interface{}, errorMsg string) {
 	event := Event{
 		ID:           uuid.New().String(),

@@ -13,13 +13,13 @@ import (
 
 // SetupRoutes sets up HTTP routes for the identity service.
 func (s *Service) SetupRoutes(router *gin.Engine) {
-	// Health check under identity prefix to avoid conflicts
+	// Health check under identity prefix to avoid conflicts.
 	router.GET("/api/identity/health", s.healthCheck)
 
-	// API v1 routes
+	// API v1 routes.
 	v1 := router.Group("/api/v1")
 	{
-		// Public routes
+		// Public routes.
 		auth := v1.Group("/auth")
 		{
 			auth.POST("/login", s.loginHandler)
@@ -27,11 +27,11 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 			auth.POST("/logout", s.logoutHandler)
 		}
 
-		// Protected routes
+		// Protected routes.
 		protected := v1.Group("/")
 		protected.Use(s.authMiddleware())
 		{
-			// Projects
+			// Projects.
 			projects := protected.Group("/projects")
 			{
 				projects.GET("", s.listProjectsHandler)
@@ -47,7 +47,7 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 				quotas.GET("/:projectId", s.getProjectQuotaHandler)
 				quotas.PUT("/:projectId", s.updateProjectQuotaHandler)
 			}
-			// User management
+			// User management.
 			users := protected.Group("/users")
 			{
 				users.GET("", s.listUsersHandler)
@@ -55,12 +55,12 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 				users.GET("/:id", s.getUserHandler)
 				users.PUT("/:id", s.updateUserHandler)
 				users.DELETE("/:id", s.deleteUserHandler)
-				// Additional user operations
+				// Additional user operations.
 				users.PATCH("/:id/status", s.updateUserStatusHandler)
 				users.POST("/:id/reset-password", s.resetUserPasswordHandler)
 			}
 
-			// Role management
+			// Role management.
 			roles := protected.Group("/roles")
 			{
 				roles.GET("", s.listRolesHandler)
@@ -70,7 +70,7 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 				roles.DELETE("/:id", s.deleteRoleHandler)
 			}
 
-			// Permission management
+			// Permission management.
 			permissions := protected.Group("/permissions")
 			{
 				permissions.GET("", s.listPermissionsHandler)
@@ -88,7 +88,7 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 				idps.DELETE("/:id", s.deleteIDPHandler)
 			}
 
-			// Profile
+			// Profile.
 			profile := protected.Group("/profile")
 			{
 				profile.GET("", s.getProfileHandler)
@@ -189,7 +189,7 @@ func (s *Service) authMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Set user information in context
+		// Set user information in context.
 		c.Set("user_id", claims.UserID)
 		c.Set("username", claims.Username)
 		c.Set("is_admin", claims.IsAdmin)
@@ -290,7 +290,7 @@ func (s *Service) updateUserHandler(c *gin.Context) {
 		return
 	}
 
-	// Update fields
+	// Update fields.
 	if req.Email != "" {
 		user.Email = req.Email
 	}
@@ -355,7 +355,7 @@ func (s *Service) updateUserStatusHandler(c *gin.Context) {
 		return
 	}
 
-	// Map status to IsActive flag; 'suspended' and 'inactive' both mean inactive for now
+	// Map status to IsActive flag; 'suspended' and 'inactive' both mean inactive for now.
 	switch req.Status {
 	case "active":
 		user.IsActive = true
@@ -404,7 +404,7 @@ func (s *Service) resetUserPasswordHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Password reset to default"})
 }
 
-// Placeholder handlers for roles and permissions
+// Placeholder handlers for roles and permissions.
 func (s *Service) listRolesHandler(c *gin.Context)  { c.JSON(200, gin.H{"roles": []Role{}}) }
 func (s *Service) createRoleHandler(c *gin.Context) { c.JSON(501, gin.H{"error": "Not implemented"}) }
 func (s *Service) getRoleHandler(c *gin.Context)    { c.JSON(501, gin.H{"error": "Not implemented"}) }
@@ -426,10 +426,10 @@ func (s *Service) deletePermissionHandler(c *gin.Context) {
 	c.JSON(501, gin.H{"error": "Not implemented"})
 }
 
-// listProjectsHandler returns projects (for now all projects; later filter by membership)
+// listProjectsHandler returns projects (for now all projects; later filter by membership).
 func (s *Service) listProjectsHandler(c *gin.Context) {
 	var projects []Project
-	// Optional filter: owner=true returns only projects owned by current user
+	// Optional filter: owner=true returns only projects owned by current user.
 	q := s.db.Model(&Project{})
 	if c.Query("owner") == "true" {
 		if uidVal, exists := c.Get("user_id"); exists {
@@ -456,7 +456,7 @@ func (s *Service) createProjectHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
-	// Default to current user if not provided
+	// Default to current user if not provided.
 	if req.UserID == 0 {
 		if uidVal, exists := c.Get("user_id"); exists {
 			if uid, ok := uidVal.(uint); ok {
@@ -487,11 +487,11 @@ func (s *Service) deleteProjectHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Project deleted"})
 }
 
-// Quota handlers
+// Quota handlers.
 func (s *Service) getDefaultQuotaHandler(c *gin.Context) {
 	var q Quota
 	if err := s.db.Where("project_id IS NULL").First(&q).Error; err != nil {
-		// Return sensible defaults if not set
+		// Return sensible defaults if not set.
 		q = Quota{VCPUs: 16, RAMMB: 32768, DiskGB: 500, Instances: 20}
 	}
 	c.JSON(http.StatusOK, gin.H{"quota": q})
@@ -531,7 +531,7 @@ func (s *Service) getProjectQuotaHandler(c *gin.Context) {
 	}
 	var q Quota
 	if err := s.db.Where("project_id = ?", uint(pid)).First(&q).Error; err != nil {
-		// inherit default
+		// inherit default.
 		s.getDefaultQuotaHandler(c)
 		return
 	}
@@ -569,7 +569,7 @@ func (s *Service) updateProjectQuotaHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"quota": q})
 }
 
-// IDP Handlers
+// IDP Handlers.
 func (s *Service) listIDPsHandler(c *gin.Context) {
 	var idps []IdentityProvider
 	if err := s.db.Find(&idps).Error; err != nil {
@@ -612,10 +612,14 @@ func (s *Service) deleteIDPHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "IDP deleted"})
 }
 
-// Profile Handlers
+// Profile Handlers.
 func (s *Service) getProfileHandler(c *gin.Context) {
 	uidVal, _ := c.Get("user_id")
-	uid, _ := uidVal.(uint)
+	uid, ok := uidVal.(uint)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID"})
+		return
+	}
 	var user User
 	if err := s.db.First(&user, uid).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
@@ -626,7 +630,11 @@ func (s *Service) getProfileHandler(c *gin.Context) {
 
 func (s *Service) updateProfileHandler(c *gin.Context) {
 	uidVal, _ := c.Get("user_id")
-	uid, _ := uidVal.(uint)
+	uid, ok := uidVal.(uint)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID"})
+		return
+	}
 	var user User
 	if err := s.db.First(&user, uid).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
@@ -659,7 +667,11 @@ func (s *Service) updateProfileHandler(c *gin.Context) {
 
 func (s *Service) changePasswordHandler(c *gin.Context) {
 	uidVal, _ := c.Get("user_id")
-	uid, _ := uidVal.(uint)
+	uid, ok := uidVal.(uint)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID"})
+		return
+	}
 	var user User
 	if err := s.db.First(&user, uid).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})

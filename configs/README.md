@@ -111,9 +111,11 @@ docker-compose logs -f vc-controller
 ### ✅ 新架构配置 (当前使用)
 
 #### vc-controller.yaml.example
-**用途**: VC Stack Controller 完整配置  
-**包含服务**: Gateway, Identity, Network, Scheduler  
+
+**用途**: VC Stack Controller 完整配置
+**包含服务**: Gateway, Identity, Network, Scheduler
 **关键配置**:
+
 - 数据库连接 (PostgreSQL)
 - JWT 认证配置
 - OVN 网络配置
@@ -121,6 +123,7 @@ docker-compose logs -f vc-controller
 - 日志和监控
 
 **最小配置示例**:
+
 ```yaml
 database:
   host: localhost
@@ -134,9 +137,11 @@ identity:
 ```
 
 #### vc-node.yaml.example
-**用途**: VC Stack Node 完整配置  
-**包含服务**: Compute, Lite Agent, Network Plugin  
+
+**用途**: VC Stack Node 完整配置
+**包含服务**: Compute, Lite Agent, Network Plugin
 **关键配置**:
+
 - 节点标识和标签
 - Agent 自动注册
 - Libvirt/KVM 配置
@@ -144,6 +149,7 @@ identity:
 - 网络插件配置
 
 **最小配置示例**:
+
 ```yaml
 agent:
   enabled: true
@@ -157,33 +163,41 @@ storage:
 ```
 
 #### env/controller.env.example
-**用途**: Controller 环境变量配置  
-**适用场景**: 容器化部署、CI/CD、简化配置  
+
+**用途**: Controller 环境变量配置
+**适用场景**: 容器化部署、CI/CD、简化配置
 **包含**: 数据库、JWT、OVN、日志等核心配置
 
 #### env/node.env.example
-**用途**: Node 环境变量配置  
-**适用场景**: 容器化部署、批量节点部署  
+
+**用途**: Node 环境变量配置
+**适用场景**: 容器化部署、批量节点部署
 **包含**: Agent、Libvirt、存储等核心配置
 
 #### systemd/vc-controller.service
-**用途**: Controller systemd 服务文件  
-**特点**: 
+
+**用途**: Controller systemd 服务文件
+**特点**:
+
 - 依赖管理 (PostgreSQL)
 - 自动重启
 - 资源限制
 - 日志集成
 
 #### systemd/vc-node.service
-**用途**: Node systemd 服务文件  
+
+**用途**: Node systemd 服务文件
 **特点**:
+
 - 依赖管理 (Libvirtd)
 - Root 权限运行
 - 自动重启
 
 #### docker-compose.yaml.example
-**用途**: 开发环境一键部署  
+
+**用途**: 开发环境一键部署
 **包含服务**:
+
 - PostgreSQL 数据库
 - Redis (可选)
 - VC Controller
@@ -235,7 +249,7 @@ storage:
 identity:
   jwt:
     secret: <生成 64 位随机字符串>  # 使用 openssl rand -hex 32
-    
+
 database:
   password: <强密码>  # 使用复杂密码
 
@@ -273,6 +287,7 @@ openssl rand -base64 32
 4. 命令行参数
 
 示例：
+
 ```bash
 # 配置文件 + 环境变量组合
 export DATABASE_PASSWORD=secret

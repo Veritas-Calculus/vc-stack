@@ -56,7 +56,7 @@ func NewMetricsCollector(cfg InfluxDBConfig) (*MetricsCollector, error) {
 
 	client := influxdb2.NewClient(cfg.URL, cfg.Token)
 
-	// Verify connection
+	// Verify connection.
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -117,7 +117,7 @@ func (mc *MetricsCollector) Stop() error {
 	close(mc.stopCh)
 	mc.running = false
 
-	// Flush any pending writes
+	// Flush any pending writes.
 	mc.writeAPI.Flush()
 	mc.client.Close()
 
@@ -147,7 +147,7 @@ func (mc *MetricsCollector) collectSystemMetrics() {
 
 	timestamp := time.Now()
 
-	// System metrics
+	// System metrics.
 	p := influxdb2.NewPoint("system_metrics",
 		map[string]string{
 			"host": "vc-controller",
@@ -165,7 +165,7 @@ func (mc *MetricsCollector) collectSystemMetrics() {
 
 	mc.writeAPI.WritePoint(p)
 
-	// Error handling
+	// Error handling.
 	errors := mc.writeAPI.Errors()
 	select {
 	case err := <-errors:

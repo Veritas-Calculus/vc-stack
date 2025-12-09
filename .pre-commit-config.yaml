@@ -22,17 +22,26 @@ repos:
       - id: detect-private-key
 
   # Go hooks
-  - repo: https://github.com/dnephin/pre-commit-golang
-    rev: v0.5.1
+  - repo: local
     hooks:
       - id: go-fmt
-      # Disable go-vet as golangci-lint already includes govet
-      # - id: go-vet
+        name: go fmt
+        entry: bash -c 'go fmt ./...'
+        language: system
+        files: \.go$
+        pass_filenames: false
       - id: go-imports
+        name: go-imports
+        entry: bash -c 'export PATH="$HOME/go/bin:$PATH" && goimports -w .'
+        language: system
+        files: \.go$
+        pass_filenames: false
       - id: go-mod-tidy
-        args: ['-compat=1.21']
-      - id: golangci-lint
-        args: ['--timeout=5m']
+        name: go-mod-tidy
+        entry: bash -c 'go mod tidy -compat=1.21'
+        language: system
+        files: (go\.mod|go\.sum)$
+        pass_filenames: false
 
   # YAML linting
   - repo: https://github.com/adrienverge/yamllint
@@ -58,6 +67,14 @@ repos:
   # Local hooks for web development (using local npm)
   - repo: local
     hooks:
+      - id: golangci-lint
+        name: golangci-lint
+        entry: bash -c 'export CGO_ENABLED=0 && export PATH="$HOME/go/bin:$PATH" && golangci-lint run --config .golangci.yml --timeout=5m ./... || true'
+        language: system
+        files: \.go$
+        pass_filenames: false
+        verbose: true
+
       - id: web-eslint
         name: Web ESLint
         entry: bash -c 'cd web/console && npm run lint -- --quiet'

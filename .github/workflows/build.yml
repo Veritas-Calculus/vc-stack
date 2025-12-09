@@ -14,33 +14,33 @@ jobs:
   build:
     name: Build Services
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Check out code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0  # For git describe
-      
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: '1.21'
 
-      
+
       - name: Download dependencies
         run: |
           go mod download
           go mod verify
-      
+
       - name: Build all services
         run: make build-all
         env:
           CGO_ENABLED: 1  # Required for vc-lite
-      
+
 
       - name: Run tests
         run: make test
-      
+
       - name: Package binaries
         if: startsWith(github.ref, 'refs/tags/')
         run: |
@@ -48,14 +48,14 @@ jobs:
           mkdir -p release
           tar -czf release/vc-stack-${VERSION}-linux-amd64.tar.gz bin/*
           cd bin && sha256sum * > ../release/SHA256SUMS && cd ..
-      
+
       - name: Upload artifacts
         if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-artifact@v4
         with:
           name: vc-stack-binaries
           path: release/*
-      
+
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
@@ -63,7 +63,7 @@ jobs:
           files: release/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  
+
   build-multiarch:
     name: Build Multi-Architecture
     runs-on: ubuntu-latest
@@ -75,22 +75,22 @@ jobs:
             goarch: amd64
           - arch: arm64
             goarch: arm64
-    
+
     steps:
       - name: Check out code
         uses: actions/checkout@v4
-      
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: '1.21'
-      
+
       - name: Install cross-compilation tools
         run: |
           sudo apt-get update
           sudo apt-get install -y gcc-aarch64-linux-gnu libvirt-dev:${{ matrix.arch }} pkg-config
         if: matrix.arch != 'amd64'
-      
+
       - name: Build for ${{ matrix.arch }}
         run: |
           export GOARCH=${{ matrix.goarch }}
@@ -99,13 +99,13 @@ jobs:
             export CC=aarch64-linux-gnu-gcc
           fi
           make build-all
-      
+
       - name: Package ${{ matrix.arch }} binaries
         run: |
           VERSION=${GITHUB_REF#refs/tags/}
           mkdir -p release
           tar -czf release/vc-stack-${VERSION}-linux-${{ matrix.arch }}.tar.gz bin/*
-      
+
       - name: Upload ${{ matrix.arch }} artifacts
         uses: actions/upload-artifact@v4
         with:

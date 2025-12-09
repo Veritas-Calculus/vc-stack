@@ -12,10 +12,10 @@ type FixedIP struct {
 	SubnetID string `json:"subnet_id,omitempty"`
 }
 
-// FixedIPList is a JSON-stored list of FixedIP
+// FixedIPList is a JSON-stored list of FixedIP.
 type FixedIPList []FixedIP
 
-// Value implements driver.Valuer (store as JSON)
+// Value implements driver.Valuer (store as JSON).
 func (f FixedIPList) Value() (driver.Value, error) {
 	b, err := json.Marshal(f)
 	if err != nil {
@@ -24,7 +24,7 @@ func (f FixedIPList) Value() (driver.Value, error) {
 	return string(b), nil
 }
 
-// Scan implements sql.Scanner (read from JSON)
+// Scan implements sql.Scanner (read from JSON).
 func (f *FixedIPList) Scan(src any) error {
 	switch v := src.(type) {
 	case []byte:

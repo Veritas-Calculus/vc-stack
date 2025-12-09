@@ -30,7 +30,7 @@ func NewRBDManager(logger *zap.Logger, images ImagesConfig, volumes VolumesConfi
 	return m
 }
 
-// helper builds rbd args similar to Service.rbdArgs but local to this file
+// helper builds rbd args similar to Service.rbdArgs but local to this file.
 func (m *RBDManager) rbdArgs(category string, args ...string) []string {
 	var prefix []string
 	var id, conf, keyring string

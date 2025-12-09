@@ -8,7 +8,7 @@ type Driver interface {
 	DeleteNetwork(n *Network) error
 	EnsurePort(n *Network, s *Subnet, p *NetworkPort) error
 	DeletePort(n *Network, p *NetworkPort) error
-	// Router operations
+	// Router operations.
 	EnsureRouter(name string) error
 	DeleteRouter(name string) error
 	// Connect a subnet's logical switch to a logical router (create LRP and router-type LSP)
@@ -17,14 +17,14 @@ type Driver interface {
 	// Set external gateway for router (connects router to external network)
 	SetRouterGateway(router string, externalNetwork *Network, externalSubnet *Subnet) (gatewayIP string, err error)
 	ClearRouterGateway(router string, externalNetwork *Network) error
-	// Enable/disable SNAT on router for outbound traffic
+	// Enable/disable SNAT on router for outbound traffic.
 	SetRouterSNAT(router string, enable bool, internalCIDR string, externalIP string) error
-	// NAT for Floating IPs on a logical router
+	// NAT for Floating IPs on a logical router.
 	EnsureFIPNAT(router string, floatingIP, fixedIP string) error
 	RemoveFIPNAT(router string, floatingIP, fixedIP string) error
 	// ACLs per port (compiled from security groups)
 	ReplacePortACLs(networkID, portID string, rules []ACLRule) error
-	// Security Groups via Port Groups: ensure PGs and ACLs, and port membership
+	// Security Groups via Port Groups: ensure PGs and ACLs, and port membership.
 	EnsurePortSecurity(portID string, groups []CompiledSecurityGroup) error
 }
 
@@ -36,7 +36,7 @@ type ACLRule struct {
 	Action    string // allow/allow-related/drop
 }
 
-// CompiledSecurityGroup contains SG id and compiled ACL rules for that SG
+// CompiledSecurityGroup contains SG id and compiled ACL rules for that SG.
 type CompiledSecurityGroup struct {
 	ID    string
 	Rules []ACLRule
@@ -88,7 +88,7 @@ func (d *NoopDriver) ClearRouterGateway(router string, externalNetwork *Network)
 	d.logger.Debug("noop ClearRouterGateway", zap.String("router", router))
 	return nil
 }
-func (d *NoopDriver) SetRouterSNAT(router string, enable bool, internalCIDR string, externalIP string) error {
+func (d *NoopDriver) SetRouterSNAT(router string, enable bool, internalCIDR, externalIP string) error {
 	d.logger.Debug("noop SetRouterSNAT", zap.String("router", router), zap.Bool("enable", enable))
 	return nil
 }

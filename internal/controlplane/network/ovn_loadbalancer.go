@@ -48,7 +48,7 @@ func (m *OVNLoadBalancerManager) CreateLoadBalancer(ctx context.Context, name, v
 		return nil, fmt.Errorf("load balancer %s already exists", name)
 	}
 
-	// Build VIP string: "VIP:port"
+	// Build VIP string: "VIP:port".
 	vips := m.buildVIPString(vip, backends)
 
 	// Create load balancer.
@@ -250,7 +250,7 @@ func (m *OVNLoadBalancerManager) ListLoadBalancers() []*OVNLoadBalancer {
 }
 
 // buildVIPString builds VIP string for OVN load balancer.
-// Format: "VIP:port=backend1:port,backend2:port,..."
+// Format: "VIP:port=backend1:port,backend2:port,...".
 func (m *OVNLoadBalancerManager) buildVIPString(vip string, backends []string) string {
 	return fmt.Sprintf("%s=%s", vip, strings.Join(backends, ","))
 }

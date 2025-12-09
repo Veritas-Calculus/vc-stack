@@ -103,7 +103,7 @@ func newClusterZonesCommand() *cobra.Command {
 	return cmd
 }
 
-// Placeholder implementations
+// Placeholder implementations.
 func runClusterNodesList(cmd *cobra.Command, args []string) {
 	println("TODO: Implement nodes list")
 }

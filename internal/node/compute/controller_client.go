@@ -82,7 +82,10 @@ func (c *ControllerClient) ReportVMStatus(ctx context.Context, config *QEMUConfi
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusAccepted {
-		body, _ := io.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return fmt.Errorf("unexpected status %d and failed to read body: %w", resp.StatusCode, err)
+		}
 		return fmt.Errorf("unexpected status %d: %s", resp.StatusCode, string(body))
 	}
 
@@ -136,10 +139,16 @@ func (c *ControllerClient) SendHeartbeat(ctx context.Context, stats NodeStats) e
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusAccepted {
-		body, _ := io.ReadAll(resp.Body)
-		c.logger.Warn("Heartbeat rejected",
-			zap.Int("status", resp.StatusCode),
-			zap.String("body", string(body)))
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			c.logger.Warn("Heartbeat rejected and failed to read body",
+				zap.Int("status", resp.StatusCode),
+				zap.Error(err))
+		} else {
+			c.logger.Warn("Heartbeat rejected",
+				zap.Int("status", resp.StatusCode),
+				zap.String("body", string(body)))
+		}
 	}
 
 	return nil
@@ -148,7 +157,7 @@ func (c *ControllerClient) SendHeartbeat(ctx context.Context, stats NodeStats) e
 // FetchVMConfig fetches VM configuration from controller.
 func (c *ControllerClient) FetchVMConfig(ctx context.Context, vmID string) (*QEMUConfig, error) {
 	url := fmt.Sprintf("%s/api/v1/vms/%s/config", c.baseURL, vmID)
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, http.NoBody)
 	if err != nil {
 		return nil, fmt.Errorf("create request: %w", err)
 	}
@@ -160,7 +169,10 @@ func (c *ControllerClient) FetchVMConfig(ctx context.Context, vmID string) (*QEM
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, fmt.Errorf("fetch failed: status %d and failed to read body: %w", resp.StatusCode, err)
+		}
 		return nil, fmt.Errorf("fetch failed: status %d: %s", resp.StatusCode, string(body))
 	}
 

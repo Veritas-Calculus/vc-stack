@@ -113,7 +113,7 @@ func newIdentityRolesCommand() *cobra.Command {
 	return cmd
 }
 
-// Placeholder implementations
+// Placeholder implementations.
 func runIdentityUsersList(cmd *cobra.Command, args []string) {
 	println("TODO: Implement users list")
 }

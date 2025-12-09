@@ -86,7 +86,7 @@ type Permission struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// Project represents a tenant/project for resource isolation
+// Project represents a tenant/project for resource isolation.
 type Project struct {
 	ID          uint      `gorm:"primaryKey" json:"id"`
 	Name        string    `gorm:"not null" json:"name"`
@@ -96,8 +96,8 @@ type Project struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// Quota represents default or per-project quota limits
-// If ProjectID is null, the row represents the global default quotas
+// Quota represents default or per-project quota limits.
+// If ProjectID is null, the row represents the global default quotas.
 type Quota struct {
 	ID        uint      `gorm:"primaryKey" json:"id"`
 	ProjectID *uint     `gorm:"unique" json:"project_id"`
@@ -109,7 +109,7 @@ type Quota struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// IdentityProvider represents an external IdP configuration (OIDC/SAML)
+// IdentityProvider represents an external IdP configuration (OIDC/SAML).
 type IdentityProvider struct {
 	ID            uint      `gorm:"primaryKey" json:"id"`
 	Name          string    `gorm:"uniqueIndex;not null" json:"name"`
@@ -169,12 +169,12 @@ func NewService(config Config) (*Service, error) {
 		config: config,
 	}
 
-	// Auto-migrate database schema
+	// Auto-migrate database schema.
 	if err := service.migrate(); err != nil {
 		return nil, fmt.Errorf("failed to migrate database: %w", err)
 	}
 
-	// Create default admin user if not exists
+	// Create default admin user if not exists.
 	if err := service.createDefaultAdmin(); err != nil {
 		return nil, fmt.Errorf("failed to create default admin: %w", err)
 	}
@@ -184,19 +184,19 @@ func NewService(config Config) (*Service, error) {
 
 // migrate runs database migrations.
 func (s *Service) migrate() error {
-	// Skip auto-migration since tables are created via SQL scripts
+	// Skip auto-migration since tables are created via SQL scripts.
 	// return s.db.AutoMigrate(&User{}, &Role{}, &Permission{}, &RefreshToken{})
 	return nil
 }
 
 // createDefaultAdmin creates the default admin user.
 func (s *Service) createDefaultAdmin() error {
-	// Ensure an admin user exists and has a known default password
+	// Ensure an admin user exists and has a known default password.
 	var admin User
 	err := s.db.Where("username = ?", "admin").First(&admin).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			// Create admin user
+			// Create admin user.
 			hashedPassword, err := bcrypt.GenerateFromPassword([]byte("VCStack@123"), bcrypt.DefaultCost)
 			if err != nil {
 				return err
@@ -215,8 +215,8 @@ func (s *Service) createDefaultAdmin() error {
 		return err
 	}
 
-	// If admin exists, ensure password is VCStack@123 for dev convenience
-	// Only update if the current hash does not match the desired password
+	// If admin exists, ensure password is VCStack@123 for dev convenience.
+	// Only update if the current hash does not match the desired password.
 	if bcrypt.CompareHashAndPassword([]byte(admin.Password), []byte("VCStack@123")) != nil {
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte("VCStack@123"), bcrypt.DefaultCost)
 		if err != nil {
@@ -283,7 +283,7 @@ func (s *Service) generateAccessToken(user *User) (string, error) {
 	now := time.Now()
 	expiresAt := now.Add(s.config.JWT.ExpiresIn)
 
-	// Extract roles and permissions
+	// Extract roles and permissions.
 	var roles []string
 	var permissions []string
 	for _, role := range user.Roles {
@@ -316,14 +316,14 @@ func (s *Service) generateAccessToken(user *User) (string, error) {
 
 // generateRefreshToken creates a new refresh token.
 func (s *Service) generateRefreshToken(user *User) (string, error) {
-	// Generate random token
+	// Generate random token.
 	tokenBytes := make([]byte, 32)
 	if _, err := rand.Read(tokenBytes); err != nil {
 		return "", err
 	}
 	token := base64.URLEncoding.EncodeToString(tokenBytes)
 
-	// Store in database
+	// Store in database.
 	refreshToken := &RefreshToken{
 		Token:     token,
 		UserID:    user.ID,
@@ -397,5 +397,5 @@ func (s *Service) Logout(ctx context.Context, refreshToken string) error {
 // This is a placeholder function for gRPC service registration.
 func RegisterIdentityServiceServer(server interface{}, service *Service) {
 	// TODO: Implement actual gRPC service registration when protobuf files are available
-	// For now, this is a no-op function to satisfy the build requirement
+	// For now, this is a no-op function to satisfy the build requirement.
 }

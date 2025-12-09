@@ -95,7 +95,7 @@ func newStorageSnapshotsCommand() *cobra.Command {
 	return cmd
 }
 
-// Placeholder implementations
+// Placeholder implementations.
 func runStorageVolumesList(cmd *cobra.Command, args []string) {
 	println("TODO: Implement volumes list")
 }

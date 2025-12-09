@@ -72,7 +72,7 @@ func (r *sessionRecorder) recordEvent(eventType, data string, cols, rows *int) {
 
 	r.events = append(r.events, event)
 
-	// Batch save every 100 events
+	// Batch save every 100 events.
 	if len(r.events) >= 100 {
 		r.flushEvents()
 	}
@@ -88,10 +88,10 @@ func (r *sessionRecorder) flushEvents() {
 	copy(events, r.events)
 	r.events = r.events[:0]
 
-	// Save asynchronously
+	// Save asynchronously.
 	go func() {
 		if err := r.db.Create(&events).Error; err != nil {
-			// Log error but don't fail the session
+			// Log error but don't fail the session.
 			fmt.Printf("Failed to save session events: %v\n", err)
 		}
 	}()
@@ -107,7 +107,7 @@ func (r *sessionRecorder) close(status string) {
 	r.flushEvents()
 	r.mu.Unlock()
 
-	// Update session record
+	// Update session record.
 	endTime := time.Now()
 	duration := int(endTime.Sub(r.startTime).Seconds())
 
@@ -141,6 +141,8 @@ type WebShellMessage struct {
 }
 
 // webShellHandler handles WebSocket connections for SSH sessions.
+//
+//nolint:gocognit,gocyclo // Complex WebSocket SSH session handling
 func (s *Service) webShellHandler(c *gin.Context) {
 	upgrader := websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
@@ -197,10 +199,8 @@ func (s *Service) webShellHandler(c *gin.Context) {
 
 	// Parse user ID from context.
 	var userID *uint
-	if userIDStr := c.GetString("user_id"); userIDStr != "" {
-		// Convert string to uint if needed
-		// For now, leave it nil if not properly set
-	}
+	// Convert string to uint if needed in the future.
+	// For now, leave it nil if not properly set from c.GetString("user_id").
 
 	// Create session record.
 	sessionRecord := models.WebShellSession{
@@ -218,7 +218,7 @@ func (s *Service) webShellHandler(c *gin.Context) {
 
 	if err := s.db.Create(&sessionRecord).Error; err != nil {
 		s.logger.Error("Failed to create session record", zap.Error(err))
-		// Continue even if recording fails
+		// Continue even if recording fails.
 	}
 
 	defer func() {
@@ -227,7 +227,8 @@ func (s *Service) webShellHandler(c *gin.Context) {
 
 	// Create SSH client config.
 	config := &ssh.ClientConfig{
-		User:            req.User,
+		User: req.User,
+		//nolint:gosec // InsecureIgnoreHostKey is intentional for dynamic VM connections
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 		Timeout:         15 * time.Second,
 		ClientVersion:   "SSH-2.0-OpenSSH_8.0", // Improve compatibility
@@ -235,11 +236,11 @@ func (s *Service) webShellHandler(c *gin.Context) {
 
 	// Set auth method.
 	if req.AuthMethod == "password" {
-		// Try both password and keyboard-interactive for better compatibility
+		// Try both password and keyboard-interactive for better compatibility.
 		config.Auth = []ssh.AuthMethod{
 			ssh.Password(req.Password),
 			ssh.KeyboardInteractive(func(user, instruction string, questions []string, echos []bool) ([]string, error) {
-				// Answer all questions with the password
+				// Answer all questions with the password.
 				answers := make([]string, len(questions))
 				for i := range answers {
 					answers[i] = req.Password
@@ -275,7 +276,7 @@ func (s *Service) webShellHandler(c *gin.Context) {
 		s.logger.Error("Failed to connect to SSH server", zap.Error(err), zap.String("addr", addr), zap.String("user", req.User))
 		recorder.close("connection_failed")
 
-		// Provide user-friendly error message
+		// Provide user-friendly error message.
 		errorMsg := err.Error()
 		if strings.Contains(errorMsg, "unable to authenticate") {
 			s.sendWebShellError(conn, fmt.Sprintf("Authentication failed for user '%s'@%s. Please verify your password or SSH key.", req.User, req.Host))
@@ -499,5 +500,7 @@ func (s *Service) sendWebShellError(conn *websocket.Conn, message string) {
 		Type: "error",
 		Data: message,
 	}
-	_ = conn.WriteJSON(msg)
+	if err := conn.WriteJSON(msg); err != nil {
+		s.logger.Warn("Failed to send error message", zap.Error(err))
+	}
 }

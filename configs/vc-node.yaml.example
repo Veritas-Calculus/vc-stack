@@ -8,10 +8,10 @@
 node:
   # Node name (auto-detected from hostname if not specified)
   name: "compute-node-1"
-  
+
   # Node zone/availability zone
   zone: "zone-1"
-  
+
   # Custom labels for scheduling
   labels:
     rack: "rack-a"
@@ -35,19 +35,19 @@ database:
 agent:
   # Enable automatic node registration
   enabled: true
-  
+
   # Controller URL for registration and heartbeat
   controller_url: http://localhost:8080
-  
+
   # Heartbeat interval
   heartbeat_interval: 30s
-  
+
   # Registration retry settings
   registration:
     max_retries: 10
     retry_interval: 5s
     backoff_multiplier: 2
-  
+
   # Resource capacity (auto-detected if not specified)
   # Manual override if needed
   capacity:
@@ -60,29 +60,29 @@ agent:
 libvirt:
   # Libvirt connection URI
   uri: "qemu:///system"
-  
+
   # Default network for VMs (bridge created by OVN)
   network_name: "br-int"
-  
+
   # SMBIOS information
   smbios:
     manufacturer: "VC Stack"
     product: "Virtual Machine"
     version: "1.0"
-  
+
   # UEFI firmware paths
   uefi:
     ovmf_code: "/usr/share/OVMF/OVMF_CODE.fd"
     ovmf_vars: "/usr/share/OVMF/OVMF_VARS.fd"
     nvram_dir: "/var/lib/libvirt/qemu/nvram"
-  
+
   # TPM configuration (for Windows 11)
   tpm:
     enabled: true
     model: "tpm-crb"
     backend: "emulator"
     version: "2.0"
-  
+
   # VM defaults
   vm_defaults:
     # Default machine type
@@ -105,7 +105,7 @@ libvirt:
 storage:
   # Default storage backend: local, rbd (Ceph), nfs
   default_backend: "local"
-  
+
   # Local storage configuration
   local:
     enabled: true
@@ -115,7 +115,7 @@ storage:
     images_pool: "default"
     # Volumes pool
     volumes_pool: "default"
-  
+
   # Ceph/RBD storage configuration
   rbd:
     enabled: false
@@ -138,7 +138,7 @@ storage:
     clone_flatten: false
     # RBD command timeout
     rbd_timeout_seconds: 30
-  
+
   # NFS storage configuration (optional)
   nfs:
     enabled: false
@@ -155,18 +155,18 @@ network_plugin:
     sb_address: tcp:127.0.0.1:6642
     # Connection timeout
     timeout: 30s
-  
+
   # Integration bridge (OVN managed)
   integration_bridge: "br-int"
-  
+
   # External bridge (for provider networks)
   external_bridge: "br-provider"
-  
+
   # Physical network mapping
   # Maps network names to bridge/interface names
   bridge_mappings:
     provider: "br-provider"
-  
+
   # Tunnel configuration
   tunnel:
     enabled: true
@@ -179,7 +179,7 @@ network_plugin:
 compute:
   # VM operations timeout
   operation_timeout: 300s
-  
+
   # Console proxy (VNC/SPICE)
   console:
     # Console type: vnc, spice
@@ -189,7 +189,7 @@ compute:
     # Proxy port range
     proxy_port_min: 5900
     proxy_port_max: 6000
-  
+
   # Live migration settings
   live_migration:
     enabled: true
@@ -209,7 +209,7 @@ monitoring:
     enabled: true
     port: 9091
     path: /metrics
-  
+
   # Health check
   health_check:
     enabled: true
@@ -238,10 +238,10 @@ logging:
 resources:
   # CPU overcommit ratio (how many vCPUs per physical CPU)
   cpu_overcommit_ratio: 2.0
-  
+
   # RAM overcommit ratio
   ram_overcommit_ratio: 1.5
-  
+
   # Reserved resources (not available for VMs)
   reserved:
     cpu_cores: 2
@@ -253,12 +253,12 @@ features:
   # Enable CPU pinning (NUMA awareness)
   cpu_pinning:
     enabled: false
-  
+
   # Enable huge pages
   huge_pages:
     enabled: false
     size: 2048 # KB
-  
+
   # Enable SR-IOV networking
   sriov:
     enabled: false
@@ -266,7 +266,7 @@ features:
       - name: "physnet1"
         device: "ens1f0"
         num_vfs: 8
-  
+
   # Enable GPU passthrough
   gpu_passthrough:
     enabled: false
@@ -280,11 +280,11 @@ security:
   # SELinux/AppArmor
   mandatory_access_control:
     enabled: false
-  
+
   # Secure boot
   secure_boot:
     enabled: false
-  
+
   # Image signature verification
   image_verification:
     enabled: false

@@ -1,4 +1,4 @@
-// vc-controller: combined control-plane binary
+// vc-controller: combined control-plane binary.
 package main
 
 import (
@@ -30,14 +30,14 @@ var (
 func main() {
 	flag.Parse()
 
-	// Initialize logger
+	// Initialize logger.
 	zapLogger, err := logger.New(logger.Config{Level: "info", Format: "json", Output: "stdout"})
 	if err != nil {
 		log.Fatalf("failed to init logger: %v", err)
 	}
 	defer func() { _ = zapLogger.Sync() }()
 
-	// Initialize Sentry for error tracking
+	// Initialize Sentry for error tracking.
 	sentryDSN := os.Getenv("SENTRY_DSN")
 	if sentryDSN != "" {
 		sentryEnv := os.Getenv("SENTRY_ENVIRONMENT")
@@ -86,7 +86,7 @@ func main() {
 		db = nil
 	}
 
-	// Run database migrations if database is available
+	// Run database migrations if database is available.
 	if db != nil {
 		zapLogger.Info("running database migrations")
 		if err := database.AutoMigrate(db); err != nil {
@@ -95,7 +95,7 @@ func main() {
 		zapLogger.Info("database migrations completed successfully")
 	}
 
-	// Compose controlplane services via aggregator
+	// Compose controlplane services via aggregator.
 	cpSvc, err := controlplane.New(controlplane.Config{DB: db, Logger: zapLogger})
 	if err != nil {
 		zapLogger.Fatal("failed to initialize controlplane services", zap.Error(err))
@@ -106,15 +106,22 @@ func main() {
 	router := gin.New()
 	router.Use(gin.Recovery())
 
-	// Register all control-plane routes via aggregator
+	// Register all control-plane routes via aggregator.
 	cpSvc.SetupRoutes(router)
 
 	port := 8080
 	if v := os.Getenv("VC_CONTROLLER_PORT"); v != "" {
-		fmt.Sscanf(v, "%d", &port)
+		if _, err := fmt.Sscanf(v, "%d", &port); err != nil {
+			zapLogger.Warn("invalid port number, using default", zap.String("value", v), zap.Error(err))
+			port = 8080
+		}
 	}
 
-	srv := &http.Server{Addr: fmt.Sprintf(":%d", port), Handler: router}
+	srv := &http.Server{
+		Addr:              fmt.Sprintf(":%d", port),
+		Handler:           router,
+		ReadHeaderTimeout: 10 * time.Second,
+	}
 
 	go func() {
 		zapLogger.Info("starting vc-controller", zap.Int("port", port))
@@ -123,7 +130,7 @@ func main() {
 		}
 	}()
 
-	// Wait for termination
+	// Wait for termination.
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit

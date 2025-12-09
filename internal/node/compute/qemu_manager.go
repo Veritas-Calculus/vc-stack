@@ -72,7 +72,7 @@ func NewQEMUManager(config QEMUManagerConfig, logger *zap.Logger) (*QEMUManager,
 	config.EnableKVM = true // Always enable KVM for performance.	// Create directories.
 	dirs := []string{config.ConfigDir, config.InstancesDir, config.ImagesDir}
 	for _, dir := range dirs {
-		if err := os.MkdirAll(dir, 0755); err != nil {
+		if err := os.MkdirAll(dir, 0o755); err != nil {
 			return nil, fmt.Errorf("create directory %s: %w", dir, err)
 		}
 	}
@@ -102,7 +102,7 @@ func (m *QEMUManager) CreateVM(ctx context.Context, req *CreateVMRequest) (*QEMU
 
 	// Create instance directory.
 	instanceDir := filepath.Join(m.config.InstancesDir, vmID)
-	if err := os.MkdirAll(instanceDir, 0755); err != nil {
+	if err := os.MkdirAll(instanceDir, 0o755); err != nil {
 		return nil, fmt.Errorf("create instance directory: %w", err)
 	}
 
@@ -181,7 +181,9 @@ func (m *QEMUManager) CreateVM(ctx context.Context, req *CreateVMRequest) (*QEMU
 
 	if err := cmd.Start(); err != nil {
 		config.Status = "error"
-		_ = m.configStore.Save(config)
+		if err := m.configStore.Save(config); err != nil {
+			m.logger.Warn("Failed to save config after error", zap.Error(err))
+		}
 		return nil, fmt.Errorf("start QEMU: %w", err)
 	}
 
@@ -251,7 +253,9 @@ func (m *QEMUManager) StopVM(ctx context.Context, id string, force bool) error {
 		// Force kill if graceful shutdown times out.
 		if !force {
 			m.logger.Warn("Graceful shutdown timed out, forcing kill")
-			_ = process.Kill()
+			if err := process.Kill(); err != nil {
+				m.logger.Error("Failed to kill process", zap.Error(err))
+			}
 		}
 	case err := <-done:
 		if err != nil {
@@ -289,7 +293,9 @@ func (m *QEMUManager) DeleteVM(ctx context.Context, id string) error {
 	// Cleanup TPM if enabled.
 	if config.EnableTPM {
 		tpmDir := filepath.Join(m.config.InstancesDir, id, "tpm")
-		_ = m.cleanupTPM(tpmDir)
+		if err := m.cleanupTPM(tpmDir); err != nil {
+			m.logger.Warn("Failed to cleanup TPM", zap.String("dir", tpmDir), zap.Error(err))
+		}
 	}
 
 	// Delete instance directory.
@@ -403,7 +409,9 @@ func (m *QEMUManager) buildQEMUCommand(config *QEMUConfig, cloudInitISO, uefiVar
 		tapName := fmt.Sprintf("tap-%s-%d", config.ID[:8], i)
 
 		// Create tap device.
-		m.createTapDevice(tapName, netCfg.MAC)
+		if err := m.createTapDevice(tapName, netCfg.MAC); err != nil {
+			m.logger.Warn("Failed to create tap device", zap.String("tap", tapName), zap.Error(err))
+		}
 
 		args = append(args,
 			"-netdev", fmt.Sprintf("tap,id=net%d,ifname=%s,script=no,downscript=no", i, tapName),
@@ -440,13 +448,6 @@ func (m *QEMUManager) createTapDevice(name, mac string) error {
 	return nil
 }
 
-// deleteTapDevice deletes tap device.
-func (m *QEMUManager) deleteTapDevice(name string) error {
-	_ = exec.Command("ovs-vsctl", "--if-exists", "del-port", m.config.BridgeName, name).Run()
-	_ = exec.Command("ip", "link", "delete", name).Run()
-	return nil
-}
-
 // prepareDiskImage prepares VM disk image.
 func (m *QEMUManager) prepareDiskImage(imagePath, diskPath string, sizeGB int) error {
 	// Create qcow2 disk from base image.
@@ -480,12 +481,12 @@ func (m *QEMUManager) createCloudInitISO(instanceID, hostname, userData, isoPath
 
 	// Write meta-data.
 	metaData := fmt.Sprintf("instance-id: %s\nlocal-hostname: %s\n", instanceID, hostname)
-	if err := os.WriteFile(filepath.Join(tmpDir, "meta-data"), []byte(metaData), 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(tmpDir, "meta-data"), []byte(metaData), 0o644); err != nil {
 		return fmt.Errorf("write meta-data: %w", err)
 	}
 
 	// Write user-data.
-	if err := os.WriteFile(filepath.Join(tmpDir, "user-data"), []byte(userData), 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(tmpDir, "user-data"), []byte(userData), 0o644); err != nil {
 		return fmt.Errorf("write user-data: %w", err)
 	}
 
@@ -514,7 +515,11 @@ func (m *QEMUManager) createCloudInitISO(instanceID, hostname, userData, isoPath
 func (m *QEMUManager) allocateVNCPort() int {
 	// Simple allocation: use next available port.
 	// In production, should track used ports.
-	configs, _ := m.configStore.List()
+	configs, err := m.configStore.List()
+	if err != nil {
+		m.logger.Warn("Failed to list configs for VNC port allocation", zap.Error(err))
+		return m.config.DefaultVNCPort
+	}
 	maxPort := m.config.DefaultVNCPort
 
 	for _, cfg := range configs {
@@ -565,7 +570,9 @@ func (m *QEMUManager) SyncVMs(ctx context.Context) error {
 			// Process not found.
 			config.Status = "stopped"
 			config.PID = 0
-			_ = m.configStore.Save(config)
+			if err := m.configStore.Save(config); err != nil {
+				m.logger.Warn("Failed to save config after process not found", zap.Error(err))
+			}
 			continue
 		}
 
@@ -574,7 +581,9 @@ func (m *QEMUManager) SyncVMs(ctx context.Context) error {
 			// Process doesn't exist.
 			config.Status = "stopped"
 			config.PID = 0
-			_ = m.configStore.Save(config)
+			if err := m.configStore.Save(config); err != nil {
+				m.logger.Warn("Failed to save config after signal check", zap.Error(err))
+			}
 		}
 	}
 

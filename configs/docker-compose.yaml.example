@@ -59,18 +59,18 @@ services:
       DATABASE_USER: vcstack
       DATABASE_PASSWORD: vcstack123
       DATABASE_AUTO_MIGRATE: "true"
-      
+
       # Server
       SERVER_HOST: 0.0.0.0
       SERVER_PORT: 8080
-      
+
       # JWT
       IDENTITY_JWT_SECRET: dev-secret-change-in-production
-      
+
       # Logging
       LOGGING_LEVEL: debug
       LOGGING_FORMAT: text
-      
+
       # OVN (optional, for network service)
       NETWORK_OVN_NB_ADDRESS: tcp:ovn-nb:6641
       NETWORK_OVN_SB_ADDRESS: tcp:ovn-sb:6642

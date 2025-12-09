@@ -18,7 +18,7 @@ NC='\033[0m' # No Color
 if ! command -v pre-commit &> /dev/null; then
     echo -e "${YELLOW}⚠️  pre-commit is not installed${NC}"
     echo "Installing pre-commit..."
-    
+
     if command -v brew &> /dev/null; then
         brew install pre-commit
     elif command -v pip3 &> /dev/null; then

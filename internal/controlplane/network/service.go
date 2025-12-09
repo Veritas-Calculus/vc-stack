@@ -43,7 +43,7 @@ type SDNConfig struct {
 	BridgeMappings string
 }
 
-// IPAMOptions configures IPAM behavior
+// IPAMOptions configures IPAM behavior.
 type IPAMOptions struct {
 	ReserveGateway bool
 	ReservedFirst  int
@@ -60,23 +60,23 @@ type ASN struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// TableName sets a custom table name for the ASN model
+// TableName sets a custom table name for the ASN model.
 func (ASN) TableName() string { return "net_asns" }
 
 // Network represents a virtual network.
-// Supports OpenStack-style network types: flat, vlan, vxlan, gre, geneve
+// Supports OpenStack-style network types: flat, vlan, vxlan, gre, geneve.
 type Network struct {
 	ID          string `json:"id" gorm:"primaryKey;type:varchar(36)"`
 	Name        string `json:"name" gorm:"not null;uniqueIndex:uniq_net_networks_tenant_name"`
 	Description string `json:"description"`
 	CIDR        string `json:"cidr" gorm:"column:cidr;not null"`
-	// Network type: flat, vlan, vxlan, gre, geneve, local
+	// Network type: flat, vlan, vxlan, gre, geneve, local.
 	NetworkType string `json:"network_type" gorm:"default:'vxlan';index"`
 	// Physical network name (for flat/vlan networks, maps to bridge_mappings)
 	PhysicalNetwork string `json:"physical_network" gorm:"index"`
-	// Segmentation ID: VLAN ID (1-4094) for vlan, VNI for vxlan, tunnel key for gre
+	// Segmentation ID: VLAN ID (1-4094) for vlan, VNI for vxlan, tunnel key for gre.
 	SegmentationID int `json:"segmentation_id" gorm:"index"`
-	// Deprecated: use SegmentationID for VLAN networks
+	// Deprecated: use SegmentationID for VLAN networks.
 	VLANID     int    `json:"vlan_id" gorm:"column:vlan_id;index"`
 	Gateway    string `json:"gateway"`
 	DNSServers string `json:"dns_servers" gorm:"type:text"`
@@ -93,7 +93,7 @@ type Network struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// TableName sets a custom table name for the Network model
+// TableName sets a custom table name for the Network model.
 func (Network) TableName() string { return "net_networks" }
 
 // Subnet represents a subnet within a network.
@@ -116,7 +116,7 @@ type Subnet struct {
 	Network         Network   `json:"network" gorm:"foreignKey:NetworkID"`
 }
 
-// TableName sets a custom table name for the Subnet model
+// TableName sets a custom table name for the Subnet model.
 func (Subnet) TableName() string { return "net_subnets" }
 
 // SecurityGroup represents a security group.
@@ -130,7 +130,7 @@ type SecurityGroup struct {
 	UpdatedAt   time.Time           `json:"updated_at"`
 }
 
-// TableName sets a custom table name for the SecurityGroup model
+// TableName sets a custom table name for the SecurityGroup model.
 func (SecurityGroup) TableName() string { return "net_security_groups" }
 
 // SecurityGroupRule represents a security group rule.
@@ -148,20 +148,20 @@ type SecurityGroupRule struct {
 	SecurityGroup   SecurityGroup `json:"security_group" gorm:"foreignKey:SecurityGroupID"`
 }
 
-// TableName sets a custom table name for the SecurityGroupRule model
+// TableName sets a custom table name for the SecurityGroupRule model.
 func (SecurityGroupRule) TableName() string { return "net_security_group_rules" }
 
 // Router represents a logical router connecting subnets and external networks.
-// Similar to OpenStack Neutron Router
+// Similar to OpenStack Neutron Router.
 type Router struct {
 	ID          string `json:"id" gorm:"primaryKey;type:varchar(36)"`
 	Name        string `json:"name" gorm:"not null;uniqueIndex:uniq_net_routers_tenant_name"`
 	Description string `json:"description"`
 	// External gateway network ID (must be an external network)
 	ExternalGatewayNetworkID *string `json:"external_gateway_network_id,omitempty" gorm:"index"`
-	// External gateway IP address assigned from the external network
+	// External gateway IP address assigned from the external network.
 	ExternalGatewayIP *string `json:"external_gateway_ip,omitempty"`
-	// Enable SNAT for private networks connected to this router
+	// Enable SNAT for private networks connected to this router.
 	EnableSNAT bool      `json:"enable_snat" gorm:"default:true"`
 	AdminUp    bool      `json:"admin_up" gorm:"default:true"`
 	Status     string    `json:"status" gorm:"default:'active'"`
@@ -170,7 +170,7 @@ type Router struct {
 	UpdatedAt  time.Time `json:"updated_at"`
 }
 
-// TableName sets a custom table name for the Router model
+// TableName sets a custom table name for the Router model.
 func (Router) TableName() string { return "net_routers" }
 
 // RouterInterface represents a connection between a router and a subnet.
@@ -187,7 +187,7 @@ type RouterInterface struct {
 	Subnet    Subnet    `json:"subnet" gorm:"foreignKey:SubnetID"`
 }
 
-// TableName sets a custom table name for the RouterInterface model
+// TableName sets a custom table name for the RouterInterface model.
 func (RouterInterface) TableName() string { return "net_router_interfaces" }
 
 // FloatingIP represents a floating IP.
@@ -205,10 +205,10 @@ type FloatingIP struct {
 	Network    Network   `json:"network" gorm:"foreignKey:NetworkID"`
 }
 
-// TableName sets a custom table name for the FloatingIP model
+// TableName sets a custom table name for the FloatingIP model.
 func (FloatingIP) TableName() string { return "net_floating_ips" }
 
-// Zone represents an infrastructure zone (e.g., core/edge)
+// Zone represents an infrastructure zone (e.g., core/edge).
 type Zone struct {
 	ID          string    `json:"id" gorm:"primaryKey;type:varchar(36)"`
 	Name        string    `json:"name" gorm:"uniqueIndex;not null"`
@@ -219,7 +219,7 @@ type Zone struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// TableName sets a custom table name for the Zone model
+// TableName sets a custom table name for the Zone model.
 func (Zone) TableName() string { return "infra_zones" }
 
 // NetworkPort represents a network port.
@@ -241,7 +241,7 @@ type NetworkPort struct {
 	Subnet         Subnet      `json:"subnet" gorm:"foreignKey:SubnetID"`
 }
 
-// TableName sets a custom table name for the NetworkPort model
+// TableName sets a custom table name for the NetworkPort model.
 func (NetworkPort) TableName() string { return "net_ports" }
 
 // NewService creates a new network service instance.
@@ -252,16 +252,16 @@ func NewService(config Config) (*Service, error) {
 		config: config,
 	}
 
-	// Select driver
+	// Select driver.
 	switch strings.ToLower(config.SDN.Provider) {
 	case "ovn":
-		// Use plugin driver if endpoint is configured
+		// Use plugin driver if endpoint is configured.
 		if config.SDN.PluginEndpoint != "" {
-			// Build both drivers: plugin (primary) and direct OVN (secondary) so we can fallback if plugin is down
+			// Build both drivers: plugin (primary) and direct OVN (secondary) so we can fallback if plugin is down.
 			config.Logger.Info("Using network plugin driver with fallback", zap.String("endpoint", config.SDN.PluginEndpoint))
 			plugin := NewPluginDriver(config.Logger, PluginConfig{Endpoint: config.SDN.PluginEndpoint})
 			ovnCfg := config.SDN.OVN
-			// Allow environment variable to override NB address
+			// Allow environment variable to override NB address.
 			if env := os.Getenv("OVN_NB_ADDRESS"); strings.TrimSpace(env) != "" {
 				ovnCfg.NBAddress = env
 			}
@@ -269,9 +269,9 @@ func NewService(config Config) (*Service, error) {
 			direct := NewOVNDriver(config.Logger, ovnCfg)
 			service.driver = NewFallbackDriver(config.Logger, plugin, direct)
 		} else {
-			// Pass bridge_mappings to OVN driver config
+			// Pass bridge_mappings to OVN driver config.
 			ovnCfg := config.SDN.OVN
-			// Allow environment variable to override NB address
+			// Allow environment variable to override NB address.
 			if env := os.Getenv("OVN_NB_ADDRESS"); strings.TrimSpace(env) != "" {
 				ovnCfg.NBAddress = env
 			}
@@ -287,7 +287,7 @@ func NewService(config Config) (*Service, error) {
 
 	service.ipam = NewIPAM(config.DB, config.IPAM)
 
-	// Auto-migrate database tables
+	// Auto-migrate database tables.
 	if err := service.migrateDatabase(); err != nil {
 		return nil, fmt.Errorf("failed to migrate database: %w", err)
 	}
@@ -372,7 +372,7 @@ END$$;`).Error
 func (s *Service) SetupRoutes(router *gin.Engine) {
 	api := router.Group("/api/v1")
 	{
-		// Network routes
+		// Network routes.
 		networks := api.Group("/networks")
 		{
 			networks.GET("", s.listNetworks)
@@ -383,7 +383,7 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 			networks.POST("/:id/restart", s.restartNetwork)
 			networks.POST("/:id/repair-l3", s.repairNetworkL3)
 			networks.POST(":id/repair-ports", s.repairNetworkPorts)
-			// Diagnostics
+			// Diagnostics.
 			networks.GET("/:id/diagnose", s.diagnoseNetwork)
 			networks.GET("/diagnose", s.diagnoseNetworkByName)
 		}
@@ -399,7 +399,7 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 			vpcs.POST("/:id/restart", s.restartNetwork)
 		}
 
-		// Subnet routes
+		// Subnet routes.
 		subnets := api.Group("/subnets")
 		{
 			subnets.GET("", s.listSubnets)
@@ -409,7 +409,7 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 			subnets.DELETE("/:id", s.deleteSubnet)
 		}
 
-		// Security group routes
+		// Security group routes.
 		securityGroups := api.Group("/security-groups")
 		{
 			securityGroups.GET("", s.listSecurityGroups)
@@ -419,7 +419,7 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 			securityGroups.DELETE("/:id", s.deleteSecurityGroup)
 		}
 
-		// Security group rule routes
+		// Security group rule routes.
 		securityGroupRules := api.Group("/security-group-rules")
 		{
 			securityGroupRules.GET("", s.listSecurityGroupRules)
@@ -428,7 +428,7 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 			securityGroupRules.DELETE("/:id", s.deleteSecurityGroupRule)
 		}
 
-		// Floating IP routes
+		// Floating IP routes.
 		floatingIPs := api.Group("/floating-ips")
 		{
 			floatingIPs.GET("", s.listFloatingIPs)
@@ -438,7 +438,7 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 			floatingIPs.DELETE("/:id", s.deleteFloatingIP)
 		}
 
-		// Port routes
+		// Port routes.
 		ports := api.Group("/ports")
 		{
 			ports.GET("", s.listPorts)
@@ -448,7 +448,7 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 			ports.DELETE("/:id", s.deletePort)
 		}
 
-		// ASN routes
+		// ASN routes.
 		asns := api.Group("/asns")
 		{
 			asns.GET("", s.listASNs)
@@ -458,7 +458,7 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 			asns.DELETE("/:id", s.deleteASN)
 		}
 
-		// Zone routes
+		// Zone routes.
 		zones := api.Group("/zones")
 		{
 			zones.GET("", s.listZones)
@@ -468,7 +468,7 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 			zones.DELETE("/:id", s.deleteZone)
 		}
 
-		// Router routes
+		// Router routes.
 		routers := api.Group("/routers")
 		{
 			routers.GET("", s.listRouters)
@@ -476,17 +476,17 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 			routers.GET("/:id", s.getRouter)
 			routers.PUT("/:id", s.updateRouter)
 			routers.DELETE("/:id", s.deleteRouter)
-			// Router interface operations
+			// Router interface operations.
 			routers.POST("/:id/add-interface", s.addRouterInterface)
 			routers.POST("/:id/remove-interface", s.removeRouterInterface)
 			routers.GET("/:id/interfaces", s.listRouterInterfaces)
-			// External gateway operations
+			// External gateway operations.
 			routers.POST("/:id/set-gateway", s.setRouterGateway)
 			routers.POST("/:id/clear-gateway", s.clearRouterGateway)
 		}
 	}
 
-	// Health check under network prefix to avoid conflicts
+	// Health check under network prefix to avoid conflicts.
 	router.GET("/api/network/health", s.healthCheck)
 }
 
@@ -498,10 +498,10 @@ func ValidateCIDR(cidr string) error {
 
 // GenerateMAC generates a random MAC address.
 func GenerateMAC() string {
-	// Generate cryptographically random MAC, locally administered and unicast
+	// Generate cryptographically random MAC, locally administered and unicast.
 	b := make([]byte, 6)
 	if _, err := rand.Read(b); err != nil {
-		// fallback to time-based if crypto rand fails
+		// fallback to time-based if crypto rand fails.
 		return fmt.Sprintf("52:54:00:%02x:%02x:%02x",
 			time.Now().Unix()&0xff,
 			(time.Now().Unix()>>8)&0xff,

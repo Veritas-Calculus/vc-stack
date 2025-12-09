@@ -85,22 +85,22 @@ type ServiceProxy struct {
 }
 
 // NewService creates a new gateway service.
-func NewService(config Config) (*Service, error) {
+func NewService(config *Config) (*Service, error) {
 	service := &Service{
 		logger:    config.Logger,
 		db:        config.DB,
-		config:    config,
+		config:    *config,
 		services:  make(map[string]*ServiceProxy),
 		limiters:  make(map[string]*rate.Limiter),
 		startTime: time.Now(),
 	}
 
-	// Initialize service proxies
+	// Initialize service proxies.
 	if err := service.initializeProxies(); err != nil {
 		return nil, fmt.Errorf("failed to initialize proxies: %w", err)
 	}
 
-	// Start health checking
+	// Start health checking.
 	service.startHealthChecking()
 
 	return service, nil
@@ -108,7 +108,7 @@ func NewService(config Config) (*Service, error) {
 
 // initializeProxies initializes reverse proxies for backend services.
 func (s *Service) initializeProxies() error {
-	// Identity service
+	// Identity service.
 	identityURL, err := url.Parse(fmt.Sprintf("http://%s:%d",
 		s.config.Services.Identity.Host, s.config.Services.Identity.Port))
 	if err != nil {
@@ -128,7 +128,7 @@ func (s *Service) initializeProxies() error {
 		HealthOK: true,
 	}
 
-	// Compute service
+	// Compute service.
 	computeURL, err := url.Parse(fmt.Sprintf("http://%s:%d",
 		s.config.Services.Compute.Host, s.config.Services.Compute.Port))
 	if err != nil {
@@ -148,7 +148,7 @@ func (s *Service) initializeProxies() error {
 		HealthOK: true,
 	}
 
-	// Network service
+	// Network service.
 	networkURL, err := url.Parse(fmt.Sprintf("http://%s:%d",
 		s.config.Services.Network.Host, s.config.Services.Network.Port))
 	if err != nil {
@@ -168,7 +168,7 @@ func (s *Service) initializeProxies() error {
 		HealthOK: true,
 	}
 
-	// Lite (node agent) service
+	// Lite (node agent) service.
 	liteURL, err := url.Parse(fmt.Sprintf("http://%s:%d",
 		s.config.Services.Lite.Host, s.config.Services.Lite.Port))
 	if err != nil {
@@ -187,7 +187,7 @@ func (s *Service) initializeProxies() error {
 		HealthOK: true,
 	}
 
-	// Scheduler service
+	// Scheduler service.
 	schedURL, err := url.Parse(fmt.Sprintf("http://%s:%d",
 		s.config.Services.Scheduler.Host, s.config.Services.Scheduler.Port))
 	if err != nil {
@@ -230,7 +230,7 @@ func (s *Service) checkServicesHealth() {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 
 		healthURL := fmt.Sprintf("%s/health", proxy.Target.String())
-		req, err := http.NewRequestWithContext(ctx, "GET", healthURL, nil)
+		req, err := http.NewRequestWithContext(ctx, "GET", healthURL, http.NoBody)
 		if err != nil {
 			cancel()
 			continue
@@ -261,7 +261,7 @@ func (s *Service) checkServicesHealth() {
 
 // SetupRoutes sets up HTTP routes for the gateway.
 func (s *Service) SetupRoutes(router *gin.Engine) {
-	// CORS middleware
+	// CORS middleware.
 	// Always enable CORS to properly handle browser preflight (OPTIONS),
 	// even if the backend service (e.g., identity) doesn't register OPTIONS routes.
 	corsConfig := cors.Config{
@@ -271,7 +271,7 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		AllowCredentials: s.config.Security.CORS.AllowCredentials,
 		MaxAge:           12 * time.Hour,
 	}
-	// Sensible defaults when not specified in config
+	// Sensible defaults when not specified in config.
 	if len(corsConfig.AllowOrigins) == 0 {
 		corsConfig.AllowAllOrigins = true
 	}
@@ -281,7 +281,7 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	if len(corsConfig.AllowHeaders) == 0 {
 		corsConfig.AllowHeaders = []string{"Authorization", "Content-Type", "X-Requested-With", "Origin", "Accept", "X-Project-ID"}
 	} else {
-		// Ensure X-Project-ID is allowed even if configured list exists
+		// Ensure X-Project-ID is allowed even if configured list exists.
 		hasProj := false
 		for _, h := range corsConfig.AllowHeaders {
 			if h == "X-Project-ID" {
@@ -297,7 +297,7 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	// If credentials are allowed, browsers disallow Access-Control-Allow-Origin: *.
 	// To support wildcard while using credentials, echo back the request's Origin.
 	// We do this when either:
-	//  - allowed_origins is empty (allow all), or
+	// - allowed_origins is empty (allow all), or.
 	//  - allowed_origins explicitly contains "*".
 	if corsConfig.AllowCredentials {
 		hasStar := false
@@ -315,158 +315,156 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	}
 	router.Use(cors.New(corsConfig))
 
-	// Rate limiting middleware
+	// Rate limiting middleware.
 	if s.config.Security.RateLimit.Enabled {
 		router.Use(s.rateLimitMiddleware())
 	}
 
-	// Logging middleware
+	// Logging middleware.
 	router.Use(s.loggingMiddleware())
 
-	// Health check under gateway prefix to avoid conflicts
+	// Health check under gateway prefix to avoid conflicts.
 	router.GET("/api/gateway/health", s.healthHandler)
 
-	// Gateway status
+	// Gateway status.
 	router.GET("/gateway/status", s.statusHandler)
 
-	// API routes with service discovery
+	// API routes with service discovery.
 	api := router.Group("/api")
-	{
-		// Aggregated topology endpoint (OpenStack-like graph view)
-		api.GET("/v1/topology", s.topologyHandler)
+	// Aggregated topology endpoint (OpenStack-like graph view)
+	api.GET("/v1/topology", s.topologyHandler)
 
-		// Identity service routes
-		api.Any("/v1/auth/*path", s.proxyHandler("identity"))
-		api.Any("/v1/users/*path", s.proxyHandler("identity"))
-		api.Any("/v1/roles/*path", s.proxyHandler("identity"))
-		api.Any("/v1/permissions/*path", s.proxyHandler("identity"))
-		api.Any("/v1/profile", s.proxyHandler("identity"))
-		api.Any("/v1/profile/*path", s.proxyHandler("identity"))
-		api.Any("/v1/idps", s.proxyHandler("identity"))
-		api.Any("/v1/idps/*path", s.proxyHandler("identity"))
-		api.Any("/v1/projects", s.proxyHandler("identity"))
-		api.Any("/v1/projects/*path", s.proxyHandler("identity"))
-		api.Any("/v1/quotas/*path", s.proxyHandler("identity"))
+	// Identity service routes.
+	api.Any("/v1/auth/*path", s.proxyHandler("identity"))
+	api.Any("/v1/users/*path", s.proxyHandler("identity"))
+	api.Any("/v1/roles/*path", s.proxyHandler("identity"))
+	api.Any("/v1/permissions/*path", s.proxyHandler("identity"))
+	api.Any("/v1/profile", s.proxyHandler("identity"))
+	api.Any("/v1/profile/*path", s.proxyHandler("identity"))
+	api.Any("/v1/idps", s.proxyHandler("identity"))
+	api.Any("/v1/idps/*path", s.proxyHandler("identity"))
+	api.Any("/v1/projects", s.proxyHandler("identity"))
+	api.Any("/v1/projects/*path", s.proxyHandler("identity"))
+	api.Any("/v1/quotas/*path", s.proxyHandler("identity"))
 
-		// Compute service routes
-		api.Any("/v1/instances", s.proxyHandler("compute"))
-		api.Any("/v1/instances/*path", s.proxyHandler("compute"))
-		api.Any("/v1/flavors", s.proxyHandler("compute"))
-		api.Any("/v1/flavors/*path", s.proxyHandler("compute"))
-		api.Any("/v1/images", s.proxyHandler("compute"))
-		api.Any("/v1/images/*path", s.proxyHandler("compute"))
-		api.Any("/v1/volumes", s.proxyHandler("compute"))
-		api.Any("/v1/volumes/*path", s.proxyHandler("compute"))
-		api.Any("/v1/snapshots", s.proxyHandler("compute"))
-		api.Any("/v1/snapshots/*path", s.proxyHandler("compute"))
-		api.Any("/v1/hypervisors", s.proxyHandler("compute"))
-		api.Any("/v1/hypervisors/*path", s.proxyHandler("compute"))
-		api.Any("/v1/ssh-keys", s.proxyHandler("compute"))
-		api.Any("/v1/ssh-keys/*path", s.proxyHandler("compute"))
-		api.Any("/v1/audit", s.proxyHandler("compute"))
+	// Compute service routes.
+	api.Any("/v1/instances", s.proxyHandler("compute"))
+	api.Any("/v1/instances/*path", s.proxyHandler("compute"))
+	api.Any("/v1/flavors", s.proxyHandler("compute"))
+	api.Any("/v1/flavors/*path", s.proxyHandler("compute"))
+	api.Any("/v1/images", s.proxyHandler("compute"))
+	api.Any("/v1/images/*path", s.proxyHandler("compute"))
+	api.Any("/v1/volumes", s.proxyHandler("compute"))
+	api.Any("/v1/volumes/*path", s.proxyHandler("compute"))
+	api.Any("/v1/snapshots", s.proxyHandler("compute"))
+	api.Any("/v1/snapshots/*path", s.proxyHandler("compute"))
+	api.Any("/v1/hypervisors", s.proxyHandler("compute"))
+	api.Any("/v1/hypervisors/*path", s.proxyHandler("compute"))
+	api.Any("/v1/ssh-keys", s.proxyHandler("compute"))
+	api.Any("/v1/ssh-keys/*path", s.proxyHandler("compute"))
+	api.Any("/v1/audit", s.proxyHandler("compute"))
 
-		// Network service routes
-		api.Any("/v1/networks", s.proxyHandler("network"))
-		api.Any("/v1/networks/*path", s.proxyHandler("network"))
-		api.Any("/v1/zones", s.proxyHandler("network"))
-		api.Any("/v1/zones/*path", s.proxyHandler("network"))
-		api.Any("/v1/vpcs", s.proxyHandler("network"))
-		api.Any("/v1/vpcs/*path", s.proxyHandler("network"))
-		api.Any("/v1/subnets", s.proxyHandler("network"))
-		api.Any("/v1/subnets/*path", s.proxyHandler("network"))
-		api.Any("/v1/security-groups", s.proxyHandler("network"))
-		api.Any("/v1/security-groups/*path", s.proxyHandler("network"))
-		api.Any("/v1/security-group-rules", s.proxyHandler("network"))
-		api.Any("/v1/security-group-rules/*path", s.proxyHandler("network"))
-		api.Any("/v1/floating-ips", s.proxyHandler("network"))
-		api.Any("/v1/floating-ips/*path", s.proxyHandler("network"))
-		api.Any("/v1/ports", s.proxyHandler("network"))
-		api.Any("/v1/ports/*path", s.proxyHandler("network"))
-		api.Any("/v1/asns", s.proxyHandler("network"))
-		api.Any("/v1/asns/*path", s.proxyHandler("network"))
-		api.Any("/v1/routers", s.proxyHandler("network"))
-		api.Any("/v1/routers/*path", s.proxyHandler("network"))
+	// Network service routes.
+	api.Any("/v1/networks", s.proxyHandler("network"))
+	api.Any("/v1/networks/*path", s.proxyHandler("network"))
+	api.Any("/v1/zones", s.proxyHandler("network"))
+	api.Any("/v1/zones/*path", s.proxyHandler("network"))
+	api.Any("/v1/vpcs", s.proxyHandler("network"))
+	api.Any("/v1/vpcs/*path", s.proxyHandler("network"))
+	api.Any("/v1/subnets", s.proxyHandler("network"))
+	api.Any("/v1/subnets/*path", s.proxyHandler("network"))
+	api.Any("/v1/security-groups", s.proxyHandler("network"))
+	api.Any("/v1/security-groups/*path", s.proxyHandler("network"))
+	api.Any("/v1/security-group-rules", s.proxyHandler("network"))
+	api.Any("/v1/security-group-rules/*path", s.proxyHandler("network"))
+	api.Any("/v1/floating-ips", s.proxyHandler("network"))
+	api.Any("/v1/floating-ips/*path", s.proxyHandler("network"))
+	api.Any("/v1/ports", s.proxyHandler("network"))
+	api.Any("/v1/ports/*path", s.proxyHandler("network"))
+	api.Any("/v1/asns", s.proxyHandler("network"))
+	api.Any("/v1/asns/*path", s.proxyHandler("network"))
+	api.Any("/v1/routers", s.proxyHandler("network"))
+	api.Any("/v1/routers/*path", s.proxyHandler("network"))
 
-		// Lite service routes (scheduler-to-node or admin)
-		api.Any("/v1/vms/*path", s.proxyHandler("lite"))
+	// Lite service routes (scheduler-to-node or admin)
+	api.Any("/v1/vms/*path", s.proxyHandler("lite"))
 
-		// Scheduler routes
-		api.Any("/v1/schedule", s.proxyHandler("scheduler"))
-		api.Any("/v1/dispatch/vms", s.proxyHandler("scheduler"))
-		api.Any("/v1/scheduler/nodes", s.proxyHandler("scheduler"))
-		api.Any("/v1/scheduler/nodes/*path", s.proxyHandler("scheduler"))
-		// Align with scheduler service native paths
-		api.Any("/v1/nodes", s.proxyHandler("scheduler"))
-		api.Any("/v1/nodes/*path", s.proxyHandler("scheduler"))
+	// Scheduler routes.
+	api.Any("/v1/schedule", s.proxyHandler("scheduler"))
+	api.Any("/v1/dispatch/vms", s.proxyHandler("scheduler"))
+	api.Any("/v1/scheduler/nodes", s.proxyHandler("scheduler"))
+	api.Any("/v1/scheduler/nodes/*path", s.proxyHandler("scheduler"))
+	// Align with scheduler service native paths.
+	api.Any("/v1/nodes", s.proxyHandler("scheduler"))
+	api.Any("/v1/nodes/*path", s.proxyHandler("scheduler"))
 
-		// WebShell session management API
-		api.GET("/v1/webshell/sessions", s.listWebShellSessions)
-		api.GET("/v1/webshell/sessions/:id", s.getWebShellSession)
-		api.GET("/v1/webshell/sessions/:id/events", s.getWebShellSessionEvents)
-		api.GET("/v1/webshell/sessions/:id/export", s.exportWebShellSession)
-	}
+	// WebShell session management API.
+	api.GET("/v1/webshell/sessions", s.listWebShellSessions)
+	api.GET("/v1/webshell/sessions/:id", s.getWebShellSession)
+	api.GET("/v1/webshell/sessions/:id/events", s.getWebShellSessionEvents)
+	api.GET("/v1/webshell/sessions/:id/export", s.exportWebShellSession)
 
-	// Metrics endpoint
+	// Metrics endpoint.
 	router.GET("/metrics", s.metricsHandler)
 
-	// WebSocket proxy for console with dynamic node routing
+	// WebSocket proxy for console with dynamic node routing.
 	router.GET("/ws/console/:node_id", s.consoleWebSocketHandler)
 	// Fallback for old-style console URLs (no node_id)
 	router.GET("/ws/console", s.proxyHandler("lite"))
 
-	// WebShell WebSocket endpoint
+	// WebShell WebSocket endpoint.
 	router.GET("/ws/webshell", s.webShellHandler)
 }
 
 // SetupComputeProxyRoutes sets up routes for proxying to external compute/node services only.
 // Used in unified controller mode where identity/network routes are registered directly.
 func (s *Service) SetupComputeProxyRoutes(router *gin.Engine) {
-	// API routes - only proxy compute and firecracker routes to vc-node
+	// API routes - only proxy compute and firecracker routes to vc-node.
 	api := router.Group("/api")
-	{
-		// Compute service routes (proxy to vc-node)
-		api.Any("/v1/instances", s.proxyHandler("compute"))
-		api.Any("/v1/instances/*path", s.proxyHandler("compute"))
-		api.Any("/v1/flavors", s.proxyHandler("compute"))
-		api.Any("/v1/flavors/*path", s.proxyHandler("compute"))
-		api.Any("/v1/images", s.proxyHandler("compute"))
-		api.Any("/v1/images/*path", s.proxyHandler("compute"))
-		api.Any("/v1/volumes", s.proxyHandler("compute"))
-		api.Any("/v1/volumes/*path", s.proxyHandler("compute"))
-		api.Any("/v1/snapshots", s.proxyHandler("compute"))
-		api.Any("/v1/snapshots/*path", s.proxyHandler("compute"))
-		api.Any("/v1/hypervisors", s.proxyHandler("compute"))
-		api.Any("/v1/hypervisors/*path", s.proxyHandler("compute"))
-		api.Any("/v1/ssh-keys", s.proxyHandler("compute"))
-		api.Any("/v1/ssh-keys/*path", s.proxyHandler("compute"))
-		api.Any("/v1/firecracker", s.proxyHandler("compute"))
-		api.Any("/v1/firecracker/*path", s.proxyHandler("compute"))
-		api.Any("/v1/audit", s.proxyHandler("compute"))
+	// Compute service routes (proxy to vc-node)
+	api.Any("/v1/instances", s.proxyHandler("compute"))
+	api.Any("/v1/instances/*path", s.proxyHandler("compute"))
+	api.Any("/v1/flavors", s.proxyHandler("compute"))
+	api.Any("/v1/flavors/*path", s.proxyHandler("compute"))
+	api.Any("/v1/images", s.proxyHandler("compute"))
+	api.Any("/v1/images/*path", s.proxyHandler("compute"))
+	api.Any("/v1/volumes", s.proxyHandler("compute"))
+	api.Any("/v1/volumes/*path", s.proxyHandler("compute"))
+	api.Any("/v1/snapshots", s.proxyHandler("compute"))
+	api.Any("/v1/snapshots/*path", s.proxyHandler("compute"))
+	api.Any("/v1/hypervisors", s.proxyHandler("compute"))
+	api.Any("/v1/hypervisors/*path", s.proxyHandler("compute"))
+	api.Any("/v1/ssh-keys", s.proxyHandler("compute"))
+	api.Any("/v1/ssh-keys/*path", s.proxyHandler("compute"))
+	api.Any("/v1/firecracker", s.proxyHandler("compute"))
+	api.Any("/v1/firecracker/*path", s.proxyHandler("compute"))
+	api.Any("/v1/audit", s.proxyHandler("compute"))
 
-		// Lite service routes (scheduler-to-node or admin)
-		api.Any("/v1/vms/*path", s.proxyHandler("lite"))
+	// Lite service routes (scheduler-to-node or admin)
+	api.Any("/v1/vms/*path", s.proxyHandler("lite"))
 
-		// WebShell session management API
-		api.GET("/v1/webshell/sessions", s.listWebShellSessions)
-		api.GET("/v1/webshell/sessions/:id", s.getWebShellSession)
-		api.GET("/v1/webshell/sessions/:id/events", s.getWebShellSessionEvents)
-		api.GET("/v1/webshell/sessions/:id/export", s.exportWebShellSession)
-	}
+	// WebShell session management API.
+	api.GET("/v1/webshell/sessions", s.listWebShellSessions)
+	api.GET("/v1/webshell/sessions/:id", s.getWebShellSession)
+	api.GET("/v1/webshell/sessions/:id/events", s.getWebShellSessionEvents)
+	api.GET("/v1/webshell/sessions/:id/export", s.exportWebShellSession)
 
-	// WebSocket proxy for console with dynamic node routing
+	// WebSocket proxy for console with dynamic node routing.
 	router.GET("/ws/console/:node_id", s.consoleWebSocketHandler)
 	// Fallback for old-style console URLs (no node_id)
 	router.GET("/ws/console", s.proxyHandler("lite"))
 
-	// WebShell WebSocket endpoint
+	// WebShell WebSocket endpoint.
 	router.GET("/ws/webshell", s.webShellHandler)
 }
 
 // topologyHandler aggregates network and compute resources into a single topology graph.
 // It calls underlying services with the same Authorization and X-Project-ID headers.
+//
+//nolint:gocognit,gocyclo // Complex topology aggregation logic
 func (s *Service) topologyHandler(c *gin.Context) {
 	tenantID := c.Query("tenant_id")
-	// Forward headers
+	// Forward headers.
 	auth := c.GetHeader("Authorization")
 	projectHeader := c.GetHeader("X-Project-ID")
 
@@ -487,14 +485,17 @@ func (s *Service) topologyHandler(c *gin.Context) {
 		if q != "" {
 			url = url + "?" + q
 		}
-		req, _ := http.NewRequest("GET", url, nil)
+		req, err := http.NewRequest("GET", url, http.NoBody)
+		if err != nil {
+			return httpGetResult{nil, http.StatusInternalServerError, err}
+		}
 		if auth != "" {
 			req.Header.Set("Authorization", auth)
 		}
 		if projectHeader != "" {
 			req.Header.Set("X-Project-ID", projectHeader)
 		}
-		// Also pass tenant_id as header to services that rely on it
+		// Also pass tenant_id as header to services that rely on it.
 		if tenantID != "" {
 			req.Header.Set("X-Project-ID", tenantID)
 		}
@@ -503,11 +504,14 @@ func (s *Service) topologyHandler(c *gin.Context) {
 			return httpGetResult{nil, http.StatusBadGateway, err}
 		}
 		defer resp.Body.Close()
-		b, _ := io.ReadAll(resp.Body)
+		b, err := io.ReadAll(resp.Body)
+		if err != nil {
+			s.logger.Warn("failed to read response body", zap.Error(err))
+		}
 		return httpGetResult{b, resp.StatusCode, nil}
 	}
 
-	// Build query
+	// Build query.
 	q := ""
 	if tenantID != "" {
 		q = "tenant_id=" + tenantID
@@ -520,7 +524,7 @@ func (s *Service) topologyHandler(c *gin.Context) {
 	ports := doGET("network", "/v1/ports", q)
 	insts := doGET("compute", "/v1/instances", q)
 
-	// Minimal shapes for marshaling
+	// Minimal shapes for marshaling.
 	var networks struct {
 		Networks []map[string]interface{} `json:"networks"`
 	}
@@ -538,15 +542,17 @@ func (s *Service) topologyHandler(c *gin.Context) {
 		Instances []map[string]interface{} `json:"instances"`
 	}
 
-	// Decode forgivingly
+	// Decode forgivingly.
 	if nets.status == http.StatusOK {
-		_ = json.Unmarshal(nets.body, &networks)
+		if err := json.Unmarshal(nets.body, &networks); err != nil {
+			s.logger.Warn("failed to unmarshal networks", zap.Error(err))
+		}
 	}
 	if subs.status == http.StatusOK {
-		// handle both array and object
+		// handle both array and object.
 		if err := json.Unmarshal(subs.body, &subnets); err != nil {
 			var arr []map[string]interface{}
-			if json.Unmarshal(subs.body, &arr) == nil {
+			if err := json.Unmarshal(subs.body, &arr); err == nil {
 				subnets.Subnets = arr
 			}
 		}
@@ -555,17 +561,23 @@ func (s *Service) topologyHandler(c *gin.Context) {
 		if err := json.Unmarshal(rtrs.body, &routerWrap); err == nil {
 			routers = routerWrap.Routers
 		} else {
-			_ = json.Unmarshal(rtrs.body, &routers)
+			if err := json.Unmarshal(rtrs.body, &routers); err != nil {
+				s.logger.Warn("failed to unmarshal routers", zap.Error(err))
+			}
 		}
 	}
 	if ports.status == http.StatusOK {
-		_ = json.Unmarshal(ports.body, &portsObj)
+		if err := json.Unmarshal(ports.body, &portsObj); err != nil {
+			s.logger.Warn("failed to unmarshal ports", zap.Error(err))
+		}
 	}
 	if insts.status == http.StatusOK {
-		_ = json.Unmarshal(insts.body, &instancesObj)
+		if err := json.Unmarshal(insts.body, &instancesObj); err != nil {
+			s.logger.Warn("failed to unmarshal instances", zap.Error(err))
+		}
 	}
 
-	// Index helpers
+	// Index helpers.
 	get := func(m map[string]interface{}, k string) string {
 		if v, ok := m[k]; ok && v != nil {
 			return fmt.Sprintf("%v", v)
@@ -573,11 +585,11 @@ func (s *Service) topologyHandler(c *gin.Context) {
 		return ""
 	}
 
-	// Build nodes
+	// Build nodes.
 	nodes := make([]map[string]interface{}, 0, 64)
 	edges := make([]map[string]string, 0, 128)
 
-	// Networks
+	// Networks.
 	for _, n := range networks.Networks {
 		nodes = append(nodes, map[string]interface{}{
 			"id":               "net-" + get(n, "id"),
@@ -594,7 +606,7 @@ func (s *Service) topologyHandler(c *gin.Context) {
 		})
 	}
 
-	// Subnets + edges to networks
+	// Subnets + edges to networks.
 	for _, sObj := range subnets.Subnets {
 		sid := get(sObj, "id")
 		nid := get(sObj, "network_id")
@@ -616,7 +628,7 @@ func (s *Service) topologyHandler(c *gin.Context) {
 		}
 	}
 
-	// Routers
+	// Routers.
 	for _, r := range routers {
 		rid := get(r, "id")
 		nodes = append(nodes, map[string]interface{}{
@@ -628,7 +640,7 @@ func (s *Service) topologyHandler(c *gin.Context) {
 			"external_gateway_network_id": r["external_gateway_network_id"],
 			"external_gateway_ip":         r["external_gateway_ip"],
 		})
-		// Router gateway to external network
+		// Router gateway to external network.
 		extNet := get(r, "external_gateway_network_id")
 		if extNet != "" {
 			edges = append(edges, map[string]string{
@@ -639,7 +651,7 @@ func (s *Service) topologyHandler(c *gin.Context) {
 		}
 	}
 
-	// Router interfaces: need to query per-router
+	// Router interfaces: need to query per-router.
 	for _, r := range routers {
 		rid := get(r, "id")
 		path := fmt.Sprintf("/v1/routers/%s/interfaces", rid)
@@ -661,7 +673,7 @@ func (s *Service) topologyHandler(c *gin.Context) {
 					connected = append(connected, subID)
 				}
 			}
-			// annotate router node with interface subnet ids
+			// annotate router node with interface subnet ids.
 			for i := range nodes {
 				if nodes[i]["id"] == "router-"+rid {
 					nodes[i]["interfaces"] = connected
@@ -671,7 +683,7 @@ func (s *Service) topologyHandler(c *gin.Context) {
 		}
 	}
 
-	// Instances
+	// Instances.
 	for _, inst := range instancesObj.Instances {
 		iid := get(inst, "id")
 		// derive primary IP from ports (first fixed_ips entry)
@@ -708,7 +720,7 @@ func (s *Service) topologyHandler(c *gin.Context) {
 		if devID == "" {
 			continue
 		}
-		// prefer subnet_id from port; if missing, connect to network
+		// prefer subnet_id from port; if missing, connect to network.
 		sid := get(p, "subnet_id")
 		if sid != "" {
 			edges = append(edges, map[string]string{
@@ -854,9 +866,9 @@ func (s *Service) proxyHandler(serviceName string) gin.HandlerFunc {
 			return
 		}
 
-		// Note: c.Request.URL.Path contains the full path including router group prefix
+		// Note: c.Request.URL.Path contains the full path including router group prefix.
 		// Gateway routes are under /api group, so path will be /api/v1/...
-		// Compute and lite services also expect /api/v1/..., so no path rewriting needed
+		// Compute and lite services also expect /api/v1/..., so no path rewriting needed.
 
 		c.Request.URL.Host = proxy.Target.Host
 		c.Request.URL.Scheme = proxy.Target.Scheme
@@ -869,12 +881,12 @@ func (s *Service) proxyHandler(serviceName string) gin.HandlerFunc {
 
 // metricsHandler returns Prometheus metrics.
 func (s *Service) metricsHandler(c *gin.Context) {
-	// This would integrate with Prometheus metrics
+	// This would integrate with Prometheus metrics.
 	c.String(http.StatusOK, "# Metrics\n")
 }
 
-// consoleWebSocketHandler handles WebSocket console requests with dynamic node routing
-// URL format: /ws/console/{node_id}?token=xxx
+// consoleWebSocketHandler handles WebSocket console requests with dynamic node routing.
+// URL format: /ws/console/{node_id}?token=xxx.
 func (s *Service) consoleWebSocketHandler(c *gin.Context) {
 	nodeID := c.Param("node_id")
 	token := c.Query("token")
@@ -884,15 +896,15 @@ func (s *Service) consoleWebSocketHandler(c *gin.Context) {
 		return
 	}
 
-	// Try to lookup node address from scheduler
+	// Try to lookup node address from scheduler.
 	nodeAddr, err := s.lookupNodeAddress(c.Request.Context(), nodeID)
 	if err != nil {
-		// Fallback: if scheduler lookup fails, use lite service directly
+		// Fallback: if scheduler lookup fails, use lite service directly.
 		s.logger.Warn("Scheduler lookup failed, using lite service fallback",
 			zap.String("node_id", nodeID),
 			zap.Error(err))
 
-		// Use lite service proxy if available
+		// Use lite service proxy if available.
 		s.mu.RLock()
 		liteProxy, hasLite := s.services["lite"]
 		s.mu.RUnlock()
@@ -907,7 +919,7 @@ func (s *Service) consoleWebSocketHandler(c *gin.Context) {
 		}
 	}
 
-	// Parse node address
+	// Parse node address.
 	targetURL, err := url.Parse(nodeAddr)
 	if err != nil {
 		s.logger.Error("Invalid node address",
@@ -918,7 +930,7 @@ func (s *Service) consoleWebSocketHandler(c *gin.Context) {
 		return
 	}
 
-	// Build WebSocket URL to node's vc-lite
+	// Build WebSocket URL to node's vc-lite.
 	wsURL := url.URL{
 		Scheme:   "ws",
 		Host:     targetURL.Host,
@@ -933,7 +945,7 @@ func (s *Service) consoleWebSocketHandler(c *gin.Context) {
 		zap.String("node_id", nodeID),
 		zap.String("target", wsURL.String()))
 
-	// Upgrade client connection
+	// Upgrade client connection.
 	upgrader := websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool { return true },
 	}
@@ -944,22 +956,27 @@ func (s *Service) consoleWebSocketHandler(c *gin.Context) {
 	}
 	defer clientConn.Close()
 
-	// Dial backend WebSocket
-	backendConn, _, err := websocket.DefaultDialer.Dial(wsURL.String(), nil)
+	// Dial backend WebSocket.
+	backendConn, resp, err := websocket.DefaultDialer.Dial(wsURL.String(), nil)
 	if err != nil {
 		s.logger.Error("Failed to dial backend WebSocket",
 			zap.String("url", wsURL.String()),
 			zap.Error(err))
-		_ = clientConn.WriteMessage(websocket.CloseMessage,
-			websocket.FormatCloseMessage(websocket.CloseInternalServerErr, "backend connection failed"))
+		if err := clientConn.WriteMessage(websocket.CloseMessage,
+			websocket.FormatCloseMessage(websocket.CloseInternalServerErr, "backend connection failed")); err != nil {
+			s.logger.Warn("failed to send close message", zap.Error(err))
+		}
 		return
+	}
+	if resp != nil && resp.Body != nil {
+		defer resp.Body.Close()
 	}
 	defer backendConn.Close()
 
-	// Bidirectional proxy
+	// Bidirectional proxy.
 	errChan := make(chan error, 2)
 
-	// Client -> Backend
+	// Client -> Backend.
 	go func() {
 		for {
 			msgType, data, err := clientConn.ReadMessage()
@@ -974,7 +991,7 @@ func (s *Service) consoleWebSocketHandler(c *gin.Context) {
 		}
 	}()
 
-	// Backend -> Client
+	// Backend -> Client.
 	go func() {
 		for {
 			msgType, data, err := backendConn.ReadMessage()
@@ -989,23 +1006,23 @@ func (s *Service) consoleWebSocketHandler(c *gin.Context) {
 		}
 	}()
 
-	// Wait for error or completion
+	// Wait for error or completion.
 	err = <-errChan
 	if err != nil && err != io.EOF {
 		s.logger.Debug("Console WebSocket proxy closed", zap.Error(err))
 	}
 }
 
-// lookupNodeAddress queries the scheduler for a node's address
+// lookupNodeAddress queries the scheduler for a node's address.
 func (s *Service) lookupNodeAddress(ctx context.Context, nodeID string) (string, error) {
 	schedProxy, ok := s.services["scheduler"]
 	if !ok {
 		return "", fmt.Errorf("scheduler service not configured")
 	}
 
-	// Call scheduler API: GET /api/v1/nodes/{nodeID}
+	// Call scheduler API: GET /api/v1/nodes/{nodeID}.
 	reqURL := fmt.Sprintf("%s/api/v1/nodes/%s", schedProxy.Target.String(), nodeID)
-	req, err := http.NewRequestWithContext(ctx, "GET", reqURL, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", reqURL, http.NoBody)
 	if err != nil {
 		return "", err
 	}
@@ -1017,7 +1034,10 @@ func (s *Service) lookupNodeAddress(ctx context.Context, nodeID string) (string,
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return "", fmt.Errorf("scheduler returned %d and failed to read body: %w", resp.StatusCode, err)
+		}
 		return "", fmt.Errorf("scheduler returned %d: %s", resp.StatusCode, string(body))
 	}
 

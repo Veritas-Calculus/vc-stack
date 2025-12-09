@@ -39,6 +39,7 @@ pre-commit run --all-files
 ## 配置的检查项
 
 ### 通用检查
+
 - ✅ 删除行尾空格
 - ✅ 确保文件以换行符结尾
 - ✅ YAML 文件语法检查
@@ -48,6 +49,7 @@ pre-commit run --all-files
 - ✅ 检查敏感信息（secrets）
 
 ### Go 相关
+
 - ✅ `go fmt` - 代码格式化
 - ✅ `go vet` - 静态分析
 - ✅ `go imports` - 导入排序
@@ -55,22 +57,27 @@ pre-commit run --all-files
 - ✅ `golangci-lint` - 综合代码检查
 
 ### Web/Frontend
+
 - ✅ Prettier - 代码格式化（TypeScript, JavaScript, JSON, CSS, Markdown）
 - ✅ ESLint - JavaScript/TypeScript 代码检查
 
 ### 配置文件
+
 - ✅ YAML 语法和格式检查
 - ✅ Dockerfile 检查（hadolint）
 
 ### 文档
+
 - ✅ Markdown 格式检查
 
 ### Shell 脚本
+
 - ✅ ShellCheck - Shell 脚本检查
 
 ## 使用方法
 
 ### 自动运行
+
 配置完成后，每次 `git commit` 时会自动运行检查：
 
 ```bash

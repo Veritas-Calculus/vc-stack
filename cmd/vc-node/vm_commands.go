@@ -22,8 +22,15 @@ func vmListCmd() *cobra.Command {
 		Use:   "list",
 		Short: "List virtual machines",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			logger, _ := zap.NewProduction()
-			defer logger.Sync()
+			logger, err := zap.NewProduction()
+			if err != nil {
+				return fmt.Errorf("init logger: %w", err)
+			}
+			defer func() {
+				if err := logger.Sync(); err != nil {
+					fmt.Fprintf(os.Stderr, "failed to sync logger: %v\n", err)
+				}
+			}()
 
 			store, err := compute.NewQEMUConfigStore(configDir, logger)
 			if err != nil {
@@ -74,8 +81,15 @@ func vmShowCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			vmID := args[0]
-			logger, _ := zap.NewProduction()
-			defer logger.Sync()
+			logger, err := zap.NewProduction()
+			if err != nil {
+				return fmt.Errorf("init logger: %w", err)
+			}
+			defer func() {
+				if err := logger.Sync(); err != nil {
+					fmt.Fprintf(os.Stderr, "failed to sync logger: %v\n", err)
+				}
+			}()
 
 			store, err := compute.NewQEMUConfigStore(configDir, logger)
 			if err != nil {
@@ -154,8 +168,15 @@ func vmStopCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			vmID := args[0]
-			logger, _ := zap.NewProduction()
-			defer logger.Sync()
+			logger, err := zap.NewProduction()
+			if err != nil {
+				return fmt.Errorf("init logger: %w", err)
+			}
+			defer func() {
+				if err := logger.Sync(); err != nil {
+					fmt.Fprintf(os.Stderr, "failed to sync logger: %v\n", err)
+				}
+			}()
 
 			managerConfig := compute.QEMUManagerConfig{
 				ConfigDir: configDir,
@@ -189,13 +210,22 @@ func vmDeleteCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			vmID := args[0]
-			logger, _ := zap.NewProduction()
-			defer logger.Sync()
+			logger, err := zap.NewProduction()
+			if err != nil {
+				return fmt.Errorf("init logger: %w", err)
+			}
+			defer func() {
+				if err := logger.Sync(); err != nil {
+					fmt.Fprintf(os.Stderr, "failed to sync logger: %v\n", err)
+				}
+			}()
 
 			if !force {
 				fmt.Printf("Are you sure you want to delete VM %s? (yes/no): ", vmID)
 				var response string
-				fmt.Scanln(&response)
+				if _, err := fmt.Scanln(&response); err != nil {
+					return fmt.Errorf("read response: %w", err)
+				}
 				if response != "yes" {
 					fmt.Println("Cancelled")
 					return nil
@@ -232,8 +262,15 @@ func vmConsoleCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			vmID := args[0]
-			logger, _ := zap.NewProduction()
-			defer logger.Sync()
+			logger, err := zap.NewProduction()
+			if err != nil {
+				return fmt.Errorf("init logger: %w", err)
+			}
+			defer func() {
+				if err := logger.Sync(); err != nil {
+					fmt.Fprintf(os.Stderr, "failed to sync logger: %v\n", err)
+				}
+			}()
 
 			store, err := compute.NewQEMUConfigStore(configDir, logger)
 			if err != nil {

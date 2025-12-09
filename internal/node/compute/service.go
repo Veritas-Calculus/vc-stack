@@ -26,9 +26,9 @@ type Service struct {
 	db     *gorm.DB
 	logger *zap.Logger
 	config Config
-	// pendingNetworks stores requested networks for instances during launch
+	// pendingNetworks stores requested networks for instances during launch.
 	pendingNetworks map[uint][]NetworkRequest
-	// rbdManager manages Ceph RBD operations
+	// rbdManager manages Ceph RBD operations.
 	rbdManager *RBDManager
 }
 
@@ -61,16 +61,16 @@ type FirecrackerConfig struct {
 	NetNamespace string // network namespace for microVMs
 }
 
-// OrchestratorConfig contains scheduler endpoint and behavior
+// OrchestratorConfig contains scheduler endpoint and behavior.
 type OrchestratorConfig struct {
 	SchedulerURL string // e.g., http://localhost:8092
 	// Optional: direct vc-lite URL if no scheduler is used (e.g., http://node1:8091)
 	LiteURL string
 }
 
-// ImagesConfig controls how image data is stored by default (filesystem or rbd)
+// ImagesConfig controls how image data is stored by default (filesystem or rbd).
 type ImagesConfig struct {
-	// DefaultBackend: "filesystem" (default) or "rbd"
+	//DefaultBackend: "filesystem" (default) or "rbd".
 	DefaultBackend string
 	// RBDPool is the Ceph RBD pool to store images when DefaultBackend is rbd (e.g., "vcstack-images")
 	RBDPool string
@@ -82,33 +82,33 @@ type ImagesConfig struct {
 	Keyring string
 }
 
-// VolumesConfig controls how volumes are provisioned (currently only RBD)
+// VolumesConfig controls how volumes are provisioned (currently only RBD).
 type VolumesConfig struct {
 	// DefaultBackend: "rbd" (default)
 	DefaultBackend string
 	// RBDPool for volumes (e.g., "vcstack-volumes")
 	RBDPool string
-	// RBDClient for volumes operations
+	// RBDClient for volumes operations.
 	RBDClient string
-	// CephConf optional explicit conf path
+	// CephConf optional explicit conf path.
 	CephConf string
-	// Keyring optional explicit keyring path
+	// Keyring optional explicit keyring path.
 	Keyring string
 }
 
-// BackupsConfig controls where backups (snapshots export) live
+// BackupsConfig controls where backups (snapshots export) live.
 type BackupsConfig struct {
 	// RBDPool for backups (e.g., "vcstack-backups")
 	RBDPool string
-	// RBDClient for backups operations
+	// RBDClient for backups operations.
 	RBDClient string
-	// CephConf optional explicit conf path
+	// CephConf optional explicit conf path.
 	CephConf string
-	// Keyring optional explicit keyring path
+	// Keyring optional explicit keyring path.
 	Keyring string
 }
 
-// Hypervisor represents a physical compute node or host
+// Hypervisor represents a physical compute node or host.
 type Hypervisor struct {
 	ID          uint      `gorm:"primaryKey" json:"id"`
 	Name        string    `gorm:"uniqueIndex;not null" json:"name"`
@@ -198,7 +198,7 @@ type Volume struct {
 	Status    string `gorm:"not null;default:'available'" json:"status"`
 	UserID    uint   `json:"user_id"`
 	ProjectID uint   `json:"project_id"`
-	// RBD location
+	// RBD location.
 	RBDPool   string    `json:"rbd_pool"`
 	RBDImage  string    `json:"rbd_image"`
 	CreatedAt time.Time `json:"created_at"`
@@ -220,11 +220,11 @@ type Snapshot struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// VolumeAttachment represents an attachment of a volume to an instance
+// VolumeAttachment represents an attachment of a volume to an instance.
 type VolumeAttachment struct {
 	ID       uint `gorm:"primaryKey" json:"id"`
 	VolumeID uint `gorm:"not null;index" json:"volume_id"`
-	// Either InstanceID (classic) or FirecrackerInstanceID (microVM) will be set
+	// Either InstanceID (classic) or FirecrackerInstanceID (microVM) will be set.
 	InstanceID            *uint     `gorm:"index" json:"instance_id,omitempty"`
 	FirecrackerInstanceID *uint     `gorm:"index" json:"firecracker_instance_id,omitempty"`
 	Device                string    `json:"device"`
@@ -254,7 +254,7 @@ type FirecrackerInstance struct {
 	DiskGB   int    `gorm:"not null;default:10" json:"disk_gb"` // root disk size
 	ImageID  uint   `gorm:"not null" json:"image_id"`
 	Image    Image  `gorm:"foreignKey:ImageID" json:"image"`
-	// Storage backend: either RBD or filesystem
+	// Storage backend: either RBD or filesystem.
 	RootFSPath    string     `json:"rootfs_path"`          // filesystem path (legacy/fallback)
 	RBDPool       string     `json:"rbd_pool"`             // Ceph RBD pool for root disk
 	RBDImage      string     `json:"rbd_image"`            // Ceph RBD image name
@@ -342,7 +342,7 @@ func NewService(config Config) (*Service, error) {
 		pendingNetworks: make(map[uint][]NetworkRequest),
 	}
 
-	// Initialize RBD manager for Ceph operations
+	// Initialize RBD manager for Ceph operations.
 	service.rbdManager = NewRBDManager(
 		config.Logger,
 		config.Images,
@@ -357,11 +357,11 @@ func NewService(config Config) (*Service, error) {
 		}
 	}
 
-	// Start deletion queue processor in background
+	// Start deletion queue processor in background.
 	go service.processDeletionQueue()
 
 	// Backfill any existing FirecrackerInstance root disks into volumes table (non-blocking)
-	// Skip if database is not available
+	// Skip if database is not available.
 	if service.db != nil {
 		go func() {
 			defer func() {
@@ -380,7 +380,7 @@ func NewService(config Config) (*Service, error) {
 				}
 				var v Volume
 				if err := service.db.Where("rbd_pool = ? AND rbd_image = ?", strings.TrimSpace(inst.RBDPool), strings.TrimSpace(inst.RBDImage)).First(&v).Error; err == nil {
-					// Update status/metadata
+					// Update status/metadata.
 					v.Status = "in-use"
 					if inst.DiskGB > 0 {
 						v.SizeGB = inst.DiskGB
@@ -393,7 +393,7 @@ func NewService(config Config) (*Service, error) {
 					}
 					_ = service.db.Save(&v).Error
 				} else {
-					// choose a sensible default if instance.DiskGB is zero
+					// choose a sensible default if instance.DiskGB is zero.
 					size := inst.DiskGB
 					if size <= 0 {
 						size = 10
@@ -419,7 +419,7 @@ func NewService(config Config) (*Service, error) {
 // migrate runs database migrations.
 func (s *Service) migrate() error {
 	// Precondition for GORM's AutoMigrate: if it attempts to DROP CONSTRAINT "uni_flavors_name",
-	// make sure such a constraint exists so the DROP succeeds. We either rename an existing
+	// make sure such a constraint exists so the DROP succeeds. We either rename an existing.
 	// unique constraint on (name) to that name, or create a temporary one if none exists.
 	_ = s.db.Exec(`DO $$
 	BEGIN
@@ -434,7 +434,7 @@ func (s *Service) migrate() error {
 		END IF;
 	END$$;`).Error
 
-	// Backfill for legacy images table: ensure a non-null UUID column exists BEFORE AutoMigrate tries to add NOT NULL
+	// Backfill for legacy images table: ensure a non-null UUID column exists BEFORE AutoMigrate tries to add NOT NULL.
 	// Older schemas created images without a uuid column; adding NOT NULL directly fails when rows exist.
 	_ = s.db.Exec(`DO $$
 BEGIN
@@ -471,7 +471,7 @@ BEGIN
 	END IF;
 END$$;`).Error
 
-	// Use AutoMigrate for models to add new columns/tables safely
+	// Use AutoMigrate for models to add new columns/tables safely.
 	if err := s.db.AutoMigrate(&Flavor{}, &Instance{}, &SSHKey{}, &Image{}, &Volume{}, &Snapshot{}, &AuditEvent{}, &DeletionTask{}, &FirecrackerInstance{}, &VolumeAttachment{}); err != nil {
 		return err
 	}
@@ -534,7 +534,7 @@ END$$;`).Error
 			END IF;
 		END IF;
 	END$$;`).Error
-	// Backward-compat: if older schema used column name v_cpus, rename to vcpus
+	// Backward-compat: if older schema used column name v_cpus, rename to vcpus.
 	// Ignore errors if the legacy column doesn't exist.
 	var cnt int64
 	if err := s.db.Raw(`SELECT COUNT(*) FROM information_schema.columns WHERE table_name = 'flavors' AND column_name = 'v_cpus'`).Scan(&cnt).Error; err == nil && cnt > 0 {
@@ -548,7 +548,7 @@ END$$;`).Error
 }
 
 // rbdArgs builds the rbd arguments with per-category credentials and conf.
-// category: "images" | "volumes" | "backups"
+// category: "images" | "volumes" | "backups".
 func (s *Service) rbdArgs(category string, args ...string) []string {
 	var prefix []string
 	var id, conf, keyring string
@@ -572,7 +572,7 @@ func (s *Service) rbdArgs(category string, args ...string) []string {
 	return append(prefix, args...)
 }
 
-// AuditEvent records key operations for auditing
+// AuditEvent records key operations for auditing.
 type AuditEvent struct {
 	ID         uint      `gorm:"primaryKey" json:"id"`
 	Resource   string    `json:"resource"` // image, volume, snapshot
@@ -585,7 +585,7 @@ type AuditEvent struct {
 	CreatedAt  time.Time `json:"created_at"`
 }
 
-// audit writes an audit event (best-effort)
+// audit writes an audit event (best-effort).
 func (s *Service) audit(resource string, resourceID uint, action, status, message string, userID, projectID uint) {
 	_ = s.db.Create(&AuditEvent{
 		Resource: resource, ResourceID: resourceID, Action: action, Status: status, Message: message,
@@ -595,19 +595,19 @@ func (s *Service) audit(resource string, resourceID uint, action, status, messag
 
 // CreateInstance creates a new virtual machine instance.
 func (s *Service) CreateInstance(ctx context.Context, req *CreateInstanceRequest, userID, projectID uint) (*Instance, error) {
-	// Validate flavor exists
+	// Validate flavor exists.
 	var flavor Flavor
 	if err := s.db.First(&flavor, req.FlavorID).Error; err != nil {
 		return nil, fmt.Errorf("flavor not found: %w", err)
 	}
 
-	// Validate image exists
+	// Validate image exists.
 	var image Image
 	if err := s.db.First(&image, req.ImageID).Error; err != nil {
 		return nil, fmt.Errorf("image not found: %w", err)
 	}
 
-	// Determine requested root disk size: at least flavor.Disk and image.MinDisk
+	// Determine requested root disk size: at least flavor.Disk and image.MinDisk.
 	diskGB := flavor.Disk
 	if image.MinDisk > diskGB {
 		diskGB = image.MinDisk
@@ -626,10 +626,10 @@ func (s *Service) CreateInstance(ctx context.Context, req *CreateInstanceRequest
 		}
 	}
 
-	// Create instance record
+	// Create instance record.
 	instance := &Instance{
 		Name: req.Name,
-		// UUID: let the database default (uuid_generate_v4()) assign this
+		// UUID: let the database default (uuid_generate_v4()) assign this.
 		VMID:       sanitizeNameForLite(req.Name),
 		RootDiskGB: diskGB,
 		FlavorID:   req.FlavorID,
@@ -651,10 +651,10 @@ func (s *Service) CreateInstance(ctx context.Context, req *CreateInstanceRequest
 	}
 
 	// Launch the instance asynchronously (orchestrate to vc-lite if configured)
-	// IMPORTANT: do not use the request-scoped context here, it will be canceled after response returns
+	// IMPORTANT: do not use the request-scoped context here, it will be canceled after response returns.
 	go s.launchInstance(context.Background(), instance)
 
-	// Load relationships
+	// Load relationships.
 	if err := s.db.Preload("Flavor").Preload("Image").First(instance, instance.ID).Error; err != nil {
 		return nil, fmt.Errorf("failed to load instance: %w", err)
 	}
@@ -669,7 +669,7 @@ func (s *Service) CreateInstance(ctx context.Context, req *CreateInstanceRequest
 
 // launchInstance handles the actual instance launch process.
 func (s *Service) launchInstance(ctx context.Context, instance *Instance) {
-	// Update status to spawning
+	// Update status to spawning.
 	s.updateInstanceStatus(instance.ID, "spawning", "")
 
 	s.logger.Info("launch instance started",
@@ -677,12 +677,12 @@ func (s *Service) launchInstance(ctx context.Context, instance *Instance) {
 		zap.String("scheduler_url", s.config.Orchestrator.SchedulerURL),
 		zap.String("lite_url", s.config.Orchestrator.LiteURL))
 
-	// Try to orchestrate via scheduler + vc-lite, with proper fallback to direct LiteURL
+	// Try to orchestrate via scheduler + vc-lite, with proper fallback to direct LiteURL.
 	usedLite := false
 	var createErr error
 	var createdVMID string
 	var usedLiteAddr string
-	// Always reload fresh instance with relations
+	// Always reload fresh instance with relations.
 	var inst Instance
 	if err := s.db.Preload("Flavor").Preload("Image").First(&inst, instance.ID).Error; err != nil {
 		s.logger.Error("failed to load instance for launch", zap.Error(err))
@@ -691,7 +691,7 @@ func (s *Service) launchInstance(ctx context.Context, instance *Instance) {
 		var triedScheduler bool
 		if s.config.Orchestrator.SchedulerURL != "" {
 			triedScheduler = true
-			// Log the fully-resolved scheduler dispatch URL for diagnostics
+			// Log the fully-resolved scheduler dispatch URL for diagnostics.
 			s.logger.Info("attempting scheduler dispatch", zap.String("url", s.schedulerAPI("/dispatch/vms")), zap.String("vm_id", inst.VMID))
 			if vmid, addr, err := s.dispatchViaScheduler(ctx, &inst); err == nil {
 				createdVMID = vmid
@@ -705,7 +705,7 @@ func (s *Service) launchInstance(ctx context.Context, instance *Instance) {
 			s.logger.Info("scheduler URL not configured; skipping scheduler dispatch")
 		}
 
-		// Fallback: if not launched yet, try direct LiteURL when configured
+		// Fallback: if not launched yet, try direct LiteURL when configured.
 		if createdVMID == "" && strings.TrimSpace(s.config.Orchestrator.LiteURL) != "" {
 			lite := strings.TrimSpace(s.config.Orchestrator.LiteURL)
 			s.logger.Info("attempting direct lite create", zap.String("lite_url", lite), zap.String("vm_id", inst.VMID))
@@ -714,7 +714,7 @@ func (s *Service) launchInstance(ctx context.Context, instance *Instance) {
 				usedLiteAddr = lite
 				s.logger.Info("direct lite create succeeded", zap.String("vm_id", vmid))
 			} else {
-				// keep last error
+				// keep last error.
 				createErr = err
 				s.logger.Warn("vc-lite create via direct LiteURL failed", zap.String("lite_url", lite), zap.Error(err))
 			}
@@ -722,7 +722,7 @@ func (s *Service) launchInstance(ctx context.Context, instance *Instance) {
 			s.logger.Warn("no VM created: scheduler dispatch failed/skipped and no LiteURL configured")
 		}
 
-		// If scheduler configured but we couldn't schedule a host earlier (HostID empty), record that fact
+		// If scheduler configured but we couldn't schedule a host earlier (HostID empty), record that fact.
 		if !usedLite && s.config.Orchestrator.SchedulerURL != "" && !triedScheduler && strings.TrimSpace(inst.HostID) == "" {
 			s.logger.Warn("scheduler set but instance has no assigned host; skipping scheduler path and relying on LiteURL (if any)")
 		}
@@ -730,7 +730,7 @@ func (s *Service) launchInstance(ctx context.Context, instance *Instance) {
 
 	s.logger.Info("before confirm", zap.String("created_vm_id", createdVMID), zap.String("used_lite_addr", usedLiteAddr), zap.Bool("used_lite", usedLite))
 
-	// If we have a VMID, confirm it exists on vc-lite before marking active
+	// If we have a VMID, confirm it exists on vc-lite before marking active.
 	if createdVMID != "" && usedLiteAddr != "" {
 		s.logger.Info("confirming VM on lite", zap.String("vm_id", createdVMID), zap.String("addr", usedLiteAddr))
 		if s.confirmLiteVM(ctx, usedLiteAddr, createdVMID) {
@@ -745,7 +745,7 @@ func (s *Service) launchInstance(ctx context.Context, instance *Instance) {
 		s.logger.Warn("skipping VM confirmation: no vm_id or lite address", zap.String("vm_id", createdVMID), zap.String("addr", usedLiteAddr))
 	}
 
-	// Finalize status
+	// Finalize status.
 	time.Sleep(2 * time.Second)
 	now := time.Now()
 	// Record the latest host id (may have been assigned during launch)
@@ -762,7 +762,7 @@ func (s *Service) launchInstance(ctx context.Context, instance *Instance) {
 		zap.Any("create_error", createErr))
 
 	if usedLite {
-		// SUCCESS: VM was created and confirmed on vc-lite
+		// SUCCESS: VM was created and confirmed on vc-lite.
 		s.db.Model(&Instance{}).Where("id = ?", instance.ID).Updates(map[string]interface{}{
 			"status":      "active",
 			"power_state": "running",
@@ -771,7 +771,7 @@ func (s *Service) launchInstance(ctx context.Context, instance *Instance) {
 		})
 		s.logger.Info("Instance launched on vc-lite node", zap.String("host_id", host), zap.String("uuid", instance.UUID))
 	} else {
-		// FAILURE: VM was not created or not confirmed
+		// FAILURE: VM was not created or not confirmed.
 		s.db.Model(&Instance{}).Where("id = ?", instance.ID).Updates(map[string]interface{}{
 			"status":      "error",
 			"power_state": "shutdown",
@@ -785,11 +785,13 @@ func (s *Service) launchInstance(ctx context.Context, instance *Instance) {
 	}
 }
 
-// dispatchViaScheduler asks scheduler to choose a node and forward the create; returns vmID and the node address if known
+// dispatchViaScheduler asks scheduler to choose a node and forward the create; returns vmID and the node address if known.
+//
+//nolint:gocyclo,gocritic // Complex scheduler dispatch logic with multiple paths
 func (s *Service) dispatchViaScheduler(ctx context.Context, inst *Instance) (string, string, error) {
 	if _, hasDeadline := ctx.Deadline(); !hasDeadline {
 		var cancel context.CancelFunc
-		// Increase timeout to 120 seconds to accommodate large ISO images
+		// Increase timeout to 120 seconds to accommodate large ISO images.
 		// RBD export-import can take 60-90 seconds for multi-GB ISOs (e.g., Ubuntu Desktop 22.04)
 		ctx, cancel = context.WithTimeout(ctx, 120*time.Second)
 		defer cancel()
@@ -806,25 +808,26 @@ func (s *Service) dispatchViaScheduler(ctx context.Context, inst *Instance) (str
 		diskGB = inst.RootDiskGB
 	}
 	payload := map[string]any{"name": inst.VMID, "vcpus": fl.VCPUs, "memory_mb": fl.RAM, "disk_gb": diskGB}
-	if strings.TrimSpace(img.RBDPool) != "" && strings.TrimSpace(img.RBDImage) != "" {
+	switch {
+	case strings.TrimSpace(img.RBDPool) != "" && strings.TrimSpace(img.RBDImage) != "":
 		val := img.RBDPool + "/" + img.RBDImage
 		if strings.TrimSpace(img.RBDSnap) != "" {
 			val = val + "@" + img.RBDSnap
 		}
 		payload["root_rbd_image"] = val
-	} else if strings.TrimSpace(img.FilePath) != "" {
+	case strings.TrimSpace(img.FilePath) != "":
 		payload["image"] = img.FilePath
-	} else if root != "" {
+	case root != "":
 		payload["root_rbd_image"] = root
-	} else {
+	default:
 		return "", "", fmt.Errorf("image has no storage location and no default root RBD configured")
 	}
-	// Best-effort SSH key
+	// Best-effort SSH key.
 	var key SSHKey
 	if err := s.db.Where("user_id = ? AND project_id = ?", inst.UserID, inst.ProjectID).Order("id DESC").First(&key).Error; err == nil && strings.TrimSpace(key.PublicKey) != "" {
 		payload["ssh_authorized_key"] = key.PublicKey
 	}
-	// Pending networks -> create port and pass MAC + PortID
+	// Pending networks -> create port and pass MAC + PortID.
 	if nets, ok := s.pendingNetworks[inst.ID]; ok && len(nets) > 0 {
 		netReq := nets[0]
 		if mac, portID, err := s.createPortForInstance(ctx, netReq, inst); err == nil && mac != "" {
@@ -833,7 +836,7 @@ func (s *Service) dispatchViaScheduler(ctx context.Context, inst *Instance) (str
 				nicInfo["port_id"] = portID
 			}
 			payload["nics"] = []map[string]string{nicInfo}
-			// Pass network_id to vc-lite for OVN network selection
+			// Pass network_id to vc-lite for OVN network selection.
 			if netReq.UUID != "" {
 				payload["network_id"] = netReq.UUID
 			}
@@ -842,11 +845,14 @@ func (s *Service) dispatchViaScheduler(ctx context.Context, inst *Instance) (str
 		}
 		delete(s.pendingNetworks, inst.ID)
 	}
-	b, _ := json.Marshal(payload)
+	b, err := json.Marshal(payload)
+	if err != nil {
+		return "", "", fmt.Errorf("marshal payload: %w", err)
+	}
 	url := s.schedulerAPI("/dispatch/vms")
 	req, _ := http.NewRequestWithContext(ctx, "POST", url, bytes.NewReader(b))
 	req.Header.Set("Content-Type", "application/json")
-	// Increase HTTP client timeout to 125 seconds to match context timeout
+	// Increase HTTP client timeout to 125 seconds to match context timeout.
 	// This allows for slower RBD operations during VM creation (e.g., large ISO export-import)
 	client := &http.Client{Timeout: 125 * time.Second}
 	s.logger.Info("scheduler dispatch request", zap.String("method", req.Method), zap.String("url", url))
@@ -892,7 +898,7 @@ func (s *Service) dispatchViaScheduler(ctx context.Context, inst *Instance) (str
 		}
 		return "", "", fmt.Errorf("scheduler dispatch returned no vm id")
 	}
-	// Lookup chosen node address for follow-up confirm
+	// Lookup chosen node address for follow-up confirm.
 	addr := ""
 	if strings.TrimSpace(out.Node) != "" {
 		if a, err := s.lookupNodeAddress(ctx, out.Node); err == nil {
@@ -908,15 +914,19 @@ func (s *Service) normalizeLiteAddr(addr string) string {
 	if a == "" {
 		return strings.TrimSpace(s.config.Orchestrator.LiteURL)
 	}
-	// Ensure scheme
+	// Ensure scheme.
 	parsed, err := neturl.Parse(a)
 	if err != nil || parsed.Scheme == "" {
 		a = "http://" + a
-		parsed, _ = neturl.Parse(a)
+		parsed, err = neturl.Parse(a)
+		if err != nil {
+			s.logger.Error("failed to parse lite address", zap.String("addr", a), zap.Error(err))
+			return a
+		}
 	}
 	host := parsed.Hostname()
 	if host == "127.0.0.1" || strings.EqualFold(host, "localhost") {
-		// Prefer configured global LiteURL when available
+		// Prefer configured global LiteURL when available.
 		lite := strings.TrimSpace(s.config.Orchestrator.LiteURL)
 		if lite != "" {
 			s.logger.Warn("scheduler returned loopback lite address; overriding with configured LiteURL", zap.String("addr", addr), zap.String("lite_url", lite))
@@ -927,12 +937,12 @@ func (s *Service) normalizeLiteAddr(addr string) string {
 }
 
 // schedulerAPI builds a full scheduler URL for the given endpoint, handling bases like:
-//   - http://host:8092                => http://host:8092/api/v1{endpoint}
-//   - http://gateway                  => http://gateway/api/v1{endpoint}
-//   - http://gateway/api              => http://gateway/api/v1{endpoint}
-//   - http://gateway/api/             => http://gateway/api/v1{endpoint}
-//   - http://gateway/api/v1           => http://gateway/api/v1{endpoint}
-//   - http://gateway/api/v1/          => http://gateway/api/v1{endpoint}
+// - http://host:8092                => http://host:8092/api/v1{endpoint}.
+// - http://gateway                  => http://gateway/api/v1{endpoint}.
+// - http://gateway/api              => http://gateway/api/v1{endpoint}.
+// - http://gateway/api/             => http://gateway/api/v1{endpoint}.
+// - http://gateway/api/v1           => http://gateway/api/v1{endpoint}.
+// - http://gateway/api/v1/          => http://gateway/api/v1{endpoint}.
 func (s *Service) schedulerAPI(endpoint string) string {
 	base := strings.TrimRight(s.config.Orchestrator.SchedulerURL, "/")
 	if base == "" {
@@ -942,10 +952,10 @@ func (s *Service) schedulerAPI(endpoint string) string {
 	if !strings.HasPrefix(ep, "/") {
 		ep = "/" + ep
 	}
-	// Try to parse and manipulate path safely
+	// Try to parse and manipulate path safely.
 	u, err := neturl.Parse(base)
 	if err != nil {
-		// Fallback to simple join
+		// Fallback to simple join.
 		if strings.HasSuffix(base, "/api/v1") {
 			return base + ep
 		}
@@ -963,7 +973,7 @@ func (s *Service) schedulerAPI(endpoint string) string {
 	case p == "" || p == "/":
 		u.Path = "/api/v1" + ep
 	default:
-		// If base already contains some subpath, append /api/v1
+		// If base already contains some subpath, append /api/v1.
 		u.Path = p + "/api/v1" + ep
 	}
 	return u.String()
@@ -983,9 +993,9 @@ func (s *Service) updateInstanceStatus(instanceID uint, status, powerState strin
 // generateUUID generates a UUID for instances.
 //
 
-// scheduleNode asks the scheduler to pick a node for this instance
+// scheduleNode asks the scheduler to pick a node for this instance.
 func (s *Service) scheduleNode(ctx context.Context, fl Flavor, requestedDiskGB int) (string, error) {
-	// Ensure we have a bounded timeout and not tied to request cancelation
+	// Ensure we have a bounded timeout and not tied to request cancelation.
 	if _, hasDeadline := ctx.Deadline(); !hasDeadline {
 		var cancel context.CancelFunc
 		ctx, cancel = context.WithTimeout(ctx, 5*time.Second)
@@ -1023,7 +1033,7 @@ func (s *Service) scheduleNode(ctx context.Context, fl Flavor, requestedDiskGB i
 	return out.Node, nil
 }
 
-// lookupNodeAddress queries scheduler for node list and returns the chosen node address
+// lookupNodeAddress queries scheduler for node list and returns the chosen node address.
 func (s *Service) lookupNodeAddress(ctx context.Context, nodeID string) (string, error) {
 	if _, hasDeadline := ctx.Deadline(); !hasDeadline {
 		var cancel context.CancelFunc
@@ -1031,7 +1041,7 @@ func (s *Service) lookupNodeAddress(ctx context.Context, nodeID string) (string,
 		defer cancel()
 	}
 	url := s.schedulerAPI("/nodes")
-	req, _ := http.NewRequestWithContext(ctx, "GET", url, nil)
+	req, _ := http.NewRequestWithContext(ctx, "GET", url, http.NoBody)
 	client := &http.Client{Timeout: 6 * time.Second}
 	s.logger.Info("scheduler nodes request", zap.String("url", url))
 	resp, err := client.Do(req)
@@ -1057,14 +1067,14 @@ func (s *Service) lookupNodeAddress(ctx context.Context, nodeID string) (string,
 	return "", fmt.Errorf("node %s not found", nodeID)
 }
 
-// callLiteCreate posts a VM creation to vc-lite
+// callLiteCreate posts a VM creation to vc-lite.
 func (s *Service) callLiteCreate(ctx context.Context, liteAddr string, inst *Instance, fl Flavor, img Image) (string, error) {
 	if _, hasDeadline := ctx.Deadline(); !hasDeadline {
 		var cancel context.CancelFunc
 		ctx, cancel = context.WithTimeout(ctx, 10*time.Second)
 		defer cancel()
 	}
-	// need disk image reference; prefer env RootRBD if provided
+	// need disk image reference; prefer env RootRBD if provided.
 	root := os.Getenv("VC_COMPUTE_DEFAULT_ROOT_RBD")
 	// Determine disk size to request (respect overrides and image min)
 	diskGB := fl.Disk
@@ -1074,7 +1084,7 @@ func (s *Service) callLiteCreate(ctx context.Context, liteAddr string, inst *Ins
 	if inst.RootDiskGB > 0 && inst.RootDiskGB > diskGB {
 		diskGB = inst.RootDiskGB
 	}
-	// Use the sanitized VMID everywhere to match vc-lite/libvirt domain naming
+	// Use the sanitized VMID everywhere to match vc-lite/libvirt domain naming.
 	payload := map[string]any{
 		"name":      inst.VMID,
 		"vcpus":     fl.VCPUs,
@@ -1083,29 +1093,30 @@ func (s *Service) callLiteCreate(ctx context.Context, liteAddr string, inst *Ins
 	}
 	// Image source selection priority:
 	// 1) If image refers to RBD, use that (pool/image[@snap])
-	// 2) Else if FilePath present, use qcow2 file path
+	// 2) Else if FilePath present, use qcow2 file path.
 	// 3) Else, fallback to VC_COMPUTE_DEFAULT_ROOT_RBD (if set)
-	// 4) Else error out
-	if strings.TrimSpace(img.RBDPool) != "" && strings.TrimSpace(img.RBDImage) != "" {
+	// 4) Else error out.
+	switch {
+	case strings.TrimSpace(img.RBDPool) != "" && strings.TrimSpace(img.RBDImage) != "":
 		val := img.RBDPool + "/" + img.RBDImage
 		if strings.TrimSpace(img.RBDSnap) != "" {
 			val = val + "@" + img.RBDSnap
 		}
 		payload["root_rbd_image"] = val
-	} else if strings.TrimSpace(img.FilePath) != "" {
+	case strings.TrimSpace(img.FilePath) != "":
 		payload["image"] = img.FilePath
-	} else if root != "" {
+	case root != "":
 		payload["root_rbd_image"] = root
-	} else {
+	default:
 		return "", fmt.Errorf("image has no storage location (RBD or file_path) and no default root RBD configured")
 	}
-	// If instance has an associated SSH key in metadata (future), include it here
+	// If instance has an associated SSH key in metadata (future), include it here.
 	// For now, look up a recent SSH key for the user+project and include first (best-effort)
 	var key SSHKey
 	if err := s.db.Where("user_id = ? AND project_id = ?", inst.UserID, inst.ProjectID).Order("id DESC").First(&key).Error; err == nil && strings.TrimSpace(key.PublicKey) != "" {
 		payload["ssh_authorized_key"] = key.PublicKey
 	}
-	// Network attachment: if a network is requested, create a port and pass NIC MAC + PortID to lite
+	// Network attachment: if a network is requested, create a port and pass NIC MAC + PortID to lite.
 	if nets, ok := s.pendingNetworks[inst.ID]; ok && len(nets) > 0 {
 		netReq := nets[0]
 		if mac, portID, err := s.createPortForInstance(ctx, netReq, inst); err == nil && mac != "" {
@@ -1114,7 +1125,7 @@ func (s *Service) callLiteCreate(ctx context.Context, liteAddr string, inst *Ins
 				nicInfo["port_id"] = portID
 			}
 			payload["nics"] = []map[string]string{nicInfo}
-			// Pass network_id to vc-lite for OVN network selection
+			// Pass network_id to vc-lite for OVN network selection.
 			if netReq.UUID != "" {
 				payload["network_id"] = netReq.UUID
 			}
@@ -1134,14 +1145,14 @@ func (s *Service) callLiteCreate(ctx context.Context, liteAddr string, inst *Ins
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusAccepted && resp.StatusCode != http.StatusOK {
-		// Try read small body for diagnostics
+		// Try read small body for diagnostics.
 		var buf bytes.Buffer
 		if _, err := io.CopyN(&buf, resp.Body, 1024); err != nil && err != io.EOF {
 			s.logger.Debug("ignored error while reading lite create response body", zap.Error(err))
 		}
 		return "", fmt.Errorf("lite create failed: %s body=%s", resp.Status, buf.String())
 	}
-	// Validate response JSON contains a vm with an id
+	// Validate response JSON contains a vm with an id.
 	var out struct {
 		VM struct {
 			ID string `json:"id"`
@@ -1160,16 +1171,16 @@ func (s *Service) callLiteCreate(ctx context.Context, liteAddr string, inst *Ins
 	return out.VM.ID, nil
 }
 
-// confirmLiteVM polls vc-lite briefly to ensure VM is visible before marking success
+// confirmLiteVM polls vc-lite briefly to ensure VM is visible before marking success.
 func (s *Service) confirmLiteVM(parent context.Context, liteAddr, vmID string) bool {
-	// 3 tries, 1s interval, 2s per-request timeout
+	// 3 tries, 1s interval, 2s per-request timeout.
 	base := strings.TrimRight(liteAddr, "/")
 	url := base + "/api/v1/vms/" + vmID
 	s.logger.Info("confirmLiteVM starting", zap.String("url", url), zap.String("vm_id", vmID), zap.Int("max_attempts", 3))
 	for i := 0; i < 3; i++ {
-		// per-try timeout
+		// per-try timeout.
 		ctx, cancel := context.WithTimeout(parent, 2*time.Second)
-		req, _ := http.NewRequestWithContext(ctx, "GET", url, nil)
+		req, _ := http.NewRequestWithContext(ctx, "GET", url, http.NoBody)
 		s.logger.Info("confirmLiteVM attempt", zap.Int("attempt", i+1), zap.String("url", url))
 		resp, err := http.DefaultClient.Do(req)
 		cancel()
@@ -1192,14 +1203,14 @@ func (s *Service) confirmLiteVM(parent context.Context, liteAddr, vmID string) b
 	return false
 }
 
-// createPortForInstance talks to network service (if configured) to create a port and returns its MAC
-func (s *Service) createPortForInstance(ctx context.Context, netReq NetworkRequest, inst *Instance) (mac string, portID string, err error) {
+// createPortForInstance talks to network service (if configured) to create a port and returns its MAC.
+func (s *Service) createPortForInstance(ctx context.Context, netReq NetworkRequest, inst *Instance) (mac, portID string, err error) {
 	base := os.Getenv("VC_NETWORK_URL")
 	if strings.TrimSpace(base) == "" {
 		return "", "", fmt.Errorf("network service URL not configured")
 	}
 
-	// Query network details to get subnet_id
+	// Query network details to get subnet_id.
 	subnetID := ""
 	networkURL := strings.TrimRight(base, "/") + "/api/v1/networks/" + netReq.UUID
 	netResp, err := http.Get(networkURL)
@@ -1265,10 +1276,10 @@ func (s *Service) createPortForInstance(ctx context.Context, netReq NetworkReque
 	return out.Port.MAC, out.Port.ID, nil
 }
 
-// requestLiteConsole calls vc-lite to create a console ticket and returns the ws path
+// requestLiteConsole calls vc-lite to create a console ticket and returns the ws path.
 func (s *Service) requestLiteConsole(ctx context.Context, liteAddr, vmID string) (string, error) {
 	url := strings.TrimRight(liteAddr, "/") + "/api/v1/vms/" + vmID + "/console"
-	req, _ := http.NewRequestWithContext(ctx, "POST", url, nil)
+	req, _ := http.NewRequestWithContext(ctx, "POST", url, http.NoBody)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return "", err
@@ -1290,7 +1301,7 @@ func (s *Service) requestLiteConsole(ctx context.Context, liteAddr, vmID string)
 	return out.WS, nil
 }
 
-// sanitizeNameForLite mirrors lite/libvirt driver sanitize rules to build VM ID
+// sanitizeNameForLite mirrors lite/libvirt driver sanitize rules to build VM ID.
 func sanitizeNameForLite(s string) string {
 	s = strings.TrimSpace(s)
 	if s == "" {
@@ -1319,11 +1330,11 @@ func maxInt(a, b int) int {
 	return b
 }
 
-// nodePowerOp sends a power operation to vc-lite for a VM id
+// nodePowerOp sends a power operation to vc-lite for a VM id.
 func (s *Service) nodePowerOp(ctx context.Context, liteAddr, vmID, op string) error {
 	path := "/api/v1/vms/" + vmID + "/" + op
 	url := strings.TrimRight(liteAddr, "/") + path
-	req, _ := http.NewRequestWithContext(ctx, "POST", url, nil)
+	req, _ := http.NewRequestWithContext(ctx, "POST", url, http.NoBody)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
@@ -1335,11 +1346,11 @@ func (s *Service) nodePowerOp(ctx context.Context, liteAddr, vmID, op string) er
 	return nil
 }
 
-// queryVMStatus queries the actual VM status from vc-lite node
+// queryVMStatus queries the actual VM status from vc-lite node.
 func (s *Service) queryVMStatus(ctx context.Context, liteAddr, vmID string) (power string, err error) {
 	path := "/api/v1/vms/" + vmID
 	url := strings.TrimRight(liteAddr, "/") + path
-	req, _ := http.NewRequestWithContext(ctx, "GET", url, nil)
+	req, _ := http.NewRequestWithContext(ctx, "GET", url, http.NoBody)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return "", err
@@ -1365,7 +1376,7 @@ func (s *Service) queryVMStatus(ctx context.Context, liteAddr, vmID string) (pow
 }
 
 // GetInstance retrieves an instance by ID.
-func (s *Service) GetInstance(ctx context.Context, instanceID uint, userID uint) (*Instance, error) {
+func (s *Service) GetInstance(ctx context.Context, instanceID, userID uint) (*Instance, error) {
 	var instance Instance
 	err := s.db.Preload("Flavor").Preload("Image").
 		Where("id = ? AND user_id = ? AND status <> ?", instanceID, userID, "deleted").
@@ -1389,16 +1400,16 @@ func (s *Service) ListInstances(ctx context.Context, userID uint) ([]Instance, e
 }
 
 // DeleteInstance deletes an instance.
-func (s *Service) DeleteInstance(ctx context.Context, instanceID uint, userID uint) error {
+func (s *Service) DeleteInstance(ctx context.Context, instanceID, userID uint) error {
 	var instance Instance
 	if err := s.db.Where("id = ? AND user_id = ?", instanceID, userID).First(&instance).Error; err != nil {
 		return fmt.Errorf("instance not found: %w", err)
 	}
 
-	// Update status to deleting
+	// Update status to deleting.
 	s.updateInstanceStatus(instanceID, "deleting", "")
 
-	// Resolve lite address
+	// Resolve lite address.
 	var liteAddr string
 	if s.config.Orchestrator.SchedulerURL != "" && strings.TrimSpace(instance.HostID) != "" {
 		if addr, err := s.lookupNodeAddress(ctx, instance.HostID); err == nil {
@@ -1411,7 +1422,7 @@ func (s *Service) DeleteInstance(ctx context.Context, instanceID uint, userID ui
 		liteAddr = strings.TrimSpace(s.config.Orchestrator.LiteURL)
 	}
 
-	// Create persistent deletion task
+	// Create persistent deletion task.
 	task := DeletionTask{
 		InstanceUUID: instance.UUID,
 		InstanceName: instance.Name,
@@ -1434,10 +1445,10 @@ func (s *Service) DeleteInstance(ctx context.Context, instanceID uint, userID ui
 }
 
 // cleanupInstance handles instance cleanup.
-// nodeDeleteVM sends a delete operation to vc-lite for a VM id
+// nodeDeleteVM sends a delete operation to vc-lite for a VM id.
 func (s *Service) nodeDeleteVM(ctx context.Context, liteAddr, vmID string) error {
 	url := strings.TrimRight(liteAddr, "/") + "/api/v1/vms/" + vmID
-	req, _ := http.NewRequestWithContext(ctx, "DELETE", url, nil)
+	req, _ := http.NewRequestWithContext(ctx, "DELETE", url, http.NoBody)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
@@ -1473,7 +1484,7 @@ func (s *Service) ListImages(ctx context.Context, userID uint) ([]Image, error) 
 // This method delegates to the handlers implementation.
 func (s *Service) SetupRoutes(router interface{}) {
 	if ginRouter, ok := router.(*gin.Engine); ok {
-		// Call the SetupRoutes method from handlers.go by casting to *gin.Engine
+		// Call the SetupRoutes method from handlers.go by casting to *gin.Engine.
 		s.setupHTTPRoutes(ginRouter)
 	} else {
 		s.logger.Warn("Invalid router type provided to SetupRoutes")
@@ -1483,7 +1494,7 @@ func (s *Service) SetupRoutes(router interface{}) {
 
 // processDeletionQueue continuously processes pending deletion tasks with retry support.
 func (s *Service) processDeletionQueue() {
-	// Skip if database is not available
+	// Skip if database is not available.
 	if s.db == nil {
 		s.logger.Warn("Deletion queue processor disabled (database not available)")
 		return
@@ -1495,7 +1506,7 @@ func (s *Service) processDeletionQueue() {
 	s.logger.Info("Deletion queue processor started")
 
 	for range ticker.C {
-		// Find pending or failed tasks ready for retry
+		// Find pending or failed tasks ready for retry.
 		var tasks []DeletionTask
 		err := s.db.Where("status IN (?, ?) AND retry_count < max_retries", "pending", "failed").
 			Order("created_at ASC").
@@ -1518,7 +1529,7 @@ func (s *Service) processDeletionTask(task *DeletionTask) {
 	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
 	defer cancel()
 
-	// Update status to processing
+	// Update status to processing.
 	now := time.Now()
 	updates := map[string]interface{}{
 		"status":     "processing",
@@ -1532,7 +1543,7 @@ func (s *Service) processDeletionTask(task *DeletionTask) {
 		zap.String("vmid", task.VMID),
 		zap.Int("retry", task.RetryCount))
 
-	// Step 1: Delete VM from hypervisor
+	// Step 1: Delete VM from hypervisor.
 	var deleteErr error
 	if task.LiteAddr != "" && task.VMID != "" {
 		deleteErr = s.nodeDeleteVM(ctx, task.LiteAddr, task.VMID)
@@ -1560,14 +1571,14 @@ func (s *Service) processDeletionTask(task *DeletionTask) {
 		}
 	}
 
-	// Step 3: Handle result
+	// Step 3: Handle result.
 	if deleteErr != nil {
-		// Deletion failed, increment retry count
+		// Deletion failed, increment retry count.
 		task.RetryCount++
 		task.LastError = deleteErr.Error()
 
 		if task.RetryCount >= task.MaxRetries {
-			// Max retries reached, mark as failed
+			// Max retries reached, mark as failed.
 			completedAt := time.Now()
 			s.db.Model(task).Updates(map[string]interface{}{
 				"status":       "failed",
@@ -1582,7 +1593,7 @@ func (s *Service) processDeletionTask(task *DeletionTask) {
 				zap.Int("retries", task.RetryCount),
 				zap.String("error", task.LastError))
 
-			// Update instance status to error
+			// Update instance status to error.
 			s.db.Model(&Instance{}).
 				Where("uuid = ?", task.InstanceUUID).
 				Updates(map[string]interface{}{
@@ -1590,7 +1601,7 @@ func (s *Service) processDeletionTask(task *DeletionTask) {
 					"task_state": "deletion_failed",
 				})
 		} else {
-			// Schedule for retry
+			// Schedule for retry.
 			s.db.Model(task).Updates(map[string]interface{}{
 				"status":      "failed",
 				"retry_count": task.RetryCount,
@@ -1603,7 +1614,7 @@ func (s *Service) processDeletionTask(task *DeletionTask) {
 				zap.Int("max_retries", task.MaxRetries))
 		}
 	} else {
-		// Deletion successful
+		// Deletion successful.
 		completedAt := time.Now()
 		s.db.Model(task).Updates(map[string]interface{}{
 			"status":       "completed",
@@ -1611,7 +1622,7 @@ func (s *Service) processDeletionTask(task *DeletionTask) {
 			"last_error":   "",
 		})
 
-		// Update instance status to deleted
+		// Update instance status to deleted.
 		s.db.Model(&Instance{}).
 			Where("uuid = ?", task.InstanceUUID).
 			Updates(map[string]interface{}{
@@ -1630,11 +1641,11 @@ func (s *Service) processDeletionTask(task *DeletionTask) {
 // Returns true if VM is confirmed deleted, false if it still exists.
 func (s *Service) verifyVMDeletion(ctx context.Context, liteAddr, vmID string) bool {
 	url := strings.TrimRight(liteAddr, "/") + "/api/v1/vms/" + vmID
-	req, _ := http.NewRequestWithContext(ctx, "GET", url, nil)
+	req, _ := http.NewRequestWithContext(ctx, "GET", url, http.NoBody)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		// Network error, can't verify - assume not deleted
+		// Network error, can't verify - assume not deleted.
 		s.logger.Warn("Verification failed due to network error", zap.Error(err))
 		return false
 	}
@@ -1642,7 +1653,7 @@ func (s *Service) verifyVMDeletion(ctx context.Context, liteAddr, vmID string) b
 
 	// 404 means VM doesn't exist (deleted successfully)
 	// 200 means VM still exists (not deleted)
-	// Other codes are ambiguous
+	// Other codes are ambiguous.
 	if resp.StatusCode == http.StatusNotFound {
 		return true
 	}
@@ -1663,21 +1674,14 @@ func (s *Service) GetDeletionTask(ctx context.Context, instanceUUID string) (*De
 	return &task, nil
 }
 
-// cleanupInstance is deprecated but kept for backward compatibility.
-// New code should use the deletion queue system instead.
-//
-//nolint:unused
-func (s *Service) cleanupInstance(ctx context.Context, instance *Instance) {
-	s.logger.Warn("cleanupInstance called - this is deprecated, use deletion queue instead",
-		zap.String("instance_uuid", instance.UUID))
-}
+// cleanupInstance - removed as unused deprecated function.
 
-// Firecracker microVM management functions
+// Firecracker microVM management functions.
 
 // provisionFirecrackerRootDisk creates an RBD volume for Firecracker root disk from an image.
 // Returns the RBD pool and image name, or an error.
-func (s *Service) provisionFirecrackerRootDisk(ctx context.Context, instance *FirecrackerInstance, image *Image) (string, string, error) {
-	// Verify image uses RBD backend
+func (s *Service) provisionFirecrackerRootDisk(ctx context.Context, instance *FirecrackerInstance, image *Image) (rbdPool, rbdImage string, err error) {
+	// Verify image uses RBD backend.
 	if strings.TrimSpace(image.RBDPool) == "" || strings.TrimSpace(image.RBDImage) == "" {
 		return "", "", fmt.Errorf("image does not have RBD backend configured")
 	}
@@ -1688,18 +1692,18 @@ func (s *Service) provisionFirecrackerRootDisk(ctx context.Context, instance *Fi
 		targetPool = strings.TrimSpace(image.RBDPool) // fallback to image pool
 	}
 
-	// Build source and target RBD names
+	// Build source and target RBD names.
 	srcPool := strings.TrimSpace(image.RBDPool)
 	srcImage := strings.TrimSpace(image.RBDImage)
 	srcSnap := strings.TrimSpace(image.RBDSnap)
 
-	// If no snapshot specified, use @base
+	// If no snapshot specified, use @base.
 	if srcSnap == "" {
 		srcSnap = "base"
 	}
 	srcFull := fmt.Sprintf("%s/%s@%s", srcPool, srcImage, srcSnap)
 
-	// Target: fc-<id>-<name> in volumes pool
+	// Target: fc-<id>-<name> in volumes pool.
 	targetImage := fmt.Sprintf("fc-%d-%s", instance.ID, strings.ReplaceAll(instance.Name, " ", "-"))
 	targetFull := fmt.Sprintf("%s/%s", targetPool, targetImage)
 
@@ -1707,20 +1711,20 @@ func (s *Service) provisionFirecrackerRootDisk(ctx context.Context, instance *Fi
 		zap.String("src", srcFull),
 		zap.String("dst", targetFull))
 
-	// Ensure source snapshot exists and is protected
+	// Ensure source snapshot exists and is protected.
 	snapCreate := exec.CommandContext(ctx, "rbd", s.rbdArgs("images", "snap", "create", fmt.Sprintf("%s/%s@%s", srcPool, srcImage, srcSnap))...)
 	_ = snapCreate.Run() // ignore error if snapshot already exists
 
 	snapProtect := exec.CommandContext(ctx, "rbd", s.rbdArgs("images", "snap", "protect", srcFull)...)
 	_ = snapProtect.Run() // ignore error if already protected
 
-	// Clone image to target pool
+	// Clone image to target pool.
 	cloneCmd := exec.CommandContext(ctx, "rbd", s.rbdArgs("volumes", "clone", srcFull, targetFull)...)
 	if out, err := cloneCmd.CombinedOutput(); err != nil {
 		return "", "", fmt.Errorf("rbd clone failed: %v: %s", err, string(out))
 	}
 
-	// Resize if needed
+	// Resize if needed.
 	if instance.DiskGB > 0 {
 		sizeBytes := instance.DiskGB * 1024 // Convert GB to MB for rbd resize
 		resizeCmd := exec.CommandContext(ctx, "rbd", s.rbdArgs("volumes", "resize", targetFull, "--size", fmt.Sprintf("%dM", sizeBytes))...)
@@ -1774,14 +1778,14 @@ func (s *Service) launchFirecrackerVM(ctx context.Context, instance *Firecracker
 	var rootDiskPath string
 	var needsRBDCleanup bool
 
-	// Reload instance with Image relation to get full image data
+	// Reload instance with Image relation to get full image data.
 	var fullInstance FirecrackerInstance
 	if err := s.db.Preload("Image").First(&fullInstance, instance.ID).Error; err != nil {
 		s.logger.Error("Failed to reload firecracker instance", zap.Error(err))
 		return fmt.Errorf("failed to reload instance: %w", err)
 	}
 
-	// If instance has an ImageID, provision from Ceph
+	// If instance has an ImageID, provision from Ceph.
 	if fullInstance.ImageID != 0 && fullInstance.Image.ID != 0 {
 		s.logger.Info("Provisioning root disk from Ceph image",
 			zap.Uint("image_id", fullInstance.ImageID),
@@ -1794,7 +1798,7 @@ func (s *Service) launchFirecrackerVM(ctx context.Context, instance *Firecracker
 			return fmt.Errorf("failed to provision root disk: %w", err)
 		}
 
-		// Update instance with RBD info
+		// Update instance with RBD info.
 		instance.RBDPool = rbdPool
 		instance.RBDImage = rbdImage
 		if err := s.db.Model(instance).Updates(map[string]interface{}{
@@ -1804,7 +1808,7 @@ func (s *Service) launchFirecrackerVM(ctx context.Context, instance *Firecracker
 			s.logger.Error("Failed to update instance RBD info", zap.Error(err))
 		}
 
-		// Map RBD device to host
+		// Map RBD device to host.
 		devicePath, err := s.mapFirecrackerRBD(ctx, rbdPool, rbdImage)
 		if err != nil {
 			s.logger.Error("Failed to map RBD device", zap.Error(err))
@@ -1815,7 +1819,7 @@ func (s *Service) launchFirecrackerVM(ctx context.Context, instance *Firecracker
 		rootDiskPath = devicePath
 		needsRBDCleanup = true
 
-		// Create or update a Volume row for this instance root disk so it shows up in DB
+		// Create or update a Volume row for this instance root disk so it shows up in DB.
 		{
 			var existing Volume
 			if err := s.db.Where("rbd_pool = ? AND rbd_image = ?", rbdPool, rbdImage).First(&existing).Error; err == nil {
@@ -1837,24 +1841,27 @@ func (s *Service) launchFirecrackerVM(ctx context.Context, instance *Firecracker
 				_ = s.db.Create(vol).Error
 			}
 		}
-	} else if strings.TrimSpace(instance.RootFSPath) != "" {
-		// Use direct filesystem path (legacy mode)
-		rootDiskPath = instance.RootFSPath
 	} else {
-		return fmt.Errorf("no root disk source: neither image_id nor rootfs_path specified")
+		switch {
+		case strings.TrimSpace(instance.RootFSPath) != "":
+			// Use direct filesystem path (legacy mode)
+			rootDiskPath = instance.RootFSPath
+		default:
+			return fmt.Errorf("no root disk source: neither image_id nor rootfs_path specified")
+		}
 	}
 
-	// Generate socket path
+	// Generate socket path.
 	socketPath := filepath.Join(s.config.Firecracker.SocketDir, fmt.Sprintf("fc-%d.sock", instance.ID))
 	instance.SocketPath = socketPath
 
-	// Use default kernel if not specified
+	// Use default kernel if not specified.
 	kernelPath := instance.KernelPath
 	if kernelPath == "" {
 		kernelPath = s.config.Firecracker.KernelPath
 	}
 
-	// Build Firecracker configuration
+	// Build Firecracker configuration.
 	fcConfig := map[string]interface{}{
 		"boot-source": map[string]interface{}{
 			"kernel_image_path": kernelPath,
@@ -1875,20 +1882,20 @@ func (s *Service) launchFirecrackerVM(ctx context.Context, instance *Firecracker
 		},
 	}
 
-	// Serialize configuration
+	// Serialize configuration.
 	configJSON, err := json.Marshal(fcConfig)
 	if err != nil {
 		s.updateFirecrackerStatus(instance.ID, "error", "shutdown")
 		return fmt.Errorf("failed to marshal firecracker config: %w", err)
 	}
 
-	// Start Firecracker process
+	// Start Firecracker process.
 	cmd := exec.CommandContext(ctx, s.config.Firecracker.BinaryPath,
 		"--api-sock", socketPath,
 		"--config-file", "/dev/stdin")
 	cmd.Stdin = bytes.NewReader(configJSON)
 
-	// Capture output for debugging
+	// Capture output for debugging.
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
@@ -1898,13 +1905,13 @@ func (s *Service) launchFirecrackerVM(ctx context.Context, instance *Firecracker
 			zap.Error(err),
 			zap.String("stderr", stderr.String()))
 
-		// Cleanup RBD mapping and volume on failure
+		// Cleanup RBD mapping and volume on failure.
 		if needsRBDCleanup && instance.RBDPool != "" && instance.RBDImage != "" {
 			_ = s.unmapFirecrackerRBD(ctx, instance.RBDPool, instance.RBDImage)
-			// Remove the cloned volume
+			// Remove the cloned volume.
 			rbdRm := exec.CommandContext(ctx, "rbd", s.rbdArgs("volumes", "rm", fmt.Sprintf("%s/%s", instance.RBDPool, instance.RBDImage))...)
 			if err := rbdRm.Run(); err == nil {
-				// Also remove DB record if present
+				// Also remove DB record if present.
 				_ = s.db.Where("rbd_pool = ? AND rbd_image = ?", instance.RBDPool, instance.RBDImage).Delete(&Volume{}).Error
 			}
 		}
@@ -1913,7 +1920,7 @@ func (s *Service) launchFirecrackerVM(ctx context.Context, instance *Firecracker
 		return fmt.Errorf("failed to start firecracker: %w", err)
 	}
 
-	// Update instance status
+	// Update instance status.
 	instance.Status = "active"
 	instance.PowerState = "running"
 	now := time.Now()
@@ -1953,7 +1960,7 @@ func (s *Service) stopFirecrackerVM(ctx context.Context, instance *FirecrackerIn
 		zap.String("name", instance.Name),
 		zap.Uint("id", instance.ID))
 
-	// Send shutdown action via Firecracker API
+	// Send shutdown action via Firecracker API.
 	if instance.SocketPath != "" {
 		shutdownURL := fmt.Sprintf("http://unix/%s/actions", instance.SocketPath)
 		shutdownPayload := map[string]string{
@@ -1961,22 +1968,25 @@ func (s *Service) stopFirecrackerVM(ctx context.Context, instance *FirecrackerIn
 		}
 		payloadBytes, _ := json.Marshal(shutdownPayload)
 
-		// Note: This is a simplified version. In production, you'd use a proper Unix socket HTTP client
+		// Note: This is a simplified version. In production, you'd use a proper Unix socket HTTP client.
 		req, _ := http.NewRequestWithContext(ctx, "PUT", shutdownURL, bytes.NewReader(payloadBytes))
 		req.Header.Set("Content-Type", "application/json")
 
-		_, _ = http.DefaultClient.Do(req)
-	}
-
-	// Unmap RBD device if using Ceph backend
-	if instance.RBDPool != "" && instance.RBDImage != "" {
-		if err := s.unmapFirecrackerRBD(ctx, instance.RBDPool, instance.RBDImage); err != nil {
-			s.logger.Warn("Failed to unmap RBD device during stop", zap.Error(err))
-			// Don't fail stop operation if unmap fails
+		resp, _ := http.DefaultClient.Do(req)
+		if resp != nil {
+			_ = resp.Body.Close()
 		}
 	}
 
-	// Update instance status
+	// Unmap RBD device if using Ceph backend.
+	if instance.RBDPool != "" && instance.RBDImage != "" {
+		if err := s.unmapFirecrackerRBD(ctx, instance.RBDPool, instance.RBDImage); err != nil {
+			s.logger.Warn("Failed to unmap RBD device during stop", zap.Error(err))
+			// Don't fail stop operation if unmap fails.
+		}
+	}
+
+	// Update instance status.
 	instance.PowerState = "shutdown"
 	if err := s.db.Save(instance).Error; err != nil {
 		s.logger.Error("Failed to update firecracker instance", zap.Error(err))

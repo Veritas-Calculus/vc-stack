@@ -41,7 +41,7 @@ func NewService(cfg Config) (*Service, error) {
 	}, nil
 }
 
-// detectOVNSocket tries common OVN socket locations
+// detectOVNSocket tries common OVN socket locations.
 func detectOVNSocket() string {
 	locations := []string{
 		"unix:/var/run/ovn/ovnnb_db.sock",         // Debian/Ubuntu
@@ -99,7 +99,7 @@ func (s *Service) SetupRoutes(r *gin.Engine) {
 	}
 }
 
-// nbctl executes ovn-nbctl command
+// nbctl executes ovn-nbctl command.
 func (s *Service) nbctl(args ...string) (string, error) {
 	if s.ovnNBSocket != "" {
 		args = append([]string{"--db", s.ovnNBSocket}, args...)

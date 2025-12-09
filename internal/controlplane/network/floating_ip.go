@@ -19,7 +19,7 @@ type CreateFloatingIPRequest struct {
 	TenantID  string `json:"tenant_id" binding:"required"`
 }
 
-// listFloatingIPs handles GET /api/v1/floating-ips
+// listFloatingIPs handles GET /api/v1/floating-ips.
 func (s *Service) listFloatingIPs(c *gin.Context) {
 	var floatingIPs []FloatingIP
 
@@ -42,7 +42,7 @@ func (s *Service) listFloatingIPs(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"floating_ips": floatingIPs})
 }
 
-// createFloatingIP handles POST /api/v1/floating-ips
+// createFloatingIP handles POST /api/v1/floating-ips.
 func (s *Service) createFloatingIP(c *gin.Context) {
 	var req CreateFloatingIPRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -50,14 +50,14 @@ func (s *Service) createFloatingIP(c *gin.Context) {
 		return
 	}
 
-	// Check if network exists
+	// Check if network exists.
 	var network Network
 	if err := s.db.First(&network, "id = ?", req.NetworkID).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Network not found"})
 		return
 	}
 
-	// Find subnet to allocate from: explicit or first subnet in the network
+	// Find subnet to allocate from: explicit or first subnet in the network.
 	var subnet Subnet
 	if req.SubnetID != "" {
 		if err := s.db.First(&subnet, "id = ?", req.SubnetID).Error; err != nil {
@@ -75,7 +75,7 @@ func (s *Service) createFloatingIP(c *gin.Context) {
 		}
 	}
 
-	// Allocate floating IP address from subnet pool via IPAM
+	// Allocate floating IP address from subnet pool via IPAM.
 	ip, err := s.ipam.Allocate(&subnet, "")
 	if err != nil {
 		s.logger.Error("FIP allocation failed", zap.Error(err))
@@ -105,7 +105,7 @@ func (s *Service) createFloatingIP(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"floating_ip": floatingIP})
 }
 
-// getFloatingIP handles GET /api/v1/floating-ips/:id
+// getFloatingIP handles GET /api/v1/floating-ips/:id.
 func (s *Service) getFloatingIP(c *gin.Context) {
 	id := c.Param("id")
 
@@ -118,7 +118,7 @@ func (s *Service) getFloatingIP(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"floating_ip": floatingIP})
 }
 
-// updateFloatingIP handles PUT /api/v1/floating-ips/:id
+// updateFloatingIP handles PUT /api/v1/floating-ips/:id.
 func (s *Service) updateFloatingIP(c *gin.Context) {
 	id := c.Param("id")
 
@@ -137,7 +137,7 @@ func (s *Service) updateFloatingIP(c *gin.Context) {
 		return
 	}
 
-	// Update association
+	// Update association.
 	prevFixed := floatingIP.FixedIP
 	floatingIP.FixedIP = req.FixedIP
 	floatingIP.PortID = req.PortID
@@ -159,21 +159,21 @@ func (s *Service) updateFloatingIP(c *gin.Context) {
 		return "lr-main"
 	}
 
-	// Determine router name based on provided port or fixed IP
+	// Determine router name based on provided port or fixed IP.
 	routerName := "lr-main"
 	if req.PortID != "" {
 		var port NetworkPort
 		if err := s.db.First(&port, "id = ?", req.PortID).Error; err == nil {
-			// Prefer subnet mapping from port
+			// Prefer subnet mapping from port.
 			if port.SubnetID != "" {
 				routerName = resolveRouterName(port.SubnetID)
 			}
 		}
 	}
 
-	// NAT operations
+	// NAT operations.
 	if req.PortID != "" && req.FixedIP != "" {
-		// Associate: ensure router and FIP NAT
+		// Associate: ensure router and FIP NAT.
 		if err := s.driver.EnsureRouter(routerName); err != nil {
 			s.logger.Error("Ensure router failed", zap.Error(err))
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to ensure router"})
@@ -186,9 +186,9 @@ func (s *Service) updateFloatingIP(c *gin.Context) {
 		}
 		floatingIP.Status = "associated"
 	} else {
-		// Disassociate: remove NAT for previous association if any
+		// Disassociate: remove NAT for previous association if any.
 		if prevFixed != "" {
-			// Try to resolve router from stored PortID first
+			// Try to resolve router from stored PortID first.
 			rn := routerName
 			if floatingIP.PortID != "" {
 				var prevPort NetworkPort
@@ -214,7 +214,7 @@ func (s *Service) updateFloatingIP(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"floating_ip": floatingIP})
 }
 
-// deleteFloatingIP handles DELETE /api/v1/floating-ips/:id
+// deleteFloatingIP handles DELETE /api/v1/floating-ips/:id.
 func (s *Service) deleteFloatingIP(c *gin.Context) {
 	id := c.Param("id")
 
@@ -224,7 +224,7 @@ func (s *Service) deleteFloatingIP(c *gin.Context) {
 		return
 	}
 
-	// Remove NAT mapping if associated; resolve router by PortID if available
+	// Remove NAT mapping if associated; resolve router by PortID if available.
 	if floatingIP.FixedIP != "" && floatingIP.Status == "associated" {
 		routerName := "lr-main"
 		if floatingIP.PortID != "" {
@@ -243,7 +243,7 @@ func (s *Service) deleteFloatingIP(c *gin.Context) {
 		_ = s.driver.RemoveFIPNAT(routerName, floatingIP.FloatingIP, floatingIP.FixedIP)
 	}
 
-	// Release IP back to pool if tracked
+	// Release IP back to pool if tracked.
 	if floatingIP.SubnetID != "" && floatingIP.FloatingIP != "" {
 		if err := s.ipam.Release(floatingIP.SubnetID, floatingIP.FloatingIP, ""); err != nil {
 			s.logger.Warn("FIP release failed", zap.Error(err))
@@ -274,7 +274,7 @@ type CreatePortRequest struct {
 	Start *bool `json:"start"`
 }
 
-// listPorts handles GET /api/v1/ports
+// listPorts handles GET /api/v1/ports.
 func (s *Service) listPorts(c *gin.Context) {
 	var ports []NetworkPort
 
@@ -301,7 +301,7 @@ func (s *Service) listPorts(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"ports": ports})
 }
 
-// createPort handles POST /api/v1/ports
+// createPort handles POST /api/v1/ports.
 func (s *Service) createPort(c *gin.Context) {
 	var req CreatePortRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -309,7 +309,7 @@ func (s *Service) createPort(c *gin.Context) {
 		return
 	}
 
-	// Check if network exists
+	// Check if network exists.
 	var network Network
 	if err := s.db.First(&network, "id = ?", req.NetworkID).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Network not found"})
@@ -339,7 +339,7 @@ func (s *Service) createPort(c *gin.Context) {
 		TenantID:       req.TenantID,
 	}
 
-	// Create with retry on MAC unique collision; when SubnetID is empty, omit the column to insert NULL
+	// Create with retry on MAC unique collision; when SubnetID is empty, omit the column to insert NULL.
 	for i := 0; i < 5; i++ {
 		var err error
 		if strings.TrimSpace(port.SubnetID) == "" {
@@ -350,7 +350,7 @@ func (s *Service) createPort(c *gin.Context) {
 		if err != nil {
 			errStr := strings.ToLower(err.Error())
 			if strings.Contains(errStr, "unique") && strings.Contains(errStr, "mac") {
-				// regenerate mac and retry
+				// regenerate mac and retry.
 				s.logger.Warn("MAC collision on port create, regenerating", zap.String("mac", port.MACAddress))
 				port.MACAddress = GenerateMAC()
 				continue
@@ -362,13 +362,13 @@ func (s *Service) createPort(c *gin.Context) {
 		break
 	}
 
-	// If no fixed IP provided, allocate one from IPAM
+	// If no fixed IP provided, allocate one from IPAM.
 	if len(port.FixedIPs) == 0 && port.SubnetID != "" {
 		var subnet Subnet
 		if err := s.db.First(&subnet, "id = ?", port.SubnetID).Error; err == nil {
 			if ip, err := s.ipam.Allocate(&subnet, port.ID); err == nil {
 				port.FixedIPs = append(port.FixedIPs, FixedIP{IP: ip, SubnetID: subnet.ID})
-				// Update the port in database with the allocated IP
+				// Update the port in database with the allocated IP.
 				s.db.Model(&port).Update("fixed_ips", port.FixedIPs)
 			} else {
 				s.logger.Warn("IPAM allocate failed", zap.Error(err))
@@ -376,7 +376,7 @@ func (s *Service) createPort(c *gin.Context) {
 		}
 	}
 
-	// Ensure in SDN backend
+	// Ensure in SDN backend.
 	var netw Network
 	var subn Subnet
 	_ = s.db.First(&netw, "id = ?", port.NetworkID).Error
@@ -389,26 +389,26 @@ func (s *Service) createPort(c *gin.Context) {
 		start = *req.Start
 	}
 	if start {
-		// Ensure underlying logical switch exists before creating port
+		// Ensure underlying logical switch exists before creating port.
 		if err := s.driver.EnsureNetwork(&netw, &subn); err != nil {
 			s.logger.Error("SDN ensure network for port failed", zap.Error(err))
-			// mark as created without touching subnet_id
+			// mark as created without touching subnet_id.
 			if strings.TrimSpace(port.SubnetID) == "" {
 				s.db.Model(&port).Omit("subnet_id").Updates(map[string]interface{}{"status": "created"})
 			} else {
 				s.db.Model(&port).Updates(map[string]interface{}{"status": "created"})
 			}
-			// Continue response with created status
+			// Continue response with created status.
 		}
 		if err := s.driver.EnsurePort(&netw, &subn, &port); err != nil {
-			// Do not fail the API; mark as created to indicate SDN pending
+			// Do not fail the API; mark as created to indicate SDN pending.
 			s.logger.Error("SDN ensure port failed", zap.Error(err))
 			if strings.TrimSpace(port.SubnetID) == "" {
 				s.db.Model(&port).Omit("subnet_id").Updates(map[string]interface{}{"status": "created"})
 			} else {
 				s.db.Model(&port).Updates(map[string]interface{}{"status": "created"})
 			}
-			// Continue response with created status
+			// Continue response with created status.
 		} else {
 			if strings.TrimSpace(port.SubnetID) == "" {
 				s.db.Model(&port).Omit("subnet_id").Updates(map[string]interface{}{"status": "active"})
@@ -431,7 +431,7 @@ func (s *Service) createPort(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"port": port})
 }
 
-// getPort handles GET /api/v1/ports/:id
+// getPort handles GET /api/v1/ports/:id.
 func (s *Service) getPort(c *gin.Context) {
 	id := c.Param("id")
 
@@ -444,7 +444,7 @@ func (s *Service) getPort(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"port": port})
 }
 
-// updatePort handles PUT /api/v1/ports/:id
+// updatePort handles PUT /api/v1/ports/:id.
 func (s *Service) updatePort(c *gin.Context) {
 	id := c.Param("id")
 
@@ -466,7 +466,7 @@ func (s *Service) updatePort(c *gin.Context) {
 		return
 	}
 
-	// Update fields
+	// Update fields.
 	if req.Name != "" {
 		port.Name = req.Name
 	}
@@ -489,13 +489,13 @@ func (s *Service) updatePort(c *gin.Context) {
 		return
 	}
 
-	// Re-apply ACLs after update
+	// Re-apply ACLs after update.
 	_ = s.applyPortSecurityACLs(&port)
 
 	c.JSON(http.StatusOK, gin.H{"port": port})
 }
 
-// deletePort handles DELETE /api/v1/ports/:id
+// deletePort handles DELETE /api/v1/ports/:id.
 func (s *Service) deletePort(c *gin.Context) {
 	id := c.Param("id")
 
@@ -505,16 +505,16 @@ func (s *Service) deletePort(c *gin.Context) {
 		return
 	}
 
-	// Delete from SDN first
+	// Delete from SDN first.
 	var netw Network
 	_ = s.db.First(&netw, "id = ?", port.NetworkID).Error
 	if err := s.driver.DeletePort(&netw, &port); err != nil {
 		s.logger.Warn("SDN delete port failed", zap.Error(err))
 	}
 
-	// Release any IP allocations
+	// Release any IP allocations.
 	if port.SubnetID != "" && len(port.FixedIPs) > 0 {
-		// release all fixed IPs
+		// release all fixed IPs.
 		for _, f := range port.FixedIPs {
 			_ = s.ipam.Release(port.SubnetID, f.IP, port.ID)
 		}

@@ -15,8 +15,8 @@ import (
 	"go.uber.org/zap"
 )
 
-// OVN NB Database Models
-// 这些结构体映射到 OVN Northbound 数据库的表
+// OVN NB Database Models.
+// 这些结构体映射到 OVN Northbound 数据库的表.
 
 type LogicalSwitch struct {
 	UUID        string            `ovsdb:"_uuid"`
@@ -59,7 +59,7 @@ type LogicalRouterPort struct {
 	Name     string   `ovsdb:"name"`
 	MAC      string   `ovsdb:"mac"`
 	Networks []string `ovsdb:"networks"`
-	// Note: peer field added in OVN 23.09+, not available in 23.03
+	// Note: peer field added in OVN 23.09+, not available in 23.03.
 	ExternalIDs map[string]string `ovsdb:"external_ids"`
 }
 
@@ -87,7 +87,7 @@ type OVNConfig struct {
 	BridgeMappings string
 }
 
-// OVNDriver using libovsdb client - pure SDK implementation
+// OVNDriver using libovsdb client - pure SDK implementation.
 type OVNDriver struct {
 	logger         *zap.Logger
 	cfg            OVNConfig
@@ -98,12 +98,12 @@ type OVNDriver struct {
 func NewOVNDriver(l *zap.Logger, cfg OVNConfig) *OVNDriver {
 	d := &OVNDriver{logger: l, cfg: cfg, bridgeMappings: make(map[string]string)}
 
-	// Parse bridge mappings
+	// Parse bridge mappings.
 	if cfg.BridgeMappings != "" {
 		d.parseBridgeMappings(cfg.BridgeMappings)
 	}
 
-	// 定义完整的 OVN NB 数据库模型
+	// 定义完整的 OVN NB 数据库模型.
 	dbModel, err := model.NewClientDBModel("OVN_Northbound", map[string]model.Model{
 		"Logical_Switch":              &LogicalSwitch{},
 		"Logical_Switch_Port":         &LogicalSwitchPort{},
@@ -118,7 +118,7 @@ func NewOVNDriver(l *zap.Logger, cfg OVNConfig) *OVNDriver {
 		return d
 	}
 
-	// Parse NBAddress into endpoint; default to unix if empty
+	// Parse NBAddress into endpoint; default to unix if empty.
 	endpoint := cfg.NBAddress
 	if strings.TrimSpace(endpoint) == "" {
 		endpoint = "unix:/var/run/ovn/ovnnb_db.sock"
@@ -130,7 +130,7 @@ func NewOVNDriver(l *zap.Logger, cfg OVNConfig) *OVNDriver {
 		return d
 	}
 
-	// Try connect with a timeout
+	// Try connect with a timeout.
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := cli.Connect(ctx); err != nil {
@@ -138,7 +138,7 @@ func NewOVNDriver(l *zap.Logger, cfg OVNConfig) *OVNDriver {
 		return d
 	}
 
-	// Start monitoring all tables
+	// Start monitoring all tables.
 	if _, err := cli.MonitorAll(ctx); err != nil {
 		l.Warn("Failed to start monitoring", zap.Error(err))
 	}
@@ -166,7 +166,7 @@ func (d *OVNDriver) parseBridgeMappings(mappings string) {
 	}
 }
 
-// EnsureNetwork creates a logical switch and DHCP options using libovsdb
+// EnsureNetwork creates a logical switch and DHCP options using libovsdb.
 func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 	if d.ovs == nil {
 		return fmt.Errorf("libovsdb client not initialized")
@@ -175,25 +175,25 @@ func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 	ctx := context.Background()
 	lsName := fmt.Sprintf("ls-%s", n.ID)
 
-	// 创建 Logical Switch
+	// 创建 Logical Switch.
 	ls := &LogicalSwitch{
 		Name:        lsName,
 		ExternalIDs: map[string]string{"network_id": n.ID},
 		OtherConfig: make(map[string]string),
 	}
 
-	// 设置网络类型相关的配置
+	// 设置网络类型相关的配置.
 	networkType := strings.ToLower(strings.TrimSpace(n.NetworkType))
 	if networkType == "" {
 		networkType = "vxlan"
 	}
 
-	// 对于 overlay 网络,设置 VNI
+	// 对于 overlay 网络,设置 VNI.
 	if (networkType == "vxlan" || networkType == "gre" || networkType == "geneve") && n.SegmentationID > 0 {
 		ls.OtherConfig["vni"] = fmt.Sprintf("%d", n.SegmentationID)
 	}
 
-	// 创建或更新 Logical Switch
+	// 创建或更新 Logical Switch.
 	ops, err := d.ovs.Create(ls)
 	if err != nil {
 		return fmt.Errorf("failed to create logical switch operation: %w", err)
@@ -204,10 +204,10 @@ func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 		return fmt.Errorf("failed to create logical switch: %w", err)
 	}
 
-	// 检查结果
+	// 检查结果.
 	for _, result := range results {
 		if result.Error != "" {
-			// 如果是因为已存在,我们继续
+			// 如果是因为已存在,我们继续.
 			if !strings.Contains(result.Error, "already exists") && !strings.Contains(result.Error, "duplicate") {
 				return fmt.Errorf("logical switch creation error: %s", result.Error)
 			}
@@ -225,7 +225,7 @@ func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 	}
 	lsUUID := lsList[0].UUID
 
-	// 对于 flat/vlan 网络,创建 localnet port
+	// 对于 flat/vlan 网络,创建 localnet port.
 	switch networkType {
 	case "flat":
 		if err := d.createLocalnetPort(ctx, lsUUID, lsName, n.PhysicalNetwork, 0); err != nil {
@@ -244,7 +244,7 @@ func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 		}
 	}
 
-	// 配置 DHCP
+	// 配置 DHCP.
 	if s != nil && strings.TrimSpace(s.CIDR) != "" && s.EnableDHCP {
 		if err := d.ensureDHCPOptions(ctx, n, s); err != nil {
 			return fmt.Errorf("failed to configure DHCP: %w", err)
@@ -255,7 +255,7 @@ func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 	return nil
 }
 
-// createLocalnetPort creates a localnet type port for flat/vlan networks
+// createLocalnetPort creates a localnet type port for flat/vlan networks.
 func (d *OVNDriver) createLocalnetPort(ctx context.Context, lsUUID, lsName, physicalNetwork string, vlanID int) error {
 	if strings.TrimSpace(physicalNetwork) == "" {
 		return fmt.Errorf("physical_network is required for flat/vlan networks")
@@ -283,7 +283,7 @@ func (d *OVNDriver) createLocalnetPort(ctx context.Context, lsUUID, lsName, phys
 		return fmt.Errorf("failed to create localnet port operation: %w", err)
 	}
 
-	// 将端口添加到交换机
+	// 将端口添加到交换机.
 	ls := &LogicalSwitch{UUID: lsUUID}
 	ops2, err := d.ovs.Where(ls).Mutate(ls, model.Mutation{
 		Field:   &ls.Ports,
@@ -310,9 +310,9 @@ func (d *OVNDriver) createLocalnetPort(ctx context.Context, lsUUID, lsName, phys
 	return nil
 }
 
-// ensureDHCPOptions configures DHCP for a subnet
+// ensureDHCPOptions configures DHCP for a subnet.
 func (d *OVNDriver) ensureDHCPOptions(ctx context.Context, n *Network, s *Subnet) error {
-	// 计算网关地址
+	// 计算网关地址.
 	gateway := s.Gateway
 	if gateway == "" {
 		_, ipnet, err := net.ParseCIDR(s.CIDR)
@@ -325,7 +325,7 @@ func (d *OVNDriver) ensureDHCPOptions(ctx context.Context, n *Network, s *Subnet
 		s.Gateway = gateway
 	}
 
-	// 计算分配池
+	// 计算分配池.
 	if s.AllocationStart == "" || s.AllocationEnd == "" {
 		if _, ipnet, err := net.ParseCIDR(s.CIDR); err == nil {
 			ip := ipnet.IP.To4()
@@ -348,13 +348,13 @@ func (d *OVNDriver) ensureDHCPOptions(ctx context.Context, n *Network, s *Subnet
 		}
 	}
 
-	// DNS 服务器
+	// DNS 服务器.
 	dnsServers := s.DNSNameservers
 	if dnsServers == "" {
 		dnsServers = "8.8.8.8 8.8.4.4"
 		s.DNSNameservers = dnsServers
 	} else {
-		// 将逗号分隔改为空格分隔
+		// 将逗号分隔改为空格分隔.
 		dnsServers = strings.ReplaceAll(dnsServers, ",", " ")
 	}
 
@@ -365,7 +365,7 @@ func (d *OVNDriver) ensureDHCPOptions(ctx context.Context, n *Network, s *Subnet
 
 	mac := p2pMAC(n.ID)
 
-	// 查找现有的 DHCP options
+	// 查找现有的 DHCP options.
 	dhcpList := []DHCPOptions{}
 	err := d.ovs.WhereCache(func(dhcp *DHCPOptions) bool {
 		return dhcp.CIDR == s.CIDR
@@ -373,11 +373,11 @@ func (d *OVNDriver) ensureDHCPOptions(ctx context.Context, n *Network, s *Subnet
 
 	var dhcpUUID string
 	if err == nil && len(dhcpList) > 0 {
-		// 使用现有的
+		// 使用现有的.
 		dhcpUUID = dhcpList[0].UUID
 		d.logger.Debug("Found existing DHCP options", zap.String("cidr", s.CIDR), zap.String("uuid", dhcpUUID))
 	} else {
-		// 创建新的 DHCP options
+		// 创建新的 DHCP options.
 		dhcp := &DHCPOptions{
 			CIDR: s.CIDR,
 			Options: map[string]string{
@@ -410,7 +410,7 @@ func (d *OVNDriver) ensureDHCPOptions(ctx context.Context, n *Network, s *Subnet
 			if len(result.UUID.GoUUID) > 0 {
 				dhcpUUID = result.UUID.GoUUID
 			} else if i == 0 && len(results) > 0 {
-				// 尝试重新查询获取UUID
+				// 尝试重新查询获取UUID.
 				err := d.ovs.WhereCache(func(dhcp *DHCPOptions) bool {
 					return dhcp.CIDR == s.CIDR
 				}).List(ctx, &dhcpList)
@@ -431,7 +431,7 @@ func (d *OVNDriver) ensureDHCPOptions(ctx context.Context, n *Network, s *Subnet
 	return nil
 }
 
-// DeleteNetwork deletes a logical switch
+// DeleteNetwork deletes a logical switch.
 func (d *OVNDriver) DeleteNetwork(n *Network) error {
 	if d.ovs == nil {
 		return fmt.Errorf("libovsdb client not initialized")
@@ -440,7 +440,7 @@ func (d *OVNDriver) DeleteNetwork(n *Network) error {
 	ctx := context.Background()
 	lsName := fmt.Sprintf("ls-%s", n.ID)
 
-	// 查找 Logical Switch
+	// 查找 Logical Switch.
 	ls := &LogicalSwitch{Name: lsName}
 	ops, err := d.ovs.Where(ls).Delete()
 	if err != nil {
@@ -462,7 +462,7 @@ func (d *OVNDriver) DeleteNetwork(n *Network) error {
 	return nil
 }
 
-// EnsurePort creates a logical switch port
+// EnsurePort creates a logical switch port.
 func (d *OVNDriver) EnsurePort(n *Network, s *Subnet, p *NetworkPort) error {
 	if d.ovs == nil {
 		return fmt.Errorf("libovsdb client not initialized")
@@ -472,12 +472,12 @@ func (d *OVNDriver) EnsurePort(n *Network, s *Subnet, p *NetworkPort) error {
 	lsName := fmt.Sprintf("ls-%s", n.ID)
 	lspName := fmt.Sprintf("lsp-%s", p.ID)
 
-	// 构建地址列表
+	// 构建地址列表.
 	mac := p.MACAddress
 	addresses := []string{mac}
 	portSecurity := []string{mac}
 
-	// 添加 IP 地址
+	// 添加 IP 地址.
 	if len(p.FixedIPs) > 0 {
 		ips := []string{}
 		for _, f := range p.FixedIPs {
@@ -505,7 +505,7 @@ func (d *OVNDriver) EnsurePort(n *Network, s *Subnet, p *NetworkPort) error {
 		}
 	}
 
-	// 创建 Logical Switch Port
+	// 创建 Logical Switch Port.
 	lsp := &LogicalSwitchPort{
 		Name:          lspName,
 		Addresses:     addresses,
@@ -522,7 +522,7 @@ func (d *OVNDriver) EnsurePort(n *Network, s *Subnet, p *NetworkPort) error {
 		return fmt.Errorf("failed to create port operation: %w", err)
 	}
 
-	// 将端口添加到交换机的端口列表
+	// 将端口添加到交换机的端口列表.
 	ls := &LogicalSwitch{Name: lsName}
 	lsList := []LogicalSwitch{}
 	err = d.ovs.WhereCache(func(ls *LogicalSwitch) bool {
@@ -562,7 +562,7 @@ func (d *OVNDriver) EnsurePort(n *Network, s *Subnet, p *NetworkPort) error {
 	return nil
 }
 
-// DeletePort deletes a logical switch port
+// DeletePort deletes a logical switch port.
 func (d *OVNDriver) DeletePort(n *Network, p *NetworkPort) error {
 	if d.ovs == nil {
 		return fmt.Errorf("libovsdb client not initialized")
@@ -592,7 +592,7 @@ func (d *OVNDriver) DeletePort(n *Network, p *NetworkPort) error {
 	return nil
 }
 
-// nbctl helpers for fallback until we migrate all operations to libovsdb
+// nbctl helpers for fallback until we migrate all operations to libovsdb.
 func firstIPFromFixedIPs(list FixedIPList) string {
 	if len(list) == 0 {
 		return ""
@@ -600,7 +600,7 @@ func firstIPFromFixedIPs(list FixedIPList) string {
 	return strings.TrimSpace(list[0].IP)
 }
 
-// EnsureRouter creates a logical router
+// EnsureRouter creates a logical router.
 func (d *OVNDriver) EnsureRouter(name string) error {
 	if d.ovs == nil {
 		return fmt.Errorf("libovsdb client not initialized")
@@ -635,7 +635,7 @@ func (d *OVNDriver) EnsureRouter(name string) error {
 	return nil
 }
 
-// DeleteRouter deletes a logical router
+// DeleteRouter deletes a logical router.
 func (d *OVNDriver) DeleteRouter(name string) error {
 	if d.ovs == nil {
 		return fmt.Errorf("libovsdb client not initialized")
@@ -664,7 +664,7 @@ func (d *OVNDriver) DeleteRouter(name string) error {
 	return nil
 }
 
-// EnsureFIPNAT creates DNAT_AND_SNAT NAT rule for floating IP
+// EnsureFIPNAT creates DNAT_AND_SNAT NAT rule for floating IP.
 func (d *OVNDriver) EnsureFIPNAT(router string, floatingIP, fixedIP string) error {
 	if d.ovs == nil {
 		return fmt.Errorf("libovsdb client not initialized")
@@ -672,7 +672,7 @@ func (d *OVNDriver) EnsureFIPNAT(router string, floatingIP, fixedIP string) erro
 
 	ctx := context.Background()
 
-	// 先检查 NAT 规则是否已存在
+	// 先检查 NAT 规则是否已存在.
 	natList := []NAT{}
 	err := d.ovs.WhereCache(func(nat *NAT) bool {
 		return nat.Type == "dnat_and_snat" && nat.ExternalIP == floatingIP && nat.LogicalIP == fixedIP
@@ -698,13 +698,13 @@ func (d *OVNDriver) EnsureFIPNAT(router string, floatingIP, fixedIP string) erro
 		return fmt.Errorf("failed to create NAT operation: %w", err)
 	}
 
-	// 执行创建 NAT 的事务
+	// 执行创建 NAT 的事务.
 	results, err := d.ovs.Transact(ctx, ops...)
 	if err != nil {
 		return fmt.Errorf("failed to create NAT: %w", err)
 	}
 
-	// 获取创建的 NAT UUID
+	// 获取创建的 NAT UUID.
 	var natUUID string
 	for _, result := range results {
 		if result.Error != "" && !strings.Contains(result.Error, "already exists") {
@@ -715,7 +715,7 @@ func (d *OVNDriver) EnsureFIPNAT(router string, floatingIP, fixedIP string) erro
 		}
 	}
 
-	// 将 NAT 添加到路由器
+	// 将 NAT 添加到路由器.
 	if natUUID != "" {
 		lr := &LogicalRouter{Name: router}
 		lrList := []LogicalRouter{}
@@ -750,7 +750,7 @@ func (d *OVNDriver) EnsureFIPNAT(router string, floatingIP, fixedIP string) erro
 	return nil
 }
 
-// RemoveFIPNAT removes DNAT_AND_SNAT NAT rule for floating IP
+// RemoveFIPNAT removes DNAT_AND_SNAT NAT rule for floating IP.
 func (d *OVNDriver) RemoveFIPNAT(router string, floatingIP, fixedIP string) error {
 	if d.ovs == nil {
 		return fmt.Errorf("libovsdb client not initialized")
@@ -758,7 +758,7 @@ func (d *OVNDriver) RemoveFIPNAT(router string, floatingIP, fixedIP string) erro
 
 	ctx := context.Background()
 
-	// 查找并删除 NAT 规则
+	// 查找并删除 NAT 规则.
 	natList := []NAT{}
 	err := d.ovs.WhereCache(func(nat *NAT) bool {
 		return nat.Type == "dnat_and_snat" && nat.ExternalIP == floatingIP
@@ -790,8 +790,8 @@ func (d *OVNDriver) RemoveFIPNAT(router string, floatingIP, fixedIP string) erro
 	return nil
 }
 
-// ConnectSubnetToRouter connects a subnet to a router using libovsdb
-// This creates a pair of router port (lrp) and switch port (lsp) with proper peering
+// ConnectSubnetToRouter connects a subnet to a router using libovsdb.
+// This creates a pair of router port (lrp) and switch port (lsp) with proper peering.
 func (d *OVNDriver) ConnectSubnetToRouter(router string, n *Network, s *Subnet) error {
 	if d.ovs == nil {
 		return fmt.Errorf("libovsdb client not initialized")
@@ -802,7 +802,7 @@ func (d *OVNDriver) ConnectSubnetToRouter(router string, n *Network, s *Subnet) 
 	lrpName := fmt.Sprintf("lrp-%s-%s", router, n.ID)
 	lspName := fmt.Sprintf("lsp-%s-%s", router, n.ID)
 
-	// 计算网关地址（带前缀长度）
+	// 计算网关地址（带前缀长度）.
 	cidr := s.CIDR
 	gw := strings.TrimSpace(s.Gateway)
 	addr := gw
@@ -826,9 +826,9 @@ func (d *OVNDriver) ConnectSubnetToRouter(router string, n *Network, s *Subnet) 
 
 	mac := p2pMAC(n.ID)
 
-	// Step 1: Create Logical Router Port
-	// Note: peer field only exists in OVN 23.09+
-	// In 23.03, association is via LogicalSwitchPort options:router-port
+	// Step 1: Create Logical Router Port.
+	// Note: peer field only exists in OVN 23.09+.
+	// In 23.03, association is via LogicalSwitchPort options:router-port.
 	lrp := &LogicalRouterPort{
 		Name:     lrpName,
 		MAC:      mac,
@@ -844,7 +844,7 @@ func (d *OVNDriver) ConnectSubnetToRouter(router string, n *Network, s *Subnet) 
 		return fmt.Errorf("failed to create router port operation: %w", err)
 	}
 
-	// Step 2: Create Logical Switch Port (type=router) with router-port option
+	// Step 2: Create Logical Switch Port (type=router) with router-port option.
 	lsp := &LogicalSwitchPort{
 		Name:      lspName,
 		Type:      "router",
@@ -861,7 +861,7 @@ func (d *OVNDriver) ConnectSubnetToRouter(router string, n *Network, s *Subnet) 
 		return fmt.Errorf("failed to create switch port operation: %w", err)
 	}
 
-	// Step 3: Get router and switch for adding port references
+	// Step 3: Get router and switch for adding port references.
 	lr := &LogicalRouter{Name: router}
 	lrList := []LogicalRouter{}
 	err = d.ovs.WhereCache(func(lr *LogicalRouter) bool {
@@ -880,8 +880,8 @@ func (d *OVNDriver) ConnectSubnetToRouter(router string, n *Network, s *Subnet) 
 		return fmt.Errorf("logical switch not found: %s", lsName)
 	}
 
-	// Step 4: Add Mutate operations to insert ports into router and switch
-	// Use port names - OVN will resolve to UUIDs when all operations execute in same transaction
+	// Step 4: Add Mutate operations to insert ports into router and switch.
+	// Use port names - OVN will resolve to UUIDs when all operations execute in same transaction.
 	lr.UUID = lrList[0].UUID
 	opsAddLRP, err := d.ovs.Where(lr).Mutate(lr, model.Mutation{
 		Field:   &lr.Ports,
@@ -902,9 +902,9 @@ func (d *OVNDriver) ConnectSubnetToRouter(router string, n *Network, s *Subnet) 
 		return fmt.Errorf("failed to create switch port mutation: %w", err)
 	}
 
-	// Step 5: Execute ALL operations in a SINGLE transaction
-	// This is critical - OVN can only resolve port names to UUIDs when
-	// the Create and Mutate operations are in the same transaction
+	// Step 5: Execute ALL operations in a SINGLE transaction.
+	// This is critical - OVN can only resolve port names to UUIDs when.
+	// the Create and Mutate operations are in the same transaction.
 	allOps := append(opsLRP, opsLSP...)
 	allOps = append(allOps, opsAddLRP...)
 	allOps = append(allOps, opsAddLSP...)
@@ -914,7 +914,7 @@ func (d *OVNDriver) ConnectSubnetToRouter(router string, n *Network, s *Subnet) 
 		return fmt.Errorf("transaction failed: %w", err)
 	}
 
-	// Check results
+	// Check results.
 	for i, res := range results {
 		if res.Error != "" {
 			return fmt.Errorf("operation %d failed: %s", i, res.Error)
@@ -933,7 +933,7 @@ func (d *OVNDriver) ConnectSubnetToRouter(router string, n *Network, s *Subnet) 
 	return nil
 }
 
-// DisconnectSubnetFromRouter disconnects a subnet from a router
+// DisconnectSubnetFromRouter disconnects a subnet from a router.
 func (d *OVNDriver) DisconnectSubnetFromRouter(router string, n *Network) error {
 	if d.ovs == nil {
 		return fmt.Errorf("libovsdb client not initialized")
@@ -943,7 +943,7 @@ func (d *OVNDriver) DisconnectSubnetFromRouter(router string, n *Network) error 
 	lrpName := fmt.Sprintf("lrp-%s-%s", router, n.ID)
 	lspName := fmt.Sprintf("lsp-%s-%s", router, n.ID)
 
-	// 删除 switch port
+	// 删除 switch port.
 	lsp := &LogicalSwitchPort{Name: lspName}
 	ops1, err := d.ovs.Where(lsp).Delete()
 	if err == nil {
@@ -959,7 +959,7 @@ func (d *OVNDriver) DisconnectSubnetFromRouter(router string, n *Network) error 
 		}
 	}
 
-	// 删除 router port
+	// 删除 router port.
 	lrp := &LogicalRouterPort{Name: lrpName}
 	ops2, err := d.ovs.Where(lrp).Delete()
 	if err != nil {
@@ -981,7 +981,7 @@ func (d *OVNDriver) DisconnectSubnetFromRouter(router string, n *Network) error 
 	return nil
 }
 
-// SetRouterGateway sets up router gateway on external network
+// SetRouterGateway sets up router gateway on external network.
 func (d *OVNDriver) SetRouterGateway(router string, externalNetwork *Network, externalSubnet *Subnet) (string, error) {
 	if d.ovs == nil {
 		return "", fmt.Errorf("libovsdb client not initialized")
@@ -1003,7 +1003,7 @@ func (d *OVNDriver) SetRouterGateway(router string, externalNetwork *Network, ex
 				addr := fmt.Sprintf("%s/%d", gatewayIP, ones)
 				mac := p2pMAC(externalNetwork.ID + "gw")
 
-				// 创建 router port
+				// 创建 router port.
 				lrp := &LogicalRouterPort{
 					Name:     lrpName,
 					MAC:      mac,
@@ -1018,7 +1018,7 @@ func (d *OVNDriver) SetRouterGateway(router string, externalNetwork *Network, ex
 					return "", fmt.Errorf("failed to create gateway port operation: %w", err)
 				}
 
-				// 将端口添加到路由器
+				// 将端口添加到路由器.
 				lr := &LogicalRouter{Name: router}
 				lrList := []LogicalRouter{}
 				err = d.ovs.WhereCache(func(lr *LogicalRouter) bool {
@@ -1038,7 +1038,7 @@ func (d *OVNDriver) SetRouterGateway(router string, externalNetwork *Network, ex
 					return "", fmt.Errorf("failed to create port mutation: %w", err)
 				}
 
-				// 创建 switch port
+				// 创建 switch port.
 				lsp := &LogicalSwitchPort{
 					Name:      lspName,
 					Type:      "router",
@@ -1051,7 +1051,7 @@ func (d *OVNDriver) SetRouterGateway(router string, externalNetwork *Network, ex
 					return "", fmt.Errorf("failed to create switch port operation: %w", err)
 				}
 
-				// 将 switch port 添加到 external network
+				// 将 switch port 添加到 external network.
 				ls := &LogicalSwitch{Name: lsName}
 				lsList := []LogicalSwitch{}
 				err = d.ovs.WhereCache(func(ls *LogicalSwitch) bool {
@@ -1086,16 +1086,16 @@ func (d *OVNDriver) SetRouterGateway(router string, externalNetwork *Network, ex
 					}
 				}
 
-				// 添加默认路由
+				// 添加默认路由.
 				if externalSubnet.Gateway != "" {
-					// 先检查是否已存在默认路由
+					// 先检查是否已存在默认路由.
 					routeList := []LogicalRouterStaticRoute{}
 					err = d.ovs.WhereCache(func(r *LogicalRouterStaticRoute) bool {
 						return r.IPPrefix == "0.0.0.0/0" && r.Nexthop == externalSubnet.Gateway
 					}).List(ctx, &routeList)
 
 					if err != nil || len(routeList) == 0 {
-						// 路由不存在，创建新的
+						// 路由不存在，创建新的.
 						route := &LogicalRouterStaticRoute{
 							IPPrefix: "0.0.0.0/0",
 							Nexthop:  externalSubnet.Gateway,
@@ -1108,12 +1108,12 @@ func (d *OVNDriver) SetRouterGateway(router string, externalNetwork *Network, ex
 						if err != nil {
 							d.logger.Warn("Failed to create default route operation", zap.Error(err))
 						} else {
-							// 执行创建路由的事务
+							// 执行创建路由的事务.
 							routeResults, err := d.ovs.Transact(ctx, opsRoute...)
 							if err != nil {
 								d.logger.Warn("Failed to add default route", zap.Error(err))
 							} else {
-								// 获取创建的路由 UUID
+								// 获取创建的路由 UUID.
 								var routeUUID string
 								for _, result := range routeResults {
 									if result.Error == "" && len(result.UUID.GoUUID) > 0 {
@@ -1122,9 +1122,9 @@ func (d *OVNDriver) SetRouterGateway(router string, externalNetwork *Network, ex
 									}
 								}
 
-								// 如果创建成功，将路由添加到路由器
+								// 如果创建成功，将路由添加到路由器.
 								if routeUUID != "" {
-									// 重新获取路由器以获取最新的 static_routes
+									// 重新获取路由器以获取最新的 static_routes.
 									lrList2 := []LogicalRouter{}
 									err = d.ovs.WhereCache(func(lr *LogicalRouter) bool {
 										return lr.Name == router
@@ -1132,7 +1132,7 @@ func (d *OVNDriver) SetRouterGateway(router string, externalNetwork *Network, ex
 
 									if err == nil && len(lrList2) > 0 {
 										lr2 := &LogicalRouter{UUID: lrList2[0].UUID}
-										// 使用 Mutate 操作将路由 UUID 添加到路由器的 static_routes
+										// 使用 Mutate 操作将路由 UUID 添加到路由器的 static_routes.
 										opsMutate, err := d.ovs.Where(lr2).Mutate(lr2, model.Mutation{
 											Field:   &lr2.StaticRoutes,
 											Mutator: ovsdb.MutateOperationInsert,
@@ -1162,7 +1162,7 @@ func (d *OVNDriver) SetRouterGateway(router string, externalNetwork *Network, ex
 	return gatewayIP, nil
 }
 
-// ClearRouterGateway removes router gateway
+// ClearRouterGateway removes router gateway.
 func (d *OVNDriver) ClearRouterGateway(router string, externalNetwork *Network) error {
 	if d.ovs == nil {
 		return fmt.Errorf("libovsdb client not initialized")
@@ -1172,7 +1172,7 @@ func (d *OVNDriver) ClearRouterGateway(router string, externalNetwork *Network) 
 	lrpName := fmt.Sprintf("lrp-%s-gw", router)
 	lspName := fmt.Sprintf("lsp-%s-gw", router)
 
-	// 删除默认路由
+	// 删除默认路由.
 	routeList := []LogicalRouterStaticRoute{}
 	err := d.ovs.WhereCache(func(route *LogicalRouterStaticRoute) bool {
 		return route.IPPrefix == "0.0.0.0/0"
@@ -1186,7 +1186,7 @@ func (d *OVNDriver) ClearRouterGateway(router string, externalNetwork *Network) 
 		}
 	}
 
-	// 删除 switch port
+	// 删除 switch port.
 	lsp := &LogicalSwitchPort{Name: lspName}
 	ops1, err := d.ovs.Where(lsp).Delete()
 	if err == nil {
@@ -1202,7 +1202,7 @@ func (d *OVNDriver) ClearRouterGateway(router string, externalNetwork *Network) 
 		}
 	}
 
-	// 删除 router port
+	// 删除 router port.
 	lrp := &LogicalRouterPort{Name: lrpName}
 	ops2, err := d.ovs.Where(lrp).Delete()
 	if err != nil {
@@ -1224,7 +1224,7 @@ func (d *OVNDriver) ClearRouterGateway(router string, externalNetwork *Network) 
 	return nil
 }
 
-// SetRouterSNAT enables or disables SNAT on a router
+// SetRouterSNAT enables or disables SNAT on a router.
 func (d *OVNDriver) SetRouterSNAT(router string, enable bool, internalCIDR string, externalIP string) error {
 	if d.ovs == nil {
 		return fmt.Errorf("libovsdb client not initialized")
@@ -1233,7 +1233,7 @@ func (d *OVNDriver) SetRouterSNAT(router string, enable bool, internalCIDR strin
 	ctx := context.Background()
 
 	if enable {
-		// 先检查 SNAT 规则是否已存在
+		// 先检查 SNAT 规则是否已存在.
 		natList := []NAT{}
 		err := d.ovs.WhereCache(func(nat *NAT) bool {
 			return nat.Type == "snat" && nat.ExternalIP == externalIP && nat.LogicalIP == internalCIDR
@@ -1258,13 +1258,13 @@ func (d *OVNDriver) SetRouterSNAT(router string, enable bool, internalCIDR strin
 			return fmt.Errorf("failed to create SNAT operation: %w", err)
 		}
 
-		// 执行创建 NAT 的事务
+		// 执行创建 NAT 的事务.
 		results, err := d.ovs.Transact(ctx, ops...)
 		if err != nil {
 			return fmt.Errorf("failed to add SNAT rule: %w", err)
 		}
 
-		// 获取创建的 NAT UUID
+		// 获取创建的 NAT UUID.
 		var natUUID string
 		for _, result := range results {
 			if result.Error != "" && !strings.Contains(result.Error, "already exists") {
@@ -1275,7 +1275,7 @@ func (d *OVNDriver) SetRouterSNAT(router string, enable bool, internalCIDR strin
 			}
 		}
 
-		// 将 NAT 添加到路由器
+		// 将 NAT 添加到路由器.
 		if natUUID != "" {
 			lr := &LogicalRouter{Name: router}
 			lrList := []LogicalRouter{}
@@ -1304,7 +1304,7 @@ func (d *OVNDriver) SetRouterSNAT(router string, enable bool, internalCIDR strin
 
 		d.logger.Info("Enabled SNAT", zap.String("router", router), zap.String("internal_cidr", internalCIDR), zap.String("external_ip", externalIP))
 	} else {
-		// 查找并删除 SNAT 规则
+		// 查找并删除 SNAT 规则.
 		natList := []NAT{}
 		err := d.ovs.WhereCache(func(nat *NAT) bool {
 			return nat.Type == "snat" && nat.ExternalIP == externalIP
@@ -1370,16 +1370,16 @@ func incIP(ip net.IP) net.IP {
 	return res
 }
 
-// nbctl provides a compatibility stub for code that uses nbctl directly
-// In libovsdb mode, direct nbctl calls are not supported
-// This should not be called in production code - use the dedicated methods instead
+// nbctl provides a compatibility stub for code that uses nbctl directly.
+// In libovsdb mode, direct nbctl calls are not supported.
+// This should not be called in production code - use the dedicated methods instead.
 func (d *OVNDriver) nbctl(args ...string) error {
 	d.logger.Warn("nbctl called in libovsdb mode - this is not supported", zap.Strings("args", args))
 	return fmt.Errorf("nbctl not supported in libovsdb mode")
 }
 
-// nbctlOutput provides a compatibility layer for code that expects nbctl output
-// This method queries libovsdb and returns results in a format similar to nbctl
+// nbctlOutput provides a compatibility layer for code that expects nbctl output.
+// This method queries libovsdb and returns results in a format similar to nbctl.
 func (d *OVNDriver) nbctlOutput(args ...string) (string, error) {
 	if d.ovs == nil {
 		return "", fmt.Errorf("libovsdb client not initialized")
@@ -1387,12 +1387,12 @@ func (d *OVNDriver) nbctlOutput(args ...string) (string, error) {
 
 	ctx := context.Background()
 
-	// 解析常见的 ovn-nbctl 命令模式
+	// 解析常见的 ovn-nbctl 命令模式.
 	if len(args) == 0 {
 		return "", fmt.Errorf("no arguments provided")
 	}
 
-	// 处理 find 命令: find <table> <condition>
+	// 处理 find 命令: find <table> <condition>.
 	if args[0] == "find" || (args[0] == "--bare" && len(args) > 2 && args[2] == "find") {
 		offset := 0
 		bare := false
@@ -1421,7 +1421,7 @@ func (d *OVNDriver) nbctlOutput(args ...string) (string, error) {
 			if err != nil {
 				return "", err
 			}
-			// 如果有条件 name=xxx
+			// 如果有条件 name=xxx.
 			if len(args) > offset+1 {
 				cond := args[offset+1]
 				if strings.HasPrefix(cond, "name=") {
@@ -1529,7 +1529,7 @@ func (d *OVNDriver) nbctlOutput(args ...string) (string, error) {
 		return "", nil
 	}
 
-	// 处理 get 命令: get <table> <record> <column>
+	// 处理 get 命令: get <table> <record> <column>.
 	if args[0] == "get" && len(args) >= 4 {
 		table := args[1]
 		record := args[2]
@@ -1611,7 +1611,7 @@ func (d *OVNDriver) nbctlOutput(args ...string) (string, error) {
 		}
 	}
 
-	// 不支持的命令
+	// 不支持的命令.
 	d.logger.Debug("Unsupported nbctlOutput command", zap.Strings("args", args))
 	return "", fmt.Errorf("unsupported nbctlOutput command: %v", args)
 }

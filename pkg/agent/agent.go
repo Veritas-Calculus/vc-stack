@@ -1,6 +1,6 @@
 package agent
 
-// Package agent provides node agent functionality for automatic registration
+// Package agent provides node agent functionality for automatic registration.
 // and heartbeat with the control plane.
 
 import (
@@ -57,7 +57,7 @@ type Config struct {
 
 // Agent manages node registration and heartbeat.
 type Agent struct {
-	cfg        Config
+	cfg        *Config
 	logger     *zap.Logger
 	uuid       string
 	httpClient *http.Client
@@ -72,7 +72,7 @@ type RegistrationResponse struct {
 }
 
 // NewAgent creates a new node agent.
-func NewAgent(cfg Config) (*Agent, error) {
+func NewAgent(cfg *Config) (*Agent, error) {
 	if cfg.ControllerURL == "" {
 		return nil, fmt.Errorf("controller URL is required")
 	}
@@ -89,7 +89,7 @@ func NewAgent(cfg Config) (*Agent, error) {
 		cfg.HeartbeatInterval = 30 * time.Second
 	}
 
-	// Auto-detect node IP if not provided
+	// Auto-detect node IP if not provided.
 	if cfg.NodeIP == "" {
 		ip, err := getOutboundIP()
 		if err != nil {
@@ -98,7 +98,7 @@ func NewAgent(cfg Config) (*Agent, error) {
 		cfg.NodeIP = ip
 	}
 
-	// Auto-detect node name if not provided
+	// Auto-detect node name if not provided.
 	if cfg.NodeName == "" {
 		hostname, err := os.Hostname()
 		if err != nil {
@@ -107,7 +107,7 @@ func NewAgent(cfg Config) (*Agent, error) {
 		cfg.NodeName = hostname
 	}
 
-	// Auto-detect CPU cores if not provided
+	// Auto-detect CPU cores if not provided.
 	if cfg.CPUCores == 0 {
 		cfg.CPUCores = runtime.NumCPU()
 	}
@@ -124,12 +124,12 @@ func NewAgent(cfg Config) (*Agent, error) {
 
 // Start begins the registration and heartbeat process.
 func (a *Agent) Start() error {
-	// Register with controller
+	// Register with controller.
 	if err := a.register(); err != nil {
 		return fmt.Errorf("failed to register: %w", err)
 	}
 
-	// Start heartbeat loop
+	// Start heartbeat loop.
 	go a.heartbeatLoop()
 
 	a.logger.Info("node agent started",
@@ -243,7 +243,7 @@ func (a *Agent) sendHeartbeat() error {
 	url := a.cfg.ControllerURL + "/api/v1/hosts/heartbeat"
 
 	// TODO: Get actual resource usage from libvirt/system
-	// For now, send zero allocation
+	// For now, send zero allocation.
 	payload := map[string]interface{}{
 		"uuid":              a.uuid,
 		"cpu_allocated":     0,
@@ -285,6 +285,9 @@ func getOutboundIP() (string, error) {
 	}
 	defer conn.Close()
 
-	localAddr := conn.LocalAddr().(*net.UDPAddr)
+	localAddr, ok := conn.LocalAddr().(*net.UDPAddr)
+	if !ok {
+		return "", fmt.Errorf("failed to get UDP address")
+	}
 	return localAddr.IP.String(), nil
 }

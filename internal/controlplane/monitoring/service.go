@@ -34,7 +34,7 @@ type Service struct {
 	handlers         *MonitoringHandlers
 }
 
-// HealthStatus represents the health status of a component
+// HealthStatus represents the health status of a component.
 type HealthStatus struct {
 	Status    string                 `json:"status"` // healthy, degraded, unhealthy
 	Message   string                 `json:"message,omitempty"`
@@ -42,7 +42,7 @@ type HealthStatus struct {
 	Details   map[string]interface{} `json:"details,omitempty"`
 }
 
-// SystemMetrics represents system-level metrics
+// SystemMetrics represents system-level metrics.
 type SystemMetrics struct {
 	CPUCores      int     `json:"cpu_cores"`
 	Goroutines    int     `json:"goroutines"`
@@ -65,7 +65,7 @@ func NewService(cfg Config) (*Service, error) {
 		startTime: time.Now(),
 	}
 
-	// Initialize InfluxDB metrics collector
+	// Initialize InfluxDB metrics collector.
 	if cfg.InfluxDBURL != "" {
 		metricsCollector, err := NewMetricsCollector(InfluxDBConfig{
 			URL:    cfg.InfluxDBURL,
@@ -84,7 +84,7 @@ func NewService(cfg Config) (*Service, error) {
 		}
 	}
 
-	// Initialize flamegraph generator
+	// Initialize flamegraph generator.
 	flameGraph, err := NewFlameGraphGenerator(FlameGraphConfig{
 		OutputDir: cfg.FlameGraphOutput,
 		Logger:    cfg.Logger,
@@ -95,12 +95,12 @@ func NewService(cfg Config) (*Service, error) {
 		s.flameGraph = flameGraph
 	}
 
-	// Initialize monitoring handlers
+	// Initialize monitoring handlers.
 	if s.metricsCollector != nil && s.flameGraph != nil {
 		s.handlers = NewMonitoringHandlers(s.metricsCollector, s.flameGraph, cfg.Logger)
 	}
 
-	// Start background health checks
+	// Start background health checks.
 	go s.runHealthChecks()
 
 	return s, nil
@@ -108,7 +108,7 @@ func NewService(cfg Config) (*Service, error) {
 
 // SetupRoutes registers HTTP routes for the monitoring service.
 func (s *Service) SetupRoutes(router *gin.Engine) {
-	// Add metrics middleware if collector is available
+	// Add metrics middleware if collector is available.
 	if s.metricsCollector != nil {
 		router.Use(MetricsMiddleware(s.metricsCollector))
 	}
@@ -132,18 +132,18 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		api.GET("/status", s.componentStatus)
 	}
 
-	// Setup additional monitoring routes if handlers are available
+	// Setup additional monitoring routes if handlers are available.
 	if s.handlers != nil {
 		s.handlers.SetupRoutes(router)
 	}
 }
 
-// healthCheck returns overall health status
+// healthCheck returns overall health status.
 func (s *Service) healthCheck(c *gin.Context) {
 	healthy := true
 	components := make(map[string]HealthStatus)
 
-	// Check database
+	// Check database.
 	if s.db != nil {
 		dbStatus := s.checkDatabase()
 		components["database"] = dbStatus
@@ -170,7 +170,7 @@ func (s *Service) healthCheck(c *gin.Context) {
 	})
 }
 
-// livenessProbe returns liveness status (for Kubernetes)
+// livenessProbe returns liveness status (for Kubernetes).
 func (s *Service) livenessProbe(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status": "alive",
@@ -178,11 +178,11 @@ func (s *Service) livenessProbe(c *gin.Context) {
 	})
 }
 
-// readinessProbe returns readiness status (for Kubernetes)
+// readinessProbe returns readiness status (for Kubernetes).
 func (s *Service) readinessProbe(c *gin.Context) {
 	ready := true
 
-	// Check if database is ready
+	// Check if database is ready.
 	if s.db != nil {
 		dbStatus := s.checkDatabase()
 		if dbStatus.Status != "healthy" {
@@ -203,16 +203,16 @@ func (s *Service) readinessProbe(c *gin.Context) {
 	}
 }
 
-// healthDetails returns detailed health information
+// healthDetails returns detailed health information.
 func (s *Service) healthDetails(c *gin.Context) {
 	components := make(map[string]HealthStatus)
 
-	// Database health
+	// Database health.
 	if s.db != nil {
 		components["database"] = s.checkDatabase()
 	}
 
-	// Get cached health data
+	// Get cached health data.
 	s.healthData.Range(func(key, value interface{}) bool {
 		if k, ok := key.(string); ok {
 			if v, ok := value.(HealthStatus); ok {
@@ -229,7 +229,7 @@ func (s *Service) healthDetails(c *gin.Context) {
 	})
 }
 
-// systemMetrics returns system metrics
+// systemMetrics returns system metrics.
 func (s *Service) systemMetrics(c *gin.Context) {
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
@@ -247,18 +247,18 @@ func (s *Service) systemMetrics(c *gin.Context) {
 	c.JSON(http.StatusOK, metrics)
 }
 
-// componentStatus returns status of all components
+// componentStatus returns status of all components.
 func (s *Service) componentStatus(c *gin.Context) {
 	components := make(map[string]interface{})
 
-	// Add system info
+	// Add system info.
 	components["system"] = gin.H{
 		"uptime":     time.Since(s.startTime).Seconds(),
 		"start_time": s.startTime.Format(time.RFC3339),
 		"version":    "1.0.0-dev",
 	}
 
-	// Add database status
+	// Add database status.
 	if s.db != nil {
 		dbStatus := s.checkDatabase()
 		components["database"] = dbStatus
@@ -270,7 +270,7 @@ func (s *Service) componentStatus(c *gin.Context) {
 	})
 }
 
-// checkDatabase checks database health
+// checkDatabase checks database health.
 func (s *Service) checkDatabase() HealthStatus {
 	start := time.Now()
 	status := HealthStatus{
@@ -284,7 +284,7 @@ func (s *Service) checkDatabase() HealthStatus {
 		return status
 	}
 
-	// Try to ping the database
+	// Try to ping the database.
 	sqlDB, err := s.db.DB()
 	if err != nil {
 		status.Status = "unhealthy"
@@ -301,7 +301,7 @@ func (s *Service) checkDatabase() HealthStatus {
 		return status
 	}
 
-	// Get connection stats
+	// Get connection stats.
 	stats := sqlDB.Stats()
 	latency := time.Since(start).Milliseconds()
 
@@ -312,7 +312,7 @@ func (s *Service) checkDatabase() HealthStatus {
 	status.Details["in_use"] = stats.InUse
 	status.Details["idle"] = stats.Idle
 
-	// Warn if latency is high
+	// Warn if latency is high.
 	if latency > 100 {
 		status.Status = "degraded"
 		status.Message = "database latency is high"
@@ -321,13 +321,13 @@ func (s *Service) checkDatabase() HealthStatus {
 	return status
 }
 
-// runHealthChecks runs periodic health checks
+// runHealthChecks runs periodic health checks.
 func (s *Service) runHealthChecks() {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
 
 	for range ticker.C {
-		// Check database
+		// Check database.
 		if s.db != nil {
 			dbStatus := s.checkDatabase()
 			s.healthData.Store("database", dbStatus)
@@ -339,7 +339,7 @@ func (s *Service) runHealthChecks() {
 			}
 		}
 
-		// Record component metrics if collector is available
+		// Record component metrics if collector is available.
 		if s.metricsCollector != nil {
 			var m runtime.MemStats
 			runtime.ReadMemStats(&m)

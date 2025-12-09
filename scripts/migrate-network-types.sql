@@ -2,7 +2,7 @@
 -- This adds fields to support flat, vlan, vxlan, gre, geneve network types
 
 -- Add new columns to net_networks table
-ALTER TABLE net_networks 
+ALTER TABLE net_networks
   ADD COLUMN IF NOT EXISTS network_type VARCHAR(20) DEFAULT 'vxlan',
   ADD COLUMN IF NOT EXISTS physical_network VARCHAR(64),
   ADD COLUMN IF NOT EXISTS segmentation_id INTEGER,
@@ -17,12 +17,12 @@ CREATE INDEX IF NOT EXISTS idx_net_networks_segmentation_id ON net_networks(segm
 CREATE INDEX IF NOT EXISTS idx_net_networks_external ON net_networks(external);
 
 -- Migrate existing networks to overlay type (vxlan) if not specified
-UPDATE net_networks 
-SET network_type = 'vxlan' 
+UPDATE net_networks
+SET network_type = 'vxlan'
 WHERE network_type IS NULL OR network_type = '';
 
 -- For networks with vlan_id set, migrate to vlan type
-UPDATE net_networks 
+UPDATE net_networks
 SET network_type = 'vlan', segmentation_id = vlan_id
 WHERE vlan_id > 0 AND (network_type IS NULL OR network_type = 'vxlan');
 
@@ -35,15 +35,15 @@ COMMENT ON COLUMN net_networks.external IS 'Whether network is used for floating
 COMMENT ON COLUMN net_networks.mtu IS 'Maximum transmission unit (1500 for physical, 1450 for overlay)';
 
 -- Verify migration
-SELECT 
-  id, 
-  name, 
-  network_type, 
-  physical_network, 
-  segmentation_id, 
+SELECT
+  id,
+  name,
+  network_type,
+  physical_network,
+  segmentation_id,
   vlan_id,
   shared,
   external,
   mtu
-FROM net_networks 
+FROM net_networks
 LIMIT 10;

@@ -15,7 +15,7 @@ import (
 // OVNConfig holds OVN northbound connection parameters.
 type OVNConfig struct {
 	NBAddress string // e.g. tcp:127.0.0.1:6641 or unix:/var/run/ovn/ovnnb_db.sock
-	// Bridge mappings: map physical network names to OVS bridges
+	// Bridge mappings: map physical network names to OVS bridges.
 	// Format: "physnet1:br-eth1,physnet2:br-eth2"
 	// Example: "provider:br-provider,external:br-ex"
 	BridgeMappings string
@@ -36,14 +36,14 @@ func NewOVNDriver(l *zap.Logger, cfg OVNConfig) *OVNDriver {
 		bridgeMappings: make(map[string]string),
 	}
 
-	// Parse bridge mappings from config
+	// Parse bridge mappings from config.
 	if cfg.BridgeMappings != "" {
 		drv.parseBridgeMappings(cfg.BridgeMappings)
 	}
 
-	// Initialize SDK client when possible; fall back to nbctl if it fails
+	// Initialize SDK client when possible; fall back to nbctl if it fails.
 	if strings.TrimSpace(cfg.NBAddress) != "" {
-		// Default to NB DB; reconnect enabled for resiliency
+		// Default to NB DB; reconnect enabled for resiliency.
 		c, err := goovn.NewClient(&goovn.Config{Db: goovn.DBNB, Addr: cfg.NBAddress, Reconnect: true})
 		if err != nil {
 			l.Warn("OVN SDK client init failed; falling back to ovn-nbctl", zap.Error(err), zap.String("addr", cfg.NBAddress))
@@ -56,7 +56,7 @@ func NewOVNDriver(l *zap.Logger, cfg OVNConfig) *OVNDriver {
 	return drv
 }
 
-// parseBridgeMappings parses bridge_mappings config string
+// parseBridgeMappings parses bridge_mappings config string.
 // Format: "physnet1:br-eth1,physnet2:br-eth2"
 func (d *OVNDriver) parseBridgeMappings(mappings string) {
 	if mappings == "" {
@@ -80,7 +80,7 @@ func (d *OVNDriver) parseBridgeMappings(mappings string) {
 }
 
 func (d *OVNDriver) nbctl(args ...string) error {
-	// prepend --db if NBAddress provided
+	// prepend --db if NBAddress provided.
 	if d.cfg.NBAddress != "" {
 		args = append([]string{"--db", d.cfg.NBAddress}, args...)
 	}
@@ -94,7 +94,7 @@ func (d *OVNDriver) nbctl(args ...string) error {
 }
 
 func (d *OVNDriver) nbctlOutput(args ...string) (string, error) {
-	// prepend --db if NBAddress provided
+	// prepend --db if NBAddress provided.
 	if d.cfg.NBAddress != "" {
 		args = append([]string{"--db", d.cfg.NBAddress}, args...)
 	}
@@ -111,7 +111,7 @@ func (d *OVNDriver) nbctlOutput(args ...string) (string, error) {
 func (d *OVNDriver) hasSDK() bool { return d != nil && d.sdk != nil }
 
 // EnsureNetwork creates a logical switch for the network and configures DHCP for the subnet.
-// Supports OpenStack-style network types: flat, vlan, vxlan, gre, geneve, local
+// Supports OpenStack-style network types: flat, vlan, vxlan, gre, geneve, local.
 func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 	lsName := fmt.Sprintf("ls-%s", n.ID)
 	if d.hasSDK() {
@@ -123,7 +123,7 @@ func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 			return fmt.Errorf("sdk LSAdd error: %w", err)
 		}
 	} else {
-		// Create logical switch with --may-exist to handle re-runs
+		// Create logical switch with --may-exist to handle re-runs.
 		if err := d.nbctl("--may-exist", "ls-add", lsName); err != nil {
 			return err
 		}
@@ -135,10 +135,10 @@ func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 		networkType = "vxlan"
 	}
 
-	// For provider networks (flat/vlan), create localnet port to connect to physical network
+	// For provider networks (flat/vlan), create localnet port to connect to physical network.
 	switch networkType {
 	case "flat":
-		// Flat network: no VLAN tagging, direct connection to physical network
+		// Flat network: no VLAN tagging, direct connection to physical network.
 		if err := d.createLocalnetPort(lsName, n.PhysicalNetwork, 0); err != nil {
 			return fmt.Errorf("create flat network localnet port: %w", err)
 		}
@@ -147,7 +147,7 @@ func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 			zap.String("physical_network", n.PhysicalNetwork))
 
 	case "vlan":
-		// VLAN network: tagged traffic on physical network
+		// VLAN network: tagged traffic on physical network.
 		vlanID := n.SegmentationID
 		if vlanID == 0 && n.VLANID != 0 {
 			vlanID = n.VLANID // Fallback to legacy field
@@ -164,9 +164,9 @@ func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 			zap.Int("vlan_id", vlanID))
 
 	case "vxlan", "gre", "geneve":
-		// Overlay networks: traffic is tunneled between compute nodes
-		// OVN handles tunneling automatically via Geneve by default
-		// Set other_config for tunnel type if needed
+		// Overlay networks: traffic is tunneled between compute nodes.
+		// OVN handles tunneling automatically via Geneve by default.
+		// Set other_config for tunnel type if needed.
 		tunnelKey := n.SegmentationID
 		if tunnelKey > 0 {
 			// Set explicit tunnel key (VNI for VXLAN)
@@ -190,7 +190,7 @@ func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 			zap.Int("segmentation_id", tunnelKey))
 
 	case "local":
-		// Local network: only accessible on the same compute node
+		// Local network: only accessible on the same compute node.
 		d.logger.Info("Created local network", zap.String("network_id", n.ID))
 
 	default:
@@ -198,9 +198,9 @@ func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 			zap.String("type", networkType))
 	}
 
-	// Configure DHCP if subnet has CIDR and DHCP is enabled
+	// Configure DHCP if subnet has CIDR and DHCP is enabled.
 	if s != nil && strings.TrimSpace(s.CIDR) != "" && s.EnableDHCP {
-		// Calculate gateway if not provided
+		// Calculate gateway if not provided.
 		gateway := s.Gateway
 		if gateway == "" {
 			// Use first usable IP as gateway (e.g., 10.10.10.1 for 10.10.10.0/24)
@@ -212,12 +212,12 @@ func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 			if ip != nil {
 				ip[3] = ip[3] + 1 // First usable IP
 				gateway = ip.String()
-				// Update subnet gateway
+				// Update subnet gateway.
 				s.Gateway = gateway
 			}
 		}
 
-		// Calculate allocation pool if not provided
+		// Calculate allocation pool if not provided.
 		allocationStart := s.AllocationStart
 		allocationEnd := s.AllocationEnd
 		if allocationStart == "" || allocationEnd == "" {
@@ -254,7 +254,7 @@ func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 			s.DNSNameservers = dnsServers
 		}
 
-		// Create DHCP options for the subnet using generic create/set commands
+		// Create DHCP options for the subnet using generic create/set commands.
 		cidr := s.CIDR
 
 		d.logger.Info("Ensuring DHCP options for subnet",
@@ -263,7 +263,7 @@ func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 			zap.String("dns", dnsServers),
 			zap.String("pool", fmt.Sprintf("%s-%s", allocationStart, allocationEnd)))
 
-		// Ensure or create DHCP options via SDK if available; else use nbctl
+		// Ensure or create DHCP options via SDK if available; else use nbctl.
 		dns := strings.ReplaceAll(dnsServers, ",", " ")
 		leaseTime := s.DHCPLeaseTime
 		if leaseTime == 0 {
@@ -272,7 +272,7 @@ func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 		mac := p2pMAC(n.ID)
 
 		if d.hasSDK() {
-			// Find existing by CIDR
+			// Find existing by CIDR.
 			var dhcpUUID string
 			if list, err := d.sdk.DHCPOptionsList(); err == nil {
 				for _, dopt := range list {
@@ -307,14 +307,14 @@ func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 				}
 			}
 		} else {
-			// nbctl fallback
+			// nbctl fallback.
 			dhcpUUID, err := d.nbctlOutput("--bare", "--columns=_uuid", "find", "dhcp_options", fmt.Sprintf("cidr=%s", cidr))
 			if err != nil {
 				return fmt.Errorf("failed to query DHCP options: %w", err)
 			}
 			dhcpUUID = strings.TrimSpace(dhcpUUID)
 			if dhcpUUID == "" {
-				// Create a new dhcp_options row
+				// Create a new dhcp_options row.
 				createdUUID, err := d.nbctlOutput("create", "dhcp_options", fmt.Sprintf("cidr=%s", cidr))
 				if err != nil {
 					return fmt.Errorf("failed to create DHCP options: %w", err)
@@ -351,14 +351,14 @@ func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 	return nil
 }
 
-// createLocalnetPort creates a localnet port to connect logical switch to physical network
-// vlanID = 0 for flat network, 1-4094 for VLAN network
+// createLocalnetPort creates a localnet port to connect logical switch to physical network.
+// vlanID = 0 for flat network, 1-4094 for VLAN network.
 func (d *OVNDriver) createLocalnetPort(lsName, physicalNetwork string, vlanID int) error {
 	if strings.TrimSpace(physicalNetwork) == "" {
 		return fmt.Errorf("physical_network is required for flat/vlan networks")
 	}
 
-	// Localnet port name: provnet-<logical-switch-name>
+	// Localnet port name: provnet-<logical-switch-name>.
 	portName := fmt.Sprintf("provnet-%s", lsName)
 
 	if d.hasSDK() {
@@ -387,11 +387,11 @@ func (d *OVNDriver) createLocalnetPort(lsName, physicalNetwork string, vlanID in
 			return err
 		}
 	} else {
-		// Create the localnet port
+		// Create the localnet port.
 		if err := d.nbctl("--", "--may-exist", "lsp-add", lsName, portName); err != nil {
 			return err
 		}
-		// Set port type to localnet
+		// Set port type to localnet.
 		if err := d.nbctl("lsp-set-type", portName, "localnet"); err != nil {
 			return err
 		}
@@ -399,7 +399,7 @@ func (d *OVNDriver) createLocalnetPort(lsName, physicalNetwork string, vlanID in
 		if err := d.nbctl("lsp-set-options", portName, fmt.Sprintf("network_name=%s", physicalNetwork)); err != nil {
 			return err
 		}
-		// Set addresses to unknown to allow all MAC addresses
+		// Set addresses to unknown to allow all MAC addresses.
 		if err := d.nbctl("lsp-set-addresses", portName, "unknown"); err != nil {
 			return err
 		}
@@ -408,7 +408,7 @@ func (d *OVNDriver) createLocalnetPort(lsName, physicalNetwork string, vlanID in
 	// For VLAN networks, set the VLAN tag (go-ovn lacks a direct setter; use nbctl fallback)
 	if vlanID > 0 {
 		if d.hasSDK() {
-			// network_name already set; only tag via nbctl
+			// network_name already set; only tag via nbctl.
 			if err := d.nbctl("set", "Logical_Switch_Port", portName, fmt.Sprintf("tag=%d", vlanID)); err != nil {
 				return err
 			}
@@ -481,7 +481,7 @@ func (d *OVNDriver) EnsurePort(n *Network, s *Subnet, p *NetworkPort) error {
 			return err
 		}
 	}
-	// Basic port security: allow only the declared MAC and IPs
+	// Basic port security: allow only the declared MAC and IPs.
 	ps := mac
 	if first != "" {
 		ips := []string{}
@@ -507,10 +507,10 @@ func (d *OVNDriver) EnsurePort(n *Network, s *Subnet, p *NetworkPort) error {
 			return err
 		}
 	}
-	// If subnet is provided and has DHCP options, attach them to this port
+	// If subnet is provided and has DHCP options, attach them to this port.
 	if s != nil && strings.TrimSpace(s.CIDR) != "" && s.EnableDHCP {
 		if d.hasSDK() {
-			// Find DHCP options by CIDR and attach
+			// Find DHCP options by CIDR and attach.
 			if list, err := d.sdk.DHCPOptionsList(); err == nil {
 				for _, dopt := range list {
 					if dopt != nil && strings.TrimSpace(dopt.CIDR) == strings.TrimSpace(s.CIDR) {
@@ -524,12 +524,12 @@ func (d *OVNDriver) EnsurePort(n *Network, s *Subnet, p *NetworkPort) error {
 				}
 			}
 		} else {
-			// Look up dhcp_options by CIDR and bind to this LSP
+			// Look up dhcp_options by CIDR and bind to this LSP.
 			dhcpUUID, err := d.nbctlOutput("--bare", "--columns=_uuid", "find", "dhcp_options", fmt.Sprintf("cidr=%s", s.CIDR))
 			if err == nil {
 				dhcpUUID = strings.TrimSpace(dhcpUUID)
 				if dhcpUUID != "" {
-					// Attach DHCPv4 options to the port
+					// Attach DHCPv4 options to the port.
 					if err := d.nbctl("set", "Logical_Switch_Port", lspName, fmt.Sprintf("dhcpv4_options=%s", dhcpUUID)); err != nil {
 						d.logger.Warn("Failed to attach DHCP options to port", zap.String("port", lspName), zap.String("dhcp_uuid", dhcpUUID), zap.Error(err))
 					}
@@ -554,7 +554,7 @@ func firstIPFromFixedIPs(list FixedIPList) string {
 	return strings.TrimSpace(list[0].IP)
 }
 
-// EnsureRouter creates a logical router if not exists
+// EnsureRouter creates a logical router if not exists.
 func (d *OVNDriver) EnsureRouter(name string) error {
 	if d.hasSDK() {
 		if cmd, err := d.sdk.LRAdd(name, nil); err == nil {
@@ -571,7 +571,7 @@ func (d *OVNDriver) EnsureRouter(name string) error {
 	return d.nbctl("--", "--may-exist", "lr-add", name)
 }
 
-// DeleteRouter deletes a logical router
+// DeleteRouter deletes a logical router.
 func (d *OVNDriver) DeleteRouter(name string) error {
 	if d.hasSDK() {
 		if cmd, err := d.sdk.LRDel(name); err == nil {
@@ -588,7 +588,7 @@ func (d *OVNDriver) DeleteRouter(name string) error {
 	return d.nbctl("--", "--if-exists", "lr-del", name)
 }
 
-// EnsureFIPNAT sets a DNAT_and_SNAT rule for a floating IP mapping to fixed IP
+// EnsureFIPNAT sets a DNAT_and_SNAT rule for a floating IP mapping to fixed IP.
 func (d *OVNDriver) EnsureFIPNAT(router string, floatingIP, fixedIP string) error {
 	if d.hasSDK() {
 		if cmd, err := d.sdk.LRNATAdd(router, "dnat_and_snat", floatingIP, fixedIP, nil); err == nil {
@@ -602,7 +602,7 @@ func (d *OVNDriver) EnsureFIPNAT(router string, floatingIP, fixedIP string) erro
 	return d.nbctl("--", "--may-exist", "lr-nat-add", router, "dnat_and_snat", floatingIP, fixedIP)
 }
 
-// RemoveFIPNAT removes DNAT_and_SNAT rule
+// RemoveFIPNAT removes DNAT_and_SNAT rule.
 func (d *OVNDriver) RemoveFIPNAT(router string, floatingIP, fixedIP string) error {
 	if d.hasSDK() {
 		if cmd, err := d.sdk.LRNATDel(router, "dnat_and_snat", floatingIP); err == nil {
@@ -625,34 +625,34 @@ func (d *OVNDriver) ReplacePortACLs(networkID, portID string, rules []ACLRule) e
 
 // EnsurePortSecurity ensures security groups are applied via Port Groups and ACLs (placeholder)
 func (d *OVNDriver) EnsurePortSecurity(portID string, groups []CompiledSecurityGroup) error {
-	// Placeholder: future work to create PG per SG, assign ports, and add ACLs to PGs
+	// Placeholder: future work to create PG per SG, assign ports, and add ACLs to PGs.
 	d.logger.Debug("EnsurePortSecurity (placeholder)", zap.String("port", portID))
 	return nil
 }
 
-// ConnectSubnetToRouter connects a logical switch (network) to a logical router via a router port and switch peer port
+// ConnectSubnetToRouter connects a logical switch (network) to a logical router via a router port and switch peer port.
 // Assumes Subnet.Gateway resides in Subnet.CIDR. Creates:
-// - lr-port: lrp-<router>-<networkID> with gateway IP as address
-// - ls-port: lsp-<router>-<networkID> with type=router and options:router-port pointing to lrp
+// - lr-port: lrp-<router>-<networkID> with gateway IP as address.
+// - ls-port: lsp-<router>-<networkID> with type=router and options:router-port pointing to lrp.
 func (d *OVNDriver) ConnectSubnetToRouter(router string, n *Network, s *Subnet) error {
 	lsName := fmt.Sprintf("ls-%s", n.ID)
 	lrpName := fmt.Sprintf("lrp-%s-%s", router, n.ID)
 	lspName := fmt.Sprintf("lsp-%s-%s", router, n.ID)
-	// Determine router port addresses: use subnet gateway with prefix length
+	// Determine router port addresses: use subnet gateway with prefix length.
 	cidr := s.CIDR
 	gw := strings.TrimSpace(s.Gateway)
 	addr := gw
 	if cidr != "" && gw != "" {
-		// append prefix if not included
+		// append prefix if not included.
 		if !strings.Contains(gw, "/") {
-			// extract prefix length from subnet CIDR
+			// extract prefix length from subnet CIDR.
 			parts := strings.Split(cidr, "/")
 			if len(parts) == 2 {
 				addr = fmt.Sprintf("%s/%s", gw, parts[1])
 			}
 		}
 	} else if cidr != "" && gw == "" {
-		// derive gateway as first usable IP of CIDR
+		// derive gateway as first usable IP of CIDR.
 		if ip, ipnet, err := net.ParseCIDR(cidr); err == nil {
 			v4 := ip.To4()
 			if v4 != nil {
@@ -663,7 +663,7 @@ func (d *OVNDriver) ConnectSubnetToRouter(router string, n *Network, s *Subnet) 
 		}
 	}
 	if d.hasSDK() {
-		// Add router port
+		// Add router port.
 		if cmd, err := d.sdk.LRPAdd(router, lrpName, p2pMAC(n.ID), []string{addr}, "", nil); err == nil {
 			if err := d.sdk.Execute(cmd); err != nil {
 				return err
@@ -671,7 +671,7 @@ func (d *OVNDriver) ConnectSubnetToRouter(router string, n *Network, s *Subnet) 
 		} else if err != goovn.ErrorExist {
 			return err
 		}
-		// Add switch peer port and link to router-port
+		// Add switch peer port and link to router-port.
 		cmds := make([]*goovn.OvnCommand, 0, 3)
 		if cmd, err := d.sdk.LSPAdd(lsName, lspName); err == nil {
 			cmds = append(cmds, cmd)
@@ -697,7 +697,7 @@ func (d *OVNDriver) ConnectSubnetToRouter(router string, n *Network, s *Subnet) 
 			return err
 		}
 	} else {
-		// nbctl fallback
+		// nbctl fallback.
 		if err := d.nbctl("--", "--may-exist", "lrp-add", router, lrpName, p2pMAC(n.ID), addr); err != nil {
 			return err
 		}
@@ -727,7 +727,7 @@ func (d *OVNDriver) ConnectSubnetToRouter(router string, n *Network, s *Subnet) 
 	return nil
 }
 
-// DisconnectSubnetFromRouter removes the connection between router and network
+// DisconnectSubnetFromRouter removes the connection between router and network.
 func (d *OVNDriver) DisconnectSubnetFromRouter(router string, n *Network) error {
 	lsName := fmt.Sprintf("ls-%s", n.ID)
 	lrpName := fmt.Sprintf("lrp-%s-%s", router, n.ID)
@@ -735,7 +735,7 @@ func (d *OVNDriver) DisconnectSubnetFromRouter(router string, n *Network) error 
 
 	if d.hasSDK() {
 		if cmd, err := d.sdk.LSPDel(lspName); err == nil {
-			// delete LSP
+			// delete LSP.
 			_ = d.sdk.Execute(cmd)
 		}
 		if cmd, err := d.sdk.LRPDel(router, lrpName); err == nil {
@@ -744,11 +744,11 @@ func (d *OVNDriver) DisconnectSubnetFromRouter(router string, n *Network) error 
 			}
 		}
 	} else {
-		// Remove the switch port first
+		// Remove the switch port first.
 		if err := d.nbctl("--", "--if-exists", "lsp-del", lspName); err != nil {
 			d.logger.Warn("Failed to delete switch port", zap.Error(err))
 		}
-		// Remove the router port
+		// Remove the router port.
 		if err := d.nbctl("--", "--if-exists", "lrp-del", lrpName); err != nil {
 			return err
 		}
@@ -762,20 +762,20 @@ func (d *OVNDriver) DisconnectSubnetFromRouter(router string, n *Network) error 
 	return nil
 }
 
-// SetRouterGateway sets the external gateway for a router
-// This connects the router to an external network and allocates a gateway IP
-// Returns the allocated gateway IP address
+// SetRouterGateway sets the external gateway for a router.
+// This connects the router to an external network and allocates a gateway IP.
+// Returns the allocated gateway IP address.
 func (d *OVNDriver) SetRouterGateway(router string, externalNetwork *Network, externalSubnet *Subnet) (string, error) {
-	// Create router port on external network
+	// Create router port on external network.
 	lsName := fmt.Sprintf("ls-%s", externalNetwork.ID)
 	lrpName := fmt.Sprintf("lrp-%s-gw", router)
 	lspName := fmt.Sprintf("lsp-%s-gw", router)
 
 	// Allocate an IP from external subnet (simplified: use first available)
-	// In production, use proper IPAM
+	// In production, use proper IPAM.
 	gatewayIP := ""
 	if externalSubnet.Gateway != "" {
-		// Use a different IP from the gateway for router's external interface
+		// Use a different IP from the gateway for router's external interface.
 		if ip, ipnet, err := net.ParseCIDR(externalSubnet.CIDR); err == nil {
 			v4 := ip.To4()
 			if v4 != nil {
@@ -813,7 +813,7 @@ func (d *OVNDriver) SetRouterGateway(router string, externalNetwork *Network, ex
 						return "", err
 					}
 				} else {
-					// nbctl fallback
+					// nbctl fallback.
 					if err := d.nbctl("--", "--may-exist", "lrp-add", router, lrpName, p2pMAC(externalNetwork.ID+"gw"), addr); err != nil {
 						return "", err
 					}
@@ -822,9 +822,9 @@ func (d *OVNDriver) SetRouterGateway(router string, externalNetwork *Network, ex
 					}
 				}
 
-				// Set default route on router pointing to external network gateway
+				// Set default route on router pointing to external network gateway.
 				if externalSubnet.Gateway != "" {
-					// SDK route helpers exist but require matching parameters; keep nbctl for default route simplicity
+					// SDK route helpers exist but require matching parameters; keep nbctl for default route simplicity.
 					if err := d.nbctl("--", "--may-exist", "lr-route-add", router, "0.0.0.0/0", externalSubnet.Gateway); err != nil {
 						d.logger.Warn("Failed to add default route", zap.Error(err))
 					}
@@ -841,17 +841,17 @@ func (d *OVNDriver) SetRouterGateway(router string, externalNetwork *Network, ex
 	return gatewayIP, nil
 }
 
-// ClearRouterGateway removes the external gateway from a router
+// ClearRouterGateway removes the external gateway from a router.
 func (d *OVNDriver) ClearRouterGateway(router string, externalNetwork *Network) error {
 	lrpName := fmt.Sprintf("lrp-%s-gw", router)
 	lspName := fmt.Sprintf("lsp-%s-gw", router)
 
-	// Remove default route
+	// Remove default route.
 	if err := d.nbctl("--", "--if-exists", "lr-route-del", router, "0.0.0.0/0"); err != nil {
 		d.logger.Warn("Failed to delete default route", zap.Error(err))
 	}
 
-	// Remove switch port
+	// Remove switch port.
 	if d.hasSDK() {
 		if cmd, err := d.sdk.LSPDel(lspName); err == nil {
 			_ = d.sdk.Execute(cmd)
@@ -864,7 +864,7 @@ func (d *OVNDriver) ClearRouterGateway(router string, externalNetwork *Network) 
 		}
 	}
 
-	// Remove router port
+	// Remove router port.
 	if d.hasSDK() {
 		if cmd, err := d.sdk.LRPDel(router, lrpName); err == nil {
 			if err := d.sdk.Execute(cmd); err != nil {
@@ -886,11 +886,11 @@ func (d *OVNDriver) ClearRouterGateway(router string, externalNetwork *Network) 
 	return nil
 }
 
-// SetRouterSNAT enables or disables SNAT for a router
-// When enabled, traffic from internal networks will be SNATed to the external gateway IP
+// SetRouterSNAT enables or disables SNAT for a router.
+// When enabled, traffic from internal networks will be SNATed to the external gateway IP.
 func (d *OVNDriver) SetRouterSNAT(router string, enable bool, internalCIDR string, externalIP string) error {
 	if enable {
-		// Add SNAT rule: internal CIDR -> external IP
+		// Add SNAT rule: internal CIDR -> external IP.
 		if d.hasSDK() {
 			if cmd, err := d.sdk.LRNATAdd(router, "snat", externalIP, internalCIDR, nil); err == nil {
 				if err := d.sdk.Execute(cmd); err != nil {
@@ -909,7 +909,7 @@ func (d *OVNDriver) SetRouterSNAT(router string, enable bool, internalCIDR strin
 			zap.String("internal_cidr", internalCIDR),
 			zap.String("external_ip", externalIP))
 	} else {
-		// Remove SNAT rule
+		// Remove SNAT rule.
 		if d.hasSDK() {
 			if cmd, err := d.sdk.LRNATDel(router, "snat", externalIP); err == nil {
 				if err := d.sdk.Execute(cmd); err != nil {
@@ -930,9 +930,9 @@ func (d *OVNDriver) SetRouterSNAT(router string, enable bool, internalCIDR strin
 	return nil
 }
 
-// p2pMAC creates a stable pseudo-MAC for router ports based on network id hash
+// p2pMAC creates a stable pseudo-MAC for router ports based on network id hash.
 func p2pMAC(seed string) string {
-	// deterministic but simple: use first 6 hex chars of seed as last 3 octets
+	// deterministic but simple: use first 6 hex chars of seed as last 3 octets.
 	hex := seed
 	if len(hex) < 6 {
 		hex = fmt.Sprintf("%06s", seed)
@@ -941,7 +941,7 @@ func p2pMAC(seed string) string {
 	return fmt.Sprintf("02:00:%s:%s:%s:%s", tail[0:2], tail[2:4], tail[4:6], "01")
 }
 
-// incIP increments an IPv4 address by 1 (in place) and returns it
+// incIP increments an IPv4 address by 1 (in place) and returns it.
 func incIP(ip net.IP) net.IP {
 	res := make(net.IP, len(ip))
 	copy(res, ip)

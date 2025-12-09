@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS net_routers (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT uniq_net_routers_tenant_name UNIQUE (tenant_id, name),
-    CONSTRAINT fk_router_external_gateway FOREIGN KEY (external_gateway_network_id) 
+    CONSTRAINT fk_router_external_gateway FOREIGN KEY (external_gateway_network_id)
         REFERENCES net_networks(id) ON DELETE SET NULL
 );
 
@@ -34,11 +34,11 @@ CREATE TABLE IF NOT EXISTS net_router_interfaces (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT uniq_router_subnet UNIQUE (router_id, subnet_id),
-    CONSTRAINT fk_router_interface_router FOREIGN KEY (router_id) 
+    CONSTRAINT fk_router_interface_router FOREIGN KEY (router_id)
         REFERENCES net_routers(id) ON DELETE CASCADE,
-    CONSTRAINT fk_router_interface_subnet FOREIGN KEY (subnet_id) 
+    CONSTRAINT fk_router_interface_subnet FOREIGN KEY (subnet_id)
         REFERENCES net_subnets(id) ON DELETE CASCADE,
-    CONSTRAINT fk_router_interface_port FOREIGN KEY (port_id) 
+    CONSTRAINT fk_router_interface_port FOREIGN KEY (port_id)
         REFERENCES net_ports(id) ON DELETE SET NULL
 );
 

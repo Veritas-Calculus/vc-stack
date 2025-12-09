@@ -237,7 +237,12 @@ func (h *QEMUHandlers) syncVMs(c *gin.Context) {
 		return
 	}
 
-	vms, _ := h.manager.ListVMs(ctx)
+	vms, err := h.manager.ListVMs(ctx)
+	if err != nil {
+		h.logger.Warn("failed to list VMs after sync", zap.Error(err))
+		c.JSON(http.StatusOK, gin.H{"message": "VMs synced successfully"})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "VMs synced successfully",

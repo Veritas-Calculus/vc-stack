@@ -209,20 +209,21 @@ func (s *Service) attachVolumeHandler(c *gin.Context) {
 	instErr := s.db.Where("id = ? AND user_id = ?", uint(instID64), userID).First(&inst).Error
 
 	attach := VolumeAttachment{VolumeID: vol.ID, Device: strings.TrimSpace(req.Device)}
-	if fcErr == nil && (strings.EqualFold(req.Type, "firecracker") || strings.TrimSpace(req.Type) == "") {
+	switch {
+	case fcErr == nil && (strings.EqualFold(req.Type, "firecracker") || strings.TrimSpace(req.Type) == ""):
 		// Require VM to be stopped for now
 		if !strings.EqualFold(strings.TrimSpace(fci.PowerState), "shutdown") {
 			c.JSON(http.StatusConflict, gin.H{"error": "Instance must be stopped to attach a volume"})
 			return
 		}
 		attach.FirecrackerInstanceID = &fci.ID
-	} else if instErr == nil && (strings.EqualFold(req.Type, "classic") || strings.TrimSpace(req.Type) == "") {
+	case instErr == nil && (strings.EqualFold(req.Type, "classic") || strings.TrimSpace(req.Type) == ""):
 		if !strings.EqualFold(strings.TrimSpace(inst.PowerState), "shutdown") {
 			c.JSON(http.StatusConflict, gin.H{"error": "Instance must be stopped to attach a volume"})
 			return
 		}
 		attach.InstanceID = &inst.ID
-	} else {
+	default:
 		c.JSON(http.StatusNotFound, gin.H{"error": "Instance not found"})
 		return
 	}
@@ -286,6 +287,8 @@ func (s *Service) detachVolumeHandler(c *gin.Context) {
 }
 
 // listInstanceVolumesHandler returns volumes attached to an instance (by matching RBD pool/image)
+//
+//nolint:gocognit // Complex volume attachment checking logic
 func (s *Service) listInstanceVolumesHandler(c *gin.Context) {
 	userID := s.getUserIDFromContext(c)
 	if userID == 0 {
@@ -1449,6 +1452,8 @@ func (s *Service) registerImageHandler(c *gin.Context) {
 }
 
 // listVolumesHandler handles listing volumes.
+//
+//nolint:gocognit,gocyclo // Complex volume listing with multiple sources
 func (s *Service) listVolumesHandler(c *gin.Context) {
 	userID := s.getUserIDFromContext(c)
 	if userID == 0 {

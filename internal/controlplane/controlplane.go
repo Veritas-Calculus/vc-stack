@@ -25,7 +25,7 @@ type Config struct {
 	Logger *zap.Logger
 }
 
-// Service composes all control plane services
+// Service composes all control plane services.
 // and exposes a single SetupRoutes to register their routes on a router.
 type Service struct {
 	Identity   *identity.Service
@@ -39,10 +39,11 @@ type Service struct {
 	Monitoring *monitoring.Service
 }
 
-// New composes the control plane services. It returns an error if any
+// New composes the control plane services. It returns an error if any.
 // underlying service initialization fails.
 func New(cfg Config) (*Service, error) {
 	// TODO: Load JWT secret from config or environment variable
+	//nolint:gosec // Hardcoded secret is for development only, should be overridden in production
 	jwtSecret := "vc-stack-jwt-secret-change-me-in-production"
 
 	idSvc, err := identity.NewService(identity.Config{
@@ -83,7 +84,7 @@ func New(cfg Config) (*Service, error) {
 	gwCfg.Services.Scheduler = gateway.ServiceEndpoint{Host: "localhost", Port: 8092}
 	gwCfg.Services.Compute = gateway.ServiceEndpoint{Host: "localhost", Port: 8081}
 	gwCfg.Services.Lite = gateway.ServiceEndpoint{Host: "localhost", Port: 8081} // Lite runs on same port as compute (vc-node)
-	gwSvc, err := gateway.NewService(gwCfg)
+	gwSvc, err := gateway.NewService(&gwCfg)
 	if err != nil {
 		return nil, err
 	}
@@ -123,11 +124,11 @@ func New(cfg Config) (*Service, error) {
 
 // SetupRoutes registers all control-plane routes onto the provided Gin router.
 func (s *Service) SetupRoutes(router *gin.Engine) {
-	// Register monitoring first for health checks and metrics
+	// Register monitoring first for health checks and metrics.
 	s.Monitoring.SetupRoutes(router)
 
-	// Register specific service routes before gateway's wildcard routes
-	// This ensures specific routes take precedence
+	// Register specific service routes before gateway's wildcard routes.
+	// This ensures specific routes take precedence.
 	s.Identity.SetupRoutes(router)
 	s.Network.SetupRoutes(router)
 	s.Host.SetupRoutes(router)
@@ -137,6 +138,6 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	s.Quota.SetupRoutes(router)
 
 	// Gateway proxy routes - only for external compute service (vc-node)
-	// Use SetupComputeProxyRoutes to avoid conflicts with directly registered routes
+	// Use SetupComputeProxyRoutes to avoid conflicts with directly registered routes.
 	s.Gateway.SetupComputeProxyRoutes(router)
 }

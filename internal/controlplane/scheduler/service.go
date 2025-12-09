@@ -27,7 +27,7 @@ type Service struct {
 	nodes  map[string]*Node
 }
 
-// Node represents a compute node registration and live metrics
+// Node represents a compute node registration and live metrics.
 type Node struct {
 	ID            string            `json:"id"` // unique name/ID
 	Hostname      string            `json:"hostname"`
@@ -91,7 +91,7 @@ func (s *Service) SetupRoutes(r *gin.Engine) {
 	}
 }
 
-// dispatchVMCreate selects a node and forwards the VM create request to that node's vc-lite
+// dispatchVMCreate selects a node and forwards the VM create request to that node's vc-lite.
 func (s *Service) dispatchVMCreate(c *gin.Context) {
 	s.logger.Info("dispatch request received", zap.String("client_ip", c.ClientIP()))
 
@@ -154,9 +154,9 @@ func (s *Service) dispatchVMCreate(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to encode payload"})
 		return
 	}
-	reqHttp, _ := http.NewRequest("POST", addr, buf)
-	reqHttp.Header.Set("Content-Type", "application/json")
-	resp, err := http.DefaultClient.Do(reqHttp)
+	reqHTTP, _ := http.NewRequest("POST", addr, buf)
+	reqHTTP.Header.Set("Content-Type", "application/json")
+	resp, err := http.DefaultClient.Do(reqHTTP)
 	if err != nil {
 		s.logger.Error("dispatch forward failed", zap.String("addr", addr), zap.Error(err))
 		c.JSON(http.StatusBadGateway, gin.H{"error": "forward to node failed"})
@@ -226,7 +226,7 @@ func (s *Service) listNodes(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"nodes": list})
 }
 
-// getNode retrieves a single node by ID
+// getNode retrieves a single node by ID.
 func (s *Service) getNode(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -243,7 +243,7 @@ func (s *Service) getNode(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"node": node})
 }
 
-// deleteNode removes a node from the scheduler registry
+// deleteNode removes a node from the scheduler registry.
 func (s *Service) deleteNode(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -260,7 +260,7 @@ func (s *Service) deleteNode(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"ok": true})
 }
 
-// schedule chooses the least-allocated node that fits the requested resources
+// schedule chooses the least-allocated node that fits the requested resources.
 func (s *Service) schedule(c *gin.Context) {
 	var req ScheduleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -275,7 +275,7 @@ func (s *Service) schedule(c *gin.Context) {
 	c.JSON(http.StatusOK, ScheduleResponse{NodeID: nodeID, Reason: reason})
 }
 
-func (s *Service) selectNode(req ScheduleRequest) (string, string) {
+func (s *Service) selectNode(req ScheduleRequest) (nodeID, reason string) {
 	s.mu.RLock()
 	candidates := make([]*Node, 0, len(s.nodes))
 	now := time.Now()
@@ -300,21 +300,22 @@ func (s *Service) selectNode(req ScheduleRequest) (string, string) {
 	// sort by least-allocated (CPU, then RAM)
 	sort.Slice(candidates, func(i, j int) bool {
 		ni, nj := candidates[i], candidates[j]
-		uCPU := ni.Usage.CPUs * 1000 / max(1, ni.Capacity.CPUs)
-		vCPU := nj.Usage.CPUs * 1000 / max(1, nj.Capacity.CPUs)
+		uCPU := ni.Usage.CPUs * 1000 / maxInt(1, ni.Capacity.CPUs)
+		vCPU := nj.Usage.CPUs * 1000 / maxInt(1, nj.Capacity.CPUs)
 		if uCPU != vCPU {
 			return uCPU < vCPU
 		}
-		uRAM := ni.Usage.RAMMB * 1000 / max(1, ni.Capacity.RAMMB)
-		vRAM := nj.Usage.RAMMB * 1000 / max(1, nj.Capacity.RAMMB)
+		uRAM := ni.Usage.RAMMB * 1000 / maxInt(1, ni.Capacity.RAMMB)
+		vRAM := nj.Usage.RAMMB * 1000 / maxInt(1, nj.Capacity.RAMMB)
 		return uRAM < vRAM
 	})
 	chosen := candidates[0]
-	reason := fmt.Sprintf("least-allocated: cpu=%d/%d ram=%d/%d", chosen.Usage.CPUs, chosen.Capacity.CPUs, chosen.Usage.RAMMB, chosen.Capacity.RAMMB)
-	return chosen.ID, reason
+	nodeID = chosen.ID
+	reason = fmt.Sprintf("least-allocated: cpu=%d/%d ram=%d/%d", chosen.Usage.CPUs, chosen.Capacity.CPUs, chosen.Usage.RAMMB, chosen.Capacity.RAMMB)
+	return nodeID, reason
 }
 
-func max(a, b int) int {
+func maxInt(a, b int) int {
 	if a > b {
 		return a
 	}

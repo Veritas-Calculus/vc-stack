@@ -27,23 +27,23 @@ type CreateVMRequest struct {
 	Image    string `json:"image"`
 	UEFI     bool   `json:"uefi"`
 	TPM      bool   `json:"tpm"`
-	// Network configuration
+	// Network configuration.
 	NetworkID string `json:"network_id"` // Network UUID from net_networks table
 	// Network interfaces (optional). If empty, one interface on default network is attached.
 	Nics []Nic `json:"nics"`
-	// Optional: Ceph RBD images instead of local files
+	// Optional: Ceph RBD images instead of local files.
 	// RootRBDImage format: <pool>/<image>@<snap> (snap optional)
 	RootRBDImage string `json:"root_rbd_image"`
 	// IsoRBDImage format: <pool>/<image>@<snap> (snap optional)
 	IsoRBDImage string `json:"iso_rbd_image"`
 	// If using local ISO file (fallback)
 	ISO string `json:"iso"`
-	// Cloud-init support
+	// Cloud-init support.
 	SSHAuthorizedKey string `json:"ssh_authorized_key"`
 	UserData         string `json:"user_data"`
 }
 
-// Nic describes a VM NIC configuration
+// Nic describes a VM NIC configuration.
 type Nic struct {
 	MAC    string `json:"mac"`
 	PortID string `json:"port_id"` // OVN/OVS port ID for virtualport interfaceid

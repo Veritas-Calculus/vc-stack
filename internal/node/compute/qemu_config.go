@@ -73,7 +73,7 @@ type QEMUConfigStore struct {
 
 // NewQEMUConfigStore creates a new configuration store.
 func NewQEMUConfigStore(baseDir string, logger *zap.Logger) (*QEMUConfigStore, error) {
-	if err := os.MkdirAll(baseDir, 0755); err != nil {
+	if err := os.MkdirAll(baseDir, 0o755); err != nil {
 		return nil, fmt.Errorf("create config directory: %w", err)
 	}
 
@@ -104,7 +104,7 @@ func (s *QEMUConfigStore) Save(config *QEMUConfig) error {
 	}
 
 	configPath := s.getConfigPath(config.ID)
-	if err := os.WriteFile(configPath, data, 0644); err != nil {
+	if err := os.WriteFile(configPath, data, 0o644); err != nil {
 		return fmt.Errorf("write config file: %w", err)
 	}
 

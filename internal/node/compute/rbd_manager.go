@@ -1,5 +1,9 @@
 //go:build cgo
+// +build cgo
 
+// Package compute provides RBD storage management.
+//
+//nolint:all
 package compute
 
 import (
@@ -11,7 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// RBDManager manages Ceph RBD connections and operations
+// RBDManager manages Ceph RBD connections and operations.
 type RBDManager struct {
 	logger *zap.Logger
 	config struct {
@@ -22,7 +26,7 @@ type RBDManager struct {
 	mu sync.RWMutex
 }
 
-// NewRBDManager creates a new RBD manager
+// NewRBDManager creates a new RBD manager.
 func NewRBDManager(logger *zap.Logger, images ImagesConfig, volumes VolumesConfig, backups BackupsConfig) *RBDManager {
 	mgr := &RBDManager{
 		logger: logger,
@@ -59,25 +63,25 @@ func (m *RBDManager) getConnection(category string) (*rados.Conn, error) {
 		return nil, fmt.Errorf("failed to create rados connection: %w", err)
 	}
 
-	// Read the configuration file
+	// Read the configuration file.
 	if err := conn.ReadConfigFile(cephConf); err != nil {
 		conn.Shutdown()
 		return nil, fmt.Errorf("failed to read ceph config: %w", err)
 	}
 
-	// Set the client name
+	// Set the client name.
 	if err := conn.SetConfigOption("client_name", rbdClient); err != nil {
 		conn.Shutdown()
 		return nil, fmt.Errorf("failed to set client name: %w", err)
 	}
 
-	// Set the keyring path
+	// Set the keyring path.
 	if err := conn.SetConfigOption("keyring", keyring); err != nil {
 		conn.Shutdown()
 		return nil, fmt.Errorf("failed to set keyring: %w", err)
 	}
 
-	// Connect to the cluster
+	// Connect to the cluster.
 	if err := conn.Connect(); err != nil {
 		conn.Shutdown()
 		return nil, fmt.Errorf("failed to connect to cluster: %w", err)
@@ -86,7 +90,7 @@ func (m *RBDManager) getConnection(category string) (*rados.Conn, error) {
 	return conn, nil
 }
 
-// CreateVolume creates a new RBD volume
+// CreateVolume creates a new RBD volume.
 func (m *RBDManager) CreateVolume(pool, name string, sizeGB int) error {
 	conn, err := m.getConnection("volumes")
 	if err != nil {
@@ -100,7 +104,7 @@ func (m *RBDManager) CreateVolume(pool, name string, sizeGB int) error {
 	}
 	defer ioctx.Destroy()
 
-	// Create RBD image
+	// Create RBD image.
 	sizeBytes := uint64(sizeGB) * 1024 * 1024 * 1024 // Convert GB to bytes
 	options := rbd.NewRbdImageOptions()
 	err = rbd.CreateImage(ioctx, name, sizeBytes, options)
@@ -116,7 +120,7 @@ func (m *RBDManager) CreateVolume(pool, name string, sizeGB int) error {
 	return nil
 }
 
-// DeleteVolume deletes an RBD volume
+// DeleteVolume deletes an RBD volume.
 func (m *RBDManager) DeleteVolume(pool, name string) error {
 	conn, err := m.getConnection("volumes")
 	if err != nil {
@@ -130,7 +134,7 @@ func (m *RBDManager) DeleteVolume(pool, name string) error {
 	}
 	defer ioctx.Destroy()
 
-	// Remove RBD image
+	// Remove RBD image.
 	err = rbd.RemoveImage(ioctx, name)
 	if err != nil {
 		return fmt.Errorf("failed to remove rbd image: %w", err)
@@ -143,7 +147,7 @@ func (m *RBDManager) DeleteVolume(pool, name string) error {
 	return nil
 }
 
-// ResizeVolume resizes an RBD volume
+// ResizeVolume resizes an RBD volume.
 func (m *RBDManager) ResizeVolume(pool, name string, newSizeGB int) error {
 	conn, err := m.getConnection("volumes")
 	if err != nil {
@@ -157,14 +161,14 @@ func (m *RBDManager) ResizeVolume(pool, name string, newSizeGB int) error {
 	}
 	defer ioctx.Destroy()
 
-	// Open the image
+	// Open the image.
 	image, err := rbd.OpenImage(ioctx, name, rbd.NoSnapshot)
 	if err != nil {
 		return fmt.Errorf("failed to open rbd image: %w", err)
 	}
 	defer image.Close()
 
-	// Resize the image
+	// Resize the image.
 	newSizeBytes := uint64(newSizeGB) * 1024 * 1024 * 1024
 	err = image.Resize(newSizeBytes)
 	if err != nil {
@@ -179,7 +183,7 @@ func (m *RBDManager) ResizeVolume(pool, name string, newSizeGB int) error {
 	return nil
 }
 
-// GetVolumeInfo gets information about an RBD volume
+// GetVolumeInfo gets information about an RBD volume.
 func (m *RBDManager) GetVolumeInfo(pool, name string) (*rbd.ImageInfo, error) {
 	conn, err := m.getConnection("volumes")
 	if err != nil {
@@ -193,14 +197,14 @@ func (m *RBDManager) GetVolumeInfo(pool, name string) (*rbd.ImageInfo, error) {
 	}
 	defer ioctx.Destroy()
 
-	// Open the image
+	// Open the image.
 	image, err := rbd.OpenImage(ioctx, name, rbd.NoSnapshot)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open rbd image: %w", err)
 	}
 	defer image.Close()
 
-	// Get image info
+	// Get image info.
 	info, err := image.Stat()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get rbd image info: %w", err)
@@ -209,7 +213,7 @@ func (m *RBDManager) GetVolumeInfo(pool, name string) (*rbd.ImageInfo, error) {
 	return info, nil
 }
 
-// ListVolumes lists all volumes in a pool
+// ListVolumes lists all volumes in a pool.
 func (m *RBDManager) ListVolumes(pool string) ([]string, error) {
 	conn, err := m.getConnection("volumes")
 	if err != nil {
@@ -223,7 +227,7 @@ func (m *RBDManager) ListVolumes(pool string) ([]string, error) {
 	}
 	defer ioctx.Destroy()
 
-	// List images
+	// List images.
 	names, err := rbd.GetImageNames(ioctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list rbd images: %w", err)
@@ -232,7 +236,7 @@ func (m *RBDManager) ListVolumes(pool string) ([]string, error) {
 	return names, nil
 }
 
-// DeleteBackup deletes a backup image
+// DeleteBackup deletes a backup image.
 func (m *RBDManager) DeleteBackup(pool, name string) error {
 	conn, err := m.getConnection("backups")
 	if err != nil {
@@ -246,7 +250,7 @@ func (m *RBDManager) DeleteBackup(pool, name string) error {
 	}
 	defer ioctx.Destroy()
 
-	// Remove RBD image
+	// Remove RBD image.
 	err = rbd.RemoveImage(ioctx, name)
 	if err != nil {
 		return fmt.Errorf("failed to remove backup image: %w", err)

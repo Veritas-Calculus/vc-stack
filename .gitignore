@@ -59,6 +59,9 @@ coverage/
 node_modules/
 vendor/
 
+# TypeScript build info
+*.tsbuildinfo
+
 # Optional npm cache directory
 .npm
 

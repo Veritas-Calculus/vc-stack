@@ -11,13 +11,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// CreateNetworkRequest represents a request to create a logical switch
+// CreateNetworkRequest represents a request to create a logical switch.
 type CreateNetworkRequest struct {
 	ID   string `json:"id" binding:"required"`
 	CIDR string `json:"cidr"`
 }
 
-// CreatePortRequest represents a request to create a port
+// CreatePortRequest represents a request to create a port.
 type CreatePortRequest struct {
 	NetworkID  string `json:"network_id" binding:"required"`
 	PortID     string `json:"port_id" binding:"required"`
@@ -25,7 +25,7 @@ type CreatePortRequest struct {
 	IPAddress  string `json:"ip_address"`
 }
 
-// ConfigureDHCPRequest represents a request to configure DHCP
+// ConfigureDHCPRequest represents a request to configure DHCP.
 type ConfigureDHCPRequest struct {
 	NetworkID       string `json:"network_id" binding:"required"`
 	CIDR            string `json:"cidr" binding:"required"`
@@ -36,7 +36,7 @@ type ConfigureDHCPRequest struct {
 	LeaseTime       int    `json:"lease_time"`
 }
 
-// Router and gateway payloads
+// Router and gateway payloads.
 type EnsureRouterRequest struct {
 	Name string `json:"name" binding:"required"`
 }
@@ -59,7 +59,7 @@ type SNATRequest struct {
 	ExternalIP   string `json:"external_ip" binding:"required"`
 }
 
-// createNetwork handles POST /api/v1/networks
+// createNetwork handles POST /api/v1/networks.
 func (s *Service) createNetwork(c *gin.Context) {
 	var req CreateNetworkRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -69,7 +69,7 @@ func (s *Service) createNetwork(c *gin.Context) {
 
 	lsName := fmt.Sprintf("ls-%s", req.ID)
 
-	// Create logical switch with --may-exist to be idempotent
+	// Create logical switch with --may-exist to be idempotent.
 	if _, err := s.nbctl("--may-exist", "ls-add", lsName); err != nil {
 		s.logger.Error("Failed to create logical switch", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -80,19 +80,19 @@ func (s *Service) createNetwork(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"network_id": req.ID, "ls_name": lsName})
 }
 
-// deleteNetwork handles DELETE /api/v1/networks/:id
+// deleteNetwork handles DELETE /api/v1/networks/:id.
 func (s *Service) deleteNetwork(c *gin.Context) {
 	id := c.Param("id")
 	lsName := fmt.Sprintf("ls-%s", id)
 
-	// First, get the subnet/CIDR associated with this logical switch to clean up DHCP options
+	// First, get the subnet/CIDR associated with this logical switch to clean up DHCP options.
 	lsInfo, err := s.nbctl("get", "logical_switch", lsName, "other_config")
 	if err == nil && lsInfo != "" {
-		// Try to extract subnet from other_config
+		// Try to extract subnet from other_config.
 		s.logger.Debug("Logical switch info", zap.String("info", lsInfo))
 	}
 
-	// Alternative: Query all ports on this switch to find their DHCP options
+	// Alternative: Query all ports on this switch to find their DHCP options.
 	portsOutput, err := s.nbctl("--bare", "--columns=dhcpv4_options", "find", "logical_switch_port", fmt.Sprintf("_switch=%s", lsName))
 	if err == nil && strings.TrimSpace(portsOutput) != "" {
 		dhcpUUIDs := strings.Fields(strings.TrimSpace(portsOutput))
@@ -105,8 +105,8 @@ func (s *Service) deleteNetwork(c *gin.Context) {
 		}
 	}
 
-	// Get all DHCP options associated with ports on this logical switch
-	// Query the logical switch ports first
+	// Get all DHCP options associated with ports on this logical switch.
+	// Query the logical switch ports first.
 	lspOutput, err := s.nbctl("--bare", "--columns=name", "find", "logical_switch_port", fmt.Sprintf("_switch=%s", lsName))
 	if err == nil && strings.TrimSpace(lspOutput) != "" {
 		portNames := strings.Fields(strings.TrimSpace(lspOutput))
@@ -122,8 +122,8 @@ func (s *Service) deleteNetwork(c *gin.Context) {
 
 	s.logger.Info("Logical switch deleted", zap.String("name", lsName))
 
-	// Clean up any orphaned DHCP options
-	// Find DHCP options that are not referenced by any port
+	// Clean up any orphaned DHCP options.
+	// Find DHCP options that are not referenced by any port.
 	allDHCPOutput, err := s.nbctl("--bare", "--columns=_uuid,cidr", "list", "dhcp_options")
 	if err == nil && strings.TrimSpace(allDHCPOutput) != "" {
 		lines := strings.Split(strings.TrimSpace(allDHCPOutput), "\n")
@@ -132,7 +132,7 @@ func (s *Service) deleteNetwork(c *gin.Context) {
 				uuid := strings.TrimSpace(lines[i])
 				cidr := strings.TrimSpace(lines[i+1])
 
-				// Check if this DHCP option is referenced by any port
+				// Check if this DHCP option is referenced by any port.
 				refCheck, _ := s.nbctl("--bare", "--columns=name", "find", "logical_switch_port", fmt.Sprintf("dhcpv4_options=%s", uuid))
 				if strings.TrimSpace(refCheck) == "" {
 					s.logger.Info("Cleaning up orphaned DHCP option", zap.String("uuid", uuid), zap.String("cidr", cidr))
@@ -145,7 +145,7 @@ func (s *Service) deleteNetwork(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"network_id": id})
 }
 
-// createPort handles POST /api/v1/ports
+// createPort handles POST /api/v1/ports.
 func (s *Service) createPort(c *gin.Context) {
 	var req CreatePortRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -156,14 +156,14 @@ func (s *Service) createPort(c *gin.Context) {
 	lsName := fmt.Sprintf("ls-%s", req.NetworkID)
 	lspName := fmt.Sprintf("lsp-%s", req.PortID)
 
-	// Create logical switch port
+	// Create logical switch port.
 	if _, err := s.nbctl("--may-exist", "lsp-add", lsName, lspName); err != nil {
 		s.logger.Error("Failed to create logical switch port", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Set addresses
+	// Set addresses.
 	addr := req.MACAddress
 	if req.IPAddress != "" {
 		addr = fmt.Sprintf("%s %s", req.MACAddress, req.IPAddress)
@@ -175,17 +175,17 @@ func (s *Service) createPort(c *gin.Context) {
 	}
 
 	// Set external-ids:iface-id to the port UUID (without lsp- prefix)
-	// This allows libvirt to match the port using the UUID in interfaceid parameter
+	// This allows libvirt to match the port using the UUID in interfaceid parameter.
 	if _, err := s.nbctl("set", "logical_switch_port", lspName, fmt.Sprintf("external-ids:iface-id=%s", req.PortID)); err != nil {
 		s.logger.Warn("Failed to set external-ids:iface-id", zap.Error(err))
 	} else {
 		s.logger.Info("Set external-ids:iface-id for port", zap.String("port", lspName), zap.String("iface-id", req.PortID))
 	}
 
-	// Set DHCP options if IP is provided
+	// Set DHCP options if IP is provided.
 	if req.IPAddress != "" {
-		// Extract CIDR from IP address - find the DHCP options for this network
-		// Query the logical switch to get associated DHCP options
+		// Extract CIDR from IP address - find the DHCP options for this network.
+		// Query the logical switch to get associated DHCP options.
 		lsInfo, err := s.nbctl("get", "logical_switch", lsName, "other_config")
 		cidr := ""
 		if err == nil && strings.Contains(lsInfo, "subnet") {
@@ -193,8 +193,8 @@ func (s *Service) createPort(c *gin.Context) {
 			s.logger.Debug("logical switch other_config contains subnet", zap.String("info", lsInfo))
 		}
 
-		// Find DHCP options by searching for matching CIDR
-		// Extract first 3 octets from IP to match /24 network
+		// Find DHCP options by searching for matching CIDR.
+		// Extract first 3 octets from IP to match /24 network.
 		ipParts := strings.Split(req.IPAddress, ".")
 		if len(ipParts) == 4 {
 			cidr = fmt.Sprintf("%s.%s.%s.0/24", ipParts[0], ipParts[1], ipParts[2])
@@ -206,7 +206,7 @@ func (s *Service) createPort(c *gin.Context) {
 
 				for _, token := range allTokens {
 					token = strings.TrimSpace(token)
-					// Validate UUID format: exactly 36 chars with 4 dashes
+					// Validate UUID format: exactly 36 chars with 4 dashes.
 					if len(token) == 36 && strings.Count(token, "-") == 4 {
 						dhcpUUID = token
 						break
@@ -228,7 +228,7 @@ func (s *Service) createPort(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"port_id": req.PortID, "lsp_name": lspName})
 }
 
-// deletePort handles DELETE /api/v1/ports/:id
+// deletePort handles DELETE /api/v1/ports/:id.
 func (s *Service) deletePort(c *gin.Context) {
 	id := c.Param("id")
 	lspName := fmt.Sprintf("lsp-%s", id)
@@ -243,7 +243,9 @@ func (s *Service) deletePort(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"port_id": id})
 }
 
-// configureDHCP handles POST /api/v1/dhcp
+// configureDHCP handles POST /api/v1/dhcp.
+//
+//nolint:gocognit,gocyclo // Complex DHCP configuration logic
 func (s *Service) configureDHCP(c *gin.Context) {
 	var req ConfigureDHCPRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -251,7 +253,7 @@ func (s *Service) configureDHCP(c *gin.Context) {
 		return
 	}
 
-	// Auto-calculate gateway if not provided
+	// Auto-calculate gateway if not provided.
 	gateway := req.Gateway
 	if gateway == "" {
 		_, ipnet, err := net.ParseCIDR(req.CIDR)
@@ -261,30 +263,30 @@ func (s *Service) configureDHCP(c *gin.Context) {
 		}
 		ip := ipnet.IP.To4()
 		if ip != nil {
-			ip[3] = ip[3] + 1
+			ip[3]++
 			gateway = ip.String()
 		}
 	}
 
-	// Set default DNS if not provided
+	// Set default DNS if not provided.
 	dnsServers := req.DNSServers
 	if dnsServers == "" {
 		dnsServers = "8.8.8.8,8.8.4.4"
 	}
 
-	// Set default lease time
+	// Set default lease time.
 	leaseTime := req.LeaseTime
 	if leaseTime == 0 {
 		leaseTime = 86400 // 24 hours
 	}
 
-	// Use mutex to prevent concurrent DHCP option creation for the same CIDR
+	// Use mutex to prevent concurrent DHCP option creation for the same CIDR.
 	s.dhcpMutex.Lock()
 	defer s.dhcpMutex.Unlock()
 
 	s.logger.Info("Configuring DHCP options (locked)", zap.String("cidr", req.CIDR))
 
-	// Strategy: Find existing DHCP options and reuse if possible, or delete all and create new
+	// Strategy: Find existing DHCP options and reuse if possible, or delete all and create new.
 	existingUUIDs, err := s.nbctl("--bare", "--columns=_uuid", "find", "dhcp_options", fmt.Sprintf("cidr=%s", req.CIDR))
 
 	var dhcpUUID string
@@ -293,11 +295,11 @@ func (s *Service) configureDHCP(c *gin.Context) {
 		uuidList := strings.Fields(strings.TrimSpace(existingUUIDs)) // Split by any whitespace
 
 		if len(uuidList) == 1 {
-			// Only one exists - reuse it
+			// Only one exists - reuse it.
 			dhcpUUID = strings.TrimSpace(uuidList[0])
 			s.logger.Info("Reusing existing DHCP options", zap.String("uuid", dhcpUUID), zap.String("cidr", req.CIDR))
 		} else {
-			// Multiple exist - delete all and create fresh
+			// Multiple exist - delete all and create fresh.
 			s.logger.Warn("Multiple DHCP options found, cleaning up", zap.Int("count", len(uuidList)), zap.String("cidr", req.CIDR))
 
 			for _, uuid := range uuidList {
@@ -308,10 +310,10 @@ func (s *Service) configureDHCP(c *gin.Context) {
 				}
 			}
 
-			// Wait for deletions to complete
+			// Wait for deletions to complete.
 			time.Sleep(300 * time.Millisecond)
 
-			// Verify cleanup
+			// Verify cleanup.
 			checkUUIDs, _ := s.nbctl("--bare", "--columns=_uuid", "find", "dhcp_options", fmt.Sprintf("cidr=%s", req.CIDR))
 			if strings.TrimSpace(checkUUIDs) != "" {
 				s.logger.Warn("Force deleting remaining DHCP options", zap.String("remaining", strings.TrimSpace(checkUUIDs)))
@@ -321,12 +323,12 @@ func (s *Service) configureDHCP(c *gin.Context) {
 				time.Sleep(200 * time.Millisecond)
 			}
 
-			// Create new
+			// Create new.
 			dhcpUUID = ""
 		}
 	}
 
-	// Create new DHCP options if we don't have one
+	// Create new DHCP options if we don't have one.
 	if dhcpUUID == "" {
 		createOutput, err := s.nbctl("dhcp-options-create", req.CIDR)
 		if err != nil {
@@ -335,10 +337,10 @@ func (s *Service) configureDHCP(c *gin.Context) {
 			return
 		}
 
-		// Extract UUID - take only first valid UUID from the output
+		// Extract UUID - take only first valid UUID from the output.
 		createOutput = strings.TrimSpace(createOutput)
 
-		// Split by newlines and whitespace to handle all possible formats
+		// Split by newlines and whitespace to handle all possible formats.
 		allTokens := strings.Fields(createOutput) // This splits by any whitespace including \n
 
 		for _, token := range allTokens {
@@ -357,7 +359,7 @@ func (s *Service) configureDHCP(c *gin.Context) {
 			return
 		}
 
-		// Verify the UUID exists before proceeding
+		// Verify the UUID exists before proceeding.
 		verifyOutput, err := s.nbctl("--bare", "--columns=_uuid", "find", "dhcp_options", fmt.Sprintf("_uuid=%s", dhcpUUID))
 		if err != nil || strings.TrimSpace(verifyOutput) == "" {
 			s.logger.Error("DHCP UUID verification failed", zap.String("uuid", dhcpUUID), zap.Error(err))
@@ -371,7 +373,7 @@ func (s *Service) configureDHCP(c *gin.Context) {
 	// Set DHCP options (each option must be a separate argument to ovn-nbctl)
 	dns := strings.ReplaceAll(dnsServers, ",", " ")
 
-	// Build options as separate arguments for ovn-nbctl command
+	// Build options as separate arguments for ovn-nbctl command.
 	opts := []string{
 		"dhcp-options-set-options",
 		dhcpUUID,
@@ -388,13 +390,13 @@ func (s *Service) configureDHCP(c *gin.Context) {
 		return
 	}
 
-	// Create router and connect to network to make gateway IP reachable
+	// Create router and connect to network to make gateway IP reachable.
 	lsName := fmt.Sprintf("ls-%s", req.NetworkID)
 	routerName := fmt.Sprintf("lr-%s", req.NetworkID)
 	lrpName := fmt.Sprintf("lrp-%s", req.NetworkID)
 	lspName := fmt.Sprintf("lsp-router-%s", req.NetworkID)
 
-	// Generate stable MAC address from network ID
+	// Generate stable MAC address from network ID.
 	networkIDSuffix := req.NetworkID
 	if len(networkIDSuffix) > 11 {
 		networkIDSuffix = networkIDSuffix[len(networkIDSuffix)-11:]
@@ -402,21 +404,21 @@ func (s *Service) configureDHCP(c *gin.Context) {
 	routerMAC := fmt.Sprintf("02:00:00:%s:%s:%s",
 		networkIDSuffix[0:2], networkIDSuffix[2:4], networkIDSuffix[4:6])
 
-	// Extract prefix length from CIDR
+	// Extract prefix length from CIDR.
 	gatewayWithPrefix := fmt.Sprintf("%s/%s", gateway, strings.Split(req.CIDR, "/")[1])
 
-	// Check if router already exists
+	// Check if router already exists.
 	existingRouter, _ := s.nbctl("--bare", "--columns=name", "find", "logical_router", fmt.Sprintf("name=%s", routerName))
 	if strings.TrimSpace(existingRouter) == "" {
-		// Create logical router
+		// Create logical router.
 		if _, err := s.nbctl("--may-exist", "lr-add", routerName); err != nil {
 			s.logger.Warn("Failed to create router", zap.Error(err))
 		} else {
-			// Create router port with gateway IP
+			// Create router port with gateway IP.
 			if _, err := s.nbctl("lrp-add", routerName, lrpName, routerMAC, gatewayWithPrefix); err != nil {
 				s.logger.Warn("Failed to create router port", zap.Error(err))
 			} else {
-				// Create switch port of type router to connect to the router port
+				// Create switch port of type router to connect to the router port.
 				if _, err := s.nbctl("--may-exist", "lsp-add", lsName, lspName); err != nil {
 					s.logger.Warn("Failed to create switch port", zap.Error(err))
 				} else if _, err := s.nbctl("lsp-set-type", lspName, "router"); err != nil {
@@ -424,7 +426,7 @@ func (s *Service) configureDHCP(c *gin.Context) {
 				} else if _, err := s.nbctl("lsp-set-options", lspName, fmt.Sprintf("router-port=%s", lrpName)); err != nil {
 					s.logger.Warn("Failed to set switch port options", zap.Error(err))
 				} else {
-					// Ensure router LSP has correct addresses for L3 routing
+					// Ensure router LSP has correct addresses for L3 routing.
 					if _, err := s.nbctl("lsp-set-addresses", lspName, "router"); err != nil {
 						s.logger.Warn("Failed to set router LSP addresses", zap.Error(err))
 					}
@@ -454,7 +456,7 @@ func (s *Service) configureDHCP(c *gin.Context) {
 	})
 }
 
-// ensureRouter: POST /api/v1/routers { name }
+// ensureRouter: POST /api/v1/routers { name }.
 func (s *Service) ensureRouter(c *gin.Context) {
 	var req EnsureRouterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -469,7 +471,7 @@ func (s *Service) ensureRouter(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"router": req.Name})
 }
 
-// deleteRouter: DELETE /api/v1/routers/:name
+// deleteRouter: DELETE /api/v1/routers/:name.
 func (s *Service) deleteRouter(c *gin.Context) {
 	name := c.Param("name")
 	if _, err := s.nbctl("--if-exists", "lr-del", name); err != nil {
@@ -480,7 +482,7 @@ func (s *Service) deleteRouter(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"router": name})
 }
 
-// connectSubnetToRouter: POST /api/v1/routers/:name/connect-subnet
+// connectSubnetToRouter: POST /api/v1/routers/:name/connect-subnet.
 func (s *Service) connectSubnetToRouter(c *gin.Context) {
 	router := c.Param("name")
 	var req ConnectSubnetRequest
@@ -492,7 +494,7 @@ func (s *Service) connectSubnetToRouter(c *gin.Context) {
 	lrpName := fmt.Sprintf("lrp-%s-%s", router, req.NetworkID)
 	lspName := fmt.Sprintf("lsp-%s-%s", router, req.NetworkID)
 
-	// Determine router port IP/prefix
+	// Determine router port IP/prefix.
 	addr := req.Gateway
 	if _, ipnet, err := net.ParseCIDR(req.CIDR); err == nil {
 		if addr == "" {
@@ -518,14 +520,14 @@ func (s *Service) connectSubnetToRouter(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	// Ensure router LSP addresses=router for correct L3 routing
+	// Ensure router LSP addresses=router for correct L3 routing.
 	if _, err := s.nbctl("lsp-set-addresses", lspName, "router"); err != nil {
 		s.logger.Warn("Failed to set router LSP addresses", zap.Error(err))
 	}
 	c.JSON(http.StatusOK, gin.H{"router": router, "lrp": lrpName, "lsp": lspName, "addr": addr})
 }
 
-// disconnectSubnetFromRouter: POST /api/v1/routers/:name/disconnect-subnet { network_id }
+// disconnectSubnetFromRouter: POST /api/v1/routers/:name/disconnect-subnet { network_id }.
 func (s *Service) disconnectSubnetFromRouter(c *gin.Context) {
 	router := c.Param("name")
 	var body struct {
@@ -548,7 +550,7 @@ func (s *Service) disconnectSubnetFromRouter(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"router": router, "lrp": lrpName, "lsp": lspName})
 }
 
-// setRouterGateway: POST /api/v1/routers/:name/set-gateway { external_network_id, external_cidr, external_gateway }
+// setRouterGateway: POST /api/v1/routers/:name/set-gateway { external_network_id, external_cidr, external_gateway }.
 func (s *Service) setRouterGateway(c *gin.Context) {
 	router := c.Param("name")
 	var req SetGatewayRequest
@@ -586,7 +588,7 @@ func (s *Service) setRouterGateway(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	// default route to upstream gateway if provided
+	// default route to upstream gateway if provided.
 	if strings.TrimSpace(req.ExternalGateway) != "" {
 		if _, err := s.nbctl("--", "--may-exist", "lr-route-add", router, "0.0.0.0/0", req.ExternalGateway); err != nil {
 			s.logger.Warn("Failed to add default route", zap.Error(err))
@@ -595,7 +597,7 @@ func (s *Service) setRouterGateway(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"router": router, "gateway_ip": routerIP})
 }
 
-// clearRouterGateway: POST /api/v1/routers/:name/clear-gateway { external_network_id }
+// clearRouterGateway: POST /api/v1/routers/:name/clear-gateway { external_network_id }.
 func (s *Service) clearRouterGateway(c *gin.Context) {
 	router := c.Param("name")
 	var body struct {
@@ -607,7 +609,7 @@ func (s *Service) clearRouterGateway(c *gin.Context) {
 	}
 	lrpName := fmt.Sprintf("lrp-%s-gw", router)
 	lspName := fmt.Sprintf("lsp-%s-gw", router)
-	// remove default route
+	// remove default route.
 	if _, err := s.nbctl("--", "--if-exists", "lr-route-del", router, "0.0.0.0/0"); err != nil {
 		s.logger.Warn("Failed to delete default route", zap.Error(err))
 	}
@@ -622,7 +624,7 @@ func (s *Service) clearRouterGateway(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"router": router})
 }
 
-// setRouterSNAT: POST /api/v1/routers/:name/snat { enable, internal_cidr, external_ip }
+// setRouterSNAT: POST /api/v1/routers/:name/snat { enable, internal_cidr, external_ip }.
 func (s *Service) setRouterSNAT(c *gin.Context) {
 	router := c.Param("name")
 	var req SNATRequest
@@ -646,7 +648,7 @@ func (s *Service) setRouterSNAT(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"router": router, "enable": req.Enable})
 }
 
-// helper: increment IPv4
+// helper: increment IPv4.
 func incIPv4(ip net.IP) net.IP {
 	res := make(net.IP, len(ip))
 	copy(res, ip)
@@ -659,7 +661,7 @@ func incIPv4(ip net.IP) net.IP {
 	return res
 }
 
-// helper: stable pseudo MAC like OVN driver
+// helper: stable pseudo MAC like OVN driver.
 func p2pMAC(seed string) string {
 	hex := seed
 	if len(hex) < 6 {

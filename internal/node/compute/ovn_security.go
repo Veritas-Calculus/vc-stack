@@ -111,8 +111,8 @@ func (m *OVNSecurityGroupManager) createACL(portName string, rule *SecurityRule)
 	args := []string{
 		"--id=@acl", "create", "ACL",
 		fmt.Sprintf("direction=%s", direction),
-		fmt.Sprintf("priority=1000"),
-		fmt.Sprintf("match=\"%s\"", match),
+		"priority=1000",
+		fmt.Sprintf("match=%q", match),
 		fmt.Sprintf("action=%s", action),
 		"--", "add", "Logical_Switch", portName, "acls", "@acl",
 	}
@@ -157,9 +157,9 @@ func (m *OVNSecurityGroupManager) buildACLMatch(portName string, rule *SecurityR
 
 	// Add inport/outport based on direction.
 	if rule.Direction == "ingress" {
-		parts = append(parts, fmt.Sprintf("outport == \"%s\"", portName))
+		parts = append(parts, fmt.Sprintf("outport == %q", portName))
 	} else {
-		parts = append(parts, fmt.Sprintf("inport == \"%s\"", portName))
+		parts = append(parts, fmt.Sprintf("inport == %q", portName))
 	}
 
 	// Add protocol.

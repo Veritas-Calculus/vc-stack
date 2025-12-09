@@ -14,7 +14,7 @@ import (
 	"golang.org/x/time/rate"
 )
 
-// AuthMiddleware provides JWT authentication middleware
+// AuthMiddleware provides JWT authentication middleware.
 func AuthMiddleware(jwtSecret string, logger *zap.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
@@ -57,7 +57,7 @@ func AuthMiddleware(jwtSecret string, logger *zap.Logger) gin.HandlerFunc {
 	}
 }
 
-// RateLimitMiddleware provides rate limiting per IP
+// RateLimitMiddleware provides rate limiting per IP.
 func RateLimitMiddleware(requestsPerSecond float64, burst int) gin.HandlerFunc {
 	type client struct {
 		limiter  *rate.Limiter
@@ -69,7 +69,7 @@ func RateLimitMiddleware(requestsPerSecond float64, burst int) gin.HandlerFunc {
 		clients = make(map[string]*client)
 	)
 
-	// Cleanup old clients periodically
+	// Cleanup old clients periodically.
 	go func() {
 		ticker := time.NewTicker(time.Minute)
 		defer ticker.Stop()
@@ -107,7 +107,7 @@ func RateLimitMiddleware(requestsPerSecond float64, burst int) gin.HandlerFunc {
 	}
 }
 
-// RequestIDMiddleware adds a unique request ID to each request
+// RequestIDMiddleware adds a unique request ID to each request.
 func RequestIDMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		requestID := c.GetHeader("X-Request-ID")
@@ -120,7 +120,7 @@ func RequestIDMiddleware() gin.HandlerFunc {
 	}
 }
 
-// CORSMiddleware handles CORS
+// CORSMiddleware handles CORS.
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")
@@ -138,7 +138,7 @@ func CORSMiddleware() gin.HandlerFunc {
 	}
 }
 
-// LoggingMiddleware logs all requests
+// LoggingMiddleware logs all requests.
 func LoggingMiddleware(logger *zap.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
@@ -163,20 +163,23 @@ func LoggingMiddleware(logger *zap.Logger) gin.HandlerFunc {
 		}
 
 		if requestID, exists := c.Get("request_id"); exists {
-			fields = append(fields, zap.String("request_id", requestID.(string)))
+			if reqIDStr, ok := requestID.(string); ok {
+				fields = append(fields, zap.String("request_id", reqIDStr))
+			}
 		}
 
-		if statusCode >= 500 {
+		switch {
+		case statusCode >= 500:
 			logger.Error("request error", fields...)
-		} else if statusCode >= 400 {
+		case statusCode >= 400:
 			logger.Warn("request warning", fields...)
-		} else {
+		default:
 			logger.Info("request", fields...)
 		}
 	}
 }
 
-// TenantIsolationMiddleware ensures tenant isolation
+// TenantIsolationMiddleware ensures tenant isolation.
 func TenantIsolationMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tenantID, exists := c.Get("tenant_id")
@@ -186,17 +189,18 @@ func TenantIsolationMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Add tenant_id to query parameters for filtering
+		// Add tenant_id to query parameters for filtering.
 		c.Set("filter_tenant_id", tenantID)
 		c.Next()
 	}
 }
 
-// AdminOnlyMiddleware restricts access to admin users
+// AdminOnlyMiddleware restricts access to admin users.
 func AdminOnlyMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		isAdmin, exists := c.Get("is_admin")
-		if !exists || !isAdmin.(bool) {
+		isAdminBool, ok := isAdmin.(bool)
+		if !exists || !ok || !isAdminBool {
 			c.JSON(http.StatusForbidden, gin.H{"error": "admin access required"})
 			c.Abort()
 			return
@@ -205,7 +209,7 @@ func AdminOnlyMiddleware() gin.HandlerFunc {
 	}
 }
 
-// generateRequestID generates a unique request ID
+// generateRequestID generates a unique request ID.
 func generateRequestID() string {
 	return time.Now().Format("20060102150405") + "-" + randomString(8)
 }

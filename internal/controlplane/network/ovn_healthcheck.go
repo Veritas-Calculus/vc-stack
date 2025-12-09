@@ -39,16 +39,15 @@ func (h *OVNHealthChecker) CheckHealth(ctx context.Context) []HealthStatus {
 	var statuses []HealthStatus
 
 	// Check NB database connectivity.
-	statuses = append(statuses, h.checkNBDatabase(ctx))
-
 	// Check SB database connectivity.
-	statuses = append(statuses, h.checkSBDatabase(ctx))
-
 	// Check logical switches.
-	statuses = append(statuses, h.checkLogicalSwitches(ctx))
-
 	// Check logical routers.
-	statuses = append(statuses, h.checkLogicalRouters(ctx))
+	statuses = append(statuses,
+		h.checkNBDatabase(ctx),
+		h.checkSBDatabase(ctx),
+		h.checkLogicalSwitches(ctx),
+		h.checkLogicalRouters(ctx),
+	)
 
 	return statuses
 }

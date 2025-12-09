@@ -79,9 +79,13 @@ func runServer(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatalf("failed to init logger: %v", err)
 	}
-	defer func() { _ = zapLogger.Sync() }()
+	defer func() {
+		if err := zapLogger.Sync(); err != nil {
+			log.Printf("failed to sync logger: %v", err)
+		}
+	}()
 
-	// Initialize Sentry for error tracking
+	// Initialize Sentry for error tracking.
 	sentryDSN := os.Getenv("SENTRY_DSN")
 	if sentryDSN != "" {
 		sentryEnv := os.Getenv("SENTRY_ENVIRONMENT")
@@ -146,10 +150,17 @@ func runServer(cmd *cobra.Command, args []string) {
 	// Port selection.
 	port := 8081
 	if v := os.Getenv("VC_NODE_PORT"); v != "" {
-		fmt.Sscanf(v, "%d", &port)
+		if _, err := fmt.Sscanf(v, "%d", &port); err != nil {
+			zapLogger.Warn("invalid VC_NODE_PORT, using default 8081", zap.String("value", v), zap.Error(err))
+			port = 8081
+		}
 	}
 
-	srv := &http.Server{Addr: fmt.Sprintf(":%d", port), Handler: router}
+	srv := &http.Server{
+		Addr:              fmt.Sprintf(":%d", port),
+		Handler:           router,
+		ReadHeaderTimeout: 10 * time.Second,
+	}
 	go func() {
 		zapLogger.Info("starting vc-node", zap.Int("port", port))
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {

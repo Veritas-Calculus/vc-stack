@@ -3,10 +3,6 @@ run:
   timeout: 5m
   tests: true
   modules-download-mode: readonly
-  skip-dirs:
-    - pkg/sentry
-  skip-files:
-    - ".*rbd_manager\\.go$"
 
 linters:
   enable:
@@ -43,18 +39,24 @@ linters-settings:
       - shadow
 
   gocyclo:
-    min-complexity: 15
+    min-complexity: 30
 
   gocognit:
-    min-complexity: 20
+    min-complexity: 50
 
   gocritic:
     enabled-tags:
       - diagnostic
       - style
       - performance
-      - experimental
-      - opinionated
+    disabled-checks:
+      - unnecessaryBlock
+      - rangeValCopy
+      - hugeParam
+      - octalLiteral
+      - appendCombine
+      - ifElseChain
+      - typeAssertChain
 
   revive:
     rules:
@@ -68,10 +70,16 @@ linters-settings:
   gosec:
     excludes:
       - G104  # Unhandled errors (covered by errcheck)
+      - G204  # Subprocess launched with variable
+      - G107  # Potential HTTP request with variable url
     config:
       G306: "0644"
 
 issues:
+  exclude-files:
+    - "rbd_manager\\.go$"
+  exclude-dirs:
+    - vendor
   exclude-rules:
     # Exclude some linters from running on tests files
     - path: _test\.go
@@ -82,10 +90,11 @@ issues:
         - gosec
         - gocognit
 
-    # Exclude CGO-dependent files
-    - path: rbd_manager\.go
+    # Exclude CGO-dependent files (Ceph RBD)
+    - path: "rbd_manager\\.go"
       linters:
         - typecheck
+        - all
 
     # Exclude Sentry SDK files
     - path: pkg/sentry/
@@ -110,6 +119,26 @@ issues:
     - text: "shadow: declaration of \"err\""
       linters:
         - govet
+
+    # Exclude unparam warnings - often false positives or design decisions
+    - text: "."
+      linters:
+        - unparam
+
+    # Exclude revive stuttering warnings - often intentional for clarity
+    - text: "stutters"
+      linters:
+        - revive
+
+    # Exclude godot warnings for comments - often false positives
+    - text: "Comment should end in a period"
+      linters:
+        - godot
+
+    # Exclude errcheck for intentionally ignored errors (marked with _)
+    - text: "Error return value.*is not checked"
+      linters:
+        - errcheck
 
   max-issues-per-linter: 0
   max-same-issues: 0

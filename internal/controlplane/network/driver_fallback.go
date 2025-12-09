@@ -23,12 +23,12 @@ func NewFallbackDriver(l *zap.Logger, primary, secondary Driver) *FallbackDriver
 }
 
 // try calls fn on primary and, if it returns an error, logs a warning and then calls fn on secondary.
-func (d *FallbackDriver) try(op string, fnPrimary func() error, fnSecondary func() error) error {
+func (d *FallbackDriver) try(op string, fnPrimary, fnSecondary func() error) error {
 	if err := fnPrimary(); err == nil {
 		return nil
 	} else {
 		d.logger.Warn("Primary SDN driver failed, falling back", zap.String("op", op), zap.Error(err))
-		// Try secondary
+		// Try secondary.
 		if err2 := fnSecondary(); err2 != nil {
 			d.logger.Error("Secondary SDN driver failed", zap.String("op", op), zap.Error(err2))
 			return err2
@@ -37,7 +37,7 @@ func (d *FallbackDriver) try(op string, fnPrimary func() error, fnSecondary func
 	}
 }
 
-// getOVN tries to return an OVN driver instance from either primary or secondary
+// getOVN tries to return an OVN driver instance from either primary or secondary.
 func (d *FallbackDriver) getOVN() *OVNDriver {
 	if od, ok := d.primary.(*OVNDriver); ok {
 		return od
@@ -49,18 +49,18 @@ func (d *FallbackDriver) getOVN() *OVNDriver {
 }
 
 func (d *FallbackDriver) EnsureNetwork(n *Network, s *Subnet) error {
-	// First try primary
+	// First try primary.
 	if err := d.primary.EnsureNetwork(n, s); err != nil {
 		d.logger.Warn("Primary EnsureNetwork failed, trying secondary", zap.Error(err))
 		return d.secondary.EnsureNetwork(n, s)
 	}
-	// Verify presence via OVN if available; if NB is unreachable, do not enforce OVN
+	// Verify presence via OVN if available; if NB is unreachable, do not enforce OVN.
 	if ovn := d.getOVN(); ovn != nil {
 		lsName := fmt.Sprintf("ls-%s", n.ID)
-		// Use 'find' so not-found returns empty string instead of error
+		// Use 'find' so not-found returns empty string instead of error.
 		out, err := ovn.nbctlOutput("--bare", "--columns=name", "find", "Logical_Switch", fmt.Sprintf("name=%s", lsName))
 		if err != nil {
-			// NB unreachable: assume plugin succeeded; skip OVN enforcement
+			// NB unreachable: assume plugin succeeded; skip OVN enforcement.
 			d.logger.Info("Skip OVN verify for EnsureNetwork (NB unreachable)", zap.Error(err))
 			return nil
 		}
@@ -85,7 +85,7 @@ func (d *FallbackDriver) EnsureRouter(name string) error {
 		d.logger.Warn("Primary EnsureRouter failed, trying secondary", zap.Error(err))
 		return d.secondary.EnsureRouter(name)
 	}
-	// Verify router exists; if NB unreachable, do not enforce OVN
+	// Verify router exists; if NB unreachable, do not enforce OVN.
 	if ovn := d.getOVN(); ovn != nil {
 		out, err := ovn.nbctlOutput("--bare", "--columns=name", "find", "Logical_Router", fmt.Sprintf("name=%s", name))
 		if err != nil {
@@ -103,20 +103,20 @@ func (d *FallbackDriver) DeleteRouter(name string) error {
 	return d.try("DeleteRouter", func() error { return d.primary.DeleteRouter(name) }, func() error { return d.secondary.DeleteRouter(name) })
 }
 func (d *FallbackDriver) ConnectSubnetToRouter(router string, n *Network, s *Subnet) error {
-	// Try primary first
+	// Try primary first.
 	if err := d.primary.ConnectSubnetToRouter(router, n, s); err != nil {
 		d.logger.Warn("Primary ConnectSubnetToRouter failed, trying secondary", zap.Error(err))
 		return d.secondary.ConnectSubnetToRouter(router, n, s)
 	}
-	// Verify LSP has addresses=router and LRP has networks; if not, apply via OVN secondary
+	// Verify LSP has addresses=router and LRP has networks; if not, apply via OVN secondary.
 	if ovn := d.getOVN(); ovn != nil {
 		lsp := fmt.Sprintf("lsp-%s-%s", router, n.ID)
 		lrp := fmt.Sprintf("lrp-%s-%s", router, n.ID)
-		// First verify rows exist using find
+		// First verify rows exist using find.
 		lspOut, errLsp := ovn.nbctlOutput("--bare", "--columns=name", "find", "Logical_Switch_Port", fmt.Sprintf("name=%s", lsp))
 		lrpOut, errLrp := ovn.nbctlOutput("--bare", "--columns=name", "find", "Logical_Router_Port", fmt.Sprintf("name=%s", lrp))
 		if errLsp != nil || errLrp != nil {
-			// NB unreachable: assume plugin succeeded; skip OVN enforcement
+			// NB unreachable: assume plugin succeeded; skip OVN enforcement.
 			d.logger.Info("Skip OVN verify for ConnectSubnetToRouter (NB unreachable)", zap.String("lsp", lsp), zap.String("lrp", lrp))
 			return nil
 		}
@@ -124,7 +124,7 @@ func (d *FallbackDriver) ConnectSubnetToRouter(router string, n *Network, s *Sub
 			d.logger.Warn("Primary ConnectSubnetToRouter did not create ports, enforcing via OVN secondary", zap.String("lsp", lsp), zap.String("lrp", lrp))
 			return d.secondary.ConnectSubnetToRouter(router, n, s)
 		}
-		// Rows exist; verify important fields
+		// Rows exist; verify important fields.
 		addr, _ := ovn.nbctlOutput("get", "Logical_Switch_Port", lsp, "addresses")
 		nets, _ := ovn.nbctlOutput("get", "Logical_Router_Port", lrp, "networks")
 		if strings.TrimSpace(addr) == "" || strings.TrimSpace(addr) == "[]" || strings.TrimSpace(nets) == "" || strings.TrimSpace(nets) == "[]" {
@@ -135,15 +135,15 @@ func (d *FallbackDriver) ConnectSubnetToRouter(router string, n *Network, s *Sub
 	return nil
 }
 
-// coalesceErr returns the first non-nil error
-// (helper removed)
+// coalesceErr returns the first non-nil error.
+// (helper removed).
 func (d *FallbackDriver) DisconnectSubnetFromRouter(router string, n *Network) error {
 	return d.try("DisconnectSubnetFromRouter", func() error { return d.primary.DisconnectSubnetFromRouter(router, n) }, func() error { return d.secondary.DisconnectSubnetFromRouter(router, n) })
 }
 func (d *FallbackDriver) SetRouterGateway(router string, externalNetwork *Network, externalSubnet *Subnet) (string, error) {
 	ip := ""
 	var errPrim error
-	// Wrap to reuse try
+	// Wrap to reuse try.
 	err := d.try("SetRouterGateway",
 		func() error {
 			ip, errPrim = d.primary.SetRouterGateway(router, externalNetwork, externalSubnet)
@@ -159,13 +159,13 @@ func (d *FallbackDriver) SetRouterGateway(router string, externalNetwork *Networ
 func (d *FallbackDriver) ClearRouterGateway(router string, externalNetwork *Network) error {
 	return d.try("ClearRouterGateway", func() error { return d.primary.ClearRouterGateway(router, externalNetwork) }, func() error { return d.secondary.ClearRouterGateway(router, externalNetwork) })
 }
-func (d *FallbackDriver) SetRouterSNAT(router string, enable bool, internalCIDR string, externalIP string) error {
+func (d *FallbackDriver) SetRouterSNAT(router string, enable bool, internalCIDR, externalIP string) error {
 	return d.try("SetRouterSNAT", func() error { return d.primary.SetRouterSNAT(router, enable, internalCIDR, externalIP) }, func() error { return d.secondary.SetRouterSNAT(router, enable, internalCIDR, externalIP) })
 }
-func (d *FallbackDriver) EnsureFIPNAT(router string, floatingIP, fixedIP string) error {
+func (d *FallbackDriver) EnsureFIPNAT(router, floatingIP, fixedIP string) error {
 	return d.try("EnsureFIPNAT", func() error { return d.primary.EnsureFIPNAT(router, floatingIP, fixedIP) }, func() error { return d.secondary.EnsureFIPNAT(router, floatingIP, fixedIP) })
 }
-func (d *FallbackDriver) RemoveFIPNAT(router string, floatingIP, fixedIP string) error {
+func (d *FallbackDriver) RemoveFIPNAT(router, floatingIP, fixedIP string) error {
 	return d.try("RemoveFIPNAT", func() error { return d.primary.RemoveFIPNAT(router, floatingIP, fixedIP) }, func() error { return d.secondary.RemoveFIPNAT(router, floatingIP, fixedIP) })
 }
 func (d *FallbackDriver) ReplacePortACLs(networkID, portID string, rules []ACLRule) error {

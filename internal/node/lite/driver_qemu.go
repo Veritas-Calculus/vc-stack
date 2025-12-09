@@ -14,9 +14,9 @@ import (
 	"time"
 )
 
-// qemuDriver is a lightweight driver that manages QEMU processes directly
-// This is intentionally minimal: it supports local image files, seed ISOs
-// and basic tap networking attached to br-int. It's enabled by building
+// qemuDriver is a lightweight driver that manages QEMU processes directly.
+// This is intentionally minimal: it supports local image files, seed ISOs.
+// and basic tap networking attached to br-int. It's enabled by building.
 // with `-tags qemu`.
 type qemuDriver struct {
 	cfg    Config
@@ -28,16 +28,16 @@ func newDriver(cfg Config) (Driver, error) {
 	if env := os.Getenv("VC_LITE_RUN_DIR"); env != "" {
 		rd = env
 	}
-	if err := os.MkdirAll(rd, 0755); err != nil {
+	if err := os.MkdirAll(rd, 0o755); err != nil {
 		return nil, fmt.Errorf("create run dir: %w", err)
 	}
 	return &qemuDriver{cfg: cfg, runDir: rd}, nil
 }
 
-// helper: pid file path
+// helper: pid file path.
 func (d *qemuDriver) pidPath(id string) string { return filepath.Join(d.runDir, id+".pid") }
 func (d *qemuDriver) tapName(id string) string {
-	// avoid panic if id shorter than 8
+	// avoid panic if id shorter than 8.
 	clean := id
 	if len(clean) > 8 {
 		clean = clean[:8]
@@ -65,24 +65,24 @@ func (d *qemuDriver) CreateVM(req CreateVMRequest) (*VM, error) {
 		id = fmt.Sprintf("vm-%d", now.UnixNano())
 	}
 
-	// Validate minimal image
+	// Validate minimal image.
 	if strings.TrimSpace(req.Image) == "" && strings.TrimSpace(req.RootRBDImage) == "" && strings.TrimSpace(req.ISO) == "" && strings.TrimSpace(req.IsoRBDImage) == "" {
 		return nil, fmt.Errorf("no image provided")
 	}
 
-	// Prepare tap device and attach to br-int
+	// Prepare tap device and attach to br-int.
 	tap := d.tapName(id)
 	if err := exec.Command("ip", "tuntap", "add", "dev", tap, "mode", "tap").Run(); err != nil {
 		// Best-effort: log failure to create tap (may already exist or lack permissions)
 		log.Printf("Warning: failed to create tap %s: %v", tap, err)
 	}
 	_ = exec.Command("ip", "link", "set", tap, "up").Run()
-	// add to br-int via ovs
+	// add to br-int via ovs.
 	_ = exec.Command("ovs-vsctl", "--may-exist", "add-port", "br-int", tap).Run()
-	// If OVN/OVS logical port id provided, set Interface external_ids so OVN maps it
+	// If OVN/OVS logical port id provided, set Interface external_ids so OVN maps it.
 	if len(req.Nics) > 0 && strings.TrimSpace(req.Nics[0].PortID) != "" {
 		portID := strings.TrimSpace(req.Nics[0].PortID)
-		// libvirt uses iface-id=lsp-<uuid> naming; keep same convention
+		// libvirt uses iface-id=lsp-<uuid> naming; keep same convention.
 		ifaceID := fmt.Sprintf("lsp-%s", portID)
 		out, err := exec.Command("ovs-vsctl", "set", "Interface", tap, fmt.Sprintf("external_ids:iface-id=%s", ifaceID)).CombinedOutput()
 		if err != nil {
@@ -92,20 +92,20 @@ func (d *qemuDriver) CreateVM(req CreateVMRequest) (*VM, error) {
 		}
 	}
 
-	// Build qemu args
+	// Build qemu args.
 	args := []string{"-name", id, "-m", strconv.Itoa(req.MemoryMB), "-smp", strconv.Itoa(req.VCPUs), "-enable-kvm"}
 
-	// Disk
+	// Disk.
 	if strings.TrimSpace(req.Image) != "" {
 		args = append(args, "-drive", fmt.Sprintf("file=%s,if=virtio,cache=none", req.Image))
 	} else if strings.TrimSpace(req.ISO) != "" {
 		args = append(args, "-cdrom", req.ISO)
 	}
 
-	// Seed ISO (cloud-init) if provided
+	// Seed ISO (cloud-init) if provided.
 	var seedFile string
 	if strings.TrimSpace(req.SSHAuthorizedKey) != "" || strings.TrimSpace(req.UserData) != "" {
-		// write minimal seed ISO
+		// write minimal seed ISO.
 		seed := d.seedPath(id)
 		user := req.UserData
 		if strings.TrimSpace(user) == "" && strings.TrimSpace(req.SSHAuthorizedKey) != "" {
@@ -115,9 +115,9 @@ func (d *qemuDriver) CreateVM(req CreateVMRequest) (*VM, error) {
 		tmpDir := os.TempDir()
 		ud := filepath.Join(tmpDir, id+"-user-data")
 		md := filepath.Join(tmpDir, id+"-meta-data")
-		_ = os.WriteFile(ud, []byte(user), 0644)
-		_ = os.WriteFile(md, []byte(meta), 0644)
-		// genisoimage or mkisofs
+		_ = os.WriteFile(ud, []byte(user), 0o644)
+		_ = os.WriteFile(md, []byte(meta), 0o644)
+		// genisoimage or mkisofs.
 		cmd := exec.Command("genisoimage", "-output", seed, "-volid", "cidata", "-joliet", "-rock", ud, md)
 		if err := cmd.Run(); err != nil {
 			_ = exec.Command("mkisofs", "-output", seed, "-volid", "cidata", "-joliet", "-rock", ud, md).Run()
@@ -125,15 +125,14 @@ func (d *qemuDriver) CreateVM(req CreateVMRequest) (*VM, error) {
 		_ = os.Remove(ud)
 		_ = os.Remove(md)
 		if _, err := os.Stat(seed); err == nil {
-			args = append(args, "-drive", fmt.Sprintf("file=%s,if=none,media=cdrom,readonly=on", seed))
-			// qemu expects -device ide-cd,drive=drive0 or we keep generic: attach as -cdrom
-			args = append(args, "-device", "virtio-scsi-pci")
-			// record seed for cleanup
+			args = append(args,
+				"-drive", fmt.Sprintf("file=%s,if=none,media=cdrom,readonly=on", seed),
+				"-device", "virtio-scsi-pci",
+			)
+			// record seed for cleanup.
 			seedFile = seed
 		}
-	}
-
-	// Network: attach tap
+	} // Network: attach tap.
 	netdev := fmt.Sprintf("tap,id=net0,ifname=%s,script=no,downscript=no", tap)
 	args = append(args, "-netdev", netdev)
 	if len(req.Nics) > 0 && strings.TrimSpace(req.Nics[0].MAC) != "" {
@@ -142,36 +141,36 @@ func (d *qemuDriver) CreateVM(req CreateVMRequest) (*VM, error) {
 		args = append(args, "-device", "virtio-net-pci,netdev=net0")
 	}
 
-	// Console: use vnc on random port
+	// Console: use vnc on random port.
 	args = append(args, "-vnc", "0.0.0.0:0")
 
 	// QMP socket (unix) for runtime queries (monitor)
 	qmp := filepath.Join(d.runDir, id+".qmp")
-	// ensure no stale socket exists
+	// ensure no stale socket exists.
 	_ = os.Remove(qmp)
 	args = append(args, "-qmp", fmt.Sprintf("unix:%s,server,nowait", qmp))
 
-	// Start qemu process
+	// Start qemu process.
 	cmd := exec.Command("qemu-system-x86_64", args...)
-	// Ensure qemu is started in its own process group so we can signal it
+	// Ensure qemu is started in its own process group so we can signal it.
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	if err := cmd.Start(); err != nil {
-		// cleanup tap/ovs on failure
+		// cleanup tap/ovs on failure.
 		_ = exec.Command("ovs-vsctl", "--if-exists", "del-port", "br-int", tap).Run()
 		_ = exec.Command("ip", "link", "delete", tap, "type", "tap").Run()
 		return nil, fmt.Errorf("start qemu: %w", err)
 	}
 
-	// save pid and metadata
+	// save pid and metadata.
 	pid := cmd.Process.Pid
-	_ = os.WriteFile(d.pidPath(id), []byte(strconv.Itoa(pid)), 0644)
+	_ = os.WriteFile(d.pidPath(id), []byte(strconv.Itoa(pid)), 0o644)
 
 	meta := vmMeta{PID: pid, QMP: qmp, Seed: seedFile, Tap: tap, Image: req.Image, Created: now.Unix()}
 	if b, err := json.Marshal(meta); err == nil {
-		_ = os.WriteFile(d.metaPath(id), b, 0644)
+		_ = os.WriteFile(d.metaPath(id), b, 0o644)
 	}
 
-	// small wait for qmp socket creation
+	// small wait for qmp socket creation.
 	for i := 0; i < 10; i++ {
 		if _, err := os.Stat(qmp); err == nil {
 			break
@@ -190,7 +189,7 @@ func (d *qemuDriver) DeleteVM(id string, force bool) error {
 	if err == nil {
 		pid, _ = strconv.Atoi(strings.TrimSpace(string(pidbs)))
 	} else {
-		// Try metadata
+		// Try metadata.
 		if mb, err := os.ReadFile(d.metaPath(id)); err == nil {
 			var m vmMeta
 			if err := json.Unmarshal(mb, &m); err == nil {
@@ -199,10 +198,10 @@ func (d *qemuDriver) DeleteVM(id string, force bool) error {
 		}
 	}
 	if pid != 0 {
-		// try graceful
+		// try graceful.
 		_ = syscall.Kill(pid, syscall.SIGTERM)
 		time.Sleep(2 * time.Second)
-		// check if still alive
+		// check if still alive.
 		if err := syscall.Kill(pid, 0); err == nil {
 			_ = syscall.Kill(pid, syscall.SIGKILL)
 		}
@@ -230,13 +229,13 @@ func (d *qemuDriver) DeleteVM(id string, force bool) error {
 		_ = os.Remove(d.seedPath(id))
 	}
 
-	// Remove metadata file
+	// Remove metadata file.
 	_ = os.Remove(d.metaPath(id))
 	return nil
 }
 
 func (d *qemuDriver) StartVM(id string) error {
-	// If exists but not running, start qemu from prior command is non-trivial; return unsupported
+	// If exists but not running, start qemu from prior command is non-trivial; return unsupported.
 	return fmt.Errorf("start after shutdown not supported by qemu driver (recreate VM instead)")
 }
 
@@ -263,13 +262,13 @@ func (d *qemuDriver) RebootVM(id string, force bool) error {
 	return nil
 }
 
-func (d *qemuDriver) VMStatus(id string) (exists bool, running bool) {
+func (d *qemuDriver) VMStatus(id string) (exists, running bool) {
 	pidbs, err := os.ReadFile(d.pidPath(id))
 	var pid int
 	if err == nil {
 		pid, _ = strconv.Atoi(strings.TrimSpace(string(pidbs)))
 	} else {
-		// Try metadata
+		// Try metadata.
 		if mb, err := os.ReadFile(d.metaPath(id)); err == nil {
 			var m vmMeta
 			if err := json.Unmarshal(mb, &m); err == nil {
@@ -286,14 +285,15 @@ func (d *qemuDriver) VMStatus(id string) (exists bool, running bool) {
 	return true, false
 }
 
+//nolint:gocognit // Complex console URL generation logic
 func (d *qemuDriver) ConsoleURL(id string, ttl time.Duration) (string, error) {
 	// Try to query QMP socket for the real VNC port using human-monitor-command 'info vnc'
 	qmpPath := filepath.Join(d.runDir, id+".qmp")
-	// Prefer a cached VNC address in metadata
+	// Prefer a cached VNC address in metadata.
 	if mb, err := os.ReadFile(d.metaPath(id)); err == nil {
 		var m vmMeta
 		if err := json.Unmarshal(mb, &m); err == nil && m.VNC != "" {
-			// If stored as port only, normalize
+			// If stored as port only, normalize.
 			if strings.Contains(m.VNC, ":") {
 				return fmt.Sprintf("vnc://%s", m.VNC), nil
 			}
@@ -306,24 +306,24 @@ func (d *qemuDriver) ConsoleURL(id string, ttl time.Duration) (string, error) {
 	if _, err := os.Stat(qmpPath); err == nil {
 		out, err := queryQMP(qmpPath, "info vnc")
 		if err == nil {
-			// parse port from output, look for digits like 5901
+			// parse port from output, look for digits like 5901.
 			fields := strings.Fields(out)
 			for _, f := range fields {
 				if strings.HasPrefix(f, "127.") || strings.HasPrefix(f, "0.") || strings.Contains(f, ":") {
-					// try split by ':' to get port
+					// try split by ':' to get port.
 					if strings.Contains(f, ":") {
 						parts := strings.Split(f, ":")
 						port := parts[len(parts)-1]
-						// sanitize
+						// sanitize.
 						port = strings.Trim(port, ",")
 						if _, err := strconv.Atoi(port); err == nil {
-							// persist into metadata
+							// persist into metadata.
 							if mb, err := os.ReadFile(d.metaPath(id)); err == nil {
 								var m vmMeta
 								if err := json.Unmarshal(mb, &m); err == nil {
 									m.VNC = fmt.Sprintf("127.0.0.1:%s", port)
 									if b, err := json.Marshal(m); err == nil {
-										_ = os.WriteFile(d.metaPath(id), b, 0644)
+										_ = os.WriteFile(d.metaPath(id), b, 0o644)
 									}
 								}
 							}
@@ -331,15 +331,15 @@ func (d *qemuDriver) ConsoleURL(id string, ttl time.Duration) (string, error) {
 						}
 					}
 				}
-				// fallback: if token is numeric and >=5900
+				// fallback: if token is numeric and >=5900.
 				if p, err := strconv.Atoi(strings.Trim(f, ",")); err == nil && p >= 5900 && p < 7000 {
-					// persist
+					// persist.
 					if mb, err := os.ReadFile(d.metaPath(id)); err == nil {
 						var m vmMeta
 						if err := json.Unmarshal(mb, &m); err == nil {
 							m.VNC = fmt.Sprintf("127.0.0.1:%d", p)
 							if b, err := json.Marshal(m); err == nil {
-								_ = os.WriteFile(d.metaPath(id), b, 0644)
+								_ = os.WriteFile(d.metaPath(id), b, 0o644)
 							}
 						}
 					}
@@ -348,13 +348,13 @@ func (d *qemuDriver) ConsoleURL(id string, ttl time.Duration) (string, error) {
 			}
 		}
 	}
-	// Fallback placeholder
+	// Fallback placeholder.
 	return "vnc://127.0.0.1:5900", nil
 }
 
-// queryQMP connects to a unix qmp socket, performs handshake, issues a human-monitor-command and returns its output string
+// queryQMP connects to a unix qmp socket, performs handshake, issues a human-monitor-command and returns its output string.
 func queryQMP(socketPath, humanCmd string) (string, error) {
-	// Connect with timeout
+	// Connect with timeout.
 	conn, err := net.DialTimeout("unix", socketPath, 2*time.Second)
 	if err != nil {
 		return "", err
@@ -371,12 +371,12 @@ func queryQMP(socketPath, humanCmd string) (string, error) {
 			n, err := conn.Read(tmp)
 			if n > 0 {
 				buf = append(buf, tmp[:n]...)
-				// try to find a complete JSON object in buf
+				// try to find a complete JSON object in buf.
 				var v interface{}
 				if json.Unmarshal(buf, &v) == nil {
 					return buf, nil
 				}
-				// else continue reading until valid JSON assembled
+				// else continue reading until valid JSON assembled.
 			}
 			if err != nil {
 				return nil, err
@@ -384,12 +384,12 @@ func queryQMP(socketPath, humanCmd string) (string, error) {
 		}
 	}
 
-	// Read greeting message
+	// Read greeting message.
 	if _, err := readMsg(2 * time.Second); err != nil {
 		return "", fmt.Errorf("read qmp greeting: %w", err)
 	}
 
-	// Send qmp_capabilities
+	// Send qmp_capabilities.
 	capCmd := map[string]interface{}{"execute": "qmp_capabilities"}
 	if b, err := json.Marshal(capCmd); err == nil {
 		b = append(b, '\n')
@@ -397,12 +397,12 @@ func queryQMP(socketPath, humanCmd string) (string, error) {
 			return "", fmt.Errorf("write qmp_capabilities: %w", err)
 		}
 	}
-	// Read capabilities response
+	// Read capabilities response.
 	if _, err := readMsg(2 * time.Second); err != nil {
 		return "", fmt.Errorf("read qmp capabilities response: %w", err)
 	}
 
-	// Send human-monitor-command
+	// Send human-monitor-command.
 	hm := map[string]interface{}{"execute": "human-monitor-command", "arguments": map[string]interface{}{"command-line": humanCmd}}
 	if b, err := json.Marshal(hm); err == nil {
 		b = append(b, '\n')
@@ -411,28 +411,28 @@ func queryQMP(socketPath, humanCmd string) (string, error) {
 		}
 	}
 
-	// Read response
+	// Read response.
 	outb, err := readMsg(2 * time.Second)
 	if err != nil {
 		return "", fmt.Errorf("read human-monitor-command response: %w", err)
 	}
 
-	// Parse JSON and extract any "output" string under the "return" object
+	// Parse JSON and extract any "output" string under the "return" object.
 	var parsed map[string]interface{}
 	if err := json.Unmarshal(outb, &parsed); err != nil {
-		// fallback to raw
+		// fallback to raw.
 		return string(outb), nil
 	}
 	if ret, ok := parsed["return"]; ok {
-		// ret may be map
+		// ret may be map.
 		if m, ok := ret.(map[string]interface{}); ok {
-			// look for output field
+			// look for output field.
 			if outv, ok := m["output"]; ok {
 				if s, ok := outv.(string); ok {
 					return s, nil
 				}
 			}
-			// sometimes nested under human-monitor-command key
+			// sometimes nested under human-monitor-command key.
 			for _, v := range m {
 				if s, ok := v.(string); ok {
 					return s, nil
@@ -440,16 +440,16 @@ func queryQMP(socketPath, humanCmd string) (string, error) {
 			}
 		}
 	}
-	// fallback: return raw bytes as string
+	// fallback: return raw bytes as string.
 	return string(outb), nil
 }
 
 func (d *qemuDriver) Status() NodeStatus {
-	// Best-effort: query /proc/meminfo and /proc/cpuinfo would be better, but return config-derived defaults
+	// Best-effort: query /proc/meminfo and /proc/cpuinfo would be better, but return config-derived defaults.
 	return NodeStatus{CPUsTotal: 8, CPUsUsed: 0, RAMMBTotal: 32768, RAMMBUsed: 0, DiskGBTotal: 500, DiskGBUsed: 0}
 }
 
-// local sanitizeName similar to libvirt helper: make a filesystem/hypervisor friendly name
+// local sanitizeName similar to libvirt helper: make a filesystem/hypervisor friendly name.
 func sanitizeName(s string) string {
 	s = strings.TrimSpace(s)
 	if s == "" {

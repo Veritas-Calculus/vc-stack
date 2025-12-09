@@ -55,7 +55,7 @@ func New(config Config) (*zap.Logger, error) {
 	if config.Output == "stdout" {
 		writer = zapcore.AddSync(os.Stdout)
 	} else {
-		file, err := os.OpenFile(config.Output, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+		file, err := os.OpenFile(config.Output, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o666)
 		if err != nil {
 			return nil, fmt.Errorf("failed to open log file: %w", err)
 		}

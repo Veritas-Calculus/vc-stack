@@ -192,7 +192,7 @@ func (c *OVNMetricsCollector) countLogicalRouters() (int64, error) {
 }
 
 // countPorts counts logical switch ports and logical router ports.
-func (c *OVNMetricsCollector) countPorts() (lsp int64, lrp int64, err error) {
+func (c *OVNMetricsCollector) countPorts() (lsp, lrp int64, err error) {
 	lspOut, err := c.driver.nbctlOutput("--timeout=5", "--format=csv", "--no-headings", "--columns=_uuid", "list", "Logical_Switch_Port")
 	if err != nil {
 		return 0, 0, fmt.Errorf("list LSP: %w", err)

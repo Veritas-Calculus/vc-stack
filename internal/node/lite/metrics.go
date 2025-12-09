@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// LiteMetrics provides simple counters and duration summaries with Prometheus text rendering
+// LiteMetrics provides simple counters and duration summaries with Prometheus text rendering.
 type LiteMetrics struct {
 	mu       sync.Mutex
 	counters map[string]uint64
@@ -47,7 +47,7 @@ func (m *LiteMetrics) RenderProm() string {
 	out := "# HELP vc_lite_uptime_seconds Uptime of vc-lite process in seconds\n# TYPE vc_lite_uptime_seconds gauge\n"
 	out += fmt.Sprintf("vc_lite_uptime_seconds %d\n", int(time.Since(m.started).Seconds()))
 
-	// counters
+	// counters.
 	counterKeys := make([]string, 0, len(m.counters))
 	for k := range m.counters {
 		counterKeys = append(counterKeys, k)
@@ -75,7 +75,7 @@ func (m *LiteMetrics) RenderProm() string {
 	return out
 }
 
-// common metric keys
+// common metric keys.
 const (
 	MVMCreateTotal   = "vm_create_total"
 	MVMDeleteTotal   = "vm_delete_total"
@@ -91,7 +91,7 @@ const (
 	MRbdRmMs         = "rbd_rm"
 )
 
-// global metrics wiring so the driver can emit metrics without circular deps
+// global metrics wiring so the driver can emit metrics without circular deps.
 var defaultMetrics *LiteMetrics
 
 func SetMetrics(m *LiteMetrics) { defaultMetrics = m }

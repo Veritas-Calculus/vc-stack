@@ -74,50 +74,50 @@ type Host struct {
 	UUID string `gorm:"type:uuid;uniqueIndex;not null" json:"uuid"`
 	Name string `gorm:"not null" json:"name"`
 
-	// Type and status
+	// Type and status.
 	HostType      HostType          `gorm:"type:host_type;not null;default:'compute'" json:"host_type"`
 	Status        HostStatus        `gorm:"type:host_status;not null;default:'connecting'" json:"status"`
 	ResourceState HostResourceState `gorm:"type:host_resource_state;not null;default:'disabled'" json:"resource_state"`
 
-	// Connection info
+	// Connection info.
 	Hostname       string `gorm:"not null" json:"hostname"`
 	IPAddress      string `gorm:"type:inet;not null" json:"ip_address"`
 	ManagementPort int    `gorm:"default:8091" json:"management_port"`
 
-	// Hypervisor info
+	// Hypervisor info.
 	HypervisorType    string `gorm:"default:'kvm'" json:"hypervisor_type"`
 	HypervisorVersion string `json:"hypervisor_version,omitempty"`
 
-	// Resource capacity
+	// Resource capacity.
 	CPUCores   int   `gorm:"not null;default:0" json:"cpu_cores"`
 	CPUSockets int   `gorm:"default:1" json:"cpu_sockets"`
 	CPUMhz     int64 `gorm:"default:0" json:"cpu_mhz"`
 	RAMMB      int64 `gorm:"not null;default:0" json:"ram_mb"`
 	DiskGB     int64 `gorm:"not null;default:0" json:"disk_gb"`
 
-	// Resource allocation
+	// Resource allocation.
 	CPUAllocated    int   `gorm:"default:0" json:"cpu_allocated"`
 	RAMAllocatedMB  int64 `gorm:"default:0" json:"ram_allocated_mb"`
 	DiskAllocatedGB int64 `gorm:"default:0" json:"disk_allocated_gb"`
 
-	// Metadata
+	// Metadata.
 	Capabilities JSONMap `gorm:"type:jsonb" json:"capabilities,omitempty"`
 	Labels       JSONMap `gorm:"type:jsonb" json:"labels,omitempty"`
 
-	// Placement
+	// Placement.
 	ZoneID    *uint `json:"zone_id,omitempty"`
 	ClusterID *uint `json:"cluster_id,omitempty"`
 	PodID     *uint `json:"pod_id,omitempty"`
 
-	// Health tracking
+	// Health tracking.
 	LastHeartbeat  *time.Time `json:"last_heartbeat,omitempty"`
 	LastUpdate     time.Time  `gorm:"default:CURRENT_TIMESTAMP" json:"last_update"`
 	DisconnectedAt *time.Time `json:"disconnected_at,omitempty"`
 
-	// Version
+	// Version.
 	AgentVersion string `json:"agent_version,omitempty"`
 
-	// Timestamps
+	// Timestamps.
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
@@ -134,7 +134,7 @@ func (h *Host) IsAvailable() bool {
 }
 
 // HasEnoughResources checks if the host has enough free resources.
-func (h *Host) HasEnoughResources(cpus int, ramMB int64, diskGB int64) bool {
+func (h *Host) HasEnoughResources(cpus int, ramMB, diskGB int64) bool {
 	freeCPU := h.CPUCores - h.CPUAllocated
 	freeRAM := h.RAMMB - h.RAMAllocatedMB
 	freeDisk := h.DiskGB - h.DiskAllocatedGB

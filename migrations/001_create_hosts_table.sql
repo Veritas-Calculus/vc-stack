@@ -31,49 +31,49 @@ CREATE TABLE IF NOT EXISTS hosts (
     host_type host_type NOT NULL DEFAULT 'compute',
     status host_status NOT NULL DEFAULT 'connecting',
     resource_state host_resource_state NOT NULL DEFAULT 'disabled',
-    
+
     -- Connection info
     hostname VARCHAR(255) NOT NULL,
     ip_address INET NOT NULL,
     management_port INTEGER DEFAULT 8091,
-    
+
     -- Hypervisor info
     hypervisor_type VARCHAR(50) DEFAULT 'kvm',
     hypervisor_version VARCHAR(100),
-    
+
     -- Resource capacity
     cpu_cores INTEGER NOT NULL DEFAULT 0,
     cpu_sockets INTEGER DEFAULT 1,
     cpu_mhz BIGINT DEFAULT 0,
     ram_mb BIGINT NOT NULL DEFAULT 0,
     disk_gb BIGINT NOT NULL DEFAULT 0,
-    
+
     -- Resource allocation
     cpu_allocated INTEGER DEFAULT 0,
     ram_allocated_mb BIGINT DEFAULT 0,
     disk_allocated_gb BIGINT DEFAULT 0,
-    
+
     -- Metadata
     capabilities JSONB,
     labels JSONB,
-    
+
     -- Availability zone
     zone_id INTEGER,
     cluster_id INTEGER,
     pod_id INTEGER,
-    
+
     -- Heartbeat and health
     last_heartbeat TIMESTAMP,
     last_update TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     disconnected_at TIMESTAMP,
-    
+
     -- Version info
     agent_version VARCHAR(50),
-    
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     removed_at TIMESTAMP,
-    
+
     CONSTRAINT unique_host_ip UNIQUE(ip_address, management_port)
 );
 

@@ -10,13 +10,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// CreateRouterNamespace creates a Linux network namespace for the router
-// This allows the host to access the virtual network through the router
-// Similar to OpenStack Neutron's qrouter-xxx namespace approach
+// CreateRouterNamespace creates a Linux network namespace for the router.
+// This allows the host to access the virtual network through the router.
+// Similar to OpenStack Neutron's qrouter-xxx namespace approach.
 func (d *OVNDriver) CreateRouterNamespace(routerID, networkID, gatewayIP, cidr string) error {
 	nsName := fmt.Sprintf("qrouter-%s", routerID)
 
-	// Check if namespace already exists
+	// Check if namespace already exists.
 	if err := exec.Command("ip", "netns", "list").Run(); err == nil {
 		output, _ := exec.Command("ip", "netns", "list").Output()
 		if strings.Contains(string(output), nsName) {
@@ -32,7 +32,7 @@ func (d *OVNDriver) CreateRouterNamespace(routerID, networkID, gatewayIP, cidr s
 
 	d.logger.Info("Created router namespace", zap.String("namespace", nsName))
 
-	// Create veth pair to connect namespace to OVS
+	// Create veth pair to connect namespace to OVS.
 	vethHost := fmt.Sprintf("qr-%s", networkID[:11]) // qr-39d41ad8-b1
 	vethNS := fmt.Sprintf("qr-%s-ns", networkID[:8]) // qr-39d41ad8-ns
 
@@ -41,21 +41,21 @@ func (d *OVNDriver) CreateRouterNamespace(routerID, networkID, gatewayIP, cidr s
 		d.logger.Debug("failed to delete existing veth (ignored)", zap.Error(err))
 	}
 
-	// Create veth pair
+	// Create veth pair.
 	if err := runNetCommand("ip", "link", "add", vethHost, "type", "veth", "peer", "name", vethNS); err != nil {
 		return fmt.Errorf("failed to create veth pair: %w", err)
 	}
 
-	// Move one end to namespace
+	// Move one end to namespace.
 	if err := runNetCommand("ip", "link", "set", vethNS, "netns", nsName); err != nil {
-		// Try to clean up the host veth (best-effort) and log if it fails
+		// Try to clean up the host veth (best-effort) and log if it fails.
 		if derr := runNetCommand("ip", "link", "del", vethHost); derr != nil {
 			d.logger.Debug("failed to delete host veth after move failure (ignored)", zap.Error(derr))
 		}
 		return fmt.Errorf("failed to move veth to namespace: %w", err)
 	}
 
-	// Configure interface in namespace
+	// Configure interface in namespace.
 	if err := d.execInNamespace(nsName, "ip", "link", "set", vethNS, "up"); err != nil {
 		return fmt.Errorf("failed to bring up interface in namespace: %w", err)
 	}
@@ -64,7 +64,7 @@ func (d *OVNDriver) CreateRouterNamespace(routerID, networkID, gatewayIP, cidr s
 		d.logger.Warn("Failed to add IP to namespace interface", zap.Error(err))
 	}
 
-	// Enable lo interface in namespace
+	// Enable lo interface in namespace.
 	if err := d.execInNamespace(nsName, "ip", "link", "set", "lo", "up"); err != nil {
 		d.logger.Warn("Failed to bring up loopback", zap.Error(err))
 	}
@@ -72,13 +72,13 @@ func (d *OVNDriver) CreateRouterNamespace(routerID, networkID, gatewayIP, cidr s
 	// Get the logical router port name (created by ConnectSubnetToRouter)
 	lrpName := fmt.Sprintf("lrp-lr-%s-%s", routerID, networkID)
 
-	// Bring up host end
+	// Bring up host end.
 	if err := runNetCommand("ip", "link", "set", vethHost, "up"); err != nil {
 		return fmt.Errorf("failed to bring up host interface: %w", err)
 	}
 
-	// Bind veth to logical router port using ovs-vsctl
-	// Set external_ids:iface-id to the logical router port name
+	// Bind veth to logical router port using ovs-vsctl.
+	// Set external_ids:iface-id to the logical router port name.
 	if err := runNetCommand("ovs-vsctl", "--", "--may-exist", "add-port", "br-int", vethHost,
 		"--", "set", "Interface", vethHost, fmt.Sprintf("external_ids:iface-id=%s", lrpName)); err != nil {
 		return fmt.Errorf("failed to add port to OVS: %w", err)
@@ -96,7 +96,7 @@ func (d *OVNDriver) CreateRouterNamespace(routerID, networkID, gatewayIP, cidr s
 	return nil
 }
 
-// DeleteRouterNamespace removes the router namespace and associated interfaces
+// DeleteRouterNamespace removes the router namespace and associated interfaces.
 func (d *OVNDriver) DeleteRouterNamespace(routerID, networkID string) error {
 	nsName := fmt.Sprintf("qrouter-%s", routerID)
 	vethHost := fmt.Sprintf("qr-%s", networkID[:11])
@@ -120,8 +120,8 @@ func (d *OVNDriver) DeleteRouterNamespace(routerID, networkID string) error {
 	return nil
 }
 
-// execInNamespace executes a command inside a network namespace
-func (d *OVNDriver) execInNamespace(nsName string, command string, args ...string) error {
+// execInNamespace executes a command inside a network namespace.
+func (d *OVNDriver) execInNamespace(nsName, command string, args ...string) error {
 	cmdArgs := append([]string{"ip", "netns", "exec", nsName, command}, args...)
 	cmd := exec.Command("sudo", cmdArgs...)
 	output, err := cmd.CombinedOutput()
@@ -131,14 +131,14 @@ func (d *OVNDriver) execInNamespace(nsName string, command string, args ...strin
 	return nil
 }
 
-// GetRouterNamespaceInfo returns information about the router namespace
+// GetRouterNamespaceInfo returns information about the router namespace.
 func (d *OVNDriver) GetRouterNamespaceInfo(routerID string) (map[string]interface{}, error) {
 	nsName := fmt.Sprintf("qrouter-%s", routerID)
 
 	info := make(map[string]interface{})
 	info["namespace"] = nsName
 
-	// Check if namespace exists
+	// Check if namespace exists.
 	output, err := exec.Command("ip", "netns", "list").Output()
 	if err != nil {
 		return nil, fmt.Errorf("failed to list namespaces: %w", err)
@@ -151,7 +151,7 @@ func (d *OVNDriver) GetRouterNamespaceInfo(routerID string) (map[string]interfac
 		return info, nil
 	}
 
-	// Get interfaces in namespace
+	// Get interfaces in namespace.
 	output, err = exec.Command("ip", "netns", "exec", nsName, "ip", "addr", "show").Output()
 	if err != nil {
 		d.logger.Warn("Failed to get namespace interfaces", zap.Error(err))
@@ -159,7 +159,7 @@ func (d *OVNDriver) GetRouterNamespaceInfo(routerID string) (map[string]interfac
 		info["interfaces"] = string(output)
 	}
 
-	// Get routes in namespace
+	// Get routes in namespace.
 	output, err = exec.Command("ip", "netns", "exec", nsName, "ip", "route", "show").Output()
 	if err != nil {
 		d.logger.Warn("Failed to get namespace routes", zap.Error(err))

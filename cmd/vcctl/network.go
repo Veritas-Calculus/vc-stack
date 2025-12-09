@@ -176,7 +176,7 @@ func newNetworkFloatingIPsCommand() *cobra.Command {
 	return cmd
 }
 
-// Placeholder implementations
+// Placeholder implementations.
 func runNetworkList(cmd *cobra.Command, args []string) {
 	println("TODO: Implement network list")
 }

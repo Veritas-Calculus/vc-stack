@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Config holds Sentry configuration
+// Config holds Sentry configuration.
 type Config struct {
 	DSN              string
 	Environment      string // dev, staging, production
@@ -20,13 +20,13 @@ type Config struct {
 	ServerName       string
 }
 
-// Init initializes Sentry SDK with configuration
+// Init initializes Sentry SDK with configuration.
 func Init(cfg Config) error {
 	if cfg.DSN == "" {
 		return fmt.Errorf("sentry DSN is required")
 	}
 
-	// Set defaults
+	// Set defaults.
 	if cfg.Environment == "" {
 		cfg.Environment = "production"
 	}
@@ -37,8 +37,10 @@ func Init(cfg Config) error {
 		cfg.TracesSampleRate = 0.2 // 20% for performance monitoring
 	}
 	if cfg.ServerName == "" {
-		hostname, _ := os.Hostname()
-		cfg.ServerName = hostname
+		hostname, err := os.Hostname()
+		if err == nil {
+			cfg.ServerName = hostname
+		}
 	}
 
 	err := sentry.Init(sentry.ClientOptions{
@@ -50,8 +52,8 @@ func Init(cfg Config) error {
 		Debug:            cfg.Debug,
 		ServerName:       cfg.ServerName,
 		BeforeSend: func(event *sentry.Event, hint *sentry.EventHint) *sentry.Event {
-			// Add custom logic before sending events
-			// For example, filter sensitive data
+			// Add custom logic before sending events.
+			// For example, filter sensitive data.
 			return event
 		},
 		AttachStacktrace: true,
@@ -65,29 +67,29 @@ func Init(cfg Config) error {
 	return nil
 }
 
-// Flush waits for Sentry to send all pending events
+// Flush waits for Sentry to send all pending events.
 func Flush(timeout time.Duration) {
 	sentry.Flush(timeout)
 }
 
-// Close flushes and closes the Sentry client
+// Close flushes and closes the Sentry client.
 func Close() {
 	sentry.Flush(2 * time.Second)
 }
 
-// CaptureError captures an error and sends it to Sentry
+// CaptureError captures an error and sends it to Sentry.
 func CaptureError(err error, tags map[string]string, extra map[string]interface{}) {
 	if err == nil {
 		return
 	}
 
 	sentry.WithScope(func(scope *sentry.Scope) {
-		// Add tags
+		// Add tags.
 		for k, v := range tags {
 			scope.SetTag(k, v)
 		}
 
-		// Add extra context
+		// Add extra context.
 		for k, v := range extra {
 			scope.SetExtra(k, v)
 		}
@@ -96,7 +98,7 @@ func CaptureError(err error, tags map[string]string, extra map[string]interface{
 	})
 }
 
-// CaptureMessage captures a message and sends it to Sentry
+// CaptureMessage captures a message and sends it to Sentry.
 func CaptureMessage(message string, level sentry.Level, tags map[string]string) {
 	sentry.WithScope(func(scope *sentry.Scope) {
 		scope.SetLevel(level)
@@ -109,7 +111,7 @@ func CaptureMessage(message string, level sentry.Level, tags map[string]string) 
 	})
 }
 
-// SetUser sets the user context for Sentry events
+// SetUser sets the user context for Sentry events.
 func SetUser(userID, username, email string) {
 	sentry.ConfigureScope(func(scope *sentry.Scope) {
 		scope.SetUser(sentry.User{
@@ -120,7 +122,7 @@ func SetUser(userID, username, email string) {
 	})
 }
 
-// AddBreadcrumb adds a breadcrumb for debugging
+// AddBreadcrumb adds a breadcrumb for debugging.
 func AddBreadcrumb(category, message string, data map[string]interface{}) {
 	sentry.AddBreadcrumb(&sentry.Breadcrumb{
 		Category: category,
@@ -130,7 +132,7 @@ func AddBreadcrumb(category, message string, data map[string]interface{}) {
 	})
 }
 
-// ZapToSentryLevel converts zap log level to Sentry level
+// ZapToSentryLevel converts zap log level to Sentry level.
 func ZapToSentryLevel(zapLevel string) sentry.Level {
 	switch zapLevel {
 	case "debug":
@@ -148,12 +150,12 @@ func ZapToSentryLevel(zapLevel string) sentry.Level {
 	}
 }
 
-// ZapSentryHook is a zap core that sends errors to Sentry
+// ZapSentryHook is a zap core that sends errors to Sentry.
 type ZapSentryHook struct {
 	logger *zap.Logger
 }
 
-// NewZapSentryHook creates a new Zap-Sentry integration
+// NewZapSentryHook creates a new Zap-Sentry integration.
 func NewZapSentryHook(logger *zap.Logger) *ZapSentryHook {
 	return &ZapSentryHook{logger: logger}
 }

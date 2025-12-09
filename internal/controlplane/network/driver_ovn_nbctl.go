@@ -77,6 +77,8 @@ func (d *OVNDriver) nbctlOutput(args ...string) (string, error) {
 }
 
 // EnsureNetwork creates a logical switch and DHCP options.
+//
+//nolint:gocognit,gocyclo // Complex OVN network setup logic
 func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 	lsName := fmt.Sprintf("ls-%s", n.ID)
 	if err := d.nbctl("--may-exist", "ls-add", lsName); err != nil {
@@ -107,8 +109,8 @@ func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 		if n.SegmentationID > 0 {
 			_ = d.nbctl("set", "Logical_Switch", lsName, fmt.Sprintf("other_config:vni=%d", n.SegmentationID))
 		}
-		// Note: Don't create localport gateway here if using routers
-		// localport and router ports conflict when using the same IP
+		// Note: Don't create localport gateway here if using routers.
+		// localport and router ports conflict when using the same IP.
 	}
 
 	if s != nil && strings.TrimSpace(s.CIDR) != "" && s.EnableDHCP {
@@ -119,7 +121,7 @@ func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 				return fmt.Errorf("invalid CIDR %s: %w", s.CIDR, err)
 			}
 			ip := ipnet.IP.To4()
-			ip[3] = ip[3] + 1
+			ip[3]++
 			gateway = ip.String()
 			s.Gateway = gateway
 		}
@@ -131,7 +133,7 @@ func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 				ip := ipnet.IP.To4()
 				startIP := make(net.IP, 4)
 				copy(startIP, ip)
-				startIP[3] = startIP[3] + 2
+				startIP[3] += 2
 				allocationStart = startIP.String()
 				s.AllocationStart = allocationStart
 				ones, bits := ipnet.Mask.Size()
@@ -140,7 +142,7 @@ func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 					numHosts := (1 << hostBits) - 2
 					endIP := make(net.IP, 4)
 					copy(endIP, ip)
-					endIP[3] = endIP[3] + byte(numHosts)
+					endIP[3] += byte(numHosts)
 					allocationEnd = endIP.String()
 					s.AllocationEnd = allocationEnd
 				}
@@ -224,45 +226,7 @@ func (d *OVNDriver) createLocalnetPort(lsName, physicalNetwork string, vlanID in
 	return nil
 }
 
-// createHostGatewayPort creates a localport type port that allows the host to access the overlay network
-// This creates a bridge on the host (e.g., ovn-<network_id>) with the gateway IP
-//
-//nolint:unused
-func (d *OVNDriver) createHostGatewayPort(lsName, networkID, gatewayIP, cidr string) error {
-	portName := fmt.Sprintf("gw-%s", networkID)
-
-	// Parse CIDR to get prefix length
-	_, ipnet, err := net.ParseCIDR(cidr)
-	if err != nil {
-		return fmt.Errorf("invalid CIDR %s: %w", cidr, err)
-	}
-	ones, _ := ipnet.Mask.Size()
-	gatewayWithPrefix := fmt.Sprintf("%s/%d", gatewayIP, ones)
-
-	// Create localport on the logical switch
-	if err := d.nbctl("--", "--may-exist", "lsp-add", lsName, portName); err != nil {
-		return fmt.Errorf("failed to add gateway port: %w", err)
-	}
-
-	// Set port type to localport (local to each chassis)
-	if err := d.nbctl("lsp-set-type", portName, "localport"); err != nil {
-		return fmt.Errorf("failed to set gateway port type: %w", err)
-	}
-
-	// Set addresses - use a fixed MAC for the gateway
-	mac := p2pMAC(networkID)
-	addresses := fmt.Sprintf("%s %s", mac, gatewayIP)
-	if err := d.nbctl("lsp-set-addresses", portName, addresses); err != nil {
-		return fmt.Errorf("failed to set gateway port addresses: %w", err)
-	}
-
-	d.logger.Info("Created host gateway port",
-		zap.String("port", portName),
-		zap.String("gateway", gatewayWithPrefix),
-		zap.String("network", networkID))
-
-	return nil
-}
+// createHostGatewayPort - removed as unused.
 
 func (d *OVNDriver) DeleteNetwork(n *Network) error {
 	lsName := fmt.Sprintf("ls-%s", n.ID)
@@ -339,11 +303,11 @@ func (d *OVNDriver) DeleteRouter(name string) error {
 	return d.nbctl("--", "--if-exists", "lr-del", name)
 }
 
-func (d *OVNDriver) EnsureFIPNAT(router string, floatingIP, fixedIP string) error {
+func (d *OVNDriver) EnsureFIPNAT(router, floatingIP, fixedIP string) error {
 	return d.nbctl("--", "--may-exist", "lr-nat-add", router, "dnat_and_snat", floatingIP, fixedIP)
 }
 
-func (d *OVNDriver) RemoveFIPNAT(router string, floatingIP, fixedIP string) error {
+func (d *OVNDriver) RemoveFIPNAT(router, floatingIP, fixedIP string) error {
 	return d.nbctl("--", "lr-nat-del", router, "dnat_and_snat", floatingIP)
 }
 
@@ -376,11 +340,11 @@ func (d *OVNDriver) ConnectSubnetToRouter(router string, n *Network, s *Subnet) 
 	}
 	if err := d.nbctl("lrp-set-addresses", lrpName, fmt.Sprintf("%s %s", p2pMAC(n.ID), addr)); err != nil {
 		d.logger.Warn("lrp-set-addresses unsupported, falling back to set mac/networks", zap.Error(err))
-		// Quote MAC address value for ovn-nbctl set command
-		if err2 := d.nbctl("set", "Logical_Router_Port", lrpName, fmt.Sprintf("mac=\"%s\"", p2pMAC(n.ID))); err2 != nil {
+		// Quote MAC address value for ovn-nbctl set command.
+		if err2 := d.nbctl("set", "Logical_Router_Port", lrpName, fmt.Sprintf("mac=%q", p2pMAC(n.ID))); err2 != nil {
 			return err2
 		}
-		if err3 := d.nbctl("set", "Logical_Router_Port", lrpName, fmt.Sprintf("networks=\"%s\"", addr)); err3 != nil {
+		if err3 := d.nbctl("set", "Logical_Router_Port", lrpName, fmt.Sprintf("networks=%q", addr)); err3 != nil {
 			return err3
 		}
 	}
@@ -448,7 +412,7 @@ func (d *OVNDriver) ClearRouterGateway(router string, externalNetwork *Network) 
 	return nil
 }
 
-func (d *OVNDriver) SetRouterSNAT(router string, enable bool, internalCIDR string, externalIP string) error {
+func (d *OVNDriver) SetRouterSNAT(router string, enable bool, internalCIDR, externalIP string) error {
 	if enable {
 		if err := d.nbctl("--", "--may-exist", "lr-nat-add", router, "snat", externalIP, internalCIDR); err != nil {
 			return fmt.Errorf("failed to add SNAT rule: %w", err)
@@ -463,14 +427,14 @@ func (d *OVNDriver) SetRouterSNAT(router string, enable bool, internalCIDR strin
 	return nil
 }
 
-// ReplacePortACLs replaces ACLs for a given port (nbctl placeholder)
+// ReplacePortACLs replaces ACLs for a given port (nbctl placeholder).
 func (d *OVNDriver) ReplacePortACLs(networkID, portID string, rules []ACLRule) error {
 	// In the nbctl-backed driver, ACL/PG management is not yet implemented. Placeholder no-op.
 	d.logger.Debug("ReplacePortACLs (nbctl placeholder)", zap.String("network", networkID), zap.String("port", portID))
 	return nil
 }
 
-// EnsurePortSecurity ensures security groups are applied via Port Groups and ACLs (nbctl placeholder)
+// EnsurePortSecurity ensures security groups are applied via Port Groups and ACLs (nbctl placeholder).
 func (d *OVNDriver) EnsurePortSecurity(portID string, groups []CompiledSecurityGroup) error {
 	// In the nbctl-backed driver, security groups via Port Groups are not yet implemented. Placeholder no-op.
 	d.logger.Debug("EnsurePortSecurity (nbctl placeholder)", zap.String("port", portID))

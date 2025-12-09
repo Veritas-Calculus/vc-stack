@@ -11,11 +11,13 @@ vc-controller 是 VC Stack 的控制平面核心组件，负责管理和协调�
 **位置**: `internal/controlplane/metadata/`
 
 **功能**:
+
 - 提供实例元数据 API，类似于 AWS EC2 metadata 和 OpenStack metadata
 - 支持 cloud-init 集成
 - 提供 user-data、vendor-data 和 network-data
 
 **API 端点**:
+
 - `GET /latest/meta-data` - 获取实例元数据
 - `GET /latest/meta-data/:key` - 获取特定元数据键
 - `GET /latest/user-data` - 获取 cloud-init user-data
@@ -26,6 +28,7 @@ vc-controller 是 VC Stack 的控制平面核心组件，负责管理和协调�
 - `DELETE /api/v1/metadata/instances/:id` - 删除实例元数据
 
 **使用场景**:
+
 - 虚拟机内部获取自身配置信息
 - Cloud-init 初始化配置
 - 动态配置和服务发现
@@ -35,11 +38,13 @@ vc-controller 是 VC Stack 的控制平面核心组件，负责管理和协调�
 **位置**: `internal/controlplane/event/`
 
 **功能**:
+
 - 系统事件记录和审计追踪
 - 类似 OpenStack Panko 和 AWS CloudTrail
 - 自动清理过期事件（默认保留 90 天）
 
 **API 端点**:
+
 - `POST /api/v1/events` - 创建事件记录
 - `GET /api/v1/events` - 查询事件列表（支持多种过滤条件）
 - `GET /api/v1/events/:id` - 获取特定事件
@@ -47,12 +52,14 @@ vc-controller 是 VC Stack 的控制平面核心组件，负责管理和协调�
 - `DELETE /api/v1/events/cleanup` - 手动触发清理
 
 **特性**:
+
 - 支持按资源类型、操作、状态、用户、租户等过滤
 - 时间范围查询
 - 分页支持
 - 自动后台清理
 
 **事件类型**:
+
 - create, update, delete, action
 - 资源类型: vm, network, volume, router, etc.
 - 状态: success, failure, pending
@@ -62,11 +69,13 @@ vc-controller 是 VC Stack 的控制平面核心组件，负责管理和协调�
 **位置**: `internal/controlplane/quota/`
 
 **功能**:
+
 - 资源配额限制和使用统计
 - 类似 OpenStack Nova/Cinder 配额系统
 - 支持租户级别和全局默认配额
 
 **API 端点**:
+
 - `GET /api/v1/quotas/tenants/:tenant_id` - 获取租户配额
 - `PUT /api/v1/quotas/tenants/:tenant_id` - 更新租户配额
 - `DELETE /api/v1/quotas/tenants/:tenant_id` - 重置为默认配额
@@ -75,6 +84,7 @@ vc-controller 是 VC Stack 的控制平面核心组件，负责管理和协调�
 - `PUT /api/v1/quotas/defaults` - 更新默认配额
 
 **配额项目**:
+
 - instances - 实例数量
 - vcpus - 虚拟CPU核心数
 - ram_mb - 内存（MB）
@@ -88,6 +98,7 @@ vc-controller 是 VC Stack 的控制平面核心组件，负责管理和协调�
 - security_groups - 安全组数量
 
 **默认配额**:
+
 ```
 实例: 10
 vCPUs: 20
@@ -97,6 +108,7 @@ vCPUs: 20
 ```
 
 **编程接口**:
+
 ```go
 // 检查配额
 err := quotaSvc.CheckQuota(tenantID, "instances", 1)
@@ -111,11 +123,13 @@ err := quotaSvc.UpdateUsage(tenantID, "instances", -1)  // 删除时 -1
 **位置**: `internal/controlplane/monitoring/`
 
 **功能**:
+
 - 系统健康检查
 - 性能指标收集
 - Kubernetes 就绪性和存活性探针支持
 
 **API 端点**:
+
 - `GET /health` - 整体健康状态
 - `GET /health/liveness` - Kubernetes 存活性探针
 - `GET /health/readiness` - Kubernetes 就绪性探针
@@ -125,11 +139,13 @@ err := quotaSvc.UpdateUsage(tenantID, "instances", -1)  // 删除时 -1
 - `GET /api/v1/monitoring/status` - 组件状态
 
 **健康检查项**:
+
 - 数据库连接状态
 - 连接延迟监控
 - 连接池状态
 
 **系统指标**:
+
 - CPU 核心数
 - Goroutine 数量
 - 内存使用（已用/总量/百分比）
@@ -137,6 +153,7 @@ err := quotaSvc.UpdateUsage(tenantID, "instances", -1)  // 删除时 -1
 - 启动时间
 
 **健康状态**:
+
 - healthy - 正常
 - degraded - 降级（如高延迟）
 - unhealthy - 不健康
@@ -146,6 +163,7 @@ err := quotaSvc.UpdateUsage(tenantID, "instances", -1)  // 删除时 -1
 **位置**: `internal/controlplane/middleware/`
 
 **功能**:
+
 - JWT 认证中间件
 - 速率限制
 - 请求 ID 追踪
@@ -157,36 +175,43 @@ err := quotaSvc.UpdateUsage(tenantID, "instances", -1)  // 删除时 -1
 **中间件列表**:
 
 1. **AuthMiddleware** - JWT 认证
+
    ```go
    router.Use(middleware.AuthMiddleware(jwtSecret, logger))
    ```
 
 2. **RateLimitMiddleware** - 速率限制
+
    ```go
    router.Use(middleware.RateLimitMiddleware(10.0, 20)) // 10 req/s, burst 20
    ```
 
 3. **RequestIDMiddleware** - 请求 ID
+
    ```go
    router.Use(middleware.RequestIDMiddleware())
    ```
 
 4. **CORSMiddleware** - CORS 支持
+
    ```go
    router.Use(middleware.CORSMiddleware())
    ```
 
 5. **LoggingMiddleware** - 请求日志
+
    ```go
    router.Use(middleware.LoggingMiddleware(logger))
    ```
 
 6. **TenantIsolationMiddleware** - 租户隔离
+
    ```go
    router.Use(middleware.TenantIsolationMiddleware())
    ```
 
 7. **AdminOnlyMiddleware** - 管理员权限
+
    ```go
    adminRoutes.Use(middleware.AdminOnlyMiddleware())
    ```
@@ -194,6 +219,7 @@ err := quotaSvc.UpdateUsage(tenantID, "instances", -1)  // 删除时 -1
 ## 现有服务模块
 
 ### 1. 身份认证服务 (Identity Service)
+
 - JWT 认证
 - RBAC 权限控制
 - 用户和角色管理
@@ -201,6 +227,7 @@ err := quotaSvc.UpdateUsage(tenantID, "instances", -1)  // 删除时 -1
 - LDAP/OIDC 集成支持
 
 ### 2. 网络服务 (Network Service)
+
 - 虚拟网络管理
 - 子网管理
 - 路由器管理
@@ -210,6 +237,7 @@ err := quotaSvc.UpdateUsage(tenantID, "instances", -1)  // 删除时 -1
 - OVN SDN 集成
 
 ### 3. 主机管理服务 (Host Service)
+
 - 计算节点注册
 - 心跳监控
 - 资源容量管理
@@ -217,12 +245,14 @@ err := quotaSvc.UpdateUsage(tenantID, "instances", -1)  // 删除时 -1
 - 维护模式
 
 ### 4. 调度服务 (Scheduler Service)
+
 - 节点注册和心跳
 - 资源调度算法
 - VM 分发
 - 节点选择策略
 
 ### 5. 网关服务 (Gateway Service)
+
 - API 网关
 - 请求路由和代理
 - 服务发现
@@ -230,18 +260,22 @@ err := quotaSvc.UpdateUsage(tenantID, "instances", -1)  // 删除时 -1
 ## 架构优势
 
 ### 1. 模块化设计
+
 每个服务都是独立的模块，具有清晰的职责边界，便于维护和扩展。
 
 ### 2. 统一的错误处理
+
 所有服务都遵循统一的错误处理和响应格式。
 
 ### 3. 完整的可观测性
+
 - 健康检查
 - 性能监控
 - 事件审计
 - 请求追踪
 
 ### 4. 安全性
+
 - JWT 认证
 - RBAC 权限控制
 - 租户隔离
@@ -249,6 +283,7 @@ err := quotaSvc.UpdateUsage(tenantID, "instances", -1)  // 删除时 -1
 - 审计日志
 
 ### 5. 云原生支持
+
 - Kubernetes 健康探针
 - 优雅关闭
 - 指标导出
@@ -415,18 +450,21 @@ CREATE TABLE quota_usage (
 ## 下一步计划
 
 ### 短期目标
+
 1. 添加编排服务（类似 OpenStack Heat）
 2. 工作流引擎（类似 Mistral）
 3. 消息队列集成（RocketMQ）
 4. 分布式追踪（Jaeger）
 
 ### 中期目标
+
 1. DNS 服务（类似 Designate）
 2. 负载均衡服务（类似 Octavia）
 3. 告警服务（类似 Aodh）
 4. 密钥管理（类似 Barbican）
 
 ### 长期目标
+
 1. 容器服务（类似 Magnum）
 2. 裸金属服务（类似 Ironic）
 3. 应用目录（类似 Murano）

@@ -12,12 +12,12 @@ import (
 	"go.uber.org/zap"
 )
 
-// PluginConfig holds network plugin connection parameters
+// PluginConfig holds network plugin connection parameters.
 type PluginConfig struct {
 	Endpoint string // e.g. http://localhost:8086
 }
 
-// PluginDriver implements Driver by calling network-plugin HTTP API
+// PluginDriver implements Driver by calling network-plugin HTTP API.
 type PluginDriver struct {
 	logger *zap.Logger
 	cfg    PluginConfig
@@ -32,9 +32,9 @@ func NewPluginDriver(l *zap.Logger, cfg PluginConfig) *PluginDriver {
 	}
 }
 
-// EnsureNetwork creates a logical switch via plugin
+// EnsureNetwork creates a logical switch via plugin.
 func (d *PluginDriver) EnsureNetwork(n *Network, s *Subnet) error {
-	// Create logical switch
+	// Create logical switch.
 	payload := map[string]string{
 		"id":   n.ID,
 		"cidr": n.CIDR,
@@ -43,9 +43,9 @@ func (d *PluginDriver) EnsureNetwork(n *Network, s *Subnet) error {
 		return fmt.Errorf("failed to create network: %w", err)
 	}
 
-	// Configure DHCP if subnet has CIDR and DHCP is enabled
+	// Configure DHCP if subnet has CIDR and DHCP is enabled.
 	if s != nil && strings.TrimSpace(s.CIDR) != "" && s.EnableDHCP {
-		// Calculate gateway if not provided
+		// Calculate gateway if not provided.
 		gateway := s.Gateway
 		if gateway == "" {
 			_, ipnet, err := net.ParseCIDR(s.CIDR)
@@ -54,13 +54,13 @@ func (d *PluginDriver) EnsureNetwork(n *Network, s *Subnet) error {
 			}
 			ip := ipnet.IP.To4()
 			if ip != nil {
-				ip[3] = ip[3] + 1
+				ip[3]++
 				gateway = ip.String()
 				s.Gateway = gateway
 			}
 		}
 
-		// Calculate allocation pool if not provided
+		// Calculate allocation pool if not provided.
 		if s.AllocationStart == "" || s.AllocationEnd == "" {
 			_, ipnet, err := net.ParseCIDR(s.CIDR)
 			if err == nil {
@@ -68,7 +68,7 @@ func (d *PluginDriver) EnsureNetwork(n *Network, s *Subnet) error {
 				if ip != nil {
 					startIP := make(net.IP, 4)
 					copy(startIP, ip)
-					startIP[3] = startIP[3] + 2
+					startIP[3] += 2
 					s.AllocationStart = startIP.String()
 
 					ones, bits := ipnet.Mask.Size()
@@ -77,14 +77,14 @@ func (d *PluginDriver) EnsureNetwork(n *Network, s *Subnet) error {
 						numHosts := (1 << hostBits) - 2
 						endIP := make(net.IP, 4)
 						copy(endIP, ip)
-						endIP[3] = endIP[3] + byte(numHosts)
+						endIP[3] += byte(numHosts)
 						s.AllocationEnd = endIP.String()
 					}
 				}
 			}
 		}
 
-		// Set DNS servers
+		// Set DNS servers.
 		dnsServers := s.DNSNameservers
 		if dnsServers == "" {
 			dnsServers = "8.8.8.8,8.8.4.4"
@@ -119,10 +119,10 @@ func (d *PluginDriver) EnsureNetwork(n *Network, s *Subnet) error {
 	return nil
 }
 
-// DeleteNetwork removes the logical switch
+// DeleteNetwork removes the logical switch.
 func (d *PluginDriver) DeleteNetwork(n *Network) error {
 	url := fmt.Sprintf("%s/api/v1/networks/%s", d.cfg.Endpoint, n.ID)
-	req, err := http.NewRequest("DELETE", url, nil)
+	req, err := http.NewRequest("DELETE", url, http.NoBody)
 	if err != nil {
 		return err
 	}
@@ -140,7 +140,7 @@ func (d *PluginDriver) DeleteNetwork(n *Network) error {
 	return nil
 }
 
-// EnsurePort creates a logical switch port
+// EnsurePort creates a logical switch port.
 func (d *PluginDriver) EnsurePort(n *Network, s *Subnet, p *NetworkPort) error {
 	first := ""
 	subnetID := ""
@@ -148,7 +148,7 @@ func (d *PluginDriver) EnsurePort(n *Network, s *Subnet, p *NetworkPort) error {
 		first = p.FixedIPs[0].IP
 		subnetID = p.FixedIPs[0].SubnetID
 	}
-	// Fallback to port.SubnetID if FixedIPs doesn't have it
+	// Fallback to port.SubnetID if FixedIPs doesn't have it.
 	if subnetID == "" && p.SubnetID != "" {
 		subnetID = p.SubnetID
 	}
@@ -168,10 +168,10 @@ func (d *PluginDriver) EnsurePort(n *Network, s *Subnet, p *NetworkPort) error {
 	return nil
 }
 
-// DeletePort removes a logical switch port
+// DeletePort removes a logical switch port.
 func (d *PluginDriver) DeletePort(n *Network, p *NetworkPort) error {
 	url := fmt.Sprintf("%s/api/v1/ports/%s", d.cfg.Endpoint, p.ID)
-	req, err := http.NewRequest("DELETE", url, nil)
+	req, err := http.NewRequest("DELETE", url, http.NoBody)
 	if err != nil {
 		return err
 	}
@@ -189,16 +189,16 @@ func (d *PluginDriver) DeletePort(n *Network, p *NetworkPort) error {
 	return nil
 }
 
-// EnsureRouter creates a logical router (stub for now)
+// EnsureRouter creates a logical router (stub for now).
 func (d *PluginDriver) EnsureRouter(name string) error {
 	payload := map[string]string{"name": name}
 	return d.post("/api/v1/routers", payload)
 }
 
-// DeleteRouter deletes a logical router (stub for now)
+// DeleteRouter deletes a logical router (stub for now).
 func (d *PluginDriver) DeleteRouter(name string) error {
 	url := fmt.Sprintf("%s/api/v1/routers/%s", d.cfg.Endpoint, name)
-	req, err := http.NewRequest("DELETE", url, nil)
+	req, err := http.NewRequest("DELETE", url, http.NoBody)
 	if err != nil {
 		return err
 	}
@@ -213,7 +213,7 @@ func (d *PluginDriver) DeleteRouter(name string) error {
 	return nil
 }
 
-// ConnectSubnetToRouter connects subnet to router (stub for now)
+// ConnectSubnetToRouter connects subnet to router (stub for now).
 func (d *PluginDriver) ConnectSubnetToRouter(router string, n *Network, s *Subnet) error {
 	payload := map[string]string{
 		"network_id": n.ID,
@@ -224,14 +224,14 @@ func (d *PluginDriver) ConnectSubnetToRouter(router string, n *Network, s *Subne
 	return d.post(path, payload)
 }
 
-// DisconnectSubnetFromRouter disconnects subnet from router (stub for now)
+// DisconnectSubnetFromRouter disconnects subnet from router (stub for now).
 func (d *PluginDriver) DisconnectSubnetFromRouter(router string, n *Network) error {
 	payload := map[string]string{"network_id": n.ID}
 	path := fmt.Sprintf("/api/v1/routers/%s/disconnect-subnet", router)
 	return d.post(path, payload)
 }
 
-// SetRouterGateway sets external gateway for router (stub for now)
+// SetRouterGateway sets external gateway for router (stub for now).
 func (d *PluginDriver) SetRouterGateway(router string, externalNetwork *Network, externalSubnet *Subnet) (string, error) {
 	payload := map[string]string{
 		"external_network_id": externalNetwork.ID,
@@ -242,7 +242,7 @@ func (d *PluginDriver) SetRouterGateway(router string, externalNetwork *Network,
 	if err := d.post(path, payload); err != nil {
 		return "", err
 	}
-	// Derive allocated IP like plugin does: second usable address
+	// Derive allocated IP like plugin does: second usable address.
 	ip, _, err := net.ParseCIDR(externalSubnet.CIDR)
 	if err != nil {
 		return "", fmt.Errorf("invalid external subnet CIDR: %w", err)
@@ -257,15 +257,15 @@ func (d *PluginDriver) SetRouterGateway(router string, externalNetwork *Network,
 	return rIP.String(), nil
 }
 
-// ClearRouterGateway clears external gateway for router (stub for now)
+// ClearRouterGateway clears external gateway for router (stub for now).
 func (d *PluginDriver) ClearRouterGateway(router string, externalNetwork *Network) error {
 	payload := map[string]string{"external_network_id": externalNetwork.ID}
 	path := fmt.Sprintf("/api/v1/routers/%s/clear-gateway", router)
 	return d.post(path, payload)
 }
 
-// SetRouterSNAT enables/disables SNAT for router (stub for now)
-func (d *PluginDriver) SetRouterSNAT(router string, enable bool, internalCIDR string, externalIP string) error {
+// SetRouterSNAT enables/disables SNAT for router (stub for now).
+func (d *PluginDriver) SetRouterSNAT(router string, enable bool, internalCIDR, externalIP string) error {
 	payload := map[string]interface{}{
 		"enable":        enable,
 		"internal_cidr": internalCIDR,
@@ -275,35 +275,35 @@ func (d *PluginDriver) SetRouterSNAT(router string, enable bool, internalCIDR st
 	return d.post(path, payload)
 }
 
-// EnsureFIPNAT configures floating IP NAT (stub for now)
-func (d *PluginDriver) EnsureFIPNAT(router string, floatingIP, fixedIP string) error {
+// EnsureFIPNAT configures floating IP NAT (stub for now).
+func (d *PluginDriver) EnsureFIPNAT(router, floatingIP, fixedIP string) error {
 	d.logger.Debug("EnsureFIPNAT called")
 	// TODO: Implement NAT via plugin
 	return nil
 }
 
-// RemoveFIPNAT removes floating IP NAT (stub for now)
-func (d *PluginDriver) RemoveFIPNAT(router string, floatingIP, fixedIP string) error {
+// RemoveFIPNAT removes floating IP NAT (stub for now).
+func (d *PluginDriver) RemoveFIPNAT(router, floatingIP, fixedIP string) error {
 	d.logger.Debug("RemoveFIPNAT called")
 	// TODO: Implement NAT removal via plugin
 	return nil
 }
 
-// ReplacePortACLs updates port ACLs (stub for now)
+// ReplacePortACLs updates port ACLs (stub for now).
 func (d *PluginDriver) ReplacePortACLs(networkID, portID string, rules []ACLRule) error {
 	d.logger.Debug("ReplacePortACLs called")
 	// TODO: Implement ACL management via plugin
 	return nil
 }
 
-// EnsurePortSecurity applies security groups to port (stub for now)
+// EnsurePortSecurity applies security groups to port (stub for now).
 func (d *PluginDriver) EnsurePortSecurity(portID string, groups []CompiledSecurityGroup) error {
 	d.logger.Debug("EnsurePortSecurity called")
 	// TODO: Implement security group management via plugin
 	return nil
 }
 
-// small helper for IPv4 increment
+// small helper for IPv4 increment.
 func inc(ip net.IP) net.IP {
 	out := make(net.IP, len(ip))
 	copy(out, ip)
@@ -316,7 +316,7 @@ func inc(ip net.IP) net.IP {
 	return out
 }
 
-// post sends a POST request to the plugin
+// post sends a POST request to the plugin.
 func (d *PluginDriver) post(path string, payload interface{}) error {
 	data, err := json.Marshal(payload)
 	if err != nil {

@@ -37,13 +37,13 @@ func (i *IPAM) Allocate(subnet *Subnet, portID string) (string, error) {
 	}
 	start := subnet.AllocationStart
 	end := subnet.AllocationEnd
-	// Iterate usable range
+	// Iterate usable range.
 	begin := firstUsableIP(ipnet, start)
-	// apply reserved-first offset
+	// apply reserved-first offset.
 	for k := 0; k < i.opt.ReservedFirst; k++ {
 		begin = nextIP(begin)
 	}
-	// compute last usable cutoff considering reserved_last
+	// compute last usable cutoff considering reserved_last.
 	cutoff := lastUsableIP(ipnet, end)
 	for k := 0; k < i.opt.ReservedLast; k++ {
 		cutoff = prevIP(cutoff)
@@ -80,7 +80,7 @@ func (i *IPAM) Release(subnetID, ip, portID string) error {
 	return q.Delete(&IPAllocation{}).Error
 }
 
-// Helpers
+// Helpers.
 func firstUsableIP(n *net.IPNet, start string) net.IP {
 	if start != "" {
 		if ip := net.ParseIP(start); ip != nil {
@@ -96,11 +96,11 @@ func isNetworkOrBroadcast(ip net.IP, n *net.IPNet) bool {
 	if !n.Contains(ip) {
 		return false
 	}
-	// network
+	// network.
 	if ip.Equal(n.IP.Mask(n.Mask)) {
 		return true
 	}
-	// broadcast for IPv4
+	// broadcast for IPv4.
 	if v4 := ip.To4(); v4 != nil {
 		bcast := make(net.IP, len(n.IP.To4()))
 		for i := 0; i < 4; i++ {
@@ -139,7 +139,7 @@ func lastUsableIP(n *net.IPNet, end string) net.IP {
 			return ip
 		}
 	}
-	// broadcast - 1 for IPv4; for IPv6, just use last address in prefix minus 1
+	// broadcast - 1 for IPv4; for IPv6, just use last address in prefix minus 1.
 	if v4 := n.IP.To4(); v4 != nil {
 		bcast := make(net.IP, len(v4))
 		for i := 0; i < 4; i++ {
@@ -147,8 +147,8 @@ func lastUsableIP(n *net.IPNet, end string) net.IP {
 		}
 		return prevIP(bcast)
 	}
-	// IPv6 last address in subnet minus 1
-	// Build max address by OR with inverted mask
+	// IPv6 last address in subnet minus 1.
+	// Build max address by OR with inverted mask.
 	base := n.IP.To16()
 	inv := make([]byte, net.IPv6len)
 	for i := 0; i < net.IPv6len; i++ {
@@ -161,7 +161,7 @@ func lastUsableIP(n *net.IPNet, end string) net.IP {
 	return prevIP(net.IP(last))
 }
 
-// compareIP compares ip a and b; returns -1,0,1
+// compareIP compares ip a and b; returns -1,0,1.
 func compareIP(a, b net.IP) int {
 	if b == nil {
 		return -1

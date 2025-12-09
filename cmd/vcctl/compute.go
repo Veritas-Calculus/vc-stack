@@ -180,7 +180,7 @@ func newComputeSnapshotsCommand() *cobra.Command {
 	return cmd
 }
 
-// Placeholder implementations
+// Placeholder implementations.
 func runComputeInstancesList(cmd *cobra.Command, args []string) {
 	println("TODO: Implement instances list")
 }

@@ -2,7 +2,7 @@ package lite
 
 import "time"
 
-// Driver abstracts hypervisor operations (libvirt expected implementation)
+// Driver abstracts hypervisor operations (libvirt expected implementation).
 type Driver interface {
 	CreateVM(CreateVMRequest) (*VM, error)
 	DeleteVM(id string, force bool) error

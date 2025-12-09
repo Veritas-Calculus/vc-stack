@@ -17,7 +17,7 @@ type Config struct {
 	Logger *zap.Logger
 }
 
-// Service composes compute, lite and netplugin services and exposes
+// Service composes compute, lite and netplugin services and exposes.
 // SetupRoutes to register their routes on a router.
 type Service struct {
 	Compute   *compute.Service
@@ -61,9 +61,9 @@ func New(cfg Config) (*Service, error) {
 	return &Service{Compute: compSvc, Lite: liteSvc, NetPlugin: npSvc}, nil
 }
 
-// SetupRoutes registers node service routes on the provided router
+// SetupRoutes registers node service routes on the provided router.
 func (s *Service) SetupRoutes(router *gin.Engine) {
-	// Add a simple health check endpoint for gateway health checking
+	// Add a simple health check endpoint for gateway health checking.
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
