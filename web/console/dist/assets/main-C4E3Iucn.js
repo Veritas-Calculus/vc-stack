@@ -11,64 +11,64 @@ const __vite__mapDeps = (
 ) => i.map((i) => d[i])
 import {
   r as k,
-  a as Qt,
+  a as ts,
   u as at,
   b as Ze,
-  L as Te,
-  N as dt,
-  c as ze,
+  L as Oe,
+  N as ut,
+  c as Ve,
   d as te,
   e as xe,
-  f as Gs,
-  g as qs,
-  h as bt,
-  R as Xs,
-  B as Js
+  f as Js,
+  g as Ys,
+  h as St,
+  R as Zs,
+  B as Qs
 } from './react-vendor-B-2j4S7D.js'
-import { c as Qe, a as yt } from './utils-vendor-CVg5kGBW.js'
-function Ys(_, S) {
-  for (var v = 0; v < S.length; v++) {
-    const w = S[v]
+import { c as Qe, a as wt } from './utils-vendor-CVg5kGBW.js'
+function er(m, y) {
+  for (var g = 0; g < y.length; g++) {
+    const w = y[g]
     if (typeof w != 'string' && !Array.isArray(w)) {
-      for (const O in w)
-        if (O !== 'default' && !(O in _)) {
-          const D = Object.getOwnPropertyDescriptor(w, O)
-          D && Object.defineProperty(_, O, D.get ? D : { enumerable: !0, get: () => w[O] })
+      for (const T in w)
+        if (T !== 'default' && !(T in m)) {
+          const R = Object.getOwnPropertyDescriptor(w, T)
+          R && Object.defineProperty(m, T, R.get ? R : { enumerable: !0, get: () => w[T] })
         }
     }
   }
-  return Object.freeze(Object.defineProperty(_, Symbol.toStringTag, { value: 'Module' }))
+  return Object.freeze(Object.defineProperty(m, Symbol.toStringTag, { value: 'Module' }))
 }
 ;(function () {
-  const S = document.createElement('link').relList
-  if (S && S.supports && S.supports('modulepreload')) return
-  for (const O of document.querySelectorAll('link[rel="modulepreload"]')) w(O)
-  new MutationObserver((O) => {
-    for (const D of O)
-      if (D.type === 'childList')
-        for (const I of D.addedNodes) I.tagName === 'LINK' && I.rel === 'modulepreload' && w(I)
+  const y = document.createElement('link').relList
+  if (y && y.supports && y.supports('modulepreload')) return
+  for (const T of document.querySelectorAll('link[rel="modulepreload"]')) w(T)
+  new MutationObserver((T) => {
+    for (const R of T)
+      if (R.type === 'childList')
+        for (const I of R.addedNodes) I.tagName === 'LINK' && I.rel === 'modulepreload' && w(I)
   }).observe(document, { childList: !0, subtree: !0 })
-  function v(O) {
-    const D = {}
+  function g(T) {
+    const R = {}
     return (
-      O.integrity && (D.integrity = O.integrity),
-      O.referrerPolicy && (D.referrerPolicy = O.referrerPolicy),
-      O.crossOrigin === 'use-credentials'
-        ? (D.credentials = 'include')
-        : O.crossOrigin === 'anonymous'
-          ? (D.credentials = 'omit')
-          : (D.credentials = 'same-origin'),
-      D
+      T.integrity && (R.integrity = T.integrity),
+      T.referrerPolicy && (R.referrerPolicy = T.referrerPolicy),
+      T.crossOrigin === 'use-credentials'
+        ? (R.credentials = 'include')
+        : T.crossOrigin === 'anonymous'
+          ? (R.credentials = 'omit')
+          : (R.credentials = 'same-origin'),
+      R
     )
   }
-  function w(O) {
-    if (O.ep) return
-    O.ep = !0
-    const D = v(O)
-    fetch(O.href, D)
+  function w(T) {
+    if (T.ep) return
+    T.ep = !0
+    const R = g(T)
+    fetch(T.href, R)
   }
 })()
-var es = { exports: {} },
+var ss = { exports: {} },
   ot = {}
 /**
  * @license React
@@ -78,124 +78,124 @@ var es = { exports: {} },
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
- */ var Zs = k,
-  Qs = Symbol.for('react.element'),
-  er = Symbol.for('react.fragment'),
-  tr = Object.prototype.hasOwnProperty,
-  sr = Zs.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner,
-  rr = { key: !0, ref: !0, __self: !0, __source: !0 }
-function ts(_, S, v) {
+ */ var tr = k,
+  sr = Symbol.for('react.element'),
+  rr = Symbol.for('react.fragment'),
+  ir = Object.prototype.hasOwnProperty,
+  nr = tr.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner,
+  ar = { key: !0, ref: !0, __self: !0, __source: !0 }
+function rs(m, y, g) {
   var w,
-    O = {},
-    D = null,
+    T = {},
+    R = null,
     I = null
-  ;(v !== void 0 && (D = '' + v),
-    S.key !== void 0 && (D = '' + S.key),
-    S.ref !== void 0 && (I = S.ref))
-  for (w in S) tr.call(S, w) && !rr.hasOwnProperty(w) && (O[w] = S[w])
-  if (_ && _.defaultProps) for (w in ((S = _.defaultProps), S)) O[w] === void 0 && (O[w] = S[w])
-  return { $$typeof: Qs, type: _, key: D, ref: I, props: O, _owner: sr.current }
+  ;(g !== void 0 && (R = '' + g),
+    y.key !== void 0 && (R = '' + y.key),
+    y.ref !== void 0 && (I = y.ref))
+  for (w in y) ir.call(y, w) && !ar.hasOwnProperty(w) && (T[w] = y[w])
+  if (m && m.defaultProps) for (w in ((y = m.defaultProps), y)) T[w] === void 0 && (T[w] = y[w])
+  return { $$typeof: sr, type: m, key: R, ref: I, props: T, _owner: nr.current }
 }
-ot.Fragment = er
-ot.jsx = ts
-ot.jsxs = ts
-es.exports = ot
-var e = es.exports,
-  ut = {},
-  Bt = Qt
-;((ut.createRoot = Bt.createRoot), (ut.hydrateRoot = Bt.hydrateRoot))
-function ss(_, S) {
-  let v
+ot.Fragment = rr
+ot.jsx = rs
+ot.jsxs = rs
+ss.exports = ot
+var e = ss.exports,
+  pt = {},
+  Mt = ts
+;((pt.createRoot = Mt.createRoot), (pt.hydrateRoot = Mt.hydrateRoot))
+function is(m, y) {
+  let g
   try {
-    v = _()
+    g = m()
   } catch {
     return
   }
   return {
-    getItem: (O) => {
-      var D
+    getItem: (T) => {
+      var R
       const I = (o) => (o === null ? null : JSON.parse(o, void 0)),
-        i = (D = v.getItem(O)) != null ? D : null
+        i = (R = g.getItem(T)) != null ? R : null
       return i instanceof Promise ? i.then(I) : I(i)
     },
-    setItem: (O, D) => v.setItem(O, JSON.stringify(D, void 0)),
-    removeItem: (O) => v.removeItem(O)
+    setItem: (T, R) => g.setItem(T, JSON.stringify(R, void 0)),
+    removeItem: (T) => g.removeItem(T)
   }
 }
-const ft = (_) => (S) => {
+const mt = (m) => (y) => {
     try {
-      const v = _(S)
-      return v instanceof Promise
-        ? v
+      const g = m(y)
+      return g instanceof Promise
+        ? g
         : {
             then(w) {
-              return ft(w)(v)
+              return mt(w)(g)
             },
             catch(w) {
               return this
             }
           }
-    } catch (v) {
+    } catch (g) {
       return {
         then(w) {
           return this
         },
         catch(w) {
-          return ft(w)(v)
+          return mt(w)(g)
         }
       }
     }
   },
-  ir = (_, S) => (v, w, O) => {
-    let D = {
-        storage: ss(() => localStorage),
-        partialize: (h) => h,
+  or = (m, y) => (g, w, T) => {
+    let R = {
+        storage: is(() => localStorage),
+        partialize: (c) => c,
         version: 0,
-        merge: (h, t) => ({ ...t, ...h }),
-        ...S
+        merge: (c, t) => ({ ...t, ...c }),
+        ...y
       },
       I = !1
     const i = new Set(),
       o = new Set()
-    let l = D.storage
+    let l = R.storage
     if (!l)
-      return _(
-        (...h) => {
+      return m(
+        (...c) => {
           ;(console.warn(
-            `[zustand persist middleware] Unable to update item '${D.name}', the given storage is currently unavailable.`
+            `[zustand persist middleware] Unable to update item '${R.name}', the given storage is currently unavailable.`
           ),
-            v(...h))
+            g(...c))
         },
         w,
-        O
+        T
       )
-    const f = () => {
-        const h = D.partialize({ ...w() })
-        return l.setItem(D.name, { state: h, version: D.version })
+    const u = () => {
+        const c = R.partialize({ ...w() })
+        return l.setItem(R.name, { state: c, version: R.version })
       },
-      a = O.setState
-    O.setState = (h, t) => (a(h, t), f())
-    const d = _((...h) => (v(...h), f()), w, O)
-    O.getInitialState = () => d
-    let u
+      a = T.setState
+    T.setState = (c, t) => (a(c, t), u())
+    const h = m((...c) => (g(...c), u()), w, T)
+    T.getInitialState = () => h
+    let f
     const x = () => {
-      var h, t
+      var c, t
       if (!l) return
       ;((I = !1),
         i.forEach((s) => {
           var r
-          return s((r = w()) != null ? r : d)
+          return s((r = w()) != null ? r : h)
         }))
       const n =
-        ((t = D.onRehydrateStorage) == null ? void 0 : t.call(D, (h = w()) != null ? h : d)) ||
+        ((t = R.onRehydrateStorage) == null ? void 0 : t.call(R, (c = w()) != null ? c : h)) ||
         void 0
-      return ft(l.getItem.bind(l))(D.name)
+      return mt(l.getItem.bind(l))(R.name)
         .then((s) => {
           if (s)
-            if (typeof s.version == 'number' && s.version !== D.version) {
-              if (D.migrate) {
-                const r = D.migrate(s.state, s.version)
-                return r instanceof Promise ? r.then((c) => [!0, c]) : [!0, r]
+            if (typeof s.version == 'number' && s.version !== R.version) {
+              if (R.migrate) {
+                const r = R.migrate(s.state, s.version)
+                return r instanceof Promise ? r.then((d) => [!0, d]) : [!0, r]
               }
               console.error(
                 "State loaded from storage couldn't be migrated since no migrate function was provided"
@@ -205,48 +205,48 @@ const ft = (_) => (S) => {
         })
         .then((s) => {
           var r
-          const [c, g] = s
-          if (((u = D.merge(g, (r = w()) != null ? r : d)), v(u, !0), c)) return f()
+          const [d, v] = s
+          if (((f = R.merge(v, (r = w()) != null ? r : h)), g(f, !0), d)) return u()
         })
         .then(() => {
-          ;(n?.(u, void 0), (u = w()), (I = !0), o.forEach((s) => s(u)))
+          ;(n?.(f, void 0), (f = w()), (I = !0), o.forEach((s) => s(f)))
         })
         .catch((s) => {
           n?.(void 0, s)
         })
     }
     return (
-      (O.persist = {
-        setOptions: (h) => {
-          ;((D = { ...D, ...h }), h.storage && (l = h.storage))
+      (T.persist = {
+        setOptions: (c) => {
+          ;((R = { ...R, ...c }), c.storage && (l = c.storage))
         },
         clearStorage: () => {
-          l?.removeItem(D.name)
+          l?.removeItem(R.name)
         },
-        getOptions: () => D,
+        getOptions: () => R,
         rehydrate: () => x(),
         hasHydrated: () => I,
-        onHydrate: (h) => (
-          i.add(h),
+        onHydrate: (c) => (
+          i.add(c),
           () => {
-            i.delete(h)
+            i.delete(c)
           }
         ),
-        onFinishHydration: (h) => (
-          o.add(h),
+        onFinishHydration: (c) => (
+          o.add(c),
           () => {
-            o.delete(h)
+            o.delete(c)
           }
         )
       }),
-      D.skipHydration || x(),
-      u || d
+      R.skipHydration || x(),
+      f || h
     )
   },
-  St = ir,
-  Oe = Qe()(
-    St(
-      (_) => ({
+  Ct = or,
+  He = Qe()(
+    Ct(
+      (m) => ({
         apiBaseUrl: '',
         logoDataUrl: void 0,
         idpProvider: void 0,
@@ -255,69 +255,69 @@ const ft = (_) => (S) => {
         idpClientSecret: void 0,
         idpRedirectUrl: void 0,
         idpGroupClaim: void 0,
-        setApiBaseUrl: (S) => _({ apiBaseUrl: S }),
-        setLogoDataUrl: (S) => _({ logoDataUrl: S }),
-        setIdpConfig: (S) =>
-          _((v) => ({
-            idpProvider: S.provider ?? v.idpProvider,
-            idpIssuer: S.issuer ?? v.idpIssuer,
-            idpClientId: S.clientId ?? v.idpClientId,
-            idpClientSecret: S.clientSecret ?? v.idpClientSecret,
-            idpRedirectUrl: S.redirectUrl ?? v.idpRedirectUrl,
-            idpGroupClaim: S.groupClaim ?? v.idpGroupClaim
+        setApiBaseUrl: (y) => m({ apiBaseUrl: y }),
+        setLogoDataUrl: (y) => m({ logoDataUrl: y }),
+        setIdpConfig: (y) =>
+          m((g) => ({
+            idpProvider: y.provider ?? g.idpProvider,
+            idpIssuer: y.issuer ?? g.idpIssuer,
+            idpClientId: y.clientId ?? g.idpClientId,
+            idpClientSecret: y.clientSecret ?? g.idpClientSecret,
+            idpRedirectUrl: y.redirectUrl ?? g.idpRedirectUrl,
+            idpGroupClaim: y.groupClaim ?? g.idpGroupClaim
           }))
       }),
       { name: 'vc-console-settings' }
     )
   ),
   lt = Qe()(
-    St((_) => ({ token: null, login: (S) => _({ token: S }), logout: () => _({ token: null }) }), {
+    Ct((m) => ({ token: null, login: (y) => m({ token: y }), logout: () => m({ token: null }) }), {
       name: 'auth'
     })
   ),
-  Pe = Qe()(
-    St(
-      (_, S) => ({
+  Te = Qe()(
+    Ct(
+      (m, y) => ({
         activeProjectId: null,
-        setActiveProjectId: (v) => _({ activeProjectId: v }),
+        setActiveProjectId: (g) => m({ activeProjectId: g }),
         sidebarCollapsed: !1,
-        toggleSidebar: () => _({ sidebarCollapsed: !S().sidebarCollapsed }),
-        setSidebarCollapsed: (v) => _({ sidebarCollapsed: v }),
+        toggleSidebar: () => m({ sidebarCollapsed: !y().sidebarCollapsed }),
+        setSidebarCollapsed: (g) => m({ sidebarCollapsed: g }),
         projectContext: !1,
-        setProjectContext: (v) => _({ projectContext: v })
+        setProjectContext: (g) => m({ projectContext: g })
       }),
       {
         name: 'vc-console-app',
-        storage: ss(() => localStorage),
-        partialize: (_) => ({
-          activeProjectId: _.activeProjectId,
-          sidebarCollapsed: _.sidebarCollapsed
+        storage: is(() => localStorage),
+        partialize: (m) => ({
+          activeProjectId: m.activeProjectId,
+          sidebarCollapsed: m.sidebarCollapsed
         }),
         version: 2,
-        migrate: (_, S) => {
-          const v = _ ?? {}
-          if (S < 2) {
-            if ('projectContext' in v) {
-              const w = { ...v }
+        migrate: (m, y) => {
+          const g = m ?? {}
+          if (y < 2) {
+            if ('projectContext' in g) {
+              const w = { ...g }
               return (delete w.projectContext, w)
             }
-            if ('state' in v && typeof v.state == 'object' && v.state) {
-              const w = { ...v.state }
-              return (delete w.projectContext, { ...v, state: w })
+            if ('state' in g && typeof g.state == 'object' && g.state) {
+              const w = { ...g.state }
+              return (delete w.projectContext, { ...g, state: w })
             }
           }
-          if ('projectContext' in v) {
-            const w = { ...v }
+          if ('projectContext' in g) {
+            const w = { ...g }
             return (delete w.projectContext, w)
           }
-          if ('state' in v && typeof v.state == 'object' && v.state) {
-            const w = { ...v.state }
-            if ('projectContext' in w) return (delete w.projectContext, { ...v, state: w })
+          if ('state' in g && typeof g.state == 'object' && g.state) {
+            const w = { ...g.state }
+            if ('projectContext' in w) return (delete w.projectContext, { ...g, state: w })
           }
-          return v
+          return g
         },
-        onRehydrateStorage: () => (_) => {
-          _?.setProjectContext(!1)
+        onRehydrateStorage: () => (m) => {
+          m?.setProjectContext(!1)
         }
       }
     )
@@ -325,8 +325,8 @@ const ft = (_) => (S) => {
 function we() {
   return Math.random().toString(36).slice(2, 9)
 }
-const nr = () => new Date().toISOString(),
-  Ce = Qe((_) => ({
+const lr = () => new Date().toISOString(),
+  Ce = Qe((m) => ({
     projects: [
       { id: '1', name: 'admin' },
       { id: '2', name: 'demo' }
@@ -335,20 +335,20 @@ const nr = () => new Date().toISOString(),
     utilization: [
       {
         projectId: '1',
-        points: Array.from({ length: 24 }).map((S, v) => ({
-          t: Date.now() - (24 - v) * 36e5,
-          vcpu: 40 + (v % 5),
-          memGiB: 300 + (v % 7) * 5,
-          storageGiB: 1200 + v * 10
+        points: Array.from({ length: 24 }).map((y, g) => ({
+          t: Date.now() - (24 - g) * 36e5,
+          vcpu: 40 + (g % 5),
+          memGiB: 300 + (g % 7) * 5,
+          storageGiB: 1200 + g * 10
         }))
       },
       {
         projectId: '2',
-        points: Array.from({ length: 24 }).map((S, v) => ({
-          t: Date.now() - (24 - v) * 36e5,
-          vcpu: 15 + (v % 3),
-          memGiB: 120 + (v % 6) * 3,
-          storageGiB: 600 + v * 7
+        points: Array.from({ length: 24 }).map((y, g) => ({
+          t: Date.now() - (24 - g) * 36e5,
+          vcpu: 15 + (g % 3),
+          memGiB: 120 + (g % 6) * 3,
+          storageGiB: 600 + g * 7
         }))
       }
     ],
@@ -369,60 +369,60 @@ const nr = () => new Date().toISOString(),
       }
     ],
     asns: [{ id: 'asn1', projectId: '1', number: 65001, description: 'Primary ASN' }],
-    addVpc: (S) =>
-      _((v) => ({
+    addVpc: (y) =>
+      m((g) => ({
         vpcs: [
-          ...v.vpcs,
+          ...g.vpcs,
           {
             id: we(),
-            name: S.name,
-            projectId: S.projectId,
-            cidr: S.cidr,
-            state: S.state ?? 'available'
+            name: y.name,
+            projectId: y.projectId,
+            cidr: y.cidr,
+            state: y.state ?? 'available'
           }
         ]
       })),
-    removeVpc: (S) => _((v) => ({ vpcs: v.vpcs.filter((w) => w.id !== S) })),
-    addAsn: (S) => _((v) => ({ asns: [...v.asns, { id: we(), ...S }] })),
-    removeAsn: (S) => _((v) => ({ asns: v.asns.filter((w) => w.id !== S) })),
+    removeVpc: (y) => m((g) => ({ vpcs: g.vpcs.filter((w) => w.id !== y) })),
+    addAsn: (y) => m((g) => ({ asns: [...g.asns, { id: we(), ...y }] })),
+    removeAsn: (y) => m((g) => ({ asns: g.asns.filter((w) => w.id !== y) })),
     clusters: [{ id: 'c1', projectId: '1', name: 'prod-k8s', version: '1.29', status: 'running' }],
     images: [],
     flavors: [],
-    setFlavors: (S) => _(() => ({ flavors: S })),
+    setFlavors: (y) => m(() => ({ flavors: y })),
     snapshots: [
       { id: 'snp1', projectId: '1', sourceId: 'vm-1', kind: 'vm', status: 'ready' },
       { id: 'snp2', projectId: '1', sourceId: 'vol1', kind: 'volume', status: 'ready' }
     ],
-    setSnapshots: (S) => _(() => ({ snapshots: S })),
+    setSnapshots: (y) => m(() => ({ snapshots: y })),
     hypervisors: [
       { id: 'hv1', name: 'hv-a', virtType: 'KVM', status: 'online' },
       { id: 'hv2', name: 'hv-b', virtType: 'QEMU', status: 'online' }
     ],
     sshKeys: [],
-    addCluster: (S) =>
-      _((v) => ({
-        clusters: [...v.clusters, { id: we(), status: S.status ?? 'provisioning', ...S }]
+    addCluster: (y) =>
+      m((g) => ({
+        clusters: [...g.clusters, { id: we(), status: y.status ?? 'provisioning', ...y }]
       })),
-    addImage: (S) => _((v) => ({ images: [...v.images, { id: we(), ...S, status: 'available' }] })),
-    addFlavor: (S) => _((v) => ({ flavors: [...v.flavors, { id: we(), ...S }] })),
-    addSnapshot: (S) =>
-      _((v) => ({ snapshots: [...v.snapshots, { id: we(), ...S, status: 'creating' }] })),
-    addSSHKey: (S) => _((v) => ({ sshKeys: [...v.sshKeys, { id: we(), ...S }] })),
-    removeSSHKey: (S) => _((v) => ({ sshKeys: v.sshKeys.filter((w) => w.id !== S) })),
+    addImage: (y) => m((g) => ({ images: [...g.images, { id: we(), ...y, status: 'available' }] })),
+    addFlavor: (y) => m((g) => ({ flavors: [...g.flavors, { id: we(), ...y }] })),
+    addSnapshot: (y) =>
+      m((g) => ({ snapshots: [...g.snapshots, { id: we(), ...y, status: 'creating' }] })),
+    addSSHKey: (y) => m((g) => ({ sshKeys: [...g.sshKeys, { id: we(), ...y }] })),
+    removeSSHKey: (y) => m((g) => ({ sshKeys: g.sshKeys.filter((w) => w.id !== y) })),
     instances: [
       { id: 'vm-1', projectId: '1', name: 'web-app', ip: '10.0.0.21', state: 'running' },
       { id: 'vm-2', projectId: '2', name: 'dev-vm', ip: '10.1.0.30', state: 'stopped' }
     ],
-    setInstances: (S) => _(() => ({ instances: S })),
-    addInstance: (S) => _((v) => ({ instances: [...v.instances, { id: we(), ...S }] })),
+    setInstances: (y) => m(() => ({ instances: y })),
+    addInstance: (y) => m((g) => ({ instances: [...g.instances, { id: we(), ...y }] })),
     publicIPs: [{ id: 'pip1', projectId: '1', address: '203.0.113.10', status: 'allocated' }],
-    addPublicIP: (S) => _((v) => ({ publicIPs: [...v.publicIPs, { id: we(), ...S }] })),
+    addPublicIP: (y) => m((g) => ({ publicIPs: [...g.publicIPs, { id: we(), ...y }] })),
     volumes: [{ id: 'vol1', projectId: '1', name: 'data-1', sizeGiB: 100, status: 'available' }],
-    addVolume: (S) =>
-      _((v) => ({ volumes: [...v.volumes, { id: we(), status: S.status ?? 'available', ...S }] })),
+    addVolume: (y) =>
+      m((g) => ({ volumes: [...g.volumes, { id: we(), status: y.status ?? 'available', ...y }] })),
     backups: [{ id: 'b1', projectId: '1', sourceId: 'vol1', status: 'ready' }],
-    addBackup: (S) =>
-      _((v) => ({ backups: [...v.backups, { id: we(), ...S, status: 'creating' }] })),
+    addBackup: (y) =>
+      m((g) => ({ backups: [...g.backups, { id: we(), ...y, status: 'creating' }] })),
     backends: [
       {
         id: 'bk1',
@@ -441,14 +441,14 @@ const nr = () => new Date().toISOString(),
         status: 'connected'
       }
     ],
-    addBackend: (S) =>
-      _((v) => ({
-        backends: [...v.backends, { id: we(), status: S.status ?? 'connected', ...S }]
+    addBackend: (y) =>
+      m((g) => ({
+        backends: [...g.backends, { id: we(), status: y.status ?? 'connected', ...y }]
       })),
-    removeBackend: (S) => _((v) => ({ backends: v.backends.filter((w) => w.id !== S) })),
-    notices: [{ id: 'n1', time: nr(), resource: 'prod-vpc', type: 'created', status: 'unread' }],
-    markNotice: (S, v) =>
-      _((w) => ({ notices: w.notices.map((O) => (O.id === S ? { ...O, status: v } : O)) })),
+    removeBackend: (y) => m((g) => ({ backends: g.backends.filter((w) => w.id !== y) })),
+    notices: [{ id: 'n1', time: lr(), resource: 'prod-vpc', type: 'created', status: 'unread' }],
+    markNotice: (y, g) =>
+      m((w) => ({ notices: w.notices.map((T) => (T.id === y ? { ...T, status: g } : T)) })),
     cmdb: [
       {
         id: 'grp-root',
@@ -510,8 +510,28 @@ const nr = () => new Date().toISOString(),
       { id: 'r1', name: 'Administrator', roleType: 'system' },
       { id: 'r2', name: 'Viewer', roleType: 'system' }
     ],
-    addRole: (S) => _((v) => ({ roles: [...v.roles, { id: we(), ...S }] })),
-    removeRole: (S) => _((v) => ({ roles: v.roles.filter((w) => w.id !== S) })),
+    addRole: (y) => m((g) => ({ roles: [...g.roles, { id: we(), ...y }] })),
+    updateRole: (y, g) =>
+      m((w) => ({ roles: w.roles.map((T) => (T.id === y ? { ...T, ...g } : T)) })),
+    removeRole: (y) => m((g) => ({ roles: g.roles.filter((w) => w.id !== y) })),
+    policies: [
+      {
+        id: 'p1',
+        name: 'AdministratorAccess',
+        type: 'system',
+        document:
+          '{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Action": "*", "Resource": "*"}]}'
+      },
+      {
+        id: 'p2',
+        name: 'ReadOnlyAccess',
+        type: 'system',
+        document:
+          '{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Action": ["read", "list"], "Resource": "*"}]}'
+      }
+    ],
+    addPolicy: (y) => m((g) => ({ policies: [...g.policies, { id: we(), ...y }] })),
+    removePolicy: (y) => m((g) => ({ policies: g.policies.filter((w) => w.id !== y) })),
     accounts: [
       {
         id: 'u1',
@@ -521,66 +541,68 @@ const nr = () => new Date().toISOString(),
         roleType: 'system',
         source: 'Local'
       }
-    ]
+    ],
+    updateAccount: (y, g) =>
+      m((w) => ({ accounts: w.accounts.map((T) => (T.id === y ? { ...T, ...g } : T)) }))
   }))
-function ar() {
+function cr() {
   return Math.random().toString(36).slice(2, 9)
 }
-const Je = Qe((_, S) => ({
+const Je = Qe((m, y) => ({
     toasts: [],
-    push: (v) => {
-      const w = ar(),
-        O = { id: w, variant: 'info', timeoutMs: 3500, ...v }
-      _((I) => ({ toasts: [...I.toasts, O] }))
-      const D = O.timeoutMs ?? 3500
-      return (D > 0 && window.setTimeout(() => S().remove(w), D), w)
+    push: (g) => {
+      const w = cr(),
+        T = { id: w, variant: 'info', timeoutMs: 3500, ...g }
+      m((I) => ({ toasts: [...I.toasts, T] }))
+      const R = T.timeoutMs ?? 3500
+      return (R > 0 && window.setTimeout(() => y().remove(w), R), w)
     },
-    remove: (v) => _((w) => ({ toasts: w.toasts.filter((O) => O.id !== v) })),
-    clear: () => _({ toasts: [] })
+    remove: (g) => m((w) => ({ toasts: w.toasts.filter((T) => T.id !== g) })),
+    clear: () => m({ toasts: [] })
   })),
-  fe = {
-    success(_, S) {
+  me = {
+    success(m, y) {
       return Je.getState().push({
-        message: _,
+        message: m,
         variant: 'success',
-        title: S?.title,
-        timeoutMs: S?.timeoutMs
+        title: y?.title,
+        timeoutMs: y?.timeoutMs
       })
     },
-    error(_, S) {
+    error(m, y) {
       return Je.getState().push({
-        message: _,
+        message: m,
         variant: 'error',
-        title: S?.title,
-        timeoutMs: S?.timeoutMs ?? 5e3
+        title: y?.title,
+        timeoutMs: y?.timeoutMs ?? 5e3
       })
     },
-    info(_, S) {
+    info(m, y) {
       return Je.getState().push({
-        message: _,
+        message: m,
         variant: 'info',
-        title: S?.title,
-        timeoutMs: S?.timeoutMs
+        title: y?.title,
+        timeoutMs: y?.timeoutMs
       })
     }
   }
-function or() {
-  const _ = Je((v) => v.toasts),
-    S = Je((v) => v.remove)
-  return _.length === 0
+function hr() {
+  const m = Je((g) => g.toasts),
+    y = Je((g) => g.remove)
+  return m.length === 0
     ? null
     : e.jsx('div', {
         className: 'fixed bottom-4 right-4 z-50 space-y-2 w-[min(360px,calc(100vw-2rem))]',
-        children: _.map((v) =>
+        children: m.map((g) =>
           e.jsxs(
             'div',
             {
-              className: `rounded-md border shadow-card p-3 text-sm flex items-start gap-2 ${v.variant === 'success' ? 'border-emerald-700 bg-emerald-900/40 text-emerald-100' : v.variant === 'error' ? 'border-rose-700 bg-rose-900/40 text-rose-100' : 'border-oxide-700 bg-oxide-800 text-gray-100'}`,
+              className: `rounded-md border shadow-card p-3 text-sm flex items-start gap-2 ${g.variant === 'success' ? 'border-emerald-700 bg-emerald-900/40 text-emerald-100' : g.variant === 'error' ? 'border-rose-700 bg-rose-900/40 text-rose-100' : 'border-oxide-700 bg-oxide-800 text-gray-100'}`,
               children: [
                 e.jsxs('div', {
                   className: 'mt-0.5',
                   children: [
-                    v.variant === 'success' &&
+                    g.variant === 'success' &&
                       e.jsx('svg', {
                         width: '16',
                         height: '16',
@@ -590,7 +612,7 @@ function or() {
                           d: 'M9 16.2l-3.5-3.5L4 14.2 9 19l12-12-1.5-1.5z'
                         })
                       }),
-                    v.variant === 'error' &&
+                    g.variant === 'error' &&
                       e.jsx('svg', {
                         width: '16',
                         height: '16',
@@ -600,7 +622,7 @@ function or() {
                           d: 'M12 2L1 21h22L12 2zm0 14h-1v-1h1v1zm0-3h-1V8h1v5z'
                         })
                       }),
-                    v.variant === 'info' &&
+                    g.variant === 'info' &&
                       e.jsx('svg', {
                         width: '16',
                         height: '16',
@@ -615,14 +637,14 @@ function or() {
                 e.jsxs('div', {
                   className: 'flex-1',
                   children: [
-                    v.title &&
-                      e.jsx('div', { className: 'font-medium text-sm mb-0.5', children: v.title }),
-                    e.jsx('div', { className: 'leading-snug', children: v.message })
+                    g.title &&
+                      e.jsx('div', { className: 'font-medium text-sm mb-0.5', children: g.title }),
+                    e.jsx('div', { className: 'leading-snug', children: g.message })
                   ]
                 }),
                 e.jsx('button', {
                   className: 'opacity-70 hover:opacity-100',
-                  onClick: () => S(v.id),
+                  onClick: () => y(g.id),
                   'aria-label': 'Close',
                   children: e.jsx('svg', {
                     width: '16',
@@ -636,145 +658,153 @@ function or() {
                 })
               ]
             },
-            v.id
+            g.id
           )
         )
       })
 }
-function lr(_) {
-  const S = _.match(/^\/project\/([^/]+)/)
-  return S ? decodeURIComponent(S[1]) : null
+function dr(m) {
+  const y = m.match(/^\/project\/([^/]+)/)
+  return y ? decodeURIComponent(y[1]) : null
 }
-function cr({ children: _ }) {
-  const S = Oe((R) => R.logoDataUrl),
-    v = at(),
+function ur({ children: m }) {
+  const y = He((D) => D.logoDataUrl),
+    g = at(),
     w = Ze(),
-    O = lt((R) => R.logout),
-    [D, I] = k.useState({}),
+    T = lt((D) => D.logout),
+    [R, I] = k.useState({}),
     [i, o] = k.useState(!1),
-    [l, f] = k.useState(!1),
+    [l, u] = k.useState(!1),
     a = k.useRef(null),
-    [d, u] = k.useState(null),
+    [h, f] = k.useState(null),
     x = k.useRef(null),
-    h = k.useMemo(() => lr(v.pathname), [v.pathname]),
-    t = Pe((R) => R.activeProjectId),
-    n = Pe((R) => R.setActiveProjectId),
-    s = Pe((R) => R.projectContext),
-    r = Pe((R) => R.setProjectContext),
-    c = Pe((R) => R.sidebarCollapsed),
-    g = Pe((R) => R.toggleSidebar),
-    m = h ?? t,
+    c = k.useMemo(() => dr(g.pathname), [g.pathname]),
+    t = Te((D) => D.activeProjectId),
+    n = Te((D) => D.setActiveProjectId),
+    s = Te((D) => D.projectContext),
+    r = Te((D) => D.setProjectContext),
+    d = Te((D) => D.sidebarCollapsed),
+    v = Te((D) => D.toggleSidebar),
+    _ = c ?? t,
     { projects: b, notices: p } = Ce(),
-    y = k.useMemo(() => p.filter((R) => R.status === 'unread').length, [p]),
+    S = k.useMemo(() => p.filter((D) => D.status === 'unread').length, [p]),
     [L, M] = k.useState(!1),
     P = k.useRef(null)
   k.useEffect(() => {
-    h && (h !== t && n(h), r(!0))
-  }, [h, t, n, r])
+    c && (c !== t && n(c), r(!0))
+  }, [c, t, n, r])
   const j = k.useMemo(() => {
-    if (!m || !s)
+    if (!_ || !s)
       return [
         { type: 'link', to: '/docs', label: 'Docs' },
         { type: 'link', to: '/projects', label: 'Project' },
         { type: 'link', to: '/images', label: 'Images' },
         { type: 'link', to: '/utilization', label: 'Utilization' }
       ]
-    const R = `/project/${encodeURIComponent(m)}`
+    const D = `/project/${encodeURIComponent(_)}`
     return [
       { type: 'link', to: '/docs', label: 'Docs' },
-      { type: 'link', to: `${R}/images`, label: 'Images' },
-      { type: 'link', to: `${R}/utilization`, label: 'Utilization' },
+      { type: 'link', to: `${D}/images`, label: 'Images' },
+      { type: 'link', to: `${D}/utilization`, label: 'Utilization' },
       {
         type: 'group',
         label: 'Compute',
-        base: `${R}/compute`,
+        base: `${D}/compute`,
         children: [
-          { to: `${R}/compute/instances`, label: 'Instances' },
-          { to: `${R}/compute/firecracker`, label: 'Firecracker' },
-          { to: `${R}/compute/flavors`, label: 'Flavors' },
-          { to: `${R}/compute/vm-snapshots`, label: 'VM Snapshots' },
-          { to: `${R}/compute/k8s`, label: 'Kubernetes' },
-          { to: `${R}/compute/kms`, label: 'SSH Keypairs' }
+          { to: `${D}/compute/instances`, label: 'Instances' },
+          { to: `${D}/compute/firecracker`, label: 'Firecracker' },
+          { to: `${D}/compute/flavors`, label: 'Flavors' },
+          { to: `${D}/compute/vm-snapshots`, label: 'VM Snapshots' },
+          { to: `${D}/compute/k8s`, label: 'Kubernetes' },
+          { to: `${D}/compute/kms`, label: 'SSH Keypairs' }
         ]
       },
       {
         type: 'group',
         label: 'Storage',
-        base: `${R}/storage`,
+        base: `${D}/storage`,
         children: [
-          { to: `${R}/storage/volumes`, label: 'Volumes' },
-          { to: `${R}/storage/snapshots`, label: 'Snapshots' },
-          { to: `${R}/storage/backups`, label: 'Backups' }
+          { to: `${D}/storage/volumes`, label: 'Volumes' },
+          { to: `${D}/storage/snapshots`, label: 'Snapshots' },
+          { to: `${D}/storage/backups`, label: 'Backups' }
         ]
       },
       {
         type: 'group',
         label: 'Network',
-        base: `${R}/network`,
+        base: `${D}/network`,
         children: [
-          { to: `${R}/network/vpc`, label: 'VPC' },
-          { to: `${R}/network/routers`, label: 'Routers' },
-          { to: `${R}/network/sg`, label: 'Security Groups' },
-          { to: `${R}/network/topology`, label: 'Topology' },
-          { to: `${R}/network/public-ips`, label: 'Public IPs' },
-          { to: `${R}/network/asns`, label: 'ASNs' },
-          { to: `${R}/network/vpn`, label: 'VPN' },
-          { to: `${R}/network/acl`, label: 'Network ACL' }
+          { to: `${D}/network/vpc`, label: 'VPC' },
+          { to: `${D}/network/routers`, label: 'Routers' },
+          { to: `${D}/network/sg`, label: 'Security Groups' },
+          { to: `${D}/network/topology`, label: 'Topology' },
+          { to: `${D}/network/public-ips`, label: 'Public IPs' },
+          { to: `${D}/network/asns`, label: 'ASNs' },
+          { to: `${D}/network/vpn`, label: 'VPN' },
+          { to: `${D}/network/acl`, label: 'Network ACL' }
         ]
       },
       {
         type: 'group',
         label: 'Images',
-        base: `${R}/images`,
+        base: `${D}/images`,
         children: [
-          { to: `${R}/images/templates`, label: 'Templates' },
-          { to: `${R}/images/iso`, label: 'ISOs' },
-          { to: `${R}/images/k8s-iso`, label: 'Kubernetes ISO' }
+          { to: `${D}/images/templates`, label: 'Templates' },
+          { to: `${D}/images/iso`, label: 'ISOs' },
+          { to: `${D}/images/k8s-iso`, label: 'Kubernetes ISO' }
         ]
       },
-      { type: 'link', to: '/iam/roles', label: 'IAM' },
+      {
+        type: 'group',
+        label: 'IAM',
+        base: '/iam',
+        children: [
+          { to: '/iam/roles', label: 'Roles' },
+          { to: '/iam/policies', label: 'Policies' }
+        ]
+      },
       { type: 'link', to: '/accounts', label: 'Accounts' },
       {
         type: 'group',
         label: 'Infrastructure',
-        base: `${R}/infrastructure`,
+        base: `${D}/infrastructure`,
         children: [
-          { to: `${R}/infrastructure/overview`, label: 'Overview' },
-          { to: `${R}/infrastructure/zones`, label: 'Zones' },
-          { to: `${R}/infrastructure/clusters`, label: 'Clusters' },
-          { to: `${R}/infrastructure/hosts`, label: 'Hosts' },
-          { to: `${R}/infrastructure/primary-storage`, label: 'Primary Storage' },
-          { to: `${R}/infrastructure/secondary-storage`, label: 'Secondary Storage' },
-          { to: `${R}/infrastructure/db-usage`, label: 'DB / Usage' },
-          { to: `${R}/infrastructure/alarms`, label: 'Alarms' }
+          { to: `${D}/infrastructure/overview`, label: 'Overview' },
+          { to: `${D}/infrastructure/zones`, label: 'Zones' },
+          { to: `${D}/infrastructure/clusters`, label: 'Clusters' },
+          { to: `${D}/infrastructure/hosts`, label: 'Hosts' },
+          { to: `${D}/infrastructure/primary-storage`, label: 'Primary Storage' },
+          { to: `${D}/infrastructure/secondary-storage`, label: 'Secondary Storage' },
+          { to: `${D}/infrastructure/db-usage`, label: 'DB / Usage' },
+          { to: `${D}/infrastructure/alarms`, label: 'Alarms' }
         ]
       },
       { type: 'link', to: '/notifications', label: 'Notifications' }
     ]
-  }, [m, s])
+  }, [_, s])
   return (
     k.useMemo(() => {
-      const R = { ...D }
-      ;(j.forEach((T) => {
-        T.type === 'group' && (R[T.base] = v.pathname.startsWith(T.base))
+      const D = { ...R }
+      ;(j.forEach((O) => {
+        O.type === 'group' && (D[O.base] = g.pathname.startsWith(O.base))
       }),
-        I(R))
-    }, [v.pathname, j]),
+        I(D))
+    }, [g.pathname, j]),
     k.useEffect(() => {
       o(!1)
-    }, [v.pathname]),
+    }, [g.pathname]),
     k.useEffect(() => {
-      function R(T) {
-        P.current && (P.current.contains(T.target) || M(!1))
+      function D(O) {
+        P.current && (P.current.contains(O.target) || M(!1))
       }
-      return (document.addEventListener('click', R), () => document.removeEventListener('click', R))
+      return (document.addEventListener('click', D), () => document.removeEventListener('click', D))
     }, []),
     k.useEffect(() => {
-      const R = v.pathname
-      ;(R === '/' || R === '/projects' || R.startsWith('/projects')) && r(!1)
-    }, [v.pathname, r]),
+      const D = g.pathname
+      ;(D === '/' || D === '/projects' || D.startsWith('/projects')) && r(!1)
+    }, [g.pathname, r]),
     e.jsxs('div', {
-      className: `min-h-screen grid ${c ? 'grid-cols-[64px_1fr]' : 'grid-cols-[248px_1fr]'} grid-rows-[56px_1fr]`,
+      className: `min-h-screen grid ${d ? 'grid-cols-[64px_1fr]' : 'grid-cols-[248px_1fr]'} grid-rows-[56px_1fr]`,
       children: [
         e.jsxs('aside', {
           className: 'row-span-2 bg-oxide-900 border-r border-oxide-800',
@@ -782,9 +812,9 @@ function cr({ children: _ }) {
             e.jsxs('div', {
               className: 'h-14 flex items-center px-4 gap-2 border-b border-oxide-800',
               children: [
-                S
+                y
                   ? e.jsx('img', {
-                      src: S,
+                      src: y,
                       alt: 'logo',
                       className: 'h-6 w-6 rounded object-contain'
                     })
@@ -793,41 +823,41 @@ function cr({ children: _ }) {
                       alt: 'logo',
                       className: 'h-6 w-6 rounded object-contain'
                     }),
-                !c && e.jsx(Te, { to: '/', className: 'font-semibold', children: 'VC Console' })
+                !d && e.jsx(Oe, { to: '/', className: 'font-semibold', children: 'VC Console' })
               ]
             }),
             e.jsx('nav', {
-              className: `p-2 space-y-1 ${c ? 'px-1' : ''}`,
-              children: j.map((R, T) => {
-                if (R.type === 'link')
+              className: `p-2 space-y-1 ${d ? 'px-1' : ''}`,
+              children: j.map((D, O) => {
+                if (D.type === 'link')
                   return e.jsxs(
-                    dt,
+                    ut,
                     {
-                      to: R.to,
+                      to: D.to,
                       className: ({ isActive: F }) =>
-                        `flex items-center gap-2 rounded-md ${c ? 'px-2 py-2 justify-center' : 'px-3 py-2 text-sm'} hover:bg-oxide-800 ${F ? 'bg-oxide-800 text-white' : 'text-gray-300'}`,
+                        `flex items-center gap-2 rounded-md ${d ? 'px-2 py-2 justify-center' : 'px-3 py-2 text-sm'} hover:bg-oxide-800 ${F ? 'bg-oxide-800 text-white' : 'text-gray-300'}`,
                       children: [
-                        e.jsx(et, { name: R.label }),
-                        !c && e.jsx('span', { children: R.label })
+                        e.jsx(et, { name: D.label }),
+                        !d && e.jsx('span', { children: D.label })
                       ]
                     },
-                    T
+                    O
                   )
-                const $ = D[R.base]
+                const $ = R[D.base]
                 return e.jsxs(
                   'div',
                   {
                     className: 'relative',
                     onMouseEnter: () => {
-                      c &&
+                      d &&
                         (x.current && (window.clearTimeout(x.current), (x.current = null)),
-                        u(R.base))
+                        f(D.base))
                     },
                     onMouseLeave: () => {
-                      c &&
+                      d &&
                         (x.current && window.clearTimeout(x.current),
                         (x.current = window.setTimeout(
-                          () => u((F) => (F === R.base ? null : F)),
+                          () => f((F) => (F === D.base ? null : F)),
                           160
                         )))
                     },
@@ -835,20 +865,20 @@ function cr({ children: _ }) {
                       e.jsxs('button', {
                         type: 'button',
                         onClick: () => {
-                          c
-                            ? u((F) => (F === R.base ? null : R.base))
-                            : I((F) => ({ ...F, [R.base]: !F[R.base] }))
+                          d
+                            ? f((F) => (F === D.base ? null : D.base))
+                            : I((F) => ({ ...F, [D.base]: !F[D.base] }))
                         },
-                        className: `w-full flex items-center ${c ? 'justify-center px-2 py-2' : 'justify-between px-3 py-2 text-sm'} rounded-md hover:bg-oxide-800 ${v.pathname.startsWith(R.base) ? 'bg-oxide-800 text-white' : 'text-gray-300'}`,
+                        className: `w-full flex items-center ${d ? 'justify-center px-2 py-2' : 'justify-between px-3 py-2 text-sm'} rounded-md hover:bg-oxide-800 ${g.pathname.startsWith(D.base) ? 'bg-oxide-800 text-white' : 'text-gray-300'}`,
                         children: [
                           e.jsxs('span', {
                             className: 'flex items-center gap-2',
                             children: [
-                              e.jsx(et, { name: R.label }),
-                              !c && e.jsx('span', { children: R.label })
+                              e.jsx(et, { name: D.label }),
+                              !d && e.jsx('span', { children: D.label })
                             ]
                           }),
-                          !c &&
+                          !d &&
                             e.jsx('svg', {
                               width: '14',
                               height: '14',
@@ -860,30 +890,30 @@ function cr({ children: _ }) {
                             })
                         ]
                       }),
-                      c &&
-                        d === R.base &&
+                      d &&
+                        h === D.base &&
                         e.jsx('div', {
                           className:
                             'absolute left-full top-0 z-50 ml-2 min-w-44 rounded-md border border-oxide-700 bg-oxide-900 shadow-card py-1',
                           onMouseEnter: () => {
                             ;(x.current && (window.clearTimeout(x.current), (x.current = null)),
-                              u(R.base))
+                              f(D.base))
                           },
                           onMouseLeave: () => {
                             ;(x.current && window.clearTimeout(x.current),
                               (x.current = window.setTimeout(
-                                () => u((F) => (F === R.base ? null : F)),
+                                () => f((F) => (F === D.base ? null : F)),
                                 160
                               )))
                           },
-                          children: R.children.map((F) =>
+                          children: D.children.map((F) =>
                             e.jsxs(
-                              dt,
+                              ut,
                               {
                                 to: F.to,
                                 className: ({ isActive: W }) =>
                                   `flex items-center gap-2 rounded-md px-3 py-1.5 text-sm hover:bg-oxide-800 ${W ? 'bg-oxide-800 text-white' : 'text-gray-200'}`,
-                                onClick: () => u(null),
+                                onClick: () => f(null),
                                 children: [
                                   e.jsx(et, { name: F.label, small: !0 }),
                                   e.jsx('span', { children: F.label })
@@ -893,13 +923,13 @@ function cr({ children: _ }) {
                             )
                           )
                         }),
-                      !c &&
+                      !d &&
                         $ &&
                         e.jsx('div', {
                           className: 'mt-1 space-y-1',
-                          children: R.children.map((F) =>
+                          children: D.children.map((F) =>
                             e.jsxs(
-                              dt,
+                              ut,
                               {
                                 to: F.to,
                                 className: ({ isActive: W }) =>
@@ -915,7 +945,7 @@ function cr({ children: _ }) {
                         })
                     ]
                   },
-                  T
+                  O
                 )
               })
             })
@@ -933,9 +963,9 @@ function cr({ children: _ }) {
                   className:
                     'h-8 w-8 grid place-items-center rounded-md border border-oxide-700 bg-oxide-900 hover:bg-oxide-800 text-gray-200',
                   'aria-label': 'Toggle sidebar',
-                  onClick: g,
-                  title: c ? 'Expand sidebar' : 'Collapse sidebar',
-                  children: c
+                  onClick: v,
+                  title: d ? 'Expand sidebar' : 'Collapse sidebar',
+                  children: d
                     ? e.jsxs('svg', {
                         width: '16',
                         height: '16',
@@ -965,7 +995,7 @@ function cr({ children: _ }) {
                         ]
                       })
                 }),
-                m &&
+                _ &&
                   e.jsxs('div', {
                     className: 'relative',
                     ref: P,
@@ -973,14 +1003,14 @@ function cr({ children: _ }) {
                       e.jsxs('button', {
                         className:
                           'h-8 px-3 rounded-md border border-oxide-700 bg-oxide-900 hover:bg-oxide-800 text-gray-200 text-sm',
-                        onClick: () => M((R) => !R),
-                        children: ['Project: ', m]
+                        onClick: () => M((D) => !D),
+                        children: ['Project: ', _]
                       }),
                       L &&
                         e.jsx('div', {
                           className:
                             'absolute z-40 mt-2 w-56 rounded-md border border-oxide-700 bg-oxide-900 shadow-card py-1',
-                          children: b.map((R) =>
+                          children: b.map((D) =>
                             e.jsx(
                               'button',
                               {
@@ -988,13 +1018,13 @@ function cr({ children: _ }) {
                                   'w-full text-left px-3 py-1.5 text-sm text-gray-200 hover:bg-oxide-800',
                                 onClick: () => {
                                   ;(M(!1),
-                                    n(R.id),
+                                    n(D.id),
                                     r(!0),
-                                    w(`/project/${encodeURIComponent(R.id)}`))
+                                    w(`/project/${encodeURIComponent(D.id)}`))
                                 },
-                                children: R.name
+                                children: D.name
                               },
-                              R.id
+                              D.id
                             )
                           )
                         })
@@ -1008,17 +1038,17 @@ function cr({ children: _ }) {
                 e.jsxs('div', {
                   className: 'relative',
                   onMouseEnter: () => {
-                    ;(a.current && (window.clearTimeout(a.current), (a.current = null)), f(!0))
+                    ;(a.current && (window.clearTimeout(a.current), (a.current = null)), u(!0))
                   },
                   onMouseLeave: () => {
                     ;(a.current && window.clearTimeout(a.current),
-                      (a.current = window.setTimeout(() => f(!1), 180)))
+                      (a.current = window.setTimeout(() => u(!1), 180)))
                   },
                   children: [
                     e.jsx('button', {
                       className:
                         'h-8 px-3 rounded-md border border-oxide-700 bg-oxide-900 hover:bg-oxide-800 text-gray-200 text-sm',
-                      onClick: () => f((R) => !R),
+                      onClick: () => u((D) => !D),
                       'aria-haspopup': 'menu',
                       'aria-expanded': l,
                       children: 'Create'
@@ -1029,33 +1059,33 @@ function cr({ children: _ }) {
                           'absolute right-0 top-full z-40 w-44 rounded-md border border-oxide-700 bg-oxide-900 shadow-card py-1',
                         onMouseEnter: () => {
                           ;(a.current && (window.clearTimeout(a.current), (a.current = null)),
-                            f(!0))
+                            u(!0))
                         },
                         children: [
                           e.jsx('button', {
                             className:
                               'w-full text-left px-3 py-1.5 text-sm text-gray-200 hover:bg-oxide-800',
                             onClick: () =>
-                              w(s && m ? `/project/${m}/compute/instances` : '/projects'),
+                              w(s && _ ? `/project/${_}/compute/instances` : '/projects'),
                             children: 'Instance'
                           }),
                           e.jsx('button', {
                             className:
                               'w-full text-left px-3 py-1.5 text-sm text-gray-200 hover:bg-oxide-800',
-                            onClick: () => w(s && m ? `/project/${m}/compute/k8s` : '/projects'),
+                            onClick: () => w(s && _ ? `/project/${_}/compute/k8s` : '/projects'),
                             children: 'Kubernetes'
                           }),
                           e.jsx('button', {
                             className:
                               'w-full text-left px-3 py-1.5 text-sm text-gray-200 hover:bg-oxide-800',
                             onClick: () =>
-                              w(s && m ? `/project/${m}/storage/volumes` : '/projects'),
+                              w(s && _ ? `/project/${_}/storage/volumes` : '/projects'),
                             children: 'Volume'
                           }),
                           e.jsx('button', {
                             className:
                               'w-full text-left px-3 py-1.5 text-sm text-gray-200 hover:bg-oxide-800',
-                            onClick: () => w(s && m ? `/project/${m}/network/vpc` : '/projects'),
+                            onClick: () => w(s && _ ? `/project/${_}/network/vpc` : '/projects'),
                             children: 'VPC'
                           })
                         ]
@@ -1105,11 +1135,11 @@ function cr({ children: _ }) {
                         e.jsx('path', { d: 'M13.73 21a2 2 0 01-3.46 0' })
                       ]
                     }),
-                    y > 0 &&
+                    S > 0 &&
                       e.jsx('span', {
                         className:
                           'absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-red-600 text-[10px] leading-4 text-white grid place-items-center',
-                        children: y > 9 ? '9+' : y
+                        children: S > 9 ? '9+' : S
                       })
                   ]
                 }),
@@ -1120,14 +1150,14 @@ function cr({ children: _ }) {
                       type: 'button',
                       'aria-label': 'User menu',
                       className: 'h-8 w-8 rounded-full bg-oxide-700',
-                      onClick: () => o((R) => !R)
+                      onClick: () => o((D) => !D)
                     }),
                     i &&
                       e.jsxs('div', {
                         className:
                           'absolute right-0 z-40 mt-2 w-44 rounded-md border border-oxide-700 bg-oxide-900 shadow-card py-1',
                         children: [
-                          e.jsx(Te, {
+                          e.jsx(Oe, {
                             to: '/settings',
                             className: 'block px-3 py-1.5 text-sm text-gray-200 hover:bg-oxide-800',
                             onClick: () => o(!1),
@@ -1137,7 +1167,7 @@ function cr({ children: _ }) {
                             className:
                               'w-full text-left px-3 py-1.5 text-sm text-gray-200 hover:bg-oxide-800',
                             onClick: () => {
-                              ;(o(!1), O(), n(null), r(!1), w('/login', { replace: !0 }))
+                              ;(o(!1), T(), n(null), r(!1), w('/login', { replace: !0 }))
                             },
                             children: 'Sign out'
                           })
@@ -1149,20 +1179,20 @@ function cr({ children: _ }) {
             })
           ]
         }),
-        e.jsx('main', { className: 'p-6 space-y-6 bg-oxide-950', children: _ }),
-        e.jsx(or, {})
+        e.jsx('main', { className: 'p-6 space-y-6 bg-oxide-950', children: m }),
+        e.jsx(hr, {})
       ]
     })
   )
 }
-function et({ name: _, small: S }) {
-  const v = S ? 14 : 16,
+function et({ name: m, small: y }) {
+  const g = y ? 14 : 16,
     w = 'currentColor'
   return (
     {
       Docs: e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1175,8 +1205,8 @@ function et({ name: _, small: S }) {
         ]
       }),
       Project: e.jsx('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1186,8 +1216,8 @@ function et({ name: _, small: S }) {
         children: e.jsx('path', { d: 'M3 7h5l2 2h11v11H3z' })
       }),
       Images: e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1201,8 +1231,8 @@ function et({ name: _, small: S }) {
         ]
       }),
       Utilization: e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1212,8 +1242,8 @@ function et({ name: _, small: S }) {
         children: [e.jsx('path', { d: 'M3 3v18h18' }), e.jsx('path', { d: 'M19 9l-5 5-4-4-3 3' })]
       }),
       Compute: e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1228,8 +1258,8 @@ function et({ name: _, small: S }) {
         ]
       }),
       Storage: e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1243,8 +1273,8 @@ function et({ name: _, small: S }) {
         ]
       }),
       Network: e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1260,8 +1290,8 @@ function et({ name: _, small: S }) {
         ]
       }),
       Templates: e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1276,8 +1306,8 @@ function et({ name: _, small: S }) {
         ]
       }),
       IAM: e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1290,8 +1320,8 @@ function et({ name: _, small: S }) {
         ]
       }),
       Accounts: e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1306,8 +1336,8 @@ function et({ name: _, small: S }) {
         ]
       }),
       Infrastructure: e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1320,8 +1350,8 @@ function et({ name: _, small: S }) {
         ]
       }),
       Notifications: e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1334,8 +1364,8 @@ function et({ name: _, small: S }) {
         ]
       }),
       Instances: e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1348,8 +1378,8 @@ function et({ name: _, small: S }) {
         ]
       }),
       Flavors: e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1363,8 +1393,8 @@ function et({ name: _, small: S }) {
         ]
       }),
       'VM Snapshots': e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1377,8 +1407,8 @@ function et({ name: _, small: S }) {
         ]
       }),
       Kubernetes: e.jsx('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1388,8 +1418,8 @@ function et({ name: _, small: S }) {
         children: e.jsx('polygon', { points: '12 2 19 7 19 17 12 22 5 17 5 7' })
       }),
       'SSH Keypairs': e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1403,8 +1433,8 @@ function et({ name: _, small: S }) {
         ]
       }),
       Volumes: e.jsx('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1414,8 +1444,8 @@ function et({ name: _, small: S }) {
         children: e.jsx('rect', { x: '4', y: '4', width: '16', height: '16', rx: '2' })
       }),
       Snapshots: e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1428,8 +1458,8 @@ function et({ name: _, small: S }) {
         ]
       }),
       Backups: e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1439,8 +1469,8 @@ function et({ name: _, small: S }) {
         children: [e.jsx('path', { d: 'M12 20v-6' }), e.jsx('path', { d: 'M6 14l6-6 6 6' })]
       }),
       VPC: e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1450,8 +1480,8 @@ function et({ name: _, small: S }) {
         children: [e.jsx('path', { d: 'M3 7h18v10H3z' }), e.jsx('path', { d: 'M7 7V3h10v4' })]
       }),
       'Security Groups': e.jsx('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1461,8 +1491,8 @@ function et({ name: _, small: S }) {
         children: e.jsx('path', { d: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z' })
       }),
       'Public IPs': e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1476,8 +1506,8 @@ function et({ name: _, small: S }) {
         ]
       }),
       ASNs: e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1491,8 +1521,8 @@ function et({ name: _, small: S }) {
         ]
       }),
       VPN: e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1505,8 +1535,8 @@ function et({ name: _, small: S }) {
         ]
       }),
       'Network ACL': e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1521,8 +1551,8 @@ function et({ name: _, small: S }) {
         ]
       }),
       Topology: e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1538,8 +1568,8 @@ function et({ name: _, small: S }) {
         ]
       }),
       ISO: e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1552,8 +1582,8 @@ function et({ name: _, small: S }) {
         ]
       }),
       'K8s ISO': e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1566,8 +1596,8 @@ function et({ name: _, small: S }) {
         ]
       }),
       Overview: e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1577,8 +1607,8 @@ function et({ name: _, small: S }) {
         children: [e.jsx('path', { d: 'M3 12l9-9 9 9' }), e.jsx('path', { d: 'M9 21V9h6v12' })]
       }),
       Zones: e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1593,8 +1623,8 @@ function et({ name: _, small: S }) {
         ]
       }),
       Clusters: e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1608,8 +1638,8 @@ function et({ name: _, small: S }) {
         ]
       }),
       Hosts: e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1622,8 +1652,8 @@ function et({ name: _, small: S }) {
         ]
       }),
       'Primary Storage': e.jsx('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1633,8 +1663,8 @@ function et({ name: _, small: S }) {
         children: e.jsx('ellipse', { cx: '12', cy: '5', rx: '9', ry: '3' })
       }),
       'Secondary Storage': e.jsx('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1644,8 +1674,8 @@ function et({ name: _, small: S }) {
         children: e.jsx('ellipse', { cx: '12', cy: '5', rx: '9', ry: '3' })
       }),
       'DB / Usage': e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1658,8 +1688,8 @@ function et({ name: _, small: S }) {
         ]
       }),
       Alarms: e.jsxs('svg', {
-        width: v,
-        height: v,
+        width: g,
+        height: g,
         viewBox: '0 0 24 24',
         fill: 'none',
         stroke: w,
@@ -1673,10 +1703,10 @@ function et({ name: _, small: S }) {
           e.jsx('path', { d: 'M12 10v4l2 2' })
         ]
       })
-    }[_] ??
+    }[m] ??
     e.jsx('svg', {
-      width: v,
-      height: v,
+      width: g,
+      height: g,
       viewBox: '0 0 24 24',
       fill: 'none',
       stroke: w,
@@ -1687,13 +1717,13 @@ function et({ name: _, small: S }) {
     })
   )
 }
-function hr() {
-  const { setLogoDataUrl: _ } = Oe(),
-    S = async (v) => {
-      const w = v.target.files?.[0]
+function fr() {
+  const { setLogoDataUrl: m } = He(),
+    y = async (g) => {
+      const w = g.target.files?.[0]
       if (!w) return
-      const O = new FileReader()
-      ;((O.onload = () => _(String(O.result))), O.readAsDataURL(w))
+      const T = new FileReader()
+      ;((T.onload = () => m(String(T.result))), T.readAsDataURL(w))
     }
   return e.jsxs('section', {
     className: 'card p-4 space-y-4',
@@ -1702,14 +1732,14 @@ function hr() {
       e.jsxs('div', {
         children: [
           e.jsx('label', { className: 'label', children: 'Custom Logo' }),
-          e.jsx('input', { type: 'file', className: 'input', onChange: S, accept: 'image/*' })
+          e.jsx('input', { type: 'file', className: 'input', onChange: y, accept: 'image/*' })
         ]
       })
     ]
   })
 }
-function It() {
-  const { apiBaseUrl: _, setApiBaseUrl: S } = Oe()
+function Pt() {
+  const { apiBaseUrl: m, setApiBaseUrl: y } = He()
   return e.jsxs('section', {
     className: 'card p-4 space-y-4',
     children: [
@@ -1719,8 +1749,8 @@ function It() {
           e.jsx('label', { className: 'label', children: 'Backend API URL' }),
           e.jsx('input', {
             className: 'input w-full',
-            value: _,
-            onChange: (v) => S(v.target.value),
+            value: m,
+            onChange: (g) => y(g.target.value),
             placeholder: 'https://api.example.com'
           })
         ]
@@ -1728,16 +1758,16 @@ function It() {
     ]
   })
 }
-function dr() {
+function pr() {
   const {
-    idpProvider: _,
-    idpIssuer: S,
-    idpClientId: v,
+    idpProvider: m,
+    idpIssuer: y,
+    idpClientId: g,
     idpClientSecret: w,
-    idpRedirectUrl: O,
-    idpGroupClaim: D,
+    idpRedirectUrl: T,
+    idpGroupClaim: R,
     setIdpConfig: I
-  } = Oe()
+  } = He()
   return e.jsxs('section', {
     className: 'card p-4 space-y-4',
     children: [
@@ -1750,7 +1780,7 @@ function dr() {
               e.jsx('label', { className: 'label', children: 'Provider' }),
               e.jsxs('select', {
                 className: 'input w-full',
-                value: _ ?? '',
+                value: m ?? '',
                 onChange: (i) => I({ provider: i.target.value || void 0 }),
                 children: [
                   e.jsx('option', { value: '', children: 'Select…' }),
@@ -1765,7 +1795,7 @@ function dr() {
               e.jsx('label', { className: 'label', children: 'Issuer' }),
               e.jsx('input', {
                 className: 'input w-full',
-                value: S ?? '',
+                value: y ?? '',
                 onChange: (i) => I({ issuer: i.target.value })
               })
             ]
@@ -1775,7 +1805,7 @@ function dr() {
               e.jsx('label', { className: 'label', children: 'Client ID' }),
               e.jsx('input', {
                 className: 'input w-full',
-                value: v ?? '',
+                value: g ?? '',
                 onChange: (i) => I({ clientId: i.target.value })
               })
             ]
@@ -1795,7 +1825,7 @@ function dr() {
               e.jsx('label', { className: 'label', children: 'Redirect URL' }),
               e.jsx('input', {
                 className: 'input w-full',
-                value: O ?? '',
+                value: T ?? '',
                 onChange: (i) => I({ redirectUrl: i.target.value })
               })
             ]
@@ -1805,7 +1835,7 @@ function dr() {
               e.jsx('label', { className: 'label', children: 'Group Claim' }),
               e.jsx('input', {
                 className: 'input w-full',
-                value: D ?? '',
+                value: R ?? '',
                 onChange: (i) => I({ groupClaim: i.target.value })
               })
             ]
@@ -1815,7 +1845,7 @@ function dr() {
     ]
   })
 }
-function ur() {
+function mr() {
   return e.jsxs('section', {
     className: 'card p-4 space-y-2',
     children: [
@@ -1824,19 +1854,19 @@ function ur() {
       e.jsxs('div', { className: 'text-sm text-gray-300', children: ['Commit: ', ''] }),
       e.jsxs('div', {
         className: 'text-sm text-gray-300',
-        children: ['Build Time: ', '2025-12-09T02:55:15.492Z']
+        children: ['Build Time: ', '2025-12-10T02:12:13.619Z']
       })
     ]
   })
 }
-const fr = [
+const _r = [
   { to: 'global', label: 'Global Parameters' },
   { to: 'idp', label: 'IDP' },
   { to: 'branding', label: 'Branding' },
   { to: 'version', label: 'Version' }
 ]
-function pr() {
-  const { pathname: _ } = at()
+function gr() {
+  const { pathname: m } = at()
   return e.jsxs('div', {
     className: 'grid grid-cols-1 md:grid-cols-[240px_1fr] gap-4',
     children: [
@@ -1844,36 +1874,36 @@ function pr() {
         className: 'card p-2 h-fit',
         children: e.jsx('nav', {
           className: 'space-y-1',
-          children: fr.map((S) => {
-            const v = _.endsWith(`/settings/${S.to}`) || _.endsWith(`/settings/${S.to}/`)
+          children: _r.map((y) => {
+            const g = m.endsWith(`/settings/${y.to}`) || m.endsWith(`/settings/${y.to}/`)
             return e.jsx(
-              Te,
+              Oe,
               {
-                to: S.to,
-                className: `block rounded px-3 py-2 text-sm ${v ? 'bg-oxide-800 text-white' : 'text-gray-300 hover:bg-oxide-800'}`,
-                children: S.label
+                to: y.to,
+                className: `block rounded px-3 py-2 text-sm ${g ? 'bg-oxide-800 text-white' : 'text-gray-300 hover:bg-oxide-800'}`,
+                children: y.label
               },
-              S.to
+              y.to
             )
           })
         })
       }),
       e.jsx('section', {
         className: 'space-y-4',
-        children: e.jsxs(ze, {
+        children: e.jsxs(Ve, {
           children: [
-            e.jsx(te, { path: 'global', element: e.jsx(It, {}) }),
-            e.jsx(te, { path: 'idp', element: e.jsx(dr, {}) }),
-            e.jsx(te, { path: 'branding', element: e.jsx(hr, {}) }),
-            e.jsx(te, { path: 'version', element: e.jsx(ur, {}) }),
-            e.jsx(te, { path: '*', element: e.jsx(It, {}) })
+            e.jsx(te, { path: 'global', element: e.jsx(Pt, {}) }),
+            e.jsx(te, { path: 'idp', element: e.jsx(pr, {}) }),
+            e.jsx(te, { path: 'branding', element: e.jsx(fr, {}) }),
+            e.jsx(te, { path: 'version', element: e.jsx(mr, {}) }),
+            e.jsx(te, { path: '*', element: e.jsx(Pt, {}) })
           ]
         })
       })
     ]
   })
 }
-function oe({ title: _, subtitle: S, actions: v }) {
+function oe({ title: m, subtitle: y, actions: g }) {
   return e.jsxs('div', {
     className: 'flex items-start justify-between gap-4',
     children: [
@@ -1881,34 +1911,34 @@ function oe({ title: _, subtitle: S, actions: v }) {
         children: [
           e.jsx('h1', {
             className: 'text-xl font-semibold tracking-tight text-white',
-            children: _
+            children: m
           }),
-          S && e.jsx('p', { className: 'mt-1 text-sm text-gray-400', children: S })
+          y && e.jsx('p', { className: 'mt-1 text-sm text-gray-400', children: y })
         ]
       }),
-      v && e.jsx('div', { className: 'flex items-center gap-2', children: v })
+      g && e.jsx('div', { className: 'flex items-center gap-2', children: g })
     ]
   })
 }
-function de({ columns: _, data: S, empty: v = 'No data', onRowClick: w, isRowSelected: O }) {
-  const [D, I] = k.useState(null),
+function de({ columns: m, data: y, empty: g = 'No data', onRowClick: w, isRowSelected: T }) {
+  const [R, I] = k.useState(null),
     [i, o] = k.useState('asc'),
     l = k.useMemo(() => {
-      if (!D) return S
-      const a = [...S]
+      if (!R) return y
+      const a = [...y]
       return (
-        a.sort((d, u) => {
-          const x = d[D],
-            h = u[D],
+        a.sort((h, f) => {
+          const x = h[R],
+            c = f[R],
             t = String(x ?? ''),
-            n = String(h ?? '')
+            n = String(c ?? '')
           return i === 'asc' ? t.localeCompare(n) : n.localeCompare(t)
         }),
         a
       )
-    }, [S, i, D]),
-    f = (a) => {
-      D === a ? o((d) => (d === 'asc' ? 'desc' : 'asc')) : (I(a), o('asc'))
+    }, [y, i, R]),
+    u = (a) => {
+      R === a ? o((h) => (h === 'asc' ? 'desc' : 'asc')) : (I(a), o('asc'))
     }
   return e.jsx('div', {
     className: 'overflow-hidden rounded-lg border border-oxide-800',
@@ -1918,19 +1948,19 @@ function de({ columns: _, data: S, empty: v = 'No data', onRowClick: w, isRowSel
         e.jsx('thead', {
           className: 'bg-oxide-900/70',
           children: e.jsx('tr', {
-            children: _.map((a) =>
+            children: m.map((a) =>
               e.jsx(
                 'th',
                 {
                   className: `px-3 py-2 font-medium text-gray-300 select-none ${a.className ?? ''}`,
-                  onClick: () => (a.sortable === !1 ? void 0 : f(String(a.key))),
+                  onClick: () => (a.sortable === !1 ? void 0 : u(String(a.key))),
                   children: e.jsxs('span', {
                     className: 'inline-flex items-center gap-1 cursor-pointer',
                     children: [
                       a.headerRender ?? a.header,
                       a.sortable === !1
                         ? null
-                        : D === a.key &&
+                        : R === a.key &&
                           e.jsx('span', {
                             className: 'text-xs text-gray-500',
                             children: i === 'asc' ? '▲' : '▼'
@@ -1949,18 +1979,18 @@ function de({ columns: _, data: S, empty: v = 'No data', onRowClick: w, isRowSel
               ? e.jsx('tr', {
                   children: e.jsx('td', {
                     className: 'px-3 py-6 text-center text-gray-500',
-                    colSpan: _.length,
-                    children: v
+                    colSpan: m.length,
+                    children: g
                   })
                 })
-              : l.map((a, d) => {
-                  const u = O ? O(a) : !1
+              : l.map((a, h) => {
+                  const f = T ? T(a) : !1
                   return e.jsx(
                     'tr',
                     {
-                      className: `border-t border-oxide-800 hover:bg-oxide-900/40 ${u ? 'bg-oxide-900/70' : ''}`,
+                      className: `border-t border-oxide-800 hover:bg-oxide-900/40 ${f ? 'bg-oxide-900/70' : ''}`,
                       onClick: w ? () => w(a) : void 0,
-                      children: _.map((x) =>
+                      children: m.map((x) =>
                         e.jsx(
                           'td',
                           {
@@ -1971,7 +2001,7 @@ function de({ columns: _, data: S, empty: v = 'No data', onRowClick: w, isRowSel
                         )
                       )
                     },
-                    d
+                    h
                   )
                 })
         })
@@ -1979,7 +2009,7 @@ function de({ columns: _, data: S, empty: v = 'No data', onRowClick: w, isRowSel
     })
   })
 }
-function Ee({ placeholder: _ = 'Search…', onSearch: S, children: v }) {
+function Ne({ placeholder: m = 'Search…', onSearch: y, children: g }) {
   return e.jsxs('div', {
     className:
       'flex items-center justify-between gap-3 flex-nowrap overflow-x-auto whitespace-nowrap',
@@ -1987,25 +2017,25 @@ function Ee({ placeholder: _ = 'Search…', onSearch: S, children: v }) {
       e.jsx('div', {
         className: 'flex items-center gap-2 whitespace-nowrap',
         children:
-          S &&
+          y &&
           e.jsx('input', {
             className: 'input w-72',
-            placeholder: _,
-            onChange: (w) => S?.(w.target.value)
+            placeholder: m,
+            onChange: (w) => y?.(w.target.value)
           })
       }),
-      e.jsx('div', { className: 'flex items-center gap-2 whitespace-nowrap', children: v })
+      e.jsx('div', { className: 'flex items-center gap-2 whitespace-nowrap', children: g })
     ]
   })
 }
-function Ve({ actions: _ }) {
-  const [S, v] = k.useState(!1),
+function Ge({ actions: m }) {
+  const [y, g] = k.useState(!1),
     w = k.useRef(null),
-    [O, D] = k.useState(null)
+    [T, R] = k.useState(null)
   return (
     k.useEffect(() => {
       const I = (i) => {
-        w.current && (w.current.contains(i.target) || v(!1))
+        w.current && (w.current.contains(i.target) || g(!1))
       }
       return (document.addEventListener('click', I), () => document.removeEventListener('click', I))
     }, []),
@@ -2020,7 +2050,7 @@ function Ve({ actions: _ }) {
           'aria-label': 'Actions',
           onClick: (I) => {
             const i = I.currentTarget.getBoundingClientRect()
-            ;(D({ x: i.right, y: i.bottom }), v((o) => !o))
+            ;(R({ x: i.right, y: i.bottom }), g((o) => !o))
           },
           children: e.jsxs('svg', {
             width: '14',
@@ -2035,20 +2065,20 @@ function Ve({ actions: _ }) {
             ]
           })
         }),
-        S &&
-          O &&
-          Qt.createPortal(
+        y &&
+          T &&
+          ts.createPortal(
             e.jsx('div', {
-              style: { position: 'fixed', top: O.y + 4, left: O.x - 144 },
+              style: { position: 'fixed', top: T.y + 4, left: T.x - 144 },
               className:
                 'z-50 w-36 rounded-md border border-oxide-700 bg-oxide-900 shadow-card py-1',
-              children: _.map((I, i) =>
+              children: m.map((I, i) =>
                 e.jsx(
                   'button',
                   {
                     type: 'button',
                     onClick: () => {
-                      ;(v(!1), I.onClick())
+                      ;(g(!1), I.onClick())
                     },
                     className: `w-full text-left px-3 py-1.5 text-sm hover:bg-oxide-800 ${I.danger ? 'text-rose-300' : 'text-gray-200'}`,
                     children: I.label
@@ -2063,12 +2093,12 @@ function Ve({ actions: _ }) {
     })
   )
 }
-function le({ title: _, open: S, onClose: v, children: w, footer: O }) {
-  return S
+function le({ title: m, open: y, onClose: g, children: w, footer: T }) {
+  return y
     ? e.jsxs('div', {
         className: 'fixed inset-0 z-50 grid place-items-center',
         children: [
-          e.jsx('div', { className: 'absolute inset-0 bg-black/50', onClick: v }),
+          e.jsx('div', { className: 'absolute inset-0 bg-black/50', onClick: g }),
           e.jsxs('div', {
             className:
               'relative w-full max-w-2xl rounded-lg border border-oxide-800 bg-oxide-900 shadow-card',
@@ -2076,20 +2106,20 @@ function le({ title: _, open: S, onClose: v, children: w, footer: O }) {
               e.jsxs('div', {
                 className: 'px-4 py-3 border-b border-oxide-800 flex items-center justify-between',
                 children: [
-                  e.jsx('h3', { className: 'font-semibold', children: _ }),
+                  e.jsx('h3', { className: 'font-semibold', children: m }),
                   e.jsx('button', {
                     className: 'text-gray-400 hover:text-gray-200',
-                    onClick: v,
+                    onClick: g,
                     'aria-label': 'Close',
                     children: '×'
                   })
                 ]
               }),
               e.jsx('div', { className: 'p-4 space-y-3', children: w }),
-              O &&
+              T &&
                 e.jsx('div', {
                   className: 'px-4 py-3 border-t border-oxide-800 flex justify-end gap-2',
-                  children: O
+                  children: T
                 })
             ]
           })
@@ -2100,29 +2130,29 @@ function le({ title: _, open: S, onClose: v, children: w, footer: O }) {
 function qe() {
   return (typeof window < 'u' ? window.__VC_CONFIG__?.apiBase : void 0) || void 0 || '/api'
 }
-const ee = yt.create({ baseURL: qe(), withCredentials: !1 })
-ee.interceptors.request.use((_) => {
-  const S = localStorage.getItem('auth')
-  let v = null
-  if (S)
+const ee = wt.create({ baseURL: qe(), withCredentials: !1 })
+ee.interceptors.request.use((m) => {
+  const y = localStorage.getItem('auth')
+  let g = null
+  if (y)
     try {
-      ;((v = JSON.parse(S)?.state?.token || null),
-        console.log('[API] Token from localStorage:', v ? 'Found' : 'Not found'))
+      ;((g = JSON.parse(y)?.state?.token || null),
+        console.log('[API] Token from localStorage:', g ? 'Found' : 'Not found'))
     } catch {
       console.log('[API] Failed to parse auth data')
     }
   else console.log('[API] No auth data in localStorage')
-  return (v && ((_.headers = _.headers ?? {}), (_.headers.Authorization = `Bearer ${v}`)), _)
+  return (g && ((m.headers = m.headers ?? {}), (m.headers.Authorization = `Bearer ${g}`)), m)
 })
 ee.interceptors.response.use(
-  (_) => _,
-  (_) => {
-    if (_.response?.status === 401) {
-      const v = `[API] 401 Unauthorized from: ${_.config?.url || 'unknown'}`
-      console.error(v)
+  (m) => m,
+  (m) => {
+    if (m.response?.status === 401) {
+      const g = `[API] 401 Unauthorized from: ${m.config?.url || 'unknown'}`
+      console.error(g)
       try {
         const w = JSON.parse(localStorage.getItem('debug_logs') || '[]')
-        ;(w.push({ time: new Date().toISOString(), msg: v }),
+        ;(w.push({ time: new Date().toISOString(), msg: g }),
           w.length > 50 && w.shift(),
           localStorage.setItem('debug_logs', JSON.stringify(w)))
       } catch {}
@@ -2132,112 +2162,112 @@ ee.interceptors.response.use(
           (console.error('[API] Redirecting to /login due to 401'),
           (window.location.href = '/login')))
     }
-    return Promise.reject(_)
+    return Promise.reject(m)
   }
 )
-function ye(_) {
-  return _ ? { headers: { 'X-Project-ID': _ } } : void 0
+function ye(m) {
+  return m ? { headers: { 'X-Project-ID': m } } : void 0
 }
-const _r = (_) => ({
-    id: String(_.id),
-    name: _.name,
-    vcpu: _.vcpus,
-    memoryGiB: Math.round((_.ram || 0) / 1024)
+const vr = (m) => ({
+    id: String(m.id),
+    name: m.name,
+    vcpu: m.vcpus,
+    memoryGiB: Math.round((m.ram || 0) / 1024)
   }),
-  mr = (_) => ({
-    id: String(_.id),
-    projectId: String(_.project_id ?? ''),
-    sourceId: String(_.volume_id ?? ''),
+  xr = (m) => ({
+    id: String(m.id),
+    projectId: String(m.project_id ?? ''),
+    sourceId: String(m.volume_id ?? ''),
     kind: 'vm',
-    status: _.status === 'available' ? 'ready' : 'creating'
+    status: m.status === 'available' ? 'ready' : 'creating'
   })
-async function rs(_, S) {
-  return (await ee.post('/v1/auth/login', { username: _, password: S })).data
+async function ns(m, y) {
+  return (await ee.post('/v1/auth/login', { username: m, password: y })).data
 }
-async function Ye(_) {
-  return (await ee.get('/v1/instances', ye(_))).data.instances ?? []
+async function Ye(m) {
+  return (await ee.get('/v1/instances', ye(m))).data.instances ?? []
 }
-async function wt() {
-  return ((await ee.get('/v1/flavors')).data.flavors ?? []).map(_r)
+async function kt() {
+  return ((await ee.get('/v1/flavors')).data.flavors ?? []).map(vr)
 }
-async function is(_) {
-  const v = (await ee.post('/v1/flavors', _)).data.flavor
+async function as(m) {
+  const g = (await ee.post('/v1/flavors', m)).data.flavor
   return {
-    id: String(v.id),
-    name: v.name,
-    vcpu: v.vcpus,
-    memoryGiB: Math.round((v.ram || 0) / 1024)
+    id: String(g.id),
+    name: g.name,
+    vcpu: g.vcpus,
+    memoryGiB: Math.round((g.ram || 0) / 1024)
   }
 }
-async function ns(_) {
-  await ee.delete(`/v1/flavors/${_}`)
+async function os(m) {
+  await ee.delete(`/v1/flavors/${m}`)
 }
-async function ge(_) {
-  const S = await ee.get('/v1/images', ye(_)),
-    v = (D) => Math.max(1, Math.ceil((D ?? 0) / 1024 ** 3)),
-    w = (D) =>
-      D === 'available' || D === 'uploading' || D === 'queued' || D === 'active' ? D : 'available',
-    O = (D) => D
-  return (S.data.images ?? []).map((D) => ({
-    id: String(D.id),
-    name: D.name,
-    sizeGiB: v(D.size),
-    minDiskGiB: D.min_disk ? Math.max(1, D.min_disk) : void 0,
-    status: w(D.status),
-    disk_format: O(D.disk_format),
-    owner: D.owner_id ? String(D.owner_id) : void 0
+async function ge(m) {
+  const y = await ee.get('/v1/images', ye(m)),
+    g = (R) => Math.max(1, Math.ceil((R ?? 0) / 1024 ** 3)),
+    w = (R) =>
+      R === 'available' || R === 'uploading' || R === 'queued' || R === 'active' ? R : 'available',
+    T = (R) => R
+  return (y.data.images ?? []).map((R) => ({
+    id: String(R.id),
+    name: R.name,
+    sizeGiB: g(R.size),
+    minDiskGiB: R.min_disk ? Math.max(1, R.min_disk) : void 0,
+    status: w(R.status),
+    disk_format: T(R.disk_format),
+    owner: R.owner_id ? String(R.owner_id) : void 0
   }))
 }
-async function as(_) {
-  const S = await ee.post('/v1/images/register', _)
-  return { id: String(S.data.image.id) }
+async function ls(m) {
+  const y = await ee.post('/v1/images/register', m)
+  return { id: String(y.data.image.id) }
 }
-async function os(_, S) {
-  await ee.post(`/v1/images/${_}/import`, {})
+async function cs(m, y) {
+  await ee.post(`/v1/images/${m}/import`, {})
 }
-async function ct(_, S) {
-  const v = new FormData()
-  ;(v.append('file', _), S?.name && v.append('name', S.name))
-  const w = await ee.post('/v1/images/upload', v, {
+async function ct(m, y) {
+  const g = new FormData()
+  ;(g.append('file', m), y?.name && g.append('name', y.name))
+  const w = await ee.post('/v1/images/upload', g, {
     headers: { 'Content-Type': 'multipart/form-data' }
   })
   return { id: String(w.data.image.id) }
 }
-async function ht(_) {
-  await ee.delete(`/v1/images/${_}`)
+async function ht(m) {
+  await ee.delete(`/v1/images/${m}`)
 }
-async function ls(_, S) {
-  return (await ee.post('/v1/instances', S, ye(_))).data.instance
+async function hs(m, y) {
+  return (await ee.post('/v1/instances', y, ye(m))).data.instance
 }
-async function cs() {
-  return ((await ee.get('/v1/snapshots')).data.snapshots ?? []).map(mr)
+async function ds() {
+  return ((await ee.get('/v1/snapshots')).data.snapshots ?? []).map(xr)
 }
-async function pt(_) {
-  return ((await ee.get('/v1/volumes', ye(_))).data.volumes ?? []).map((v) => ({
-    id: String(v.id),
-    name: v.name,
-    sizeGiB: v.size_gb,
-    status: v.status ?? 'available',
-    projectId: v.project_id ? String(v.project_id) : void 0,
-    rbd: [v.rbd_pool, v.rbd_image].filter(Boolean).join('/') || void 0
+async function _t(m) {
+  return ((await ee.get('/v1/volumes', ye(m))).data.volumes ?? []).map((g) => ({
+    id: String(g.id),
+    name: g.name,
+    sizeGiB: g.size_gb,
+    status: g.status ?? 'available',
+    projectId: g.project_id ? String(g.project_id) : void 0,
+    rbd: [g.rbd_pool, g.rbd_image].filter(Boolean).join('/') || void 0
   }))
 }
-async function hs(_, S) {
-  const w = (await ee.post('/v1/volumes', S, ye(_))).data.volume
+async function us(m, y) {
+  const w = (await ee.post('/v1/volumes', y, ye(m))).data.volume
   return {
     id: String(w.id),
     name: w.name,
     sizeGiB: w.size_gb,
     status: w.status ?? 'available',
-    projectId: w.project_id ? String(w.project_id) : _,
+    projectId: w.project_id ? String(w.project_id) : m,
     rbd: [w.rbd_pool, w.rbd_image].filter(Boolean).join('/') || void 0
   }
 }
-async function ds(_) {
-  await ee.delete(`/v1/volumes/${_}`)
+async function fs(m) {
+  await ee.delete(`/v1/volumes/${m}`)
 }
-async function us(_, S) {
-  const w = (await ee.post(`/v1/volumes/${_}/resize`, { new_size_gb: S })).data.volume
+async function ps(m, y) {
+  const w = (await ee.post(`/v1/volumes/${m}/resize`, { new_size_gb: y })).data.volume
   return {
     id: String(w.id),
     name: w.name,
@@ -2247,33 +2277,33 @@ async function us(_, S) {
     rbd: [w.rbd_pool, w.rbd_image].filter(Boolean).join('/') || void 0
   }
 }
-async function _t(_) {
-  return ((await ee.get(`/v1/instances/${_}/volumes`)).data.volumes ?? []).map((v) => ({
-    id: String(v.id),
-    name: v.name,
-    sizeGiB: v.size_gb,
-    status: v.status ?? 'in-use',
-    projectId: v.project_id ? String(v.project_id) : void 0,
-    rbd: [v.rbd_pool, v.rbd_image].filter(Boolean).join('/') || void 0
+async function gt(m) {
+  return ((await ee.get(`/v1/instances/${m}/volumes`)).data.volumes ?? []).map((g) => ({
+    id: String(g.id),
+    name: g.name,
+    sizeGiB: g.size_gb,
+    status: g.status ?? 'in-use',
+    projectId: g.project_id ? String(g.project_id) : void 0,
+    rbd: [g.rbd_pool, g.rbd_image].filter(Boolean).join('/') || void 0
   }))
 }
-async function fs(_, S, v) {
-  await ee.post(`/v1/instances/${_}/volumes`, { volume_id: Number(S), device: v })
+async function ms(m, y, g) {
+  await ee.post(`/v1/instances/${m}/volumes`, { volume_id: Number(y), device: g })
 }
-async function ps(_, S) {
-  await ee.delete(`/v1/instances/${_}/volumes/${S}`)
+async function _s(m, y) {
+  await ee.delete(`/v1/instances/${m}/volumes/${y}`)
 }
-async function tt(_) {
-  return ((await ee.get('/v1/snapshots', ye(_))).data.snapshots ?? []).map((v) => ({
-    id: String(v.id),
-    name: v.name,
-    volumeId: String(v.volume_id),
-    status: v.status ?? 'available',
-    backup: v.backup_pool && v.backup_image ? `${v.backup_pool}/${v.backup_image}` : void 0
+async function tt(m) {
+  return ((await ee.get('/v1/snapshots', ye(m))).data.snapshots ?? []).map((g) => ({
+    id: String(g.id),
+    name: g.name,
+    volumeId: String(g.volume_id),
+    status: g.status ?? 'available',
+    backup: g.backup_pool && g.backup_image ? `${g.backup_pool}/${g.backup_image}` : void 0
   }))
 }
-async function _s(_, S) {
-  const w = (await ee.post('/v1/snapshots', S, ye(_))).data.snapshot
+async function gs(m, y) {
+  const w = (await ee.post('/v1/snapshots', y, ye(m))).data.snapshot
   return {
     id: String(w.id),
     name: w.name,
@@ -2282,90 +2312,90 @@ async function _s(_, S) {
     backup: w.backup_pool && w.backup_image ? `${w.backup_pool}/${w.backup_image}` : void 0
   }
 }
-async function mt(_, S) {
-  return (await ee.get('/v1/audit', { params: S, ...(ye(_) ?? {}) })).data.audit ?? []
+async function vt(m, y) {
+  return (await ee.get('/v1/audit', { params: y, ...(ye(m) ?? {}) })).data.audit ?? []
 }
-async function ms() {
+async function vs() {
   return (await ee.get('/v1/nodes')).data.nodes ?? []
 }
-async function gs(_) {
-  await ee.delete(`/v1/nodes/${_}`)
+async function xs(m) {
+  await ee.delete(`/v1/nodes/${m}`)
 }
-async function Ct(_) {
-  const v = (await ee.post(`/v1/instances/${_}/console`)).data.ws,
+async function jt(m) {
+  const g = (await ee.post(`/v1/instances/${m}/console`)).data.ws,
     w = qe()
-  let O
+  let T
   if (w.startsWith('http://') || w.startsWith('https://')) {
-    const D = new URL(w)
-    O = `${D.protocol === 'https:' ? 'wss:' : 'ws:'}//${D.host}${v}`
+    const R = new URL(w)
+    T = `${R.protocol === 'https:' ? 'wss:' : 'ws:'}//${R.host}${g}`
   } else
-    O = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}${v}`
-  return O
+    T = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}${g}`
+  return T
 }
-async function vs(_) {
-  return (await ee.post(`/v1/instances/${_}/start`)).data.instance
+async function bs(m) {
+  return (await ee.post(`/v1/instances/${m}/start`)).data.instance
 }
-async function xs(_) {
-  return (await ee.post(`/v1/instances/${_}/stop`)).data.instance
+async function ys(m) {
+  return (await ee.post(`/v1/instances/${m}/stop`)).data.instance
 }
-async function bs(_) {
-  return (await ee.post(`/v1/instances/${_}/reboot`)).data.instance
+async function Ss(m) {
+  return (await ee.post(`/v1/instances/${m}/reboot`)).data.instance
 }
-async function ys(_) {
-  await ee.delete(`/v1/instances/${_}`)
+async function ws(m) {
+  await ee.delete(`/v1/instances/${m}`)
 }
-async function Ss(_) {
-  await ee.post(`/v1/instances/${_}/force-delete`)
+async function Cs(m) {
+  await ee.post(`/v1/instances/${m}/force-delete`)
 }
-async function ws(_) {
-  return (await ee.get(`/v1/instances/${_}/deletion-status`)).data
+async function ks(m) {
+  return (await ee.get(`/v1/instances/${m}/deletion-status`)).data
 }
-async function $e(_) {
+async function We(m) {
   return (
-    (await ee.get('/v1/networks', { params: _ ? { tenant_id: _ } : void 0, ...(ye(_) ?? {}) })).data
+    (await ee.get('/v1/networks', { params: m ? { tenant_id: m } : void 0, ...(ye(m) ?? {}) })).data
       .networks ?? []
-  ).map((v) => ({
-    id: String(v.id),
-    name: v.name,
-    cidr: v.cidr,
-    description: v.description,
-    zone: v.zone,
-    tenant_id: v.tenant_id,
-    status: v.status,
-    network_type: v.network_type,
-    physical_network: v.physical_network,
-    segmentation_id: v.segmentation_id,
-    shared: v.shared,
-    external: v.external,
-    mtu: v.mtu
+  ).map((g) => ({
+    id: String(g.id),
+    name: g.name,
+    cidr: g.cidr,
+    description: g.description,
+    zone: g.zone,
+    tenant_id: g.tenant_id,
+    status: g.status,
+    network_type: g.network_type,
+    physical_network: g.physical_network,
+    segmentation_id: g.segmentation_id,
+    shared: g.shared,
+    external: g.external,
+    mtu: g.mtu
   }))
 }
-async function kt(_, S) {
+async function Nt(m, y) {
   const w = (
     await ee.post(
       '/v1/networks',
       {
-        name: S.name,
-        cidr: S.cidr,
-        description: S.description ?? '',
-        zone: S.zone,
-        dns1: S.dns1,
-        dns2: S.dns2,
-        start: S.start ?? !0,
-        tenant_id: _,
-        enable_dhcp: S.enable_dhcp,
-        dhcp_lease_time: S.dhcp_lease_time,
-        gateway: S.gateway,
-        allocation_start: S.allocation_start,
-        allocation_end: S.allocation_end,
-        network_type: S.network_type,
-        physical_network: S.physical_network,
-        segmentation_id: S.segmentation_id,
-        shared: S.shared,
-        external: S.external,
-        mtu: S.mtu
+        name: y.name,
+        cidr: y.cidr,
+        description: y.description ?? '',
+        zone: y.zone,
+        dns1: y.dns1,
+        dns2: y.dns2,
+        start: y.start ?? !0,
+        tenant_id: m,
+        enable_dhcp: y.enable_dhcp,
+        dhcp_lease_time: y.dhcp_lease_time,
+        gateway: y.gateway,
+        allocation_start: y.allocation_start,
+        allocation_end: y.allocation_end,
+        network_type: y.network_type,
+        physical_network: y.physical_network,
+        segmentation_id: y.segmentation_id,
+        shared: y.shared,
+        external: y.external,
+        mtu: y.mtu
       },
-      ye(_)
+      ye(m)
     )
   ).data.network
   return {
@@ -2384,9 +2414,9 @@ async function kt(_, S) {
     mtu: w.mtu
   }
 }
-async function st(_) {
-  const S = await ee.get('/v1/subnets', { params: _ ? { tenant_id: _ } : void 0 })
-  return (Array.isArray(S.data) ? S.data : (S.data.subnets ?? [])).map((w) => ({
+async function st(m) {
+  const y = await ee.get('/v1/subnets', { params: m ? { tenant_id: m } : void 0 })
+  return (Array.isArray(y.data) ? y.data : (y.data.subnets ?? [])).map((w) => ({
     id: String(w.id),
     name: w.name,
     network_id: w.network_id,
@@ -2401,67 +2431,67 @@ async function st(_) {
     status: w.status
   }))
 }
-async function Cs(_) {
-  await ee.post(`/v1/networks/${_}/restart`, {})
+async function js(m) {
+  await ee.post(`/v1/networks/${m}/restart`, {})
 }
-async function gt(_) {
-  await ee.delete(`/v1/networks/${_}`)
+async function xt(m) {
+  await ee.delete(`/v1/networks/${m}`)
 }
-async function jt(_) {
-  return ((await ee.get('/v1/ports', { params: _ })).data.ports ?? []).map((v) => ({
-    id: String(v.id),
-    name: v.name,
-    network_id: v.network_id,
-    subnet_id: v.subnet_id,
-    mac_address: v.mac_address,
-    fixed_ips: v.fixed_ips,
-    security_groups: v.security_groups,
-    device_id: v.device_id,
-    device_owner: v.device_owner,
-    status: v.status
+async function Et(m) {
+  return ((await ee.get('/v1/ports', { params: m })).data.ports ?? []).map((g) => ({
+    id: String(g.id),
+    name: g.name,
+    network_id: g.network_id,
+    subnet_id: g.subnet_id,
+    mac_address: g.mac_address,
+    fixed_ips: g.fixed_ips,
+    security_groups: g.security_groups,
+    device_id: g.device_id,
+    device_owner: g.device_owner,
+    status: g.status
   }))
 }
-async function rt(_) {
-  return ((await ee.get('/v1/ssh-keys', ye(_))).data.ssh_keys ?? []).map((v) => ({
-    id: String(v.id),
-    name: v.name,
-    public_key: v.public_key,
-    project_id: v.project_id,
-    user_id: v.user_id
+async function rt(m) {
+  return ((await ee.get('/v1/ssh-keys', ye(m))).data.ssh_keys ?? []).map((g) => ({
+    id: String(g.id),
+    name: g.name,
+    public_key: g.public_key,
+    project_id: g.project_id,
+    user_id: g.user_id
   }))
 }
-async function Nt(_, S) {
-  const w = (await ee.post('/v1/ssh-keys', S, ye(_))).data.ssh_key
+async function Lt(m, y) {
+  const w = (await ee.post('/v1/ssh-keys', y, ye(m))).data.ssh_key
   return { id: String(w.id), name: w.name, public_key: w.public_key, project_id: w.project_id }
 }
-async function ks(_, S) {
-  await ee.delete(`/v1/ssh-keys/${S}`, ye(_))
+async function Ns(m, y) {
+  await ee.delete(`/v1/ssh-keys/${y}`, ye(m))
 }
-async function js(_) {
+async function Es(m) {
   return (
-    (await ee.get('/v1/floating-ips', { params: _ ? { tenant_id: _ } : void 0, ...(ye(_) ?? {}) }))
+    (await ee.get('/v1/floating-ips', { params: m ? { tenant_id: m } : void 0, ...(ye(m) ?? {}) }))
       .data.floating_ips ?? []
-  ).map((v) => ({
-    id: String(v.id),
-    address: v.floating_ip,
-    status: v.status === 'associated' ? 'associated' : 'available',
-    network_id: v.network_id,
-    fixed_ip: v.fixed_ip,
-    port_id: v.port_id
+  ).map((g) => ({
+    id: String(g.id),
+    address: g.floating_ip,
+    status: g.status === 'associated' ? 'associated' : 'available',
+    network_id: g.network_id,
+    fixed_ip: g.fixed_ip,
+    port_id: g.port_id
   }))
 }
-async function Ns(_, S) {
+async function Ls(m, y) {
   const w = (
     await ee.post(
       '/v1/floating-ips',
       {
-        tenant_id: _,
-        network_id: S.network_id,
-        subnet_id: S.subnet_id,
-        port_id: S.port_id,
-        fixed_ip: S.fixed_ip
+        tenant_id: m,
+        network_id: y.network_id,
+        subnet_id: y.subnet_id,
+        port_id: y.port_id,
+        fixed_ip: y.fixed_ip
       },
-      ye(_)
+      ye(m)
     )
   ).data.floating_ip
   return {
@@ -2473,11 +2503,11 @@ async function Ns(_, S) {
     port_id: w.port_id
   }
 }
-async function Es(_) {
-  await ee.delete(`/v1/floating-ips/${_}`)
+async function Rs(m) {
+  await ee.delete(`/v1/floating-ips/${m}`)
 }
-async function vt(_, S) {
-  const w = (await ee.put(`/v1/floating-ips/${_}`, S)).data.floating_ip
+async function bt(m, y) {
+  const w = (await ee.put(`/v1/floating-ips/${m}`, y)).data.floating_ip
   return {
     id: String(w.id),
     address: w.floating_ip,
@@ -2488,51 +2518,51 @@ async function vt(_, S) {
   }
 }
 async function it() {
-  return ((await ee.get('/v1/zones')).data.zones ?? []).map((S) => ({
-    id: String(S.id),
-    name: S.name,
-    allocation: S.allocation === 'disabled' ? 'disabled' : 'enabled',
-    type: S.type === 'edge' ? 'edge' : 'core',
-    network_type: S.network_type === 'Basic' ? 'Basic' : 'Advanced'
+  return ((await ee.get('/v1/zones')).data.zones ?? []).map((y) => ({
+    id: String(y.id),
+    name: y.name,
+    allocation: y.allocation === 'disabled' ? 'disabled' : 'enabled',
+    type: y.type === 'edge' ? 'edge' : 'core',
+    network_type: y.network_type === 'Basic' ? 'Basic' : 'Advanced'
   }))
 }
-async function Ls(_) {
-  const v = (
+async function Ds(m) {
+  const g = (
     await ee.post('/v1/zones', {
-      name: _.name,
-      allocation: _.allocation ?? 'enabled',
-      type: _.type,
-      network_type: _.network_type ?? 'Advanced'
+      name: m.name,
+      allocation: m.allocation ?? 'enabled',
+      type: m.type,
+      network_type: m.network_type ?? 'Advanced'
     })
   ).data.zone
   return {
-    id: String(v.id),
-    name: v.name,
-    allocation: v.allocation === 'disabled' ? 'disabled' : 'enabled',
-    type: v.type === 'edge' ? 'edge' : 'core',
-    network_type: v.network_type === 'Basic' ? 'Basic' : 'Advanced'
+    id: String(g.id),
+    name: g.name,
+    allocation: g.allocation === 'disabled' ? 'disabled' : 'enabled',
+    type: g.type === 'edge' ? 'edge' : 'core',
+    network_type: g.network_type === 'Basic' ? 'Basic' : 'Advanced'
   }
 }
-async function Rs() {
-  return ((await ee.get('/v1/projects')).data.projects ?? []).map((S) => ({
-    id: String(S.id),
-    name: S.name,
-    description: S.description,
-    user_id: S.user_id ? String(S.user_id) : void 0
+async function As() {
+  return ((await ee.get('/v1/projects')).data.projects ?? []).map((y) => ({
+    id: String(y.id),
+    name: y.name,
+    description: y.description,
+    user_id: y.user_id ? String(y.user_id) : void 0
   }))
 }
-async function Ds() {
-  return ((await ee.get('/v1/users')).data.users ?? []).map((S) => ({
-    id: String(S.id),
-    username: S.username,
-    email: S.email,
-    first_name: S.first_name,
-    last_name: S.last_name
+async function Bs() {
+  return ((await ee.get('/v1/users')).data.users ?? []).map((y) => ({
+    id: String(y.id),
+    username: y.username,
+    email: y.email,
+    first_name: y.first_name,
+    last_name: y.last_name
   }))
 }
-async function As(_) {
-  const S = await ee.get('/v1/routers', { params: _ ? { tenant_id: _ } : void 0 })
-  return (Array.isArray(S.data) ? S.data : (S.data.routers ?? [])).map((w) => ({
+async function Is(m) {
+  const y = await ee.get('/v1/routers', { params: m ? { tenant_id: m } : void 0 })
+  return (Array.isArray(y.data) ? y.data : (y.data.routers ?? [])).map((w) => ({
     id: String(w.id),
     name: w.name,
     description: w.description,
@@ -2546,123 +2576,123 @@ async function As(_) {
     updated_at: w.updated_at
   }))
 }
-async function Bs(_) {
-  return (await ee.post('/v1/routers', _)).data
+async function Ms(m) {
+  return (await ee.post('/v1/routers', m)).data
 }
-async function Is(_, S) {
-  return (await ee.put(`/v1/routers/${_}`, S)).data
+async function Ps(m, y) {
+  return (await ee.put(`/v1/routers/${m}`, y)).data
 }
-async function Ms(_) {
-  await ee.delete(`/v1/routers/${_}`)
+async function Ts(m) {
+  await ee.delete(`/v1/routers/${m}`)
 }
-async function Ps(_) {
-  const S = await ee.get(`/v1/routers/${_}/interfaces`)
-  return Array.isArray(S.data) ? S.data : []
+async function Os(m) {
+  const y = await ee.get(`/v1/routers/${m}/interfaces`)
+  return Array.isArray(y.data) ? y.data : []
 }
-async function Et(_, S) {
-  return (await ee.post(`/v1/routers/${_}/add-interface`, { subnet_id: S })).data
+async function Rt(m, y) {
+  return (await ee.post(`/v1/routers/${m}/add-interface`, { subnet_id: y })).data
 }
-async function Lt(_, S) {
-  await ee.post(`/v1/routers/${_}/remove-interface`, { subnet_id: S })
+async function Dt(m, y) {
+  await ee.post(`/v1/routers/${m}/remove-interface`, { subnet_id: y })
 }
-async function nt(_, S) {
-  return (await ee.post(`/v1/routers/${_}/set-gateway`, { external_network_id: S })).data
+async function nt(m, y) {
+  return (await ee.post(`/v1/routers/${m}/set-gateway`, { external_network_id: y })).data
 }
-async function Rt(_) {
-  return (await ee.post(`/v1/routers/${_}/clear-gateway`)).data
+async function At(m) {
+  return (await ee.post(`/v1/routers/${m}/clear-gateway`)).data
 }
-async function xt(_) {
-  const S = await ee.get('/v1/topology', {
-    params: _ ? { tenant_id: _ } : void 0,
-    ...(ye(_) ?? {})
+async function yt(m) {
+  const y = await ee.get('/v1/topology', {
+    params: m ? { tenant_id: m } : void 0,
+    ...(ye(m) ?? {})
   })
-  return { nodes: S.data.nodes || [], edges: S.data.edges || [] }
+  return { nodes: y.data.nodes || [], edges: y.data.edges || [] }
 }
-const Ts = Object.freeze(
+const Hs = Object.freeze(
   Object.defineProperty(
     {
       __proto__: null,
-      addRouterInterface: Et,
-      allocateFloatingIP: Ns,
-      attachVolumeToInstance: fs,
-      clearRouterGateway: Rt,
-      createFlavor: is,
-      createInstance: ls,
-      createNetwork: kt,
-      createRouter: Bs,
-      createSSHKey: Nt,
-      createVolume: hs,
-      createVolumeSnapshot: _s,
-      createZone: Ls,
+      addRouterInterface: Rt,
+      allocateFloatingIP: Ls,
+      attachVolumeToInstance: ms,
+      clearRouterGateway: At,
+      createFlavor: as,
+      createInstance: hs,
+      createNetwork: Nt,
+      createRouter: Ms,
+      createSSHKey: Lt,
+      createVolume: us,
+      createVolumeSnapshot: gs,
+      createZone: Ds,
       default: ee,
-      deleteFlavor: ns,
-      deleteFloatingIP: Es,
+      deleteFlavor: os,
+      deleteFloatingIP: Rs,
       deleteImage: ht,
-      deleteNetwork: gt,
-      deleteNode: gs,
-      deleteRouter: Ms,
-      deleteSSHKey: ks,
-      deleteVolume: ds,
-      destroyInstance: ys,
-      detachVolumeFromInstance: ps,
-      fetchAudit: mt,
-      fetchDeletionStatus: ws,
-      fetchFlavors: wt,
-      fetchFloatingIPs: js,
+      deleteNetwork: xt,
+      deleteNode: xs,
+      deleteRouter: Ts,
+      deleteSSHKey: Ns,
+      deleteVolume: fs,
+      destroyInstance: ws,
+      detachVolumeFromInstance: _s,
+      fetchAudit: vt,
+      fetchDeletionStatus: ks,
+      fetchFlavors: kt,
+      fetchFloatingIPs: Es,
       fetchImages: ge,
-      fetchInstanceVolumes: _t,
+      fetchInstanceVolumes: gt,
       fetchInstancesRaw: Ye,
-      fetchNetworks: $e,
-      fetchNodes: ms,
-      fetchPorts: jt,
-      fetchProjects: Rs,
-      fetchRouterInterfaces: Ps,
-      fetchRouters: As,
+      fetchNetworks: We,
+      fetchNodes: vs,
+      fetchPorts: Et,
+      fetchProjects: As,
+      fetchRouterInterfaces: Os,
+      fetchRouters: Is,
       fetchSSHKeys: rt,
-      fetchSnapshots: cs,
+      fetchSnapshots: ds,
       fetchSubnets: st,
-      fetchTopology: xt,
-      fetchUsers: Ds,
+      fetchTopology: yt,
+      fetchUsers: Bs,
       fetchVolumeSnapshots: tt,
-      fetchVolumes: pt,
+      fetchVolumes: _t,
       fetchZones: it,
-      forceDeleteInstance: Ss,
-      importImage: os,
-      loginApi: rs,
-      rebootInstance: bs,
-      registerImage: as,
-      removeRouterInterface: Lt,
-      resizeVolume: us,
+      forceDeleteInstance: Cs,
+      importImage: cs,
+      loginApi: ns,
+      rebootInstance: Ss,
+      registerImage: ls,
+      removeRouterInterface: Dt,
+      resizeVolume: ps,
       resolveApiBase: qe,
-      restartNetwork: Cs,
+      restartNetwork: js,
       setRouterGateway: nt,
-      startConsole: Ct,
-      startInstance: vs,
-      stopInstance: xs,
-      updateFloatingIP: vt,
-      updateRouter: Is,
+      startConsole: jt,
+      startInstance: bs,
+      stopInstance: ys,
+      updateFloatingIP: bt,
+      updateRouter: Ps,
       uploadImage: ct
     },
     Symbol.toStringTag,
     { value: 'Module' }
   )
 )
-function gr() {
-  const { projectId: _ } = xe(),
-    [S, v] = k.useState([]),
-    [w, O] = k.useState(!1),
-    [D, I] = k.useState([]),
+function br() {
+  const { projectId: m } = xe(),
+    [y, g] = k.useState([]),
+    [w, T] = k.useState(!1),
+    [R, I] = k.useState([]),
     [i, o] = k.useState(''),
-    [l, f] = k.useState([]),
-    [a, d] = k.useState([])
+    [l, u] = k.useState([]),
+    [a, h] = k.useState([])
   k.useEffect(() => {
     let L = !0
     return (
-      O(!0),
-      Promise.all([js(_), $e(_), jt({ tenant_id: _ }), Ye(_)])
-        .then(([M, P, j, R]) => {
+      T(!0),
+      Promise.all([Es(m), We(m), Et({ tenant_id: m }), Ye(m)])
+        .then(([M, P, j, D]) => {
           if (!L) return
-          v(
+          g(
             M.map(($) => ({
               id: $.id,
               address: $.address,
@@ -2671,16 +2701,16 @@ function gr() {
               fixed_ip: $.fixed_ip
             }))
           )
-          const T = P.filter(($) => $.external)
-          ;(I(T), T.length > 0 && o(T[0].id), f(j), d(R))
+          const O = P.filter(($) => $.external)
+          ;(I(O), O.length > 0 && o(O[0].id), u(j), h(D))
         })
-        .finally(() => L && O(!1)),
+        .finally(() => L && T(!1)),
       () => {
         L = !1
       }
     )
-  }, [_])
-  const u = k.useMemo(() => {
+  }, [m])
+  const f = k.useMemo(() => {
       const L = new Map()
       for (const M of a) L.set(String(M.id), M.name)
       return (M) => (M ? L.get(String(M)) || M : '')
@@ -2688,14 +2718,14 @@ function gr() {
     x = k.useMemo(
       () => (L) => {
         if (!L.port_id) return ''
-        const M = l.find((R) => R.id === L.port_id),
-          P = u(M?.device_id),
+        const M = l.find((D) => D.id === L.port_id),
+          P = f(M?.device_id),
           j = L.fixed_ip || M?.fixed_ips?.[0]?.ip
         return [P, j].filter(Boolean).join(' @ ')
       },
-      [l, u]
+      [l, f]
     ),
-    h = k.useMemo(
+    c = k.useMemo(
       () => [
         { key: 'address', header: 'Public IP' },
         { key: 'status', header: 'Status' },
@@ -2722,13 +2752,13 @@ function gr() {
                       })
                     : e.jsx('button', {
                         className: 'text-yellow-300 hover:underline',
-                        onClick: () => y(L.id),
+                        onClick: () => S(L.id),
                         children: 'Disassociate'
                       }),
                   e.jsx('button', {
                     className: 'text-red-400 hover:underline',
                     onClick: async () => {
-                      ;(await Es(L.id), v((M) => M.filter((P) => P.id !== L.id)))
+                      ;(await Rs(L.id), g((M) => M.filter((P) => P.id !== L.id)))
                     },
                     children: 'Delete'
                   })
@@ -2741,14 +2771,14 @@ function gr() {
     ),
     [t, n] = k.useState(!1),
     [s, r] = k.useState(!1),
-    [c, g] = k.useState(''),
-    [m, b] = k.useState(''),
+    [d, v] = k.useState(''),
+    [_, b] = k.useState(''),
     p = (L) => {
-      ;(g(L), b(''), r(!0))
+      ;(v(L), b(''), r(!0))
     },
-    y = async (L) => {
-      const M = await vt(L, { fixed_ip: '', port_id: '' })
-      v((P) =>
+    S = async (L) => {
+      const M = await bt(L, { fixed_ip: '', port_id: '' })
+      g((P) =>
         P.map((j) =>
           j.id === M.id
             ? {
@@ -2774,7 +2804,7 @@ function gr() {
           children: 'Allocate'
         })
       }),
-      e.jsx(de, { columns: h, data: S, empty: w ? 'Loading…' : 'No public IPs' }),
+      e.jsx(de, { columns: c, data: y, empty: w ? 'Loading…' : 'No public IPs' }),
       e.jsx(le, {
         title: 'Allocate Public IP',
         open: t,
@@ -2789,9 +2819,9 @@ function gr() {
             e.jsx('button', {
               className: 'btn-primary',
               onClick: async () => {
-                if (!_ || !i) return
-                const L = await Ns(_, { network_id: i })
-                ;(v((M) => [...M, { id: L.id, address: L.address, status: L.status }]), n(!1))
+                if (!m || !i) return
+                const L = await Ls(m, { network_id: i })
+                ;(g((M) => [...M, { id: L.id, address: L.address, status: L.status }]), n(!1))
               },
               children: 'Allocate'
             })
@@ -2807,7 +2837,7 @@ function gr() {
                   className: 'input w-full',
                   value: i,
                   onChange: (L) => o(L.target.value),
-                  children: D.map((L) =>
+                  children: R.map((L) =>
                     e.jsxs(
                       'option',
                       { value: L.id, children: [L.name, ' ', L.cidr ? `(${L.cidr})` : ''] },
@@ -2837,15 +2867,15 @@ function gr() {
             }),
             e.jsx('button', {
               className: 'btn-primary',
-              disabled: !m,
+              disabled: !_,
               onClick: async () => {
-                const L = l.find((j) => j.id === m)
-                if (!c || !L || !L.fixed_ips || L.fixed_ips.length === 0) return
+                const L = l.find((j) => j.id === _)
+                if (!d || !L || !L.fixed_ips || L.fixed_ips.length === 0) return
                 const M = L.fixed_ips[0]?.ip,
-                  P = await vt(c, { port_id: m, fixed_ip: M })
-                ;(v((j) =>
-                  j.map((R) =>
-                    R.id === P.id
+                  P = await bt(d, { port_id: _, fixed_ip: M })
+                ;(g((j) =>
+                  j.map((D) =>
+                    D.id === P.id
                       ? {
                           id: P.id,
                           address: P.address,
@@ -2853,7 +2883,7 @@ function gr() {
                           port_id: P.port_id,
                           fixed_ip: P.fixed_ip
                         }
-                      : R
+                      : D
                   )
                 ),
                   r(!1))
@@ -2870,7 +2900,7 @@ function gr() {
                 e.jsx('label', { className: 'label', children: 'Select Instance Port' }),
                 e.jsxs('select', {
                   className: 'input w-full',
-                  value: m,
+                  value: _,
                   onChange: (L) => b(L.target.value),
                   children: [
                     e.jsx('option', { value: '', disabled: !0, children: 'Select a port' }),
@@ -2882,8 +2912,9 @@ function gr() {
                           {
                             value: L.id,
                             children: [
-                              u(L.device_id),
-                              ' • ',
+                              f(L.device_id),
+                              ' •',
+                              ' ',
                               L.fixed_ips && L.fixed_ips[0]?.ip ? L.fixed_ips[0].ip : L.id
                             ]
                           },
@@ -2905,103 +2936,103 @@ function gr() {
     ]
   })
 }
-function vr() {
-  const { projectId: _ } = xe(),
-    [S, v] = k.useState([]),
-    [w, O] = k.useState([]),
-    [D, I] = k.useState([]),
+function yr() {
+  const { projectId: m } = xe(),
+    [y, g] = k.useState([]),
+    [w, T] = k.useState([]),
+    [R, I] = k.useState([]),
     [i, o] = k.useState(!1),
-    [l, f] = k.useState(null),
-    [a, d] = k.useState(!1),
-    [u, x] = k.useState(!1),
-    [h, t] = k.useState(!1),
+    [l, u] = k.useState(null),
+    [a, h] = k.useState(!1),
+    [f, x] = k.useState(!1),
+    [c, t] = k.useState(!1),
     [n, s] = k.useState(null),
-    [r, c] = k.useState([]),
-    [g, m] = k.useState(''),
+    [r, d] = k.useState([]),
+    [v, _] = k.useState(''),
     [b, p] = k.useState(''),
-    [y, L] = k.useState(!0),
+    [S, L] = k.useState(!0),
     [M, P] = k.useState(!0),
-    [j, R] = k.useState(''),
-    [T, $] = k.useState(''),
+    [j, D] = k.useState(''),
+    [O, $] = k.useState(''),
     [F, W] = k.useState(''),
     C = k.useMemo(() => w.filter((V) => V.external), [w]),
-    A = k.useMemo(() => D.filter((V) => !r.some((se) => se.subnet_id === V.id)), [D, r])
+    A = k.useMemo(() => R.filter((V) => !r.some((se) => se.subnet_id === V.id)), [R, r])
   k.useEffect(() => {
     ;(N(), B(), z())
-  }, [_])
+  }, [m])
   const N = async () => {
       try {
-        const V = await As(_)
-        v(V)
+        const V = await Is(m)
+        g(V)
       } catch (V) {
-        f(V.message || 'Failed to load routers')
+        u(V.message || 'Failed to load routers')
       }
     },
     B = async () => {
       try {
-        const V = await $e(_)
-        O(V)
+        const V = await We(m)
+        T(V)
       } catch {
-        O([])
+        T([])
       }
     },
     z = async () => {
       try {
-        const V = await st(_)
+        const V = await st(m)
         I(V)
       } catch {
         I([])
       }
     },
-    G = async (V) => {
+    K = async (V) => {
       try {
-        const se = await Ps(V)
-        c(se)
+        const se = await Os(V)
+        d(se)
       } catch (se) {
-        f(se.message || 'Failed to load router interfaces')
+        u(se.message || 'Failed to load router interfaces')
       }
     },
     J = async () => {
-      if (!g.trim()) {
-        f('Router name is required')
+      if (!v.trim()) {
+        u('Router name is required')
         return
       }
-      if (!_) {
-        f('Project ID is required')
+      if (!m) {
+        u('Project ID is required')
         return
       }
-      ;(o(!0), f(null))
+      ;(o(!0), u(null))
       try {
-        const V = await Bs({ name: g, description: b, tenant_id: _, enable_snat: y, admin_up: M })
-        ;(j && (await nt(V.id, j)), await N(), d(!1), m(''), p(''), L(!0), P(!0), R(''))
+        const V = await Ms({ name: v, description: b, tenant_id: m, enable_snat: S, admin_up: M })
+        ;(j && (await nt(V.id, j)), await N(), h(!1), _(''), p(''), L(!0), P(!0), D(''))
       } catch (V) {
         const se = V
-        f(se.response?.data?.error || se.message || 'Failed to create router')
+        u(se.response?.data?.error || se.message || 'Failed to create router')
       } finally {
         o(!1)
       }
     },
     Q = async (V) => {
       if (confirm(`Are you sure you want to delete router "${V.name}"?`)) {
-        ;(o(!0), f(null))
+        ;(o(!0), u(null))
         try {
-          ;(await Ms(V.id), await N())
+          ;(await Ts(V.id), await N())
         } catch (se) {
           const ne = se
-          f(ne.response?.data?.error || ne.message || 'Failed to delete router')
+          u(ne.response?.data?.error || ne.message || 'Failed to delete router')
         } finally {
           o(!1)
         }
       }
     },
     H = async () => {
-      if (!(!n || !T)) {
-        ;(o(!0), f(null))
+      if (!(!n || !O)) {
+        ;(o(!0), u(null))
         try {
-          ;(await Et(n.id, T), await G(n.id), await N(), $(''))
+          ;(await Rt(n.id, O), await K(n.id), await N(), $(''))
         } catch (V) {
           const se = V
-          f(se.response?.data?.error || se.message || 'Failed to add interface')
+          u(se.response?.data?.error || se.message || 'Failed to add interface')
         } finally {
           o(!1)
         }
@@ -3009,40 +3040,40 @@ function vr() {
     },
     E = async (V) => {
       if (n && confirm('Are you sure you want to remove this interface?')) {
-        ;(o(!0), f(null))
+        ;(o(!0), u(null))
         try {
-          ;(await Lt(n.id, V.subnet_id), await G(n.id), await N())
+          ;(await Dt(n.id, V.subnet_id), await K(n.id), await N())
         } catch (se) {
           const ne = se
-          f(ne.response?.data?.error || ne.message || 'Failed to remove interface')
+          u(ne.response?.data?.error || ne.message || 'Failed to remove interface')
         } finally {
           o(!1)
         }
       }
     },
-    K = async () => {
+    G = async () => {
       if (!n || !F) {
-        f('Please select an external network')
+        u('Please select an external network')
         return
       }
-      ;(o(!0), f(null))
+      ;(o(!0), u(null))
       try {
         ;(await nt(n.id, F), await N(), t(!1), W(''), s(null))
       } catch (V) {
         const se = V
-        f(se.response?.data?.error || se.message || 'Failed to set gateway')
+        u(se.response?.data?.error || se.message || 'Failed to set gateway')
       } finally {
         o(!1)
       }
     },
-    X = async (V) => {
+    q = async (V) => {
       if (confirm(`Are you sure you want to clear the external gateway for router "${V.name}"?`)) {
-        ;(o(!0), f(null))
+        ;(o(!0), u(null))
         try {
-          ;(await Rt(V.id), await N())
+          ;(await At(V.id), await N())
         } catch (se) {
           const ne = se
-          f(ne.response?.data?.error || ne.message || 'Failed to clear gateway')
+          u(ne.response?.data?.error || ne.message || 'Failed to clear gateway')
         } finally {
           o(!1)
         }
@@ -3087,16 +3118,16 @@ function vr() {
         render: (V) =>
           e.jsx('div', {
             className: 'flex justify-end',
-            children: e.jsx(Ve, {
+            children: e.jsx(Ge, {
               actions: [
                 {
                   label: 'Interfaces',
                   onClick: async () => {
-                    ;(s(V), await G(V.id), x(!0))
+                    ;(s(V), await K(V.id), x(!0))
                   }
                 },
                 ...(V.external_gateway_network_id
-                  ? [{ label: 'Clear Gateway', onClick: () => X(V), danger: !1 }]
+                  ? [{ label: 'Clear Gateway', onClick: () => q(V), danger: !1 }]
                   : [
                       {
                         label: 'Set Gateway',
@@ -3119,7 +3150,7 @@ function vr() {
         subtitle: 'L3 routing for connecting networks',
         actions: e.jsx('button', {
           className: 'btn-primary',
-          onClick: () => d(!0),
+          onClick: () => h(!0),
           children: 'Create Router'
         })
       }),
@@ -3128,24 +3159,24 @@ function vr() {
           className: 'p-3 bg-red-900/30 border border-red-800/50 rounded text-red-400 text-sm',
           children: l
         }),
-      e.jsx(de, { columns: Y, data: S, empty: i ? 'Loading...' : 'No routers' }),
+      e.jsx(de, { columns: Y, data: y, empty: i ? 'Loading...' : 'No routers' }),
       e.jsx(le, {
         title: 'Create Router',
         open: a,
         onClose: () => {
-          ;(d(!1), m(''), p(''), L(!0), P(!0), R(''))
+          ;(h(!1), _(''), p(''), L(!0), P(!0), D(''))
         },
         footer: e.jsxs(e.Fragment, {
           children: [
             e.jsx('button', {
               className: 'btn-secondary',
-              onClick: () => d(!1),
+              onClick: () => h(!1),
               children: 'Cancel'
             }),
             e.jsx('button', {
               className: 'btn-primary',
               onClick: J,
-              disabled: i || !g.trim(),
+              disabled: i || !v.trim(),
               children: i ? 'Creating...' : 'Create'
             })
           ]
@@ -3158,8 +3189,8 @@ function vr() {
                 e.jsx('label', { className: 'label', children: 'Name *' }),
                 e.jsx('input', {
                   className: 'input w-full',
-                  value: g,
-                  onChange: (V) => m(V.target.value),
+                  value: v,
+                  onChange: (V) => _(V.target.value),
                   placeholder: 'e.g.: main-router'
                 })
               ]
@@ -3182,7 +3213,7 @@ function vr() {
                 e.jsxs('select', {
                   className: 'input w-full',
                   value: j,
-                  onChange: (V) => R(V.target.value),
+                  onChange: (V) => D(V.target.value),
                   children: [
                     e.jsx('option', { value: '', children: '-- Select external network --' }),
                     C.map((V) =>
@@ -3203,7 +3234,7 @@ function vr() {
                 e.jsx('input', {
                   type: 'checkbox',
                   id: 'enable-snat',
-                  checked: y,
+                  checked: S,
                   onChange: (V) => L(V.target.checked)
                 }),
                 e.jsxs('label', {
@@ -3240,7 +3271,7 @@ function vr() {
       }),
       e.jsx(le, {
         title: `Set External Gateway - ${n?.name || ''}`,
-        open: h,
+        open: c,
         onClose: () => {
           ;(t(!1), W(''), s(null))
         },
@@ -3253,7 +3284,7 @@ function vr() {
             }),
             e.jsx('button', {
               className: 'btn-primary',
-              onClick: K,
+              onClick: G,
               disabled: i || !F,
               children: i ? 'Setting...' : 'Set Gateway'
             })
@@ -3299,7 +3330,7 @@ function vr() {
       }),
       e.jsx(le, {
         title: `Router Interfaces - ${n?.name || ''}`,
-        open: u,
+        open: f,
         onClose: () => {
           ;(x(!1), s(null), $(''))
         },
@@ -3323,7 +3354,7 @@ function vr() {
                   children: [
                     e.jsxs('select', {
                       className: 'input flex-1',
-                      value: T,
+                      value: O,
                       onChange: (V) => $(V.target.value),
                       children: [
                         e.jsx('option', { value: '', children: '-- Select subnet --' }),
@@ -3340,7 +3371,7 @@ function vr() {
                     e.jsx('button', {
                       className: 'btn-primary',
                       onClick: H,
-                      disabled: i || !T,
+                      disabled: i || !O,
                       children: 'Add'
                     })
                   ]
@@ -3361,8 +3392,8 @@ function vr() {
                   : e.jsx('div', {
                       className: 'space-y-2',
                       children: r.map((V) => {
-                        const se = D.find((he) => he.id === V.subnet_id),
-                          ne = se ? w.find((he) => he.id === se.network_id) : null
+                        const se = R.find((ue) => ue.id === V.subnet_id),
+                          ne = se ? w.find((ue) => ue.id === se.network_id) : null
                         return e.jsxs(
                           'div',
                           {
@@ -3405,75 +3436,75 @@ function vr() {
     ]
   })
 }
-function Mt() {
-  const { projectId: _ } = xe(),
-    { projects: S } = Ce(),
-    [v, w] = k.useState([]),
-    [O, D] = k.useState([]),
+function Tt() {
+  const { projectId: m } = xe(),
+    { projects: y } = Ce(),
+    [g, w] = k.useState([]),
+    [T, R] = k.useState([]),
     [I, i] = k.useState(!1),
     [o, l] = k.useState(!1),
-    [f, a] = k.useState(''),
-    [d, u] = k.useState(''),
-    [x, h] = k.useState(''),
-    [t, n] = k.useState(_ ?? ''),
+    [u, a] = k.useState(''),
+    [h, f] = k.useState(''),
+    [x, c] = k.useState(''),
+    [t, n] = k.useState(m ?? ''),
     [s, r] = k.useState(''),
-    [c, g] = k.useState('8.8.8.8'),
-    [m, b] = k.useState('8.8.4.4'),
-    [p, y] = k.useState(!0),
+    [d, v] = k.useState('8.8.8.8'),
+    [_, b] = k.useState('8.8.4.4'),
+    [p, S] = k.useState(!0),
     [L, M] = k.useState(''),
     [P, j] = k.useState([]),
-    [R, T] = k.useState(!0),
+    [D, O] = k.useState(!0),
     [$, F] = k.useState(''),
     [W, C] = k.useState(''),
     [A, N] = k.useState(''),
     [B, z] = k.useState('86400'),
-    [G, J] = k.useState('vxlan'),
+    [K, J] = k.useState('vxlan'),
     [Q, H] = k.useState(''),
-    [E, K] = k.useState(''),
-    [X, Z] = k.useState(!1),
+    [E, G] = k.useState(''),
+    [q, Z] = k.useState(!1),
     [Y, V] = k.useState(!1),
     [se, ne] = k.useState('1450'),
-    he = async () => {
+    ue = async () => {
       i(!0)
       try {
-        const [q, ae] = await Promise.all([$e(_), it()])
-        ;(w(q), D(ae))
+        const [X, ae] = await Promise.all([We(m), it()])
+        ;(w(X), R(ae))
       } finally {
         i(!1)
       }
     }
   k.useEffect(() => {
-    let q = !0
+    let X = !0
     return (
       i(!0),
-      Promise.all([$e(_), it()])
-        .then(([ae, me]) => {
-          q && (w(ae), D(me))
+      Promise.all([We(m), it()])
+        .then(([ae, he]) => {
+          X && (w(ae), R(he))
         })
-        .finally(() => q && i(!1)),
+        .finally(() => X && i(!1)),
       () => {
-        q = !1
+        X = !1
       }
     )
-  }, [_])
-  const ie = k.useMemo(() => {
-      const q = L.trim().toLowerCase()
-      return q
-        ? v.filter((ae) =>
-            [ae.name, ae.cidr, ae.description, ae.zone].some((me) =>
-              (me ?? '').toLowerCase().includes(q)
+  }, [m])
+  const re = k.useMemo(() => {
+      const X = L.trim().toLowerCase()
+      return X
+        ? g.filter((ae) =>
+            [ae.name, ae.cidr, ae.description, ae.zone].some((he) =>
+              (he ?? '').toLowerCase().includes(X)
             )
           )
-        : v
-    }, [L, v]),
-    ke = k.useMemo(() => O.map((q) => q.name).filter(Boolean), [O]),
-    Le = k.useMemo(() => ie.map((q) => q.id), [ie]),
-    He = P.length > 0 && Le.every((q) => P.includes(q)),
-    Be = (q) => {
-      j(q ? Le : [])
+        : g
+    }, [L, g]),
+    Ee = k.useMemo(() => T.map((X) => X.name).filter(Boolean), [T]),
+    Fe = k.useMemo(() => re.map((X) => X.id), [re]),
+    Le = P.length > 0 && Fe.every((X) => P.includes(X)),
+    Ae = (X) => {
+      j(X ? Fe : [])
     },
-    Ie = (q, ae) => {
-      j((me) => (ae ? Array.from(new Set([...me, q])) : me.filter((Re) => Re !== q)))
+    Be = (X, ae) => {
+      j((he) => (ae ? Array.from(new Set([...he, X])) : he.filter((Ie) => Ie !== X)))
     },
     ve = [
       {
@@ -3483,23 +3514,23 @@ function Mt() {
         className: 'w-8',
         headerRender: e.jsx('input', {
           type: 'checkbox',
-          checked: He,
-          onChange: (q) => Be(q.target.checked)
+          checked: Le,
+          onChange: (X) => Ae(X.target.checked)
         }),
-        render: (q) =>
+        render: (X) =>
           e.jsx('input', {
             type: 'checkbox',
-            checked: P.includes(q.id),
-            onChange: (ae) => Ie(q.id, ae.target.checked)
+            checked: P.includes(X.id),
+            onChange: (ae) => Be(X.id, ae.target.checked)
           })
       },
       { key: 'name', header: 'Name' },
       {
         key: 'network_type',
         header: 'Type',
-        render: (q) => {
-          const ae = q.network_type || 'vxlan',
-            me = {
+        render: (X) => {
+          const ae = X.network_type || 'vxlan',
+            he = {
               vxlan: 'VXLAN (Overlay)',
               vlan: 'VLAN (Provider)',
               flat: 'Flat (Provider)',
@@ -3512,12 +3543,12 @@ function Mt() {
             children: [
               e.jsx('span', {
                 className: 'font-medium text-blue-400',
-                children: me[ae] || ae.toUpperCase()
+                children: he[ae] || ae.toUpperCase()
               }),
-              q.segmentation_id &&
+              X.segmentation_id &&
                 e.jsxs('span', {
                   className: 'text-gray-400 ml-1',
-                  children: ['(', q.segmentation_id, ')']
+                  children: ['(', X.segmentation_id, ')']
                 })
             ]
           })
@@ -3526,24 +3557,24 @@ function Mt() {
       {
         key: 'status',
         header: 'State',
-        render: (q) =>
-          e.jsx('span', { className: 'text-xs text-gray-300', children: q.status ?? 'active' })
+        render: (X) =>
+          e.jsx('span', { className: 'text-xs text-gray-300', children: X.status ?? 'active' })
       },
       { key: 'description', header: 'Description' },
       { key: 'cidr', header: 'CIDR' },
       {
         key: 'flags',
         header: 'Flags',
-        render: (q) =>
+        render: (X) =>
           e.jsxs('div', {
             className: 'flex gap-1',
             children: [
-              q.shared &&
+              X.shared &&
                 e.jsx('span', {
                   className: 'px-1.5 py-0.5 text-xs bg-green-900/30 text-green-400 rounded',
                   children: 'Shared'
                 }),
-              q.external &&
+              X.external &&
                 e.jsx('span', {
                   className: 'px-1.5 py-0.5 text-xs bg-purple-900/30 text-purple-400 rounded',
                   children: 'External'
@@ -3557,16 +3588,16 @@ function Mt() {
         key: 'actions',
         header: '',
         className: 'w-10 text-right',
-        render: (q) =>
+        render: (X) =>
           e.jsx('div', {
             className: 'flex justify-end',
-            children: e.jsx(Ve, {
+            children: e.jsx(Ge, {
               actions: [
                 {
                   label: 'Delete',
                   danger: !0,
                   onClick: async () => {
-                    ;(await gt(q.id), await he(), j((ae) => ae.filter((me) => me !== q.id)))
+                    ;(await xt(X.id), await ue(), j((ae) => ae.filter((he) => he !== X.id)))
                   }
                 }
               ]
@@ -3583,7 +3614,7 @@ function Mt() {
         actions: e.jsxs('div', {
           className: 'flex items-center gap-2',
           children: [
-            e.jsx('button', { className: 'btn-secondary', onClick: he, children: 'Refresh' }),
+            e.jsx('button', { className: 'btn-secondary', onClick: ue, children: 'Refresh' }),
             e.jsx('button', {
               className: 'btn-primary',
               onClick: () => l(!0),
@@ -3595,23 +3626,23 @@ function Mt() {
                   e.jsx('button', {
                     className: 'btn-secondary',
                     onClick: async () => {
-                      for (const q of P)
+                      for (const X of P)
                         try {
-                          await Cs(q)
+                          await js(X)
                         } catch {}
-                      await he()
+                      await ue()
                     },
                     children: 'Restart VPC'
                   }),
                   e.jsx('button', {
                     className: 'btn-danger',
                     onClick: async () => {
-                      const q = [...P]
-                      for (const ae of q)
+                      const X = [...P]
+                      for (const ae of X)
                         try {
-                          await gt(ae)
+                          await xt(ae)
                         } catch {}
-                      ;(j([]), await he())
+                      ;(j([]), await ue())
                     },
                     children: 'Remove VPC'
                   })
@@ -3620,8 +3651,8 @@ function Mt() {
           ]
         })
       }),
-      e.jsx(Ee, { placeholder: 'Search VPCs', onSearch: M }),
-      e.jsx(de, { columns: ve, data: ie, empty: I ? 'Loading…' : 'No VPCs' }),
+      e.jsx(Ne, { placeholder: 'Search VPCs', onSearch: M }),
+      e.jsx(de, { columns: ve, data: re, empty: I ? 'Loading…' : 'No VPCs' }),
       e.jsx(le, {
         title: 'Create VPC',
         open: o,
@@ -3636,45 +3667,45 @@ function Mt() {
             e.jsx('button', {
               className: 'btn-primary',
               onClick: async () => {
-                if (!t || !f || !d || !x) return
-                const q = {
-                    name: f,
-                    cidr: d,
+                if (!t || !u || !h || !x) return
+                const X = {
+                    name: u,
+                    cidr: h,
                     zone: x,
                     description: s || void 0,
-                    dns1: c || void 0,
-                    dns2: m || void 0,
+                    dns1: d || void 0,
+                    dns2: _ || void 0,
                     start: p,
-                    enable_dhcp: R,
+                    enable_dhcp: D,
                     dhcp_lease_time: parseInt(B) || 86400,
                     gateway: $ || void 0,
                     allocation_start: W || void 0,
                     allocation_end: A || void 0,
-                    network_type: G,
+                    network_type: K,
                     physical_network: Q || void 0,
                     segmentation_id: E ? parseInt(E) : void 0,
-                    shared: X,
+                    shared: q,
                     external: Y,
                     mtu: se ? parseInt(se) : void 0
                   },
-                  ae = await kt(t, q)
-                ;(w((me) => [...me, ae]),
+                  ae = await Nt(t, X)
+                ;(w((he) => [...he, ae]),
                   a(''),
-                  u(''),
-                  h(''),
+                  f(''),
+                  c(''),
                   r(''),
-                  g('8.8.8.8'),
+                  v('8.8.8.8'),
                   b('8.8.4.4'),
-                  y(!0),
-                  T(!0),
+                  S(!0),
+                  O(!0),
                   F(''),
                   C(''),
                   N(''),
                   z('86400'),
-                  n(_ ?? ''),
+                  n(m ?? ''),
                   J('vxlan'),
                   H(''),
-                  K(''),
+                  G(''),
                   Z(!1),
                   V(!1),
                   ne('1450'),
@@ -3702,8 +3733,8 @@ function Mt() {
                         e.jsx('label', { className: 'label', children: 'Name *' }),
                         e.jsx('input', {
                           className: 'input w-full',
-                          value: f,
-                          onChange: (q) => a(q.target.value)
+                          value: u,
+                          onChange: (X) => a(X.target.value)
                         })
                       ]
                     }),
@@ -3713,10 +3744,10 @@ function Mt() {
                         e.jsxs('select', {
                           className: 'input w-full',
                           value: x,
-                          onChange: (q) => h(q.target.value),
+                          onChange: (X) => c(X.target.value),
                           children: [
                             e.jsx('option', { value: '', disabled: !0, children: 'Select a zone' }),
-                            ke.map((q) => e.jsx('option', { value: q, children: q }, q))
+                            Ee.map((X) => e.jsx('option', { value: X, children: X }, X))
                           ]
                         })
                       ]
@@ -3731,9 +3762,9 @@ function Mt() {
                         e.jsx('label', { className: 'label', children: 'Network Type *' }),
                         e.jsxs('select', {
                           className: 'input w-full',
-                          value: G,
-                          onChange: (q) => {
-                            const ae = q.target.value
+                          value: K,
+                          onChange: (X) => {
+                            const ae = X.target.value
                             ;(J(ae),
                               ne(
                                 ae === 'vxlan' || ae === 'gre' || ae === 'geneve' ? '1450' : '1500'
@@ -3754,11 +3785,11 @@ function Mt() {
                         e.jsxs('p', {
                           className: 'text-xs text-gray-400 mt-1',
                           children: [
-                            G === 'vxlan' && 'Self-service overlay network, supports multi-node',
-                            G === 'vlan' && 'Requires physical network and VLAN ID (1-4094)',
-                            G === 'flat' && 'Direct connection to physical network',
-                            (G === 'gre' || G === 'geneve') && 'Tunnel-based overlay network',
-                            G === 'local' && 'Single node only'
+                            K === 'vxlan' && 'Self-service overlay network, supports multi-node',
+                            K === 'vlan' && 'Requires physical network and VLAN ID (1-4094)',
+                            K === 'flat' && 'Direct connection to physical network',
+                            (K === 'gre' || K === 'geneve') && 'Tunnel-based overlay network',
+                            K === 'local' && 'Single node only'
                           ]
                         })
                       ]
@@ -3771,7 +3802,7 @@ function Mt() {
                           type: 'number',
                           placeholder: '1450',
                           value: se,
-                          onChange: (q) => ne(q.target.value)
+                          onChange: (X) => ne(X.target.value)
                         }),
                         e.jsx('p', {
                           className: 'text-xs text-gray-400 mt-1',
@@ -3781,7 +3812,7 @@ function Mt() {
                     })
                   ]
                 }),
-                (G === 'vlan' || G === 'flat') &&
+                (K === 'vlan' || K === 'flat') &&
                   e.jsxs('div', {
                     className:
                       'grid grid-cols-2 gap-3 p-3 bg-blue-900/10 border border-blue-800/30 rounded',
@@ -3793,7 +3824,7 @@ function Mt() {
                             className: 'input w-full',
                             placeholder: 'provider',
                             value: Q,
-                            onChange: (q) => H(q.target.value)
+                            onChange: (X) => H(X.target.value)
                           }),
                           e.jsx('p', {
                             className: 'text-xs text-gray-400 mt-1',
@@ -3802,7 +3833,7 @@ function Mt() {
                           })
                         ]
                       }),
-                      G === 'vlan' &&
+                      K === 'vlan' &&
                         e.jsxs('div', {
                           children: [
                             e.jsx('label', { className: 'label', children: 'VLAN ID *' }),
@@ -3813,7 +3844,7 @@ function Mt() {
                               max: '4094',
                               placeholder: '100',
                               value: E,
-                              onChange: (q) => K(q.target.value)
+                              onChange: (X) => G(X.target.value)
                             }),
                             e.jsx('p', {
                               className: 'text-xs text-gray-400 mt-1',
@@ -3823,7 +3854,7 @@ function Mt() {
                         })
                     ]
                   }),
-                (G === 'vxlan' || G === 'gre') &&
+                (K === 'vxlan' || K === 'gre') &&
                   e.jsxs('div', {
                     children: [
                       e.jsx('label', {
@@ -3835,12 +3866,12 @@ function Mt() {
                         type: 'number',
                         placeholder: 'Auto-assigned',
                         value: E,
-                        onChange: (q) => K(q.target.value)
+                        onChange: (X) => G(X.target.value)
                       }),
                       e.jsxs('p', {
                         className: 'text-xs text-gray-400 mt-1',
                         children: [
-                          G === 'vxlan' ? 'VNI (VXLAN Network Identifier)' : 'Tunnel key',
+                          K === 'vxlan' ? 'VNI (VXLAN Network Identifier)' : 'Tunnel key',
                           ' - leave empty for auto'
                         ]
                       })
@@ -3855,18 +3886,18 @@ function Mt() {
                         e.jsxs('select', {
                           className: 'input w-full',
                           value: t,
-                          onChange: (q) => n(q.target.value),
+                          onChange: (X) => n(X.target.value),
                           children: [
                             e.jsx('option', {
                               value: '',
                               disabled: !0,
                               children: 'Select an account'
                             }),
-                            S.map((q) =>
+                            y.map((X) =>
                               e.jsxs(
                                 'option',
-                                { value: q.id, children: [q.name, ' (', q.id, ')'] },
-                                q.id
+                                { value: X.id, children: [X.name, ' (', X.id, ')'] },
+                                X.id
                               )
                             )
                           ]
@@ -3879,8 +3910,8 @@ function Mt() {
                         e.jsx('input', {
                           className: 'input w-full',
                           placeholder: '10.0.0.0/16',
-                          value: d,
-                          onChange: (q) => u(q.target.value)
+                          value: h,
+                          onChange: (X) => f(X.target.value)
                         })
                       ]
                     })
@@ -3892,7 +3923,7 @@ function Mt() {
                     e.jsx('input', {
                       className: 'input w-full',
                       value: s,
-                      onChange: (q) => r(q.target.value)
+                      onChange: (X) => r(X.target.value)
                     })
                   ]
                 }),
@@ -3905,8 +3936,8 @@ function Mt() {
                         e.jsx('input', {
                           type: 'checkbox',
                           id: 'network-shared',
-                          checked: X,
-                          onChange: (q) => Z(q.target.checked)
+                          checked: q,
+                          onChange: (X) => Z(X.target.checked)
                         }),
                         e.jsxs('label', {
                           htmlFor: 'network-shared',
@@ -3928,7 +3959,7 @@ function Mt() {
                           type: 'checkbox',
                           id: 'network-external',
                           checked: Y,
-                          onChange: (q) => V(q.target.checked)
+                          onChange: (X) => V(X.target.checked)
                         }),
                         e.jsxs('label', {
                           htmlFor: 'network-external',
@@ -3955,8 +3986,8 @@ function Mt() {
                   children: [
                     e.jsx('input', {
                       type: 'checkbox',
-                      checked: R,
-                      onChange: (q) => T(q.target.checked)
+                      checked: D,
+                      onChange: (X) => O(X.target.checked)
                     }),
                     e.jsx('h3', {
                       className: 'text-sm font-semibold text-gray-200',
@@ -3964,7 +3995,7 @@ function Mt() {
                     })
                   ]
                 }),
-                R &&
+                D &&
                   e.jsxs(e.Fragment, {
                     children: [
                       e.jsxs('div', {
@@ -3977,7 +4008,7 @@ function Mt() {
                                 className: 'input w-full',
                                 placeholder: 'Auto (e.g., 10.0.0.1)',
                                 value: $,
-                                onChange: (q) => F(q.target.value)
+                                onChange: (X) => F(X.target.value)
                               }),
                               e.jsx('p', {
                                 className: 'text-xs text-gray-400 mt-1',
@@ -3996,7 +4027,7 @@ function Mt() {
                                 type: 'number',
                                 placeholder: '86400',
                                 value: B,
-                                onChange: (q) => z(q.target.value)
+                                onChange: (X) => z(X.target.value)
                               }),
                               e.jsx('p', {
                                 className: 'text-xs text-gray-400 mt-1',
@@ -4019,7 +4050,7 @@ function Mt() {
                                 className: 'input w-full',
                                 placeholder: 'Auto (e.g., 10.0.0.2)',
                                 value: W,
-                                onChange: (q) => C(q.target.value)
+                                onChange: (X) => C(X.target.value)
                               }),
                               e.jsx('p', {
                                 className: 'text-xs text-gray-400 mt-1',
@@ -4037,7 +4068,7 @@ function Mt() {
                                 className: 'input w-full',
                                 placeholder: 'Auto (last usable IP)',
                                 value: A,
-                                onChange: (q) => N(q.target.value)
+                                onChange: (X) => N(X.target.value)
                               }),
                               e.jsx('p', {
                                 className: 'text-xs text-gray-400 mt-1',
@@ -4056,8 +4087,8 @@ function Mt() {
                               e.jsx('input', {
                                 className: 'input w-full',
                                 placeholder: '8.8.8.8',
-                                value: c,
-                                onChange: (q) => g(q.target.value)
+                                value: d,
+                                onChange: (X) => v(X.target.value)
                               })
                             ]
                           }),
@@ -4067,8 +4098,8 @@ function Mt() {
                               e.jsx('input', {
                                 className: 'input w-full',
                                 placeholder: '8.8.4.4',
-                                value: m,
-                                onChange: (q) => b(q.target.value)
+                                value: _,
+                                onChange: (X) => b(X.target.value)
                               })
                             ]
                           })
@@ -4084,7 +4115,7 @@ function Mt() {
                 e.jsx('input', {
                   type: 'checkbox',
                   checked: p,
-                  onChange: (q) => y(q.target.checked)
+                  onChange: (X) => S(X.target.checked)
                 }),
                 e.jsx('label', {
                   className: 'label m-0',
@@ -4102,7 +4133,7 @@ function Mt() {
     ]
   })
 }
-function xr() {
+function Sr() {
   return e.jsxs('div', {
     className: 'space-y-3',
     children: [
@@ -4115,9 +4146,9 @@ function xr() {
     ]
   })
 }
-function br() {
-  const _ = [],
-    S = [
+function wr() {
+  const m = [],
+    y = [
       { key: 'direction', header: 'Direction' },
       { key: 'protocol', header: 'Protocol' },
       { key: 'ports', header: 'Ports' },
@@ -4129,7 +4160,7 @@ function br() {
         render: () =>
           e.jsx('div', {
             className: 'flex justify-end',
-            children: e.jsx(Ve, { actions: [{ label: 'Delete', onClick: () => {}, danger: !0 }] })
+            children: e.jsx(Ge, { actions: [{ label: 'Delete', onClick: () => {}, danger: !0 }] })
           })
       }
     ]
@@ -4141,35 +4172,35 @@ function br() {
         subtitle: 'Ingress/Egress rules',
         actions: e.jsx('button', { className: 'btn-primary', children: 'Add Rule' })
       }),
-      e.jsx(de, { columns: S, data: _, empty: 'No rules' })
+      e.jsx(de, { columns: y, data: m, empty: 'No rules' })
     ]
   })
 }
-function yr() {
+function Cr() {
   return e.jsx('div', {
     className: 'space-y-4',
-    children: e.jsxs(ze, {
+    children: e.jsxs(Ve, {
       children: [
-        e.jsx(te, { path: 'vpc', element: e.jsx(Mt, {}) }),
-        e.jsx(te, { path: 'routers', element: e.jsx(vr, {}) }),
-        e.jsx(te, { path: 'sg', element: e.jsx(br, {}) }),
-        e.jsx(te, { path: 'topology', element: e.jsx(Cr, {}) }),
-        e.jsx(te, { path: 'public-ips', element: e.jsx(gr, {}) }),
-        e.jsx(te, { path: 'asns', element: e.jsx(Sr, {}) }),
-        e.jsx(te, { path: 'vpn', element: e.jsx(xr, {}) }),
-        e.jsx(te, { path: 'acl', element: e.jsx(wr, {}) }),
-        e.jsx(te, { path: '*', element: e.jsx(Mt, {}) })
+        e.jsx(te, { path: 'vpc', element: e.jsx(Tt, {}) }),
+        e.jsx(te, { path: 'routers', element: e.jsx(yr, {}) }),
+        e.jsx(te, { path: 'sg', element: e.jsx(wr, {}) }),
+        e.jsx(te, { path: 'topology', element: e.jsx(Nr, {}) }),
+        e.jsx(te, { path: 'public-ips', element: e.jsx(br, {}) }),
+        e.jsx(te, { path: 'asns', element: e.jsx(kr, {}) }),
+        e.jsx(te, { path: 'vpn', element: e.jsx(Sr, {}) }),
+        e.jsx(te, { path: 'acl', element: e.jsx(jr, {}) }),
+        e.jsx(te, { path: '*', element: e.jsx(Tt, {}) })
       ]
     })
   })
 }
-function Sr() {
-  const { projectId: _ } = xe(),
-    { asns: S, addAsn: v, removeAsn: w } = Ce(),
-    O = k.useMemo(() => S.filter((d) => d.projectId === _), [S, _]),
-    [D, I] = k.useState(!1),
+function kr() {
+  const { projectId: m } = xe(),
+    { asns: y, addAsn: g, removeAsn: w } = Ce(),
+    T = k.useMemo(() => y.filter((h) => h.projectId === m), [y, m]),
+    [R, I] = k.useState(!1),
     [i, o] = k.useState(''),
-    [l, f] = k.useState(''),
+    [l, u] = k.useState(''),
     a = [
       { key: 'number', header: 'ASN' },
       { key: 'description', header: 'Description' },
@@ -4177,11 +4208,11 @@ function Sr() {
         key: 'actions',
         header: '',
         className: 'w-10 text-right',
-        render: (d) =>
+        render: (h) =>
           e.jsx('div', {
             className: 'flex justify-end',
-            children: e.jsx(Ve, {
-              actions: [{ label: 'Delete', onClick: () => w(d.id), danger: !0 }]
+            children: e.jsx(Ge, {
+              actions: [{ label: 'Delete', onClick: () => w(h.id), danger: !0 }]
             })
           })
       }
@@ -4198,10 +4229,10 @@ function Sr() {
           children: 'Add ASN'
         })
       }),
-      e.jsx(de, { columns: a, data: O, empty: 'No ASNs' }),
+      e.jsx(de, { columns: a, data: T, empty: 'No ASNs' }),
       e.jsx(le, {
         title: 'Add ASN',
-        open: D,
+        open: R,
         onClose: () => I(!1),
         footer: e.jsxs(e.Fragment, {
           children: [
@@ -4213,11 +4244,11 @@ function Sr() {
             e.jsx('button', {
               className: 'btn-primary',
               onClick: () => {
-                _ &&
+                m &&
                   i &&
-                  (v({ projectId: _, number: Number(i), description: l || void 0 }),
+                  (g({ projectId: m, number: Number(i), description: l || void 0 }),
                   o(''),
-                  f(''),
+                  u(''),
                   I(!1))
               },
               children: 'Save'
@@ -4234,7 +4265,7 @@ function Sr() {
                   className: 'input w-full',
                   type: 'number',
                   value: i,
-                  onChange: (d) => o(d.target.value ? Number(d.target.value) : '')
+                  onChange: (h) => o(h.target.value ? Number(h.target.value) : '')
                 })
               ]
             }),
@@ -4244,7 +4275,7 @@ function Sr() {
                 e.jsx('input', {
                   className: 'input w-full',
                   value: l,
-                  onChange: (d) => f(d.target.value)
+                  onChange: (h) => u(h.target.value)
                 })
               ]
             })
@@ -4254,9 +4285,9 @@ function Sr() {
     ]
   })
 }
-function wr() {
-  const _ = [],
-    S = [
+function jr() {
+  const m = [],
+    y = [
       { key: 'id', header: 'ID' },
       { key: 'rule', header: 'Rule' },
       { key: 'action', header: 'Action' },
@@ -4267,7 +4298,7 @@ function wr() {
         render: () =>
           e.jsx('div', {
             className: 'flex justify-end',
-            children: e.jsx(Ve, { actions: [{ label: 'Delete', onClick: () => {}, danger: !0 }] })
+            children: e.jsx(Ge, { actions: [{ label: 'Delete', onClick: () => {}, danger: !0 }] })
           })
       }
     ]
@@ -4279,38 +4310,38 @@ function wr() {
         subtitle: 'ACL rules',
         actions: e.jsx('button', { className: 'btn-primary', children: 'Add Rule' })
       }),
-      e.jsx(de, { columns: S, data: _, empty: 'No ACL rules' })
+      e.jsx(de, { columns: y, data: m, empty: 'No ACL rules' })
     ]
   })
 }
-function Cr() {
-  const { projectId: _ } = xe(),
-    [S, v] = k.useState('graph'),
-    [w, O] = k.useState(!1),
-    [D, I] = k.useState({ nodes: [], edges: [] })
+function Nr() {
+  const { projectId: m } = xe(),
+    [y, g] = k.useState('graph'),
+    [w, T] = k.useState(!1),
+    [R, I] = k.useState({ nodes: [], edges: [] })
   k.useEffect(() => {
-    if (!_) return
+    if (!m) return
     let o = !0
     return (
-      O(!0),
-      xt(_)
+      T(!0),
+      yt(m)
         .then((l) => {
           o && I(l)
         })
-        .finally(() => o && O(!1)),
+        .finally(() => o && T(!1)),
       () => {
         o = !1
       }
     )
-  }, [_])
+  }, [m])
   const i = async () => {
-    if (_) {
-      O(!0)
+    if (m) {
+      T(!0)
       try {
-        const o = await xt(_)
+        const o = await yt(m)
         I(o)
       } finally {
-        O(!1)
+        T(!1)
       }
     }
   }
@@ -4324,8 +4355,8 @@ function Cr() {
           className: 'flex gap-2',
           children: [
             e.jsx('button', {
-              className: `px-4 py-2 rounded ${S === 'graph' ? 'bg-blue-600 text-white' : 'bg-oxide-800 text-gray-300'}`,
-              onClick: () => v('graph'),
+              className: `px-4 py-2 rounded ${y === 'graph' ? 'bg-blue-600 text-white' : 'bg-oxide-800 text-gray-300'}`,
+              onClick: () => g('graph'),
               children: e.jsxs('span', {
                 className: 'flex items-center gap-2',
                 children: [
@@ -4346,8 +4377,8 @@ function Cr() {
               })
             }),
             e.jsx('button', {
-              className: `px-4 py-2 rounded ${S === 'list' ? 'bg-blue-600 text-white' : 'bg-oxide-800 text-gray-300'}`,
-              onClick: () => v('list'),
+              className: `px-4 py-2 rounded ${y === 'list' ? 'bg-blue-600 text-white' : 'bg-oxide-800 text-gray-300'}`,
+              onClick: () => g('list'),
               children: e.jsxs('span', {
                 className: 'flex items-center gap-2',
                 children: [
@@ -4375,46 +4406,46 @@ function Cr() {
             className: 'card p-8 text-center text-gray-400',
             children: 'Loading topology...'
           })
-        : S === 'graph'
-          ? e.jsx(kr, { topology: D, onRefresh: i })
-          : e.jsx(jr, { topology: D })
+        : y === 'graph'
+          ? e.jsx(Er, { topology: R, onRefresh: i })
+          : e.jsx(Lr, { topology: R })
     ]
   })
 }
-function kr({ topology: _, onRefresh: S }) {
-  const { projectId: v } = xe(),
-    [w, O] = k.useState(null),
-    [D, I] = k.useState({}),
+function Er({ topology: m, onRefresh: y }) {
+  const { projectId: g } = xe(),
+    [w, T] = k.useState(null),
+    [R, I] = k.useState({}),
     [i, o] = k.useState(null),
-    [l, f] = k.useState(null),
-    [a, d] = k.useState(!1),
-    [u, x] = k.useState(!1),
-    [h, t] = k.useState(''),
+    [l, u] = k.useState(null),
+    [a, h] = k.useState(!1),
+    [f, x] = k.useState(!1),
+    [c, t] = k.useState(''),
     [n, s] = k.useState(!1),
-    [r, c] = k.useState(''),
-    [g, m] = k.useState(!1),
+    [r, d] = k.useState(''),
+    [v, _] = k.useState(!1),
     [b, p] = k.useState('')
   k.useEffect(() => {
-    if (_.nodes.length === 0) return
-    const T = {}
+    if (m.nodes.length === 0) return
+    const O = {}
     let $ = 150,
       F = 150,
       W = 150,
       C = 150
-    for (const A of _.nodes)
-      A.type === 'network' && A.external && ((T[A.id] = { x: $, y: 80 }), ($ += 220))
-    for (const A of _.nodes) A.type === 'router' && ((T[A.id] = { x: F, y: 250 }), (F += 260))
-    for (const A of _.nodes) A.type === 'subnet' && ((T[A.id] = { x: W, y: 420 }), (W += 200))
-    for (const A of _.nodes) A.type === 'instance' && ((T[A.id] = { x: C, y: 540 }), (C += 180))
-    I((A) => ({ ...T, ...A }))
-  }, [_.nodes])
-  const y = (T, $, F) => {
+    for (const A of m.nodes)
+      A.type === 'network' && A.external && ((O[A.id] = { x: $, y: 80 }), ($ += 220))
+    for (const A of m.nodes) A.type === 'router' && ((O[A.id] = { x: F, y: 250 }), (F += 260))
+    for (const A of m.nodes) A.type === 'subnet' && ((O[A.id] = { x: W, y: 420 }), (W += 200))
+    for (const A of m.nodes) A.type === 'instance' && ((O[A.id] = { x: C, y: 540 }), (C += 180))
+    I((A) => ({ ...O, ...A }))
+  }, [m.nodes])
+  const S = (O, $, F) => {
     I((W) => {
-      const C = W[T] || { x: 0, y: 0 }
-      return { ...W, [T]: { x: C.x + $, y: C.y + F } }
+      const C = W[O] || { x: 0, y: 0 }
+      return { ...W, [O]: { x: C.x + $, y: C.y + F } }
     })
   }
-  if (_.nodes.length === 0)
+  if (m.nodes.length === 0)
     return e.jsxs('div', {
       className: 'card p-8 text-center',
       children: [
@@ -4425,15 +4456,15 @@ function kr({ topology: _, onRefresh: S }) {
         })
       ]
     })
-  const L = _.nodes.filter((T) => T.type === 'network' && T.external),
-    M = _.nodes.filter((T) => T.type === 'router'),
-    P = _.nodes.filter((T) => T.type === 'subnet'),
-    j = _.nodes.filter((T) => T.type === 'instance'),
-    R = {
-      onMouseDown: (T, $) => {
-        const F = T.clientX,
-          W = T.clientY,
-          C = (N) => y($, N.clientX - F, N.clientY - W),
+  const L = m.nodes.filter((O) => O.type === 'network' && O.external),
+    M = m.nodes.filter((O) => O.type === 'router'),
+    P = m.nodes.filter((O) => O.type === 'subnet'),
+    j = m.nodes.filter((O) => O.type === 'instance'),
+    D = {
+      onMouseDown: (O, $) => {
+        const F = O.clientX,
+          W = O.clientY,
+          C = (N) => S($, N.clientX - F, N.clientY - W),
           A = () => {
             ;(window.removeEventListener('mousemove', C), window.removeEventListener('mouseup', A))
           }
@@ -4475,7 +4506,7 @@ function kr({ topology: _, onRefresh: S }) {
           w &&
             e.jsx('button', {
               className: 'text-xs text-gray-400 hover:text-gray-200',
-              onClick: () => O(null),
+              onClick: () => T(null),
               children: 'Clear Selection'
             })
         ]
@@ -4495,16 +4526,16 @@ function kr({ topology: _, onRefresh: S }) {
               children: e.jsx('polygon', { points: '0 0, 10 3, 0 6', fill: '#64748b' })
             })
           }),
-          L.map((T, $) => {
-            const F = T.id,
-              W = D[F] || { x: 150 + $ * 250, y: 80 },
+          L.map((O, $) => {
+            const F = O.id,
+              W = R[F] || { x: 150 + $ * 250, y: 80 },
               C = w === F
             return e.jsxs(
               'g',
               {
-                onClick: () => O(F),
+                onClick: () => T(F),
                 className: 'cursor-move',
-                onMouseDown: (A) => R.onMouseDown(A, F),
+                onMouseDown: (A) => D.onMouseDown(A, F),
                 children: [
                   e.jsx('rect', {
                     x: W.x - 60,
@@ -4524,9 +4555,9 @@ function kr({ topology: _, onRefresh: S }) {
                     fontSize: '13',
                     fontWeight: '600',
                     children:
-                      (T.name ?? '').length > 15
-                        ? (T.name ?? '').substring(0, 15) + '...'
-                        : (T.name ?? '')
+                      (O.name ?? '').length > 15
+                        ? (O.name ?? '').substring(0, 15) + '...'
+                        : (O.name ?? '')
                   }),
                   e.jsxs('text', {
                     x: W.x,
@@ -4534,25 +4565,25 @@ function kr({ topology: _, onRefresh: S }) {
                     textAnchor: 'middle',
                     fill: '#d1d5db',
                     fontSize: '11',
-                    children: ['External • ', T.cidr]
+                    children: ['External • ', O.cidr]
                   })
                 ]
               },
               F
             )
           }),
-          _.edges.map((T, $) => {
-            const F = D[T.source] || { x: 0, y: 0 },
-              W = D[T.target] || { x: 0, y: 0 },
+          m.edges.map((O, $) => {
+            const F = R[O.source] || { x: 0, y: 0 },
+              W = R[O.target] || { x: 0, y: 0 },
               C =
-                T.type === 'l3-gateway'
+                O.type === 'l3-gateway'
                   ? '#64748b'
-                  : T.type === 'l3'
+                  : O.type === 'l3'
                     ? '#5eead4'
-                    : T.type === 'l2'
+                    : O.type === 'l2'
                       ? '#60a5fa'
                       : '#a3e635',
-              A = T.type === 'l3' ? '3,3' : void 0
+              A = O.type === 'l3' ? '3,3' : void 0
             return e.jsx(
               'line',
               {
@@ -4568,17 +4599,17 @@ function kr({ topology: _, onRefresh: S }) {
               $
             )
           }),
-          M.map((T, $) => {
-            const F = T.id,
-              W = D[F] || { x: 200 + $ * 300, y: 250 },
+          M.map((O, $) => {
+            const F = O.id,
+              W = R[F] || { x: 200 + $ * 300, y: 250 },
               C = w === F,
-              A = !!_.nodes.find((N) => N.id === F)?.external_gateway_network_id
+              A = !!m.nodes.find((N) => N.id === F)?.external_gateway_network_id
             return e.jsxs(
               'g',
               {
-                onClick: () => O(F),
+                onClick: () => T(F),
                 className: 'cursor-move',
-                onMouseDown: (N) => R.onMouseDown(N, F),
+                onMouseDown: (N) => D.onMouseDown(N, F),
                 children: [
                   e.jsx('circle', {
                     cx: W.x,
@@ -4596,9 +4627,9 @@ function kr({ topology: _, onRefresh: S }) {
                     fontSize: '12',
                     fontWeight: '600',
                     children:
-                      (T.name ?? '').length > 10
-                        ? (T.name ?? '').substring(0, 10) + '...'
-                        : (T.name ?? '')
+                      (O.name ?? '').length > 10
+                        ? (O.name ?? '').substring(0, 10) + '...'
+                        : (O.name ?? '')
                   }),
                   e.jsx('text', {
                     x: W.x,
@@ -4617,7 +4648,7 @@ function kr({ topology: _, onRefresh: S }) {
                       fontSize: '9',
                       children: '✓ Gateway'
                     }),
-                  _.nodes.find((N) => N.id === F)?.enable_snat &&
+                  m.nodes.find((N) => N.id === F)?.enable_snat &&
                     e.jsx('text', {
                       x: W.x,
                       y: W.y + 81,
@@ -4631,16 +4662,16 @@ function kr({ topology: _, onRefresh: S }) {
               F
             )
           }),
-          P.map((T, $) => {
-            const F = T.id,
-              W = D[F] || { x: 150 + $ * 200, y: 420 },
+          P.map((O, $) => {
+            const F = O.id,
+              W = R[F] || { x: 150 + $ * 200, y: 420 },
               C = w === F
             return e.jsxs(
               'g',
               {
-                onClick: () => O(F),
+                onClick: () => T(F),
                 className: 'cursor-move',
-                onMouseDown: (A) => R.onMouseDown(A, F),
+                onMouseDown: (A) => D.onMouseDown(A, F),
                 children: [
                   e.jsx('rect', {
                     x: W.x - 60,
@@ -4660,9 +4691,9 @@ function kr({ topology: _, onRefresh: S }) {
                     fontSize: '13',
                     fontWeight: '600',
                     children:
-                      (T.name ?? '').length > 15
-                        ? (T.name ?? '').substring(0, 15) + '...'
-                        : (T.name ?? '')
+                      (O.name ?? '').length > 15
+                        ? (O.name ?? '').substring(0, 15) + '...'
+                        : (O.name ?? '')
                   }),
                   e.jsx('text', {
                     x: W.x,
@@ -4670,23 +4701,23 @@ function kr({ topology: _, onRefresh: S }) {
                     textAnchor: 'middle',
                     fill: '#d1d5db',
                     fontSize: '11',
-                    children: T.cidr
+                    children: O.cidr
                   })
                 ]
               },
               F
             )
           }),
-          j.map((T, $) => {
-            const F = T.id,
-              W = D[F] || { x: 150 + $ * 180, y: 560 },
+          j.map((O, $) => {
+            const F = O.id,
+              W = R[F] || { x: 150 + $ * 180, y: 560 },
               C = w === F
             return e.jsxs(
               'g',
               {
-                onClick: () => O(F),
+                onClick: () => T(F),
                 className: 'cursor-move',
-                onMouseDown: (A) => R.onMouseDown(A, F),
+                onMouseDown: (A) => D.onMouseDown(A, F),
                 children: [
                   e.jsx('rect', {
                     x: W.x - 50,
@@ -4705,7 +4736,7 @@ function kr({ topology: _, onRefresh: S }) {
                     fill: '#e5e7eb',
                     fontSize: '12',
                     fontWeight: '600',
-                    children: T.name ?? 'VM'
+                    children: O.name ?? 'VM'
                   }),
                   e.jsx('text', {
                     x: W.x,
@@ -4713,7 +4744,7 @@ function kr({ topology: _, onRefresh: S }) {
                     textAnchor: 'middle',
                     fill: '#d1d5db',
                     fontSize: '10',
-                    children: T.state ?? ''
+                    children: O.state ?? ''
                   })
                 ]
               },
@@ -4733,71 +4764,71 @@ function kr({ topology: _, onRefresh: S }) {
             e.jsx('div', {
               className: 'text-xs text-gray-400',
               children: (() => {
-                const T = _.nodes.find(($) => $.id === w)
-                return T
-                  ? T.type === 'network'
-                    ? `Network: ${T.name}`
-                    : T.type === 'subnet'
-                      ? `Subnet: ${T.name} (${T.cidr})`
-                      : T.type === 'router'
-                        ? `Router: ${T.name}`
-                        : T.type === 'instance'
-                          ? `Instance: ${T.name} (${T.state ?? ''})`
+                const O = m.nodes.find(($) => $.id === w)
+                return O
+                  ? O.type === 'network'
+                    ? `Network: ${O.name}`
+                    : O.type === 'subnet'
+                      ? `Subnet: ${O.name} (${O.cidr})`
+                      : O.type === 'router'
+                        ? `Router: ${O.name}`
+                        : O.type === 'instance'
+                          ? `Instance: ${O.name} (${O.state ?? ''})`
                           : 'Unknown'
                   : 'Unknown'
               })()
             }),
             (() => {
-              const T = _.nodes.find((G) => G.id === w)
-              if (!T || T.type !== 'router') return null
-              const $ = T.resource_id || '',
-                F = !!T.external_gateway_network_id,
-                W = !!T.enable_snat,
+              const O = m.nodes.find((K) => K.id === w)
+              if (!O || O.type !== 'router') return null
+              const $ = O.resource_id || '',
+                F = !!O.external_gateway_network_id,
+                W = !!O.enable_snat,
                 C = async () => {
-                  if (v) {
+                  if (g) {
                     if (!i) {
-                      const G = await $e(v)
-                      o(G.filter((J) => J.external))
+                      const K = await We(g)
+                      o(K.filter((J) => J.external))
                     }
                     ;(t(''), x(!0))
                   }
                 },
                 A = async () => {
                   if ($) {
-                    d(!0)
+                    h(!0)
                     try {
-                      ;(await Rt($), S?.())
+                      ;(await At($), y?.())
                     } finally {
-                      d(!1)
+                      h(!1)
                     }
                   }
                 },
                 N = async () => {
                   if ($) {
-                    d(!0)
+                    h(!0)
                     try {
-                      ;(await Is($, { enable_snat: !W }), S?.())
+                      ;(await Ps($, { enable_snat: !W }), y?.())
                     } finally {
-                      d(!1)
+                      h(!1)
                     }
                   }
                 },
                 B = async () => {
-                  if (v) {
+                  if (g) {
                     if (!l) {
-                      const G = await st(v)
-                      f(G)
+                      const K = await st(g)
+                      u(K)
                     }
-                    ;(c(''), s(!0))
+                    ;(d(''), s(!0))
                   }
                 },
                 z = async () => {
-                  if (v) {
+                  if (g) {
                     if (!l) {
-                      const G = await st(v)
-                      f(G)
+                      const K = await st(g)
+                      u(K)
                     }
-                    ;(p(''), m(!0))
+                    ;(p(''), _(!0))
                   }
                 }
               return e.jsxs('div', {
@@ -4834,10 +4865,10 @@ function kr({ topology: _, onRefresh: S }) {
                 ]
               })
             })(),
-            u &&
+            f &&
               e.jsx(le, {
                 title: 'Set Router Gateway',
-                open: u,
+                open: f,
                 onClose: () => x(!1),
                 footer: e.jsxs(e.Fragment, {
                   children: [
@@ -4848,15 +4879,15 @@ function kr({ topology: _, onRefresh: S }) {
                     }),
                     e.jsx('button', {
                       className: 'btn-primary',
-                      disabled: !h || a,
+                      disabled: !c || a,
                       onClick: async () => {
-                        const $ = _.nodes.find((F) => F.id === w)?.resource_id || ''
-                        if (!(!$ || !h)) {
-                          d(!0)
+                        const $ = m.nodes.find((F) => F.id === w)?.resource_id || ''
+                        if (!(!$ || !c)) {
+                          h(!0)
                           try {
-                            ;(await nt($, h), S?.(), x(!1))
+                            ;(await nt($, c), y?.(), x(!1))
                           } finally {
-                            d(!1)
+                            h(!1)
                           }
                         }
                       },
@@ -4871,19 +4902,19 @@ function kr({ topology: _, onRefresh: S }) {
                       e.jsx('label', { className: 'label', children: 'External Network' }),
                       e.jsxs('select', {
                         className: 'input w-full',
-                        value: h,
-                        onChange: (T) => t(T.target.value),
+                        value: c,
+                        onChange: (O) => t(O.target.value),
                         children: [
                           e.jsx('option', {
                             value: '',
                             disabled: !0,
                             children: 'Select external network'
                           }),
-                          (i ?? []).map((T) =>
+                          (i ?? []).map((O) =>
                             e.jsxs(
                               'option',
-                              { value: T.id, children: [T.name, ' (', T.cidr, ')'] },
-                              T.id
+                              { value: O.id, children: [O.name, ' (', O.cidr, ')'] },
+                              O.id
                             )
                           )
                         ]
@@ -4915,13 +4946,13 @@ function kr({ topology: _, onRefresh: S }) {
                       className: 'btn-primary',
                       disabled: !r || a,
                       onClick: async () => {
-                        const $ = _.nodes.find((F) => F.id === w)?.resource_id || ''
+                        const $ = m.nodes.find((F) => F.id === w)?.resource_id || ''
                         if (!(!$ || !r)) {
-                          d(!0)
+                          h(!0)
                           try {
-                            ;(await Et($, r), S?.(), s(!1))
+                            ;(await Rt($, r), y?.(), s(!1))
                           } finally {
-                            d(!1)
+                            h(!1)
                           }
                         }
                       },
@@ -4937,12 +4968,12 @@ function kr({ topology: _, onRefresh: S }) {
                       e.jsxs('select', {
                         className: 'input w-full',
                         value: r,
-                        onChange: (T) => c(T.target.value),
+                        onChange: (O) => d(O.target.value),
                         children: [
                           e.jsx('option', { value: '', disabled: !0, children: 'Select subnet' }),
                           (() => {
-                            const T = _.nodes.find((F) => F.id === w),
-                              $ = new Set(T?.interfaces ?? [])
+                            const O = m.nodes.find((F) => F.id === w),
+                              $ = new Set(O?.interfaces ?? [])
                             return (l ?? [])
                               .filter((F) => !$.has(F.id))
                               .map((F) =>
@@ -4959,29 +4990,29 @@ function kr({ topology: _, onRefresh: S }) {
                   })
                 })
               }),
-            g &&
+            v &&
               e.jsx(le, {
                 title: 'Remove Router Interface',
-                open: g,
-                onClose: () => m(!1),
+                open: v,
+                onClose: () => _(!1),
                 footer: e.jsxs(e.Fragment, {
                   children: [
                     e.jsx('button', {
                       className: 'btn-secondary',
-                      onClick: () => m(!1),
+                      onClick: () => _(!1),
                       children: 'Cancel'
                     }),
                     e.jsx('button', {
                       className: 'btn-danger',
                       disabled: !b || a,
                       onClick: async () => {
-                        const $ = _.nodes.find((F) => F.id === w)?.resource_id || ''
+                        const $ = m.nodes.find((F) => F.id === w)?.resource_id || ''
                         if (!(!$ || !b)) {
-                          d(!0)
+                          h(!0)
                           try {
-                            ;(await Lt($, b), S?.(), m(!1))
+                            ;(await Dt($, b), y?.(), _(!1))
                           } finally {
-                            d(!1)
+                            h(!1)
                           }
                         }
                       },
@@ -4997,12 +5028,12 @@ function kr({ topology: _, onRefresh: S }) {
                       e.jsxs('select', {
                         className: 'input w-full',
                         value: b,
-                        onChange: (T) => p(T.target.value),
+                        onChange: (O) => p(O.target.value),
                         children: [
                           e.jsx('option', { value: '', disabled: !0, children: 'Select subnet' }),
                           (() => {
-                            const T = _.nodes.find((W) => W.id === w),
-                              $ = new Set(T?.interfaces ?? []),
+                            const O = m.nodes.find((W) => W.id === w),
+                              $ = new Set(O?.interfaces ?? []),
                               F = (l ?? []).filter((W) => $.has(W.id))
                             return F.length > 0
                               ? F.map((W) =>
@@ -5029,12 +5060,12 @@ function kr({ topology: _, onRefresh: S }) {
     ]
   })
 }
-function jr({ topology: _ }) {
-  const S = _.nodes.filter((D) => D.type === 'network'),
-    v = _.nodes.filter((D) => D.type === 'router'),
-    w = _.nodes.filter((D) => D.type === 'subnet'),
-    O = _.nodes.filter((D) => D.type === 'instance')
-  return S.length === 0 && v.length === 0 && w.length === 0 && O.length === 0
+function Lr({ topology: m }) {
+  const y = m.nodes.filter((R) => R.type === 'network'),
+    g = m.nodes.filter((R) => R.type === 'router'),
+    w = m.nodes.filter((R) => R.type === 'subnet'),
+    T = m.nodes.filter((R) => R.type === 'instance')
+  return y.length === 0 && g.length === 0 && w.length === 0 && T.length === 0
     ? e.jsxs('div', {
         className: 'card p-8 text-center',
         children: [
@@ -5048,7 +5079,7 @@ function jr({ topology: _ }) {
     : e.jsxs('div', {
         className: 'space-y-4',
         children: [
-          v.length > 0 &&
+          g.length > 0 &&
             e.jsxs('div', {
               className: 'card',
               children: [
@@ -5056,12 +5087,12 @@ function jr({ topology: _ }) {
                   className: 'p-4 border-b border-oxide-800',
                   children: e.jsxs('h3', {
                     className: 'text-sm font-semibold text-gray-200',
-                    children: ['Routers (', v.length, ')']
+                    children: ['Routers (', g.length, ')']
                   })
                 }),
                 e.jsx('div', {
                   className: 'divide-y divide-oxide-800',
-                  children: v.map((D) =>
+                  children: g.map((R) =>
                     e.jsx(
                       'div',
                       {
@@ -5080,11 +5111,11 @@ function jr({ topology: _ }) {
                                 children: [
                                   e.jsx('div', {
                                     className: 'text-sm font-medium text-gray-200',
-                                    children: D.name
+                                    children: R.name
                                   }),
                                   e.jsxs('div', {
                                     className: 'text-xs text-gray-400',
-                                    children: ['Router • ', D.id]
+                                    children: ['Router • ', R.id]
                                   })
                                 ]
                               })
@@ -5092,13 +5123,13 @@ function jr({ topology: _ }) {
                           })
                         })
                       },
-                      D.id
+                      R.id
                     )
                   )
                 })
               ]
             }),
-          S.filter((D) => D.external).length > 0 &&
+          y.filter((R) => R.external).length > 0 &&
             e.jsxs('div', {
               className: 'card',
               children: [
@@ -5106,105 +5137,109 @@ function jr({ topology: _ }) {
                   className: 'p-4 border-b border-oxide-800',
                   children: e.jsxs('h3', {
                     className: 'text-sm font-semibold text-gray-200',
-                    children: ['External Networks (', S.filter((D) => D.external).length, ')']
+                    children: ['External Networks (', y.filter((R) => R.external).length, ')']
                   })
                 }),
                 e.jsx('div', {
                   className: 'divide-y divide-oxide-800',
-                  children: S.filter((D) => D.external).map((D) =>
-                    e.jsx(
-                      'div',
-                      {
-                        className: 'p-4 hover:bg-oxide-900/50',
-                        children: e.jsxs('div', {
-                          className: 'flex items-center justify-between mb-2',
-                          children: [
-                            e.jsxs('div', {
+                  children: y
+                    .filter((R) => R.external)
+                    .map((R) =>
+                      e.jsx(
+                        'div',
+                        {
+                          className: 'p-4 hover:bg-oxide-900/50',
+                          children: e.jsxs('div', {
+                            className: 'flex items-center justify-between mb-2',
+                            children: [
+                              e.jsxs('div', {
+                                className: 'flex items-center gap-3',
+                                children: [
+                                  e.jsx('div', {
+                                    className:
+                                      'w-10 h-10 rounded bg-purple-600 flex items-center justify-center text-white text-xs font-bold',
+                                    children: 'EXT'
+                                  }),
+                                  e.jsxs('div', {
+                                    children: [
+                                      e.jsx('div', {
+                                        className: 'text-sm font-medium text-gray-200',
+                                        children: R.name
+                                      }),
+                                      e.jsx('div', {
+                                        className: 'text-xs text-gray-400',
+                                        children: R.cidr
+                                      })
+                                    ]
+                                  })
+                                ]
+                              }),
+                              e.jsx('div', {
+                                className: 'flex items-center gap-2',
+                                children: e.jsx('span', {
+                                  className:
+                                    'px-2 py-1 text-xs bg-purple-900/30 text-purple-400 rounded',
+                                  children: 'External'
+                                })
+                              })
+                            ]
+                          })
+                        },
+                        R.id
+                      )
+                    )
+                })
+              ]
+            }),
+          y.filter((R) => !R.external).length > 0 &&
+            e.jsxs('div', {
+              className: 'card',
+              children: [
+                e.jsx('div', {
+                  className: 'p-4 border-b border-oxide-800',
+                  children: e.jsxs('h3', {
+                    className: 'text-sm font-semibold text-gray-200',
+                    children: ['Internal Networks (', y.filter((R) => !R.external).length, ')']
+                  })
+                }),
+                e.jsx('div', {
+                  className: 'divide-y divide-oxide-800',
+                  children: y
+                    .filter((R) => !R.external)
+                    .map((R) =>
+                      e.jsx(
+                        'div',
+                        {
+                          className: 'p-4 hover:bg-oxide-900/50',
+                          children: e.jsx('div', {
+                            className: 'flex items-center justify-between mb-2',
+                            children: e.jsxs('div', {
                               className: 'flex items-center gap-3',
                               children: [
                                 e.jsx('div', {
                                   className:
-                                    'w-10 h-10 rounded bg-purple-600 flex items-center justify-center text-white text-xs font-bold',
-                                  children: 'EXT'
+                                    'w-10 h-10 rounded bg-blue-600 flex items-center justify-center text-white text-xs font-bold',
+                                  children: 'NET'
                                 }),
                                 e.jsxs('div', {
                                   children: [
                                     e.jsx('div', {
                                       className: 'text-sm font-medium text-gray-200',
-                                      children: D.name
+                                      children: R.name
                                     }),
                                     e.jsx('div', {
                                       className: 'text-xs text-gray-400',
-                                      children: D.cidr
+                                      children: R.cidr
                                     })
                                   ]
                                 })
                               ]
-                            }),
-                            e.jsx('div', {
-                              className: 'flex items-center gap-2',
-                              children: e.jsx('span', {
-                                className:
-                                  'px-2 py-1 text-xs bg-purple-900/30 text-purple-400 rounded',
-                                children: 'External'
-                              })
                             })
-                          ]
-                        })
-                      },
-                      D.id
-                    )
-                  )
-                })
-              ]
-            }),
-          S.filter((D) => !D.external).length > 0 &&
-            e.jsxs('div', {
-              className: 'card',
-              children: [
-                e.jsx('div', {
-                  className: 'p-4 border-b border-oxide-800',
-                  children: e.jsxs('h3', {
-                    className: 'text-sm font-semibold text-gray-200',
-                    children: ['Internal Networks (', S.filter((D) => !D.external).length, ')']
-                  })
-                }),
-                e.jsx('div', {
-                  className: 'divide-y divide-oxide-800',
-                  children: S.filter((D) => !D.external).map((D) =>
-                    e.jsx(
-                      'div',
-                      {
-                        className: 'p-4 hover:bg-oxide-900/50',
-                        children: e.jsx('div', {
-                          className: 'flex items-center justify-between mb-2',
-                          children: e.jsxs('div', {
-                            className: 'flex items-center gap-3',
-                            children: [
-                              e.jsx('div', {
-                                className:
-                                  'w-10 h-10 rounded bg-blue-600 flex items-center justify-center text-white text-xs font-bold',
-                                children: 'NET'
-                              }),
-                              e.jsxs('div', {
-                                children: [
-                                  e.jsx('div', {
-                                    className: 'text-sm font-medium text-gray-200',
-                                    children: D.name
-                                  }),
-                                  e.jsx('div', {
-                                    className: 'text-xs text-gray-400',
-                                    children: D.cidr
-                                  })
-                                ]
-                              })
-                            ]
                           })
-                        })
-                      },
-                      D.id
+                        },
+                        R.id
+                      )
                     )
-                  )
                 })
               ]
             }),
@@ -5221,7 +5256,7 @@ function jr({ topology: _ }) {
                 }),
                 e.jsx('div', {
                   className: 'divide-y divide-oxide-800',
-                  children: w.map((D) =>
+                  children: w.map((R) =>
                     e.jsx(
                       'div',
                       {
@@ -5240,11 +5275,11 @@ function jr({ topology: _ }) {
                                 children: [
                                   e.jsx('div', {
                                     className: 'text-sm font-medium text-gray-200',
-                                    children: D.name
+                                    children: R.name
                                   }),
                                   e.jsx('div', {
                                     className: 'text-xs text-gray-400',
-                                    children: D.cidr
+                                    children: R.cidr
                                   })
                                 ]
                               })
@@ -5252,13 +5287,13 @@ function jr({ topology: _ }) {
                           })
                         })
                       },
-                      D.id
+                      R.id
                     )
                   )
                 })
               ]
             }),
-          O.length > 0 &&
+          T.length > 0 &&
             e.jsxs('div', {
               className: 'card',
               children: [
@@ -5266,12 +5301,12 @@ function jr({ topology: _ }) {
                   className: 'p-4 border-b border-oxide-800',
                   children: e.jsxs('h3', {
                     className: 'text-sm font-semibold text-gray-200',
-                    children: ['Instances (', O.length, ')']
+                    children: ['Instances (', T.length, ')']
                   })
                 }),
                 e.jsx('div', {
                   className: 'divide-y divide-oxide-800',
-                  children: O.map((D) =>
+                  children: T.map((R) =>
                     e.jsx(
                       'div',
                       {
@@ -5290,11 +5325,11 @@ function jr({ topology: _ }) {
                                 children: [
                                   e.jsx('div', {
                                     className: 'text-sm font-medium text-gray-200',
-                                    children: D.name
+                                    children: R.name
                                   }),
                                   e.jsx('div', {
                                     className: 'text-xs text-gray-400',
-                                    children: D.state ?? ''
+                                    children: R.state ?? ''
                                   })
                                 ]
                               })
@@ -5302,7 +5337,7 @@ function jr({ topology: _ }) {
                           })
                         })
                       },
-                      D.id
+                      R.id
                     )
                   )
                 })
@@ -5311,30 +5346,30 @@ function jr({ topology: _ }) {
         ]
       })
 }
-const Nr = {
+const Rr = {
   default: 'bg-oxide-800 text-gray-200 border-oxide-700',
   success: 'bg-emerald-900/40 text-emerald-300 border-emerald-800',
   warning: 'bg-amber-900/40 text-amber-300 border-amber-800',
   danger: 'bg-rose-900/40 text-rose-300 border-rose-800',
   info: 'bg-sky-900/40 text-sky-300 border-sky-800'
 }
-function pe({ children: _, variant: S = 'default' }) {
+function pe({ children: m, variant: y = 'default' }) {
   return e.jsx('span', {
-    className: `inline-flex items-center rounded-full border px-2 py-0.5 text-xs ${Nr[S]}`,
-    children: _
+    className: `inline-flex items-center rounded-full border px-2 py-0.5 text-xs ${Rr[y]}`,
+    children: m
   })
 }
-function Er({ instanceIds: _, onComplete: S, onClose: v }) {
-  const [w, O] = k.useState(new Map(_.map((u) => [u, { instanceId: u, status: 'checking' }]))),
-    [D, I] = k.useState(!0),
+function Dr({ instanceIds: m, onComplete: y, onClose: g }) {
+  const [w, T] = k.useState(new Map(m.map((f) => [f, { instanceId: f, status: 'checking' }]))),
+    [R, I] = k.useState(!0),
     i = k.useCallback(async () => {
-      const u = new Map(w)
+      const f = new Map(w)
       let x = !0
-      for (const h of _)
+      for (const c of m)
         try {
-          const t = await ws(h)
-          ;(u.set(h, {
-            instanceId: h,
+          const t = await ks(c)
+          ;(f.set(c, {
+            instanceId: c,
             status: t.status,
             message: t.last_error,
             retryCount: t.retry_count,
@@ -5342,23 +5377,23 @@ function Er({ instanceIds: _, onComplete: S, onClose: v }) {
           }),
             t.status !== 'completed' && t.status !== 'failed' && (x = !1))
         } catch {
-          u.get(h)?.status === 'checking' && (x = !1)
+          f.get(c)?.status === 'checking' && (x = !1)
         }
-      ;(O(u),
+      ;(T(f),
         x &&
           (I(!1),
           setTimeout(() => {
-            S()
+            y()
           }, 2e3)))
-    }, [_, w, S])
+    }, [m, w, y])
   k.useEffect(() => {
-    if (!D) return
+    if (!R) return
     i()
-    const u = setInterval(i, 2e3)
-    return () => clearInterval(u)
-  }, [D, i])
-  const o = (u) => {
-      switch (u) {
+    const f = setInterval(i, 2e3)
+    return () => clearInterval(f)
+  }, [R, i])
+  const o = (f) => {
+      switch (f) {
         case 'completed':
           return 'text-green-400'
         case 'failed':
@@ -5371,8 +5406,8 @@ function Er({ instanceIds: _, onComplete: S, onClose: v }) {
           return 'text-gray-400'
       }
     },
-    l = (u) => {
-      switch (u) {
+    l = (f) => {
+      switch (f) {
         case 'completed':
           return e.jsx('svg', {
             className: 'w-5 h-5 text-green-400',
@@ -5448,12 +5483,12 @@ function Er({ instanceIds: _, onComplete: S, onClose: v }) {
           })
       }
     },
-    f = Array.from(w.values()).filter((u) => u.status === 'completed').length,
-    a = Array.from(w.values()).filter((u) => u.status === 'failed').length,
-    d = ((f + a) / _.length) * 100
+    u = Array.from(w.values()).filter((f) => f.status === 'completed').length,
+    a = Array.from(w.values()).filter((f) => f.status === 'failed').length,
+    h = ((u + a) / m.length) * 100
   return e.jsx(le, {
     open: !0,
-    onClose: D ? () => {} : v,
+    onClose: R ? () => {} : g,
     title: 'Deleting Instances',
     children: e.jsxs('div', {
       className: 'space-y-4',
@@ -5465,27 +5500,27 @@ function Er({ instanceIds: _, onComplete: S, onClose: v }) {
               className: 'flex justify-between text-sm text-gray-400',
               children: [
                 e.jsx('span', { children: 'Progress' }),
-                e.jsxs('span', { children: [f + a, ' / ', _.length] })
+                e.jsxs('span', { children: [u + a, ' / ', m.length] })
               ]
             }),
             e.jsx('div', {
               className: 'w-full bg-gray-700 rounded-full h-2',
               children: e.jsx('div', {
                 className: 'bg-blue-500 h-2 rounded-full transition-all duration-300',
-                style: { width: `${d}%` }
+                style: { width: `${h}%` }
               })
             })
           ]
         }),
         e.jsx('div', {
           className: 'space-y-2 max-h-96 overflow-y-auto',
-          children: Array.from(w.values()).map((u) =>
+          children: Array.from(w.values()).map((f) =>
             e.jsxs(
               'div',
               {
                 className: 'flex items-start gap-3 p-3 bg-gray-800 rounded-lg',
                 children: [
-                  e.jsx('div', { className: 'flex-shrink-0 mt-0.5', children: l(u.status) }),
+                  e.jsx('div', { className: 'flex-shrink-0 mt-0.5', children: l(f.status) }),
                   e.jsxs('div', {
                     className: 'flex-1 min-w-0',
                     children: [
@@ -5494,44 +5529,44 @@ function Er({ instanceIds: _, onComplete: S, onClose: v }) {
                         children: [
                           e.jsxs('span', {
                             className: 'text-sm font-medium text-gray-200',
-                            children: ['Instance ', u.instanceId]
+                            children: ['Instance ', f.instanceId]
                           }),
                           e.jsx('span', {
-                            className: `text-xs font-semibold ${o(u.status)}`,
-                            children: u.status.toUpperCase()
+                            className: `text-xs font-semibold ${o(f.status)}`,
+                            children: f.status.toUpperCase()
                           })
                         ]
                       }),
-                      u.message &&
-                        e.jsx('p', { className: 'text-xs text-red-400 mt-1', children: u.message }),
-                      u.retryCount !== void 0 &&
-                        u.retryCount > 0 &&
+                      f.message &&
+                        e.jsx('p', { className: 'text-xs text-red-400 mt-1', children: f.message }),
+                      f.retryCount !== void 0 &&
+                        f.retryCount > 0 &&
                         e.jsxs('p', {
                           className: 'text-xs text-yellow-400 mt-1',
-                          children: ['Retry ', u.retryCount, '/', u.maxRetries]
+                          children: ['Retry ', f.retryCount, '/', f.maxRetries]
                         })
                     ]
                   })
                 ]
               },
-              u.instanceId
+              f.instanceId
             )
           )
         }),
-        !D &&
+        !R &&
           e.jsx('div', {
             className: 'pt-4 border-t border-gray-700',
             children: e.jsxs('div', {
               className: 'flex items-center justify-between text-sm',
               children: [
-                e.jsxs('span', { className: 'text-green-400', children: ['✓ Completed: ', f] }),
+                e.jsxs('span', { className: 'text-green-400', children: ['✓ Completed: ', u] }),
                 a > 0 && e.jsxs('span', { className: 'text-red-400', children: ['✗ Failed: ', a] })
               ]
             })
           }),
-        !D &&
+        !R &&
           e.jsx('button', {
-            onClick: v,
+            onClick: g,
             className:
               'w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors',
             children: 'Close'
@@ -5540,126 +5575,127 @@ function Er({ instanceIds: _, onComplete: S, onClose: v }) {
     })
   })
 }
-function Xe(_) {
-  if (!_) return 'unknown error'
-  if (typeof _ == 'string') return _
-  if (typeof _ == 'object') {
-    const S = _
-    if (typeof S.message == 'string') return S.message
+function Xe(m) {
+  if (!m) return 'unknown error'
+  if (typeof m == 'string') return m
+  if (typeof m == 'object') {
+    const y = m
+    if (typeof y.message == 'string') return y.message
   }
   return 'unknown error'
 }
-function Pt() {
-  const { projectId: _ } = xe(),
-    [S, v] = k.useState([]),
-    [w, O] = k.useState(!1),
-    [D, I] = k.useState('all'),
+function Ot() {
+  const { projectId: m } = xe(),
+    [y, g] = k.useState([]),
+    [w, T] = k.useState(!1),
+    [R, I] = k.useState('all'),
     [i, o] = k.useState(''),
-    [l, f] = k.useState(new Set()),
-    [a, d] = k.useState({}),
-    [u, x] = k.useState({}),
-    [h, t] = k.useState({}),
+    [l, u] = k.useState(new Set()),
+    [a, h] = k.useState({}),
+    [f, x] = k.useState({}),
+    [c, t] = k.useState({}),
     [n, s] = k.useState(new Set()),
-    [r, c] = k.useState([]),
-    [g, m] = k.useState(!1),
+    [r, d] = k.useState([]),
+    [v, _] = k.useState(!1),
     { flavors: b, setFlavors: p } = Ce(),
-    [y, L] = k.useState([]),
+    [S, L] = k.useState([]),
     [M, P] = k.useState([]),
-    [j, R] = k.useState([]),
-    [T, $] = k.useState(!1),
+    [j, D] = k.useState([]),
+    [O, $] = k.useState(!1),
     [F, W] = k.useState(''),
     [C, A] = k.useState(''),
     [N, B] = k.useState(''),
-    [z, G] = k.useState(!1),
+    [z, K] = k.useState(!1),
     [J, Q] = k.useState(''),
     [H, E] = k.useState(''),
-    [K, X] = k.useState(''),
+    [G, q] = k.useState(''),
     [Z, Y] = k.useState(!1),
-    [V, se] = k.useState(''),
-    [ne, he] = k.useState(''),
-    [ie, ke] = k.useState(!1),
-    [Le, He] = k.useState(''),
-    [Be, Ie] = k.useState('10.0.0.0/24'),
-    ve = k.useMemo(() => {
-      const re = y.find((ce) => String(ce.id) === N)?.minDiskGiB ?? 0
-      return Math.max(1, re)
-    }, [y, N]),
-    q = k.useCallback(async () => {
-      O(!0)
+    [V, se] = k.useState(!1),
+    [ne, ue] = k.useState(''),
+    [re, Ee] = k.useState(''),
+    [Fe, Le] = k.useState(!1),
+    [Ae, Be] = k.useState(''),
+    [ve, X] = k.useState('10.0.0.0/24'),
+    ae = k.useMemo(() => {
+      const ie = S.find((ce) => String(ce.id) === N)?.minDiskGiB ?? 0
+      return Math.max(1, ie)
+    }, [S, N]),
+    he = k.useCallback(async () => {
+      T(!0)
       try {
-        const [U] = await Promise.all([Ye(_)])
-        v(U)
+        const [U] = await Promise.all([Ye(m)])
+        g(U)
       } finally {
-        O(!1)
+        T(!1)
       }
-    }, [_])
+    }, [m])
   k.useEffect(() => {
     let U = !0
     return (
-      O(!0),
-      Ye(_)
-        .then((re) => {
-          U && v(re)
+      T(!0),
+      Ye(m)
+        .then((ie) => {
+          U && g(ie)
         })
         .catch(() => {
-          U && v([])
+          U && g([])
         })
         .finally(() => {
-          U && O(!1)
+          U && T(!1)
         }),
-      Promise.allSettled([wt(), ge(_), $e(_), rt(_), Rs(), Ds()]).then((re) => {
+      Promise.allSettled([kt(), ge(m), We(m), rt(m), As(), Bs()]).then((ie) => {
         if (!U) return
-        const [ce, _e, be, Se, Ae, Fe] = re
+        const [ce, _e, be, Se, De, $e] = ie
         if (
           (ce.status === 'fulfilled' && p(ce.value),
           _e.status === 'fulfilled' && L(_e.value),
           be.status === 'fulfilled' && P(be.value),
-          Se.status === 'fulfilled' && R(Se.value),
-          Ae.status === 'fulfilled')
+          Se.status === 'fulfilled' && D(Se.value),
+          De.status === 'fulfilled')
         ) {
-          const Ue = {}
-          ;(Ae.value.forEach((Me) => {
-            Ue[String(Me.id)] = Me.name
+          const ze = {}
+          ;(De.value.forEach((Pe) => {
+            ze[String(Pe.id)] = Pe.name
           }),
-            x(Ue))
+            x(ze))
         }
-        if (Fe.status === 'fulfilled') {
-          const Ue = {}
-          ;(Fe.value.forEach((Me) => {
-            Ue[String(Me.id)] =
-              Me.username ||
-              `${Me.first_name ?? ''} ${Me.last_name ?? ''}`.trim() ||
-              Me.email ||
-              String(Me.id)
+        if ($e.status === 'fulfilled') {
+          const ze = {}
+          ;($e.value.forEach((Pe) => {
+            ze[String(Pe.id)] =
+              Pe.username ||
+              `${Pe.first_name ?? ''} ${Pe.last_name ?? ''}`.trim() ||
+              Pe.email ||
+              String(Pe.id)
           }),
-            t(Ue))
+            t(ze))
         }
       }),
       () => {
         U = !1
       }
     )
-  }, [_])
-  const [ae, me] = k.useState(0)
+  }, [m])
+  const [Ie, je] = k.useState(0)
   ;(k.useEffect(() => {
-    const U = S.some((re) => re.status === 'building' || re.status === 'spawning')
-    if ((S.length === 0 || U) && ae < 3) {
-      const re = setTimeout(async () => {
-        ;(await q(), me((ce) => ce + 1))
+    const U = y.some((ie) => ie.status === 'building' || ie.status === 'spawning')
+    if ((y.length === 0 || U) && Ie < 3) {
+      const ie = setTimeout(async () => {
+        ;(await he(), je((ce) => ce + 1))
       }, 2e3)
-      return () => clearTimeout(re)
+      return () => clearTimeout(ie)
     }
-    S.length > 0 && !U && ae !== 0 && me(0)
-  }, [S, ae, q]),
+    y.length > 0 && !U && Ie !== 0 && je(0)
+  }, [y, Ie, he]),
     k.useEffect(() => {
       let U = !1
-      async function re() {
+      async function ie() {
         const ce = await Promise.all(
-          S.map(async (_e) => {
+          y.map(async (_e) => {
             try {
               const Se =
-                (await jt({ tenant_id: _, device_id: _e.uuid })).find(
-                  (Ae) => Ae.fixed_ips && Ae.fixed_ips.length > 0
+                (await Et({ tenant_id: m, device_id: _e.uuid })).find(
+                  (De) => De.fixed_ips && De.fixed_ips.length > 0
                 )?.fixed_ips?.[0]?.ip || ''
               return [String(_e.id), Se]
             } catch {
@@ -5670,64 +5706,64 @@ function Pt() {
         if (!U) {
           const _e = {}
           for (const [be, Se] of ce) _e[be] = Se
-          d(_e)
+          h(_e)
         }
       }
       return (
-        S.length > 0 ? re() : d({}),
+        y.length > 0 ? ie() : h({}),
         () => {
           U = !0
         }
       )
-    }, [S, _]))
-  const Re = k.useMemo(() => {
-      const U = S.filter((ce) => {
-          if (D === 'all') return !0
+    }, [y, m]))
+  const Me = k.useMemo(() => {
+      const U = y.filter((ce) => {
+          if (R === 'all') return !0
           const _e =
             ce.power_state === 'running' || ce.status === 'active' || ce.status === 'running'
-          return D === 'running' ? _e : !_e
+          return R === 'running' ? _e : !_e
         }),
-        re = i.trim().toLowerCase()
-      return re
+        ie = i.trim().toLowerCase()
+      return ie
         ? U.filter(
             (ce) =>
-              ce.name.toLowerCase().includes(re) ||
+              ce.name.toLowerCase().includes(ie) ||
               String(ce.uuid || '')
                 .toLowerCase()
-                .includes(re) ||
+                .includes(ie) ||
               String(ce.host_id || '')
                 .toLowerCase()
-                .includes(re)
+                .includes(ie)
           )
         : U
-    }, [S, D, i]),
-    De = Re.length > 0 && Re.every((U) => l.has(String(U.id))),
-    Ke = (U) => {
-      f(U ? new Set(Re.map((re) => String(re.id))) : new Set())
+    }, [y, R, i]),
+    Re = Me.length > 0 && Me.every((U) => l.has(String(U.id))),
+    Ue = (U) => {
+      u(U ? new Set(Me.map((ie) => String(ie.id))) : new Set())
     },
-    Ne = (U, re) => {
-      f((ce) => {
+    fe = (U, ie) => {
+      u((ce) => {
         const _e = new Set(ce)
-        return (re ? _e.add(U) : _e.delete(U), _e)
+        return (ie ? _e.add(U) : _e.delete(U), _e)
       })
     },
-    We = [
+    dt = [
       {
         key: '__sel__',
         header: '',
         headerRender: e.jsx('input', {
           type: 'checkbox',
           'aria-label': 'Select all',
-          checked: De,
-          onChange: (U) => Ke(U.target.checked)
+          checked: Re,
+          onChange: (U) => Ue(U.target.checked)
         }),
         render: (U) =>
           e.jsx('input', {
             type: 'checkbox',
             'aria-label': `Select ${U.name}`,
             checked: l.has(String(U.id)),
-            onChange: (re) => Ne(String(U.id), re.target.checked),
-            onClick: (re) => re.stopPropagation()
+            onChange: (ie) => fe(String(U.id), ie.target.checked),
+            onClick: (ie) => ie.stopPropagation()
           }),
         className: 'w-8'
       },
@@ -5737,10 +5773,10 @@ function Pt() {
         render: (U) =>
           e.jsx('button', {
             className: 'text-primary-400 hover:underline',
-            onClick: async (re) => {
-              ;(re.stopPropagation(),
-                await Ct(String(U.id)),
-                (window.location.href = `/project/${_}/compute/instances/${U.id}/console`))
+            onClick: async (ie) => {
+              ;(ie.stopPropagation(),
+                await jt(String(U.id)),
+                (window.location.href = `/project/${m}/compute/instances/${U.id}/console`))
             },
             children: U.name
           })
@@ -5749,8 +5785,8 @@ function Pt() {
         key: 'status',
         header: 'state',
         render: (U) => {
-          const re = String(U.id)
-          return n.has(re)
+          const ie = String(U.id)
+          return n.has(ie)
             ? e.jsxs(pe, {
                 variant: 'info',
                 children: [
@@ -5773,12 +5809,12 @@ function Pt() {
       {
         key: 'user_id',
         header: 'Account',
-        render: (U) => (U.user_id ? (h[String(U.user_id)] ?? String(U.user_id)) : '')
+        render: (U) => (U.user_id ? (c[String(U.user_id)] ?? String(U.user_id)) : '')
       },
       {
         key: 'project_id',
         header: 'Zone',
-        render: (U) => (U.project_id ? (u[String(U.project_id)] ?? String(U.project_id)) : '')
+        render: (U) => (U.project_id ? (f[String(U.project_id)] ?? String(U.project_id)) : '')
       },
       {
         key: 'actions',
@@ -5790,43 +5826,43 @@ function Pt() {
             children: e.jsx('button', {
               className: 'text-blue-400 hover:underline',
               title: 'View instance disks',
-              onClick: (re) => {
-                ;(re.stopPropagation(),
-                  (window.location.href = `/project/${_}/compute/instances/${U.id}/volumes`))
+              onClick: (ie) => {
+                ;(ie.stopPropagation(),
+                  (window.location.href = `/project/${m}/compute/instances/${U.id}/volumes`))
               },
               children: 'View disks'
             })
           })
       }
     ]
-  async function ue() {
+  async function Xs() {
     if (!(!F || !C || !N) && H) {
-      G(!0)
+      K(!0)
       try {
-        const U = { name: F, flavor_id: Number(C), image_id: Number(N) },
-          re = Number(J)
+        const U = { name: F, flavor_id: Number(C), image_id: Number(N), enable_tpm: Z },
+          ie = Number(J)
         if (
-          (!Number.isNaN(re) && re > 0 && (U.root_disk_gb = re), (U.networks = [{ uuid: H }]), K)
+          (!Number.isNaN(ie) && ie > 0 && (U.root_disk_gb = ie), (U.networks = [{ uuid: H }]), G)
         ) {
-          const be = j.find((Se) => Se.id === K)
+          const be = j.find((Se) => Se.id === G)
           be && (U.ssh_key = be.public_key)
         }
-        const ce = await ls(_, U)
-        v((be) => [ce, ...be])
+        const ce = await hs(m, U)
+        g((be) => [ce, ...be])
         const _e = String(ce.id)
         ;(s((be) => new Set(be).add(_e)),
           (async () => {
             try {
               const be = Date.now() + 2e4
               for (; Date.now() < be; ) {
-                await new Promise((Fe) => setTimeout(Fe, 1500))
-                const Se = await Ye(_)
-                v(Se)
-                const Ae = Se.find((Fe) => String(Fe.id) === _e)
-                if (Ae) {
-                  const Fe = Ae.status === 'active' && Ae.power_state === 'running',
-                    Ue = Ae.status === 'error'
-                  if (Fe || Ue) break
+                await new Promise(($e) => setTimeout($e, 1500))
+                const Se = await Ye(m)
+                g(Se)
+                const De = Se.find(($e) => String($e.id) === _e)
+                if (De) {
+                  const $e = De.status === 'active' && De.power_state === 'running',
+                    ze = De.status === 'error'
+                  if ($e || ze) break
                 }
               }
             } catch {
@@ -5843,9 +5879,10 @@ function Pt() {
           B(''),
           Q(''),
           E(''),
-          X(''))
+          q(''),
+          Y(!1))
       } finally {
-        G(!1)
+        K(!1)
       }
     }
   }
@@ -5853,7 +5890,7 @@ function Pt() {
     className: 'space-y-3',
     children: [
       e.jsx(oe, { title: 'Instances', subtitle: 'Virtual machines' }),
-      e.jsx(Ee, {
+      e.jsx(Ne, {
         placeholder: 'Search name/uuid/host',
         onSearch: o,
         children: e.jsxs('div', {
@@ -5861,13 +5898,13 @@ function Pt() {
           children: [
             e.jsx('button', {
               className: 'btn-secondary h-9',
-              onClick: q,
+              onClick: he,
               disabled: w,
               children: 'Refresh'
             }),
             e.jsxs('select', {
               className: 'input h-9',
-              value: D,
+              value: R,
               onChange: (U) => I(U.target.value),
               children: [
                 e.jsx('option', { value: 'all', children: 'All' }),
@@ -5880,10 +5917,10 @@ function Pt() {
               onClick: async () => {
                 $(!0)
                 try {
-                  const [U, re, ce] = await Promise.allSettled([ge(_), $e(_), rt(_)])
+                  const [U, ie, ce] = await Promise.allSettled([ge(m), We(m), rt(m)])
                   ;(U.status === 'fulfilled' && L(U.value),
-                    re.status === 'fulfilled' && P(re.value),
-                    ce.status === 'fulfilled' && R(ce.value))
+                    ie.status === 'fulfilled' && P(ie.value),
+                    ce.status === 'fulfilled' && D(ce.value))
                 } catch {}
               },
               children: 'Add Instance'
@@ -5898,12 +5935,12 @@ function Pt() {
                     title: 'Start instance',
                     onClick: async () => {
                       try {
-                        ;(await Promise.all(Array.from(l).map((U) => vs(U))),
-                          fe.success(`Started ${l.size} instance(s)`))
+                        ;(await Promise.all(Array.from(l).map((U) => bs(U))),
+                          me.success(`Started ${l.size} instance(s)`))
                       } catch (U) {
-                        fe.error(`Start failed: ${Xe(U)}`)
+                        me.error(`Start failed: ${Xe(U)}`)
                       } finally {
-                        await q()
+                        await he()
                       }
                     },
                     children: e.jsx('svg', {
@@ -5920,12 +5957,12 @@ function Pt() {
                     title: 'Stop instance',
                     onClick: async () => {
                       try {
-                        ;(await Promise.all(Array.from(l).map((U) => xs(U))),
-                          fe.info(`Stopped ${l.size} instance(s)`))
+                        ;(await Promise.all(Array.from(l).map((U) => ys(U))),
+                          me.info(`Stopped ${l.size} instance(s)`))
                       } catch (U) {
-                        fe.error(`Stop failed: ${Xe(U)}`)
+                        me.error(`Stop failed: ${Xe(U)}`)
                       } finally {
-                        await q()
+                        await he()
                       }
                     },
                     children: e.jsx('svg', {
@@ -5942,12 +5979,12 @@ function Pt() {
                     title: 'Restart instance',
                     onClick: async () => {
                       try {
-                        ;(await Promise.all(Array.from(l).map((U) => bs(U))),
-                          fe.info(`Restarted ${l.size} instance(s)`))
+                        ;(await Promise.all(Array.from(l).map((U) => Ss(U))),
+                          me.info(`Restarted ${l.size} instance(s)`))
                       } catch (U) {
-                        fe.error(`Restart failed: ${Xe(U)}`)
+                        me.error(`Restart failed: ${Xe(U)}`)
                       } finally {
-                        await q()
+                        await he()
                       }
                     },
                     children: e.jsx('svg', {
@@ -5968,9 +6005,9 @@ function Pt() {
                       if (confirm(`Destroy ${l.size} instance(s)?`))
                         try {
                           const U = Array.from(l)
-                          ;(await Promise.all(U.map((re) => ys(re))), c(U), m(!0), f(new Set()))
+                          ;(await Promise.all(U.map((ie) => ws(ie))), d(U), _(!0), u(new Set()))
                         } catch (U) {
-                          ;(fe.error(`Destroy failed: ${Xe(U)}`), await q())
+                          ;(me.error(`Destroy failed: ${Xe(U)}`), await he())
                         }
                     },
                     children: e.jsx('svg', {
@@ -5987,26 +6024,26 @@ function Pt() {
                     title:
                       "Force delete - removes database records for VMs stuck in 'deleting' state",
                     onClick: async () => {
-                      const re = Array.from(l)
-                        .map((ce) => S.find((_e) => String(_e.id) === ce))
+                      const ie = Array.from(l)
+                        .map((ce) => y.find((_e) => String(_e.id) === ce))
                         .filter(Boolean)
                         .filter((ce) => ce.status === 'deleting')
-                      if (re.length === 0) {
-                        fe.info('Force delete only works on instances stuck in "deleting" status')
+                      if (ie.length === 0) {
+                        me.info('Force delete only works on instances stuck in "deleting" status')
                         return
                       }
                       if (
-                        confirm(`Force delete ${re.length} instance(s) stuck in deleting state?
+                        confirm(`Force delete ${ie.length} instance(s) stuck in deleting state?
 
 This will remove database records but NOT delete VMs from hypervisor.`)
                       )
                         try {
-                          ;(await Promise.all(re.map((ce) => Ss(String(ce.id)))),
-                            fe.success(`Force deleted ${re.length} instance(s)`),
-                            f(new Set()),
-                            await q())
+                          ;(await Promise.all(ie.map((ce) => Cs(String(ce.id)))),
+                            me.success(`Force deleted ${ie.length} instance(s)`),
+                            u(new Set()),
+                            await he())
                         } catch (ce) {
-                          ;(fe.error(`Force delete failed: ${Xe(ce)}`), await q())
+                          ;(me.error(`Force delete failed: ${Xe(ce)}`), await he())
                         }
                     },
                     children: e.jsx('svg', {
@@ -6025,20 +6062,20 @@ This will remove database records but NOT delete VMs from hypervisor.`)
         })
       }),
       e.jsx(de, {
-        columns: We,
-        data: Re,
+        columns: dt,
+        data: Me,
         empty: w ? 'Loading…' : 'No instances',
         onRowClick: (U) => {
-          const re = String(U.id)
-          Ne(re, !l.has(re))
+          const ie = String(U.id)
+          fe(ie, !l.has(ie))
         },
         isRowSelected: (U) => l.has(String(U.id))
       }),
       e.jsx(le, {
         title: 'Create Instance',
-        open: T,
+        open: O,
         onClose: () => {
-          ;($(!1), q())
+          ;($(!1), he())
         },
         footer: e.jsxs(e.Fragment, {
           children: [
@@ -6050,7 +6087,7 @@ This will remove database records but NOT delete VMs from hypervisor.`)
             }),
             e.jsx('button', {
               className: 'btn-primary',
-              onClick: ue,
+              onClick: Xs,
               disabled: z || !F || !C || !N || !H,
               children: 'Create'
             })
@@ -6104,7 +6141,7 @@ This will remove database records but NOT delete VMs from hypervisor.`)
                       onChange: (U) => B(U.target.value),
                       children: [
                         e.jsx('option', { value: '', children: 'Select' }),
-                        y.map((U) =>
+                        S.map((U) =>
                           e.jsxs(
                             'option',
                             { value: U.id, children: [U.name, ' • ', U.sizeGiB, ' GiB'] },
@@ -6126,14 +6163,14 @@ This will remove database records but NOT delete VMs from hypervisor.`)
                     e.jsx('input', {
                       className: 'input w-full',
                       type: 'number',
-                      min: ve,
-                      placeholder: `${ve}+`,
+                      min: ae,
+                      placeholder: `${ae}+`,
                       value: J,
                       onChange: (U) => Q(U.target.value)
                     }),
                     e.jsxs('p', {
                       className: 'text-xs text-muted mt-1',
-                      children: ['Minimum ', ve, ' GiB based on flavor/image']
+                      children: ['Minimum ', ae, ' GiB based on flavor/image']
                     })
                   ]
                 }),
@@ -6145,7 +6182,7 @@ This will remove database records but NOT delete VMs from hypervisor.`)
                       value: H,
                       onChange: (U) => {
                         if (U.target.value === '__create__') {
-                          ke(!0)
+                          Le(!0)
                           return
                         }
                         E(U.target.value)
@@ -6169,13 +6206,13 @@ This will remove database records but NOT delete VMs from hypervisor.`)
                     e.jsx('label', { className: 'label', children: 'SSH Key' }),
                     e.jsxs('select', {
                       className: 'input w-full',
-                      value: K,
+                      value: G,
                       onChange: (U) => {
                         if (U.target.value === '__create__') {
-                          Y(!0)
+                          se(!0)
                           return
                         }
-                        X(U.target.value)
+                        q(U.target.value)
                       },
                       children: [
                         e.jsx('option', { value: '', children: 'None' }),
@@ -6186,27 +6223,43 @@ This will remove database records but NOT delete VMs from hypervisor.`)
                   ]
                 })
               ]
+            }),
+            e.jsxs('div', {
+              className: 'flex items-center gap-2',
+              children: [
+                e.jsx('input', {
+                  type: 'checkbox',
+                  id: 'enableTPM',
+                  checked: Z,
+                  onChange: (U) => Y(U.target.checked)
+                }),
+                e.jsx('label', {
+                  htmlFor: 'enableTPM',
+                  className: 'label cursor-pointer',
+                  children: 'Enable TPM (Trusted Platform Module)'
+                })
+              ]
             })
           ]
         })
       }),
       e.jsx(le, {
         title: 'Add SSH Key',
-        open: Z,
-        onClose: () => Y(!1),
+        open: V,
+        onClose: () => se(!1),
         footer: e.jsxs(e.Fragment, {
           children: [
             e.jsx('button', {
               className: 'btn-secondary',
-              onClick: () => Y(!1),
+              onClick: () => se(!1),
               children: 'Cancel'
             }),
             e.jsx('button', {
               className: 'btn-primary',
               onClick: async () => {
-                if (_ && V && ne) {
-                  const U = await Nt(_, { name: V, public_key: ne })
-                  ;(R((re) => [...re, U]), X(U.id), se(''), he(''), Y(!1))
+                if (m && ne && re) {
+                  const U = await Lt(m, { name: ne, public_key: re })
+                  ;(D((ie) => [...ie, U]), q(U.id), ue(''), Ee(''), se(!1))
                 }
               },
               children: 'Add'
@@ -6221,8 +6274,8 @@ This will remove database records but NOT delete VMs from hypervisor.`)
                 e.jsx('label', { className: 'label', children: 'Name' }),
                 e.jsx('input', {
                   className: 'input w-full',
-                  value: V,
-                  onChange: (U) => se(U.target.value)
+                  value: ne,
+                  onChange: (U) => ue(U.target.value)
                 })
               ]
             }),
@@ -6231,8 +6284,8 @@ This will remove database records but NOT delete VMs from hypervisor.`)
                 e.jsx('label', { className: 'label', children: 'Public Key' }),
                 e.jsx('textarea', {
                   className: 'input w-full h-28',
-                  value: ne,
-                  onChange: (U) => he(U.target.value)
+                  value: re,
+                  onChange: (U) => Ee(U.target.value)
                 })
               ]
             })
@@ -6241,21 +6294,21 @@ This will remove database records but NOT delete VMs from hypervisor.`)
       }),
       e.jsx(le, {
         title: 'Create Network',
-        open: ie,
-        onClose: () => ke(!1),
+        open: Fe,
+        onClose: () => Le(!1),
         footer: e.jsxs(e.Fragment, {
           children: [
             e.jsx('button', {
               className: 'btn-secondary',
-              onClick: () => ke(!1),
+              onClick: () => Le(!1),
               children: 'Cancel'
             }),
             e.jsx('button', {
               className: 'btn-primary',
               onClick: async () => {
-                if (_ && Le && Be) {
-                  const U = await kt(_, { name: Le, cidr: Be })
-                  ;(P((re) => [...re, U]), E(U.id), He(''), Ie('10.0.0.0/24'), ke(!1))
+                if (m && Ae && ve) {
+                  const U = await Nt(m, { name: Ae, cidr: ve })
+                  ;(P((ie) => [...ie, U]), E(U.id), Be(''), X('10.0.0.0/24'), Le(!1))
                 }
               },
               children: 'Create'
@@ -6270,8 +6323,8 @@ This will remove database records but NOT delete VMs from hypervisor.`)
                 e.jsx('label', { className: 'label', children: 'Name' }),
                 e.jsx('input', {
                   className: 'input w-full',
-                  value: Le,
-                  onChange: (U) => He(U.target.value)
+                  value: Ae,
+                  onChange: (U) => Be(U.target.value)
                 })
               ]
             }),
@@ -6281,61 +6334,61 @@ This will remove database records but NOT delete VMs from hypervisor.`)
                 e.jsx('input', {
                   className: 'input w-full',
                   placeholder: '10.0.0.0/24',
-                  value: Be,
-                  onChange: (U) => Ie(U.target.value)
+                  value: ve,
+                  onChange: (U) => X(U.target.value)
                 })
               ]
             })
           ]
         })
       }),
-      g &&
-        e.jsx(Er, {
+      v &&
+        e.jsx(Dr, {
           instanceIds: r,
           onComplete: () => {
-            ;(m(!1), c([]), q(), fe.success('Deletion process completed'))
+            ;(_(!1), d([]), he(), me.success('Deletion process completed'))
           },
           onClose: () => {
-            ;(m(!1), c([]), q())
+            ;(_(!1), d([]), he())
           }
         })
     ]
   })
 }
-function Lr() {
-  const { id: _ } = xe(),
-    S = Ze(),
-    v = k.useRef(null),
-    [w, O] = k.useState(null),
-    [D, I] = k.useState(null)
+function Ar() {
+  const { id: m } = xe(),
+    y = Ze(),
+    g = k.useRef(null),
+    [w, T] = k.useState(null),
+    [R, I] = k.useState(null)
   return (
     k.useEffect(() => {
-      _ &&
-        Ct(_)
-          .then((i) => O(i))
+      m &&
+        jt(m)
+          .then((i) => T(i))
           .catch(() => I('Failed to start console'))
-    }, [_]),
+    }, [m]),
     e.jsxs('div', {
       className: 'space-y-3',
       children: [
         e.jsx(oe, {
           title: 'Console',
-          subtitle: `Instance ${_}`,
+          subtitle: `Instance ${m}`,
           actions: e.jsx('button', {
             className: 'btn-secondary',
-            onClick: () => S(-1),
+            onClick: () => y(-1),
             children: 'Back'
           })
         }),
         !w &&
-          !D &&
+          !R &&
           e.jsx('div', { className: 'p-4 text-gray-400', children: 'Requesting console…' }),
-        D && e.jsx('div', { className: 'p-4 text-red-400', children: D }),
+        R && e.jsx('div', { className: 'p-4 text-red-400', children: R }),
         w &&
           e.jsx('div', {
             className: 'border border-oxide-800 rounded-lg overflow-hidden',
             children: e.jsx('iframe', {
-              ref: v,
+              ref: g,
               title: 'console',
               className: 'w-full h-[70vh]',
               src: `/novnc.html?path=${encodeURIComponent(w)}`
@@ -6345,32 +6398,32 @@ function Lr() {
     })
   )
 }
-function Rr() {
-  const { projectId: _ } = xe(),
-    { snapshots: S, addSnapshot: v, setSnapshots: w } = Ce(),
-    [O, D] = k.useState(!1)
+function Br() {
+  const { projectId: m } = xe(),
+    { snapshots: y, addSnapshot: g, setSnapshots: w } = Ce(),
+    [T, R] = k.useState(!1)
   k.useEffect(() => {
-    let d = !0
+    let h = !0
     return (
-      D(!0),
-      cs()
-        .then((u) => {
-          d && w(u)
+      R(!0),
+      ds()
+        .then((f) => {
+          h && w(f)
         })
-        .finally(() => d && D(!1)),
+        .finally(() => h && R(!1)),
       () => {
-        d = !1
+        h = !1
       }
     )
   }, [])
-  const I = k.useMemo(() => S.filter((d) => d.projectId === _ && d.kind === 'vm'), [S, _]),
+  const I = k.useMemo(() => y.filter((h) => h.projectId === m && h.kind === 'vm'), [y, m]),
     i = [
       { key: 'id', header: 'ID' },
       { key: 'sourceId', header: 'VM' },
       { key: 'status', header: 'Status' }
     ],
     [o, l] = k.useState(!1),
-    [f, a] = k.useState('')
+    [u, a] = k.useState('')
   return e.jsxs('div', {
     className: 'space-y-3',
     children: [
@@ -6383,7 +6436,7 @@ function Rr() {
           children: 'Create Snapshot'
         })
       }),
-      e.jsx(de, { columns: i, data: I, empty: O ? 'Loading…' : 'No snapshots' }),
+      e.jsx(de, { columns: i, data: I, empty: T ? 'Loading…' : 'No snapshots' }),
       e.jsx(le, {
         title: 'Create VM Snapshot',
         open: o,
@@ -6398,7 +6451,7 @@ function Rr() {
             e.jsx('button', {
               className: 'btn-primary',
               onClick: () => {
-                _ && f && (v({ projectId: _, sourceId: f, kind: 'vm' }), a(''), l(!1))
+                m && u && (g({ projectId: m, sourceId: u, kind: 'vm' }), a(''), l(!1))
               },
               children: 'Create'
             })
@@ -6411,8 +6464,8 @@ function Rr() {
               e.jsx('label', { className: 'label', children: 'VM ID' }),
               e.jsx('input', {
                 className: 'input w-full',
-                value: f,
-                onChange: (d) => a(d.target.value)
+                value: u,
+                onChange: (h) => a(h.target.value)
               })
             ]
           })
@@ -6421,48 +6474,48 @@ function Rr() {
     ]
   })
 }
-function Dr() {
-  const { projectId: _ } = xe(),
-    [S, v] = k.useState([]),
-    [w, O] = k.useState([]),
-    [D, I] = k.useState(!1),
+function Ir() {
+  const { projectId: m } = xe(),
+    [y, g] = k.useState([]),
+    [w, T] = k.useState([]),
+    [R, I] = k.useState(!1),
     [i, o] = k.useState('all'),
-    [l, f] = k.useState(''),
-    [a, d] = k.useState(!1),
-    [u, x] = k.useState(''),
-    [h, t] = k.useState('1'),
+    [l, u] = k.useState(''),
+    [a, h] = k.useState(!1),
+    [f, x] = k.useState(''),
+    [c, t] = k.useState('1'),
     [n, s] = k.useState('512'),
-    [r, c] = k.useState('10'),
-    [g, m] = k.useState(''),
+    [r, d] = k.useState('10'),
+    [v, _] = k.useState(''),
     [b, p] = k.useState(''),
-    [y, L] = k.useState('microvm'),
+    [S, L] = k.useState('microvm'),
     [M, P] = k.useState(!1),
     j = k.useCallback(async () => {
       I(!0)
       try {
-        const N = _ ? { headers: { 'X-Project-ID': _ } } : void 0,
+        const N = m ? { headers: { 'X-Project-ID': m } } : void 0,
           { data: B } = await ee.get('/v1/firecracker', N)
-        v(B.instances || [])
+        g(B.instances || [])
       } catch {
-        v([])
+        g([])
       } finally {
         I(!1)
       }
-    }, [_]),
-    R = k.useCallback(async () => {
+    }, [m]),
+    D = k.useCallback(async () => {
       try {
-        const N = _ ? { headers: { 'X-Project-ID': _ } } : void 0,
+        const N = m ? { headers: { 'X-Project-ID': m } } : void 0,
           { data: B } = await ee.get('/v1/images', N)
-        O(B.images || [])
+        T(B.images || [])
       } catch {
-        O([])
+        T([])
       }
-    }, [_])
+    }, [m])
   k.useEffect(() => {
-    ;(j(), R())
-  }, [j, R])
-  const T = k.useMemo(() => {
-      let N = S
+    ;(j(), D())
+  }, [j, D])
+  const O = k.useMemo(() => {
+      let N = y
       if (
         (i === 'running' && (N = N.filter((B) => B.power_state === 'running')),
         i === 'stopped' && (N = N.filter((B) => B.power_state === 'shutdown')),
@@ -6472,49 +6525,49 @@ function Dr() {
         N = N.filter((z) => z.name.toLowerCase().includes(B) || z.uuid.toLowerCase().includes(B))
       }
       return N
-    }, [S, i, l]),
+    }, [y, i, l]),
     $ = async () => {
-      if (!u.trim()) {
-        fe.error('Name is required')
+      if (!f.trim()) {
+        me.error('Name is required')
         return
       }
-      if (!g) {
-        fe.error('Image selection is required')
+      if (!v) {
+        me.error('Image selection is required')
         return
       }
-      if (parseInt(h) < 1 || parseInt(n) < 128) {
-        fe.error('Invalid vCPUs or memory configuration')
+      if (parseInt(c) < 1 || parseInt(n) < 128) {
+        me.error('Invalid vCPUs or memory configuration')
         return
       }
       P(!0)
       try {
-        const N = _ ? { headers: { 'X-Project-ID': _ } } : void 0
+        const N = m ? { headers: { 'X-Project-ID': m } } : void 0
         ;(await ee.post(
           '/v1/firecracker',
           {
-            name: u,
-            vcpus: parseInt(h),
+            name: f,
+            vcpus: parseInt(c),
             memory_mb: parseInt(n),
             disk_gb: parseInt(r) || 10,
-            image_id: parseInt(g),
+            image_id: parseInt(v),
             kernel_path: b || void 0,
-            type: y
+            type: S
           },
           N
         ),
-          fe.success(`Firecracker ${y} "${u}" is being created`),
-          d(!1),
+          me.success(`Firecracker ${S} "${f}" is being created`),
+          h(!1),
           x(''),
           t('1'),
           s('512'),
-          c('10'),
-          m(''),
+          d('10'),
+          _(''),
           p(''),
           L('microvm'),
           j())
       } catch (N) {
         const B = N instanceof Error ? N.message : 'Failed to create Firecracker instance'
-        fe.error(B)
+        me.error(B)
       } finally {
         P(!1)
       }
@@ -6523,11 +6576,11 @@ function Dr() {
       async (N) => {
         try {
           ;(await ee.post(`/v1/firecracker/${N}/start`),
-            fe.success('Firecracker instance started'),
+            me.success('Firecracker instance started'),
             j())
         } catch (B) {
           const z = B instanceof Error ? B.message : 'Failed to start instance'
-          fe.error(z)
+          me.error(z)
         }
       },
       [j]
@@ -6536,11 +6589,11 @@ function Dr() {
       async (N) => {
         try {
           ;(await ee.post(`/v1/firecracker/${N}/stop`),
-            fe.success('Firecracker instance stopped'),
+            me.success('Firecracker instance stopped'),
             j())
         } catch (B) {
           const z = B instanceof Error ? B.message : 'Failed to stop instance'
-          fe.error(z)
+          me.error(z)
         }
       },
       [j]
@@ -6550,11 +6603,11 @@ function Dr() {
         if (confirm('Are you sure you want to delete this Firecracker instance?'))
           try {
             ;(await ee.delete(`/v1/firecracker/${N}`),
-              fe.success('Firecracker instance deleted'),
+              me.success('Firecracker instance deleted'),
               j())
           } catch (B) {
             const z = B instanceof Error ? B.message : 'Failed to delete instance'
-            fe.error(z)
+            me.error(z)
           }
       },
       [j]
@@ -6654,16 +6707,16 @@ function Dr() {
     className: 'space-y-3',
     children: [
       e.jsx(oe, { title: 'Firecracker', subtitle: 'Lightweight microVMs and function containers' }),
-      e.jsx(Ee, {
+      e.jsx(Ne, {
         placeholder: 'Search name/uuid',
-        onSearch: f,
+        onSearch: u,
         children: e.jsxs('div', {
           className: 'flex items-center gap-2',
           children: [
             e.jsx('button', {
               className: 'btn-secondary h-9',
               onClick: j,
-              disabled: D,
+              disabled: R,
               children: 'Refresh'
             }),
             e.jsxs('select', {
@@ -6678,22 +6731,22 @@ function Dr() {
             }),
             e.jsx('button', {
               className: 'btn-primary h-9 w-40',
-              onClick: () => d(!0),
+              onClick: () => h(!0),
               children: 'Add MicroVM'
             })
           ]
         })
       }),
-      e.jsx(de, { data: T, columns: A, empty: 'No Firecracker instances' }),
+      e.jsx(de, { data: O, columns: A, empty: 'No Firecracker instances' }),
       e.jsx(le, {
         open: a,
-        onClose: () => d(!1),
+        onClose: () => h(!1),
         title: 'Create Firecracker Instance',
         footer: e.jsxs(e.Fragment, {
           children: [
             e.jsx('button', {
               className: 'btn-secondary',
-              onClick: () => d(!1),
+              onClick: () => h(!1),
               children: 'Cancel'
             }),
             e.jsx('button', {
@@ -6712,7 +6765,7 @@ function Dr() {
                 e.jsx('label', { className: 'label', children: 'Name' }),
                 e.jsx('input', {
                   className: 'input w-full',
-                  value: u,
+                  value: f,
                   onChange: (N) => x(N.target.value),
                   placeholder: 'my-microvm'
                 })
@@ -6726,7 +6779,7 @@ function Dr() {
                     e.jsx('label', { className: 'label', children: 'Type' }),
                     e.jsxs('select', {
                       className: 'input w-full',
-                      value: y,
+                      value: S,
                       onChange: (N) => L(N.target.value),
                       children: [
                         e.jsx('option', { value: 'microvm', children: 'MicroVM' }),
@@ -6743,7 +6796,7 @@ function Dr() {
                       type: 'number',
                       min: '1',
                       max: '32',
-                      value: h,
+                      value: c,
                       onChange: (N) => t(N.target.value)
                     })
                   ]
@@ -6773,8 +6826,8 @@ function Dr() {
                 e.jsx('label', { className: 'label', children: 'Image' }),
                 e.jsxs('select', {
                   className: 'input w-full',
-                  value: g,
-                  onChange: (N) => m(N.target.value),
+                  value: v,
+                  onChange: (N) => _(N.target.value),
                   children: [
                     e.jsx('option', { value: '', children: 'Select an image...' }),
                     w.map((N) =>
@@ -6804,7 +6857,7 @@ function Dr() {
                   min: '1',
                   max: '500',
                   value: r,
-                  onChange: (N) => c(N.target.value)
+                  onChange: (N) => d(N.target.value)
                 }),
                 e.jsx('p', {
                   className: 'text-xs text-muted mt-1',
@@ -6829,18 +6882,18 @@ function Dr() {
     ]
   })
 }
-function Ar() {
-  const { projectId: _ } = xe(),
-    { clusters: S, addCluster: v } = Ce(),
-    w = k.useMemo(() => S.filter((a) => a.projectId === _), [S, _]),
-    O = [
+function Mr() {
+  const { projectId: m } = xe(),
+    { clusters: y, addCluster: g } = Ce(),
+    w = k.useMemo(() => y.filter((a) => a.projectId === m), [y, m]),
+    T = [
       { key: 'name', header: 'Name' },
       { key: 'version', header: 'Version' },
       { key: 'status', header: 'Status' }
     ],
-    [D, I] = k.useState(!1),
+    [R, I] = k.useState(!1),
     [i, o] = k.useState(''),
-    [l, f] = k.useState('1.29')
+    [l, u] = k.useState('1.29')
   return e.jsxs('div', {
     className: 'space-y-3',
     children: [
@@ -6853,10 +6906,10 @@ function Ar() {
           children: 'Create Cluster'
         })
       }),
-      e.jsx(de, { columns: O, data: w, empty: 'No clusters' }),
+      e.jsx(de, { columns: T, data: w, empty: 'No clusters' }),
       e.jsx(le, {
         title: 'Create Cluster',
-        open: D,
+        open: R,
         onClose: () => I(!1),
         footer: e.jsxs(e.Fragment, {
           children: [
@@ -6868,7 +6921,7 @@ function Ar() {
             e.jsx('button', {
               className: 'btn-primary',
               onClick: () => {
-                _ && i && l && (v({ projectId: _, name: i, version: l }), o(''), f('1.29'), I(!1))
+                m && i && l && (g({ projectId: m, name: i, version: l }), o(''), u('1.29'), I(!1))
               },
               children: 'Create'
             })
@@ -6893,7 +6946,7 @@ function Ar() {
                 e.jsx('input', {
                   className: 'input w-full',
                   value: l,
-                  onChange: (a) => f(a.target.value)
+                  onChange: (a) => u(a.target.value)
                 })
               ]
             })
@@ -6903,16 +6956,16 @@ function Ar() {
     ]
   })
 }
-function Br() {
-  const { flavors: _, setFlavors: S } = Ce(),
-    [v, w] = k.useState(!1)
+function Pr() {
+  const { flavors: m, setFlavors: y } = Ce(),
+    [g, w] = k.useState(!1)
   k.useEffect(() => {
     let t = !0
     return (
       w(!0),
-      wt()
+      kt()
         .then((n) => {
-          t && S(n)
+          t && y(n)
         })
         .finally(() => t && w(!1)),
       () => {
@@ -6920,7 +6973,7 @@ function Br() {
       }
     )
   }, [])
-  const O = [
+  const T = [
       { key: 'name', header: 'Name' },
       { key: 'vcpu', header: 'vCPU' },
       { key: 'memoryGiB', header: 'Memory (GiB)' },
@@ -6935,9 +6988,9 @@ function Br() {
               className: 'text-red-400 hover:underline',
               onClick: async () => {
                 try {
-                  ;(await ns(t.id), S(_.filter((n) => n.id !== t.id)))
+                  ;(await os(t.id), y(m.filter((n) => n.id !== t.id)))
                 } catch (n) {
-                  if (yt.isAxiosError(n) && n.response?.status === 409)
+                  if (wt.isAxiosError(n) && n.response?.status === 409)
                     alert('Flavor is in use and cannot be deleted')
                   else {
                     const s = n instanceof Error ? n.message : 'unknown error'
@@ -6950,16 +7003,16 @@ function Br() {
           })
       }
     ],
-    [D, I] = k.useState(!1),
+    [R, I] = k.useState(!1),
     [i, o] = k.useState(''),
-    [l, f] = k.useState(''),
-    [a, d] = k.useState(''),
-    [u, x] = k.useState(''),
-    h = async () => {
+    [l, u] = k.useState(''),
+    [a, h] = k.useState(''),
+    [f, x] = k.useState(''),
+    c = async () => {
       if (!i || !l || !a) return
-      const t = { name: i, vcpus: Number(l), ram: Number(a) * 1024, disk: u ? Number(u) : void 0 },
-        n = await is(t)
-      ;(S([..._, n]), o(''), f(''), d(''), x(''), I(!1))
+      const t = { name: i, vcpus: Number(l), ram: Number(a) * 1024, disk: f ? Number(f) : void 0 },
+        n = await as(t)
+      ;(y([...m, n]), o(''), u(''), h(''), x(''), I(!1))
     }
   return e.jsxs('div', {
     className: 'space-y-3',
@@ -6973,10 +7026,10 @@ function Br() {
           children: 'Create Flavor'
         })
       }),
-      e.jsx(de, { columns: O, data: _, empty: v ? 'Loading…' : 'No flavors' }),
+      e.jsx(de, { columns: T, data: m, empty: g ? 'Loading…' : 'No flavors' }),
       e.jsx(le, {
         title: 'Create Flavor',
-        open: D,
+        open: R,
         onClose: () => I(!1),
         footer: e.jsxs(e.Fragment, {
           children: [
@@ -6985,7 +7038,7 @@ function Br() {
               onClick: () => I(!1),
               children: 'Cancel'
             }),
-            e.jsx('button', { className: 'btn-primary', onClick: h, children: 'Save' })
+            e.jsx('button', { className: 'btn-primary', onClick: c, children: 'Save' })
           ]
         }),
         children: e.jsxs('div', {
@@ -7011,7 +7064,7 @@ function Br() {
                       className: 'input w-full',
                       type: 'number',
                       value: l,
-                      onChange: (t) => f(t.target.value ? Number(t.target.value) : '')
+                      onChange: (t) => u(t.target.value ? Number(t.target.value) : '')
                     })
                   ]
                 }),
@@ -7022,7 +7075,7 @@ function Br() {
                       className: 'input w-full',
                       type: 'number',
                       value: a,
-                      onChange: (t) => d(t.target.value ? Number(t.target.value) : '')
+                      onChange: (t) => h(t.target.value ? Number(t.target.value) : '')
                     })
                   ]
                 }),
@@ -7032,7 +7085,7 @@ function Br() {
                     e.jsx('input', {
                       className: 'input w-full',
                       type: 'number',
-                      value: u,
+                      value: f,
                       onChange: (t) => x(t.target.value ? Number(t.target.value) : '')
                     })
                   ]
@@ -7045,23 +7098,23 @@ function Br() {
     ]
   })
 }
-function Ir() {
-  const { projectId: _ } = xe(),
-    [S, v] = k.useState([]),
-    w = (a, d = 24, u = 12) =>
-      a ? (a.length > d + u + 3 ? `${a.slice(0, d)}…${a.slice(-u)}` : a) : ''
+function Tr() {
+  const { projectId: m } = xe(),
+    [y, g] = k.useState([]),
+    w = (a, h = 24, f = 12) =>
+      a ? (a.length > h + f + 3 ? `${a.slice(0, h)}…${a.slice(-f)}` : a) : ''
   k.useEffect(() => {
     let a = !0
     return (
-      rt(_).then((d) => {
-        a && v(d.map((u) => ({ id: u.id, name: u.name, publicKey: u.public_key })))
+      rt(m).then((h) => {
+        a && g(h.map((f) => ({ id: f.id, name: f.name, publicKey: f.public_key })))
       }),
       () => {
         a = !1
       }
     )
-  }, [_])
-  const O = [
+  }, [m])
+  const T = [
       { key: 'name', header: 'Name' },
       {
         key: 'publicKey',
@@ -7095,16 +7148,16 @@ function Ir() {
             children: e.jsx('button', {
               className: 'text-red-400 hover:underline',
               onClick: async () => {
-                _ && (await ks(_, a.id), v((d) => d.filter((u) => u.id !== a.id)))
+                m && (await Ns(m, a.id), g((h) => h.filter((f) => f.id !== a.id)))
               },
               children: 'Delete'
             })
           })
       }
     ],
-    [D, I] = k.useState(!1),
+    [R, I] = k.useState(!1),
     [i, o] = k.useState(''),
-    [l, f] = k.useState('')
+    [l, u] = k.useState('')
   return e.jsxs('div', {
     className: 'space-y-3',
     children: [
@@ -7117,10 +7170,10 @@ function Ir() {
           children: 'Add Key'
         })
       }),
-      e.jsx(de, { columns: O, data: S, empty: 'No keys' }),
+      e.jsx(de, { columns: T, data: y, empty: 'No keys' }),
       e.jsx(le, {
         title: 'Add SSH Key',
-        open: D,
+        open: R,
         onClose: () => I(!1),
         footer: e.jsxs(e.Fragment, {
           children: [
@@ -7132,11 +7185,11 @@ function Ir() {
             e.jsx('button', {
               className: 'btn-primary',
               onClick: async () => {
-                if (_ && i && l) {
-                  const a = await Nt(_, { name: i, public_key: l })
-                  ;(v((d) => [...d, { id: a.id, name: a.name, publicKey: a.public_key }]),
+                if (m && i && l) {
+                  const a = await Lt(m, { name: i, public_key: l })
+                  ;(g((h) => [...h, { id: a.id, name: a.name, publicKey: a.public_key }]),
                     o(''),
-                    f(''),
+                    u(''),
                     I(!1))
                 }
               },
@@ -7163,7 +7216,7 @@ function Ir() {
                 e.jsx('textarea', {
                   className: 'input w-full h-28',
                   value: l,
-                  onChange: (a) => f(a.target.value)
+                  onChange: (a) => u(a.target.value)
                 })
               ]
             })
@@ -7173,37 +7226,37 @@ function Ir() {
     ]
   })
 }
-function Mr() {
+function Or() {
   return e.jsx('div', {
     className: 'space-y-4',
-    children: e.jsxs(ze, {
+    children: e.jsxs(Ve, {
       children: [
-        e.jsx(te, { path: 'instances', element: e.jsx(Pt, {}) }),
-        e.jsx(te, { path: 'instances/:id/console', element: e.jsx(Lr, {}) }),
-        e.jsx(te, { path: 'instances/:id/volumes', element: e.jsx(Pr, {}) }),
-        e.jsx(te, { path: 'firecracker', element: e.jsx(Dr, {}) }),
-        e.jsx(te, { path: 'flavors', element: e.jsx(Br, {}) }),
-        e.jsx(te, { path: 'vm-snapshots', element: e.jsx(Rr, {}) }),
-        e.jsx(te, { path: 'k8s', element: e.jsx(Ar, {}) }),
-        e.jsx(te, { path: 'kms', element: e.jsx(Ir, {}) }),
-        e.jsx(te, { path: '*', element: e.jsx(Pt, {}) })
+        e.jsx(te, { path: 'instances', element: e.jsx(Ot, {}) }),
+        e.jsx(te, { path: 'instances/:id/console', element: e.jsx(Ar, {}) }),
+        e.jsx(te, { path: 'instances/:id/volumes', element: e.jsx(Hr, {}) }),
+        e.jsx(te, { path: 'firecracker', element: e.jsx(Ir, {}) }),
+        e.jsx(te, { path: 'flavors', element: e.jsx(Pr, {}) }),
+        e.jsx(te, { path: 'vm-snapshots', element: e.jsx(Br, {}) }),
+        e.jsx(te, { path: 'k8s', element: e.jsx(Mr, {}) }),
+        e.jsx(te, { path: 'kms', element: e.jsx(Tr, {}) }),
+        e.jsx(te, { path: '*', element: e.jsx(Ot, {}) })
       ]
     })
   })
 }
-function Pr() {
-  const { id: _ } = xe(),
-    [S, v] = k.useState([]),
-    [w, O] = k.useState(!1),
-    [D, I] = k.useState(''),
+function Hr() {
+  const { id: m } = xe(),
+    [y, g] = k.useState([]),
+    [w, T] = k.useState(!1),
+    [R, I] = k.useState(''),
     [i, o] = k.useState(!1),
     l = async () => {
-      _ && v(await _t(_))
+      m && g(await gt(m))
     }
   k.useEffect(() => {
-    ;(async () => _ && v(await _t(_)))()
-  }, [_])
-  const f = [
+    ;(async () => m && g(await gt(m)))()
+  }, [m])
+  const u = [
     { key: 'name', header: 'Name' },
     { key: 'sizeGiB', header: 'Size (GiB)' },
     {
@@ -7226,7 +7279,7 @@ function Pr() {
               children: e.jsx('button', {
                 className: 'text-red-400 hover:underline',
                 onClick: async () => {
-                  _ && (await ps(_, a.id), await l())
+                  m && (await _s(m, a.id), await l())
                 },
                 children: 'Detach'
               })
@@ -7239,32 +7292,32 @@ function Pr() {
     children: [
       e.jsx(oe, {
         title: 'Instance Volumes',
-        subtitle: `Volumes for instance ${_}`,
+        subtitle: `Volumes for instance ${m}`,
         actions: e.jsx('button', {
           className: 'btn-primary',
-          onClick: () => O(!0),
+          onClick: () => T(!0),
           children: 'Attach Volume'
         })
       }),
-      e.jsx(de, { columns: f, data: S, empty: 'No volumes' }),
+      e.jsx(de, { columns: u, data: y, empty: 'No volumes' }),
       e.jsx(le, {
         title: 'Attach Volume',
         open: w,
-        onClose: () => O(!1),
+        onClose: () => T(!1),
         footer: e.jsxs(e.Fragment, {
           children: [
             e.jsx('button', {
               className: 'btn-secondary',
-              onClick: () => O(!1),
+              onClick: () => T(!1),
               children: 'Cancel'
             }),
             e.jsx('button', {
               className: 'btn-primary',
-              disabled: i || !D,
+              disabled: i || !R,
               onClick: async () => {
-                if (_ && D)
+                if (m && R)
                   try {
-                    ;(o(!0), await fs(_, D), I(''), O(!1), await l())
+                    ;(o(!0), await ms(m, R), I(''), T(!1), await l())
                   } finally {
                     o(!1)
                   }
@@ -7280,7 +7333,7 @@ function Pr() {
               e.jsx('label', { className: 'label', children: 'Volume ID' }),
               e.jsx('input', {
                 className: 'input w-full',
-                value: D,
+                value: R,
                 onChange: (a) => I(a.target.value),
                 placeholder: 'Enter available volume ID'
               }),
@@ -7296,57 +7349,57 @@ function Pr() {
     ]
   })
 }
-function Tr() {
+function Fr() {
   return e.jsx('div', {
     className: 'space-y-4',
-    children: e.jsxs(ze, {
+    children: e.jsxs(Ve, {
       children: [
-        e.jsx(te, { path: 'volumes', element: e.jsx(Tt, {}) }),
-        e.jsx(te, { path: 'snapshots', element: e.jsx(Or, {}) }),
-        e.jsx(te, { path: 'backups', element: e.jsx(Hr, {}) }),
-        e.jsx(te, { path: '*', element: e.jsx(Tt, {}) })
+        e.jsx(te, { path: 'volumes', element: e.jsx(Ht, {}) }),
+        e.jsx(te, { path: 'snapshots', element: e.jsx($r, {}) }),
+        e.jsx(te, { path: 'backups', element: e.jsx(Wr, {}) }),
+        e.jsx(te, { path: '*', element: e.jsx(Ht, {}) })
       ]
     })
   })
 }
-function Tt() {
-  const { projectId: _ } = xe(),
-    [S, v] = k.useState([]),
-    [w, O] = k.useState(!1),
-    D = async () => {
-      O(!0)
+function Ht() {
+  const { projectId: m } = xe(),
+    [y, g] = k.useState([]),
+    [w, T] = k.useState(!1),
+    R = async () => {
+      T(!0)
       try {
-        v(await pt(_))
+        g(await _t(m))
       } finally {
-        O(!1)
+        T(!1)
       }
     }
   k.useEffect(() => {
-    let y = !0
+    let S = !0
     return (
-      O(!0),
-      pt(_)
+      T(!0),
+      _t(m)
         .then((L) => {
-          y && v(L)
+          S && g(L)
         })
         .finally(() => {
-          y && O(!1)
+          S && T(!1)
         }),
       () => {
-        y = !1
+        S = !1
       }
     )
-  }, [_])
+  }, [m])
   const I = [
       {
         key: 'name',
         header: 'Name',
-        render: (y) =>
+        render: (S) =>
           e.jsxs('div', {
             className: 'flex items-center gap-2',
             children: [
-              e.jsx('span', { children: y.name }),
-              y.id === '0' && e.jsx(pe, { children: 'Root Disk' })
+              e.jsx('span', { children: S.name }),
+              S.id === '0' && e.jsx(pe, { children: 'Root Disk' })
             ]
           })
       },
@@ -7354,40 +7407,40 @@ function Tt() {
       {
         key: 'status',
         header: 'Status',
-        render: (y) =>
-          y.status === 'in-use'
+        render: (S) =>
+          S.status === 'in-use'
             ? e.jsx(pe, { variant: 'success', children: 'in-use' })
-            : e.jsx(pe, { children: y.status })
+            : e.jsx(pe, { children: S.status })
       },
-      { key: 'rbd', header: 'RBD', render: (y) => y.rbd ?? '-' },
+      { key: 'rbd', header: 'RBD', render: (S) => S.rbd ?? '-' },
       {
         key: 'actions',
         header: 'Actions',
         sortable: !1,
-        render: (y) =>
+        render: (S) =>
           e.jsxs('div', {
             className: 'flex gap-2',
             children: [
               e.jsx('button', {
                 className: 'text-blue-400 hover:text-blue-300 text-sm',
                 onClick: () => {
-                  ;(s(y.id), c(y.sizeGiB), m(y.sizeGiB), t(!0))
+                  ;(s(S.id), d(S.sizeGiB), _(S.sizeGiB), t(!0))
                 },
                 children: 'Resize'
               }),
               e.jsx('button', {
-                className: `text-sm ${y.status === 'in-use' ? 'text-gray-500 cursor-not-allowed' : 'text-red-400 hover:text-red-300'}`,
-                disabled: y.status === 'in-use',
+                className: `text-sm ${S.status === 'in-use' ? 'text-gray-500 cursor-not-allowed' : 'text-red-400 hover:text-red-300'}`,
+                disabled: S.status === 'in-use',
                 title:
-                  y.status === 'in-use'
+                  S.status === 'in-use'
                     ? 'Volume is in use by an instance; detach or delete the instance first'
                     : 'Delete volume',
                 onClick: async () => {
-                  if (y.status !== 'in-use' && confirm(`Delete volume "${y.name}"?`))
+                  if (S.status !== 'in-use' && confirm(`Delete volume "${S.name}"?`))
                     try {
-                      ;(await ds(y.id), await D())
+                      ;(await fs(S.id), await R())
                     } catch (L) {
-                      yt.isAxiosError(L) && L.response?.status === 409
+                      wt.isAxiosError(L) && L.response?.status === 409
                         ? alert(
                             'Volume is in use by an instance; please detach or delete the instance first.'
                           )
@@ -7401,13 +7454,13 @@ function Tt() {
       }
     ],
     [i, o] = k.useState(!1),
-    [l, f] = k.useState(''),
-    [a, d] = k.useState(''),
-    [u, x] = k.useState(!1),
-    [h, t] = k.useState(!1),
+    [l, u] = k.useState(''),
+    [a, h] = k.useState(''),
+    [f, x] = k.useState(!1),
+    [c, t] = k.useState(!1),
     [n, s] = k.useState(''),
-    [r, c] = k.useState(0),
-    [g, m] = k.useState(0),
+    [r, d] = k.useState(0),
+    [v, _] = k.useState(0),
     [b, p] = k.useState(!1)
   return e.jsxs('div', {
     className: 'space-y-3',
@@ -7420,7 +7473,7 @@ function Tt() {
           children: [
             e.jsx('button', {
               className: 'btn-secondary',
-              onClick: D,
+              onClick: R,
               disabled: w,
               children: w ? 'Loading...' : 'Refresh'
             }),
@@ -7432,8 +7485,8 @@ function Tt() {
           ]
         })
       }),
-      e.jsx(Ee, { placeholder: 'Search volumes' }),
-      e.jsx(de, { columns: I, data: S, empty: 'No volumes' }),
+      e.jsx(Ne, { placeholder: 'Search volumes' }),
+      e.jsx(de, { columns: I, data: y, empty: 'No volumes' }),
       e.jsx(le, {
         title: 'Create Volume',
         open: i,
@@ -7447,14 +7500,14 @@ function Tt() {
             }),
             e.jsx('button', {
               className: 'btn-primary',
-              disabled: u,
+              disabled: f,
               onClick: async () => {
-                if (_ && l && a) {
+                if (m && l && a) {
                   x(!0)
                   try {
-                    ;(await hs(_, { name: l, size_gb: Number(a) }), f(''), d(''), o(!1), await D())
-                  } catch (y) {
-                    alert('Failed to create volume: ' + y.message)
+                    ;(await us(m, { name: l, size_gb: Number(a) }), u(''), h(''), o(!1), await R())
+                  } catch (S) {
+                    alert('Failed to create volume: ' + S.message)
                   } finally {
                     x(!1)
                   }
@@ -7473,7 +7526,7 @@ function Tt() {
                 e.jsx('input', {
                   className: 'input w-full',
                   value: l,
-                  onChange: (y) => f(y.target.value)
+                  onChange: (S) => u(S.target.value)
                 })
               ]
             }),
@@ -7485,7 +7538,7 @@ function Tt() {
                   type: 'number',
                   min: '1',
                   value: a,
-                  onChange: (y) => d(y.target.value ? Number(y.target.value) : '')
+                  onChange: (S) => h(S.target.value ? Number(S.target.value) : '')
                 })
               ]
             })
@@ -7494,7 +7547,7 @@ function Tt() {
       }),
       e.jsx(le, {
         title: 'Resize Volume',
-        open: h,
+        open: c,
         onClose: () => t(!1),
         footer: e.jsxs(e.Fragment, {
           children: [
@@ -7505,14 +7558,14 @@ function Tt() {
             }),
             e.jsx('button', {
               className: 'btn-primary',
-              disabled: b || g <= r,
+              disabled: b || v <= r,
               onClick: async () => {
-                if (g > r) {
+                if (v > r) {
                   p(!0)
                   try {
-                    ;(await us(n, g), t(!1), await D())
-                  } catch (y) {
-                    alert('Failed to resize volume: ' + y.message)
+                    ;(await ps(n, v), t(!1), await R())
+                  } catch (S) {
+                    alert('Failed to resize volume: ' + S.message)
                   } finally {
                     p(!1)
                   }
@@ -7543,8 +7596,8 @@ function Tt() {
                   className: 'input w-full',
                   type: 'number',
                   min: r + 1,
-                  value: g,
-                  onChange: (y) => m(y.target.value ? Number(y.target.value) : r)
+                  value: v,
+                  onChange: (S) => _(S.target.value ? Number(S.target.value) : r)
                 }),
                 e.jsx('p', {
                   className: 'text-xs text-gray-400 mt-1',
@@ -7558,22 +7611,22 @@ function Tt() {
     ]
   })
 }
-function Or() {
-  const { projectId: _ } = xe(),
-    [S, v] = k.useState([])
+function $r() {
+  const { projectId: m } = xe(),
+    [y, g] = k.useState([])
   k.useEffect(() => {
-    ;(async () => v(await tt(_)))()
-  }, [_])
+    ;(async () => g(await tt(m)))()
+  }, [m])
   const w = [
       { key: 'name', header: 'Name' },
       { key: 'volumeId', header: 'Volume' },
       { key: 'status', header: 'Status' },
       { key: 'backup', header: 'Backup' }
     ],
-    [O, D] = k.useState(!1),
+    [T, R] = k.useState(!1),
     [I, i] = k.useState(''),
     [o, l] = k.useState(''),
-    [f, a] = k.useState(!1)
+    [u, a] = k.useState(!1)
   return e.jsxs('div', {
     className: 'space-y-3',
     children: [
@@ -7586,42 +7639,42 @@ function Or() {
             e.jsx('button', {
               className: 'btn-secondary',
               onClick: async () => {
-                v(await tt(_))
+                g(await tt(m))
               },
               children: 'Refresh'
             }),
             e.jsx('button', {
               className: 'btn-primary',
-              onClick: () => D(!0),
+              onClick: () => R(!0),
               children: 'Create Snapshot'
             })
           ]
         })
       }),
-      e.jsx(de, { columns: w, data: S, empty: 'No snapshots' }),
+      e.jsx(de, { columns: w, data: y, empty: 'No snapshots' }),
       e.jsx(le, {
         title: 'Create Volume Snapshot',
-        open: O,
-        onClose: () => D(!1),
+        open: T,
+        onClose: () => R(!1),
         footer: e.jsxs(e.Fragment, {
           children: [
             e.jsx('button', {
               className: 'btn-secondary',
-              onClick: () => D(!1),
+              onClick: () => R(!1),
               children: 'Cancel'
             }),
             e.jsx('button', {
               className: 'btn-primary',
-              disabled: f,
+              disabled: u,
               onClick: async () => {
-                _ &&
+                m &&
                   I &&
                   (a(!0),
-                  await _s(_, { name: o || `snap-${Date.now()}`, volume_id: Number(I) }),
+                  await gs(m, { name: o || `snap-${Date.now()}`, volume_id: Number(I) }),
                   l(''),
                   i(''),
-                  D(!1),
-                  v(await tt(_)),
+                  R(!1),
+                  g(await tt(m)),
                   a(!1))
               },
               children: 'Create'
@@ -7637,7 +7690,7 @@ function Or() {
                 e.jsx('input', {
                   className: 'input w-full',
                   value: o,
-                  onChange: (d) => l(d.target.value)
+                  onChange: (h) => l(h.target.value)
                 })
               ]
             }),
@@ -7647,7 +7700,7 @@ function Or() {
                 e.jsx('input', {
                   className: 'input w-full',
                   value: I,
-                  onChange: (d) => i(d.target.value)
+                  onChange: (h) => i(h.target.value)
                 })
               ]
             })
@@ -7657,12 +7710,12 @@ function Or() {
     ]
   })
 }
-function Hr() {
-  const { projectId: _ } = xe(),
-    [S, v] = k.useState([])
+function Wr() {
+  const { projectId: m } = xe(),
+    [y, g] = k.useState([])
   k.useEffect(() => {
-    ;(async () => v(await mt(_, { resource: 'snapshot' })))()
-  }, [_])
+    ;(async () => g(await vt(m, { resource: 'snapshot' })))()
+  }, [m])
   const w = [
     { key: 'id', header: 'ID' },
     { key: 'resource', header: 'Resource' },
@@ -7679,28 +7732,28 @@ function Hr() {
         subtitle: 'Recent backup operations (audit)',
         actions: e.jsx('button', {
           className: 'btn-secondary',
-          onClick: async () => v(await mt(_, { resource: 'snapshot' })),
+          onClick: async () => g(await vt(m, { resource: 'snapshot' })),
           children: 'Refresh'
         })
       }),
-      e.jsx(de, { columns: w, data: S, empty: 'No records' })
+      e.jsx(de, { columns: w, data: y, empty: 'No records' })
     ]
   })
 }
-const Fr = [
+const Ur = [
   { id: '1', name: 'admin', role: 'Owner', status: 'active' },
   { id: '2', name: 'demo', role: 'Member', status: 'active' }
 ]
-function $r() {
-  const _ = [
+function zr() {
+  const m = [
     {
       key: 'name',
       header: 'Name',
-      render: (S) =>
-        e.jsx(Te, {
+      render: (y) =>
+        e.jsx(Oe, {
           className: 'text-oxide-300 hover:underline',
-          to: `/project/${encodeURIComponent(S.id)}`,
-          children: S.name
+          to: `/project/${encodeURIComponent(y.id)}`,
+          children: y.name
         })
     },
     { key: 'id', header: 'ID', className: 'text-gray-400' },
@@ -7708,8 +7761,8 @@ function $r() {
     {
       key: 'status',
       header: 'Status',
-      render: (S) =>
-        e.jsx(pe, { variant: S.status === 'active' ? 'success' : 'warning', children: S.status })
+      render: (y) =>
+        e.jsx(pe, { variant: y.status === 'active' ? 'success' : 'warning', children: y.status })
     },
     {
       key: 'actions',
@@ -7718,7 +7771,7 @@ function $r() {
       render: () =>
         e.jsx('div', {
           className: 'flex justify-end',
-          children: e.jsx(Ve, {
+          children: e.jsx(Ge, {
             actions: [
               { label: 'View', onClick: () => {} },
               { label: 'Edit', onClick: () => {} },
@@ -7736,14 +7789,14 @@ function $r() {
         subtitle: 'Manage console projects and access',
         actions: e.jsx('button', { className: 'btn-primary', children: 'Create Project' })
       }),
-      e.jsx(Ee, { placeholder: 'Search projects' }),
-      e.jsx(de, { columns: _, data: Fr, empty: 'No projects' })
+      e.jsx(Ne, { placeholder: 'Search projects' }),
+      e.jsx(de, { columns: m, data: Ur, empty: 'No projects' })
     ]
   })
 }
-function Wr() {
-  const { notices: _, markNotice: S } = Ce(),
-    v = [
+function Vr() {
+  const { notices: m, markNotice: y } = Ce(),
+    g = [
       { key: 'time', header: 'Time', className: 'text-gray-400' },
       { key: 'resource', header: 'Resource' },
       { key: 'type', header: 'Type' },
@@ -7760,11 +7813,11 @@ function Wr() {
         render: (w) =>
           e.jsx('div', {
             className: 'flex justify-end',
-            children: e.jsx(Ve, {
+            children: e.jsx(Ge, {
               actions: [
                 w.status === 'unread'
-                  ? { label: 'Mark as read', onClick: () => S(w.id, 'read') }
-                  : { label: 'Mark as unread', onClick: () => S(w.id, 'unread') }
+                  ? { label: 'Mark as read', onClick: () => y(w.id, 'read') }
+                  : { label: 'Mark as unread', onClick: () => y(w.id, 'unread') }
               ]
             })
           })
@@ -7774,72 +7827,72 @@ function Wr() {
     className: 'space-y-4',
     children: [
       e.jsx(oe, { title: 'Notifications', subtitle: 'System and resource events' }),
-      e.jsx(de, { columns: v, data: _, empty: 'No notifications' })
+      e.jsx(de, { columns: g, data: m, empty: 'No notifications' })
     ]
   })
 }
-function Ur() {
-  const [_, S] = k.useState(''),
-    [v, w] = k.useState(''),
-    [O, D] = k.useState(!1),
+function Gr() {
+  const [m, y] = k.useState(''),
+    [g, w] = k.useState(''),
+    [T, R] = k.useState(!1),
     I = Ze(),
     i = at(),
-    o = lt((m) => m.login),
-    l = Pe((m) => m.setActiveProjectId),
-    f = Pe((m) => m.setProjectContext),
-    a = Oe((m) => m.logoDataUrl),
-    d = Oe((m) => m.idpProvider),
-    u = Oe((m) => m.idpIssuer),
-    x = Oe((m) => m.idpClientId),
-    h = Oe((m) => m.idpRedirectUrl),
-    t = d === 'OIDC' && !!u && !!x,
-    n = k.useMemo(() => h || `${window.location.origin}/auth/oidc/callback`, [h]),
-    s = k.useMemo(() => (u ? `${u.replace(/\/$/, '')}/authorize` : ''), [u])
+    o = lt((_) => _.login),
+    l = Te((_) => _.setActiveProjectId),
+    u = Te((_) => _.setProjectContext),
+    a = He((_) => _.logoDataUrl),
+    h = He((_) => _.idpProvider),
+    f = He((_) => _.idpIssuer),
+    x = He((_) => _.idpClientId),
+    c = He((_) => _.idpRedirectUrl),
+    t = h === 'OIDC' && !!f && !!x,
+    n = k.useMemo(() => c || `${window.location.origin}/auth/oidc/callback`, [c]),
+    s = k.useMemo(() => (f ? `${f.replace(/\/$/, '')}/authorize` : ''), [f])
   function r() {
     if (!t) return
-    const m = Math.random().toString(36).slice(2)
+    const _ = Math.random().toString(36).slice(2)
     try {
-      sessionStorage.setItem('oidc_state', m)
+      sessionStorage.setItem('oidc_state', _)
     } catch {}
     const b = new URL(s)
     ;(b.searchParams.set('client_id', x),
       b.searchParams.set('redirect_uri', n),
       b.searchParams.set('response_type', 'code'),
       b.searchParams.set('scope', 'openid profile email'),
-      b.searchParams.set('state', m),
+      b.searchParams.set('state', _),
       (window.location.href = b.toString()))
   }
-  const c = k.useRef(!1)
+  const d = k.useRef(!1)
   k.useEffect(() => {
-    if (!c.current) {
-      c.current = !0
+    if (!d.current) {
+      d.current = !0
       try {
-        ;(l(null), f(!1))
+        ;(l(null), u(!1))
       } catch {}
     }
-  }, [l, f])
-  const g = async (m) => {
-    ;(m.preventDefault(), D(!0))
+  }, [l, u])
+  const v = async (_) => {
+    ;(_.preventDefault(), R(!0))
     const b = (p) => {
       console.log(p)
       try {
-        const y = JSON.parse(localStorage.getItem('debug_logs') || '[]')
-        ;(y.push({ time: new Date().toISOString(), msg: p }),
-          y.length > 50 && y.shift(),
-          localStorage.setItem('debug_logs', JSON.stringify(y)))
+        const S = JSON.parse(localStorage.getItem('debug_logs') || '[]')
+        ;(S.push({ time: new Date().toISOString(), msg: p }),
+          S.length > 50 && S.shift(),
+          localStorage.setItem('debug_logs', JSON.stringify(S)))
       } catch {}
     }
     try {
-      if (!_ || !v) return
-      b(`[Login] Attempting login for user: ${_}`)
-      const y = (await rs(_, v)).access_token
-      if (y) {
+      if (!m || !g) return
+      b(`[Login] Attempting login for user: ${m}`)
+      const S = (await ns(m, g)).access_token
+      if (S) {
         ;(b('[Login] Login successful, token received'),
-          o(y),
+          o(S),
           await new Promise((j) => setTimeout(j, 100)))
         const L = localStorage.getItem('auth')
         ;(b(`[Login] Token saved to localStorage: ${L ? 'Yes' : 'No'}`),
-          (!L || !L.includes(y)) &&
+          (!L || !L.includes(S)) &&
             (b('[Login] Warning: Token may not have been saved correctly'),
             alert('Warning: Token may not have been saved correctly')))
         const P = i.state?.from?.pathname || '/projects'
@@ -7848,13 +7901,13 @@ function Ur() {
     } catch (p) {
       ;(b(`[Login] Login failed: ${p}`), alert('Login failed. Please check your credentials.'))
     } finally {
-      D(!1)
+      R(!1)
     }
   }
   return e.jsx('div', {
     className: 'min-h-screen grid place-items-center bg-oxide-950 px-4',
     children: e.jsxs('form', {
-      onSubmit: g,
+      onSubmit: v,
       className:
         'w-full max-w-sm p-6 rounded-lg border border-oxide-700 bg-oxide-800 shadow-card space-y-4 text-gray-100',
       children: [
@@ -7908,8 +7961,8 @@ function Ur() {
               id: 'username',
               className:
                 'input w-full rounded-md bg-oxide-900 border border-oxide-700 px-3 py-2 text-sm text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-oxide-600',
-              value: _,
-              onChange: (m) => S(m.target.value)
+              value: m,
+              onChange: (_) => y(_.target.value)
             })
           ]
         }),
@@ -7926,8 +7979,8 @@ function Ur() {
               type: 'password',
               className:
                 'input w-full rounded-md bg-oxide-900 border border-oxide-700 px-3 py-2 text-sm text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-oxide-600',
-              value: v,
-              onChange: (m) => w(m.target.value)
+              value: g,
+              onChange: (_) => w(_.target.value)
             })
           ]
         }),
@@ -7935,67 +7988,299 @@ function Ur() {
           type: 'submit',
           className:
             'btn-primary w-full inline-flex items-center justify-center rounded-md h-9 bg-oxide-600 hover:bg-oxide-500 text-white disabled:opacity-50',
-          disabled: O,
-          children: O ? 'Signing in…' : 'Sign in'
+          disabled: T,
+          children: T ? 'Signing in…' : 'Sign in'
         })
       ]
     })
   })
 }
-function zr() {
-  const [_] = Gs(),
-    S = Ze(),
-    v = lt((w) => w.login)
+function Kr() {
+  const [m] = Js(),
+    y = Ze(),
+    g = lt((w) => w.login)
   return (
     k.useEffect(() => {
-      const w = _.get('code'),
-        O = _.get('state'),
-        D = sessionStorage.getItem('oidc_state')
-      if (!w || !O || !D || O !== D) {
-        S('/login', { replace: !0 })
+      const w = m.get('code'),
+        T = m.get('state'),
+        R = sessionStorage.getItem('oidc_state')
+      if (!w || !T || !R || T !== R) {
+        y('/login', { replace: !0 })
         return
       }
-      ;(sessionStorage.removeItem('oidc_state'), v('oidc-token'), S('/projects', { replace: !0 }))
-    }, [_, S, v]),
+      ;(sessionStorage.removeItem('oidc_state'), g('oidc-token'), y('/projects', { replace: !0 }))
+    }, [m, y, g]),
     e.jsx('div', {
       className: 'min-h-screen grid place-items-center bg-oxide-950 text-gray-300',
       children: e.jsx('div', { className: 'p-4', children: 'Completing sign-in…' })
     })
   )
 }
-function Vr() {
-  return e.jsx('div', { className: 'card p-4', children: 'Documentation (placeholder)' })
+const ft = [
+  {
+    name: 'Identity',
+    description: 'Authentication, authorization, and user management',
+    endpoints: [
+      { method: 'POST', path: '/api/v1/auth/login', description: 'Authenticate user' },
+      { method: 'POST', path: '/api/v1/auth/refresh', description: 'Refresh access token' },
+      { method: 'POST', path: '/api/v1/auth/logout', description: 'Logout user' },
+      { method: 'GET', path: '/api/v1/projects', description: 'List projects' },
+      { method: 'POST', path: '/api/v1/projects', description: 'Create project' },
+      { method: 'DELETE', path: '/api/v1/projects/:id', description: 'Delete project' },
+      { method: 'GET', path: '/api/v1/users', description: 'List users' },
+      { method: 'POST', path: '/api/v1/users', description: 'Create user' },
+      { method: 'GET', path: '/api/v1/users/:id', description: 'Get user details' },
+      { method: 'PUT', path: '/api/v1/users/:id', description: 'Update user' },
+      { method: 'DELETE', path: '/api/v1/users/:id', description: 'Delete user' },
+      { method: 'GET', path: '/api/v1/roles', description: 'List roles' },
+      { method: 'POST', path: '/api/v1/roles', description: 'Create role' },
+      { method: 'GET', path: '/api/v1/permissions', description: 'List permissions' },
+      { method: 'GET', path: '/api/v1/profile', description: 'Get current user profile' }
+    ]
+  },
+  {
+    name: 'Compute',
+    description: 'Virtual machine and resource management',
+    endpoints: [
+      { method: 'GET', path: '/api/v1/instances', description: 'List instances' },
+      { method: 'POST', path: '/api/v1/instances', description: 'Create instance' },
+      { method: 'GET', path: '/api/v1/instances/:id', description: 'Get instance details' },
+      { method: 'DELETE', path: '/api/v1/instances/:id', description: 'Delete instance' },
+      { method: 'POST', path: '/api/v1/instances/:id/start', description: 'Start instance' },
+      { method: 'POST', path: '/api/v1/instances/:id/stop', description: 'Stop instance' },
+      { method: 'POST', path: '/api/v1/instances/:id/reboot', description: 'Reboot instance' },
+      { method: 'GET', path: '/api/v1/flavors', description: 'List flavors' },
+      { method: 'POST', path: '/api/v1/flavors', description: 'Create flavor' },
+      { method: 'GET', path: '/api/v1/images', description: 'List images' },
+      { method: 'POST', path: '/api/v1/images', description: 'Create image' },
+      { method: 'GET', path: '/api/v1/volumes', description: 'List volumes' },
+      { method: 'POST', path: '/api/v1/volumes', description: 'Create volume' }
+    ]
+  },
+  {
+    name: 'Network',
+    description: 'Network and VPC management',
+    endpoints: [
+      { method: 'GET', path: '/api/v1/networks', description: 'List networks' },
+      { method: 'POST', path: '/api/v1/networks', description: 'Create network' },
+      { method: 'GET', path: '/api/v1/networks/:id', description: 'Get network details' },
+      { method: 'PUT', path: '/api/v1/networks/:id', description: 'Update network' },
+      { method: 'DELETE', path: '/api/v1/networks/:id', description: 'Delete network' },
+      {
+        method: 'POST',
+        path: '/api/v1/networks/:id/restart',
+        description: 'Restart network services'
+      },
+      {
+        method: 'GET',
+        path: '/api/v1/networks/:id/diagnose',
+        description: 'Diagnose network issues'
+      }
+    ]
+  },
+  {
+    name: 'Host',
+    description: 'Physical host management',
+    endpoints: [
+      { method: 'GET', path: '/api/v1/hosts', description: 'List hosts' },
+      { method: 'POST', path: '/api/v1/hosts/register', description: 'Register new host' },
+      { method: 'GET', path: '/api/v1/hosts/:id', description: 'Get host details' },
+      { method: 'POST', path: '/api/v1/hosts/:id/enable', description: 'Enable host' },
+      { method: 'POST', path: '/api/v1/hosts/:id/disable', description: 'Disable host' },
+      {
+        method: 'POST',
+        path: '/api/v1/hosts/:id/maintenance',
+        description: 'Toggle maintenance mode'
+      }
+    ]
+  },
+  {
+    name: 'Scheduler',
+    description: 'Workload scheduling and node management',
+    endpoints: [
+      { method: 'POST', path: '/api/v1/schedule', description: 'Schedule workload' },
+      { method: 'GET', path: '/api/v1/nodes', description: 'List scheduler nodes' },
+      { method: 'POST', path: '/api/v1/nodes/register', description: 'Register scheduler node' }
+    ]
+  },
+  {
+    name: 'Metadata',
+    description: 'Instance metadata service',
+    endpoints: [
+      { method: 'GET', path: '/latest/meta-data', description: 'Get instance metadata' },
+      { method: 'GET', path: '/latest/user-data', description: 'Get user data' },
+      {
+        method: 'GET',
+        path: '/api/v1/metadata/instances/:id',
+        description: 'Get metadata by instance ID'
+      }
+    ]
+  },
+  {
+    name: 'Events',
+    description: 'System event logging',
+    endpoints: [
+      { method: 'GET', path: '/api/v1/events', description: 'List events' },
+      { method: 'GET', path: '/api/v1/events/:id', description: 'Get event details' },
+      {
+        method: 'GET',
+        path: '/api/v1/events/resource/:type/:id',
+        description: 'Get resource events'
+      }
+    ]
+  },
+  {
+    name: 'Quota',
+    description: 'Resource quota management',
+    endpoints: [
+      { method: 'GET', path: '/api/v1/quotas/tenants/:id', description: 'Get tenant quota' },
+      { method: 'PUT', path: '/api/v1/quotas/tenants/:id', description: 'Update tenant quota' },
+      { method: 'GET', path: '/api/v1/quotas/defaults', description: 'Get default quotas' }
+    ]
+  },
+  {
+    name: 'Monitoring',
+    description: 'System health and metrics',
+    endpoints: [
+      { method: 'GET', path: '/health', description: 'System health check' },
+      { method: 'GET', path: '/metrics', description: 'Prometheus metrics' },
+      { method: 'GET', path: '/api/v1/monitoring/status', description: 'Component status' }
+    ]
+  }
+]
+function qr({ method: m }) {
+  const y = { GET: 'info', POST: 'success', PUT: 'warning', PATCH: 'warning', DELETE: 'danger' }
+  return e.jsx(pe, { variant: y[m], children: m })
 }
-function Ot() {
-  const [_, S] = k.useState([]),
-    [v, w] = k.useState(!1),
-    [O, D] = k.useState(''),
+function Xr() {
+  const [m, y] = k.useState(ft[0].name),
+    g = ft.find((w) => w.name === m)
+  return e.jsxs('div', {
+    className: 'space-y-6',
+    children: [
+      e.jsx(oe, { title: 'API Documentation', subtitle: 'Reference for platform REST APIs' }),
+      e.jsxs('div', {
+        className: 'grid grid-cols-12 gap-6',
+        children: [
+          e.jsx('div', {
+            className: 'col-span-12 md:col-span-3 space-y-1',
+            children: ft.map((w) =>
+              e.jsx(
+                'button',
+                {
+                  onClick: () => y(w.name),
+                  className: `w-full text-left px-4 py-2 rounded-md transition-colors ${m === w.name ? 'bg-primary-500/10 text-primary-400 font-medium' : 'hover:bg-white/5 text-muted'}`,
+                  children: w.name
+                },
+                w.name
+              )
+            )
+          }),
+          e.jsx('div', {
+            className: 'col-span-12 md:col-span-9',
+            children:
+              g &&
+              e.jsxs('div', {
+                className: 'space-y-6',
+                children: [
+                  e.jsxs('div', {
+                    children: [
+                      e.jsxs('h2', {
+                        className: 'text-xl font-semibold text-foreground',
+                        children: [g.name, ' API']
+                      }),
+                      e.jsx('p', { className: 'text-muted mt-1', children: g.description })
+                    ]
+                  }),
+                  e.jsx('div', {
+                    className: 'space-y-4',
+                    children: g.endpoints.map((w, T) =>
+                      e.jsxs(
+                        'div',
+                        {
+                          className:
+                            'card p-4 flex items-start gap-4 group hover:border-primary-500/30 transition-colors',
+                          children: [
+                            e.jsx('div', {
+                              className: 'w-20 shrink-0',
+                              children: e.jsx(qr, { method: w.method })
+                            }),
+                            e.jsxs('div', {
+                              className: 'flex-1 min-w-0',
+                              children: [
+                                e.jsx('div', {
+                                  className: 'font-mono text-sm text-foreground break-all',
+                                  children: w.path
+                                }),
+                                w.description &&
+                                  e.jsx('div', {
+                                    className: 'text-sm text-muted mt-1',
+                                    children: w.description
+                                  })
+                              ]
+                            }),
+                            e.jsx('button', {
+                              className:
+                                'opacity-0 group-hover:opacity-100 p-1 hover:bg-white/10 rounded transition-all',
+                              onClick: () => {
+                                navigator.clipboard.writeText(w.path)
+                              },
+                              title: 'Copy path',
+                              children: e.jsx('svg', {
+                                width: '16',
+                                height: '16',
+                                viewBox: '0 0 24 24',
+                                fill: 'currentColor',
+                                className: 'text-muted',
+                                children: e.jsx('path', {
+                                  d: 'M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z'
+                                })
+                              })
+                            })
+                          ]
+                        },
+                        T
+                      )
+                    )
+                  })
+                ]
+              })
+          })
+        ]
+      })
+    ]
+  })
+}
+function Ft() {
+  const [m, y] = k.useState([]),
+    [g, w] = k.useState(!1),
+    [T, R] = k.useState(''),
     [I, i] = k.useState('qcow2'),
     [o, l] = k.useState(''),
-    [f, a] = k.useState(''),
-    [d, u] = k.useState(''),
-    [x, h] = k.useState(''),
+    [u, a] = k.useState(''),
+    [h, f] = k.useState(''),
+    [x, c] = k.useState(''),
     [t, n] = k.useState(''),
     [s, r] = k.useState(!1)
   k.useEffect(() => {
-    ;(async () => S(await ge()))()
+    ;(async () => y(await ge()))()
   }, [])
-  const c = [
+  const d = [
     { key: 'name', header: 'Name' },
     { key: 'sizeGiB', header: 'Size (GiB)' },
     {
       key: 'status',
       header: 'Status',
-      render: (g) =>
+      render: (v) =>
         e.jsx(pe, {
-          variant: g.status === 'available' || g.status === 'active' ? 'success' : 'info',
-          children: g.status
+          variant: v.status === 'available' || v.status === 'active' ? 'success' : 'info',
+          children: v.status
         })
     },
     {
       key: 'actions',
       header: 'Actions',
-      render: (g) =>
+      render: (v) =>
         e.jsx('div', {
           className: 'flex gap-2',
           children: e.jsx('button', {
@@ -8003,9 +8288,9 @@ function Ot() {
             onClick: async () => {
               r(!0)
               try {
-                await os(g.id)
+                await cs(v.id)
               } finally {
-                ;(r(!1), S(await ge()))
+                ;(r(!1), y(await ge()))
               }
             },
             children: 'Import'
@@ -8025,11 +8310,11 @@ function Ot() {
           children: 'Register Image'
         })
       }),
-      e.jsx(Ee, { placeholder: 'Search images' }),
-      e.jsx(de, { columns: c, data: _, empty: 'No images' }),
+      e.jsx(Ne, { placeholder: 'Search images' }),
+      e.jsx(de, { columns: d, data: m, empty: 'No images' }),
       e.jsx(le, {
         title: 'Register Image',
-        open: v,
+        open: g,
         onClose: () => w(!1),
         footer: e.jsxs(e.Fragment, {
           children: [
@@ -8042,22 +8327,22 @@ function Ot() {
               className: 'btn-primary',
               disabled: s,
               onClick: async () => {
-                if (O) {
+                if (T) {
                   r(!0)
                   try {
-                    const g = { name: O, disk_format: I }
-                    ;(o && (g.rgw_url = o),
-                      f && (g.file_path = f),
-                      d && x && ((g.rbd_pool = d), (g.rbd_image = x), t && (g.rbd_snap = t)),
-                      await as(g),
-                      S(await ge()),
+                    const v = { name: T, disk_format: I }
+                    ;(o && (v.rgw_url = o),
+                      u && (v.file_path = u),
+                      h && x && ((v.rbd_pool = h), (v.rbd_image = x), t && (v.rbd_snap = t)),
+                      await ls(v),
+                      y(await ge()),
                       w(!1),
-                      D(''),
+                      R(''),
                       i('qcow2'),
                       l(''),
                       a(''),
-                      u(''),
-                      h(''),
+                      f(''),
+                      c(''),
                       n(''))
                   } finally {
                     r(!1)
@@ -8076,8 +8361,8 @@ function Ot() {
                 e.jsx('label', { className: 'label', children: 'Name' }),
                 e.jsx('input', {
                   className: 'input w-full',
-                  value: O,
-                  onChange: (g) => D(g.target.value)
+                  value: T,
+                  onChange: (v) => R(v.target.value)
                 })
               ]
             }),
@@ -8089,7 +8374,7 @@ function Ot() {
                   e.jsxs('select', {
                     className: 'input w-full',
                     value: I,
-                    onChange: (g) => i(g.target.value),
+                    onChange: (v) => i(v.target.value),
                     children: [
                       e.jsx('option', { value: 'qcow2', children: 'qcow2' }),
                       e.jsx('option', { value: 'raw', children: 'raw' }),
@@ -8110,7 +8395,7 @@ function Ot() {
                       className: 'input w-full',
                       placeholder: 'https://rgw.example.com/bucket/key',
                       value: o,
-                      onChange: (g) => l(g.target.value)
+                      onChange: (v) => l(v.target.value)
                     })
                   ]
                 }),
@@ -8120,8 +8405,8 @@ function Ot() {
                     e.jsx('input', {
                       className: 'input w-full',
                       placeholder: '/cephfs/vc/images/foo.qcow2',
-                      value: f,
-                      onChange: (g) => a(g.target.value)
+                      value: u,
+                      onChange: (v) => a(v.target.value)
                     })
                   ]
                 }),
@@ -8134,8 +8419,8 @@ function Ot() {
                         e.jsx('input', {
                           className: 'input w-full',
                           placeholder: 'vcpool',
-                          value: d,
-                          onChange: (g) => u(g.target.value)
+                          value: h,
+                          onChange: (v) => f(v.target.value)
                         })
                       ]
                     }),
@@ -8146,7 +8431,7 @@ function Ot() {
                           className: 'input w-full',
                           placeholder: 'ubuntu-22.04',
                           value: x,
-                          onChange: (g) => h(g.target.value)
+                          onChange: (v) => c(v.target.value)
                         })
                       ]
                     }),
@@ -8157,7 +8442,7 @@ function Ot() {
                           className: 'input w-full',
                           placeholder: 'base',
                           value: t,
-                          onChange: (g) => n(g.target.value)
+                          onChange: (v) => n(v.target.value)
                         })
                       ]
                     })
@@ -8176,10 +8461,10 @@ function Ot() {
     ]
   })
 }
-function Ht() {
-  const { capacity: _, utilization: S, projects: v } = Ce(),
-    [w, O] = k.useState('24h'),
-    D = k.useMemo(() => {
+function $t() {
+  const { capacity: m, utilization: y, projects: g } = Ce(),
+    [w, T] = k.useState('24h'),
+    R = k.useMemo(() => {
       const i = Date.now(),
         o = w === '24h' ? 24 : w === '7d' ? 24 * 7 : 24 * 30
       return i - o * 36e5
@@ -8188,13 +8473,13 @@ function Ht() {
       let i = 0,
         o = 0,
         l = 0
-      for (const f of S) {
-        const a = f.points.filter((u) => u.t >= D),
-          d = a[a.length - 1]
-        d && ((i += d.vcpu), (o += d.memGiB), (l += d.storageGiB))
+      for (const u of y) {
+        const a = u.points.filter((f) => f.t >= R),
+          h = a[a.length - 1]
+        h && ((i += h.vcpu), (o += h.memGiB), (l += h.storageGiB))
       }
       return { vcpu: i, memGiB: o, storageGiB: l }
-    }, [S, D])
+    }, [y, R])
   return e.jsxs('div', {
     className: 'space-y-4',
     children: [
@@ -8207,13 +8492,13 @@ function Ht() {
               e.jsx('div', { className: 'text-gray-400', children: 'vCPU used' }),
               e.jsxs('div', {
                 className: 'text-2xl font-semibold',
-                children: [I.vcpu, ' / ', _.vcpu]
+                children: [I.vcpu, ' / ', m.vcpu]
               }),
               e.jsx('div', {
                 className: 'h-2 bg-oxide-800 rounded mt-2',
                 children: e.jsx('div', {
                   className: 'h-2 bg-oxide-500 rounded',
-                  style: { width: `${Math.min(100, (I.vcpu / _.vcpu) * 100).toFixed(0)}%` }
+                  style: { width: `${Math.min(100, (I.vcpu / m.vcpu) * 100).toFixed(0)}%` }
                 })
               })
             ]
@@ -8224,13 +8509,13 @@ function Ht() {
               e.jsx('div', { className: 'text-gray-400', children: 'Memory used (GiB)' }),
               e.jsxs('div', {
                 className: 'text-2xl font-semibold',
-                children: [I.memGiB, ' / ', _.memGiB]
+                children: [I.memGiB, ' / ', m.memGiB]
               }),
               e.jsx('div', {
                 className: 'h-2 bg-oxide-800 rounded mt-2',
                 children: e.jsx('div', {
                   className: 'h-2 bg-oxide-500 rounded',
-                  style: { width: `${Math.min(100, (I.memGiB / _.memGiB) * 100).toFixed(0)}%` }
+                  style: { width: `${Math.min(100, (I.memGiB / m.memGiB) * 100).toFixed(0)}%` }
                 })
               })
             ]
@@ -8241,14 +8526,14 @@ function Ht() {
               e.jsx('div', { className: 'text-gray-400', children: 'Storage used (GiB)' }),
               e.jsxs('div', {
                 className: 'text-2xl font-semibold',
-                children: [I.storageGiB, ' / ', _.storageGiB]
+                children: [I.storageGiB, ' / ', m.storageGiB]
               }),
               e.jsx('div', {
                 className: 'h-2 bg-oxide-800 rounded mt-2',
                 children: e.jsx('div', {
                   className: 'h-2 bg-oxide-500 rounded',
                   style: {
-                    width: `${Math.min(100, (I.storageGiB / _.storageGiB) * 100).toFixed(0)}%`
+                    width: `${Math.min(100, (I.storageGiB / m.storageGiB) * 100).toFixed(0)}%`
                   }
                 })
               })
@@ -8267,7 +8552,7 @@ function Ht() {
               e.jsxs('select', {
                 className: 'input',
                 value: w,
-                onChange: (i) => O(i.target.value),
+                onChange: (i) => T(i.target.value),
                 children: [
                   e.jsx('option', { value: '24h', children: 'Last 24h' }),
                   e.jsx('option', { value: '7d', children: 'Last 7d' }),
@@ -8280,8 +8565,8 @@ function Ht() {
       }),
       e.jsx('div', {
         className: 'grid md:grid-cols-2 lg:grid-cols-3 gap-3',
-        children: v.map((i) => {
-          const l = (S.find((d) => d.projectId === i.id)?.points ?? []).filter((d) => d.t >= D),
+        children: g.map((i) => {
+          const l = (y.find((h) => h.projectId === i.id)?.points ?? []).filter((h) => h.t >= R),
             a = l[l.length - 1] ?? { vcpu: 0, memGiB: 0, storageGiB: 0 }
           return e.jsxs(
             'div',
@@ -8307,27 +8592,27 @@ function Ht() {
     ]
   })
 }
-const Kr = 'modulepreload',
-  Gr = function (_) {
-    return '/' + _
+const Jr = 'modulepreload',
+  Yr = function (m) {
+    return '/' + m
   },
-  Ft = {},
-  Ge = function (S, v, w) {
-    let O = Promise.resolve()
-    if (v && v.length > 0) {
+  Wt = {},
+  Ke = function (y, g, w) {
+    let T = Promise.resolve()
+    if (g && g.length > 0) {
       document.getElementsByTagName('link')
       const I = document.querySelector('meta[property=csp-nonce]'),
         i = I?.nonce || I?.getAttribute('nonce')
-      O = Promise.allSettled(
-        v.map((o) => {
-          if (((o = Gr(o)), o in Ft)) return
-          Ft[o] = !0
+      T = Promise.allSettled(
+        g.map((o) => {
+          if (((o = Yr(o)), o in Wt)) return
+          Wt[o] = !0
           const l = o.endsWith('.css'),
-            f = l ? '[rel="stylesheet"]' : ''
-          if (document.querySelector(`link[href="${o}"]${f}`)) return
+            u = l ? '[rel="stylesheet"]' : ''
+          if (document.querySelector(`link[href="${o}"]${u}`)) return
           const a = document.createElement('link')
           if (
-            ((a.rel = l ? 'stylesheet' : Kr),
+            ((a.rel = l ? 'stylesheet' : Jr),
             l || (a.as = 'script'),
             (a.crossOrigin = ''),
             (a.href = o),
@@ -8335,55 +8620,55 @@ const Kr = 'modulepreload',
             document.head.appendChild(a),
             l)
           )
-            return new Promise((d, u) => {
-              ;(a.addEventListener('load', d),
-                a.addEventListener('error', () => u(new Error(`Unable to preload CSS for ${o}`))))
+            return new Promise((h, f) => {
+              ;(a.addEventListener('load', h),
+                a.addEventListener('error', () => f(new Error(`Unable to preload CSS for ${o}`))))
             })
         })
       )
     }
-    function D(I) {
+    function R(I) {
       const i = new Event('vite:preloadError', { cancelable: !0 })
       if (((i.payload = I), window.dispatchEvent(i), !i.defaultPrevented)) throw I
     }
-    return O.then((I) => {
-      for (const i of I || []) i.status === 'rejected' && D(i.reason)
-      return S().catch(D)
+    return T.then((I) => {
+      for (const i of I || []) i.status === 'rejected' && R(i.reason)
+      return y().catch(R)
     })
   }
-function Os({ node: _, onPick: S, openMap: v, setOpenMap: w, query: O }) {
-  const D = v[_.id] ?? !0
-  if (_.kind === 'group') {
-    const i = _
+function Fs({ node: m, onPick: y, openMap: g, setOpenMap: w, query: T }) {
+  const R = g[m.id] ?? !0
+  if (m.kind === 'group') {
+    const i = m
     return e.jsxs('div', {
       className: 'ml-2',
       children: [
         e.jsxs('button', {
           type: 'button',
           className: 'text-left text-sm text-gray-200 hover:underline',
-          onClick: () => w(i.id, !D),
-          children: [D ? '▾' : '▸', ' ', i.name]
+          onClick: () => w(i.id, !R),
+          children: [R ? '▾' : '▸', ' ', i.name]
         }),
-        D &&
+        R &&
           e.jsx('div', {
             className: 'ml-4 border-l border-oxide-800 pl-2',
             children: i.children
-              .filter((o) => Dt(o, O))
+              .filter((o) => Bt(o, T))
               .map((o) =>
-                e.jsx(Os, { node: o, onPick: S, openMap: v, setOpenMap: w, query: O }, o.id)
+                e.jsx(Fs, { node: o, onPick: y, openMap: g, setOpenMap: w, query: T }, o.id)
               )
           })
       ]
     })
   }
-  const I = _
+  const I = m
   return e.jsxs('div', {
     className: 'ml-2 text-sm',
     children: [
       e.jsx('button', {
         type: 'button',
         className: 'text-blue-300 hover:underline',
-        onClick: () => S(I),
+        onClick: () => y(I),
         children: I.name
       }),
       e.jsxs('span', {
@@ -8393,36 +8678,36 @@ function Os({ node: _, onPick: S, openMap: v, setOpenMap: w, query: O }) {
     ]
   })
 }
-function Dt(_, S) {
-  if (!S) return !0
-  const v = S.toLowerCase()
-  if (_.kind === 'group') {
-    const O = _
-    return O.name.toLowerCase().includes(v) || O.children.some((D) => Dt(D, S))
+function Bt(m, y) {
+  if (!y) return !0
+  const g = y.toLowerCase()
+  if (m.kind === 'group') {
+    const T = m
+    return T.name.toLowerCase().includes(g) || T.children.some((R) => Bt(R, y))
   }
-  const w = _
+  const w = m
   return (
-    w.name.toLowerCase().includes(v) ||
-    w.address.toLowerCase().includes(v) ||
-    (w.defaultUser?.toLowerCase().includes(v) ?? !1) ||
-    (w.tags?.some((O) => O.toLowerCase().includes(v)) ?? !1)
+    w.name.toLowerCase().includes(g) ||
+    w.address.toLowerCase().includes(g) ||
+    (w.defaultUser?.toLowerCase().includes(g) ?? !1) ||
+    (w.tags?.some((T) => T.toLowerCase().includes(g)) ?? !1)
   )
 }
-function qr() {
-  const _ = Ce((B) => B.cmdb),
-    [S, v] = k.useState(''),
-    [w, O] = k.useState(''),
-    [D, I] = k.useState('root'),
+function Zr() {
+  const m = Ce((B) => B.cmdb),
+    [y, g] = k.useState(''),
+    [w, T] = k.useState(''),
+    [R, I] = k.useState('root'),
     [i, o] = k.useState('password'),
-    [l, f] = k.useState(''),
-    [a, d] = k.useState(''),
-    [u, x] = k.useState(''),
-    [h, t] = k.useState(!1),
+    [l, u] = k.useState(''),
+    [a, h] = k.useState(''),
+    [f, x] = k.useState(''),
+    [c, t] = k.useState(!1),
     [n, s] = k.useState(!1),
-    [r, c] = k.useState(''),
-    [g, m] = k.useState(''),
-    b = k.useMemo(() => _.filter((B) => Dt(B, g)), [_, g]),
-    [p, y] = k.useState(() => {
+    [r, d] = k.useState(''),
+    [v, _] = k.useState(''),
+    b = k.useMemo(() => m.filter((B) => Bt(B, v)), [m, v]),
+    [p, S] = k.useState(() => {
       try {
         const B = localStorage.getItem('webshell_cmdb_open')
         return B ? JSON.parse(B) : {}
@@ -8431,27 +8716,27 @@ function qr() {
       }
     }),
     L = (B, z) => {
-      y((G) => {
-        const J = { ...G, [B]: z }
+      S((K) => {
+        const J = { ...K, [B]: z }
         return (localStorage.setItem('webshell_cmdb_open', JSON.stringify(J)), J)
       })
     },
     M = k.useRef(null),
     P = k.useRef(null),
     j = k.useRef(null),
-    R = k.useRef(null),
-    T = k.useRef(null),
+    D = k.useRef(null),
+    O = k.useRef(null),
     $ = k.useRef(null),
     F = async () => {
       if (M.current || !P.current) return
-      const [{ Terminal: B }, { FitAddon: z }, { WebLinksAddon: G }] = await Promise.all([
-          Ge(() => import('./ui-vendor-CJfbT-UK.js').then((K) => K.x), __vite__mapDeps([0, 1])),
-          Ge(() => Promise.resolve().then(() => yi), void 0),
-          Ge(
-            () => import('./addon-web-links-D-NCOiOE.js').then((K) => K.a),
+      const [{ Terminal: B }, { FitAddon: z }, { WebLinksAddon: K }] = await Promise.all([
+          Ke(() => import('./ui-vendor-CJfbT-UK.js').then((G) => G.x), __vite__mapDeps([0, 1])),
+          Ke(() => Promise.resolve().then(() => ki), void 0),
+          Ke(
+            () => import('./addon-web-links-D-NCOiOE.js').then((G) => G.a),
             __vite__mapDeps([2, 1])
           ),
-          Ge(() => Promise.resolve({}), __vite__mapDeps([3]))
+          Ke(() => Promise.resolve({}), __vite__mapDeps([3]))
         ]),
         J = new B({
           theme: { background: '#0b0f14' },
@@ -8462,15 +8747,15 @@ function qr() {
           allowProposedApi: !0
         }),
         Q = new z(),
-        H = new G()
+        H = new K()
       ;(J.loadAddon(Q),
         J.loadAddon(H),
         J.open(P.current),
         Q.fit(),
         (M.current = J),
-        (R.current = Q))
+        (D.current = Q))
       const E = () => {
-        R.current && R.current.fit()
+        D.current && D.current.fit()
       }
       return (
         window.addEventListener('resize', E),
@@ -8480,39 +8765,39 @@ function qr() {
       )
     },
     W = async () => {
-      if (!(!S || h)) {
+      if (!(!y || c)) {
         if (i === 'password' && !l) {
-          c('Password is required')
+          d('Password is required')
           return
         }
-        if (i === 'key' && !u) {
-          c('Private key is required')
+        if (i === 'key' && !f) {
+          d('Private key is required')
           return
         }
-        ;(t(!0), c(''))
+        ;(t(!0), d(''))
         try {
           await F()
           const B = M.current
           if (!B) throw new Error('Terminal not initialized')
           ;(B.write('\x1B[2J\x1B[H'),
-            B.writeln('Connecting to ' + D + '@' + S + (w ? ':' + w : '') + '...'))
+            B.writeln('Connecting to ' + R + '@' + y + (w ? ':' + w : '') + '...'))
           const z = qe()
-          let G
+          let K
           if (z.startsWith('http://') || z.startsWith('https://')) {
             const Q = new URL(z)
-            G = `${Q.protocol === 'https:' ? 'wss:' : 'ws:'}//${Q.host}/ws/webshell`
+            K = `${Q.protocol === 'https:' ? 'wss:' : 'ws:'}//${Q.host}/ws/webshell`
           } else
-            G = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws/webshell`
-          const J = new WebSocket(G)
+            K = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws/webshell`
+          const J = new WebSocket(K)
           ;((j.current = J),
             (J.onopen = () => {
               const Q = {
-                host: S,
+                host: y,
                 port: w || 22,
-                user: D,
+                user: R,
                 auth_method: i,
                 password: i === 'password' ? l : '',
-                private_key: i === 'key' ? u : ''
+                private_key: i === 'key' ? f : ''
               }
               J.send(JSON.stringify(Q))
             }),
@@ -8526,8 +8811,8 @@ function qr() {
                     B.writeln(`\r
 \x1B[32mConnected successfully!\x1B[0m\r
 `),
-                    T.current && T.current.dispose(),
-                    (T.current = B.onData((E) => {
+                    O.current && O.current.dispose(),
+                    (O.current = B.onData((E) => {
                       J.readyState === WebSocket.OPEN &&
                         J.send(JSON.stringify({ type: 'input', data: E }))
                     })),
@@ -8536,9 +8821,9 @@ function qr() {
                       J.readyState === WebSocket.OPEN &&
                         J.send(JSON.stringify({ type: 'resize', cols: E.cols, rows: E.rows }))
                     })),
-                    R.current)
+                    D.current)
                   ) {
-                    const E = R.current.proposeDimensions()
+                    const E = D.current.proposeDimensions()
                     E &&
                       J.readyState === WebSocket.OPEN &&
                       J.send(JSON.stringify({ type: 'resize', cols: E.cols, rows: E.rows }))
@@ -8561,10 +8846,10 @@ function qr() {
                         B.writeln('  • \x1B[33mSSH key not authorized on server\x1B[0m'),
                         B.writeln(''),
                         B.writeln('\x1B[1;32mPlease check your credentials and try again.\x1B[0m'),
-                        c(
+                        d(
                           '❌ Authentication failed. Please check your password or SSH key and try again.'
                         ))
-                      : c('❌ ' + E),
+                      : d('❌ ' + E),
                     B.writeln(`\x1B[1;31m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1B[0m\r
 `),
                     t(!1),
@@ -8579,7 +8864,7 @@ function qr() {
               ;(console.error('WebSocket error:', Q),
                 B.writeln(`\r
 \x1B[31mConnection error\x1B[0m`),
-                c('❌ WebSocket connection error. Please check network connectivity.'),
+                d('❌ WebSocket connection error. Please check network connectivity.'),
                 t(!1),
                 s(!1))
             }),
@@ -8588,12 +8873,12 @@ function qr() {
 \x1B[33mConnection closed\x1B[0m`),
                 s(!1),
                 t(!1),
-                T.current && (T.current.dispose(), (T.current = null)),
+                O.current && (O.current.dispose(), (O.current = null)),
                 $.current && ($.current.dispose(), ($.current = null)))
             }))
         } catch (B) {
           ;(console.error('Connection error:', B),
-            c(B instanceof Error ? B.message : 'Connection failed'),
+            d(B instanceof Error ? B.message : 'Connection failed'),
             t(!1))
         }
       }
@@ -8602,27 +8887,27 @@ function qr() {
       ;(j.current && (j.current.close(), (j.current = null)), s(!1))
     },
     A = () => {
-      ;(v(''), O(''), f(''), d(''), x(''), c(''))
+      ;(g(''), T(''), u(''), h(''), x(''), d(''))
     },
     N = (B) => {
       const z = B.target.files?.[0]
       if (!z) {
-        ;(d(''), x(''))
+        ;(h(''), x(''))
         return
       }
-      d(z.name)
-      const G = new FileReader()
-      ;((G.onload = () => {
-        x(String(G.result || ''))
+      h(z.name)
+      const K = new FileReader()
+      ;((K.onload = () => {
+        x(String(K.result || ''))
       }),
-        G.readAsText(z))
+        K.readAsText(z))
     }
   return (
     k.useEffect(
       () => () => {
         ;(j.current && j.current.close(),
           M.current && M.current.dispose(),
-          T.current && T.current.dispose(),
+          O.current && O.current.dispose(),
           $.current && $.current.dispose())
       },
       []
@@ -8680,22 +8965,22 @@ function qr() {
                     e.jsx('input', {
                       className: 'input w-full mb-2',
                       placeholder: 'Search hosts/groups...',
-                      value: g,
-                      onChange: (B) => m(B.target.value)
+                      value: v,
+                      onChange: (B) => _(B.target.value)
                     }),
                     e.jsx('div', {
                       className:
                         'max-h-56 overflow-auto rounded border border-oxide-800 p-2 bg-oxide-950',
                       children: b.map((B) =>
                         e.jsx(
-                          Os,
+                          Fs,
                           {
                             node: B,
                             openMap: p,
                             setOpenMap: L,
-                            query: g,
+                            query: v,
                             onPick: (z) => {
-                              ;(v(z.address), z.defaultUser && I(z.defaultUser))
+                              ;(g(z.address), z.defaultUser && I(z.defaultUser))
                             }
                           },
                           B.id
@@ -8710,8 +8995,8 @@ function qr() {
                     e.jsx('input', {
                       className: 'input w-full',
                       placeholder: '10.0.0.10 or hostname',
-                      value: S,
-                      onChange: (B) => v(B.target.value),
+                      value: y,
+                      onChange: (B) => g(B.target.value),
                       disabled: n
                     })
                   ]
@@ -8727,7 +9012,7 @@ function qr() {
                           type: 'number',
                           placeholder: '22',
                           value: w,
-                          onChange: (B) => O(B.target.value ? Number(B.target.value) : ''),
+                          onChange: (B) => T(B.target.value ? Number(B.target.value) : ''),
                           disabled: n
                         })
                       ]
@@ -8737,7 +9022,7 @@ function qr() {
                         e.jsx('label', { className: 'label', children: 'User' }),
                         e.jsx('input', {
                           className: 'input w-full',
-                          value: D,
+                          value: R,
                           onChange: (B) => I(B.target.value),
                           disabled: n
                         })
@@ -8789,7 +9074,7 @@ function qr() {
                           className: 'input w-full',
                           type: 'password',
                           value: l,
-                          onChange: (B) => f(B.target.value),
+                          onChange: (B) => u(B.target.value),
                           disabled: n
                         })
                       ]
@@ -8811,7 +9096,7 @@ function qr() {
                               'Selected: ',
                               a,
                               ' ',
-                              u ? `(${u.length} bytes)` : '(loading...)'
+                              f ? `(${f.length} bytes)` : '(loading...)'
                             ]
                           })
                       ]
@@ -8865,7 +9150,7 @@ function qr() {
                                 className:
                                   'mt-3 text-xs bg-red-700 hover:bg-red-600 text-white px-3 py-1.5 rounded',
                                 onClick: () => {
-                                  ;(c(''), i === 'password' ? f('') : (d(''), x('')))
+                                  ;(d(''), i === 'password' ? u('') : (h(''), x('')))
                                 },
                                 children: '🔄 Clear and Retry'
                               })
@@ -8886,14 +9171,14 @@ function qr() {
                         children: [
                           e.jsx('button', {
                             className: 'btn-primary',
-                            disabled: !S || h || (i === 'password' ? !l : !u),
+                            disabled: !y || c || (i === 'password' ? !l : !f),
                             onClick: W,
-                            children: h ? 'Connecting…' : r ? 'Retry Connection' : 'Connect'
+                            children: c ? 'Connecting…' : r ? 'Retry Connection' : 'Connect'
                           }),
                           e.jsx('button', {
                             className: 'btn-secondary',
                             onClick: A,
-                            disabled: h,
+                            disabled: c,
                             children: 'Clear'
                           })
                         ]
@@ -8916,26 +9201,27 @@ function qr() {
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
- */ const Xr = (_) => _.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase(),
-  Jr = (_) =>
-    _.replace(/^([A-Z])|[\s-_]+(\w)/g, (S, v, w) => (w ? w.toUpperCase() : v.toLowerCase())),
-  $t = (_) => {
-    const S = Jr(_)
-    return S.charAt(0).toUpperCase() + S.slice(1)
+ */ const Qr = (m) => m.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase(),
+  ei = (m) =>
+    m.replace(/^([A-Z])|[\s-_]+(\w)/g, (y, g, w) => (w ? w.toUpperCase() : g.toLowerCase())),
+  Ut = (m) => {
+    const y = ei(m)
+    return y.charAt(0).toUpperCase() + y.slice(1)
   },
-  Hs = (..._) =>
-    _.filter((S, v, w) => !!S && S.trim() !== '' && w.indexOf(S) === v)
+  $s = (...m) =>
+    m
+      .filter((y, g, w) => !!y && y.trim() !== '' && w.indexOf(y) === g)
       .join(' ')
       .trim(),
-  Yr = (_) => {
-    for (const S in _) if (S.startsWith('aria-') || S === 'role' || S === 'title') return !0
+  ti = (m) => {
+    for (const y in m) if (y.startsWith('aria-') || y === 'role' || y === 'title') return !0
   }
 /**
  * @license lucide-react v0.556.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
- */ var Zr = {
+ */ var si = {
   xmlns: 'http://www.w3.org/2000/svg',
   width: 24,
   height: 24,
@@ -8951,15 +9237,15 @@ function qr() {
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
- */ const Qr = k.forwardRef(
+ */ const ri = k.forwardRef(
   (
     {
-      color: _ = 'currentColor',
-      size: S = 24,
-      strokeWidth: v = 2,
+      color: m = 'currentColor',
+      size: y = 24,
+      strokeWidth: g = 2,
       absoluteStrokeWidth: w,
-      className: O = '',
-      children: D,
+      className: T = '',
+      children: R,
       iconNode: I,
       ...i
     },
@@ -8969,16 +9255,16 @@ function qr() {
       'svg',
       {
         ref: o,
-        ...Zr,
-        width: S,
-        height: S,
-        stroke: _,
-        strokeWidth: w ? (Number(v) * 24) / Number(S) : v,
-        className: Hs('lucide', O),
-        ...(!D && !Yr(i) && { 'aria-hidden': 'true' }),
+        ...si,
+        width: y,
+        height: y,
+        stroke: m,
+        strokeWidth: w ? (Number(g) * 24) / Number(y) : g,
+        className: $s('lucide', T),
+        ...(!R && !ti(i) && { 'aria-hidden': 'true' }),
         ...i
       },
-      [...I.map(([l, f]) => k.createElement(l, f)), ...(Array.isArray(D) ? D : [D])]
+      [...I.map(([l, u]) => k.createElement(l, u)), ...(Array.isArray(R) ? R : [R])]
     )
 )
 /**
@@ -8986,54 +9272,54 @@ function qr() {
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
- */ const je = (_, S) => {
-  const v = k.forwardRef(({ className: w, ...O }, D) =>
-    k.createElement(Qr, {
-      ref: D,
-      iconNode: S,
-      className: Hs(`lucide-${Xr($t(_))}`, `lucide-${_}`, w),
-      ...O
+ */ const ke = (m, y) => {
+  const g = k.forwardRef(({ className: w, ...T }, R) =>
+    k.createElement(ri, {
+      ref: R,
+      iconNode: y,
+      className: $s(`lucide-${Qr(Ut(m))}`, `lucide-${m}`, w),
+      ...T
     })
   )
-  return ((v.displayName = $t(_)), v)
+  return ((g.displayName = Ut(m)), g)
 }
 /**
  * @license lucide-react v0.556.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
- */ const ei = [
+ */ const ii = [
     ['path', { d: 'm12 19-7-7 7-7', key: '1l729n' }],
     ['path', { d: 'M19 12H5', key: 'x3x0zl' }]
   ],
-  ti = je('arrow-left', ei)
+  ni = ke('arrow-left', ii)
 /**
  * @license lucide-react v0.556.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
- */ const si = [
+ */ const ai = [
     ['path', { d: 'M12 6v6l4 2', key: 'mmk7yg' }],
     ['circle', { cx: '12', cy: '12', r: '10', key: '1mglay' }]
   ],
-  ri = je('clock', si)
+  oi = ke('clock', ai)
 /**
  * @license lucide-react v0.556.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
- */ const ii = [
+ */ const li = [
     ['path', { d: 'M12 15V3', key: 'm9g1x1' }],
     ['path', { d: 'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4', key: 'ih7n3h' }],
     ['path', { d: 'm7 10 5 5 5-5', key: 'brsn70' }]
   ],
-  Fs = je('download', ii)
+  Ws = ke('download', li)
 /**
  * @license lucide-react v0.556.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
- */ const ni = [
+ */ const ci = [
     [
       'path',
       {
@@ -9042,13 +9328,13 @@ function qr() {
       }
     ]
   ],
-  ai = je('funnel', ni)
+  hi = ke('funnel', ci)
 /**
  * @license lucide-react v0.556.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
- */ const oi = [
+ */ const di = [
     ['line', { x1: '22', x2: '2', y1: '12', y2: '12', key: '1y58io' }],
     [
       'path',
@@ -9060,23 +9346,23 @@ function qr() {
     ['line', { x1: '6', x2: '6.01', y1: '16', y2: '16', key: 'sgf278' }],
     ['line', { x1: '10', x2: '10.01', y1: '16', y2: '16', key: '1l4acy' }]
   ],
-  Wt = je('hard-drive', oi)
+  zt = ke('hard-drive', di)
 /**
  * @license lucide-react v0.556.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
- */ const li = [
+ */ const ui = [
     ['rect', { x: '14', y: '3', width: '5', height: '18', rx: '1', key: 'kaeet6' }],
     ['rect', { x: '5', y: '3', width: '5', height: '18', rx: '1', key: '1wsw3u' }]
   ],
-  ci = je('pause', li)
+  fi = ke('pause', ui)
 /**
  * @license lucide-react v0.556.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
- */ const hi = [
+ */ const pi = [
     [
       'path',
       {
@@ -9085,25 +9371,25 @@ function qr() {
       }
     ]
   ],
-  $s = je('play', hi)
+  Us = ke('play', pi)
 /**
  * @license lucide-react v0.556.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
- */ const di = [
+ */ const mi = [
     ['rect', { width: '20', height: '8', x: '2', y: '2', rx: '2', ry: '2', key: 'ngkwjq' }],
     ['rect', { width: '20', height: '8', x: '2', y: '14', rx: '2', ry: '2', key: 'iecqi9' }],
     ['line', { x1: '6', x2: '6.01', y1: '6', y2: '6', key: '16zg32' }],
     ['line', { x1: '6', x2: '6.01', y1: '18', y2: '18', key: 'nzw8ys' }]
   ],
-  Ut = je('server', di)
+  Vt = ke('server', mi)
 /**
  * @license lucide-react v0.556.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
- */ const ui = [
+ */ const _i = [
     [
       'path',
       {
@@ -9113,13 +9399,13 @@ function qr() {
     ],
     ['path', { d: 'M3 20V4', key: '1ptbpl' }]
   ],
-  zt = je('skip-back', ui)
+  Gt = ke('skip-back', _i)
 /**
  * @license lucide-react v0.556.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
- */ const fi = [
+ */ const gi = [
     ['path', { d: 'M21 4v16', key: '7j8fe9' }],
     [
       'path',
@@ -9129,72 +9415,72 @@ function qr() {
       }
     ]
   ],
-  pi = je('skip-forward', fi)
+  vi = ke('skip-forward', gi)
 /**
  * @license lucide-react v0.556.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
- */ const _i = [
+ */ const xi = [
     ['path', { d: 'M12 19h8', key: 'baeox8' }],
     ['path', { d: 'm4 17 6-6-6-6', key: '1yngyt' }]
   ],
-  mi = je('terminal', _i)
+  bi = ke('terminal', xi)
 /**
  * @license lucide-react v0.556.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
- */ const gi = [
+ */ const yi = [
     ['path', { d: 'M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2', key: '975kel' }],
     ['circle', { cx: '12', cy: '7', r: '4', key: '17ys0d' }]
   ],
-  Vt = je('user', gi),
-  Kt = qe()
-function vi() {
-  const [_, S] = k.useState([]),
-    [v, w] = k.useState(0),
-    [O, D] = k.useState(1),
+  Kt = ke('user', yi),
+  qt = qe()
+function Si() {
+  const [m, y] = k.useState([]),
+    [g, w] = k.useState(0),
+    [T, R] = k.useState(1),
     [I] = k.useState(20),
     [i, o] = k.useState(!1),
-    [l, f] = k.useState(''),
-    [a, d] = k.useState(''),
-    [u, x] = k.useState('all'),
-    [h, t] = k.useState(!1)
+    [l, u] = k.useState(''),
+    [a, h] = k.useState(''),
+    [f, x] = k.useState('all'),
+    [c, t] = k.useState(!1)
   k.useEffect(() => {
     ;(async () => {
       o(!0)
       try {
-        const p = new URLSearchParams({ page: O.toString(), page_size: I.toString() })
+        const p = new URLSearchParams({ page: T.toString(), page_size: I.toString() })
         ;(l && p.append('username', l),
           a && p.append('remote_host', a),
-          u !== 'all' && p.append('status', u))
-        const y = await fetch(`${Kt}/v1/webshell/sessions?${p}`, {
+          f !== 'all' && p.append('status', f))
+        const S = await fetch(`${qt}/v1/webshell/sessions?${p}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         })
-        if (y.ok) {
-          const L = await y.json()
-          ;(S(L.data || []), w(L.total))
+        if (S.ok) {
+          const L = await S.json()
+          ;(y(L.data || []), w(L.total))
         }
       } catch {
       } finally {
         o(!1)
       }
     })()
-  }, [O, I, l, a, u])
+  }, [T, I, l, a, f])
   const n = (b) => {
       if (!b) return 'N/A'
       const p = Math.floor(b / 3600),
-        y = Math.floor((b % 3600) / 60),
+        S = Math.floor((b % 3600) / 60),
         L = b % 60
-      return p > 0 ? `${p}h ${y}m ${L}s` : y > 0 ? `${y}m ${L}s` : `${L}s`
+      return p > 0 ? `${p}h ${S}m ${L}s` : S > 0 ? `${S}m ${L}s` : `${L}s`
     },
     s = (b) => {
       if (b === 0) return '0 B'
       const p = 1024,
-        y = ['B', 'KB', 'MB', 'GB'],
+        S = ['B', 'KB', 'MB', 'GB'],
         L = Math.floor(Math.log(b) / Math.log(p))
-      return Math.round((b / Math.pow(p, L)) * 100) / 100 + ' ' + y[L]
+      return Math.round((b / Math.pow(p, L)) * 100) / 100 + ' ' + S[L]
     },
     r = (b) =>
       new Date(b).toLocaleString('zh-CN', {
@@ -9205,14 +9491,14 @@ function vi() {
         minute: '2-digit',
         second: '2-digit'
       }),
-    c = async (b) => {
+    d = async (b) => {
       try {
-        const p = await fetch(`${Kt}/v1/webshell/sessions/${b.session_id}/export`, {
+        const p = await fetch(`${qt}/v1/webshell/sessions/${b.session_id}/export`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         })
         if (p.ok) {
-          const y = await p.blob(),
-            L = window.URL.createObjectURL(y),
+          const S = await p.blob(),
+            L = window.URL.createObjectURL(S),
             M = document.createElement('a')
           ;((M.href = L),
             (M.download = `webshell-${b.session_id}-${b.started_at}.cast`),
@@ -9223,7 +9509,7 @@ function vi() {
         }
       } catch {}
     },
-    g = (b) => {
+    v = (b) => {
       switch (b) {
         case 'active':
           return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
@@ -9236,7 +9522,7 @@ function vi() {
           return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
       }
     },
-    m = Math.ceil(v / I)
+    _ = Math.ceil(g / I)
   return e.jsxs('div', {
     className: 'p-6 space-y-6',
     children: [
@@ -9256,14 +9542,14 @@ function vi() {
             ]
           }),
           e.jsxs('button', {
-            onClick: () => t(!h),
+            onClick: () => t(!c),
             className:
               'flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700',
-            children: [e.jsx(ai, { className: 'w-4 h-4' }), '筛选']
+            children: [e.jsx(hi, { className: 'w-4 h-4' }), '筛选']
           })
         ]
       }),
-      h &&
+      c &&
         e.jsxs('div', {
           className:
             'bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 space-y-4',
@@ -9275,12 +9561,12 @@ function vi() {
                   children: [
                     e.jsxs('label', {
                       className: 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1',
-                      children: [e.jsx(Vt, { className: 'w-4 h-4 inline mr-1' }), '用户名']
+                      children: [e.jsx(Kt, { className: 'w-4 h-4 inline mr-1' }), '用户名']
                     }),
                     e.jsx('input', {
                       type: 'text',
                       value: l,
-                      onChange: (b) => f(b.target.value),
+                      onChange: (b) => u(b.target.value),
                       placeholder: '搜索用户名...',
                       className:
                         'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white'
@@ -9291,12 +9577,12 @@ function vi() {
                   children: [
                     e.jsxs('label', {
                       className: 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1',
-                      children: [e.jsx(Ut, { className: 'w-4 h-4 inline mr-1' }), '远程主机']
+                      children: [e.jsx(Vt, { className: 'w-4 h-4 inline mr-1' }), '远程主机']
                     }),
                     e.jsx('input', {
                       type: 'text',
                       value: a,
-                      onChange: (b) => d(b.target.value),
+                      onChange: (b) => h(b.target.value),
                       placeholder: '搜索主机地址...',
                       className:
                         'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white'
@@ -9310,7 +9596,7 @@ function vi() {
                       children: '状态'
                     }),
                     e.jsxs('select', {
-                      value: u,
+                      value: f,
                       onChange: (b) => x(b.target.value),
                       className:
                         'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white',
@@ -9331,7 +9617,7 @@ function vi() {
               className: 'flex justify-end',
               children: e.jsx('button', {
                 onClick: () => {
-                  ;(f(''), d(''), x('all'))
+                  ;(u(''), h(''), x('all'))
                 },
                 className:
                   'px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white',
@@ -9346,8 +9632,8 @@ function vi() {
         children: e.jsxs('div', {
           className: 'flex items-center justify-between text-sm text-gray-600 dark:text-gray-400',
           children: [
-            e.jsxs('span', { children: ['共 ', v, ' 条会话记录'] }),
-            e.jsxs('span', { children: ['第 ', O, ' / ', m, ' 页'] })
+            e.jsxs('span', { children: ['共 ', g, ' 条会话记录'] }),
+            e.jsxs('span', { children: ['第 ', T, ' / ', _, ' 页'] })
           ]
         })
       }),
@@ -9359,11 +9645,11 @@ function vi() {
               className: 'p-8 text-center text-gray-500 dark:text-gray-400',
               children: '加载中...'
             })
-          : _.length === 0
+          : m.length === 0
             ? e.jsxs('div', {
                 className: 'p-8 text-center text-gray-500 dark:text-gray-400',
                 children: [
-                  e.jsx(mi, { className: 'w-12 h-12 mx-auto mb-3 opacity-50' }),
+                  e.jsx(bi, { className: 'w-12 h-12 mx-auto mb-3 opacity-50' }),
                   e.jsx('p', { children: '暂无会话记录' })
                 ]
               })
@@ -9412,7 +9698,7 @@ function vi() {
                     }),
                     e.jsx('tbody', {
                       className: 'divide-y divide-gray-200 dark:divide-gray-700',
-                      children: _.map((b) =>
+                      children: m.map((b) =>
                         e.jsxs(
                           'tr',
                           {
@@ -9426,7 +9712,7 @@ function vi() {
                                     e.jsxs('div', {
                                       className: 'flex items-center gap-2',
                                       children: [
-                                        e.jsx(Vt, { className: 'w-4 h-4 text-gray-400' }),
+                                        e.jsx(Kt, { className: 'w-4 h-4 text-gray-400' }),
                                         e.jsx('span', {
                                           className: 'font-medium text-gray-900 dark:text-white',
                                           children: b.username
@@ -9453,7 +9739,7 @@ function vi() {
                                     e.jsxs('div', {
                                       className: 'flex items-center gap-2',
                                       children: [
-                                        e.jsx(Ut, { className: 'w-4 h-4 text-gray-400' }),
+                                        e.jsx(Vt, { className: 'w-4 h-4 text-gray-400' }),
                                         e.jsxs('span', {
                                           className:
                                             'text-sm font-medium text-gray-900 dark:text-white',
@@ -9484,7 +9770,7 @@ function vi() {
                                       className:
                                         'flex items-center gap-2 text-gray-600 dark:text-gray-400',
                                       children: [
-                                        e.jsx(ri, { className: 'w-4 h-4' }),
+                                        e.jsx(oi, { className: 'w-4 h-4' }),
                                         r(b.started_at)
                                       ]
                                     }),
@@ -9505,7 +9791,7 @@ function vi() {
                                       className:
                                         'flex items-center gap-1 text-gray-600 dark:text-gray-400',
                                       children: [
-                                        e.jsx(Wt, { className: 'w-3 h-3' }),
+                                        e.jsx(zt, { className: 'w-3 h-3' }),
                                         '↑ ',
                                         s(b.bytes_sent)
                                       ]
@@ -9514,7 +9800,7 @@ function vi() {
                                       className:
                                         'flex items-center gap-1 text-gray-600 dark:text-gray-400',
                                       children: [
-                                        e.jsx(Wt, { className: 'w-3 h-3' }),
+                                        e.jsx(zt, { className: 'w-3 h-3' }),
                                         '↓ ',
                                         s(b.bytes_received)
                                       ]
@@ -9525,7 +9811,7 @@ function vi() {
                               e.jsx('td', {
                                 className: 'px-4 py-4',
                                 children: e.jsx('span', {
-                                  className: `inline-flex px-2 py-1 text-xs font-medium rounded-full ${g(b.status)}`,
+                                  className: `inline-flex px-2 py-1 text-xs font-medium rounded-full ${v(b.status)}`,
                                   children: b.status
                                 })
                               }),
@@ -9540,14 +9826,14 @@ function vi() {
                                       className:
                                         'p-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded',
                                       title: '回放',
-                                      children: e.jsx($s, { className: 'w-4 h-4' })
+                                      children: e.jsx(Us, { className: 'w-4 h-4' })
                                     }),
                                     e.jsx('button', {
-                                      onClick: () => c(b),
+                                      onClick: () => d(b),
                                       className:
                                         'p-2 text-gray-600 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded',
                                       title: '导出',
-                                      children: e.jsx(Fs, { className: 'w-4 h-4' })
+                                      children: e.jsx(Ws, { className: 'w-4 h-4' })
                                     })
                                   ]
                                 })
@@ -9562,38 +9848,38 @@ function vi() {
                 })
               })
       }),
-      m > 1 &&
+      _ > 1 &&
         e.jsxs('div', {
           className: 'flex items-center justify-between',
           children: [
             e.jsx('button', {
-              onClick: () => D(Math.max(1, O - 1)),
-              disabled: O === 1,
+              onClick: () => R(Math.max(1, T - 1)),
+              disabled: T === 1,
               className:
                 'px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700',
               children: '上一页'
             }),
             e.jsx('div', {
               className: 'flex items-center gap-2',
-              children: Array.from({ length: Math.min(5, m) }, (b, p) => {
-                let y
+              children: Array.from({ length: Math.min(5, _) }, (b, p) => {
+                let S
                 return (
-                  m <= 5 || O <= 3 ? (y = p + 1) : O >= m - 2 ? (y = m - 4 + p) : (y = O - 2 + p),
+                  _ <= 5 || T <= 3 ? (S = p + 1) : T >= _ - 2 ? (S = _ - 4 + p) : (S = T - 2 + p),
                   e.jsx(
                     'button',
                     {
-                      onClick: () => D(y),
-                      className: `px-3 py-1 text-sm font-medium rounded ${O === y ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'}`,
-                      children: y
+                      onClick: () => R(S),
+                      className: `px-3 py-1 text-sm font-medium rounded ${T === S ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'}`,
+                      children: S
                     },
-                    y
+                    S
                   )
                 )
               })
             }),
             e.jsx('button', {
-              onClick: () => D(Math.min(m, O + 1)),
-              disabled: O === m,
+              onClick: () => R(Math.min(_, T + 1)),
+              disabled: T === _,
               className:
                 'px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700',
               children: '下一页'
@@ -9603,48 +9889,48 @@ function vi() {
     ]
   })
 }
-var Ws = { exports: {} }
-;(function (_, S) {
-  ;(function (v, w) {
-    _.exports = w()
+var zs = { exports: {} }
+;(function (m, y) {
+  ;(function (g, w) {
+    m.exports = w()
   })(globalThis, () =>
     (() => {
-      var v = {
+      var g = {
           4567: function (I, i, o) {
             var l =
                 (this && this.__decorate) ||
-                function (s, r, c, g) {
-                  var m,
+                function (s, r, d, v) {
+                  var _,
                     b = arguments.length,
-                    p = b < 3 ? r : g === null ? (g = Object.getOwnPropertyDescriptor(r, c)) : g
+                    p = b < 3 ? r : v === null ? (v = Object.getOwnPropertyDescriptor(r, d)) : v
                   if (typeof Reflect == 'object' && typeof Reflect.decorate == 'function')
-                    p = Reflect.decorate(s, r, c, g)
+                    p = Reflect.decorate(s, r, d, v)
                   else
-                    for (var y = s.length - 1; y >= 0; y--)
-                      (m = s[y]) && (p = (b < 3 ? m(p) : b > 3 ? m(r, c, p) : m(r, c)) || p)
-                  return (b > 3 && p && Object.defineProperty(r, c, p), p)
+                    for (var S = s.length - 1; S >= 0; S--)
+                      (_ = s[S]) && (p = (b < 3 ? _(p) : b > 3 ? _(r, d, p) : _(r, d)) || p)
+                  return (b > 3 && p && Object.defineProperty(r, d, p), p)
                 },
-              f =
+              u =
                 (this && this.__param) ||
                 function (s, r) {
-                  return function (c, g) {
-                    r(c, g, s)
+                  return function (d, v) {
+                    r(d, v, s)
                   }
                 }
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.AccessibilityManager = void 0))
             const a = o(9042),
-              d = o(9924),
-              u = o(844),
+              h = o(9924),
+              f = o(844),
               x = o(4725),
-              h = o(2585),
+              c = o(2585),
               t = o(3656)
-            let n = (i.AccessibilityManager = class extends u.Disposable {
-              constructor(s, r, c, g) {
+            let n = (i.AccessibilityManager = class extends f.Disposable {
+              constructor(s, r, d, v) {
                 ;(super(),
                   (this._terminal = s),
-                  (this._coreBrowserService = c),
-                  (this._renderService = g),
+                  (this._coreBrowserService = d),
+                  (this._renderService = v),
                   (this._rowColumns = new WeakMap()),
                   (this._liveRegionLineCount = 0),
                   (this._charsToConsume = []),
@@ -9656,12 +9942,12 @@ var Ws = { exports: {} }
                   this._rowContainer.setAttribute('role', 'list'),
                   this._rowContainer.classList.add('xterm-accessibility-tree'),
                   (this._rowElements = []))
-                for (let m = 0; m < this._terminal.rows; m++)
-                  ((this._rowElements[m] = this._createAccessibilityTreeNode()),
-                    this._rowContainer.appendChild(this._rowElements[m]))
+                for (let _ = 0; _ < this._terminal.rows; _++)
+                  ((this._rowElements[_] = this._createAccessibilityTreeNode()),
+                    this._rowContainer.appendChild(this._rowElements[_]))
                 if (
-                  ((this._topBoundaryFocusListener = (m) => this._handleBoundaryFocus(m, 0)),
-                  (this._bottomBoundaryFocusListener = (m) => this._handleBoundaryFocus(m, 1)),
+                  ((this._topBoundaryFocusListener = (_) => this._handleBoundaryFocus(_, 0)),
+                  (this._bottomBoundaryFocusListener = (_) => this._handleBoundaryFocus(_, 1)),
                   this._rowElements[0].addEventListener('focus', this._topBoundaryFocusListener),
                   this._rowElements[this._rowElements.length - 1].addEventListener(
                     'focus',
@@ -9674,7 +9960,7 @@ var Ws = { exports: {} }
                   this._liveRegion.setAttribute('aria-live', 'assertive'),
                   this._accessibilityContainer.appendChild(this._liveRegion),
                   (this._liveRegionDebouncer = this.register(
-                    new d.TimeBasedDebouncer(this._renderRows.bind(this))
+                    new h.TimeBasedDebouncer(this._renderRows.bind(this))
                   )),
                   !this._terminal.element)
                 )
@@ -9683,18 +9969,18 @@ var Ws = { exports: {} }
                   'afterbegin',
                   this._accessibilityContainer
                 ),
-                  this.register(this._terminal.onResize((m) => this._handleResize(m.rows))),
-                  this.register(this._terminal.onRender((m) => this._refreshRows(m.start, m.end))),
+                  this.register(this._terminal.onResize((_) => this._handleResize(_.rows))),
+                  this.register(this._terminal.onRender((_) => this._refreshRows(_.start, _.end))),
                   this.register(this._terminal.onScroll(() => this._refreshRows())),
-                  this.register(this._terminal.onA11yChar((m) => this._handleChar(m))),
+                  this.register(this._terminal.onA11yChar((_) => this._handleChar(_))),
                   this.register(
                     this._terminal.onLineFeed(() =>
                       this._handleChar(`
 `)
                     )
                   ),
-                  this.register(this._terminal.onA11yTab((m) => this._handleTab(m))),
-                  this.register(this._terminal.onKey((m) => this._handleKey(m.key))),
+                  this.register(this._terminal.onA11yTab((_) => this._handleTab(_))),
+                  this.register(this._terminal.onKey((_) => this._handleKey(_.key))),
                   this.register(this._terminal.onBlur(() => this._clearLiveRegion())),
                   this.register(
                     this._renderService.onDimensionsChange(() => this._refreshRowsDimensions())
@@ -9709,7 +9995,7 @@ var Ws = { exports: {} }
                   ),
                   this._refreshRows(),
                   this.register(
-                    (0, u.toDisposable)(() => {
+                    (0, f.toDisposable)(() => {
                       ;(this._accessibilityContainer.remove(), (this._rowElements.length = 0))
                     })
                   ))
@@ -9739,20 +10025,20 @@ var Ws = { exports: {} }
                 this._liveRegionDebouncer.refresh(s, r, this._terminal.rows)
               }
               _renderRows(s, r) {
-                const c = this._terminal.buffer,
-                  g = c.lines.length.toString()
-                for (let m = s; m <= r; m++) {
-                  const b = c.lines.get(c.ydisp + m),
+                const d = this._terminal.buffer,
+                  v = d.lines.length.toString()
+                for (let _ = s; _ <= r; _++) {
+                  const b = d.lines.get(d.ydisp + _),
                     p = [],
-                    y = b?.translateToString(!0, void 0, void 0, p) || '',
-                    L = (c.ydisp + m + 1).toString(),
-                    M = this._rowElements[m]
+                    S = b?.translateToString(!0, void 0, void 0, p) || '',
+                    L = (d.ydisp + _ + 1).toString(),
+                    M = this._rowElements[_]
                   M &&
-                    (y.length === 0
+                    (S.length === 0
                       ? ((M.innerText = ' '), this._rowColumns.set(M, [0, 1]))
-                      : ((M.textContent = y), this._rowColumns.set(M, p)),
+                      : ((M.textContent = S), this._rowColumns.set(M, p)),
                     M.setAttribute('aria-posinset', L),
-                    M.setAttribute('aria-setsize', g))
+                    M.setAttribute('aria-setsize', v))
                 }
                 this._announceCharacters()
               }
@@ -9762,20 +10048,20 @@ var Ws = { exports: {} }
                   (this._charsToAnnounce = ''))
               }
               _handleBoundaryFocus(s, r) {
-                const c = s.target,
-                  g = this._rowElements[r === 0 ? 1 : this._rowElements.length - 2]
+                const d = s.target,
+                  v = this._rowElements[r === 0 ? 1 : this._rowElements.length - 2]
                 if (
-                  c.getAttribute('aria-posinset') ===
+                  d.getAttribute('aria-posinset') ===
                     (r === 0 ? '1' : `${this._terminal.buffer.lines.length}`) ||
-                  s.relatedTarget !== g
+                  s.relatedTarget !== v
                 )
                   return
-                let m, b
+                let _, b
                 if (
                   (r === 0
-                    ? ((m = c), (b = this._rowElements.pop()), this._rowContainer.removeChild(b))
-                    : ((m = this._rowElements.shift()), (b = c), this._rowContainer.removeChild(m)),
-                  m.removeEventListener('focus', this._topBoundaryFocusListener),
+                    ? ((_ = d), (b = this._rowElements.pop()), this._rowContainer.removeChild(b))
+                    : ((_ = this._rowElements.shift()), (b = d), this._rowContainer.removeChild(_)),
+                  _.removeEventListener('focus', this._topBoundaryFocusListener),
                   b.removeEventListener('focus', this._bottomBoundaryFocusListener),
                   r === 0)
                 ) {
@@ -9807,36 +10093,36 @@ var Ws = { exports: {} }
                 if (!s.anchorNode || !s.focusNode)
                   return void console.error('anchorNode and/or focusNode are null')
                 let r = { node: s.anchorNode, offset: s.anchorOffset },
-                  c = { node: s.focusNode, offset: s.focusOffset }
+                  d = { node: s.focusNode, offset: s.focusOffset }
                 if (
-                  ((r.node.compareDocumentPosition(c.node) & Node.DOCUMENT_POSITION_PRECEDING ||
-                    (r.node === c.node && r.offset > c.offset)) &&
-                    ([r, c] = [c, r]),
+                  ((r.node.compareDocumentPosition(d.node) & Node.DOCUMENT_POSITION_PRECEDING ||
+                    (r.node === d.node && r.offset > d.offset)) &&
+                    ([r, d] = [d, r]),
                   r.node.compareDocumentPosition(this._rowElements[0]) &
                     (Node.DOCUMENT_POSITION_CONTAINED_BY | Node.DOCUMENT_POSITION_FOLLOWING) &&
                     (r = { node: this._rowElements[0].childNodes[0], offset: 0 }),
                   !this._rowContainer.contains(r.node))
                 )
                   return
-                const g = this._rowElements.slice(-1)[0]
+                const v = this._rowElements.slice(-1)[0]
                 if (
-                  (c.node.compareDocumentPosition(g) &
+                  (d.node.compareDocumentPosition(v) &
                     (Node.DOCUMENT_POSITION_CONTAINED_BY | Node.DOCUMENT_POSITION_PRECEDING) &&
-                    (c = { node: g, offset: g.textContent?.length ?? 0 }),
-                  !this._rowContainer.contains(c.node))
+                    (d = { node: v, offset: v.textContent?.length ?? 0 }),
+                  !this._rowContainer.contains(d.node))
                 )
                   return
-                const m = ({ node: y, offset: L }) => {
-                    const M = y instanceof Text ? y.parentNode : y
+                const _ = ({ node: S, offset: L }) => {
+                    const M = S instanceof Text ? S.parentNode : S
                     let P = parseInt(M?.getAttribute('aria-posinset'), 10) - 1
                     if (isNaN(P)) return (console.warn('row is invalid. Race condition?'), null)
                     const j = this._rowColumns.get(M)
                     if (!j) return (console.warn('columns is null. Race condition?'), null)
-                    let R = L < j.length ? j[L] : j.slice(-1)[0] + 1
-                    return (R >= this._terminal.cols && (++P, (R = 0)), { row: P, column: R })
+                    let D = L < j.length ? j[L] : j.slice(-1)[0] + 1
+                    return (D >= this._terminal.cols && (++P, (D = 0)), { row: P, column: D })
                   },
-                  b = m(r),
-                  p = m(c)
+                  b = _(r),
+                  p = _(d)
                 if (b && p) {
                   if (b.row > p.row || (b.row === p.row && b.column >= p.column))
                     throw new Error('invalid range')
@@ -9886,35 +10172,35 @@ var Ws = { exports: {} }
               }
             })
             i.AccessibilityManager = n = l(
-              [f(1, h.IInstantiationService), f(2, x.ICoreBrowserService), f(3, x.IRenderService)],
+              [u(1, c.IInstantiationService), u(2, x.ICoreBrowserService), u(3, x.IRenderService)],
               n
             )
           },
           3614: (I, i) => {
-            function o(d) {
-              return d.replace(/\r?\n/g, '\r')
+            function o(h) {
+              return h.replace(/\r?\n/g, '\r')
             }
-            function l(d, u) {
-              return u ? '\x1B[200~' + d + '\x1B[201~' : d
+            function l(h, f) {
+              return f ? '\x1B[200~' + h + '\x1B[201~' : h
             }
-            function f(d, u, x, h) {
-              ;((d = l(
-                (d = o(d)),
-                x.decPrivateModes.bracketedPasteMode && h.rawOptions.ignoreBracketedPasteMode !== !0
+            function u(h, f, x, c) {
+              ;((h = l(
+                (h = o(h)),
+                x.decPrivateModes.bracketedPasteMode && c.rawOptions.ignoreBracketedPasteMode !== !0
               )),
-                x.triggerDataEvent(d, !0),
-                (u.value = ''))
+                x.triggerDataEvent(h, !0),
+                (f.value = ''))
             }
-            function a(d, u, x) {
-              const h = x.getBoundingClientRect(),
-                t = d.clientX - h.left - 10,
-                n = d.clientY - h.top - 10
-              ;((u.style.width = '20px'),
-                (u.style.height = '20px'),
-                (u.style.left = `${t}px`),
-                (u.style.top = `${n}px`),
-                (u.style.zIndex = '1000'),
-                u.focus())
+            function a(h, f, x) {
+              const c = x.getBoundingClientRect(),
+                t = h.clientX - c.left - 10,
+                n = h.clientY - c.top - 10
+              ;((f.style.width = '20px'),
+                (f.style.height = '20px'),
+                (f.style.left = `${t}px`),
+                (f.style.top = `${n}px`),
+                (f.style.zIndex = '1000'),
+                f.focus())
             }
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.rightClickHandler =
@@ -9927,18 +10213,18 @@ var Ws = { exports: {} }
                   void 0),
               (i.prepareTextForTerminal = o),
               (i.bracketTextForPaste = l),
-              (i.copyHandler = function (d, u) {
-                ;(d.clipboardData && d.clipboardData.setData('text/plain', u.selectionText),
-                  d.preventDefault())
+              (i.copyHandler = function (h, f) {
+                ;(h.clipboardData && h.clipboardData.setData('text/plain', f.selectionText),
+                  h.preventDefault())
               }),
-              (i.handlePasteEvent = function (d, u, x, h) {
-                ;(d.stopPropagation(),
-                  d.clipboardData && f(d.clipboardData.getData('text/plain'), u, x, h))
+              (i.handlePasteEvent = function (h, f, x, c) {
+                ;(h.stopPropagation(),
+                  h.clipboardData && u(h.clipboardData.getData('text/plain'), f, x, c))
               }),
-              (i.paste = f),
+              (i.paste = u),
               (i.moveTextAreaUnderMouseCursor = a),
-              (i.rightClickHandler = function (d, u, x, h, t) {
-                ;(a(d, u, x), t && h.rightClickSelect(d), (u.value = h.selectionText), u.select())
+              (i.rightClickHandler = function (h, f, x, c, t) {
+                ;(a(h, f, x), t && c.rightClickSelect(h), (f.value = c.selectionText), f.select())
               }))
           },
           7239: (I, i, o) => {
@@ -9949,17 +10235,17 @@ var Ws = { exports: {} }
               constructor() {
                 ;((this._color = new l.TwoKeyMap()), (this._css = new l.TwoKeyMap()))
               }
-              setCss(f, a, d) {
-                this._css.set(f, a, d)
+              setCss(u, a, h) {
+                this._css.set(u, a, h)
               }
-              getCss(f, a) {
-                return this._css.get(f, a)
+              getCss(u, a) {
+                return this._css.get(u, a)
               }
-              setColor(f, a, d) {
-                this._color.set(f, a, d)
+              setColor(u, a, h) {
+                this._color.set(u, a, h)
               }
-              getColor(f, a) {
-                return this._color.get(f, a)
+              getColor(u, a) {
+                return this._color.get(u, a)
               }
               clear() {
                 ;(this._color.clear(), this._css.clear())
@@ -9969,12 +10255,12 @@ var Ws = { exports: {} }
           3656: (I, i) => {
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.addDisposableDomListener = void 0),
-              (i.addDisposableDomListener = function (o, l, f, a) {
-                o.addEventListener(l, f, a)
-                let d = !1
+              (i.addDisposableDomListener = function (o, l, u, a) {
+                o.addEventListener(l, u, a)
+                let h = !1
                 return {
                   dispose: () => {
-                    d || ((d = !0), o.removeEventListener(l, f, a))
+                    h || ((h = !0), o.removeEventListener(l, u, a))
                   }
                 }
               }))
@@ -9982,52 +10268,52 @@ var Ws = { exports: {} }
           3551: function (I, i, o) {
             var l =
                 (this && this.__decorate) ||
-                function (n, s, r, c) {
-                  var g,
-                    m = arguments.length,
-                    b = m < 3 ? s : c === null ? (c = Object.getOwnPropertyDescriptor(s, r)) : c
+                function (n, s, r, d) {
+                  var v,
+                    _ = arguments.length,
+                    b = _ < 3 ? s : d === null ? (d = Object.getOwnPropertyDescriptor(s, r)) : d
                   if (typeof Reflect == 'object' && typeof Reflect.decorate == 'function')
-                    b = Reflect.decorate(n, s, r, c)
+                    b = Reflect.decorate(n, s, r, d)
                   else
                     for (var p = n.length - 1; p >= 0; p--)
-                      (g = n[p]) && (b = (m < 3 ? g(b) : m > 3 ? g(s, r, b) : g(s, r)) || b)
-                  return (m > 3 && b && Object.defineProperty(s, r, b), b)
+                      (v = n[p]) && (b = (_ < 3 ? v(b) : _ > 3 ? v(s, r, b) : v(s, r)) || b)
+                  return (_ > 3 && b && Object.defineProperty(s, r, b), b)
                 },
-              f =
+              u =
                 (this && this.__param) ||
                 function (n, s) {
-                  return function (r, c) {
-                    s(r, c, n)
+                  return function (r, d) {
+                    s(r, d, n)
                   }
                 }
             ;(Object.defineProperty(i, '__esModule', { value: !0 }), (i.Linkifier = void 0))
             const a = o(3656),
-              d = o(8460),
-              u = o(844),
+              h = o(8460),
+              f = o(844),
               x = o(2585),
-              h = o(4725)
-            let t = (i.Linkifier = class extends u.Disposable {
+              c = o(4725)
+            let t = (i.Linkifier = class extends f.Disposable {
               get currentLink() {
                 return this._currentLink
               }
-              constructor(n, s, r, c, g) {
+              constructor(n, s, r, d, v) {
                 ;(super(),
                   (this._element = n),
                   (this._mouseService = s),
                   (this._renderService = r),
-                  (this._bufferService = c),
-                  (this._linkProviderService = g),
+                  (this._bufferService = d),
+                  (this._linkProviderService = v),
                   (this._linkCacheDisposables = []),
                   (this._isMouseOut = !0),
                   (this._wasResized = !1),
                   (this._activeLine = -1),
-                  (this._onShowLinkUnderline = this.register(new d.EventEmitter())),
+                  (this._onShowLinkUnderline = this.register(new h.EventEmitter())),
                   (this.onShowLinkUnderline = this._onShowLinkUnderline.event),
-                  (this._onHideLinkUnderline = this.register(new d.EventEmitter())),
+                  (this._onHideLinkUnderline = this.register(new h.EventEmitter())),
                   (this.onHideLinkUnderline = this._onHideLinkUnderline.event),
-                  this.register((0, u.getDisposeArrayDisposable)(this._linkCacheDisposables)),
+                  this.register((0, f.getDisposeArrayDisposable)(this._linkCacheDisposables)),
                   this.register(
-                    (0, u.toDisposable)(() => {
+                    (0, f.toDisposable)(() => {
                       ;((this._lastMouseEvent = void 0), this._activeProviderReplies?.clear())
                     })
                   ),
@@ -10069,10 +10355,10 @@ var Ws = { exports: {} }
                 if (!s) return
                 this._isMouseOut = !1
                 const r = n.composedPath()
-                for (let c = 0; c < r.length; c++) {
-                  const g = r[c]
-                  if (g.classList.contains('xterm')) break
-                  if (g.classList.contains('xterm-hover')) return
+                for (let d = 0; d < r.length; d++) {
+                  const v = r[d]
+                  if (v.classList.contains('xterm')) break
+                  if (v.classList.contains('xterm-hover')) return
                 }
                 ;(this._lastBufferCell &&
                   s.x === this._lastBufferCell.x &&
@@ -10091,23 +10377,23 @@ var Ws = { exports: {} }
               }
               _askForLink(n, s) {
                 ;(this._activeProviderReplies && s) ||
-                  (this._activeProviderReplies?.forEach((c) => {
-                    c?.forEach((g) => {
-                      g.link.dispose && g.link.dispose()
+                  (this._activeProviderReplies?.forEach((d) => {
+                    d?.forEach((v) => {
+                      v.link.dispose && v.link.dispose()
                     })
                   }),
                   (this._activeProviderReplies = new Map()),
                   (this._activeLine = n.y))
                 let r = !1
-                for (const [c, g] of this._linkProviderService.linkProviders.entries())
+                for (const [d, v] of this._linkProviderService.linkProviders.entries())
                   s
-                    ? this._activeProviderReplies?.get(c) &&
-                      (r = this._checkLinkProviderResult(c, n, r))
-                    : g.provideLinks(n.y, (m) => {
+                    ? this._activeProviderReplies?.get(d) &&
+                      (r = this._checkLinkProviderResult(d, n, r))
+                    : v.provideLinks(n.y, (_) => {
                         if (this._isMouseOut) return
-                        const b = m?.map((p) => ({ link: p }))
-                        ;(this._activeProviderReplies?.set(c, b),
-                          (r = this._checkLinkProviderResult(c, n, r)),
+                        const b = _?.map((p) => ({ link: p }))
+                        ;(this._activeProviderReplies?.set(d, b),
+                          (r = this._checkLinkProviderResult(d, n, r)),
                           this._activeProviderReplies?.size ===
                             this._linkProviderService.linkProviders.length &&
                             this._removeIntersectingLinks(n.y, this._activeProviderReplies))
@@ -10115,16 +10401,16 @@ var Ws = { exports: {} }
               }
               _removeIntersectingLinks(n, s) {
                 const r = new Set()
-                for (let c = 0; c < s.size; c++) {
-                  const g = s.get(c)
-                  if (g)
-                    for (let m = 0; m < g.length; m++) {
-                      const b = g[m],
+                for (let d = 0; d < s.size; d++) {
+                  const v = s.get(d)
+                  if (v)
+                    for (let _ = 0; _ < v.length; _++) {
+                      const b = v[_],
                         p = b.link.range.start.y < n ? 0 : b.link.range.start.x,
-                        y = b.link.range.end.y > n ? this._bufferService.cols : b.link.range.end.x
-                      for (let L = p; L <= y; L++) {
+                        S = b.link.range.end.y > n ? this._bufferService.cols : b.link.range.end.x
+                      for (let L = p; L <= S; L++) {
                         if (r.has(L)) {
-                          g.splice(m--, 1)
+                          v.splice(_--, 1)
                           break
                         }
                         r.add(L)
@@ -10134,23 +10420,23 @@ var Ws = { exports: {} }
               }
               _checkLinkProviderResult(n, s, r) {
                 if (!this._activeProviderReplies) return r
-                const c = this._activeProviderReplies.get(n)
-                let g = !1
-                for (let m = 0; m < n; m++)
-                  (this._activeProviderReplies.has(m) && !this._activeProviderReplies.get(m)) ||
-                    (g = !0)
-                if (!g && c) {
-                  const m = c.find((b) => this._linkAtPosition(b.link, s))
-                  m && ((r = !0), this._handleNewLink(m))
+                const d = this._activeProviderReplies.get(n)
+                let v = !1
+                for (let _ = 0; _ < n; _++)
+                  (this._activeProviderReplies.has(_) && !this._activeProviderReplies.get(_)) ||
+                    (v = !0)
+                if (!v && d) {
+                  const _ = d.find((b) => this._linkAtPosition(b.link, s))
+                  _ && ((r = !0), this._handleNewLink(_))
                 }
                 if (
                   this._activeProviderReplies.size ===
                     this._linkProviderService.linkProviders.length &&
                   !r
                 )
-                  for (let m = 0; m < this._activeProviderReplies.size; m++) {
+                  for (let _ = 0; _ < this._activeProviderReplies.size; _++) {
                     const b = this._activeProviderReplies
-                      .get(m)
+                      .get(_)
                       ?.find((p) => this._linkAtPosition(p.link, s))
                     if (b) {
                       ;((r = !0), this._handleNewLink(b))
@@ -10179,7 +10465,7 @@ var Ws = { exports: {} }
                       this._currentLink.link.range.end.y <= s)) &&
                   (this._linkLeave(this._element, this._currentLink.link, this._lastMouseEvent),
                   (this._currentLink = void 0),
-                  (0, u.disposeArray)(this._linkCacheDisposables))
+                  (0, f.disposeArray)(this._linkCacheDisposables))
               }
               _handleNewLink(n) {
                 if (!this._lastMouseEvent) return
@@ -10225,19 +10511,19 @@ var Ws = { exports: {} }
                   this._linkCacheDisposables.push(
                     this._renderService.onRenderedViewportChange((r) => {
                       if (!this._currentLink) return
-                      const c = r.start === 0 ? 0 : r.start + 1 + this._bufferService.buffer.ydisp,
-                        g = this._bufferService.buffer.ydisp + 1 + r.end
+                      const d = r.start === 0 ? 0 : r.start + 1 + this._bufferService.buffer.ydisp,
+                        v = this._bufferService.buffer.ydisp + 1 + r.end
                       if (
-                        this._currentLink.link.range.start.y >= c &&
-                        this._currentLink.link.range.end.y <= g &&
-                        (this._clearCurrentLink(c, g), this._lastMouseEvent)
+                        this._currentLink.link.range.start.y >= d &&
+                        this._currentLink.link.range.end.y <= v &&
+                        (this._clearCurrentLink(d, v), this._lastMouseEvent)
                       ) {
-                        const m = this._positionFromMouseEvent(
+                        const _ = this._positionFromMouseEvent(
                           this._lastMouseEvent,
                           this._element,
                           this._mouseService
                         )
-                        m && this._askForLink(m, !1)
+                        _ && this._askForLink(_, !1)
                       }
                     })
                   ))
@@ -10252,15 +10538,15 @@ var Ws = { exports: {} }
               }
               _fireUnderlineEvent(n, s) {
                 const r = n.range,
-                  c = this._bufferService.buffer.ydisp,
-                  g = this._createLinkUnderlineEvent(
+                  d = this._bufferService.buffer.ydisp,
+                  v = this._createLinkUnderlineEvent(
                     r.start.x - 1,
-                    r.start.y - c - 1,
+                    r.start.y - d - 1,
                     r.end.x,
-                    r.end.y - c - 1,
+                    r.end.y - d - 1,
                     void 0
                   )
-                ;(s ? this._onShowLinkUnderline : this._onHideLinkUnderline).fire(g)
+                ;(s ? this._onShowLinkUnderline : this._onHideLinkUnderline).fire(v)
               }
               _linkLeave(n, s, r) {
                 ;(this._currentLink?.state &&
@@ -10272,24 +10558,24 @@ var Ws = { exports: {} }
               }
               _linkAtPosition(n, s) {
                 const r = n.range.start.y * this._bufferService.cols + n.range.start.x,
-                  c = n.range.end.y * this._bufferService.cols + n.range.end.x,
-                  g = s.y * this._bufferService.cols + s.x
-                return r <= g && g <= c
+                  d = n.range.end.y * this._bufferService.cols + n.range.end.x,
+                  v = s.y * this._bufferService.cols + s.x
+                return r <= v && v <= d
               }
               _positionFromMouseEvent(n, s, r) {
-                const c = r.getCoords(n, s, this._bufferService.cols, this._bufferService.rows)
-                if (c) return { x: c[0], y: c[1] + this._bufferService.buffer.ydisp }
+                const d = r.getCoords(n, s, this._bufferService.cols, this._bufferService.rows)
+                if (d) return { x: d[0], y: d[1] + this._bufferService.buffer.ydisp }
               }
-              _createLinkUnderlineEvent(n, s, r, c, g) {
-                return { x1: n, y1: s, x2: r, y2: c, cols: this._bufferService.cols, fg: g }
+              _createLinkUnderlineEvent(n, s, r, d, v) {
+                return { x1: n, y1: s, x2: r, y2: d, cols: this._bufferService.cols, fg: v }
               }
             })
             i.Linkifier = t = l(
               [
-                f(1, h.IMouseService),
-                f(2, h.IRenderService),
-                f(3, x.IBufferService),
-                f(4, h.ILinkProviderService)
+                u(1, c.IMouseService),
+                u(2, c.IRenderService),
+                u(3, x.IBufferService),
+                u(4, c.ILinkProviderService)
               ],
               t
             )
@@ -10303,56 +10589,56 @@ var Ws = { exports: {} }
           3730: function (I, i, o) {
             var l =
                 (this && this.__decorate) ||
-                function (h, t, n, s) {
+                function (c, t, n, s) {
                   var r,
-                    c = arguments.length,
-                    g = c < 3 ? t : s === null ? (s = Object.getOwnPropertyDescriptor(t, n)) : s
+                    d = arguments.length,
+                    v = d < 3 ? t : s === null ? (s = Object.getOwnPropertyDescriptor(t, n)) : s
                   if (typeof Reflect == 'object' && typeof Reflect.decorate == 'function')
-                    g = Reflect.decorate(h, t, n, s)
+                    v = Reflect.decorate(c, t, n, s)
                   else
-                    for (var m = h.length - 1; m >= 0; m--)
-                      (r = h[m]) && (g = (c < 3 ? r(g) : c > 3 ? r(t, n, g) : r(t, n)) || g)
-                  return (c > 3 && g && Object.defineProperty(t, n, g), g)
+                    for (var _ = c.length - 1; _ >= 0; _--)
+                      (r = c[_]) && (v = (d < 3 ? r(v) : d > 3 ? r(t, n, v) : r(t, n)) || v)
+                  return (d > 3 && v && Object.defineProperty(t, n, v), v)
                 },
-              f =
+              u =
                 (this && this.__param) ||
-                function (h, t) {
+                function (c, t) {
                   return function (n, s) {
-                    t(n, s, h)
+                    t(n, s, c)
                   }
                 }
             ;(Object.defineProperty(i, '__esModule', { value: !0 }), (i.OscLinkProvider = void 0))
             const a = o(511),
-              d = o(2585)
-            let u = (i.OscLinkProvider = class {
-              constructor(h, t, n) {
-                ;((this._bufferService = h), (this._optionsService = t), (this._oscLinkService = n))
+              h = o(2585)
+            let f = (i.OscLinkProvider = class {
+              constructor(c, t, n) {
+                ;((this._bufferService = c), (this._optionsService = t), (this._oscLinkService = n))
               }
-              provideLinks(h, t) {
-                const n = this._bufferService.buffer.lines.get(h - 1)
+              provideLinks(c, t) {
+                const n = this._bufferService.buffer.lines.get(c - 1)
                 if (!n) return void t(void 0)
                 const s = [],
                   r = this._optionsService.rawOptions.linkHandler,
-                  c = new a.CellData(),
-                  g = n.getTrimmedLength()
-                let m = -1,
+                  d = new a.CellData(),
+                  v = n.getTrimmedLength()
+                let _ = -1,
                   b = -1,
                   p = !1
-                for (let y = 0; y < g; y++)
-                  if (b !== -1 || n.hasContent(y)) {
-                    if ((n.loadCell(y, c), c.hasExtendedAttrs() && c.extended.urlId)) {
+                for (let S = 0; S < v; S++)
+                  if (b !== -1 || n.hasContent(S)) {
+                    if ((n.loadCell(S, d), d.hasExtendedAttrs() && d.extended.urlId)) {
                       if (b === -1) {
-                        ;((b = y), (m = c.extended.urlId))
+                        ;((b = S), (_ = d.extended.urlId))
                         continue
                       }
-                      p = c.extended.urlId !== m
+                      p = d.extended.urlId !== _
                     } else b !== -1 && (p = !0)
-                    if (p || (b !== -1 && y === g - 1)) {
-                      const L = this._oscLinkService.getLinkData(m)?.uri
+                    if (p || (b !== -1 && S === v - 1)) {
+                      const L = this._oscLinkService.getLinkData(_)?.uri
                       if (L) {
                         const M = {
-                          start: { x: b + 1, y: h },
-                          end: { x: y + (p || y !== g - 1 ? 0 : 1), y: h }
+                          start: { x: b + 1, y: c },
+                          end: { x: S + (p || S !== v - 1 ? 0 : 1), y: c }
                         }
                         let P = !1
                         if (!r?.allowNonHttpProtocols)
@@ -10366,21 +10652,21 @@ var Ws = { exports: {} }
                           s.push({
                             text: L,
                             range: M,
-                            activate: (j, R) => (r ? r.activate(j, R, M) : x(0, R)),
-                            hover: (j, R) => r?.hover?.(j, R, M),
-                            leave: (j, R) => r?.leave?.(j, R, M)
+                            activate: (j, D) => (r ? r.activate(j, D, M) : x(0, D)),
+                            hover: (j, D) => r?.hover?.(j, D, M),
+                            leave: (j, D) => r?.leave?.(j, D, M)
                           })
                       }
                       ;((p = !1),
-                        c.hasExtendedAttrs() && c.extended.urlId
-                          ? ((b = y), (m = c.extended.urlId))
-                          : ((b = -1), (m = -1)))
+                        d.hasExtendedAttrs() && d.extended.urlId
+                          ? ((b = S), (_ = d.extended.urlId))
+                          : ((b = -1), (_ = -1)))
                     }
                   }
                 t(s)
               }
             })
-            function x(h, t) {
+            function x(c, t) {
               if (
                 confirm(`Do you want to navigate to ${t}?
 
@@ -10395,9 +10681,9 @@ WARNING: This link could potentially be dangerous`)
                 } else console.warn('Opening link blocked as opener could not be cleared')
               }
             }
-            i.OscLinkProvider = u = l(
-              [f(0, d.IBufferService), f(1, d.IOptionsService), f(2, d.IOscLinkService)],
-              u
+            i.OscLinkProvider = f = l(
+              [u(0, h.IBufferService), u(1, h.IOptionsService), u(2, h.IOscLinkService)],
+              f
             )
           },
           6193: (I, i) => {
@@ -10424,8 +10710,8 @@ WARNING: This link could potentially be dangerous`)
                     this._animationFrame
                   )
                 }
-                refresh(o, l, f) {
-                  ;((this._rowCount = f),
+                refresh(o, l, u) {
+                  ;((this._rowCount = u),
                     (o = o !== void 0 ? o : 0),
                     (l = l !== void 0 ? l : this._rowCount - 1),
                     (this._rowStart = this._rowStart !== void 0 ? Math.min(this._rowStart, o) : o),
@@ -10459,28 +10745,28 @@ WARNING: This link could potentially be dangerous`)
           3236: (I, i, o) => {
             ;(Object.defineProperty(i, '__esModule', { value: !0 }), (i.Terminal = void 0))
             const l = o(3614),
-              f = o(3656),
+              u = o(3656),
               a = o(3551),
-              d = o(9042),
-              u = o(3730),
+              h = o(9042),
+              f = o(3730),
               x = o(1680),
-              h = o(3107),
+              c = o(3107),
               t = o(5744),
               n = o(2950),
               s = o(1296),
               r = o(428),
-              c = o(4269),
-              g = o(5114),
-              m = o(8934),
+              d = o(4269),
+              v = o(5114),
+              _ = o(8934),
               b = o(3230),
               p = o(9312),
-              y = o(4725),
+              S = o(4725),
               L = o(6731),
               M = o(8055),
               P = o(8969),
               j = o(8460),
-              R = o(844),
-              T = o(6114),
+              D = o(844),
+              O = o(6114),
               $ = o(8437),
               F = o(2584),
               W = o(7399),
@@ -10489,7 +10775,7 @@ WARNING: This link could potentially be dangerous`)
               N = o(2585),
               B = o(5435),
               z = o(4567),
-              G = o(779)
+              K = o(779)
             class J extends P.CoreTerminal {
               get onFocus() {
                 return this._onFocus.event
@@ -10508,12 +10794,12 @@ WARNING: This link could potentially be dangerous`)
               }
               constructor(H = {}) {
                 ;(super(H),
-                  (this.browser = T),
+                  (this.browser = O),
                   (this._keyDownHandled = !1),
                   (this._keyDownSeen = !1),
                   (this._keyPressHandled = !1),
                   (this._unprocessedDeadKey = !1),
-                  (this._accessibilityManager = this.register(new R.MutableDisposable())),
+                  (this._accessibilityManager = this.register(new D.MutableDisposable())),
                   (this._onCursorMove = this.register(new j.EventEmitter())),
                   (this.onCursorMove = this._onCursorMove.event),
                   (this._onKey = this.register(new j.EventEmitter())),
@@ -10540,18 +10826,18 @@ WARNING: This link could potentially be dangerous`)
                     this._decorationService
                   ),
                   (this._linkProviderService = this._instantiationService.createInstance(
-                    G.LinkProviderService
+                    K.LinkProviderService
                   )),
                   this._instantiationService.setService(
-                    y.ILinkProviderService,
+                    S.ILinkProviderService,
                     this._linkProviderService
                   ),
                   this._linkProviderService.registerLinkProvider(
-                    this._instantiationService.createInstance(u.OscLinkProvider)
+                    this._instantiationService.createInstance(f.OscLinkProvider)
                   ),
                   this.register(this._inputHandler.onRequestBell(() => this._onBell.fire())),
                   this.register(
-                    this._inputHandler.onRequestRefreshRows((E, K) => this.refresh(E, K))
+                    this._inputHandler.onRequestRefreshRows((E, G) => this.refresh(E, G))
                   ),
                   this.register(this._inputHandler.onRequestSendFocus(() => this._reportFocus())),
                   this.register(this._inputHandler.onRequestReset(() => this.reset())),
@@ -10577,7 +10863,7 @@ WARNING: This link could potentially be dangerous`)
                     this._bufferService.onResize((E) => this._afterResize(E.cols, E.rows))
                   ),
                   this.register(
-                    (0, R.toDisposable)(() => {
+                    (0, D.toDisposable)(() => {
                       ;((this._customKeyEventHandler = void 0),
                         this.element?.parentNode?.removeChild(this.element))
                     })
@@ -10586,39 +10872,39 @@ WARNING: This link could potentially be dangerous`)
               _handleColorEvent(H) {
                 if (this._themeService)
                   for (const E of H) {
-                    let K,
-                      X = ''
+                    let G,
+                      q = ''
                     switch (E.index) {
                       case 256:
-                        ;((K = 'foreground'), (X = '10'))
+                        ;((G = 'foreground'), (q = '10'))
                         break
                       case 257:
-                        ;((K = 'background'), (X = '11'))
+                        ;((G = 'background'), (q = '11'))
                         break
                       case 258:
-                        ;((K = 'cursor'), (X = '12'))
+                        ;((G = 'cursor'), (q = '12'))
                         break
                       default:
-                        ;((K = 'ansi'), (X = '4;' + E.index))
+                        ;((G = 'ansi'), (q = '4;' + E.index))
                     }
                     switch (E.type) {
                       case 0:
                         const Z = M.color.toColorRGB(
-                          K === 'ansi'
+                          G === 'ansi'
                             ? this._themeService.colors.ansi[E.index]
-                            : this._themeService.colors[K]
+                            : this._themeService.colors[G]
                         )
                         this.coreService.triggerDataEvent(
-                          `${F.C0.ESC}]${X};${(0, C.toRgbString)(Z)}${F.C1_ESCAPED.ST}`
+                          `${F.C0.ESC}]${q};${(0, C.toRgbString)(Z)}${F.C1_ESCAPED.ST}`
                         )
                         break
                       case 1:
-                        if (K === 'ansi')
+                        if (G === 'ansi')
                           this._themeService.modifyColors(
                             (Y) => (Y.ansi[E.index] = M.channels.toColor(...E.color))
                           )
                         else {
-                          const Y = K
+                          const Y = G
                           this._themeService.modifyColors(
                             (V) => (V[Y] = M.channels.toColor(...E.color))
                           )
@@ -10677,33 +10963,33 @@ WARNING: This link could potentially be dangerous`)
                 const H = this.buffer.ybase + this.buffer.y,
                   E = this.buffer.lines.get(H)
                 if (!E) return
-                const K = Math.min(this.buffer.x, this.cols - 1),
-                  X = this._renderService.dimensions.css.cell.height,
-                  Z = E.getWidth(K),
+                const G = Math.min(this.buffer.x, this.cols - 1),
+                  q = this._renderService.dimensions.css.cell.height,
+                  Z = E.getWidth(G),
                   Y = this._renderService.dimensions.css.cell.width * Z,
                   V = this.buffer.y * this._renderService.dimensions.css.cell.height,
-                  se = K * this._renderService.dimensions.css.cell.width
+                  se = G * this._renderService.dimensions.css.cell.width
                 ;((this.textarea.style.left = se + 'px'),
                   (this.textarea.style.top = V + 'px'),
                   (this.textarea.style.width = Y + 'px'),
-                  (this.textarea.style.height = X + 'px'),
-                  (this.textarea.style.lineHeight = X + 'px'),
+                  (this.textarea.style.height = q + 'px'),
+                  (this.textarea.style.lineHeight = q + 'px'),
                   (this.textarea.style.zIndex = '-5'))
               }
               _initGlobal() {
                 ;(this._bindKeys(),
                   this.register(
-                    (0, f.addDisposableDomListener)(this.element, 'copy', (E) => {
+                    (0, u.addDisposableDomListener)(this.element, 'copy', (E) => {
                       this.hasSelection() && (0, l.copyHandler)(E, this._selectionService)
                     })
                   ))
                 const H = (E) =>
                   (0, l.handlePasteEvent)(E, this.textarea, this.coreService, this.optionsService)
-                ;(this.register((0, f.addDisposableDomListener)(this.textarea, 'paste', H)),
-                  this.register((0, f.addDisposableDomListener)(this.element, 'paste', H)),
-                  T.isFirefox
+                ;(this.register((0, u.addDisposableDomListener)(this.textarea, 'paste', H)),
+                  this.register((0, u.addDisposableDomListener)(this.element, 'paste', H)),
+                  O.isFirefox
                     ? this.register(
-                        (0, f.addDisposableDomListener)(this.element, 'mousedown', (E) => {
+                        (0, u.addDisposableDomListener)(this.element, 'mousedown', (E) => {
                           E.button === 2 &&
                             (0, l.rightClickHandler)(
                               E,
@@ -10715,7 +11001,7 @@ WARNING: This link could potentially be dangerous`)
                         })
                       )
                     : this.register(
-                        (0, f.addDisposableDomListener)(this.element, 'contextmenu', (E) => {
+                        (0, u.addDisposableDomListener)(this.element, 'contextmenu', (E) => {
                           ;(0, l.rightClickHandler)(
                             E,
                             this.textarea,
@@ -10725,9 +11011,9 @@ WARNING: This link could potentially be dangerous`)
                           )
                         })
                       ),
-                  T.isLinux &&
+                  O.isLinux &&
                     this.register(
-                      (0, f.addDisposableDomListener)(this.element, 'auxclick', (E) => {
+                      (0, u.addDisposableDomListener)(this.element, 'auxclick', (E) => {
                         E.button === 1 &&
                           (0, l.moveTextAreaUnderMouseCursor)(E, this.textarea, this.screenElement)
                       })
@@ -10735,10 +11021,10 @@ WARNING: This link could potentially be dangerous`)
               }
               _bindKeys() {
                 ;(this.register(
-                  (0, f.addDisposableDomListener)(this.textarea, 'keyup', (H) => this._keyUp(H), !0)
+                  (0, u.addDisposableDomListener)(this.textarea, 'keyup', (H) => this._keyUp(H), !0)
                 ),
                   this.register(
-                    (0, f.addDisposableDomListener)(
+                    (0, u.addDisposableDomListener)(
                       this.textarea,
                       'keydown',
                       (H) => this._keyDown(H),
@@ -10746,7 +11032,7 @@ WARNING: This link could potentially be dangerous`)
                     )
                   ),
                   this.register(
-                    (0, f.addDisposableDomListener)(
+                    (0, u.addDisposableDomListener)(
                       this.textarea,
                       'keypress',
                       (H) => this._keyPress(H),
@@ -10754,22 +11040,22 @@ WARNING: This link could potentially be dangerous`)
                     )
                   ),
                   this.register(
-                    (0, f.addDisposableDomListener)(this.textarea, 'compositionstart', () =>
+                    (0, u.addDisposableDomListener)(this.textarea, 'compositionstart', () =>
                       this._compositionHelper.compositionstart()
                     )
                   ),
                   this.register(
-                    (0, f.addDisposableDomListener)(this.textarea, 'compositionupdate', (H) =>
+                    (0, u.addDisposableDomListener)(this.textarea, 'compositionupdate', (H) =>
                       this._compositionHelper.compositionupdate(H)
                     )
                   ),
                   this.register(
-                    (0, f.addDisposableDomListener)(this.textarea, 'compositionend', () =>
+                    (0, u.addDisposableDomListener)(this.textarea, 'compositionend', () =>
                       this._compositionHelper.compositionend()
                     )
                   ),
                   this.register(
-                    (0, f.addDisposableDomListener)(
+                    (0, u.addDisposableDomListener)(
                       this.textarea,
                       'input',
                       (H) => this._inputEvent(H),
@@ -10812,8 +11098,8 @@ WARNING: This link could potentially be dangerous`)
                   (this.screenElement = this._document.createElement('div')),
                   this.screenElement.classList.add('xterm-screen'),
                   this.register(
-                    (0, f.addDisposableDomListener)(this.screenElement, 'mousemove', (K) =>
-                      this.updateCursorStyle(K)
+                    (0, u.addDisposableDomListener)(this.screenElement, 'mousemove', (G) =>
+                      this.updateCursorStyle(G)
                     )
                   ),
                   (this._helperContainer = this._document.createElement('div')),
@@ -10822,31 +11108,31 @@ WARNING: This link could potentially be dangerous`)
                   E.appendChild(this.screenElement),
                   (this.textarea = this._document.createElement('textarea')),
                   this.textarea.classList.add('xterm-helper-textarea'),
-                  this.textarea.setAttribute('aria-label', d.promptLabel),
-                  T.isChromeOS || this.textarea.setAttribute('aria-multiline', 'false'),
+                  this.textarea.setAttribute('aria-label', h.promptLabel),
+                  O.isChromeOS || this.textarea.setAttribute('aria-multiline', 'false'),
                   this.textarea.setAttribute('autocorrect', 'off'),
                   this.textarea.setAttribute('autocapitalize', 'off'),
                   this.textarea.setAttribute('spellcheck', 'false'),
                   (this.textarea.tabIndex = 0),
                   (this._coreBrowserService = this.register(
                     this._instantiationService.createInstance(
-                      g.CoreBrowserService,
+                      v.CoreBrowserService,
                       this.textarea,
                       H.ownerDocument.defaultView ?? window,
                       (this._document ?? typeof window < 'u') ? window.document : null
                     )
                   )),
                   this._instantiationService.setService(
-                    y.ICoreBrowserService,
+                    S.ICoreBrowserService,
                     this._coreBrowserService
                   ),
                   this.register(
-                    (0, f.addDisposableDomListener)(this.textarea, 'focus', (K) =>
-                      this._handleTextAreaFocus(K)
+                    (0, u.addDisposableDomListener)(this.textarea, 'focus', (G) =>
+                      this._handleTextAreaFocus(G)
                     )
                   ),
                   this.register(
-                    (0, f.addDisposableDomListener)(this.textarea, 'blur', () =>
+                    (0, u.addDisposableDomListener)(this.textarea, 'blur', () =>
                       this._handleTextAreaBlur()
                     )
                   ),
@@ -10856,14 +11142,14 @@ WARNING: This link could potentially be dangerous`)
                     this._document,
                     this._helperContainer
                   )),
-                  this._instantiationService.setService(y.ICharSizeService, this._charSizeService),
+                  this._instantiationService.setService(S.ICharSizeService, this._charSizeService),
                   (this._themeService = this._instantiationService.createInstance(L.ThemeService)),
-                  this._instantiationService.setService(y.IThemeService, this._themeService),
+                  this._instantiationService.setService(S.IThemeService, this._themeService),
                   (this._characterJoinerService = this._instantiationService.createInstance(
-                    c.CharacterJoinerService
+                    d.CharacterJoinerService
                   )),
                   this._instantiationService.setService(
-                    y.ICharacterJoinerService,
+                    S.ICharacterJoinerService,
                     this._characterJoinerService
                   ),
                   (this._renderService = this.register(
@@ -10873,11 +11159,11 @@ WARNING: This link could potentially be dangerous`)
                       this.screenElement
                     )
                   )),
-                  this._instantiationService.setService(y.IRenderService, this._renderService),
+                  this._instantiationService.setService(S.IRenderService, this._renderService),
                   this.register(
-                    this._renderService.onRenderedViewportChange((K) => this._onRender.fire(K))
+                    this._renderService.onRenderedViewportChange((G) => this._onRender.fire(G))
                   ),
-                  this.onResize((K) => this._renderService.resize(K.cols, K.rows)),
+                  this.onResize((G) => this._renderService.resize(G.cols, G.rows)),
                   (this._compositionView = this._document.createElement('div')),
                   this._compositionView.classList.add('composition-view'),
                   (this._compositionHelper = this._instantiationService.createInstance(
@@ -10886,8 +11172,8 @@ WARNING: This link could potentially be dangerous`)
                     this._compositionView
                   )),
                   this._helperContainer.appendChild(this._compositionView),
-                  (this._mouseService = this._instantiationService.createInstance(m.MouseService)),
-                  this._instantiationService.setService(y.IMouseService, this._mouseService),
+                  (this._mouseService = this._instantiationService.createInstance(_.MouseService)),
+                  this._instantiationService.setService(S.IMouseService, this._mouseService),
                   (this.linkifier = this.register(
                     this._instantiationService.createInstance(a.Linkifier, this.screenElement)
                   )),
@@ -10902,8 +11188,8 @@ WARNING: This link could potentially be dangerous`)
                     this._viewportElement,
                     this._viewportScrollArea
                   )),
-                  this.viewport.onRequestScrollLines((K) =>
-                    this.scrollLines(K.amount, K.suppressScrollEvent, 1)
+                  this.viewport.onRequestScrollLines((G) =>
+                    this.scrollLines(G.amount, G.suppressScrollEvent, 1)
                   ),
                   this.register(
                     this._inputHandler.onRequestSyncScrollBar(() => this.viewport.syncScrollArea())
@@ -10931,46 +11217,46 @@ WARNING: This link could potentially be dangerous`)
                     )
                   )),
                   this._instantiationService.setService(
-                    y.ISelectionService,
+                    S.ISelectionService,
                     this._selectionService
                   ),
                   this.register(
-                    this._selectionService.onRequestScrollLines((K) =>
-                      this.scrollLines(K.amount, K.suppressScrollEvent)
+                    this._selectionService.onRequestScrollLines((G) =>
+                      this.scrollLines(G.amount, G.suppressScrollEvent)
                     )
                   ),
                   this.register(
                     this._selectionService.onSelectionChange(() => this._onSelectionChange.fire())
                   ),
                   this.register(
-                    this._selectionService.onRequestRedraw((K) =>
-                      this._renderService.handleSelectionChanged(K.start, K.end, K.columnSelectMode)
+                    this._selectionService.onRequestRedraw((G) =>
+                      this._renderService.handleSelectionChanged(G.start, G.end, G.columnSelectMode)
                     )
                   ),
                   this.register(
-                    this._selectionService.onLinuxMouseSelection((K) => {
-                      ;((this.textarea.value = K), this.textarea.focus(), this.textarea.select())
+                    this._selectionService.onLinuxMouseSelection((G) => {
+                      ;((this.textarea.value = G), this.textarea.focus(), this.textarea.select())
                     })
                   ),
                   this.register(
-                    this._onScroll.event((K) => {
+                    this._onScroll.event((G) => {
                       ;(this.viewport.syncScrollArea(), this._selectionService.refresh())
                     })
                   ),
                   this.register(
-                    (0, f.addDisposableDomListener)(this._viewportElement, 'scroll', () =>
+                    (0, u.addDisposableDomListener)(this._viewportElement, 'scroll', () =>
                       this._selectionService.refresh()
                     )
                   ),
                   this.register(
                     this._instantiationService.createInstance(
-                      h.BufferDecorationRenderer,
+                      c.BufferDecorationRenderer,
                       this.screenElement
                     )
                   ),
                   this.register(
-                    (0, f.addDisposableDomListener)(this.element, 'mousedown', (K) =>
-                      this._selectionService.handleMouseDown(K)
+                    (0, u.addDisposableDomListener)(this.element, 'mousedown', (G) =>
+                      this._selectionService.handleMouseDown(G)
                     )
                   ),
                   this.coreMouseService.areMouseEventsActive
@@ -10983,8 +11269,8 @@ WARNING: This link could potentially be dangerous`)
                       this
                     )),
                   this.register(
-                    this.optionsService.onSpecificOptionChange('screenReaderMode', (K) =>
-                      this._handleScreenReaderModeOptionChange(K)
+                    this.optionsService.onSpecificOptionChange('screenReaderMode', (G) =>
+                      this._handleScreenReaderModeOptionChange(G)
                     )
                   ),
                   this.options.overviewRulerWidth &&
@@ -10995,9 +11281,9 @@ WARNING: This link could potentially be dangerous`)
                         this.screenElement
                       )
                     )),
-                  this.optionsService.onSpecificOptionChange('overviewRulerWidth', (K) => {
+                  this.optionsService.onSpecificOptionChange('overviewRulerWidth', (G) => {
                     !this._overviewRulerRenderer &&
-                      K &&
+                      G &&
                       this._viewportElement &&
                       this.screenElement &&
                       (this._overviewRulerRenderer = this.register(
@@ -11028,7 +11314,7 @@ WARNING: This link could potentially be dangerous`)
               bindMouse() {
                 const H = this,
                   E = this.element
-                function K(Y) {
+                function G(Y) {
                   const V = H._mouseService.getMouseReportCoords(Y, H.screenElement)
                   if (!V) return !1
                   let se, ne
@@ -11071,22 +11357,22 @@ WARNING: This link could potentially be dangerous`)
                     })
                   )
                 }
-                const X = { mouseup: null, wheel: null, mousedrag: null, mousemove: null },
+                const q = { mouseup: null, wheel: null, mousedrag: null, mousemove: null },
                   Z = {
                     mouseup: (Y) => (
-                      K(Y),
+                      G(Y),
                       Y.buttons ||
-                        (this._document.removeEventListener('mouseup', X.mouseup),
-                        X.mousedrag &&
-                          this._document.removeEventListener('mousemove', X.mousedrag)),
+                        (this._document.removeEventListener('mouseup', q.mouseup),
+                        q.mousedrag &&
+                          this._document.removeEventListener('mousemove', q.mousedrag)),
                       this.cancel(Y)
                     ),
-                    wheel: (Y) => (K(Y), this.cancel(Y, !0)),
+                    wheel: (Y) => (G(Y), this.cancel(Y, !0)),
                     mousedrag: (Y) => {
-                      Y.buttons && K(Y)
+                      Y.buttons && G(Y)
                     },
                     mousemove: (Y) => {
-                      Y.buttons || K(Y)
+                      Y.buttons || G(Y)
                     }
                   }
                 ;(this.register(
@@ -11103,28 +11389,28 @@ WARNING: This link could potentially be dangerous`)
                         this.element.classList.remove('enable-mouse-events'),
                         this._selectionService.enable()),
                       8 & Y
-                        ? X.mousemove ||
+                        ? q.mousemove ||
                           (E.addEventListener('mousemove', Z.mousemove),
-                          (X.mousemove = Z.mousemove))
-                        : (E.removeEventListener('mousemove', X.mousemove), (X.mousemove = null)),
+                          (q.mousemove = Z.mousemove))
+                        : (E.removeEventListener('mousemove', q.mousemove), (q.mousemove = null)),
                       16 & Y
-                        ? X.wheel ||
+                        ? q.wheel ||
                           (E.addEventListener('wheel', Z.wheel, { passive: !1 }),
-                          (X.wheel = Z.wheel))
-                        : (E.removeEventListener('wheel', X.wheel), (X.wheel = null)),
+                          (q.wheel = Z.wheel))
+                        : (E.removeEventListener('wheel', q.wheel), (q.wheel = null)),
                       2 & Y
-                        ? X.mouseup || (X.mouseup = Z.mouseup)
-                        : (this._document.removeEventListener('mouseup', X.mouseup),
-                          (X.mouseup = null)),
+                        ? q.mouseup || (q.mouseup = Z.mouseup)
+                        : (this._document.removeEventListener('mouseup', q.mouseup),
+                          (q.mouseup = null)),
                       4 & Y
-                        ? X.mousedrag || (X.mousedrag = Z.mousedrag)
-                        : (this._document.removeEventListener('mousemove', X.mousedrag),
-                          (X.mousedrag = null)))
+                        ? q.mousedrag || (q.mousedrag = Z.mousedrag)
+                        : (this._document.removeEventListener('mousemove', q.mousedrag),
+                          (q.mousedrag = null)))
                   })
                 ),
                   (this.coreMouseService.activeProtocol = this.coreMouseService.activeProtocol),
                   this.register(
-                    (0, f.addDisposableDomListener)(E, 'mousedown', (Y) => {
+                    (0, u.addDisposableDomListener)(E, 'mousedown', (Y) => {
                       if (
                         (Y.preventDefault(),
                         this.focus(),
@@ -11132,19 +11418,19 @@ WARNING: This link could potentially be dangerous`)
                           !this._selectionService.shouldForceSelection(Y))
                       )
                         return (
-                          K(Y),
-                          X.mouseup && this._document.addEventListener('mouseup', X.mouseup),
-                          X.mousedrag && this._document.addEventListener('mousemove', X.mousedrag),
+                          G(Y),
+                          q.mouseup && this._document.addEventListener('mouseup', q.mouseup),
+                          q.mousedrag && this._document.addEventListener('mousemove', q.mousedrag),
                           this.cancel(Y)
                         )
                     })
                   ),
                   this.register(
-                    (0, f.addDisposableDomListener)(
+                    (0, u.addDisposableDomListener)(
                       E,
                       'wheel',
                       (Y) => {
-                        if (!X.wheel) {
+                        if (!q.wheel) {
                           if (
                             this._customWheelEventHandler &&
                             this._customWheelEventHandler(Y) === !1
@@ -11158,7 +11444,7 @@ WARNING: This link could potentially be dangerous`)
                               (this.coreService.decPrivateModes.applicationCursorKeys ? 'O' : '[') +
                               (Y.deltaY < 0 ? 'A' : 'B')
                             let ne = ''
-                            for (let he = 0; he < Math.abs(V); he++) ne += se
+                            for (let ue = 0; ue < Math.abs(V); ue++) ne += se
                             return (this.coreService.triggerDataEvent(ne, !0), this.cancel(Y, !0))
                           }
                           return this.viewport.handleWheel(Y) ? this.cancel(Y) : void 0
@@ -11168,7 +11454,7 @@ WARNING: This link could potentially be dangerous`)
                     )
                   ),
                   this.register(
-                    (0, f.addDisposableDomListener)(
+                    (0, u.addDisposableDomListener)(
                       E,
                       'touchstart',
                       (Y) => {
@@ -11179,7 +11465,7 @@ WARNING: This link could potentially be dangerous`)
                     )
                   ),
                   this.register(
-                    (0, f.addDisposableDomListener)(
+                    (0, u.addDisposableDomListener)(
                       E,
                       'touchmove',
                       (Y) => {
@@ -11203,9 +11489,9 @@ WARNING: This link could potentially be dangerous`)
                   ((this.coreService.isCursorInitialized = !0),
                   this.refresh(this.buffer.y, this.buffer.y))
               }
-              scrollLines(H, E, K = 0) {
-                K === 1
-                  ? (super.scrollLines(H, E, K), this.refresh(0, this.rows - 1))
+              scrollLines(H, E, G = 0) {
+                G === 1
+                  ? (super.scrollLines(H, E, G), this.refresh(0, this.rows - 1))
                   : this.viewport?.scrollLines(H)
               }
               paste(H) {
@@ -11241,8 +11527,8 @@ WARNING: This link could potentially be dangerous`)
               hasSelection() {
                 return !!this._selectionService && this._selectionService.hasSelection
               }
-              select(H, E, K) {
-                this._selectionService.setSelection(H, E, K)
+              select(H, E, G) {
+                this._selectionService.setSelection(H, E, G)
               }
               getSelection() {
                 return this._selectionService ? this._selectionService.selectionText : ''
@@ -11285,21 +11571,21 @@ WARNING: This link could potentially be dangerous`)
                     !1
                   )
                 E || (H.key !== 'Dead' && H.key !== 'AltGraph') || (this._unprocessedDeadKey = !0)
-                const K = (0, W.evaluateKeyboardEvent)(
+                const G = (0, W.evaluateKeyboardEvent)(
                   H,
                   this.coreService.decPrivateModes.applicationCursorKeys,
                   this.browser.isMac,
                   this.options.macOptionIsMeta
                 )
-                if ((this.updateCursorStyle(H), K.type === 3 || K.type === 2)) {
-                  const X = this.rows - 1
-                  return (this.scrollLines(K.type === 2 ? -X : X), this.cancel(H, !0))
+                if ((this.updateCursorStyle(H), G.type === 3 || G.type === 2)) {
+                  const q = this.rows - 1
+                  return (this.scrollLines(G.type === 2 ? -q : q), this.cancel(H, !0))
                 }
                 return (
-                  K.type === 1 && this.selectAll(),
+                  G.type === 1 && this.selectAll(),
                   !!this._isThirdLevelShift(this.browser, H) ||
-                    (K.cancel && this.cancel(H, !0),
-                    !K.key ||
+                    (G.cancel && this.cancel(H, !0),
+                    !G.key ||
                       !!(
                         H.key &&
                         !H.ctrlKey &&
@@ -11311,17 +11597,17 @@ WARNING: This link could potentially be dangerous`)
                       ) ||
                       (this._unprocessedDeadKey
                         ? ((this._unprocessedDeadKey = !1), !0)
-                        : ((K.key !== F.C0.ETX && K.key !== F.C0.CR) || (this.textarea.value = ''),
-                          this._onKey.fire({ key: K.key, domEvent: H }),
+                        : ((G.key !== F.C0.ETX && G.key !== F.C0.CR) || (this.textarea.value = ''),
+                          this._onKey.fire({ key: G.key, domEvent: H }),
                           this._showCursor(),
-                          this.coreService.triggerDataEvent(K.key, !0),
+                          this.coreService.triggerDataEvent(G.key, !0),
                           !this.optionsService.rawOptions.screenReaderMode || H.altKey || H.ctrlKey
                             ? this.cancel(H, !0)
                             : void (this._keyDownHandled = !0))))
                 )
               }
               _isThirdLevelShift(H, E) {
-                const K =
+                const G =
                   (H.isMac &&
                     !this.options.macOptionIsMeta &&
                     E.altKey &&
@@ -11329,7 +11615,7 @@ WARNING: This link could potentially be dangerous`)
                     !E.metaKey) ||
                   (H.isWindows && E.altKey && E.ctrlKey && !E.metaKey) ||
                   (H.isWindows && E.getModifierState('AltGraph'))
-                return E.type === 'keypress' ? K : K && (!E.keyCode || E.keyCode > 47)
+                return E.type === 'keypress' ? G : G && (!E.keyCode || E.keyCode > 47)
               }
               _keyUp(H) {
                 ;((this._keyDownSeen = !1),
@@ -11433,13 +11719,13 @@ WARNING: This link could potentially be dangerous`)
                   switch (H) {
                     case B.WindowsOptionsReportType.GET_WIN_SIZE_PIXELS:
                       const E = this._renderService.dimensions.css.canvas.width.toFixed(0),
-                        K = this._renderService.dimensions.css.canvas.height.toFixed(0)
-                      this.coreService.triggerDataEvent(`${F.C0.ESC}[4;${K};${E}t`)
+                        G = this._renderService.dimensions.css.canvas.height.toFixed(0)
+                      this.coreService.triggerDataEvent(`${F.C0.ESC}[4;${G};${E}t`)
                       break
                     case B.WindowsOptionsReportType.GET_CELL_SIZE_PIXELS:
-                      const X = this._renderService.dimensions.css.cell.width.toFixed(0),
+                      const q = this._renderService.dimensions.css.cell.width.toFixed(0),
                         Z = this._renderService.dimensions.css.cell.height.toFixed(0)
-                      this.coreService.triggerDataEvent(`${F.C0.ESC}[6;${Z};${X}t`)
+                      this.coreService.triggerDataEvent(`${F.C0.ESC}[6;${Z};${q}t`)
                   }
               }
               cancel(H, E) {
@@ -11462,8 +11748,8 @@ WARNING: This link could potentially be dangerous`)
                 dispose() {
                   this._refreshTimeoutID && clearTimeout(this._refreshTimeoutID)
                 }
-                refresh(o, l, f) {
-                  ;((this._rowCount = f),
+                refresh(o, l, u) {
+                  ;((this._rowCount = u),
                     (o = o !== void 0 ? o : 0),
                     (l = l !== void 0 ? l : this._rowCount - 1),
                     (this._rowStart = this._rowStart !== void 0 ? Math.min(this._rowStart, o) : o),
@@ -11472,15 +11758,15 @@ WARNING: This link could potentially be dangerous`)
                   if (a - this._lastRefreshMs >= this._debounceThresholdMS)
                     ((this._lastRefreshMs = a), this._innerRefresh())
                   else if (!this._additionalRefreshRequested) {
-                    const d = a - this._lastRefreshMs,
-                      u = this._debounceThresholdMS - d
+                    const h = a - this._lastRefreshMs,
+                      f = this._debounceThresholdMS - h
                     ;((this._additionalRefreshRequested = !0),
                       (this._refreshTimeoutID = window.setTimeout(() => {
                         ;((this._lastRefreshMs = Date.now()),
                           this._innerRefresh(),
                           (this._additionalRefreshRequested = !1),
                           (this._refreshTimeoutID = void 0))
-                      }, u)))
+                      }, f)))
                   }
                 }
                 _innerRefresh() {
@@ -11499,39 +11785,39 @@ WARNING: This link could potentially be dangerous`)
           1680: function (I, i, o) {
             var l =
                 (this && this.__decorate) ||
-                function (n, s, r, c) {
-                  var g,
-                    m = arguments.length,
-                    b = m < 3 ? s : c === null ? (c = Object.getOwnPropertyDescriptor(s, r)) : c
+                function (n, s, r, d) {
+                  var v,
+                    _ = arguments.length,
+                    b = _ < 3 ? s : d === null ? (d = Object.getOwnPropertyDescriptor(s, r)) : d
                   if (typeof Reflect == 'object' && typeof Reflect.decorate == 'function')
-                    b = Reflect.decorate(n, s, r, c)
+                    b = Reflect.decorate(n, s, r, d)
                   else
                     for (var p = n.length - 1; p >= 0; p--)
-                      (g = n[p]) && (b = (m < 3 ? g(b) : m > 3 ? g(s, r, b) : g(s, r)) || b)
-                  return (m > 3 && b && Object.defineProperty(s, r, b), b)
+                      (v = n[p]) && (b = (_ < 3 ? v(b) : _ > 3 ? v(s, r, b) : v(s, r)) || b)
+                  return (_ > 3 && b && Object.defineProperty(s, r, b), b)
                 },
-              f =
+              u =
                 (this && this.__param) ||
                 function (n, s) {
-                  return function (r, c) {
-                    s(r, c, n)
+                  return function (r, d) {
+                    s(r, d, n)
                   }
                 }
             ;(Object.defineProperty(i, '__esModule', { value: !0 }), (i.Viewport = void 0))
             const a = o(3656),
-              d = o(4725),
-              u = o(8460),
+              h = o(4725),
+              f = o(8460),
               x = o(844),
-              h = o(2585)
+              c = o(2585)
             let t = (i.Viewport = class extends x.Disposable {
-              constructor(n, s, r, c, g, m, b, p) {
+              constructor(n, s, r, d, v, _, b, p) {
                 ;(super(),
                   (this._viewportElement = n),
                   (this._scrollArea = s),
                   (this._bufferService = r),
-                  (this._optionsService = c),
-                  (this._charSizeService = g),
-                  (this._renderService = m),
+                  (this._optionsService = d),
+                  (this._charSizeService = v),
+                  (this._renderService = _),
                   (this._coreBrowserService = b),
                   (this.scrollBarWidth = 0),
                   (this._currentRowHeight = 0),
@@ -11545,7 +11831,7 @@ WARNING: This link could potentially be dangerous`)
                   (this._refreshAnimationFrame = null),
                   (this._ignoreNextScrollEvent = !1),
                   (this._smoothScrollState = { startTime: 0, origin: -1, target: -1 }),
-                  (this._onRequestScrollLines = this.register(new u.EventEmitter())),
+                  (this._onRequestScrollLines = this.register(new f.EventEmitter())),
                   (this.onRequestScrollLines = this._onRequestScrollLines.event),
                   (this.scrollBarWidth =
                     this._viewportElement.offsetWidth - this._scrollArea.offsetWidth || 15),
@@ -11559,15 +11845,15 @@ WARNING: This link could potentially be dangerous`)
                   (this._activeBuffer = this._bufferService.buffer),
                   this.register(
                     this._bufferService.buffers.onBufferActivate(
-                      (y) => (this._activeBuffer = y.activeBuffer)
+                      (S) => (this._activeBuffer = S.activeBuffer)
                     )
                   ),
                   (this._renderDimensions = this._renderService.dimensions),
                   this.register(
-                    this._renderService.onDimensionsChange((y) => (this._renderDimensions = y))
+                    this._renderService.onDimensionsChange((S) => (this._renderDimensions = S))
                   ),
                   this._handleThemeChange(p.colors),
-                  this.register(p.onChangeColors((y) => this._handleThemeChange(y))),
+                  this.register(p.onChangeColors((S) => this._handleThemeChange(S))),
                   this.register(
                     this._optionsService.onSpecificOptionChange('scrollback', () =>
                       this.syncScrollArea()
@@ -11755,20 +12041,20 @@ WARNING: This link could potentially be dangerous`)
               }
               getBufferElements(n, s) {
                 let r,
-                  c = ''
-                const g = [],
-                  m = s ?? this._bufferService.buffer.lines.length,
+                  d = ''
+                const v = [],
+                  _ = s ?? this._bufferService.buffer.lines.length,
                   b = this._bufferService.buffer.lines
-                for (let p = n; p < m; p++) {
-                  const y = b.get(p)
-                  if (!y) continue
+                for (let p = n; p < _; p++) {
+                  const S = b.get(p)
+                  if (!S) continue
                   const L = b.get(p + 1)?.isWrapped
-                  if (((c += y.translateToString(!L)), !L || p === b.length - 1)) {
+                  if (((d += S.translateToString(!L)), !L || p === b.length - 1)) {
                     const M = document.createElement('div')
-                    ;((M.textContent = c), g.push(M), c.length > 0 && (r = M), (c = ''))
+                    ;((M.textContent = d), v.push(M), d.length > 0 && (r = M), (d = ''))
                   }
                 }
-                return { bufferElements: g, cursorElement: r }
+                return { bufferElements: v, cursorElement: r }
               }
               getLinesScrolled(n) {
                 if (n.deltaY === 0 || n.shiftKey) return 0
@@ -11808,12 +12094,12 @@ WARNING: This link could potentially be dangerous`)
             })
             i.Viewport = t = l(
               [
-                f(2, h.IBufferService),
-                f(3, h.IOptionsService),
-                f(4, d.ICharSizeService),
-                f(5, d.IRenderService),
-                f(6, d.ICoreBrowserService),
-                f(7, d.IThemeService)
+                u(2, c.IBufferService),
+                u(3, c.IOptionsService),
+                u(4, h.ICharSizeService),
+                u(5, h.IRenderService),
+                u(6, h.ICoreBrowserService),
+                u(7, h.IThemeService)
               ],
               t
             )
@@ -11821,33 +12107,33 @@ WARNING: This link could potentially be dangerous`)
           3107: function (I, i, o) {
             var l =
                 (this && this.__decorate) ||
-                function (h, t, n, s) {
+                function (c, t, n, s) {
                   var r,
-                    c = arguments.length,
-                    g = c < 3 ? t : s === null ? (s = Object.getOwnPropertyDescriptor(t, n)) : s
+                    d = arguments.length,
+                    v = d < 3 ? t : s === null ? (s = Object.getOwnPropertyDescriptor(t, n)) : s
                   if (typeof Reflect == 'object' && typeof Reflect.decorate == 'function')
-                    g = Reflect.decorate(h, t, n, s)
+                    v = Reflect.decorate(c, t, n, s)
                   else
-                    for (var m = h.length - 1; m >= 0; m--)
-                      (r = h[m]) && (g = (c < 3 ? r(g) : c > 3 ? r(t, n, g) : r(t, n)) || g)
-                  return (c > 3 && g && Object.defineProperty(t, n, g), g)
+                    for (var _ = c.length - 1; _ >= 0; _--)
+                      (r = c[_]) && (v = (d < 3 ? r(v) : d > 3 ? r(t, n, v) : r(t, n)) || v)
+                  return (d > 3 && v && Object.defineProperty(t, n, v), v)
                 },
-              f =
+              u =
                 (this && this.__param) ||
-                function (h, t) {
+                function (c, t) {
                   return function (n, s) {
-                    t(n, s, h)
+                    t(n, s, c)
                   }
                 }
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.BufferDecorationRenderer = void 0))
             const a = o(4725),
-              d = o(844),
-              u = o(2585)
-            let x = (i.BufferDecorationRenderer = class extends d.Disposable {
-              constructor(h, t, n, s, r) {
+              h = o(844),
+              f = o(2585)
+            let x = (i.BufferDecorationRenderer = class extends h.Disposable {
+              constructor(c, t, n, s, r) {
                 ;(super(),
-                  (this._screenElement = h),
+                  (this._screenElement = c),
                   (this._bufferService = t),
                   (this._coreBrowserService = n),
                   (this._decorationService = s),
@@ -11877,10 +12163,10 @@ WARNING: This link could potentially be dangerous`)
                     this._decorationService.onDecorationRegistered(() => this._queueRefresh())
                   ),
                   this.register(
-                    this._decorationService.onDecorationRemoved((c) => this._removeDecoration(c))
+                    this._decorationService.onDecorationRemoved((d) => this._removeDecoration(d))
                   ),
                   this.register(
-                    (0, d.toDisposable)(() => {
+                    (0, h.toDisposable)(() => {
                       ;(this._container.remove(), this._decorationElements.clear())
                     })
                   ))
@@ -11892,56 +12178,56 @@ WARNING: This link could potentially be dangerous`)
                   }))
               }
               _doRefreshDecorations() {
-                for (const h of this._decorationService.decorations) this._renderDecoration(h)
+                for (const c of this._decorationService.decorations) this._renderDecoration(c)
                 this._dimensionsChanged = !1
               }
-              _renderDecoration(h) {
-                ;(this._refreshStyle(h), this._dimensionsChanged && this._refreshXPosition(h))
+              _renderDecoration(c) {
+                ;(this._refreshStyle(c), this._dimensionsChanged && this._refreshXPosition(c))
               }
-              _createElement(h) {
+              _createElement(c) {
                 const t = this._coreBrowserService.mainDocument.createElement('div')
                 ;(t.classList.add('xterm-decoration'),
-                  t.classList.toggle('xterm-decoration-top-layer', h?.options?.layer === 'top'),
-                  (t.style.width = `${Math.round((h.options.width || 1) * this._renderService.dimensions.css.cell.width)}px`),
+                  t.classList.toggle('xterm-decoration-top-layer', c?.options?.layer === 'top'),
+                  (t.style.width = `${Math.round((c.options.width || 1) * this._renderService.dimensions.css.cell.width)}px`),
                   (t.style.height =
-                    (h.options.height || 1) * this._renderService.dimensions.css.cell.height +
+                    (c.options.height || 1) * this._renderService.dimensions.css.cell.height +
                     'px'),
                   (t.style.top =
-                    (h.marker.line - this._bufferService.buffers.active.ydisp) *
+                    (c.marker.line - this._bufferService.buffers.active.ydisp) *
                       this._renderService.dimensions.css.cell.height +
                     'px'),
                   (t.style.lineHeight = `${this._renderService.dimensions.css.cell.height}px`))
-                const n = h.options.x ?? 0
+                const n = c.options.x ?? 0
                 return (
                   n && n > this._bufferService.cols && (t.style.display = 'none'),
-                  this._refreshXPosition(h, t),
+                  this._refreshXPosition(c, t),
                   t
                 )
               }
-              _refreshStyle(h) {
-                const t = h.marker.line - this._bufferService.buffers.active.ydisp
+              _refreshStyle(c) {
+                const t = c.marker.line - this._bufferService.buffers.active.ydisp
                 if (t < 0 || t >= this._bufferService.rows)
-                  h.element &&
-                    ((h.element.style.display = 'none'), h.onRenderEmitter.fire(h.element))
+                  c.element &&
+                    ((c.element.style.display = 'none'), c.onRenderEmitter.fire(c.element))
                 else {
-                  let n = this._decorationElements.get(h)
+                  let n = this._decorationElements.get(c)
                   ;(n ||
-                    ((n = this._createElement(h)),
-                    (h.element = n),
-                    this._decorationElements.set(h, n),
+                    ((n = this._createElement(c)),
+                    (c.element = n),
+                    this._decorationElements.set(c, n),
                     this._container.appendChild(n),
-                    h.onDispose(() => {
-                      ;(this._decorationElements.delete(h), n.remove())
+                    c.onDispose(() => {
+                      ;(this._decorationElements.delete(c), n.remove())
                     })),
                     (n.style.top = t * this._renderService.dimensions.css.cell.height + 'px'),
                     (n.style.display = this._altBufferIsActive ? 'none' : 'block'),
-                    h.onRenderEmitter.fire(n))
+                    c.onRenderEmitter.fire(n))
                 }
               }
-              _refreshXPosition(h, t = h.element) {
+              _refreshXPosition(c, t = c.element) {
                 if (!t) return
-                const n = h.options.x ?? 0
-                ;(h.options.anchor || 'left') === 'right'
+                const n = c.options.x ?? 0
+                ;(c.options.anchor || 'left') === 'right'
                   ? (t.style.right = n
                       ? n * this._renderService.dimensions.css.cell.width + 'px'
                       : '')
@@ -11949,18 +12235,18 @@ WARNING: This link could potentially be dangerous`)
                       ? n * this._renderService.dimensions.css.cell.width + 'px'
                       : '')
               }
-              _removeDecoration(h) {
-                ;(this._decorationElements.get(h)?.remove(),
-                  this._decorationElements.delete(h),
-                  h.dispose())
+              _removeDecoration(c) {
+                ;(this._decorationElements.get(c)?.remove(),
+                  this._decorationElements.delete(c),
+                  c.dispose())
               }
             })
             i.BufferDecorationRenderer = x = l(
               [
-                f(1, u.IBufferService),
-                f(2, a.ICoreBrowserService),
-                f(3, u.IDecorationService),
-                f(4, a.IRenderService)
+                u(1, f.IBufferService),
+                u(2, a.ICoreBrowserService),
+                u(3, f.IDecorationService),
+                u(4, a.IRenderService)
               ],
               x
             )
@@ -12027,10 +12313,10 @@ WARNING: This link could potentially be dangerous`)
                 _lineIntersectsZone(o, l) {
                   return l >= o.startBufferLine && l <= o.endBufferLine
                 }
-                _lineAdjacentToZone(o, l, f) {
+                _lineAdjacentToZone(o, l, u) {
                   return (
-                    l >= o.startBufferLine - this._linePadding[f || 'full'] &&
-                    l <= o.endBufferLine + this._linePadding[f || 'full']
+                    l >= o.startBufferLine - this._linePadding[u || 'full'] &&
+                    l <= o.endBufferLine + this._linePadding[u || 'full']
                   )
                 }
                 _addLineToZone(o, l) {
@@ -12042,46 +12328,46 @@ WARNING: This link could potentially be dangerous`)
           5744: function (I, i, o) {
             var l =
                 (this && this.__decorate) ||
-                function (r, c, g, m) {
+                function (r, d, v, _) {
                   var b,
                     p = arguments.length,
-                    y = p < 3 ? c : m === null ? (m = Object.getOwnPropertyDescriptor(c, g)) : m
+                    S = p < 3 ? d : _ === null ? (_ = Object.getOwnPropertyDescriptor(d, v)) : _
                   if (typeof Reflect == 'object' && typeof Reflect.decorate == 'function')
-                    y = Reflect.decorate(r, c, g, m)
+                    S = Reflect.decorate(r, d, v, _)
                   else
                     for (var L = r.length - 1; L >= 0; L--)
-                      (b = r[L]) && (y = (p < 3 ? b(y) : p > 3 ? b(c, g, y) : b(c, g)) || y)
-                  return (p > 3 && y && Object.defineProperty(c, g, y), y)
+                      (b = r[L]) && (S = (p < 3 ? b(S) : p > 3 ? b(d, v, S) : b(d, v)) || S)
+                  return (p > 3 && S && Object.defineProperty(d, v, S), S)
                 },
-              f =
+              u =
                 (this && this.__param) ||
-                function (r, c) {
-                  return function (g, m) {
-                    c(g, m, r)
+                function (r, d) {
+                  return function (v, _) {
+                    d(v, _, r)
                   }
                 }
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.OverviewRulerRenderer = void 0))
             const a = o(5871),
-              d = o(4725),
-              u = o(844),
+              h = o(4725),
+              f = o(844),
               x = o(2585),
-              h = { full: 0, left: 0, center: 0, right: 0 },
+              c = { full: 0, left: 0, center: 0, right: 0 },
               t = { full: 0, left: 0, center: 0, right: 0 },
               n = { full: 0, left: 0, center: 0, right: 0 }
-            let s = (i.OverviewRulerRenderer = class extends u.Disposable {
+            let s = (i.OverviewRulerRenderer = class extends f.Disposable {
               get _width() {
                 return this._optionsService.options.overviewRulerWidth || 0
               }
-              constructor(r, c, g, m, b, p, y) {
+              constructor(r, d, v, _, b, p, S) {
                 ;(super(),
                   (this._viewportElement = r),
-                  (this._screenElement = c),
-                  (this._bufferService = g),
-                  (this._decorationService = m),
+                  (this._screenElement = d),
+                  (this._bufferService = v),
+                  (this._decorationService = _),
                   (this._renderService = b),
                   (this._optionsService = p),
-                  (this._coreBrowserService = y),
+                  (this._coreBrowserService = S),
                   (this._colorZoneStore = new a.ColorZoneStore()),
                   (this._shouldUpdateDimensions = !0),
                   (this._shouldUpdateAnchor = !0),
@@ -12100,7 +12386,7 @@ WARNING: This link could potentially be dangerous`)
                   this._registerBufferChangeListeners(),
                   this._registerDimensionChangeListeners(),
                   this.register(
-                    (0, u.toDisposable)(() => {
+                    (0, f.toDisposable)(() => {
                       this._canvas?.remove()
                     })
                   ))
@@ -12156,10 +12442,10 @@ WARNING: This link could potentially be dangerous`)
               }
               _refreshDrawConstants() {
                 const r = Math.floor(this._canvas.width / 3),
-                  c = Math.ceil(this._canvas.width / 3)
+                  d = Math.ceil(this._canvas.width / 3)
                 ;((t.full = this._canvas.width),
                   (t.left = r),
-                  (t.center = c),
+                  (t.center = d),
                   (t.right = r),
                   this._refreshDrawHeightConstants(),
                   (n.full = 0),
@@ -12168,28 +12454,28 @@ WARNING: This link could potentially be dangerous`)
                   (n.right = t.left + t.center))
               }
               _refreshDrawHeightConstants() {
-                h.full = Math.round(2 * this._coreBrowserService.dpr)
+                c.full = Math.round(2 * this._coreBrowserService.dpr)
                 const r = this._canvas.height / this._bufferService.buffer.lines.length,
-                  c = Math.round(Math.max(Math.min(r, 12), 6) * this._coreBrowserService.dpr)
-                ;((h.left = c), (h.center = c), (h.right = c))
+                  d = Math.round(Math.max(Math.min(r, 12), 6) * this._coreBrowserService.dpr)
+                ;((c.left = d), (c.center = d), (c.right = d))
               }
               _refreshColorZonePadding() {
                 ;(this._colorZoneStore.setPadding({
                   full: Math.floor(
                     (this._bufferService.buffers.active.lines.length / (this._canvas.height - 1)) *
-                      h.full
+                      c.full
                   ),
                   left: Math.floor(
                     (this._bufferService.buffers.active.lines.length / (this._canvas.height - 1)) *
-                      h.left
+                      c.left
                   ),
                   center: Math.floor(
                     (this._bufferService.buffers.active.lines.length / (this._canvas.height - 1)) *
-                      h.center
+                      c.center
                   ),
                   right: Math.floor(
                     (this._bufferService.buffers.active.lines.length / (this._canvas.height - 1)) *
-                      h.right
+                      c.right
                   )
                 }),
                   (this._lastKnownBufferLength = this._bufferService.buffers.normal.lines.length))
@@ -12208,12 +12494,12 @@ WARNING: This link could potentially be dangerous`)
                 ;(this._shouldUpdateDimensions && this._refreshCanvasDimensions(),
                   this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height),
                   this._colorZoneStore.clear())
-                for (const c of this._decorationService.decorations)
-                  this._colorZoneStore.addDecoration(c)
+                for (const d of this._decorationService.decorations)
+                  this._colorZoneStore.addDecoration(d)
                 this._ctx.lineWidth = 1
                 const r = this._colorZoneStore.zones
-                for (const c of r) c.position !== 'full' && this._renderColorZone(c)
-                for (const c of r) c.position === 'full' && this._renderColorZone(c)
+                for (const d of r) d.position !== 'full' && this._renderColorZone(d)
+                for (const d of r) d.position === 'full' && this._renderColorZone(d)
                 ;((this._shouldUpdateDimensions = !1), (this._shouldUpdateAnchor = !1))
               }
               _renderColorZone(r) {
@@ -12223,20 +12509,20 @@ WARNING: This link could potentially be dangerous`)
                     Math.round(
                       (this._canvas.height - 1) *
                         (r.startBufferLine / this._bufferService.buffers.active.lines.length) -
-                        h[r.position || 'full'] / 2
+                        c[r.position || 'full'] / 2
                     ),
                     t[r.position || 'full'],
                     Math.round(
                       (this._canvas.height - 1) *
                         ((r.endBufferLine - r.startBufferLine) /
                           this._bufferService.buffers.active.lines.length) +
-                        h[r.position || 'full']
+                        c[r.position || 'full']
                     )
                   ))
               }
-              _queueRefresh(r, c) {
+              _queueRefresh(r, d) {
                 ;((this._shouldUpdateDimensions = r || this._shouldUpdateDimensions),
-                  (this._shouldUpdateAnchor = c || this._shouldUpdateAnchor),
+                  (this._shouldUpdateAnchor = d || this._shouldUpdateAnchor),
                   this._animationFrame === void 0 &&
                     (this._animationFrame = this._coreBrowserService.window.requestAnimationFrame(
                       () => {
@@ -12247,11 +12533,11 @@ WARNING: This link could potentially be dangerous`)
             })
             i.OverviewRulerRenderer = s = l(
               [
-                f(2, x.IBufferService),
-                f(3, x.IDecorationService),
-                f(4, d.IRenderService),
-                f(5, x.IOptionsService),
-                f(6, d.ICoreBrowserService)
+                u(2, x.IBufferService),
+                u(3, x.IDecorationService),
+                u(4, h.IRenderService),
+                u(5, x.IOptionsService),
+                u(6, h.ICoreBrowserService)
               ],
               s
             )
@@ -12259,39 +12545,39 @@ WARNING: This link could potentially be dangerous`)
           2950: function (I, i, o) {
             var l =
                 (this && this.__decorate) ||
-                function (h, t, n, s) {
+                function (c, t, n, s) {
                   var r,
-                    c = arguments.length,
-                    g = c < 3 ? t : s === null ? (s = Object.getOwnPropertyDescriptor(t, n)) : s
+                    d = arguments.length,
+                    v = d < 3 ? t : s === null ? (s = Object.getOwnPropertyDescriptor(t, n)) : s
                   if (typeof Reflect == 'object' && typeof Reflect.decorate == 'function')
-                    g = Reflect.decorate(h, t, n, s)
+                    v = Reflect.decorate(c, t, n, s)
                   else
-                    for (var m = h.length - 1; m >= 0; m--)
-                      (r = h[m]) && (g = (c < 3 ? r(g) : c > 3 ? r(t, n, g) : r(t, n)) || g)
-                  return (c > 3 && g && Object.defineProperty(t, n, g), g)
+                    for (var _ = c.length - 1; _ >= 0; _--)
+                      (r = c[_]) && (v = (d < 3 ? r(v) : d > 3 ? r(t, n, v) : r(t, n)) || v)
+                  return (d > 3 && v && Object.defineProperty(t, n, v), v)
                 },
-              f =
+              u =
                 (this && this.__param) ||
-                function (h, t) {
+                function (c, t) {
                   return function (n, s) {
-                    t(n, s, h)
+                    t(n, s, c)
                   }
                 }
             ;(Object.defineProperty(i, '__esModule', { value: !0 }), (i.CompositionHelper = void 0))
             const a = o(4725),
-              d = o(2585),
-              u = o(2584)
+              h = o(2585),
+              f = o(2584)
             let x = (i.CompositionHelper = class {
               get isComposing() {
                 return this._isComposing
               }
-              constructor(h, t, n, s, r, c) {
-                ;((this._textarea = h),
+              constructor(c, t, n, s, r, d) {
+                ;((this._textarea = c),
                   (this._compositionView = t),
                   (this._bufferService = n),
                   (this._optionsService = s),
                   (this._coreService = r),
-                  (this._renderService = c),
+                  (this._renderService = d),
                   (this._isComposing = !1),
                   (this._isSendingComposition = !1),
                   (this._compositionPosition = { start: 0, end: 0 }),
@@ -12304,8 +12590,8 @@ WARNING: This link could potentially be dangerous`)
                   (this._dataAlreadySent = ''),
                   this._compositionView.classList.add('active'))
               }
-              compositionupdate(h) {
-                ;((this._compositionView.textContent = h.data),
+              compositionupdate(c) {
+                ;((this._compositionView.textContent = c.data),
                   this.updateCompositionElements(),
                   setTimeout(() => {
                     this._compositionPosition.end = this._textarea.value.length
@@ -12314,17 +12600,17 @@ WARNING: This link could potentially be dangerous`)
               compositionend() {
                 this._finalizeComposition(!0)
               }
-              keydown(h) {
+              keydown(c) {
                 if (this._isComposing || this._isSendingComposition) {
-                  if (h.keyCode === 229 || h.keyCode === 16 || h.keyCode === 17 || h.keyCode === 18)
+                  if (c.keyCode === 229 || c.keyCode === 16 || c.keyCode === 17 || c.keyCode === 18)
                     return !1
                   this._finalizeComposition(!1)
                 }
-                return h.keyCode !== 229 || (this._handleAnyTextareaChanges(), !1)
+                return c.keyCode !== 229 || (this._handleAnyTextareaChanges(), !1)
               }
-              _finalizeComposition(h) {
+              _finalizeComposition(c) {
                 if (
-                  (this._compositionView.classList.remove('active'), (this._isComposing = !1), h)
+                  (this._compositionView.classList.remove('active'), (this._isComposing = !1), c)
                 ) {
                   const t = {
                     start: this._compositionPosition.start,
@@ -12352,23 +12638,23 @@ WARNING: This link could potentially be dangerous`)
                 }
               }
               _handleAnyTextareaChanges() {
-                const h = this._textarea.value
+                const c = this._textarea.value
                 setTimeout(() => {
                   if (!this._isComposing) {
                     const t = this._textarea.value,
-                      n = t.replace(h, '')
+                      n = t.replace(c, '')
                     ;((this._dataAlreadySent = n),
-                      t.length > h.length
+                      t.length > c.length
                         ? this._coreService.triggerDataEvent(n, !0)
-                        : t.length < h.length
-                          ? this._coreService.triggerDataEvent(`${u.C0.DEL}`, !0)
-                          : t.length === h.length &&
-                            t !== h &&
+                        : t.length < c.length
+                          ? this._coreService.triggerDataEvent(`${f.C0.DEL}`, !0)
+                          : t.length === c.length &&
+                            t !== c &&
                             this._coreService.triggerDataEvent(t, !0))
                   }
                 }, 0)
               }
-              updateCompositionElements(h) {
+              updateCompositionElements(c) {
                 if (this._isComposing) {
                   if (this._bufferService.buffer.isCursorInViewport) {
                     const t = Math.min(this._bufferService.buffer.x, this._bufferService.cols - 1),
@@ -12385,46 +12671,46 @@ WARNING: This link could potentially be dangerous`)
                         this._optionsService.rawOptions.fontFamily),
                       (this._compositionView.style.fontSize =
                         this._optionsService.rawOptions.fontSize + 'px'))
-                    const c = this._compositionView.getBoundingClientRect()
+                    const d = this._compositionView.getBoundingClientRect()
                     ;((this._textarea.style.left = r + 'px'),
                       (this._textarea.style.top = s + 'px'),
-                      (this._textarea.style.width = Math.max(c.width, 1) + 'px'),
-                      (this._textarea.style.height = Math.max(c.height, 1) + 'px'),
-                      (this._textarea.style.lineHeight = c.height + 'px'))
+                      (this._textarea.style.width = Math.max(d.width, 1) + 'px'),
+                      (this._textarea.style.height = Math.max(d.height, 1) + 'px'),
+                      (this._textarea.style.lineHeight = d.height + 'px'))
                   }
-                  h || setTimeout(() => this.updateCompositionElements(!0), 0)
+                  c || setTimeout(() => this.updateCompositionElements(!0), 0)
                 }
               }
             })
             i.CompositionHelper = x = l(
               [
-                f(2, d.IBufferService),
-                f(3, d.IOptionsService),
-                f(4, d.ICoreService),
-                f(5, a.IRenderService)
+                u(2, h.IBufferService),
+                u(3, h.IOptionsService),
+                u(4, h.ICoreService),
+                u(5, a.IRenderService)
               ],
               x
             )
           },
           9806: (I, i) => {
-            function o(l, f, a) {
-              const d = a.getBoundingClientRect(),
-                u = l.getComputedStyle(a),
-                x = parseInt(u.getPropertyValue('padding-left')),
-                h = parseInt(u.getPropertyValue('padding-top'))
-              return [f.clientX - d.left - x, f.clientY - d.top - h]
+            function o(l, u, a) {
+              const h = a.getBoundingClientRect(),
+                f = l.getComputedStyle(a),
+                x = parseInt(f.getPropertyValue('padding-left')),
+                c = parseInt(f.getPropertyValue('padding-top'))
+              return [u.clientX - h.left - x, u.clientY - h.top - c]
             }
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.getCoords = i.getCoordsRelativeToElement = void 0),
               (i.getCoordsRelativeToElement = o),
-              (i.getCoords = function (l, f, a, d, u, x, h, t, n) {
+              (i.getCoords = function (l, u, a, h, f, x, c, t, n) {
                 if (!x) return
-                const s = o(l, f, a)
+                const s = o(l, u, a)
                 return s
-                  ? ((s[0] = Math.ceil((s[0] + (n ? h / 2 : 0)) / h)),
+                  ? ((s[0] = Math.ceil((s[0] + (n ? c / 2 : 0)) / c)),
                     (s[1] = Math.ceil(s[1] / t)),
-                    (s[0] = Math.min(Math.max(s[0], 1), d + (n ? 1 : 0))),
-                    (s[1] = Math.min(Math.max(s[1], 1), u)),
+                    (s[0] = Math.min(Math.max(s[0], 1), h + (n ? 1 : 0))),
+                    (s[1] = Math.min(Math.max(s[1], 1), f)),
                     s)
                   : void 0
               }))
@@ -12433,148 +12719,148 @@ WARNING: This link could potentially be dangerous`)
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.moveToCellSequence = void 0))
             const l = o(2584)
-            function f(t, n, s, r) {
-              const c = t - a(t, s),
-                g = n - a(n, s),
-                m =
-                  Math.abs(c - g) -
-                  (function (b, p, y) {
+            function u(t, n, s, r) {
+              const d = t - a(t, s),
+                v = n - a(n, s),
+                _ =
+                  Math.abs(d - v) -
+                  (function (b, p, S) {
                     let L = 0
-                    const M = b - a(b, y),
-                      P = p - a(p, y)
+                    const M = b - a(b, S),
+                      P = p - a(p, S)
                     for (let j = 0; j < Math.abs(M - P); j++) {
-                      const R = d(b, p) === 'A' ? -1 : 1
-                      y.buffer.lines.get(M + R * j)?.isWrapped && L++
+                      const D = h(b, p) === 'A' ? -1 : 1
+                      S.buffer.lines.get(M + D * j)?.isWrapped && L++
                     }
                     return L
                   })(t, n, s)
-              return h(m, x(d(t, n), r))
+              return c(_, x(h(t, n), r))
             }
             function a(t, n) {
               let s = 0,
                 r = n.buffer.lines.get(t),
-                c = r?.isWrapped
-              for (; c && t >= 0 && t < n.rows; )
-                (s++, (r = n.buffer.lines.get(--t)), (c = r?.isWrapped))
+                d = r?.isWrapped
+              for (; d && t >= 0 && t < n.rows; )
+                (s++, (r = n.buffer.lines.get(--t)), (d = r?.isWrapped))
               return s
             }
-            function d(t, n) {
+            function h(t, n) {
               return t > n ? 'A' : 'B'
             }
-            function u(t, n, s, r, c, g) {
-              let m = t,
+            function f(t, n, s, r, d, v) {
+              let _ = t,
                 b = n,
                 p = ''
-              for (; m !== s || b !== r; )
-                ((m += c ? 1 : -1),
-                  c && m > g.cols - 1
-                    ? ((p += g.buffer.translateBufferLineToString(b, !1, t, m)),
-                      (m = 0),
+              for (; _ !== s || b !== r; )
+                ((_ += d ? 1 : -1),
+                  d && _ > v.cols - 1
+                    ? ((p += v.buffer.translateBufferLineToString(b, !1, t, _)),
+                      (_ = 0),
                       (t = 0),
                       b++)
-                    : !c &&
-                      m < 0 &&
-                      ((p += g.buffer.translateBufferLineToString(b, !1, 0, t + 1)),
-                      (m = g.cols - 1),
-                      (t = m),
+                    : !d &&
+                      _ < 0 &&
+                      ((p += v.buffer.translateBufferLineToString(b, !1, 0, t + 1)),
+                      (_ = v.cols - 1),
+                      (t = _),
                       b--))
-              return p + g.buffer.translateBufferLineToString(b, !1, t, m)
+              return p + v.buffer.translateBufferLineToString(b, !1, t, _)
             }
             function x(t, n) {
               const s = n ? 'O' : '['
               return l.C0.ESC + s + t
             }
-            function h(t, n) {
+            function c(t, n) {
               t = Math.floor(t)
               let s = ''
               for (let r = 0; r < t; r++) s += n
               return s
             }
             i.moveToCellSequence = function (t, n, s, r) {
-              const c = s.buffer.x,
-                g = s.buffer.y
+              const d = s.buffer.x,
+                v = s.buffer.y
               if (!s.buffer.hasScrollback)
                 return (
-                  (function (p, y, L, M, P, j) {
-                    return f(y, M, P, j).length === 0
+                  (function (p, S, L, M, P, j) {
+                    return u(S, M, P, j).length === 0
                       ? ''
-                      : h(u(p, y, p, y - a(y, P), !1, P).length, x('D', j))
-                  })(c, g, 0, n, s, r) +
-                  f(g, n, s, r) +
-                  (function (p, y, L, M, P, j) {
-                    let R
-                    R = f(y, M, P, j).length > 0 ? M - a(M, P) : y
-                    const T = M,
+                      : c(f(p, S, p, S - a(S, P), !1, P).length, x('D', j))
+                  })(d, v, 0, n, s, r) +
+                  u(v, n, s, r) +
+                  (function (p, S, L, M, P, j) {
+                    let D
+                    D = u(S, M, P, j).length > 0 ? M - a(M, P) : S
+                    const O = M,
                       $ = (function (F, W, C, A, N, B) {
                         let z
                         return (
-                          (z = f(C, A, N, B).length > 0 ? A - a(A, N) : W),
+                          (z = u(C, A, N, B).length > 0 ? A - a(A, N) : W),
                           (F < C && z <= A) || (F >= C && z < A) ? 'C' : 'D'
                         )
-                      })(p, y, L, M, P, j)
-                    return h(u(p, R, L, T, $ === 'C', P).length, x($, j))
-                  })(c, g, t, n, s, r)
+                      })(p, S, L, M, P, j)
+                    return c(f(p, D, L, O, $ === 'C', P).length, x($, j))
+                  })(d, v, t, n, s, r)
                 )
-              let m
-              if (g === n) return ((m = c > t ? 'D' : 'C'), h(Math.abs(c - t), x(m, r)))
-              m = g > n ? 'D' : 'C'
-              const b = Math.abs(g - n)
-              return h(
-                (function (p, y) {
-                  return y.cols - p
-                })(g > n ? t : c, s) +
+              let _
+              if (v === n) return ((_ = d > t ? 'D' : 'C'), c(Math.abs(d - t), x(_, r)))
+              _ = v > n ? 'D' : 'C'
+              const b = Math.abs(v - n)
+              return c(
+                (function (p, S) {
+                  return S.cols - p
+                })(v > n ? t : d, s) +
                   (b - 1) * s.cols +
                   1 +
-                  ((g > n ? c : t) - 1),
-                x(m, r)
+                  ((v > n ? d : t) - 1),
+                x(_, r)
               )
             }
           },
           1296: function (I, i, o) {
             var l =
                 (this && this.__decorate) ||
-                function (j, R, T, $) {
+                function (j, D, O, $) {
                   var F,
                     W = arguments.length,
-                    C = W < 3 ? R : $ === null ? ($ = Object.getOwnPropertyDescriptor(R, T)) : $
+                    C = W < 3 ? D : $ === null ? ($ = Object.getOwnPropertyDescriptor(D, O)) : $
                   if (typeof Reflect == 'object' && typeof Reflect.decorate == 'function')
-                    C = Reflect.decorate(j, R, T, $)
+                    C = Reflect.decorate(j, D, O, $)
                   else
                     for (var A = j.length - 1; A >= 0; A--)
-                      (F = j[A]) && (C = (W < 3 ? F(C) : W > 3 ? F(R, T, C) : F(R, T)) || C)
-                  return (W > 3 && C && Object.defineProperty(R, T, C), C)
+                      (F = j[A]) && (C = (W < 3 ? F(C) : W > 3 ? F(D, O, C) : F(D, O)) || C)
+                  return (W > 3 && C && Object.defineProperty(D, O, C), C)
                 },
-              f =
+              u =
                 (this && this.__param) ||
-                function (j, R) {
-                  return function (T, $) {
-                    R(T, $, j)
+                function (j, D) {
+                  return function (O, $) {
+                    D(O, $, j)
                   }
                 }
             ;(Object.defineProperty(i, '__esModule', { value: !0 }), (i.DomRenderer = void 0))
             const a = o(3787),
-              d = o(2550),
-              u = o(2223),
+              h = o(2550),
+              f = o(2223),
               x = o(6171),
-              h = o(6052),
+              c = o(6052),
               t = o(4725),
               n = o(8055),
               s = o(8460),
               r = o(844),
-              c = o(2585),
-              g = 'xterm-dom-renderer-owner-',
-              m = 'xterm-rows',
+              d = o(2585),
+              v = 'xterm-dom-renderer-owner-',
+              _ = 'xterm-rows',
               b = 'xterm-fg-',
               p = 'xterm-bg-',
-              y = 'xterm-focus',
+              S = 'xterm-focus',
               L = 'xterm-selection'
             let M = 1,
               P = (i.DomRenderer = class extends r.Disposable {
-                constructor(j, R, T, $, F, W, C, A, N, B, z, G, J) {
+                constructor(j, D, O, $, F, W, C, A, N, B, z, K, J) {
                   ;(super(),
                     (this._terminal = j),
-                    (this._document = R),
-                    (this._element = T),
+                    (this._document = D),
+                    (this._element = O),
                     (this._screenElement = $),
                     (this._viewportElement = F),
                     (this._helperContainer = W),
@@ -12582,14 +12868,14 @@ WARNING: This link could potentially be dangerous`)
                     (this._charSizeService = N),
                     (this._optionsService = B),
                     (this._bufferService = z),
-                    (this._coreBrowserService = G),
+                    (this._coreBrowserService = K),
                     (this._themeService = J),
                     (this._terminalClass = M++),
                     (this._rowElements = []),
-                    (this._selectionRenderModel = (0, h.createSelectionRenderModel)()),
+                    (this._selectionRenderModel = (0, c.createSelectionRenderModel)()),
                     (this.onRequestRedraw = this.register(new s.EventEmitter()).event),
                     (this._rowContainer = this._document.createElement('div')),
-                    this._rowContainer.classList.add(m),
+                    this._rowContainer.classList.add(_),
                     (this._rowContainer.style.lineHeight = 'normal'),
                     this._rowContainer.setAttribute('aria-hidden', 'true'),
                     this._refreshRowElements(this._bufferService.cols, this._bufferService.rows),
@@ -12604,7 +12890,7 @@ WARNING: This link could potentially be dangerous`)
                     this.register(this._themeService.onChangeColors((Q) => this._injectCss(Q))),
                     this._injectCss(this._themeService.colors),
                     (this._rowFactory = A.createInstance(a.DomRendererRowFactory, document)),
-                    this._element.classList.add(g + this._terminalClass),
+                    this._element.classList.add(v + this._terminalClass),
                     this._screenElement.appendChild(this._rowContainer),
                     this._screenElement.appendChild(this._selectionContainer),
                     this.register(
@@ -12615,7 +12901,7 @@ WARNING: This link could potentially be dangerous`)
                     ),
                     this.register(
                       (0, r.toDisposable)(() => {
-                        ;(this._element.classList.remove(g + this._terminalClass),
+                        ;(this._element.classList.remove(v + this._terminalClass),
                           this._rowContainer.remove(),
                           this._selectionContainer.remove(),
                           this._widthCache.dispose(),
@@ -12623,7 +12909,7 @@ WARNING: This link could potentially be dangerous`)
                           this._dimensionsStyleElement.remove())
                       })
                     ),
-                    (this._widthCache = new d.WidthCache(this._document, this._helperContainer)),
+                    (this._widthCache = new h.WidthCache(this._document, this._helperContainer)),
                     this._widthCache.setFont(
                       this._optionsService.rawOptions.fontFamily,
                       this._optionsService.rawOptions.fontSize,
@@ -12661,16 +12947,16 @@ WARNING: This link could potentially be dangerous`)
                       this.dimensions.css.canvas.width / this._bufferService.cols),
                     (this.dimensions.css.cell.height =
                       this.dimensions.css.canvas.height / this._bufferService.rows))
-                  for (const T of this._rowElements)
-                    ((T.style.width = `${this.dimensions.css.canvas.width}px`),
-                      (T.style.height = `${this.dimensions.css.cell.height}px`),
-                      (T.style.lineHeight = `${this.dimensions.css.cell.height}px`),
-                      (T.style.overflow = 'hidden'))
+                  for (const O of this._rowElements)
+                    ((O.style.width = `${this.dimensions.css.canvas.width}px`),
+                      (O.style.height = `${this.dimensions.css.cell.height}px`),
+                      (O.style.lineHeight = `${this.dimensions.css.cell.height}px`),
+                      (O.style.overflow = 'hidden'))
                   this._dimensionsStyleElement ||
                     ((this._dimensionsStyleElement = this._document.createElement('style')),
                     this._screenElement.appendChild(this._dimensionsStyleElement))
-                  const R = `${this._terminalSelector} .${m} span { display: inline-block; height: 100%; vertical-align: top;}`
-                  ;((this._dimensionsStyleElement.textContent = R),
+                  const D = `${this._terminalSelector} .${_} span { display: inline-block; height: 100%; vertical-align: top;}`
+                  ;((this._dimensionsStyleElement.textContent = D),
                     (this._selectionContainer.style.height = this._viewportElement.style.height),
                     (this._screenElement.style.width = `${this.dimensions.css.canvas.width}px`),
                     (this._screenElement.style.height = `${this.dimensions.css.canvas.height}px`))
@@ -12679,21 +12965,21 @@ WARNING: This link could potentially be dangerous`)
                   this._themeStyleElement ||
                     ((this._themeStyleElement = this._document.createElement('style')),
                     this._screenElement.appendChild(this._themeStyleElement))
-                  let R = `${this._terminalSelector} .${m} { color: ${j.foreground.css}; font-family: ${this._optionsService.rawOptions.fontFamily}; font-size: ${this._optionsService.rawOptions.fontSize}px; font-kerning: none; white-space: pre}`
-                  ;((R += `${this._terminalSelector} .${m} .xterm-dim { color: ${n.color.multiplyOpacity(j.foreground, 0.5).css};}`),
-                    (R += `${this._terminalSelector} span:not(.xterm-bold) { font-weight: ${this._optionsService.rawOptions.fontWeight};}${this._terminalSelector} span.xterm-bold { font-weight: ${this._optionsService.rawOptions.fontWeightBold};}${this._terminalSelector} span.xterm-italic { font-style: italic;}`))
-                  const T = `blink_underline_${this._terminalClass}`,
+                  let D = `${this._terminalSelector} .${_} { color: ${j.foreground.css}; font-family: ${this._optionsService.rawOptions.fontFamily}; font-size: ${this._optionsService.rawOptions.fontSize}px; font-kerning: none; white-space: pre}`
+                  ;((D += `${this._terminalSelector} .${_} .xterm-dim { color: ${n.color.multiplyOpacity(j.foreground, 0.5).css};}`),
+                    (D += `${this._terminalSelector} span:not(.xterm-bold) { font-weight: ${this._optionsService.rawOptions.fontWeight};}${this._terminalSelector} span.xterm-bold { font-weight: ${this._optionsService.rawOptions.fontWeightBold};}${this._terminalSelector} span.xterm-italic { font-style: italic;}`))
+                  const O = `blink_underline_${this._terminalClass}`,
                     $ = `blink_bar_${this._terminalClass}`,
                     F = `blink_block_${this._terminalClass}`
-                  ;((R += `@keyframes ${T} { 50% {  border-bottom-style: hidden; }}`),
-                    (R += `@keyframes ${$} { 50% {  box-shadow: none; }}`),
-                    (R += `@keyframes ${F} { 0% {  background-color: ${j.cursor.css};  color: ${j.cursorAccent.css}; } 50% {  background-color: inherit;  color: ${j.cursor.css}; }}`),
-                    (R += `${this._terminalSelector} .${m}.${y} .xterm-cursor.xterm-cursor-blink.xterm-cursor-underline { animation: ${T} 1s step-end infinite;}${this._terminalSelector} .${m}.${y} .xterm-cursor.xterm-cursor-blink.xterm-cursor-bar { animation: ${$} 1s step-end infinite;}${this._terminalSelector} .${m}.${y} .xterm-cursor.xterm-cursor-blink.xterm-cursor-block { animation: ${F} 1s step-end infinite;}${this._terminalSelector} .${m} .xterm-cursor.xterm-cursor-block { background-color: ${j.cursor.css}; color: ${j.cursorAccent.css};}${this._terminalSelector} .${m} .xterm-cursor.xterm-cursor-block:not(.xterm-cursor-blink) { background-color: ${j.cursor.css} !important; color: ${j.cursorAccent.css} !important;}${this._terminalSelector} .${m} .xterm-cursor.xterm-cursor-outline { outline: 1px solid ${j.cursor.css}; outline-offset: -1px;}${this._terminalSelector} .${m} .xterm-cursor.xterm-cursor-bar { box-shadow: ${this._optionsService.rawOptions.cursorWidth}px 0 0 ${j.cursor.css} inset;}${this._terminalSelector} .${m} .xterm-cursor.xterm-cursor-underline { border-bottom: 1px ${j.cursor.css}; border-bottom-style: solid; height: calc(100% - 1px);}`),
-                    (R += `${this._terminalSelector} .${L} { position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none;}${this._terminalSelector}.focus .${L} div { position: absolute; background-color: ${j.selectionBackgroundOpaque.css};}${this._terminalSelector} .${L} div { position: absolute; background-color: ${j.selectionInactiveBackgroundOpaque.css};}`))
+                  ;((D += `@keyframes ${O} { 50% {  border-bottom-style: hidden; }}`),
+                    (D += `@keyframes ${$} { 50% {  box-shadow: none; }}`),
+                    (D += `@keyframes ${F} { 0% {  background-color: ${j.cursor.css};  color: ${j.cursorAccent.css}; } 50% {  background-color: inherit;  color: ${j.cursor.css}; }}`),
+                    (D += `${this._terminalSelector} .${_}.${S} .xterm-cursor.xterm-cursor-blink.xterm-cursor-underline { animation: ${O} 1s step-end infinite;}${this._terminalSelector} .${_}.${S} .xterm-cursor.xterm-cursor-blink.xterm-cursor-bar { animation: ${$} 1s step-end infinite;}${this._terminalSelector} .${_}.${S} .xterm-cursor.xterm-cursor-blink.xterm-cursor-block { animation: ${F} 1s step-end infinite;}${this._terminalSelector} .${_} .xterm-cursor.xterm-cursor-block { background-color: ${j.cursor.css}; color: ${j.cursorAccent.css};}${this._terminalSelector} .${_} .xterm-cursor.xterm-cursor-block:not(.xterm-cursor-blink) { background-color: ${j.cursor.css} !important; color: ${j.cursorAccent.css} !important;}${this._terminalSelector} .${_} .xterm-cursor.xterm-cursor-outline { outline: 1px solid ${j.cursor.css}; outline-offset: -1px;}${this._terminalSelector} .${_} .xterm-cursor.xterm-cursor-bar { box-shadow: ${this._optionsService.rawOptions.cursorWidth}px 0 0 ${j.cursor.css} inset;}${this._terminalSelector} .${_} .xterm-cursor.xterm-cursor-underline { border-bottom: 1px ${j.cursor.css}; border-bottom-style: solid; height: calc(100% - 1px);}`),
+                    (D += `${this._terminalSelector} .${L} { position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none;}${this._terminalSelector}.focus .${L} div { position: absolute; background-color: ${j.selectionBackgroundOpaque.css};}${this._terminalSelector} .${L} div { position: absolute; background-color: ${j.selectionInactiveBackgroundOpaque.css};}`))
                   for (const [W, C] of j.ansi.entries())
-                    R += `${this._terminalSelector} .${b}${W} { color: ${C.css}; }${this._terminalSelector} .${b}${W}.xterm-dim { color: ${n.color.multiplyOpacity(C, 0.5).css}; }${this._terminalSelector} .${p}${W} { background-color: ${C.css}; }`
-                  ;((R += `${this._terminalSelector} .${b}${u.INVERTED_DEFAULT_COLOR} { color: ${n.color.opaque(j.background).css}; }${this._terminalSelector} .${b}${u.INVERTED_DEFAULT_COLOR}.xterm-dim { color: ${n.color.multiplyOpacity(n.color.opaque(j.background), 0.5).css}; }${this._terminalSelector} .${p}${u.INVERTED_DEFAULT_COLOR} { background-color: ${j.foreground.css}; }`),
-                    (this._themeStyleElement.textContent = R))
+                    D += `${this._terminalSelector} .${b}${W} { color: ${C.css}; }${this._terminalSelector} .${b}${W}.xterm-dim { color: ${n.color.multiplyOpacity(C, 0.5).css}; }${this._terminalSelector} .${p}${W} { background-color: ${C.css}; }`
+                  ;((D += `${this._terminalSelector} .${b}${f.INVERTED_DEFAULT_COLOR} { color: ${n.color.opaque(j.background).css}; }${this._terminalSelector} .${b}${f.INVERTED_DEFAULT_COLOR}.xterm-dim { color: ${n.color.multiplyOpacity(n.color.opaque(j.background), 0.5).css}; }${this._terminalSelector} .${p}${f.INVERTED_DEFAULT_COLOR} { background-color: ${j.foreground.css}; }`),
+                    (this._themeStyleElement.textContent = D))
                 }
                 _setDefaultSpacing() {
                   const j = this.dimensions.css.cell.width - this._widthCache.get('W', !1, !1)
@@ -12703,16 +12989,16 @@ WARNING: This link could potentially be dangerous`)
                 handleDevicePixelRatioChange() {
                   ;(this._updateDimensions(), this._widthCache.clear(), this._setDefaultSpacing())
                 }
-                _refreshRowElements(j, R) {
-                  for (let T = this._rowElements.length; T <= R; T++) {
+                _refreshRowElements(j, D) {
+                  for (let O = this._rowElements.length; O <= D; O++) {
                     const $ = this._document.createElement('div')
                     ;(this._rowContainer.appendChild($), this._rowElements.push($))
                   }
-                  for (; this._rowElements.length > R; )
+                  for (; this._rowElements.length > D; )
                     this._rowContainer.removeChild(this._rowElements.pop())
                 }
-                handleResize(j, R) {
-                  ;(this._refreshRowElements(j, R),
+                handleResize(j, D) {
+                  ;(this._refreshRowElements(j, D),
                     this._updateDimensions(),
                     this.handleSelectionChanged(
                       this._selectionRenderModel.selectionStart,
@@ -12724,36 +13010,36 @@ WARNING: This link could potentially be dangerous`)
                   ;(this._updateDimensions(), this._widthCache.clear(), this._setDefaultSpacing())
                 }
                 handleBlur() {
-                  ;(this._rowContainer.classList.remove(y),
+                  ;(this._rowContainer.classList.remove(S),
                     this.renderRows(0, this._bufferService.rows - 1))
                 }
                 handleFocus() {
-                  ;(this._rowContainer.classList.add(y),
+                  ;(this._rowContainer.classList.add(S),
                     this.renderRows(this._bufferService.buffer.y, this._bufferService.buffer.y))
                 }
-                handleSelectionChanged(j, R, T) {
+                handleSelectionChanged(j, D, O) {
                   if (
                     (this._selectionContainer.replaceChildren(),
-                    this._rowFactory.handleSelectionChanged(j, R, T),
+                    this._rowFactory.handleSelectionChanged(j, D, O),
                     this.renderRows(0, this._bufferService.rows - 1),
-                    !j || !R)
+                    !j || !D)
                   )
                     return
-                  this._selectionRenderModel.update(this._terminal, j, R, T)
+                  this._selectionRenderModel.update(this._terminal, j, D, O)
                   const $ = this._selectionRenderModel.viewportStartRow,
                     F = this._selectionRenderModel.viewportEndRow,
                     W = this._selectionRenderModel.viewportCappedStartRow,
                     C = this._selectionRenderModel.viewportCappedEndRow
                   if (W >= this._bufferService.rows || C < 0) return
                   const A = this._document.createDocumentFragment()
-                  if (T) {
-                    const N = j[0] > R[0]
+                  if (O) {
+                    const N = j[0] > D[0]
                     A.appendChild(
-                      this._createSelectionElement(W, N ? R[0] : j[0], N ? j[0] : R[0], C - W + 1)
+                      this._createSelectionElement(W, N ? D[0] : j[0], N ? j[0] : D[0], C - W + 1)
                     )
                   } else {
                     const N = $ === W ? j[0] : 0,
-                      B = W === F ? R[0] : this._bufferService.cols
+                      B = W === F ? D[0] : this._bufferService.cols
                     A.appendChild(this._createSelectionElement(W, N, B))
                     const z = C - W - 1
                     if (
@@ -12762,16 +13048,16 @@ WARNING: This link could potentially be dangerous`)
                       ),
                       W !== C)
                     ) {
-                      const G = F === C ? R[0] : this._bufferService.cols
-                      A.appendChild(this._createSelectionElement(C, 0, G))
+                      const K = F === C ? D[0] : this._bufferService.cols
+                      A.appendChild(this._createSelectionElement(C, 0, K))
                     }
                   }
                   this._selectionContainer.appendChild(A)
                 }
-                _createSelectionElement(j, R, T, $ = 1) {
+                _createSelectionElement(j, D, O, $ = 1) {
                   const F = this._document.createElement('div'),
-                    W = R * this.dimensions.css.cell.width
-                  let C = this.dimensions.css.cell.width * (T - R)
+                    W = D * this.dimensions.css.cell.width
+                  let C = this.dimensions.css.cell.width * (O - D)
                   return (
                     W + C > this.dimensions.css.canvas.width &&
                       (C = this.dimensions.css.canvas.width - W),
@@ -12797,21 +13083,21 @@ WARNING: This link could potentially be dangerous`)
                 clear() {
                   for (const j of this._rowElements) j.replaceChildren()
                 }
-                renderRows(j, R) {
-                  const T = this._bufferService.buffer,
-                    $ = T.ybase + T.y,
-                    F = Math.min(T.x, this._bufferService.cols - 1),
+                renderRows(j, D) {
+                  const O = this._bufferService.buffer,
+                    $ = O.ybase + O.y,
+                    F = Math.min(O.x, this._bufferService.cols - 1),
                     W = this._optionsService.rawOptions.cursorBlink,
                     C = this._optionsService.rawOptions.cursorStyle,
                     A = this._optionsService.rawOptions.cursorInactiveStyle
-                  for (let N = j; N <= R; N++) {
-                    const B = N + T.ydisp,
+                  for (let N = j; N <= D; N++) {
+                    const B = N + O.ydisp,
                       z = this._rowElements[N],
-                      G = T.lines.get(B)
-                    if (!z || !G) break
+                      K = O.lines.get(B)
+                    if (!z || !K) break
                     z.replaceChildren(
                       ...this._rowFactory.createRow(
-                        G,
+                        K,
                         B,
                         B === $,
                         C,
@@ -12827,7 +13113,7 @@ WARNING: This link could potentially be dangerous`)
                   }
                 }
                 get _terminalSelector() {
-                  return `.${g}${this._terminalClass}`
+                  return `.${v}${this._terminalClass}`
                 }
                 _handleLinkHover(j) {
                   this._setCellUnderline(j.x1, j.x2, j.y1, j.y2, j.cols, !0)
@@ -12835,36 +13121,36 @@ WARNING: This link could potentially be dangerous`)
                 _handleLinkLeave(j) {
                   this._setCellUnderline(j.x1, j.x2, j.y1, j.y2, j.cols, !1)
                 }
-                _setCellUnderline(j, R, T, $, F, W) {
-                  ;(T < 0 && (j = 0), $ < 0 && (R = 0))
+                _setCellUnderline(j, D, O, $, F, W) {
+                  ;(O < 0 && (j = 0), $ < 0 && (D = 0))
                   const C = this._bufferService.rows - 1
-                  ;((T = Math.max(Math.min(T, C), 0)),
+                  ;((O = Math.max(Math.min(O, C), 0)),
                     ($ = Math.max(Math.min($, C), 0)),
                     (F = Math.min(F, this._bufferService.cols)))
                   const A = this._bufferService.buffer,
                     N = A.ybase + A.y,
                     B = Math.min(A.x, F - 1),
                     z = this._optionsService.rawOptions.cursorBlink,
-                    G = this._optionsService.rawOptions.cursorStyle,
+                    K = this._optionsService.rawOptions.cursorStyle,
                     J = this._optionsService.rawOptions.cursorInactiveStyle
-                  for (let Q = T; Q <= $; ++Q) {
+                  for (let Q = O; Q <= $; ++Q) {
                     const H = Q + A.ydisp,
                       E = this._rowElements[Q],
-                      K = A.lines.get(H)
-                    if (!E || !K) break
+                      G = A.lines.get(H)
+                    if (!E || !G) break
                     E.replaceChildren(
                       ...this._rowFactory.createRow(
-                        K,
+                        G,
                         H,
                         H === N,
-                        G,
+                        K,
                         J,
                         B,
                         z,
                         this.dimensions.css.cell.width,
                         this._widthCache,
-                        W ? (Q === T ? j : 0) : -1,
-                        W ? (Q === $ ? R : F) - 1 : -1
+                        W ? (Q === O ? j : 0) : -1,
+                        W ? (Q === $ ? D : F) - 1 : -1
                       )
                     )
                   }
@@ -12872,12 +13158,12 @@ WARNING: This link could potentially be dangerous`)
               })
             i.DomRenderer = P = l(
               [
-                f(7, c.IInstantiationService),
-                f(8, t.ICharSizeService),
-                f(9, c.IOptionsService),
-                f(10, c.IBufferService),
-                f(11, t.ICoreBrowserService),
-                f(12, t.IThemeService)
+                u(7, d.IInstantiationService),
+                u(8, t.ICharSizeService),
+                u(9, d.IOptionsService),
+                u(10, d.IBufferService),
+                u(11, t.ICoreBrowserService),
+                u(12, t.IThemeService)
               ],
               P
             )
@@ -12885,114 +13171,114 @@ WARNING: This link could potentially be dangerous`)
           3787: function (I, i, o) {
             var l =
                 (this && this.__decorate) ||
-                function (m, b, p, y) {
+                function (_, b, p, S) {
                   var L,
                     M = arguments.length,
-                    P = M < 3 ? b : y === null ? (y = Object.getOwnPropertyDescriptor(b, p)) : y
+                    P = M < 3 ? b : S === null ? (S = Object.getOwnPropertyDescriptor(b, p)) : S
                   if (typeof Reflect == 'object' && typeof Reflect.decorate == 'function')
-                    P = Reflect.decorate(m, b, p, y)
+                    P = Reflect.decorate(_, b, p, S)
                   else
-                    for (var j = m.length - 1; j >= 0; j--)
-                      (L = m[j]) && (P = (M < 3 ? L(P) : M > 3 ? L(b, p, P) : L(b, p)) || P)
+                    for (var j = _.length - 1; j >= 0; j--)
+                      (L = _[j]) && (P = (M < 3 ? L(P) : M > 3 ? L(b, p, P) : L(b, p)) || P)
                   return (M > 3 && P && Object.defineProperty(b, p, P), P)
                 },
-              f =
+              u =
                 (this && this.__param) ||
-                function (m, b) {
-                  return function (p, y) {
-                    b(p, y, m)
+                function (_, b) {
+                  return function (p, S) {
+                    b(p, S, _)
                   }
                 }
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.DomRendererRowFactory = void 0))
             const a = o(2223),
-              d = o(643),
-              u = o(511),
+              h = o(643),
+              f = o(511),
               x = o(2585),
-              h = o(8055),
+              c = o(8055),
               t = o(4725),
               n = o(4269),
               s = o(6171),
               r = o(3734)
-            let c = (i.DomRendererRowFactory = class {
-              constructor(m, b, p, y, L, M, P) {
-                ;((this._document = m),
+            let d = (i.DomRendererRowFactory = class {
+              constructor(_, b, p, S, L, M, P) {
+                ;((this._document = _),
                   (this._characterJoinerService = b),
                   (this._optionsService = p),
-                  (this._coreBrowserService = y),
+                  (this._coreBrowserService = S),
                   (this._coreService = L),
                   (this._decorationService = M),
                   (this._themeService = P),
-                  (this._workCell = new u.CellData()),
+                  (this._workCell = new f.CellData()),
                   (this._columnSelectMode = !1),
                   (this.defaultSpacing = 0))
               }
-              handleSelectionChanged(m, b, p) {
-                ;((this._selectionStart = m),
+              handleSelectionChanged(_, b, p) {
+                ;((this._selectionStart = _),
                   (this._selectionEnd = b),
                   (this._columnSelectMode = p))
               }
-              createRow(m, b, p, y, L, M, P, j, R, T, $) {
+              createRow(_, b, p, S, L, M, P, j, D, O, $) {
                 const F = [],
                   W = this._characterJoinerService.getJoinedCharacters(b),
                   C = this._themeService.colors
                 let A,
-                  N = m.getNoBgTrimmedLength()
+                  N = _.getNoBgTrimmedLength()
                 p && N < M + 1 && (N = M + 1)
                 let B = 0,
                   z = '',
-                  G = 0,
+                  K = 0,
                   J = 0,
                   Q = 0,
                   H = !1,
                   E = 0,
-                  K = !1,
-                  X = 0
+                  G = !1,
+                  q = 0
                 const Z = [],
-                  Y = T !== -1 && $ !== -1
+                  Y = O !== -1 && $ !== -1
                 for (let V = 0; V < N; V++) {
-                  m.loadCell(V, this._workCell)
+                  _.loadCell(V, this._workCell)
                   let se = this._workCell.getWidth()
                   if (se === 0) continue
                   let ne = !1,
-                    he = V,
-                    ie = this._workCell
+                    ue = V,
+                    re = this._workCell
                   if (W.length > 0 && V === W[0][0]) {
                     ne = !0
-                    const ue = W.shift()
-                    ;((ie = new n.JoinedCellData(
+                    const fe = W.shift()
+                    ;((re = new n.JoinedCellData(
                       this._workCell,
-                      m.translateToString(!0, ue[0], ue[1]),
-                      ue[1] - ue[0]
+                      _.translateToString(!0, fe[0], fe[1]),
+                      fe[1] - fe[0]
                     )),
-                      (he = ue[1] - 1),
-                      (se = ie.getWidth()))
+                      (ue = fe[1] - 1),
+                      (se = re.getWidth()))
                   }
-                  const ke = this._isCellInSelection(V, b),
-                    Le = p && V === M,
-                    He = Y && V >= T && V <= $
-                  let Be = !1
-                  this._decorationService.forEachDecorationAtCell(V, b, void 0, (ue) => {
-                    Be = !0
+                  const Ee = this._isCellInSelection(V, b),
+                    Fe = p && V === M,
+                    Le = Y && V >= O && V <= $
+                  let Ae = !1
+                  this._decorationService.forEachDecorationAtCell(V, b, void 0, (fe) => {
+                    Ae = !0
                   })
-                  let Ie = ie.getChars() || d.WHITESPACE_CELL_CHAR
+                  let Be = re.getChars() || h.WHITESPACE_CELL_CHAR
                   if (
-                    (Ie === ' ' && (ie.isUnderline() || ie.isOverline()) && (Ie = ' '),
-                    (X = se * j - R.get(Ie, ie.isBold(), ie.isItalic())),
+                    (Be === ' ' && (re.isUnderline() || re.isOverline()) && (Be = ' '),
+                    (q = se * j - D.get(Be, re.isBold(), re.isItalic())),
                     A)
                   ) {
                     if (
                       B &&
-                      ((ke && K) || (!ke && !K && ie.bg === G)) &&
-                      ((ke && K && C.selectionForeground) || ie.fg === J) &&
-                      ie.extended.ext === Q &&
-                      He === H &&
-                      X === E &&
-                      !Le &&
+                      ((Ee && G) || (!Ee && !G && re.bg === K)) &&
+                      ((Ee && G && C.selectionForeground) || re.fg === J) &&
+                      re.extended.ext === Q &&
+                      Le === H &&
+                      q === E &&
+                      !Fe &&
                       !ne &&
-                      !Be
+                      !Ae
                     ) {
-                      ;(ie.isInvisible() ? (z += d.WHITESPACE_CELL_CHAR) : (z += Ie), B++)
+                      ;(re.isInvisible() ? (z += h.WHITESPACE_CELL_CHAR) : (z += Be), B++)
                       continue
                     }
                     ;(B && (A.textContent = z),
@@ -13001,23 +13287,23 @@ WARNING: This link could potentially be dangerous`)
                       (z = ''))
                   } else A = this._document.createElement('span')
                   if (
-                    ((G = ie.bg),
-                    (J = ie.fg),
-                    (Q = ie.extended.ext),
-                    (H = He),
-                    (E = X),
-                    (K = ke),
-                    ne && M >= V && M <= he && (M = V),
+                    ((K = re.bg),
+                    (J = re.fg),
+                    (Q = re.extended.ext),
+                    (H = Le),
+                    (E = q),
+                    (G = Ee),
+                    ne && M >= V && M <= ue && (M = V),
                     !this._coreService.isCursorHidden &&
-                      Le &&
+                      Fe &&
                       this._coreService.isCursorInitialized)
                   ) {
                     if ((Z.push('xterm-cursor'), this._coreBrowserService.isFocused))
                       (P && Z.push('xterm-cursor-blink'),
                         Z.push(
-                          y === 'bar'
+                          S === 'bar'
                             ? 'xterm-cursor-bar'
-                            : y === 'underline'
+                            : S === 'underline'
                               ? 'xterm-cursor-underline'
                               : 'xterm-cursor-block'
                         ))
@@ -13037,170 +13323,170 @@ WARNING: This link could potentially be dangerous`)
                       }
                   }
                   if (
-                    (ie.isBold() && Z.push('xterm-bold'),
-                    ie.isItalic() && Z.push('xterm-italic'),
-                    ie.isDim() && Z.push('xterm-dim'),
-                    (z = ie.isInvisible()
-                      ? d.WHITESPACE_CELL_CHAR
-                      : ie.getChars() || d.WHITESPACE_CELL_CHAR),
-                    ie.isUnderline() &&
-                      (Z.push(`xterm-underline-${ie.extended.underlineStyle}`),
+                    (re.isBold() && Z.push('xterm-bold'),
+                    re.isItalic() && Z.push('xterm-italic'),
+                    re.isDim() && Z.push('xterm-dim'),
+                    (z = re.isInvisible()
+                      ? h.WHITESPACE_CELL_CHAR
+                      : re.getChars() || h.WHITESPACE_CELL_CHAR),
+                    re.isUnderline() &&
+                      (Z.push(`xterm-underline-${re.extended.underlineStyle}`),
                       z === ' ' && (z = ' '),
-                      !ie.isUnderlineColorDefault()))
+                      !re.isUnderlineColorDefault()))
                   )
-                    if (ie.isUnderlineColorRGB())
-                      A.style.textDecorationColor = `rgb(${r.AttributeData.toColorRGB(ie.getUnderlineColor()).join(',')})`
+                    if (re.isUnderlineColorRGB())
+                      A.style.textDecorationColor = `rgb(${r.AttributeData.toColorRGB(re.getUnderlineColor()).join(',')})`
                     else {
-                      let ue = ie.getUnderlineColor()
+                      let fe = re.getUnderlineColor()
                       ;(this._optionsService.rawOptions.drawBoldTextInBrightColors &&
-                        ie.isBold() &&
-                        ue < 8 &&
-                        (ue += 8),
-                        (A.style.textDecorationColor = C.ansi[ue].css))
+                        re.isBold() &&
+                        fe < 8 &&
+                        (fe += 8),
+                        (A.style.textDecorationColor = C.ansi[fe].css))
                     }
-                  ;(ie.isOverline() && (Z.push('xterm-overline'), z === ' ' && (z = ' ')),
-                    ie.isStrikethrough() && Z.push('xterm-strikethrough'),
-                    He && (A.style.textDecoration = 'underline'))
-                  let ve = ie.getFgColor(),
-                    q = ie.getFgColorMode(),
-                    ae = ie.getBgColor(),
-                    me = ie.getBgColorMode()
-                  const Re = !!ie.isInverse()
-                  if (Re) {
-                    const ue = ve
-                    ;((ve = ae), (ae = ue))
-                    const U = q
-                    ;((q = me), (me = U))
+                  ;(re.isOverline() && (Z.push('xterm-overline'), z === ' ' && (z = ' ')),
+                    re.isStrikethrough() && Z.push('xterm-strikethrough'),
+                    Le && (A.style.textDecoration = 'underline'))
+                  let ve = re.getFgColor(),
+                    X = re.getFgColorMode(),
+                    ae = re.getBgColor(),
+                    he = re.getBgColorMode()
+                  const Ie = !!re.isInverse()
+                  if (Ie) {
+                    const fe = ve
+                    ;((ve = ae), (ae = fe))
+                    const dt = X
+                    ;((X = he), (he = dt))
                   }
-                  let De,
-                    Ke,
-                    Ne,
-                    We = !1
+                  let je,
+                    Me,
+                    Re,
+                    Ue = !1
                   switch (
-                    (this._decorationService.forEachDecorationAtCell(V, b, void 0, (ue) => {
-                      ;(ue.options.layer !== 'top' && We) ||
-                        (ue.backgroundColorRGB &&
-                          ((me = 50331648),
-                          (ae = (ue.backgroundColorRGB.rgba >> 8) & 16777215),
-                          (De = ue.backgroundColorRGB)),
-                        ue.foregroundColorRGB &&
-                          ((q = 50331648),
-                          (ve = (ue.foregroundColorRGB.rgba >> 8) & 16777215),
-                          (Ke = ue.foregroundColorRGB)),
-                        (We = ue.options.layer === 'top'))
+                    (this._decorationService.forEachDecorationAtCell(V, b, void 0, (fe) => {
+                      ;(fe.options.layer !== 'top' && Ue) ||
+                        (fe.backgroundColorRGB &&
+                          ((he = 50331648),
+                          (ae = (fe.backgroundColorRGB.rgba >> 8) & 16777215),
+                          (je = fe.backgroundColorRGB)),
+                        fe.foregroundColorRGB &&
+                          ((X = 50331648),
+                          (ve = (fe.foregroundColorRGB.rgba >> 8) & 16777215),
+                          (Me = fe.foregroundColorRGB)),
+                        (Ue = fe.options.layer === 'top'))
                     }),
-                    !We &&
-                      ke &&
-                      ((De = this._coreBrowserService.isFocused
+                    !Ue &&
+                      Ee &&
+                      ((je = this._coreBrowserService.isFocused
                         ? C.selectionBackgroundOpaque
                         : C.selectionInactiveBackgroundOpaque),
-                      (ae = (De.rgba >> 8) & 16777215),
-                      (me = 50331648),
-                      (We = !0),
+                      (ae = (je.rgba >> 8) & 16777215),
+                      (he = 50331648),
+                      (Ue = !0),
                       C.selectionForeground &&
-                        ((q = 50331648),
+                        ((X = 50331648),
                         (ve = (C.selectionForeground.rgba >> 8) & 16777215),
-                        (Ke = C.selectionForeground))),
-                    We && Z.push('xterm-decoration-top'),
-                    me)
+                        (Me = C.selectionForeground))),
+                    Ue && Z.push('xterm-decoration-top'),
+                    he)
                   ) {
                     case 16777216:
                     case 33554432:
-                      ;((Ne = C.ansi[ae]), Z.push(`xterm-bg-${ae}`))
+                      ;((Re = C.ansi[ae]), Z.push(`xterm-bg-${ae}`))
                       break
                     case 50331648:
-                      ;((Ne = h.channels.toColor(ae >> 16, (ae >> 8) & 255, 255 & ae)),
+                      ;((Re = c.channels.toColor(ae >> 16, (ae >> 8) & 255, 255 & ae)),
                         this._addStyle(
                           A,
-                          `background-color:#${g((ae >>> 0).toString(16), '0', 6)}`
+                          `background-color:#${v((ae >>> 0).toString(16), '0', 6)}`
                         ))
                       break
                     default:
-                      Re
-                        ? ((Ne = C.foreground), Z.push(`xterm-bg-${a.INVERTED_DEFAULT_COLOR}`))
-                        : (Ne = C.background)
+                      Ie
+                        ? ((Re = C.foreground), Z.push(`xterm-bg-${a.INVERTED_DEFAULT_COLOR}`))
+                        : (Re = C.background)
                   }
-                  switch ((De || (ie.isDim() && (De = h.color.multiplyOpacity(Ne, 0.5))), q)) {
+                  switch ((je || (re.isDim() && (je = c.color.multiplyOpacity(Re, 0.5))), X)) {
                     case 16777216:
                     case 33554432:
-                      ;(ie.isBold() &&
+                      ;(re.isBold() &&
                         ve < 8 &&
                         this._optionsService.rawOptions.drawBoldTextInBrightColors &&
                         (ve += 8),
-                        this._applyMinimumContrast(A, Ne, C.ansi[ve], ie, De, void 0) ||
+                        this._applyMinimumContrast(A, Re, C.ansi[ve], re, je, void 0) ||
                           Z.push(`xterm-fg-${ve}`))
                       break
                     case 50331648:
-                      const ue = h.channels.toColor((ve >> 16) & 255, (ve >> 8) & 255, 255 & ve)
-                      this._applyMinimumContrast(A, Ne, ue, ie, De, Ke) ||
-                        this._addStyle(A, `color:#${g(ve.toString(16), '0', 6)}`)
+                      const fe = c.channels.toColor((ve >> 16) & 255, (ve >> 8) & 255, 255 & ve)
+                      this._applyMinimumContrast(A, Re, fe, re, je, Me) ||
+                        this._addStyle(A, `color:#${v(ve.toString(16), '0', 6)}`)
                       break
                     default:
-                      this._applyMinimumContrast(A, Ne, C.foreground, ie, De, Ke) ||
-                        (Re && Z.push(`xterm-fg-${a.INVERTED_DEFAULT_COLOR}`))
+                      this._applyMinimumContrast(A, Re, C.foreground, re, je, Me) ||
+                        (Ie && Z.push(`xterm-fg-${a.INVERTED_DEFAULT_COLOR}`))
                   }
                   ;(Z.length && ((A.className = Z.join(' ')), (Z.length = 0)),
-                    Le || ne || Be ? (A.textContent = z) : B++,
-                    X !== this.defaultSpacing && (A.style.letterSpacing = `${X}px`),
+                    Fe || ne || Ae ? (A.textContent = z) : B++,
+                    q !== this.defaultSpacing && (A.style.letterSpacing = `${q}px`),
                     F.push(A),
-                    (V = he))
+                    (V = ue))
                 }
                 return (A && B && (A.textContent = z), F)
               }
-              _applyMinimumContrast(m, b, p, y, L, M) {
+              _applyMinimumContrast(_, b, p, S, L, M) {
                 if (
                   this._optionsService.rawOptions.minimumContrastRatio === 1 ||
-                  (0, s.treatGlyphAsBackgroundColor)(y.getCode())
+                  (0, s.treatGlyphAsBackgroundColor)(S.getCode())
                 )
                   return !1
-                const P = this._getContrastCache(y)
+                const P = this._getContrastCache(S)
                 let j
                 if ((L || M || (j = P.getColor(b.rgba, p.rgba)), j === void 0)) {
-                  const R =
-                    this._optionsService.rawOptions.minimumContrastRatio / (y.isDim() ? 2 : 1)
-                  ;((j = h.color.ensureContrastRatio(L || b, M || p, R)),
+                  const D =
+                    this._optionsService.rawOptions.minimumContrastRatio / (S.isDim() ? 2 : 1)
+                  ;((j = c.color.ensureContrastRatio(L || b, M || p, D)),
                     P.setColor((L || b).rgba, (M || p).rgba, j ?? null))
                 }
-                return !!j && (this._addStyle(m, `color:${j.css}`), !0)
+                return !!j && (this._addStyle(_, `color:${j.css}`), !0)
               }
-              _getContrastCache(m) {
-                return m.isDim()
+              _getContrastCache(_) {
+                return _.isDim()
                   ? this._themeService.colors.halfContrastCache
                   : this._themeService.colors.contrastCache
               }
-              _addStyle(m, b) {
-                m.setAttribute('style', `${m.getAttribute('style') || ''}${b};`)
+              _addStyle(_, b) {
+                _.setAttribute('style', `${_.getAttribute('style') || ''}${b};`)
               }
-              _isCellInSelection(m, b) {
+              _isCellInSelection(_, b) {
                 const p = this._selectionStart,
-                  y = this._selectionEnd
+                  S = this._selectionEnd
                 return (
-                  !(!p || !y) &&
+                  !(!p || !S) &&
                   (this._columnSelectMode
-                    ? p[0] <= y[0]
-                      ? m >= p[0] && b >= p[1] && m < y[0] && b <= y[1]
-                      : m < p[0] && b >= p[1] && m >= y[0] && b <= y[1]
-                    : (b > p[1] && b < y[1]) ||
-                      (p[1] === y[1] && b === p[1] && m >= p[0] && m < y[0]) ||
-                      (p[1] < y[1] && b === y[1] && m < y[0]) ||
-                      (p[1] < y[1] && b === p[1] && m >= p[0]))
+                    ? p[0] <= S[0]
+                      ? _ >= p[0] && b >= p[1] && _ < S[0] && b <= S[1]
+                      : _ < p[0] && b >= p[1] && _ >= S[0] && b <= S[1]
+                    : (b > p[1] && b < S[1]) ||
+                      (p[1] === S[1] && b === p[1] && _ >= p[0] && _ < S[0]) ||
+                      (p[1] < S[1] && b === S[1] && _ < S[0]) ||
+                      (p[1] < S[1] && b === p[1] && _ >= p[0]))
                 )
               }
             })
-            function g(m, b, p) {
-              for (; m.length < p; ) m = b + m
-              return m
+            function v(_, b, p) {
+              for (; _.length < p; ) _ = b + _
+              return _
             }
-            i.DomRendererRowFactory = c = l(
+            i.DomRendererRowFactory = d = l(
               [
-                f(1, t.ICharacterJoinerService),
-                f(2, x.IOptionsService),
-                f(3, t.ICoreBrowserService),
-                f(4, x.ICoreService),
-                f(5, x.IDecorationService),
-                f(6, t.IThemeService)
+                u(1, t.ICharacterJoinerService),
+                u(2, x.IOptionsService),
+                u(3, t.ICoreBrowserService),
+                u(4, x.ICoreService),
+                u(5, x.IDecorationService),
+                u(6, t.IThemeService)
               ],
-              c
+              d
             )
           },
           2550: (I, i) => {
@@ -13219,21 +13505,21 @@ WARNING: This link could potentially be dangerous`)
                     this._container.setAttribute('aria-hidden', 'true'),
                     (this._container.style.whiteSpace = 'pre'),
                     (this._container.style.fontKerning = 'none'))
-                  const f = o.createElement('span')
-                  f.classList.add('xterm-char-measure-element')
+                  const u = o.createElement('span')
+                  u.classList.add('xterm-char-measure-element')
                   const a = o.createElement('span')
                   ;(a.classList.add('xterm-char-measure-element'), (a.style.fontWeight = 'bold'))
-                  const d = o.createElement('span')
-                  ;(d.classList.add('xterm-char-measure-element'), (d.style.fontStyle = 'italic'))
-                  const u = o.createElement('span')
-                  ;(u.classList.add('xterm-char-measure-element'),
-                    (u.style.fontWeight = 'bold'),
-                    (u.style.fontStyle = 'italic'),
-                    (this._measureElements = [f, a, d, u]),
-                    this._container.appendChild(f),
-                    this._container.appendChild(a),
-                    this._container.appendChild(d),
+                  const h = o.createElement('span')
+                  ;(h.classList.add('xterm-char-measure-element'), (h.style.fontStyle = 'italic'))
+                  const f = o.createElement('span')
+                  ;(f.classList.add('xterm-char-measure-element'),
+                    (f.style.fontWeight = 'bold'),
+                    (f.style.fontStyle = 'italic'),
+                    (this._measureElements = [u, a, h, f]),
                     this._container.appendChild(u),
+                    this._container.appendChild(a),
+                    this._container.appendChild(h),
+                    this._container.appendChild(f),
                     l.appendChild(this._container),
                     this.clear())
                 }
@@ -13245,45 +13531,45 @@ WARNING: This link could potentially be dangerous`)
                 clear() {
                   ;(this._flat.fill(-9999), (this._holey = new Map()))
                 }
-                setFont(o, l, f, a) {
+                setFont(o, l, u, a) {
                   ;(o === this._font &&
                     l === this._fontSize &&
-                    f === this._weight &&
+                    u === this._weight &&
                     a === this._weightBold) ||
                     ((this._font = o),
                     (this._fontSize = l),
-                    (this._weight = f),
+                    (this._weight = u),
                     (this._weightBold = a),
                     (this._container.style.fontFamily = this._font),
                     (this._container.style.fontSize = `${this._fontSize}px`),
-                    (this._measureElements[0].style.fontWeight = `${f}`),
+                    (this._measureElements[0].style.fontWeight = `${u}`),
                     (this._measureElements[1].style.fontWeight = `${a}`),
-                    (this._measureElements[2].style.fontWeight = `${f}`),
+                    (this._measureElements[2].style.fontWeight = `${u}`),
                     (this._measureElements[3].style.fontWeight = `${a}`),
                     this.clear())
                 }
-                get(o, l, f) {
+                get(o, l, u) {
                   let a = 0
-                  if (!l && !f && o.length === 1 && (a = o.charCodeAt(0)) < 256) {
+                  if (!l && !u && o.length === 1 && (a = o.charCodeAt(0)) < 256) {
                     if (this._flat[a] !== -9999) return this._flat[a]
                     const x = this._measure(o, 0)
                     return (x > 0 && (this._flat[a] = x), x)
                   }
-                  let d = o
-                  ;(l && (d += 'B'), f && (d += 'I'))
-                  let u = this._holey.get(d)
-                  if (u === void 0) {
+                  let h = o
+                  ;(l && (h += 'B'), u && (h += 'I'))
+                  let f = this._holey.get(h)
+                  if (f === void 0) {
                     let x = 0
                     ;(l && (x |= 1),
-                      f && (x |= 2),
-                      (u = this._measure(o, x)),
-                      u > 0 && this._holey.set(d, u))
+                      u && (x |= 2),
+                      (f = this._measure(o, x)),
+                      f > 0 && this._holey.set(h, f))
                   }
-                  return u
+                  return f
                 }
                 _measure(o, l) {
-                  const f = this._measureElements[l]
-                  return ((f.textContent = o.repeat(32)), f.offsetWidth / 32)
+                  const u = this._measureElements[l]
+                  return ((u.textContent = o.repeat(32)), u.offsetWidth / 32)
                 }
               }))
           },
@@ -13296,19 +13582,19 @@ WARNING: This link could potentially be dangerous`)
               (i.TEXT_BASELINE = l.isFirefox || l.isLegacyEdge ? 'bottom' : 'ideographic'))
           },
           6171: (I, i) => {
-            function o(f) {
-              return 57508 <= f && f <= 57558
+            function o(u) {
+              return 57508 <= u && u <= 57558
             }
-            function l(f) {
+            function l(u) {
               return (
-                (f >= 128512 && f <= 128591) ||
-                (f >= 127744 && f <= 128511) ||
-                (f >= 128640 && f <= 128767) ||
-                (f >= 9728 && f <= 9983) ||
-                (f >= 9984 && f <= 10175) ||
-                (f >= 65024 && f <= 65039) ||
-                (f >= 129280 && f <= 129535) ||
-                (f >= 127462 && f <= 127487)
+                (u >= 128512 && u <= 128591) ||
+                (u >= 127744 && u <= 128511) ||
+                (u >= 128640 && u <= 128767) ||
+                (u >= 9728 && u <= 9983) ||
+                (u >= 9984 && u <= 10175) ||
+                (u >= 65024 && u <= 65039) ||
+                (u >= 129280 && u <= 129535) ||
+                (u >= 127462 && u <= 127487)
               )
             }
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
@@ -13321,34 +13607,34 @@ WARNING: This link could potentially be dangerous`)
                 i.isPowerlineGlyph =
                 i.throwIfFalsy =
                   void 0),
-              (i.throwIfFalsy = function (f) {
-                if (!f) throw new Error('value must not be falsy')
-                return f
+              (i.throwIfFalsy = function (u) {
+                if (!u) throw new Error('value must not be falsy')
+                return u
               }),
               (i.isPowerlineGlyph = o),
-              (i.isRestrictedPowerlineGlyph = function (f) {
-                return 57520 <= f && f <= 57527
+              (i.isRestrictedPowerlineGlyph = function (u) {
+                return 57520 <= u && u <= 57527
               }),
               (i.isEmoji = l),
-              (i.allowRescaling = function (f, a, d, u) {
+              (i.allowRescaling = function (u, a, h, f) {
                 return (
                   a === 1 &&
-                  d > Math.ceil(1.5 * u) &&
-                  f !== void 0 &&
-                  f > 255 &&
-                  !l(f) &&
-                  !o(f) &&
+                  h > Math.ceil(1.5 * f) &&
+                  u !== void 0 &&
+                  u > 255 &&
+                  !l(u) &&
+                  !o(u) &&
                   !(function (x) {
                     return 57344 <= x && x <= 63743
-                  })(f)
+                  })(u)
                 )
               }),
-              (i.treatGlyphAsBackgroundColor = function (f) {
+              (i.treatGlyphAsBackgroundColor = function (u) {
                 return (
-                  o(f) ||
+                  o(u) ||
                   (function (a) {
                     return 9472 <= a && a <= 9631
-                  })(f)
+                  })(u)
                 )
               }),
               (i.createRenderDimensions = function () {
@@ -13361,8 +13647,8 @@ WARNING: This link could potentially be dangerous`)
                   }
                 }
               }),
-              (i.computeNextVariantOffset = function (f, a, d = 0) {
-                return (f - (2 * Math.round(a) - d)) % (2 * Math.round(a))
+              (i.computeNextVariantOffset = function (u, a, h = 0) {
+                return (u - (2 * Math.round(a) - h)) % (2 * Math.round(a))
               }))
           },
           6052: (I, i) => {
@@ -13384,53 +13670,53 @@ WARNING: This link could potentially be dangerous`)
                   (this.selectionStart = void 0),
                   (this.selectionEnd = void 0))
               }
-              update(f, a, d, u = !1) {
+              update(u, a, h, f = !1) {
                 if (
                   ((this.selectionStart = a),
-                  (this.selectionEnd = d),
-                  !a || !d || (a[0] === d[0] && a[1] === d[1]))
+                  (this.selectionEnd = h),
+                  !a || !h || (a[0] === h[0] && a[1] === h[1]))
                 )
                   return void this.clear()
-                const x = f.buffers.active.ydisp,
-                  h = a[1] - x,
-                  t = d[1] - x,
-                  n = Math.max(h, 0),
-                  s = Math.min(t, f.rows - 1)
-                n >= f.rows || s < 0
+                const x = u.buffers.active.ydisp,
+                  c = a[1] - x,
+                  t = h[1] - x,
+                  n = Math.max(c, 0),
+                  s = Math.min(t, u.rows - 1)
+                n >= u.rows || s < 0
                   ? this.clear()
                   : ((this.hasSelection = !0),
-                    (this.columnSelectMode = u),
-                    (this.viewportStartRow = h),
+                    (this.columnSelectMode = f),
+                    (this.viewportStartRow = c),
                     (this.viewportEndRow = t),
                     (this.viewportCappedStartRow = n),
                     (this.viewportCappedEndRow = s),
                     (this.startCol = a[0]),
-                    (this.endCol = d[0]))
+                    (this.endCol = h[0]))
               }
-              isCellSelected(f, a, d) {
+              isCellSelected(u, a, h) {
                 return (
                   !!this.hasSelection &&
-                  ((d -= f.buffer.active.viewportY),
+                  ((h -= u.buffer.active.viewportY),
                   this.columnSelectMode
                     ? this.startCol <= this.endCol
                       ? a >= this.startCol &&
-                        d >= this.viewportCappedStartRow &&
+                        h >= this.viewportCappedStartRow &&
                         a < this.endCol &&
-                        d <= this.viewportCappedEndRow
+                        h <= this.viewportCappedEndRow
                       : a < this.startCol &&
-                        d >= this.viewportCappedStartRow &&
+                        h >= this.viewportCappedStartRow &&
                         a >= this.endCol &&
-                        d <= this.viewportCappedEndRow
-                    : (d > this.viewportStartRow && d < this.viewportEndRow) ||
+                        h <= this.viewportCappedEndRow
+                    : (h > this.viewportStartRow && h < this.viewportEndRow) ||
                       (this.viewportStartRow === this.viewportEndRow &&
-                        d === this.viewportStartRow &&
+                        h === this.viewportStartRow &&
                         a >= this.startCol &&
                         a < this.endCol) ||
                       (this.viewportStartRow < this.viewportEndRow &&
-                        d === this.viewportEndRow &&
+                        h === this.viewportEndRow &&
                         a < this.endCol) ||
                       (this.viewportStartRow < this.viewportEndRow &&
-                        d === this.viewportStartRow &&
+                        h === this.viewportStartRow &&
                         a >= this.startCol))
                 )
               }
@@ -13519,38 +13805,38 @@ WARNING: This link could potentially be dangerous`)
           428: function (I, i, o) {
             var l =
                 (this && this.__decorate) ||
-                function (s, r, c, g) {
-                  var m,
+                function (s, r, d, v) {
+                  var _,
                     b = arguments.length,
-                    p = b < 3 ? r : g === null ? (g = Object.getOwnPropertyDescriptor(r, c)) : g
+                    p = b < 3 ? r : v === null ? (v = Object.getOwnPropertyDescriptor(r, d)) : v
                   if (typeof Reflect == 'object' && typeof Reflect.decorate == 'function')
-                    p = Reflect.decorate(s, r, c, g)
+                    p = Reflect.decorate(s, r, d, v)
                   else
-                    for (var y = s.length - 1; y >= 0; y--)
-                      (m = s[y]) && (p = (b < 3 ? m(p) : b > 3 ? m(r, c, p) : m(r, c)) || p)
-                  return (b > 3 && p && Object.defineProperty(r, c, p), p)
+                    for (var S = s.length - 1; S >= 0; S--)
+                      (_ = s[S]) && (p = (b < 3 ? _(p) : b > 3 ? _(r, d, p) : _(r, d)) || p)
+                  return (b > 3 && p && Object.defineProperty(r, d, p), p)
                 },
-              f =
+              u =
                 (this && this.__param) ||
                 function (s, r) {
-                  return function (c, g) {
-                    r(c, g, s)
+                  return function (d, v) {
+                    r(d, v, s)
                   }
                 }
             ;(Object.defineProperty(i, '__esModule', { value: !0 }), (i.CharSizeService = void 0))
             const a = o(2585),
-              d = o(8460),
-              u = o(844)
-            let x = (i.CharSizeService = class extends u.Disposable {
+              h = o(8460),
+              f = o(844)
+            let x = (i.CharSizeService = class extends f.Disposable {
               get hasValidSize() {
                 return this.width > 0 && this.height > 0
               }
-              constructor(s, r, c) {
+              constructor(s, r, d) {
                 ;(super(),
-                  (this._optionsService = c),
+                  (this._optionsService = d),
                   (this.width = 0),
                   (this.height = 0),
-                  (this._onCharSizeChange = this.register(new d.EventEmitter())),
+                  (this._onCharSizeChange = this.register(new h.EventEmitter())),
                   (this.onCharSizeChange = this._onCharSizeChange.event))
                 try {
                   this._measureStrategy = this.register(new n(this._optionsService))
@@ -13569,25 +13855,25 @@ WARNING: This link could potentially be dangerous`)
                   ((this.width = s.width), (this.height = s.height), this._onCharSizeChange.fire())
               }
             })
-            i.CharSizeService = x = l([f(2, a.IOptionsService)], x)
-            class h extends u.Disposable {
+            i.CharSizeService = x = l([u(2, a.IOptionsService)], x)
+            class c extends f.Disposable {
               constructor() {
                 ;(super(...arguments), (this._result = { width: 0, height: 0 }))
               }
-              _validateAndSet(r, c) {
+              _validateAndSet(r, d) {
                 r !== void 0 &&
                   r > 0 &&
-                  c !== void 0 &&
-                  c > 0 &&
-                  ((this._result.width = r), (this._result.height = c))
+                  d !== void 0 &&
+                  d > 0 &&
+                  ((this._result.width = r), (this._result.height = d))
               }
             }
-            class t extends h {
-              constructor(r, c, g) {
+            class t extends c {
+              constructor(r, d, v) {
                 ;(super(),
                   (this._document = r),
-                  (this._parentElement = c),
-                  (this._optionsService = g),
+                  (this._parentElement = d),
+                  (this._optionsService = v),
                   (this._measureElement = this._document.createElement('span')),
                   this._measureElement.classList.add('xterm-char-measure-element'),
                   (this._measureElement.textContent = 'W'.repeat(32)),
@@ -13609,15 +13895,15 @@ WARNING: This link could potentially be dangerous`)
                 )
               }
             }
-            class n extends h {
+            class n extends c {
               constructor(r) {
                 ;(super(),
                   (this._optionsService = r),
                   (this._canvas = new OffscreenCanvas(100, 100)),
                   (this._ctx = this._canvas.getContext('2d')))
-                const c = this._ctx.measureText('W')
+                const d = this._ctx.measureText('W')
                 if (
-                  !('width' in c && 'fontBoundingBoxAscent' in c && 'fontBoundingBoxDescent' in c)
+                  !('width' in d && 'fontBoundingBoxAscent' in d && 'fontBoundingBoxDescent' in d)
                 )
                   throw new Error('Required font metrics not supported')
               }
@@ -13634,39 +13920,39 @@ WARNING: This link could potentially be dangerous`)
           4269: function (I, i, o) {
             var l =
                 (this && this.__decorate) ||
-                function (n, s, r, c) {
-                  var g,
-                    m = arguments.length,
-                    b = m < 3 ? s : c === null ? (c = Object.getOwnPropertyDescriptor(s, r)) : c
+                function (n, s, r, d) {
+                  var v,
+                    _ = arguments.length,
+                    b = _ < 3 ? s : d === null ? (d = Object.getOwnPropertyDescriptor(s, r)) : d
                   if (typeof Reflect == 'object' && typeof Reflect.decorate == 'function')
-                    b = Reflect.decorate(n, s, r, c)
+                    b = Reflect.decorate(n, s, r, d)
                   else
                     for (var p = n.length - 1; p >= 0; p--)
-                      (g = n[p]) && (b = (m < 3 ? g(b) : m > 3 ? g(s, r, b) : g(s, r)) || b)
-                  return (m > 3 && b && Object.defineProperty(s, r, b), b)
+                      (v = n[p]) && (b = (_ < 3 ? v(b) : _ > 3 ? v(s, r, b) : v(s, r)) || b)
+                  return (_ > 3 && b && Object.defineProperty(s, r, b), b)
                 },
-              f =
+              u =
                 (this && this.__param) ||
                 function (n, s) {
-                  return function (r, c) {
-                    s(r, c, n)
+                  return function (r, d) {
+                    s(r, d, n)
                   }
                 }
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.CharacterJoinerService = i.JoinedCellData = void 0))
             const a = o(3734),
-              d = o(643),
-              u = o(511),
+              h = o(643),
+              f = o(511),
               x = o(2585)
-            class h extends a.AttributeData {
-              constructor(s, r, c) {
+            class c extends a.AttributeData {
+              constructor(s, r, d) {
                 ;(super(),
                   (this.content = 0),
                   (this.combinedData = ''),
                   (this.fg = s.fg),
                   (this.bg = s.bg),
                   (this.combinedData = r),
-                  (this._width = c))
+                  (this._width = d))
               }
               isCombined() {
                 return 2097152
@@ -13687,13 +13973,13 @@ WARNING: This link could potentially be dangerous`)
                 return [this.fg, this.getChars(), this.getWidth(), this.getCode()]
               }
             }
-            i.JoinedCellData = h
-            let t = (i.CharacterJoinerService = class Us {
+            i.JoinedCellData = c
+            let t = (i.CharacterJoinerService = class Vs {
               constructor(s) {
                 ;((this._bufferService = s),
                   (this._characterJoiners = []),
                   (this._nextCharacterJoinerId = 0),
-                  (this._workCell = new u.CellData()))
+                  (this._workCell = new f.CellData()))
               }
               register(s) {
                 const r = { id: this._nextCharacterJoinerId++, handler: s }
@@ -13709,60 +13995,60 @@ WARNING: This link could potentially be dangerous`)
                 if (this._characterJoiners.length === 0) return []
                 const r = this._bufferService.buffer.lines.get(s)
                 if (!r || r.length === 0) return []
-                const c = [],
-                  g = r.translateToString(!0)
-                let m = 0,
+                const d = [],
+                  v = r.translateToString(!0)
+                let _ = 0,
                   b = 0,
                   p = 0,
-                  y = r.getFg(0),
+                  S = r.getFg(0),
                   L = r.getBg(0)
                 for (let M = 0; M < r.getTrimmedLength(); M++)
                   if ((r.loadCell(M, this._workCell), this._workCell.getWidth() !== 0)) {
-                    if (this._workCell.fg !== y || this._workCell.bg !== L) {
-                      if (M - m > 1) {
-                        const P = this._getJoinedRanges(g, p, b, r, m)
-                        for (let j = 0; j < P.length; j++) c.push(P[j])
+                    if (this._workCell.fg !== S || this._workCell.bg !== L) {
+                      if (M - _ > 1) {
+                        const P = this._getJoinedRanges(v, p, b, r, _)
+                        for (let j = 0; j < P.length; j++) d.push(P[j])
                       }
-                      ;((m = M), (p = b), (y = this._workCell.fg), (L = this._workCell.bg))
+                      ;((_ = M), (p = b), (S = this._workCell.fg), (L = this._workCell.bg))
                     }
-                    b += this._workCell.getChars().length || d.WHITESPACE_CELL_CHAR.length
+                    b += this._workCell.getChars().length || h.WHITESPACE_CELL_CHAR.length
                   }
-                if (this._bufferService.cols - m > 1) {
-                  const M = this._getJoinedRanges(g, p, b, r, m)
-                  for (let P = 0; P < M.length; P++) c.push(M[P])
+                if (this._bufferService.cols - _ > 1) {
+                  const M = this._getJoinedRanges(v, p, b, r, _)
+                  for (let P = 0; P < M.length; P++) d.push(M[P])
                 }
-                return c
+                return d
               }
-              _getJoinedRanges(s, r, c, g, m) {
-                const b = s.substring(r, c)
+              _getJoinedRanges(s, r, d, v, _) {
+                const b = s.substring(r, d)
                 let p = []
                 try {
                   p = this._characterJoiners[0].handler(b)
-                } catch (y) {
-                  console.error(y)
+                } catch (S) {
+                  console.error(S)
                 }
-                for (let y = 1; y < this._characterJoiners.length; y++)
+                for (let S = 1; S < this._characterJoiners.length; S++)
                   try {
-                    const L = this._characterJoiners[y].handler(b)
-                    for (let M = 0; M < L.length; M++) Us._mergeRanges(p, L[M])
+                    const L = this._characterJoiners[S].handler(b)
+                    for (let M = 0; M < L.length; M++) Vs._mergeRanges(p, L[M])
                   } catch (L) {
                     console.error(L)
                   }
-                return (this._stringRangesToCellRanges(p, g, m), p)
+                return (this._stringRangesToCellRanges(p, v, _), p)
               }
-              _stringRangesToCellRanges(s, r, c) {
-                let g = 0,
-                  m = !1,
+              _stringRangesToCellRanges(s, r, d) {
+                let v = 0,
+                  _ = !1,
                   b = 0,
-                  p = s[g]
+                  p = s[v]
                 if (p) {
-                  for (let y = c; y < this._bufferService.cols; y++) {
-                    const L = r.getWidth(y),
-                      M = r.getString(y).length || d.WHITESPACE_CELL_CHAR.length
+                  for (let S = d; S < this._bufferService.cols; S++) {
+                    const L = r.getWidth(S),
+                      M = r.getString(S).length || h.WHITESPACE_CELL_CHAR.length
                     if (L !== 0) {
-                      if ((!m && p[0] <= b && ((p[0] = y), (m = !0)), p[1] <= b)) {
-                        if (((p[1] = y), (p = s[++g]), !p)) break
-                        p[0] <= b ? ((p[0] = y), (m = !0)) : (m = !1)
+                      if ((!_ && p[0] <= b && ((p[0] = S), (_ = !0)), p[1] <= b)) {
+                        if (((p[1] = S), (p = s[++v]), !p)) break
+                        p[0] <= b ? ((p[0] = S), (_ = !0)) : (_ = !1)
                       }
                       b += M
                     }
@@ -13771,47 +14057,47 @@ WARNING: This link could potentially be dangerous`)
                 }
               }
               static _mergeRanges(s, r) {
-                let c = !1
-                for (let g = 0; g < s.length; g++) {
-                  const m = s[g]
-                  if (c) {
-                    if (r[1] <= m[0]) return ((s[g - 1][1] = r[1]), s)
-                    if (r[1] <= m[1])
-                      return ((s[g - 1][1] = Math.max(r[1], m[1])), s.splice(g, 1), s)
-                    ;(s.splice(g, 1), g--)
+                let d = !1
+                for (let v = 0; v < s.length; v++) {
+                  const _ = s[v]
+                  if (d) {
+                    if (r[1] <= _[0]) return ((s[v - 1][1] = r[1]), s)
+                    if (r[1] <= _[1])
+                      return ((s[v - 1][1] = Math.max(r[1], _[1])), s.splice(v, 1), s)
+                    ;(s.splice(v, 1), v--)
                   } else {
-                    if (r[1] <= m[0]) return (s.splice(g, 0, r), s)
-                    if (r[1] <= m[1]) return ((m[0] = Math.min(r[0], m[0])), s)
-                    r[0] < m[1] && ((m[0] = Math.min(r[0], m[0])), (c = !0))
+                    if (r[1] <= _[0]) return (s.splice(v, 0, r), s)
+                    if (r[1] <= _[1]) return ((_[0] = Math.min(r[0], _[0])), s)
+                    r[0] < _[1] && ((_[0] = Math.min(r[0], _[0])), (d = !0))
                   }
                 }
-                return (c ? (s[s.length - 1][1] = r[1]) : s.push(r), s)
+                return (d ? (s[s.length - 1][1] = r[1]) : s.push(r), s)
               }
             })
-            i.CharacterJoinerService = t = l([f(0, x.IBufferService)], t)
+            i.CharacterJoinerService = t = l([u(0, x.IBufferService)], t)
           },
           5114: (I, i, o) => {
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.CoreBrowserService = void 0))
             const l = o(844),
-              f = o(8460),
+              u = o(8460),
               a = o(3656)
-            class d extends l.Disposable {
-              constructor(h, t, n) {
+            class h extends l.Disposable {
+              constructor(c, t, n) {
                 ;(super(),
-                  (this._textarea = h),
+                  (this._textarea = c),
                   (this._window = t),
                   (this.mainDocument = n),
                   (this._isFocused = !1),
                   (this._cachedIsFocused = void 0),
-                  (this._screenDprMonitor = new u(this._window)),
-                  (this._onDprChange = this.register(new f.EventEmitter())),
+                  (this._screenDprMonitor = new f(this._window)),
+                  (this._onDprChange = this.register(new u.EventEmitter())),
                   (this.onDprChange = this._onDprChange.event),
-                  (this._onWindowChange = this.register(new f.EventEmitter())),
+                  (this._onWindowChange = this.register(new u.EventEmitter())),
                   (this.onWindowChange = this._onWindowChange.event),
                   this.register(this.onWindowChange((s) => this._screenDprMonitor.setWindow(s))),
                   this.register(
-                    (0, f.forwardEvent)(this._screenDprMonitor.onDprChange, this._onDprChange)
+                    (0, u.forwardEvent)(this._screenDprMonitor.onDprChange, this._onDprChange)
                   ),
                   this._textarea.addEventListener('focus', () => (this._isFocused = !0)),
                   this._textarea.addEventListener('blur', () => (this._isFocused = !1)))
@@ -13819,8 +14105,8 @@ WARNING: This link could potentially be dangerous`)
               get window() {
                 return this._window
               }
-              set window(h) {
-                this._window !== h && ((this._window = h), this._onWindowChange.fire(this._window))
+              set window(c) {
+                this._window !== c && ((this._window = c), this._onWindowChange.fire(this._window))
               }
               get dpr() {
                 return this.window.devicePixelRatio
@@ -13835,13 +14121,13 @@ WARNING: This link could potentially be dangerous`)
                 )
               }
             }
-            i.CoreBrowserService = d
-            class u extends l.Disposable {
-              constructor(h) {
+            i.CoreBrowserService = h
+            class f extends l.Disposable {
+              constructor(c) {
                 ;(super(),
-                  (this._parentWindow = h),
+                  (this._parentWindow = c),
                   (this._windowResizeListener = this.register(new l.MutableDisposable())),
-                  (this._onDprChange = this.register(new f.EventEmitter())),
+                  (this._onDprChange = this.register(new u.EventEmitter())),
                   (this.onDprChange = this._onDprChange.event),
                   (this._outerListener = () => this._setDprAndFireIfDiffers()),
                   (this._currentDevicePixelRatio = this._parentWindow.devicePixelRatio),
@@ -13849,8 +14135,8 @@ WARNING: This link could potentially be dangerous`)
                   this._setWindowResizeListener(),
                   this.register((0, l.toDisposable)(() => this.clearListener())))
               }
-              setWindow(h) {
-                ;((this._parentWindow = h),
+              setWindow(c) {
+                ;((this._parentWindow = c),
                   this._setWindowResizeListener(),
                   this._setDprAndFireIfDiffers())
               }
@@ -13888,59 +14174,59 @@ WARNING: This link could potentially be dangerous`)
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.LinkProviderService = void 0))
             const l = o(844)
-            class f extends l.Disposable {
+            class u extends l.Disposable {
               constructor() {
                 ;(super(),
                   (this.linkProviders = []),
                   this.register((0, l.toDisposable)(() => (this.linkProviders.length = 0))))
               }
-              registerLinkProvider(d) {
+              registerLinkProvider(h) {
                 return (
-                  this.linkProviders.push(d),
+                  this.linkProviders.push(h),
                   {
                     dispose: () => {
-                      const u = this.linkProviders.indexOf(d)
-                      u !== -1 && this.linkProviders.splice(u, 1)
+                      const f = this.linkProviders.indexOf(h)
+                      f !== -1 && this.linkProviders.splice(f, 1)
                     }
                   }
                 )
               }
             }
-            i.LinkProviderService = f
+            i.LinkProviderService = u
           },
           8934: function (I, i, o) {
             var l =
                 (this && this.__decorate) ||
-                function (x, h, t, n) {
+                function (x, c, t, n) {
                   var s,
                     r = arguments.length,
-                    c = r < 3 ? h : n === null ? (n = Object.getOwnPropertyDescriptor(h, t)) : n
+                    d = r < 3 ? c : n === null ? (n = Object.getOwnPropertyDescriptor(c, t)) : n
                   if (typeof Reflect == 'object' && typeof Reflect.decorate == 'function')
-                    c = Reflect.decorate(x, h, t, n)
+                    d = Reflect.decorate(x, c, t, n)
                   else
-                    for (var g = x.length - 1; g >= 0; g--)
-                      (s = x[g]) && (c = (r < 3 ? s(c) : r > 3 ? s(h, t, c) : s(h, t)) || c)
-                  return (r > 3 && c && Object.defineProperty(h, t, c), c)
+                    for (var v = x.length - 1; v >= 0; v--)
+                      (s = x[v]) && (d = (r < 3 ? s(d) : r > 3 ? s(c, t, d) : s(c, t)) || d)
+                  return (r > 3 && d && Object.defineProperty(c, t, d), d)
                 },
-              f =
+              u =
                 (this && this.__param) ||
-                function (x, h) {
+                function (x, c) {
                   return function (t, n) {
-                    h(t, n, x)
+                    c(t, n, x)
                   }
                 }
             ;(Object.defineProperty(i, '__esModule', { value: !0 }), (i.MouseService = void 0))
             const a = o(4725),
-              d = o(9806)
-            let u = (i.MouseService = class {
-              constructor(x, h) {
-                ;((this._renderService = x), (this._charSizeService = h))
+              h = o(9806)
+            let f = (i.MouseService = class {
+              constructor(x, c) {
+                ;((this._renderService = x), (this._charSizeService = c))
               }
-              getCoords(x, h, t, n, s) {
-                return (0, d.getCoords)(
+              getCoords(x, c, t, n, s) {
+                return (0, h.getCoords)(
                   window,
                   x,
-                  h,
+                  c,
                   t,
                   n,
                   this._charSizeService.hasValidSize,
@@ -13949,8 +14235,8 @@ WARNING: This link could potentially be dangerous`)
                   s
                 )
               }
-              getMouseReportCoords(x, h) {
-                const t = (0, d.getCoordsRelativeToElement)(window, x, h)
+              getMouseReportCoords(x, c) {
+                const t = (0, h.getCoordsRelativeToElement)(window, x, c)
                 if (this._charSizeService.hasValidSize)
                   return (
                     (t[0] = Math.min(
@@ -13970,46 +14256,46 @@ WARNING: This link could potentially be dangerous`)
                   )
               }
             })
-            i.MouseService = u = l([f(0, a.IRenderService), f(1, a.ICharSizeService)], u)
+            i.MouseService = f = l([u(0, a.IRenderService), u(1, a.ICharSizeService)], f)
           },
           3230: function (I, i, o) {
             var l =
                 (this && this.__decorate) ||
-                function (s, r, c, g) {
-                  var m,
+                function (s, r, d, v) {
+                  var _,
                     b = arguments.length,
-                    p = b < 3 ? r : g === null ? (g = Object.getOwnPropertyDescriptor(r, c)) : g
+                    p = b < 3 ? r : v === null ? (v = Object.getOwnPropertyDescriptor(r, d)) : v
                   if (typeof Reflect == 'object' && typeof Reflect.decorate == 'function')
-                    p = Reflect.decorate(s, r, c, g)
+                    p = Reflect.decorate(s, r, d, v)
                   else
-                    for (var y = s.length - 1; y >= 0; y--)
-                      (m = s[y]) && (p = (b < 3 ? m(p) : b > 3 ? m(r, c, p) : m(r, c)) || p)
-                  return (b > 3 && p && Object.defineProperty(r, c, p), p)
+                    for (var S = s.length - 1; S >= 0; S--)
+                      (_ = s[S]) && (p = (b < 3 ? _(p) : b > 3 ? _(r, d, p) : _(r, d)) || p)
+                  return (b > 3 && p && Object.defineProperty(r, d, p), p)
                 },
-              f =
+              u =
                 (this && this.__param) ||
                 function (s, r) {
-                  return function (c, g) {
-                    r(c, g, s)
+                  return function (d, v) {
+                    r(d, v, s)
                   }
                 }
             ;(Object.defineProperty(i, '__esModule', { value: !0 }), (i.RenderService = void 0))
             const a = o(6193),
-              d = o(4725),
-              u = o(8460),
+              h = o(4725),
+              f = o(8460),
               x = o(844),
-              h = o(7226),
+              c = o(7226),
               t = o(2585)
             let n = (i.RenderService = class extends x.Disposable {
               get dimensions() {
                 return this._renderer.value.dimensions
               }
-              constructor(s, r, c, g, m, b, p, y) {
+              constructor(s, r, d, v, _, b, p, S) {
                 ;(super(),
                   (this._rowCount = s),
-                  (this._charSizeService = g),
+                  (this._charSizeService = v),
                   (this._renderer = this.register(new x.MutableDisposable())),
-                  (this._pausedResizeTask = new h.DebouncedIdleTask()),
+                  (this._pausedResizeTask = new c.DebouncedIdleTask()),
                   (this._observerDisposable = this.register(new x.MutableDisposable())),
                   (this._isPaused = !1),
                   (this._needsFullRefresh = !1),
@@ -14018,13 +14304,13 @@ WARNING: This link could potentially be dangerous`)
                   (this._canvasWidth = 0),
                   (this._canvasHeight = 0),
                   (this._selectionState = { start: void 0, end: void 0, columnSelectMode: !1 }),
-                  (this._onDimensionsChange = this.register(new u.EventEmitter())),
+                  (this._onDimensionsChange = this.register(new f.EventEmitter())),
                   (this.onDimensionsChange = this._onDimensionsChange.event),
-                  (this._onRenderedViewportChange = this.register(new u.EventEmitter())),
+                  (this._onRenderedViewportChange = this.register(new f.EventEmitter())),
                   (this.onRenderedViewportChange = this._onRenderedViewportChange.event),
-                  (this._onRender = this.register(new u.EventEmitter())),
+                  (this._onRender = this.register(new f.EventEmitter())),
                   (this.onRender = this._onRender.event),
-                  (this._onRefreshRequest = this.register(new u.EventEmitter())),
+                  (this._onRefreshRequest = this.register(new f.EventEmitter())),
                   (this.onRefreshRequest = this._onRefreshRequest.event),
                   (this._renderDebouncer = new a.RenderDebouncer(
                     (L, M) => this._renderRows(L, M),
@@ -14034,14 +14320,14 @@ WARNING: This link could potentially be dangerous`)
                   this.register(p.onDprChange(() => this.handleDevicePixelRatioChange())),
                   this.register(b.onResize(() => this._fullRefresh())),
                   this.register(b.buffers.onBufferActivate(() => this._renderer.value?.clear())),
-                  this.register(c.onOptionChange(() => this._handleOptionsChanged())),
+                  this.register(d.onOptionChange(() => this._handleOptionsChanged())),
                   this.register(
                     this._charSizeService.onCharSizeChange(() => this.handleCharSizeChanged())
                   ),
-                  this.register(m.onDecorationRegistered(() => this._fullRefresh())),
-                  this.register(m.onDecorationRemoved(() => this._fullRefresh())),
+                  this.register(_.onDecorationRegistered(() => this._fullRefresh())),
+                  this.register(_.onDecorationRemoved(() => this._fullRefresh())),
                   this.register(
-                    c.onMultipleOptionChange(
+                    d.onMultipleOptionChange(
                       [
                         'customGlyphs',
                         'drawBoldTextInBrightColors',
@@ -14060,22 +14346,22 @@ WARNING: This link could potentially be dangerous`)
                     )
                   ),
                   this.register(
-                    c.onMultipleOptionChange(['cursorBlink', 'cursorStyle'], () =>
+                    d.onMultipleOptionChange(['cursorBlink', 'cursorStyle'], () =>
                       this.refreshRows(b.buffer.y, b.buffer.y, !0)
                     )
                   ),
-                  this.register(y.onChangeColors(() => this._fullRefresh())),
+                  this.register(S.onChangeColors(() => this._fullRefresh())),
                   this._registerIntersectionObserver(p.window, r),
                   this.register(p.onWindowChange((L) => this._registerIntersectionObserver(L, r))))
               }
               _registerIntersectionObserver(s, r) {
                 if ('IntersectionObserver' in s) {
-                  const c = new s.IntersectionObserver(
-                    (g) => this._handleIntersectionChange(g[g.length - 1]),
+                  const d = new s.IntersectionObserver(
+                    (v) => this._handleIntersectionChange(v[v.length - 1]),
                     { threshold: 0 }
                   )
-                  ;(c.observe(r),
-                    (this._observerDisposable.value = (0, x.toDisposable)(() => c.disconnect())))
+                  ;(d.observe(r),
+                    (this._observerDisposable.value = (0, x.toDisposable)(() => d.disconnect())))
                 }
               }
               _handleIntersectionChange(s) {
@@ -14090,10 +14376,10 @@ WARNING: This link could potentially be dangerous`)
                     this.refreshRows(0, this._rowCount - 1),
                     (this._needsFullRefresh = !1)))
               }
-              refreshRows(s, r, c = !1) {
+              refreshRows(s, r, d = !1) {
                 this._isPaused
                   ? (this._needsFullRefresh = !0)
-                  : (c || (this._isNextRenderRedrawOnly = !1),
+                  : (d || (this._isNextRenderRedrawOnly = !1),
                     this._renderDebouncer.refresh(s, r, this._rowCount))
               }
               _renderRows(s, r) {
@@ -14172,11 +14458,11 @@ WARNING: This link could potentially be dangerous`)
               handleFocus() {
                 this._renderer.value?.handleFocus()
               }
-              handleSelectionChanged(s, r, c) {
+              handleSelectionChanged(s, r, d) {
                 ;((this._selectionState.start = s),
                   (this._selectionState.end = r),
-                  (this._selectionState.columnSelectMode = c),
-                  this._renderer.value?.handleSelectionChanged(s, r, c))
+                  (this._selectionState.columnSelectMode = d),
+                  this._renderer.value?.handleSelectionChanged(s, r, d))
               }
               handleCursorMove() {
                 this._renderer.value?.handleCursorMove()
@@ -14187,12 +14473,12 @@ WARNING: This link could potentially be dangerous`)
             })
             i.RenderService = n = l(
               [
-                f(2, t.IOptionsService),
-                f(3, d.ICharSizeService),
-                f(4, t.IDecorationService),
-                f(5, t.IBufferService),
-                f(6, d.ICoreBrowserService),
-                f(7, d.IThemeService)
+                u(2, t.IOptionsService),
+                u(3, h.ICharSizeService),
+                u(4, t.IDecorationService),
+                u(5, t.IBufferService),
+                u(6, h.ICoreBrowserService),
+                u(7, h.IThemeService)
               ],
               n
             )
@@ -14200,48 +14486,48 @@ WARNING: This link could potentially be dangerous`)
           9312: function (I, i, o) {
             var l =
                 (this && this.__decorate) ||
-                function (p, y, L, M) {
+                function (p, S, L, M) {
                   var P,
                     j = arguments.length,
-                    R = j < 3 ? y : M === null ? (M = Object.getOwnPropertyDescriptor(y, L)) : M
+                    D = j < 3 ? S : M === null ? (M = Object.getOwnPropertyDescriptor(S, L)) : M
                   if (typeof Reflect == 'object' && typeof Reflect.decorate == 'function')
-                    R = Reflect.decorate(p, y, L, M)
+                    D = Reflect.decorate(p, S, L, M)
                   else
-                    for (var T = p.length - 1; T >= 0; T--)
-                      (P = p[T]) && (R = (j < 3 ? P(R) : j > 3 ? P(y, L, R) : P(y, L)) || R)
-                  return (j > 3 && R && Object.defineProperty(y, L, R), R)
+                    for (var O = p.length - 1; O >= 0; O--)
+                      (P = p[O]) && (D = (j < 3 ? P(D) : j > 3 ? P(S, L, D) : P(S, L)) || D)
+                  return (j > 3 && D && Object.defineProperty(S, L, D), D)
                 },
-              f =
+              u =
                 (this && this.__param) ||
-                function (p, y) {
+                function (p, S) {
                   return function (L, M) {
-                    y(L, M, p)
+                    S(L, M, p)
                   }
                 }
             ;(Object.defineProperty(i, '__esModule', { value: !0 }), (i.SelectionService = void 0))
             const a = o(9806),
-              d = o(9504),
-              u = o(456),
+              h = o(9504),
+              f = o(456),
               x = o(4725),
-              h = o(8460),
+              c = o(8460),
               t = o(844),
               n = o(6114),
               s = o(4841),
               r = o(511),
-              c = o(2585),
-              g = ' ',
-              m = new RegExp(g, 'g')
+              d = o(2585),
+              v = ' ',
+              _ = new RegExp(v, 'g')
             let b = (i.SelectionService = class extends t.Disposable {
-              constructor(p, y, L, M, P, j, R, T, $) {
+              constructor(p, S, L, M, P, j, D, O, $) {
                 ;(super(),
                   (this._element = p),
-                  (this._screenElement = y),
+                  (this._screenElement = S),
                   (this._linkifier = L),
                   (this._bufferService = M),
                   (this._coreService = P),
                   (this._mouseService = j),
-                  (this._optionsService = R),
-                  (this._renderService = T),
+                  (this._optionsService = D),
+                  (this._renderService = O),
                   (this._coreBrowserService = $),
                   (this._dragScrollAmount = 0),
                   (this._enabled = !0),
@@ -14250,13 +14536,13 @@ WARNING: This link could potentially be dangerous`)
                   (this._oldHasSelection = !1),
                   (this._oldSelectionStart = void 0),
                   (this._oldSelectionEnd = void 0),
-                  (this._onLinuxMouseSelection = this.register(new h.EventEmitter())),
+                  (this._onLinuxMouseSelection = this.register(new c.EventEmitter())),
                   (this.onLinuxMouseSelection = this._onLinuxMouseSelection.event),
-                  (this._onRedrawRequest = this.register(new h.EventEmitter())),
+                  (this._onRedrawRequest = this.register(new c.EventEmitter())),
                   (this.onRequestRedraw = this._onRedrawRequest.event),
-                  (this._onSelectionChange = this.register(new h.EventEmitter())),
+                  (this._onSelectionChange = this.register(new c.EventEmitter())),
                   (this.onSelectionChange = this._onSelectionChange.event),
-                  (this._onRequestScrollLines = this.register(new h.EventEmitter())),
+                  (this._onRequestScrollLines = this.register(new c.EventEmitter())),
                   (this.onRequestScrollLines = this._onRequestScrollLines.event),
                   (this._mouseMoveListener = (F) => this._handleMouseMove(F)),
                   (this._mouseUpListener = (F) => this._handleMouseUp(F)),
@@ -14272,7 +14558,7 @@ WARNING: This link could potentially be dangerous`)
                     )
                   ),
                   this.enable(),
-                  (this._model = new u.SelectionModel(this._bufferService)),
+                  (this._model = new f.SelectionModel(this._bufferService)),
                   (this._activeSelectionMode = 0),
                   this.register(
                     (0, t.toDisposable)(() => {
@@ -14297,38 +14583,38 @@ WARNING: This link could potentially be dangerous`)
               }
               get hasSelection() {
                 const p = this._model.finalSelectionStart,
-                  y = this._model.finalSelectionEnd
-                return !(!p || !y || (p[0] === y[0] && p[1] === y[1]))
+                  S = this._model.finalSelectionEnd
+                return !(!p || !S || (p[0] === S[0] && p[1] === S[1]))
               }
               get selectionText() {
                 const p = this._model.finalSelectionStart,
-                  y = this._model.finalSelectionEnd
-                if (!p || !y) return ''
+                  S = this._model.finalSelectionEnd
+                if (!p || !S) return ''
                 const L = this._bufferService.buffer,
                   M = []
                 if (this._activeSelectionMode === 3) {
-                  if (p[0] === y[0]) return ''
-                  const P = p[0] < y[0] ? p[0] : y[0],
-                    j = p[0] < y[0] ? y[0] : p[0]
-                  for (let R = p[1]; R <= y[1]; R++) {
-                    const T = L.translateBufferLineToString(R, !0, P, j)
-                    M.push(T)
+                  if (p[0] === S[0]) return ''
+                  const P = p[0] < S[0] ? p[0] : S[0],
+                    j = p[0] < S[0] ? S[0] : p[0]
+                  for (let D = p[1]; D <= S[1]; D++) {
+                    const O = L.translateBufferLineToString(D, !0, P, j)
+                    M.push(O)
                   }
                 } else {
-                  const P = p[1] === y[1] ? y[0] : void 0
+                  const P = p[1] === S[1] ? S[0] : void 0
                   M.push(L.translateBufferLineToString(p[1], !0, p[0], P))
-                  for (let j = p[1] + 1; j <= y[1] - 1; j++) {
-                    const R = L.lines.get(j),
-                      T = L.translateBufferLineToString(j, !0)
-                    R?.isWrapped ? (M[M.length - 1] += T) : M.push(T)
+                  for (let j = p[1] + 1; j <= S[1] - 1; j++) {
+                    const D = L.lines.get(j),
+                      O = L.translateBufferLineToString(j, !0)
+                    D?.isWrapped ? (M[M.length - 1] += O) : M.push(O)
                   }
-                  if (p[1] !== y[1]) {
-                    const j = L.lines.get(y[1]),
-                      R = L.translateBufferLineToString(y[1], !0, 0, y[0])
-                    j && j.isWrapped ? (M[M.length - 1] += R) : M.push(R)
+                  if (p[1] !== S[1]) {
+                    const j = L.lines.get(S[1]),
+                      D = L.translateBufferLineToString(S[1], !0, 0, S[0])
+                    j && j.isWrapped ? (M[M.length - 1] += D) : M.push(D)
                   }
                 }
-                return M.map((P) => P.replace(m, ' ')).join(
+                return M.map((P) => P.replace(_, ' ')).join(
                   n.isWindows
                     ? `\r
 `
@@ -14360,25 +14646,25 @@ WARNING: This link could potentially be dangerous`)
                   }))
               }
               _isClickInSelection(p) {
-                const y = this._getMouseBufferCoords(p),
+                const S = this._getMouseBufferCoords(p),
                   L = this._model.finalSelectionStart,
                   M = this._model.finalSelectionEnd
-                return !!(L && M && y) && this._areCoordsInSelection(y, L, M)
+                return !!(L && M && S) && this._areCoordsInSelection(S, L, M)
               }
-              isCellInSelection(p, y) {
+              isCellInSelection(p, S) {
                 const L = this._model.finalSelectionStart,
                   M = this._model.finalSelectionEnd
-                return !(!L || !M) && this._areCoordsInSelection([p, y], L, M)
+                return !(!L || !M) && this._areCoordsInSelection([p, S], L, M)
               }
-              _areCoordsInSelection(p, y, L) {
+              _areCoordsInSelection(p, S, L) {
                 return (
-                  (p[1] > y[1] && p[1] < L[1]) ||
-                  (y[1] === L[1] && p[1] === y[1] && p[0] >= y[0] && p[0] < L[0]) ||
-                  (y[1] < L[1] && p[1] === L[1] && p[0] < L[0]) ||
-                  (y[1] < L[1] && p[1] === y[1] && p[0] >= y[0])
+                  (p[1] > S[1] && p[1] < L[1]) ||
+                  (S[1] === L[1] && p[1] === S[1] && p[0] >= S[0] && p[0] < L[0]) ||
+                  (S[1] < L[1] && p[1] === L[1] && p[0] < L[0]) ||
+                  (S[1] < L[1] && p[1] === S[1] && p[0] >= S[0])
                 )
               }
-              _selectWordAtCursor(p, y) {
+              _selectWordAtCursor(p, S) {
                 const L = this._linkifier.currentLink?.link?.range
                 if (L)
                   return (
@@ -14391,19 +14677,19 @@ WARNING: This link could potentially be dangerous`)
                     !0
                   )
                 const M = this._getMouseBufferCoords(p)
-                return !!M && (this._selectWordAt(M, y), (this._model.selectionEnd = void 0), !0)
+                return !!M && (this._selectWordAt(M, S), (this._model.selectionEnd = void 0), !0)
               }
               selectAll() {
                 ;((this._model.isSelectAllActive = !0),
                   this.refresh(),
                   this._onSelectionChange.fire())
               }
-              selectLines(p, y) {
+              selectLines(p, S) {
                 ;(this._model.clearSelection(),
                   (p = Math.max(p, 0)),
-                  (y = Math.min(y, this._bufferService.buffer.lines.length - 1)),
+                  (S = Math.min(S, this._bufferService.buffer.lines.length - 1)),
                   (this._model.selectionStart = [0, p]),
-                  (this._model.selectionEnd = [this._bufferService.cols, y]),
+                  (this._model.selectionEnd = [this._bufferService.cols, S]),
                   this.refresh(),
                   this._onSelectionChange.fire())
               }
@@ -14411,28 +14697,28 @@ WARNING: This link could potentially be dangerous`)
                 this._model.handleTrim(p) && this.refresh()
               }
               _getMouseBufferCoords(p) {
-                const y = this._mouseService.getCoords(
+                const S = this._mouseService.getCoords(
                   p,
                   this._screenElement,
                   this._bufferService.cols,
                   this._bufferService.rows,
                   !0
                 )
-                if (y) return (y[0]--, y[1]--, (y[1] += this._bufferService.buffer.ydisp), y)
+                if (S) return (S[0]--, S[1]--, (S[1] += this._bufferService.buffer.ydisp), S)
               }
               _getMouseEventScrollAmount(p) {
-                let y = (0, a.getCoordsRelativeToElement)(
+                let S = (0, a.getCoordsRelativeToElement)(
                   this._coreBrowserService.window,
                   p,
                   this._screenElement
                 )[1]
                 const L = this._renderService.dimensions.css.canvas.height
-                return y >= 0 && y <= L
+                return S >= 0 && S <= L
                   ? 0
-                  : (y > L && (y -= L),
-                    (y = Math.min(Math.max(y, -50), 50)),
-                    (y /= 50),
-                    y / Math.abs(y) + Math.round(14 * y))
+                  : (S > L && (S -= L),
+                    (S = Math.min(Math.max(S, -50), 50)),
+                    (S /= 50),
+                    S / Math.abs(S) + Math.round(14 * S))
               }
               shouldForceSelection(p) {
                 return n.isMac
@@ -14503,18 +14789,18 @@ WARNING: This link could potentially be dangerous`)
                 )
                   return
                 this._model.selectionEnd = void 0
-                const y = this._bufferService.buffer.lines.get(this._model.selectionStart[1])
-                y &&
-                  y.length !== this._model.selectionStart[0] &&
-                  y.hasWidth(this._model.selectionStart[0]) === 0 &&
+                const S = this._bufferService.buffer.lines.get(this._model.selectionStart[1])
+                S &&
+                  S.length !== this._model.selectionStart[0] &&
+                  S.hasWidth(this._model.selectionStart[0]) === 0 &&
                   this._model.selectionStart[0]++
               }
               _handleDoubleClick(p) {
                 this._selectWordAtCursor(p, !0) && (this._activeSelectionMode = 1)
               }
               _handleTripleClick(p) {
-                const y = this._getMouseBufferCoords(p)
-                y && ((this._activeSelectionMode = 2), this._selectLineAt(y[1]))
+                const S = this._getMouseBufferCoords(p)
+                S && ((this._activeSelectionMode = 2), this._selectLineAt(S[1]))
               }
               shouldColumnSelect(p) {
                 return (
@@ -14524,7 +14810,7 @@ WARNING: This link could potentially be dangerous`)
               }
               _handleMouseMove(p) {
                 if ((p.stopImmediatePropagation(), !this._model.selectionStart)) return
-                const y = this._model.selectionEnd
+                const S = this._model.selectionEnd
                   ? [this._model.selectionEnd[0], this._model.selectionEnd[1]]
                   : null
                 if (
@@ -14551,9 +14837,9 @@ WARNING: This link could potentially be dangerous`)
                     this._model.selectionEnd[0] < this._bufferService.cols &&
                     this._model.selectionEnd[0]++
                 }
-                ;(y &&
-                  y[0] === this._model.selectionEnd[0] &&
-                  y[1] === this._model.selectionEnd[1]) ||
+                ;(S &&
+                  S[0] === this._model.selectionEnd[0] &&
+                  S[1] === this._model.selectionEnd[1]) ||
                   this.refresh(!0)
               }
               _dragScroll() {
@@ -14580,11 +14866,11 @@ WARNING: This link could potentially be dangerous`)
                 }
               }
               _handleMouseUp(p) {
-                const y = p.timeStamp - this._mouseDownTimeStamp
+                const S = p.timeStamp - this._mouseDownTimeStamp
                 if (
                   (this._removeMouseDownListeners(),
                   this.selectionText.length <= 1 &&
-                    y < 500 &&
+                    S < 500 &&
                     p.altKey &&
                     this._optionsService.rawOptions.altClickMovesCursor)
                 ) {
@@ -14597,7 +14883,7 @@ WARNING: This link could potentially be dangerous`)
                       !1
                     )
                     if (L && L[0] !== void 0 && L[1] !== void 0) {
-                      const M = (0, d.moveToCellSequence)(
+                      const M = (0, h.moveToCellSequence)(
                         L[0] - 1,
                         L[1] - 1,
                         this._bufferService,
@@ -14610,43 +14896,43 @@ WARNING: This link could potentially be dangerous`)
               }
               _fireEventIfSelectionChanged() {
                 const p = this._model.finalSelectionStart,
-                  y = this._model.finalSelectionEnd,
-                  L = !(!p || !y || (p[0] === y[0] && p[1] === y[1]))
+                  S = this._model.finalSelectionEnd,
+                  L = !(!p || !S || (p[0] === S[0] && p[1] === S[1]))
                 L
                   ? p &&
-                    y &&
+                    S &&
                     ((this._oldSelectionStart &&
                       this._oldSelectionEnd &&
                       p[0] === this._oldSelectionStart[0] &&
                       p[1] === this._oldSelectionStart[1] &&
-                      y[0] === this._oldSelectionEnd[0] &&
-                      y[1] === this._oldSelectionEnd[1]) ||
-                      this._fireOnSelectionChange(p, y, L))
-                  : this._oldHasSelection && this._fireOnSelectionChange(p, y, L)
+                      S[0] === this._oldSelectionEnd[0] &&
+                      S[1] === this._oldSelectionEnd[1]) ||
+                      this._fireOnSelectionChange(p, S, L))
+                  : this._oldHasSelection && this._fireOnSelectionChange(p, S, L)
               }
-              _fireOnSelectionChange(p, y, L) {
+              _fireOnSelectionChange(p, S, L) {
                 ;((this._oldSelectionStart = p),
-                  (this._oldSelectionEnd = y),
+                  (this._oldSelectionEnd = S),
                   (this._oldHasSelection = L),
                   this._onSelectionChange.fire())
               }
               _handleBufferActivate(p) {
                 ;(this.clearSelection(),
                   this._trimListener.dispose(),
-                  (this._trimListener = p.activeBuffer.lines.onTrim((y) => this._handleTrim(y))))
+                  (this._trimListener = p.activeBuffer.lines.onTrim((S) => this._handleTrim(S))))
               }
-              _convertViewportColToCharacterIndex(p, y) {
-                let L = y
-                for (let M = 0; y >= M; M++) {
+              _convertViewportColToCharacterIndex(p, S) {
+                let L = S
+                for (let M = 0; S >= M; M++) {
                   const P = p.loadCell(M, this._workCell).getChars().length
-                  this._workCell.getWidth() === 0 ? L-- : P > 1 && y !== M && (L += P - 1)
+                  this._workCell.getWidth() === 0 ? L-- : P > 1 && S !== M && (L += P - 1)
                 }
                 return L
               }
-              setSelection(p, y, L) {
+              setSelection(p, S, L) {
                 ;(this._model.clearSelection(),
                   this._removeMouseDownListeners(),
-                  (this._model.selectionStart = [p, y]),
+                  (this._model.selectionStart = [p, S]),
                   (this._model.selectionStartLength = L),
                   this.refresh(),
                   this._fireEventIfSelectionChanged())
@@ -14656,44 +14942,44 @@ WARNING: This link could potentially be dangerous`)
                   (this._selectWordAtCursor(p, !1) && this.refresh(!0),
                   this._fireEventIfSelectionChanged())
               }
-              _getWordAt(p, y, L = !0, M = !0) {
+              _getWordAt(p, S, L = !0, M = !0) {
                 if (p[0] >= this._bufferService.cols) return
                 const P = this._bufferService.buffer,
                   j = P.lines.get(p[1])
                 if (!j) return
-                const R = P.translateBufferLineToString(p[1], !1)
-                let T = this._convertViewportColToCharacterIndex(j, p[0]),
-                  $ = T
-                const F = p[0] - T
+                const D = P.translateBufferLineToString(p[1], !1)
+                let O = this._convertViewportColToCharacterIndex(j, p[0]),
+                  $ = O
+                const F = p[0] - O
                 let W = 0,
                   C = 0,
                   A = 0,
                   N = 0
-                if (R.charAt(T) === ' ') {
-                  for (; T > 0 && R.charAt(T - 1) === ' '; ) T--
-                  for (; $ < R.length && R.charAt($ + 1) === ' '; ) $++
+                if (D.charAt(O) === ' ') {
+                  for (; O > 0 && D.charAt(O - 1) === ' '; ) O--
+                  for (; $ < D.length && D.charAt($ + 1) === ' '; ) $++
                 } else {
-                  let G = p[0],
+                  let K = p[0],
                     J = p[0]
-                  ;(j.getWidth(G) === 0 && (W++, G--), j.getWidth(J) === 2 && (C++, J++))
+                  ;(j.getWidth(K) === 0 && (W++, K--), j.getWidth(J) === 2 && (C++, J++))
                   const Q = j.getString(J).length
                   for (
                     Q > 1 && ((N += Q - 1), ($ += Q - 1));
-                    G > 0 && T > 0 && !this._isCharWordSeparator(j.loadCell(G - 1, this._workCell));
+                    K > 0 && O > 0 && !this._isCharWordSeparator(j.loadCell(K - 1, this._workCell));
 
                   ) {
-                    j.loadCell(G - 1, this._workCell)
+                    j.loadCell(K - 1, this._workCell)
                     const H = this._workCell.getChars().length
                     ;(this._workCell.getWidth() === 0
-                      ? (W++, G--)
-                      : H > 1 && ((A += H - 1), (T -= H - 1)),
-                      T--,
-                      G--)
+                      ? (W++, K--)
+                      : H > 1 && ((A += H - 1), (O -= H - 1)),
+                      O--,
+                      K--)
                   }
                   for (
                     ;
                     J < j.length &&
-                    $ + 1 < R.length &&
+                    $ + 1 < D.length &&
                     !this._isCharWordSeparator(j.loadCell(J + 1, this._workCell));
 
                   ) {
@@ -14707,12 +14993,12 @@ WARNING: This link could potentially be dangerous`)
                   }
                 }
                 $++
-                let B = T + F - W + A,
-                  z = Math.min(this._bufferService.cols, $ - T + W + C - A - N)
-                if (y || R.slice(T, $).trim() !== '') {
+                let B = O + F - W + A,
+                  z = Math.min(this._bufferService.cols, $ - O + W + C - A - N)
+                if (S || D.slice(O, $).trim() !== '') {
                   if (L && B === 0 && j.getCodePoint(0) !== 32) {
-                    const G = P.lines.get(p[1] - 1)
-                    if (G && j.isWrapped && G.getCodePoint(this._bufferService.cols - 1) !== 32) {
+                    const K = P.lines.get(p[1] - 1)
+                    if (K && j.isWrapped && K.getCodePoint(this._bufferService.cols - 1) !== 32) {
                       const J = this._getWordAt(
                         [this._bufferService.cols - 1, p[1] - 1],
                         !1,
@@ -14730,8 +15016,8 @@ WARNING: This link could potentially be dangerous`)
                     B + z === this._bufferService.cols &&
                     j.getCodePoint(this._bufferService.cols - 1) !== 32
                   ) {
-                    const G = P.lines.get(p[1] + 1)
-                    if (G?.isWrapped && G.getCodePoint(0) !== 32) {
+                    const K = P.lines.get(p[1] + 1)
+                    if (K?.isWrapped && K.getCodePoint(0) !== 32) {
                       const J = this._getWordAt([0, p[1] + 1], !1, !1, !0)
                       J && (z += J.length)
                     }
@@ -14739,8 +15025,8 @@ WARNING: This link could potentially be dangerous`)
                   return { start: B, length: z }
                 }
               }
-              _selectWordAt(p, y) {
-                const L = this._getWordAt(p, y)
+              _selectWordAt(p, S) {
+                const L = this._getWordAt(p, S)
                 if (L) {
                   for (; L.start < 0; ) ((L.start += this._bufferService.cols), p[1]--)
                   ;((this._model.selectionStart = [L.start, p[1]]),
@@ -14748,15 +15034,15 @@ WARNING: This link could potentially be dangerous`)
                 }
               }
               _selectToWordAt(p) {
-                const y = this._getWordAt(p, !0)
-                if (y) {
+                const S = this._getWordAt(p, !0)
+                if (S) {
                   let L = p[1]
-                  for (; y.start < 0; ) ((y.start += this._bufferService.cols), L--)
+                  for (; S.start < 0; ) ((S.start += this._bufferService.cols), L--)
                   if (!this._model.areSelectionValuesReversed())
-                    for (; y.start + y.length > this._bufferService.cols; )
-                      ((y.length -= this._bufferService.cols), L++)
+                    for (; S.start + S.length > this._bufferService.cols; )
+                      ((S.length -= this._bufferService.cols), L++)
                   this._model.selectionEnd = [
-                    this._model.areSelectionValuesReversed() ? y.start : y.start + y.length,
+                    this._model.areSelectionValuesReversed() ? S.start : S.start + S.length,
                     L
                   ]
                 }
@@ -14768,12 +15054,12 @@ WARNING: This link could potentially be dangerous`)
                 )
               }
               _selectLineAt(p) {
-                const y = this._bufferService.buffer.getWrappedRangeForLine(p),
+                const S = this._bufferService.buffer.getWrappedRangeForLine(p),
                   L = {
-                    start: { x: 0, y: y.first },
-                    end: { x: this._bufferService.cols - 1, y: y.last }
+                    start: { x: 0, y: S.first },
+                    end: { x: this._bufferService.cols - 1, y: S.last }
                   }
-                ;((this._model.selectionStart = [0, y.first]),
+                ;((this._model.selectionStart = [0, S.first]),
                   (this._model.selectionEnd = void 0),
                   (this._model.selectionStartLength = (0, s.getRangeLength)(
                     L,
@@ -14783,12 +15069,12 @@ WARNING: This link could potentially be dangerous`)
             })
             i.SelectionService = b = l(
               [
-                f(3, c.IBufferService),
-                f(4, c.ICoreService),
-                f(5, x.IMouseService),
-                f(6, c.IOptionsService),
-                f(7, x.IRenderService),
-                f(8, x.ICoreBrowserService)
+                u(3, d.IBufferService),
+                u(4, d.ICoreService),
+                u(5, x.IMouseService),
+                u(6, d.IOptionsService),
+                u(7, x.IRenderService),
+                u(8, x.ICoreBrowserService)
               ],
               b
             )
@@ -14817,71 +15103,71 @@ WARNING: This link could potentially be dangerous`)
           6731: function (I, i, o) {
             var l =
                 (this && this.__decorate) ||
-                function (b, p, y, L) {
+                function (b, p, S, L) {
                   var M,
                     P = arguments.length,
-                    j = P < 3 ? p : L === null ? (L = Object.getOwnPropertyDescriptor(p, y)) : L
+                    j = P < 3 ? p : L === null ? (L = Object.getOwnPropertyDescriptor(p, S)) : L
                   if (typeof Reflect == 'object' && typeof Reflect.decorate == 'function')
-                    j = Reflect.decorate(b, p, y, L)
+                    j = Reflect.decorate(b, p, S, L)
                   else
-                    for (var R = b.length - 1; R >= 0; R--)
-                      (M = b[R]) && (j = (P < 3 ? M(j) : P > 3 ? M(p, y, j) : M(p, y)) || j)
-                  return (P > 3 && j && Object.defineProperty(p, y, j), j)
+                    for (var D = b.length - 1; D >= 0; D--)
+                      (M = b[D]) && (j = (P < 3 ? M(j) : P > 3 ? M(p, S, j) : M(p, S)) || j)
+                  return (P > 3 && j && Object.defineProperty(p, S, j), j)
                 },
-              f =
+              u =
                 (this && this.__param) ||
                 function (b, p) {
-                  return function (y, L) {
-                    p(y, L, b)
+                  return function (S, L) {
+                    p(S, L, b)
                   }
                 }
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.ThemeService = i.DEFAULT_ANSI_COLORS = void 0))
             const a = o(7239),
-              d = o(8055),
-              u = o(8460),
+              h = o(8055),
+              f = o(8460),
               x = o(844),
-              h = o(2585),
-              t = d.css.toColor('#ffffff'),
-              n = d.css.toColor('#000000'),
-              s = d.css.toColor('#ffffff'),
-              r = d.css.toColor('#000000'),
-              c = { css: 'rgba(255, 255, 255, 0.3)', rgba: 4294967117 }
+              c = o(2585),
+              t = h.css.toColor('#ffffff'),
+              n = h.css.toColor('#000000'),
+              s = h.css.toColor('#ffffff'),
+              r = h.css.toColor('#000000'),
+              d = { css: 'rgba(255, 255, 255, 0.3)', rgba: 4294967117 }
             i.DEFAULT_ANSI_COLORS = Object.freeze(
               (() => {
                 const b = [
-                    d.css.toColor('#2e3436'),
-                    d.css.toColor('#cc0000'),
-                    d.css.toColor('#4e9a06'),
-                    d.css.toColor('#c4a000'),
-                    d.css.toColor('#3465a4'),
-                    d.css.toColor('#75507b'),
-                    d.css.toColor('#06989a'),
-                    d.css.toColor('#d3d7cf'),
-                    d.css.toColor('#555753'),
-                    d.css.toColor('#ef2929'),
-                    d.css.toColor('#8ae234'),
-                    d.css.toColor('#fce94f'),
-                    d.css.toColor('#729fcf'),
-                    d.css.toColor('#ad7fa8'),
-                    d.css.toColor('#34e2e2'),
-                    d.css.toColor('#eeeeec')
+                    h.css.toColor('#2e3436'),
+                    h.css.toColor('#cc0000'),
+                    h.css.toColor('#4e9a06'),
+                    h.css.toColor('#c4a000'),
+                    h.css.toColor('#3465a4'),
+                    h.css.toColor('#75507b'),
+                    h.css.toColor('#06989a'),
+                    h.css.toColor('#d3d7cf'),
+                    h.css.toColor('#555753'),
+                    h.css.toColor('#ef2929'),
+                    h.css.toColor('#8ae234'),
+                    h.css.toColor('#fce94f'),
+                    h.css.toColor('#729fcf'),
+                    h.css.toColor('#ad7fa8'),
+                    h.css.toColor('#34e2e2'),
+                    h.css.toColor('#eeeeec')
                   ],
                   p = [0, 95, 135, 175, 215, 255]
-                for (let y = 0; y < 216; y++) {
-                  const L = p[(y / 36) % 6 | 0],
-                    M = p[(y / 6) % 6 | 0],
-                    P = p[y % 6]
-                  b.push({ css: d.channels.toCss(L, M, P), rgba: d.channels.toRgba(L, M, P) })
+                for (let S = 0; S < 216; S++) {
+                  const L = p[(S / 36) % 6 | 0],
+                    M = p[(S / 6) % 6 | 0],
+                    P = p[S % 6]
+                  b.push({ css: h.channels.toCss(L, M, P), rgba: h.channels.toRgba(L, M, P) })
                 }
-                for (let y = 0; y < 24; y++) {
-                  const L = 8 + 10 * y
-                  b.push({ css: d.channels.toCss(L, L, L), rgba: d.channels.toRgba(L, L, L) })
+                for (let S = 0; S < 24; S++) {
+                  const L = 8 + 10 * S
+                  b.push({ css: h.channels.toCss(L, L, L), rgba: h.channels.toRgba(L, L, L) })
                 }
                 return b
               })()
             )
-            let g = (i.ThemeService = class extends x.Disposable {
+            let v = (i.ThemeService = class extends x.Disposable {
               get colors() {
                 return this._colors
               }
@@ -14890,7 +15176,7 @@ WARNING: This link could potentially be dangerous`)
                   (this._optionsService = b),
                   (this._contrastCache = new a.ColorContrastCache()),
                   (this._halfContrastCache = new a.ColorContrastCache()),
-                  (this._onChangeColors = this.register(new u.EventEmitter())),
+                  (this._onChangeColors = this.register(new f.EventEmitter())),
                   (this.onChangeColors = this._onChangeColors.event),
                   (this._colors = {
                     foreground: t,
@@ -14898,10 +15184,10 @@ WARNING: This link could potentially be dangerous`)
                     cursor: s,
                     cursorAccent: r,
                     selectionForeground: void 0,
-                    selectionBackgroundTransparent: c,
-                    selectionBackgroundOpaque: d.color.blend(n, c),
-                    selectionInactiveBackgroundTransparent: c,
-                    selectionInactiveBackgroundOpaque: d.color.blend(n, c),
+                    selectionBackgroundTransparent: d,
+                    selectionBackgroundOpaque: h.color.blend(n, d),
+                    selectionInactiveBackgroundTransparent: d,
+                    selectionInactiveBackgroundOpaque: h.color.blend(n, d),
                     ansi: i.DEFAULT_ANSI_COLORS.slice(),
                     contrastCache: this._contrastCache,
                     halfContrastCache: this._halfContrastCache
@@ -14922,59 +15208,59 @@ WARNING: This link could potentially be dangerous`)
               _setTheme(b = {}) {
                 const p = this._colors
                 if (
-                  ((p.foreground = m(b.foreground, t)),
-                  (p.background = m(b.background, n)),
-                  (p.cursor = m(b.cursor, s)),
-                  (p.cursorAccent = m(b.cursorAccent, r)),
-                  (p.selectionBackgroundTransparent = m(b.selectionBackground, c)),
-                  (p.selectionBackgroundOpaque = d.color.blend(
+                  ((p.foreground = _(b.foreground, t)),
+                  (p.background = _(b.background, n)),
+                  (p.cursor = _(b.cursor, s)),
+                  (p.cursorAccent = _(b.cursorAccent, r)),
+                  (p.selectionBackgroundTransparent = _(b.selectionBackground, d)),
+                  (p.selectionBackgroundOpaque = h.color.blend(
                     p.background,
                     p.selectionBackgroundTransparent
                   )),
-                  (p.selectionInactiveBackgroundTransparent = m(
+                  (p.selectionInactiveBackgroundTransparent = _(
                     b.selectionInactiveBackground,
                     p.selectionBackgroundTransparent
                   )),
-                  (p.selectionInactiveBackgroundOpaque = d.color.blend(
+                  (p.selectionInactiveBackgroundOpaque = h.color.blend(
                     p.background,
                     p.selectionInactiveBackgroundTransparent
                   )),
                   (p.selectionForeground = b.selectionForeground
-                    ? m(b.selectionForeground, d.NULL_COLOR)
+                    ? _(b.selectionForeground, h.NULL_COLOR)
                     : void 0),
-                  p.selectionForeground === d.NULL_COLOR && (p.selectionForeground = void 0),
-                  d.color.isOpaque(p.selectionBackgroundTransparent) &&
-                    (p.selectionBackgroundTransparent = d.color.opacity(
+                  p.selectionForeground === h.NULL_COLOR && (p.selectionForeground = void 0),
+                  h.color.isOpaque(p.selectionBackgroundTransparent) &&
+                    (p.selectionBackgroundTransparent = h.color.opacity(
                       p.selectionBackgroundTransparent,
                       0.3
                     )),
-                  d.color.isOpaque(p.selectionInactiveBackgroundTransparent) &&
-                    (p.selectionInactiveBackgroundTransparent = d.color.opacity(
+                  h.color.isOpaque(p.selectionInactiveBackgroundTransparent) &&
+                    (p.selectionInactiveBackgroundTransparent = h.color.opacity(
                       p.selectionInactiveBackgroundTransparent,
                       0.3
                     )),
                   (p.ansi = i.DEFAULT_ANSI_COLORS.slice()),
-                  (p.ansi[0] = m(b.black, i.DEFAULT_ANSI_COLORS[0])),
-                  (p.ansi[1] = m(b.red, i.DEFAULT_ANSI_COLORS[1])),
-                  (p.ansi[2] = m(b.green, i.DEFAULT_ANSI_COLORS[2])),
-                  (p.ansi[3] = m(b.yellow, i.DEFAULT_ANSI_COLORS[3])),
-                  (p.ansi[4] = m(b.blue, i.DEFAULT_ANSI_COLORS[4])),
-                  (p.ansi[5] = m(b.magenta, i.DEFAULT_ANSI_COLORS[5])),
-                  (p.ansi[6] = m(b.cyan, i.DEFAULT_ANSI_COLORS[6])),
-                  (p.ansi[7] = m(b.white, i.DEFAULT_ANSI_COLORS[7])),
-                  (p.ansi[8] = m(b.brightBlack, i.DEFAULT_ANSI_COLORS[8])),
-                  (p.ansi[9] = m(b.brightRed, i.DEFAULT_ANSI_COLORS[9])),
-                  (p.ansi[10] = m(b.brightGreen, i.DEFAULT_ANSI_COLORS[10])),
-                  (p.ansi[11] = m(b.brightYellow, i.DEFAULT_ANSI_COLORS[11])),
-                  (p.ansi[12] = m(b.brightBlue, i.DEFAULT_ANSI_COLORS[12])),
-                  (p.ansi[13] = m(b.brightMagenta, i.DEFAULT_ANSI_COLORS[13])),
-                  (p.ansi[14] = m(b.brightCyan, i.DEFAULT_ANSI_COLORS[14])),
-                  (p.ansi[15] = m(b.brightWhite, i.DEFAULT_ANSI_COLORS[15])),
+                  (p.ansi[0] = _(b.black, i.DEFAULT_ANSI_COLORS[0])),
+                  (p.ansi[1] = _(b.red, i.DEFAULT_ANSI_COLORS[1])),
+                  (p.ansi[2] = _(b.green, i.DEFAULT_ANSI_COLORS[2])),
+                  (p.ansi[3] = _(b.yellow, i.DEFAULT_ANSI_COLORS[3])),
+                  (p.ansi[4] = _(b.blue, i.DEFAULT_ANSI_COLORS[4])),
+                  (p.ansi[5] = _(b.magenta, i.DEFAULT_ANSI_COLORS[5])),
+                  (p.ansi[6] = _(b.cyan, i.DEFAULT_ANSI_COLORS[6])),
+                  (p.ansi[7] = _(b.white, i.DEFAULT_ANSI_COLORS[7])),
+                  (p.ansi[8] = _(b.brightBlack, i.DEFAULT_ANSI_COLORS[8])),
+                  (p.ansi[9] = _(b.brightRed, i.DEFAULT_ANSI_COLORS[9])),
+                  (p.ansi[10] = _(b.brightGreen, i.DEFAULT_ANSI_COLORS[10])),
+                  (p.ansi[11] = _(b.brightYellow, i.DEFAULT_ANSI_COLORS[11])),
+                  (p.ansi[12] = _(b.brightBlue, i.DEFAULT_ANSI_COLORS[12])),
+                  (p.ansi[13] = _(b.brightMagenta, i.DEFAULT_ANSI_COLORS[13])),
+                  (p.ansi[14] = _(b.brightCyan, i.DEFAULT_ANSI_COLORS[14])),
+                  (p.ansi[15] = _(b.brightWhite, i.DEFAULT_ANSI_COLORS[15])),
                   b.extendedAnsi)
                 ) {
-                  const y = Math.min(p.ansi.length - 16, b.extendedAnsi.length)
-                  for (let L = 0; L < y; L++)
-                    p.ansi[L + 16] = m(b.extendedAnsi[L], i.DEFAULT_ANSI_COLORS[L + 16])
+                  const S = Math.min(p.ansi.length - 16, b.extendedAnsi.length)
+                  for (let L = 0; L < S; L++)
+                    p.ansi[L + 16] = _(b.extendedAnsi[L], i.DEFAULT_ANSI_COLORS[L + 16])
                 }
                 ;(this._contrastCache.clear(),
                   this._halfContrastCache.clear(),
@@ -15015,23 +15301,23 @@ WARNING: This link could potentially be dangerous`)
                 }
               }
             })
-            function m(b, p) {
+            function _(b, p) {
               if (b !== void 0)
                 try {
-                  return d.css.toColor(b)
+                  return h.css.toColor(b)
                 } catch {}
               return p
             }
-            i.ThemeService = g = l([f(0, h.IOptionsService)], g)
+            i.ThemeService = v = l([u(0, c.IOptionsService)], v)
           },
           6349: (I, i, o) => {
             ;(Object.defineProperty(i, '__esModule', { value: !0 }), (i.CircularList = void 0))
             const l = o(8460),
-              f = o(844)
-            class a extends f.Disposable {
-              constructor(u) {
+              u = o(844)
+            class a extends u.Disposable {
+              constructor(f) {
                 ;(super(),
-                  (this._maxLength = u),
+                  (this._maxLength = f),
                   (this.onDeleteEmitter = this.register(new l.EventEmitter())),
                   (this.onDelete = this.onDeleteEmitter.event),
                   (this.onInsertEmitter = this.register(new l.EventEmitter())),
@@ -15045,28 +15331,28 @@ WARNING: This link could potentially be dangerous`)
               get maxLength() {
                 return this._maxLength
               }
-              set maxLength(u) {
-                if (this._maxLength === u) return
-                const x = new Array(u)
-                for (let h = 0; h < Math.min(u, this.length); h++)
-                  x[h] = this._array[this._getCyclicIndex(h)]
-                ;((this._array = x), (this._maxLength = u), (this._startIndex = 0))
+              set maxLength(f) {
+                if (this._maxLength === f) return
+                const x = new Array(f)
+                for (let c = 0; c < Math.min(f, this.length); c++)
+                  x[c] = this._array[this._getCyclicIndex(c)]
+                ;((this._array = x), (this._maxLength = f), (this._startIndex = 0))
               }
               get length() {
                 return this._length
               }
-              set length(u) {
-                if (u > this._length) for (let x = this._length; x < u; x++) this._array[x] = void 0
-                this._length = u
+              set length(f) {
+                if (f > this._length) for (let x = this._length; x < f; x++) this._array[x] = void 0
+                this._length = f
               }
-              get(u) {
-                return this._array[this._getCyclicIndex(u)]
+              get(f) {
+                return this._array[this._getCyclicIndex(f)]
               }
-              set(u, x) {
-                this._array[this._getCyclicIndex(u)] = x
+              set(f, x) {
+                this._array[this._getCyclicIndex(f)] = x
               }
-              push(u) {
-                ;((this._array[this._getCyclicIndex(this._length)] = u),
+              push(f) {
+                ;((this._array[this._getCyclicIndex(this._length)] = f),
                   this._length === this._maxLength
                     ? ((this._startIndex = ++this._startIndex % this._maxLength),
                       this.onTrimEmitter.fire(1))
@@ -15087,47 +15373,47 @@ WARNING: This link could potentially be dangerous`)
               pop() {
                 return this._array[this._getCyclicIndex(this._length-- - 1)]
               }
-              splice(u, x, ...h) {
+              splice(f, x, ...c) {
                 if (x) {
-                  for (let t = u; t < this._length - x; t++)
+                  for (let t = f; t < this._length - x; t++)
                     this._array[this._getCyclicIndex(t)] = this._array[this._getCyclicIndex(t + x)]
-                  ;((this._length -= x), this.onDeleteEmitter.fire({ index: u, amount: x }))
+                  ;((this._length -= x), this.onDeleteEmitter.fire({ index: f, amount: x }))
                 }
-                for (let t = this._length - 1; t >= u; t--)
-                  this._array[this._getCyclicIndex(t + h.length)] =
+                for (let t = this._length - 1; t >= f; t--)
+                  this._array[this._getCyclicIndex(t + c.length)] =
                     this._array[this._getCyclicIndex(t)]
-                for (let t = 0; t < h.length; t++) this._array[this._getCyclicIndex(u + t)] = h[t]
+                for (let t = 0; t < c.length; t++) this._array[this._getCyclicIndex(f + t)] = c[t]
                 if (
-                  (h.length && this.onInsertEmitter.fire({ index: u, amount: h.length }),
-                  this._length + h.length > this._maxLength)
+                  (c.length && this.onInsertEmitter.fire({ index: f, amount: c.length }),
+                  this._length + c.length > this._maxLength)
                 ) {
-                  const t = this._length + h.length - this._maxLength
+                  const t = this._length + c.length - this._maxLength
                   ;((this._startIndex += t),
                     (this._length = this._maxLength),
                     this.onTrimEmitter.fire(t))
-                } else this._length += h.length
+                } else this._length += c.length
               }
-              trimStart(u) {
-                ;(u > this._length && (u = this._length),
-                  (this._startIndex += u),
-                  (this._length -= u),
-                  this.onTrimEmitter.fire(u))
+              trimStart(f) {
+                ;(f > this._length && (f = this._length),
+                  (this._startIndex += f),
+                  (this._length -= f),
+                  this.onTrimEmitter.fire(f))
               }
-              shiftElements(u, x, h) {
+              shiftElements(f, x, c) {
                 if (!(x <= 0)) {
-                  if (u < 0 || u >= this._length) throw new Error('start argument out of range')
-                  if (u + h < 0) throw new Error('Cannot shift elements in list beyond index 0')
-                  if (h > 0) {
-                    for (let n = x - 1; n >= 0; n--) this.set(u + n + h, this.get(u + n))
-                    const t = u + x + h - this._length
+                  if (f < 0 || f >= this._length) throw new Error('start argument out of range')
+                  if (f + c < 0) throw new Error('Cannot shift elements in list beyond index 0')
+                  if (c > 0) {
+                    for (let n = x - 1; n >= 0; n--) this.set(f + n + c, this.get(f + n))
+                    const t = f + x + c - this._length
                     if (t > 0)
                       for (this._length += t; this._length > this._maxLength; )
                         (this._length--, this._startIndex++, this.onTrimEmitter.fire(1))
-                  } else for (let t = 0; t < x; t++) this.set(u + t + h, this.get(u + t))
+                  } else for (let t = 0; t < x; t++) this.set(f + t + c, this.get(f + t))
                 }
               }
-              _getCyclicIndex(u) {
-                return (this._startIndex + u) % this._maxLength
+              _getCyclicIndex(f) {
+                return (this._startIndex + f) % this._maxLength
               }
             }
             i.CircularList = a
@@ -15135,10 +15421,10 @@ WARNING: This link could potentially be dangerous`)
           1439: (I, i) => {
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.clone = void 0),
-              (i.clone = function o(l, f = 5) {
+              (i.clone = function o(l, u = 5) {
                 if (typeof l != 'object') return l
                 const a = Array.isArray(l) ? [] : {}
-                for (const d in l) a[d] = f <= 1 ? l[d] : l[d] && o(l[d], f - 1)
+                for (const h in l) a[h] = u <= 1 ? l[h] : l[h] && o(l[h], u - 1)
                 return a
               }))
           },
@@ -15155,215 +15441,215 @@ WARNING: This link could potentially be dangerous`)
                   void 0))
             let o = 0,
               l = 0,
-              f = 0,
+              u = 0,
               a = 0
-            var d, u, x, h, t
+            var h, f, x, c, t
             function n(r) {
-              const c = r.toString(16)
-              return c.length < 2 ? '0' + c : c
+              const d = r.toString(16)
+              return d.length < 2 ? '0' + d : d
             }
-            function s(r, c) {
-              return r < c ? (c + 0.05) / (r + 0.05) : (r + 0.05) / (c + 0.05)
+            function s(r, d) {
+              return r < d ? (d + 0.05) / (r + 0.05) : (r + 0.05) / (d + 0.05)
             }
             ;((i.NULL_COLOR = { css: '#00000000', rgba: 0 }),
               (function (r) {
-                ;((r.toCss = function (c, g, m, b) {
-                  return b !== void 0 ? `#${n(c)}${n(g)}${n(m)}${n(b)}` : `#${n(c)}${n(g)}${n(m)}`
+                ;((r.toCss = function (d, v, _, b) {
+                  return b !== void 0 ? `#${n(d)}${n(v)}${n(_)}${n(b)}` : `#${n(d)}${n(v)}${n(_)}`
                 }),
-                  (r.toRgba = function (c, g, m, b = 255) {
-                    return ((c << 24) | (g << 16) | (m << 8) | b) >>> 0
+                  (r.toRgba = function (d, v, _, b = 255) {
+                    return ((d << 24) | (v << 16) | (_ << 8) | b) >>> 0
                   }),
-                  (r.toColor = function (c, g, m, b) {
-                    return { css: r.toCss(c, g, m, b), rgba: r.toRgba(c, g, m, b) }
+                  (r.toColor = function (d, v, _, b) {
+                    return { css: r.toCss(d, v, _, b), rgba: r.toRgba(d, v, _, b) }
                   }))
-              })(d || (i.channels = d = {})),
+              })(h || (i.channels = h = {})),
               (function (r) {
-                function c(g, m) {
+                function d(v, _) {
                   return (
-                    (a = Math.round(255 * m)),
-                    ([o, l, f] = t.toChannels(g.rgba)),
-                    { css: d.toCss(o, l, f, a), rgba: d.toRgba(o, l, f, a) }
+                    (a = Math.round(255 * _)),
+                    ([o, l, u] = t.toChannels(v.rgba)),
+                    { css: h.toCss(o, l, u, a), rgba: h.toRgba(o, l, u, a) }
                   )
                 }
-                ;((r.blend = function (g, m) {
-                  if (((a = (255 & m.rgba) / 255), a === 1)) return { css: m.css, rgba: m.rgba }
-                  const b = (m.rgba >> 24) & 255,
-                    p = (m.rgba >> 16) & 255,
-                    y = (m.rgba >> 8) & 255,
-                    L = (g.rgba >> 24) & 255,
-                    M = (g.rgba >> 16) & 255,
-                    P = (g.rgba >> 8) & 255
+                ;((r.blend = function (v, _) {
+                  if (((a = (255 & _.rgba) / 255), a === 1)) return { css: _.css, rgba: _.rgba }
+                  const b = (_.rgba >> 24) & 255,
+                    p = (_.rgba >> 16) & 255,
+                    S = (_.rgba >> 8) & 255,
+                    L = (v.rgba >> 24) & 255,
+                    M = (v.rgba >> 16) & 255,
+                    P = (v.rgba >> 8) & 255
                   return (
                     (o = L + Math.round((b - L) * a)),
                     (l = M + Math.round((p - M) * a)),
-                    (f = P + Math.round((y - P) * a)),
-                    { css: d.toCss(o, l, f), rgba: d.toRgba(o, l, f) }
+                    (u = P + Math.round((S - P) * a)),
+                    { css: h.toCss(o, l, u), rgba: h.toRgba(o, l, u) }
                   )
                 }),
-                  (r.isOpaque = function (g) {
-                    return (255 & g.rgba) == 255
+                  (r.isOpaque = function (v) {
+                    return (255 & v.rgba) == 255
                   }),
-                  (r.ensureContrastRatio = function (g, m, b) {
-                    const p = t.ensureContrastRatio(g.rgba, m.rgba, b)
-                    if (p) return d.toColor((p >> 24) & 255, (p >> 16) & 255, (p >> 8) & 255)
+                  (r.ensureContrastRatio = function (v, _, b) {
+                    const p = t.ensureContrastRatio(v.rgba, _.rgba, b)
+                    if (p) return h.toColor((p >> 24) & 255, (p >> 16) & 255, (p >> 8) & 255)
                   }),
-                  (r.opaque = function (g) {
-                    const m = (255 | g.rgba) >>> 0
-                    return (([o, l, f] = t.toChannels(m)), { css: d.toCss(o, l, f), rgba: m })
+                  (r.opaque = function (v) {
+                    const _ = (255 | v.rgba) >>> 0
+                    return (([o, l, u] = t.toChannels(_)), { css: h.toCss(o, l, u), rgba: _ })
                   }),
-                  (r.opacity = c),
-                  (r.multiplyOpacity = function (g, m) {
-                    return ((a = 255 & g.rgba), c(g, (a * m) / 255))
+                  (r.opacity = d),
+                  (r.multiplyOpacity = function (v, _) {
+                    return ((a = 255 & v.rgba), d(v, (a * _) / 255))
                   }),
-                  (r.toColorRGB = function (g) {
-                    return [(g.rgba >> 24) & 255, (g.rgba >> 16) & 255, (g.rgba >> 8) & 255]
+                  (r.toColorRGB = function (v) {
+                    return [(v.rgba >> 24) & 255, (v.rgba >> 16) & 255, (v.rgba >> 8) & 255]
                   }))
-              })(u || (i.color = u = {})),
+              })(f || (i.color = f = {})),
               (function (r) {
-                let c, g
+                let d, v
                 try {
-                  const m = document.createElement('canvas')
-                  ;((m.width = 1), (m.height = 1))
-                  const b = m.getContext('2d', { willReadFrequently: !0 })
+                  const _ = document.createElement('canvas')
+                  ;((_.width = 1), (_.height = 1))
+                  const b = _.getContext('2d', { willReadFrequently: !0 })
                   b &&
-                    ((c = b),
-                    (c.globalCompositeOperation = 'copy'),
-                    (g = c.createLinearGradient(0, 0, 1, 1)))
+                    ((d = b),
+                    (d.globalCompositeOperation = 'copy'),
+                    (v = d.createLinearGradient(0, 0, 1, 1)))
                 } catch {}
-                r.toColor = function (m) {
-                  if (m.match(/#[\da-f]{3,8}/i))
-                    switch (m.length) {
+                r.toColor = function (_) {
+                  if (_.match(/#[\da-f]{3,8}/i))
+                    switch (_.length) {
                       case 4:
                         return (
-                          (o = parseInt(m.slice(1, 2).repeat(2), 16)),
-                          (l = parseInt(m.slice(2, 3).repeat(2), 16)),
-                          (f = parseInt(m.slice(3, 4).repeat(2), 16)),
-                          d.toColor(o, l, f)
+                          (o = parseInt(_.slice(1, 2).repeat(2), 16)),
+                          (l = parseInt(_.slice(2, 3).repeat(2), 16)),
+                          (u = parseInt(_.slice(3, 4).repeat(2), 16)),
+                          h.toColor(o, l, u)
                         )
                       case 5:
                         return (
-                          (o = parseInt(m.slice(1, 2).repeat(2), 16)),
-                          (l = parseInt(m.slice(2, 3).repeat(2), 16)),
-                          (f = parseInt(m.slice(3, 4).repeat(2), 16)),
-                          (a = parseInt(m.slice(4, 5).repeat(2), 16)),
-                          d.toColor(o, l, f, a)
+                          (o = parseInt(_.slice(1, 2).repeat(2), 16)),
+                          (l = parseInt(_.slice(2, 3).repeat(2), 16)),
+                          (u = parseInt(_.slice(3, 4).repeat(2), 16)),
+                          (a = parseInt(_.slice(4, 5).repeat(2), 16)),
+                          h.toColor(o, l, u, a)
                         )
                       case 7:
-                        return { css: m, rgba: ((parseInt(m.slice(1), 16) << 8) | 255) >>> 0 }
+                        return { css: _, rgba: ((parseInt(_.slice(1), 16) << 8) | 255) >>> 0 }
                       case 9:
-                        return { css: m, rgba: parseInt(m.slice(1), 16) >>> 0 }
+                        return { css: _, rgba: parseInt(_.slice(1), 16) >>> 0 }
                     }
-                  const b = m.match(
+                  const b = _.match(
                     /rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(,\s*(0|1|\d?\.(\d+))\s*)?\)/
                   )
                   if (b)
                     return (
                       (o = parseInt(b[1])),
                       (l = parseInt(b[2])),
-                      (f = parseInt(b[3])),
+                      (u = parseInt(b[3])),
                       (a = Math.round(255 * (b[5] === void 0 ? 1 : parseFloat(b[5])))),
-                      d.toColor(o, l, f, a)
+                      h.toColor(o, l, u, a)
                     )
-                  if (!c || !g) throw new Error('css.toColor: Unsupported css format')
-                  if (((c.fillStyle = g), (c.fillStyle = m), typeof c.fillStyle != 'string'))
+                  if (!d || !v) throw new Error('css.toColor: Unsupported css format')
+                  if (((d.fillStyle = v), (d.fillStyle = _), typeof d.fillStyle != 'string'))
                     throw new Error('css.toColor: Unsupported css format')
                   if (
-                    (c.fillRect(0, 0, 1, 1),
-                    ([o, l, f, a] = c.getImageData(0, 0, 1, 1).data),
+                    (d.fillRect(0, 0, 1, 1),
+                    ([o, l, u, a] = d.getImageData(0, 0, 1, 1).data),
                     a !== 255)
                   )
                     throw new Error('css.toColor: Unsupported css format')
-                  return { rgba: d.toRgba(o, l, f, a), css: m }
+                  return { rgba: h.toRgba(o, l, u, a), css: _ }
                 }
               })(x || (i.css = x = {})),
               (function (r) {
-                function c(g, m, b) {
-                  const p = g / 255,
-                    y = m / 255,
+                function d(v, _, b) {
+                  const p = v / 255,
+                    S = _ / 255,
                     L = b / 255
                   return (
                     0.2126 * (p <= 0.03928 ? p / 12.92 : Math.pow((p + 0.055) / 1.055, 2.4)) +
-                    0.7152 * (y <= 0.03928 ? y / 12.92 : Math.pow((y + 0.055) / 1.055, 2.4)) +
+                    0.7152 * (S <= 0.03928 ? S / 12.92 : Math.pow((S + 0.055) / 1.055, 2.4)) +
                     0.0722 * (L <= 0.03928 ? L / 12.92 : Math.pow((L + 0.055) / 1.055, 2.4))
                   )
                 }
-                ;((r.relativeLuminance = function (g) {
-                  return c((g >> 16) & 255, (g >> 8) & 255, 255 & g)
+                ;((r.relativeLuminance = function (v) {
+                  return d((v >> 16) & 255, (v >> 8) & 255, 255 & v)
                 }),
-                  (r.relativeLuminance2 = c))
-              })(h || (i.rgb = h = {})),
+                  (r.relativeLuminance2 = d))
+              })(c || (i.rgb = c = {})),
               (function (r) {
-                function c(m, b, p) {
-                  const y = (m >> 24) & 255,
-                    L = (m >> 16) & 255,
-                    M = (m >> 8) & 255
+                function d(_, b, p) {
+                  const S = (_ >> 24) & 255,
+                    L = (_ >> 16) & 255,
+                    M = (_ >> 8) & 255
                   let P = (b >> 24) & 255,
                     j = (b >> 16) & 255,
-                    R = (b >> 8) & 255,
-                    T = s(h.relativeLuminance2(P, j, R), h.relativeLuminance2(y, L, M))
-                  for (; T < p && (P > 0 || j > 0 || R > 0); )
+                    D = (b >> 8) & 255,
+                    O = s(c.relativeLuminance2(P, j, D), c.relativeLuminance2(S, L, M))
+                  for (; O < p && (P > 0 || j > 0 || D > 0); )
                     ((P -= Math.max(0, Math.ceil(0.1 * P))),
                       (j -= Math.max(0, Math.ceil(0.1 * j))),
-                      (R -= Math.max(0, Math.ceil(0.1 * R))),
-                      (T = s(h.relativeLuminance2(P, j, R), h.relativeLuminance2(y, L, M))))
-                  return ((P << 24) | (j << 16) | (R << 8) | 255) >>> 0
+                      (D -= Math.max(0, Math.ceil(0.1 * D))),
+                      (O = s(c.relativeLuminance2(P, j, D), c.relativeLuminance2(S, L, M))))
+                  return ((P << 24) | (j << 16) | (D << 8) | 255) >>> 0
                 }
-                function g(m, b, p) {
-                  const y = (m >> 24) & 255,
-                    L = (m >> 16) & 255,
-                    M = (m >> 8) & 255
+                function v(_, b, p) {
+                  const S = (_ >> 24) & 255,
+                    L = (_ >> 16) & 255,
+                    M = (_ >> 8) & 255
                   let P = (b >> 24) & 255,
                     j = (b >> 16) & 255,
-                    R = (b >> 8) & 255,
-                    T = s(h.relativeLuminance2(P, j, R), h.relativeLuminance2(y, L, M))
-                  for (; T < p && (P < 255 || j < 255 || R < 255); )
+                    D = (b >> 8) & 255,
+                    O = s(c.relativeLuminance2(P, j, D), c.relativeLuminance2(S, L, M))
+                  for (; O < p && (P < 255 || j < 255 || D < 255); )
                     ((P = Math.min(255, P + Math.ceil(0.1 * (255 - P)))),
                       (j = Math.min(255, j + Math.ceil(0.1 * (255 - j)))),
-                      (R = Math.min(255, R + Math.ceil(0.1 * (255 - R)))),
-                      (T = s(h.relativeLuminance2(P, j, R), h.relativeLuminance2(y, L, M))))
-                  return ((P << 24) | (j << 16) | (R << 8) | 255) >>> 0
+                      (D = Math.min(255, D + Math.ceil(0.1 * (255 - D)))),
+                      (O = s(c.relativeLuminance2(P, j, D), c.relativeLuminance2(S, L, M))))
+                  return ((P << 24) | (j << 16) | (D << 8) | 255) >>> 0
                 }
-                ;((r.blend = function (m, b) {
+                ;((r.blend = function (_, b) {
                   if (((a = (255 & b) / 255), a === 1)) return b
                   const p = (b >> 24) & 255,
-                    y = (b >> 16) & 255,
+                    S = (b >> 16) & 255,
                     L = (b >> 8) & 255,
-                    M = (m >> 24) & 255,
-                    P = (m >> 16) & 255,
-                    j = (m >> 8) & 255
+                    M = (_ >> 24) & 255,
+                    P = (_ >> 16) & 255,
+                    j = (_ >> 8) & 255
                   return (
                     (o = M + Math.round((p - M) * a)),
-                    (l = P + Math.round((y - P) * a)),
-                    (f = j + Math.round((L - j) * a)),
-                    d.toRgba(o, l, f)
+                    (l = P + Math.round((S - P) * a)),
+                    (u = j + Math.round((L - j) * a)),
+                    h.toRgba(o, l, u)
                   )
                 }),
-                  (r.ensureContrastRatio = function (m, b, p) {
-                    const y = h.relativeLuminance(m >> 8),
-                      L = h.relativeLuminance(b >> 8)
-                    if (s(y, L) < p) {
-                      if (L < y) {
-                        const j = c(m, b, p),
-                          R = s(y, h.relativeLuminance(j >> 8))
-                        if (R < p) {
-                          const T = g(m, b, p)
-                          return R > s(y, h.relativeLuminance(T >> 8)) ? j : T
+                  (r.ensureContrastRatio = function (_, b, p) {
+                    const S = c.relativeLuminance(_ >> 8),
+                      L = c.relativeLuminance(b >> 8)
+                    if (s(S, L) < p) {
+                      if (L < S) {
+                        const j = d(_, b, p),
+                          D = s(S, c.relativeLuminance(j >> 8))
+                        if (D < p) {
+                          const O = v(_, b, p)
+                          return D > s(S, c.relativeLuminance(O >> 8)) ? j : O
                         }
                         return j
                       }
-                      const M = g(m, b, p),
-                        P = s(y, h.relativeLuminance(M >> 8))
+                      const M = v(_, b, p),
+                        P = s(S, c.relativeLuminance(M >> 8))
                       if (P < p) {
-                        const j = c(m, b, p)
-                        return P > s(y, h.relativeLuminance(j >> 8)) ? M : j
+                        const j = d(_, b, p)
+                        return P > s(S, c.relativeLuminance(j >> 8)) ? M : j
                       }
                       return M
                     }
                   }),
-                  (r.reduceLuminance = c),
-                  (r.increaseLuminance = g),
-                  (r.toChannels = function (m) {
-                    return [(m >> 24) & 255, (m >> 16) & 255, (m >> 8) & 255, 255 & m]
+                  (r.reduceLuminance = d),
+                  (r.increaseLuminance = v),
+                  (r.toChannels = function (_) {
+                    return [(_ >> 24) & 255, (_ >> 16) & 255, (_ >> 8) & 255, 255 & _]
                   }))
               })(t || (i.rgba = t = {})),
               (i.toPaddedHex = n),
@@ -15372,22 +15658,22 @@ WARNING: This link could potentially be dangerous`)
           8969: (I, i, o) => {
             ;(Object.defineProperty(i, '__esModule', { value: !0 }), (i.CoreTerminal = void 0))
             const l = o(844),
-              f = o(2585),
+              u = o(2585),
               a = o(4348),
-              d = o(7866),
-              u = o(744),
+              h = o(7866),
+              f = o(744),
               x = o(7302),
-              h = o(6975),
+              c = o(6975),
               t = o(8460),
               n = o(1753),
               s = o(1480),
               r = o(7994),
-              c = o(9282),
-              g = o(5435),
-              m = o(5981),
+              d = o(9282),
+              v = o(5435),
+              _ = o(5981),
               b = o(2660)
             let p = !1
-            class y extends l.Disposable {
+            class S extends l.Disposable {
               get onScroll() {
                 return (
                   this._onScrollApi ||
@@ -15429,37 +15715,37 @@ WARNING: This link could potentially be dangerous`)
                   (this._onScroll = this.register(new t.EventEmitter())),
                   (this._instantiationService = new a.InstantiationService()),
                   (this.optionsService = this.register(new x.OptionsService(M))),
-                  this._instantiationService.setService(f.IOptionsService, this.optionsService),
+                  this._instantiationService.setService(u.IOptionsService, this.optionsService),
                   (this._bufferService = this.register(
-                    this._instantiationService.createInstance(u.BufferService)
+                    this._instantiationService.createInstance(f.BufferService)
                   )),
-                  this._instantiationService.setService(f.IBufferService, this._bufferService),
+                  this._instantiationService.setService(u.IBufferService, this._bufferService),
                   (this._logService = this.register(
-                    this._instantiationService.createInstance(d.LogService)
+                    this._instantiationService.createInstance(h.LogService)
                   )),
-                  this._instantiationService.setService(f.ILogService, this._logService),
+                  this._instantiationService.setService(u.ILogService, this._logService),
                   (this.coreService = this.register(
-                    this._instantiationService.createInstance(h.CoreService)
+                    this._instantiationService.createInstance(c.CoreService)
                   )),
-                  this._instantiationService.setService(f.ICoreService, this.coreService),
+                  this._instantiationService.setService(u.ICoreService, this.coreService),
                   (this.coreMouseService = this.register(
                     this._instantiationService.createInstance(n.CoreMouseService)
                   )),
-                  this._instantiationService.setService(f.ICoreMouseService, this.coreMouseService),
+                  this._instantiationService.setService(u.ICoreMouseService, this.coreMouseService),
                   (this.unicodeService = this.register(
                     this._instantiationService.createInstance(s.UnicodeService)
                   )),
-                  this._instantiationService.setService(f.IUnicodeService, this.unicodeService),
+                  this._instantiationService.setService(u.IUnicodeService, this.unicodeService),
                   (this._charsetService = this._instantiationService.createInstance(
                     r.CharsetService
                   )),
-                  this._instantiationService.setService(f.ICharsetService, this._charsetService),
+                  this._instantiationService.setService(u.ICharsetService, this._charsetService),
                   (this._oscLinkService = this._instantiationService.createInstance(
                     b.OscLinkService
                   )),
-                  this._instantiationService.setService(f.IOscLinkService, this._oscLinkService),
+                  this._instantiationService.setService(u.IOscLinkService, this._oscLinkService),
                   (this._inputHandler = this.register(
-                    new g.InputHandler(
+                    new v.InputHandler(
                       this._bufferService,
                       this._charsetService,
                       this.coreService,
@@ -15513,7 +15799,7 @@ WARNING: This link could potentially be dangerous`)
                     })
                   ),
                   (this._writeBuffer = this.register(
-                    new m.WriteBuffer((P, j) => this._inputHandler.parse(P, j))
+                    new _.WriteBuffer((P, j) => this._inputHandler.parse(P, j))
                   )),
                   this.register(
                     (0, t.forwardEvent)(this._writeBuffer.onWriteParsed, this._onWriteParsed)
@@ -15523,7 +15809,7 @@ WARNING: This link could potentially be dangerous`)
                 this._writeBuffer.write(M, P)
               }
               writeSync(M, P) {
-                ;(this._logService.logLevel <= f.LogLevelEnum.WARN &&
+                ;(this._logService.logLevel <= u.LogLevelEnum.WARN &&
                   !p &&
                   (this._logService.warn('writeSync is unreliable and will be removed soon.'),
                   (p = !0)),
@@ -15535,8 +15821,8 @@ WARNING: This link could potentially be dangerous`)
               resize(M, P) {
                 isNaN(M) ||
                   isNaN(P) ||
-                  ((M = Math.max(M, u.MINIMUM_COLS)),
-                  (P = Math.max(P, u.MINIMUM_ROWS)),
+                  ((M = Math.max(M, f.MINIMUM_COLS)),
+                  (P = Math.max(P, f.MINIMUM_ROWS)),
                   this._bufferService.resize(M, P))
               }
               scroll(M, P = !1) {
@@ -15596,12 +15882,12 @@ WARNING: This link could potentially be dangerous`)
                 if (!this._windowsWrappingHeuristics.value) {
                   const M = []
                   ;(M.push(
-                    this.onLineFeed(c.updateWindowsModeWrappedState.bind(null, this._bufferService))
+                    this.onLineFeed(d.updateWindowsModeWrappedState.bind(null, this._bufferService))
                   ),
                     M.push(
                       this.registerCsiHandler(
                         { final: 'H' },
-                        () => ((0, c.updateWindowsModeWrappedState)(this._bufferService), !1)
+                        () => ((0, d.updateWindowsModeWrappedState)(this._bufferService), !1)
                       )
                     ),
                     (this._windowsWrappingHeuristics.value = (0, l.toDisposable)(() => {
@@ -15610,7 +15896,7 @@ WARNING: This link could potentially be dangerous`)
                 }
               }
             }
-            i.CoreTerminal = y
+            i.CoreTerminal = S
           },
           8460: (I, i) => {
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
@@ -15638,9 +15924,9 @@ WARNING: This link could potentially be dangerous`)
                   )
                 }
                 fire(o, l) {
-                  const f = []
-                  for (let a = 0; a < this._listeners.length; a++) f.push(this._listeners[a])
-                  for (let a = 0; a < f.length; a++) f[a].call(void 0, o, l)
+                  const u = []
+                  for (let a = 0; a < this._listeners.length; a++) u.push(this._listeners[a])
+                  for (let a = 0; a < u.length; a++) u[a].call(void 0, o, l)
                 }
                 dispose() {
                   ;(this.clearListeners(), (this._disposed = !0))
@@ -15650,10 +15936,10 @@ WARNING: This link could potentially be dangerous`)
                 }
               }),
               (i.forwardEvent = function (o, l) {
-                return o((f) => l.fire(f))
+                return o((u) => l.fire(u))
               }),
               (i.runAndSubscribe = function (o, l) {
-                return (l(void 0), o((f) => l(f)))
+                return (l(void 0), o((u) => l(u)))
               }))
           },
           5435: function (I, i, o) {
@@ -15662,15 +15948,15 @@ WARNING: This link could potentially be dangerous`)
                 function (W, C, A, N) {
                   var B,
                     z = arguments.length,
-                    G = z < 3 ? C : N === null ? (N = Object.getOwnPropertyDescriptor(C, A)) : N
+                    K = z < 3 ? C : N === null ? (N = Object.getOwnPropertyDescriptor(C, A)) : N
                   if (typeof Reflect == 'object' && typeof Reflect.decorate == 'function')
-                    G = Reflect.decorate(W, C, A, N)
+                    K = Reflect.decorate(W, C, A, N)
                   else
                     for (var J = W.length - 1; J >= 0; J--)
-                      (B = W[J]) && (G = (z < 3 ? B(G) : z > 3 ? B(C, A, G) : B(C, A)) || G)
-                  return (z > 3 && G && Object.defineProperty(C, A, G), G)
+                      (B = W[J]) && (K = (z < 3 ? B(K) : z > 3 ? B(C, A, K) : B(C, A)) || K)
+                  return (z > 3 && K && Object.defineProperty(C, A, K), K)
                 },
-              f =
+              u =
                 (this && this.__param) ||
                 function (W, C) {
                   return function (A, N) {
@@ -15680,20 +15966,20 @@ WARNING: This link could potentially be dangerous`)
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.InputHandler = i.WindowsOptionsReportType = void 0))
             const a = o(2584),
-              d = o(7116),
-              u = o(2015),
+              h = o(7116),
+              f = o(2015),
               x = o(844),
-              h = o(482),
+              c = o(482),
               t = o(8437),
               n = o(8460),
               s = o(643),
               r = o(511),
-              c = o(3734),
-              g = o(2585),
-              m = o(1480),
+              d = o(3734),
+              v = o(2585),
+              _ = o(1480),
               b = o(6242),
               p = o(6351),
-              y = o(5941),
+              S = o(5941),
               L = { '(': 0, ')': 1, '*': 2, '+': 3, '-': 1, '.': 2 },
               M = 131072
             function P(W, C) {
@@ -15751,25 +16037,25 @@ WARNING: This link could potentially be dangerous`)
               ;((W[(W.GET_WIN_SIZE_PIXELS = 0)] = 'GET_WIN_SIZE_PIXELS'),
                 (W[(W.GET_CELL_SIZE_PIXELS = 1)] = 'GET_CELL_SIZE_PIXELS'))
             })(j || (i.WindowsOptionsReportType = j = {}))
-            let R = 0
-            class T extends x.Disposable {
+            let D = 0
+            class O extends x.Disposable {
               getAttrData() {
                 return this._curAttrData
               }
-              constructor(C, A, N, B, z, G, J, Q, H = new u.EscapeSequenceParser()) {
+              constructor(C, A, N, B, z, K, J, Q, H = new f.EscapeSequenceParser()) {
                 ;(super(),
                   (this._bufferService = C),
                   (this._charsetService = A),
                   (this._coreService = N),
                   (this._logService = B),
                   (this._optionsService = z),
-                  (this._oscLinkService = G),
+                  (this._oscLinkService = K),
                   (this._coreMouseService = J),
                   (this._unicodeService = Q),
                   (this._parser = H),
                   (this._parseBuffer = new Uint32Array(4096)),
-                  (this._stringDecoder = new h.StringToUtf32()),
-                  (this._utf8Decoder = new h.Utf8ToUtf32()),
+                  (this._stringDecoder = new c.StringToUtf32()),
+                  (this._utf8Decoder = new c.Utf8ToUtf32()),
                   (this._workCell = new r.CellData()),
                   (this._windowTitle = ''),
                   (this._iconName = ''),
@@ -15819,10 +16105,10 @@ WARNING: This link could potentially be dangerous`)
                       (E) => (this._activeBuffer = E.activeBuffer)
                     )
                   ),
-                  this._parser.setCsiHandlerFallback((E, K) => {
+                  this._parser.setCsiHandlerFallback((E, G) => {
                     this._logService.debug('Unknown CSI code: ', {
                       identifier: this._parser.identToString(E),
-                      params: K.toArray()
+                      params: G.toArray()
                     })
                   }),
                   this._parser.setEscHandlerFallback((E) => {
@@ -15833,22 +16119,22 @@ WARNING: This link could potentially be dangerous`)
                   this._parser.setExecuteHandlerFallback((E) => {
                     this._logService.debug('Unknown EXECUTE code: ', { code: E })
                   }),
-                  this._parser.setOscHandlerFallback((E, K, X) => {
+                  this._parser.setOscHandlerFallback((E, G, q) => {
                     this._logService.debug('Unknown OSC code: ', {
                       identifier: E,
-                      action: K,
-                      data: X
+                      action: G,
+                      data: q
                     })
                   }),
-                  this._parser.setDcsHandlerFallback((E, K, X) => {
-                    ;(K === 'HOOK' && (X = X.toArray()),
+                  this._parser.setDcsHandlerFallback((E, G, q) => {
+                    ;(G === 'HOOK' && (q = q.toArray()),
                       this._logService.debug('Unknown DCS code: ', {
                         identifier: this._parser.identToString(E),
-                        action: K,
-                        payload: X
+                        action: G,
+                        payload: q
                       }))
                   }),
-                  this._parser.setPrintHandler((E, K, X) => this.print(E, K, X)),
+                  this._parser.setPrintHandler((E, G, q) => this.print(E, G, q)),
                   this._parser.registerCsiHandler({ final: '@' }, (E) => this.insertChars(E)),
                   this._parser.registerCsiHandler({ intermediates: ' ', final: '@' }, (E) =>
                     this.scrollLeft(E)
@@ -16013,7 +16299,7 @@ WARNING: This link could potentially be dangerous`)
                   this._parser.registerEscHandler({ intermediates: '%', final: 'G' }, () =>
                     this.selectDefaultCharset()
                   ))
-                for (const E in d.CHARSETS)
+                for (const E in h.CHARSETS)
                   (this._parser.registerEscHandler({ intermediates: '(', final: E }, () =>
                     this.selectCharset('(' + E)
                   ),
@@ -16043,7 +16329,7 @@ WARNING: This link could potentially be dangerous`)
                   ),
                   this._parser.registerDcsHandler(
                     { intermediates: '$', final: 'q' },
-                    new p.DcsHandler((E, K) => this.requestStatusString(E, K))
+                    new p.DcsHandler((E, G) => this.requestStatusString(E, G))
                   ))
               }
               _preserveStack(C, A, N, B) {
@@ -16054,7 +16340,7 @@ WARNING: This link could potentially be dangerous`)
                   (this._parseStack.position = B))
               }
               _logSlowResolvingAsync(C) {
-                this._logService.logLevel <= g.LogLevelEnum.WARN &&
+                this._logService.logLevel <= v.LogLevelEnum.WARN &&
                   Promise.race([
                     C,
                     new Promise((A, N) => setTimeout(() => N('#SLOW_TIMEOUT'), 5e3))
@@ -16070,7 +16356,7 @@ WARNING: This link could potentially be dangerous`)
                 let N,
                   B = this._activeBuffer.x,
                   z = this._activeBuffer.y,
-                  G = 0
+                  K = 0
                 const J = this._parseStack.paused
                 if (J) {
                   if (
@@ -16080,10 +16366,10 @@ WARNING: This link could potentially be dangerous`)
                   ;((B = this._parseStack.cursorStartX),
                     (z = this._parseStack.cursorStartY),
                     (this._parseStack.paused = !1),
-                    C.length > M && (G = this._parseStack.position + M))
+                    C.length > M && (K = this._parseStack.position + M))
                 }
                 if (
-                  (this._logService.logLevel <= g.LogLevelEnum.DEBUG &&
+                  (this._logService.logLevel <= v.LogLevelEnum.DEBUG &&
                     this._logService.debug(
                       'parsing data' +
                         (typeof C == 'string'
@@ -16097,14 +16383,14 @@ WARNING: This link could potentially be dangerous`)
                   J || this._dirtyRowTracker.clearRange(),
                   C.length > M)
                 )
-                  for (let E = G; E < C.length; E += M) {
-                    const K = E + M < C.length ? E + M : C.length,
-                      X =
+                  for (let E = K; E < C.length; E += M) {
+                    const G = E + M < C.length ? E + M : C.length,
+                      q =
                         typeof C == 'string'
-                          ? this._stringDecoder.decode(C.substring(E, K), this._parseBuffer)
-                          : this._utf8Decoder.decode(C.subarray(E, K), this._parseBuffer)
-                    if ((N = this._parser.parse(this._parseBuffer, X)))
-                      return (this._preserveStack(B, z, X, E), this._logSlowResolvingAsync(N), N)
+                          ? this._stringDecoder.decode(C.substring(E, G), this._parseBuffer)
+                          : this._utf8Decoder.decode(C.subarray(E, G), this._parseBuffer)
+                    if ((N = this._parser.parse(this._parseBuffer, q)))
+                      return (this._preserveStack(B, z, q, E), this._logSlowResolvingAsync(N), N)
                   }
                 else if (!J) {
                   const E =
@@ -16130,33 +16416,33 @@ WARNING: This link could potentially be dangerous`)
               }
               print(C, A, N) {
                 let B, z
-                const G = this._charsetService.charset,
+                const K = this._charsetService.charset,
                   J = this._optionsService.rawOptions.screenReaderMode,
                   Q = this._bufferService.cols,
                   H = this._coreService.decPrivateModes.wraparound,
                   E = this._coreService.modes.insertMode,
-                  K = this._curAttrData
-                let X = this._activeBuffer.lines.get(
+                  G = this._curAttrData
+                let q = this._activeBuffer.lines.get(
                   this._activeBuffer.ybase + this._activeBuffer.y
                 )
                 ;(this._dirtyRowTracker.markDirty(this._activeBuffer.y),
                   this._activeBuffer.x &&
                     N - A > 0 &&
-                    X.getWidth(this._activeBuffer.x - 1) === 2 &&
-                    X.setCellFromCodepoint(this._activeBuffer.x - 1, 0, 1, K))
+                    q.getWidth(this._activeBuffer.x - 1) === 2 &&
+                    q.setCellFromCodepoint(this._activeBuffer.x - 1, 0, 1, G))
                 let Z = this._parser.precedingJoinState
                 for (let Y = A; Y < N; ++Y) {
-                  if (((B = C[Y]), B < 127 && G)) {
-                    const he = G[String.fromCharCode(B)]
-                    he && (B = he.charCodeAt(0))
+                  if (((B = C[Y]), B < 127 && K)) {
+                    const ue = K[String.fromCharCode(B)]
+                    ue && (B = ue.charCodeAt(0))
                   }
                   const V = this._unicodeService.charProperties(B, Z)
-                  z = m.UnicodeService.extractWidth(V)
-                  const se = m.UnicodeService.extractShouldJoin(V),
-                    ne = se ? m.UnicodeService.extractWidth(Z) : 0
+                  z = _.UnicodeService.extractWidth(V)
+                  const se = _.UnicodeService.extractShouldJoin(V),
+                    ne = se ? _.UnicodeService.extractWidth(Z) : 0
                   if (
                     ((Z = V),
-                    J && this._onA11yChar.fire((0, h.stringFromCodePoint)(B)),
+                    J && this._onA11yChar.fire((0, c.stringFromCodePoint)(B)),
                     this._getCurrentLinkId() &&
                       this._oscLinkService.addLineToLink(
                         this._getCurrentLinkId(),
@@ -16165,8 +16451,8 @@ WARNING: This link could potentially be dangerous`)
                     this._activeBuffer.x + z - ne > Q)
                   ) {
                     if (H) {
-                      const he = X
-                      let ie = this._activeBuffer.x - ne
+                      const ue = q
+                      let re = this._activeBuffer.x - ne
                       for (
                         this._activeBuffer.x = ne,
                           this._activeBuffer.y++,
@@ -16178,41 +16464,41 @@ WARNING: This link could potentially be dangerous`)
                               (this._activeBuffer.lines.get(
                                 this._activeBuffer.ybase + this._activeBuffer.y
                               ).isWrapped = !0)),
-                          X = this._activeBuffer.lines.get(
+                          q = this._activeBuffer.lines.get(
                             this._activeBuffer.ybase + this._activeBuffer.y
                           ),
-                          ne > 0 && X instanceof t.BufferLine && X.copyCellsFrom(he, ie, 0, ne, !1);
-                        ie < Q;
+                          ne > 0 && q instanceof t.BufferLine && q.copyCellsFrom(ue, re, 0, ne, !1);
+                        re < Q;
 
                       )
-                        he.setCellFromCodepoint(ie++, 0, 1, K)
+                        ue.setCellFromCodepoint(re++, 0, 1, G)
                     } else if (((this._activeBuffer.x = Q - 1), z === 2)) continue
                   }
                   if (se && this._activeBuffer.x) {
-                    const he = X.getWidth(this._activeBuffer.x - 1) ? 1 : 2
-                    X.addCodepointToCell(this._activeBuffer.x - he, B, z)
-                    for (let ie = z - ne; --ie >= 0; )
-                      X.setCellFromCodepoint(this._activeBuffer.x++, 0, 0, K)
+                    const ue = q.getWidth(this._activeBuffer.x - 1) ? 1 : 2
+                    q.addCodepointToCell(this._activeBuffer.x - ue, B, z)
+                    for (let re = z - ne; --re >= 0; )
+                      q.setCellFromCodepoint(this._activeBuffer.x++, 0, 0, G)
                   } else if (
                     (E &&
-                      (X.insertCells(
+                      (q.insertCells(
                         this._activeBuffer.x,
                         z - ne,
-                        this._activeBuffer.getNullCell(K)
+                        this._activeBuffer.getNullCell(G)
                       ),
-                      X.getWidth(Q - 1) === 2 &&
-                        X.setCellFromCodepoint(Q - 1, s.NULL_CELL_CODE, s.NULL_CELL_WIDTH, K)),
-                    X.setCellFromCodepoint(this._activeBuffer.x++, B, z, K),
+                      q.getWidth(Q - 1) === 2 &&
+                        q.setCellFromCodepoint(Q - 1, s.NULL_CELL_CODE, s.NULL_CELL_WIDTH, G)),
+                    q.setCellFromCodepoint(this._activeBuffer.x++, B, z, G),
                     z > 0)
                   )
-                    for (; --z; ) X.setCellFromCodepoint(this._activeBuffer.x++, 0, 0, K)
+                    for (; --z; ) q.setCellFromCodepoint(this._activeBuffer.x++, 0, 0, G)
                 }
                 ;((this._parser.precedingJoinState = Z),
                   this._activeBuffer.x < Q &&
                     N - A > 0 &&
-                    X.getWidth(this._activeBuffer.x) === 0 &&
-                    !X.hasContent(this._activeBuffer.x) &&
-                    X.setCellFromCodepoint(this._activeBuffer.x, 0, 1, K),
+                    q.getWidth(this._activeBuffer.x) === 0 &&
+                    !q.hasContent(this._activeBuffer.x) &&
+                    q.setCellFromCodepoint(this._activeBuffer.x, 0, 1, G),
                   this._dirtyRowTracker.markDirty(this._activeBuffer.y))
               }
               registerCsiHandler(C, A) {
@@ -16412,9 +16698,9 @@ WARNING: This link could potentially be dangerous`)
                 )
               }
               _eraseInBufferLine(C, A, N, B = !1, z = !1) {
-                const G = this._activeBuffer.lines.get(this._activeBuffer.ybase + C)
-                ;(G.replaceCells(A, N, this._activeBuffer.getNullCell(this._eraseAttrData()), z),
-                  B && (G.isWrapped = !1))
+                const K = this._activeBuffer.lines.get(this._activeBuffer.ybase + C)
+                ;(K.replaceCells(A, N, this._activeBuffer.getNullCell(this._eraseAttrData()), z),
+                  B && (K.isWrapped = !1))
               }
               _resetBufferLine(C, A = !1) {
                 const N = this._activeBuffer.lines.get(this._activeBuffer.ybase + C)
@@ -16760,16 +17046,16 @@ WARNING: This link could potentially be dangerous`)
                 const A = this._parser.precedingJoinState
                 if (!A) return !0
                 const N = C.params[0] || 1,
-                  B = m.UnicodeService.extractWidth(A),
+                  B = _.UnicodeService.extractWidth(A),
                   z = this._activeBuffer.x - B,
-                  G = this._activeBuffer.lines
+                  K = this._activeBuffer.lines
                     .get(this._activeBuffer.ybase + this._activeBuffer.y)
                     .getString(z),
-                  J = new Uint32Array(G.length * N)
+                  J = new Uint32Array(K.length * N)
                 let Q = 0
-                for (let E = 0; E < G.length; ) {
-                  const K = G.codePointAt(E) || 0
-                  ;((J[Q++] = K), (E += K > 65535 ? 2 : 1))
+                for (let E = 0; E < K.length; ) {
+                  const G = K.codePointAt(E) || 0
+                  ;((J[Q++] = G), (E += G > 65535 ? 2 : 1))
                 }
                 let H = Q
                 for (let E = 1; E < N; ++E) (J.copyWithin(H, 0, Q), (H += Q))
@@ -16819,10 +17105,10 @@ WARNING: This link could potentially be dangerous`)
                       this._coreService.decPrivateModes.applicationCursorKeys = !0
                       break
                     case 2:
-                      ;(this._charsetService.setgCharset(0, d.DEFAULT_CHARSET),
-                        this._charsetService.setgCharset(1, d.DEFAULT_CHARSET),
-                        this._charsetService.setgCharset(2, d.DEFAULT_CHARSET),
-                        this._charsetService.setgCharset(3, d.DEFAULT_CHARSET))
+                      ;(this._charsetService.setgCharset(0, h.DEFAULT_CHARSET),
+                        this._charsetService.setgCharset(1, h.DEFAULT_CHARSET),
+                        this._charsetService.setgCharset(2, h.DEFAULT_CHARSET),
+                        this._charsetService.setgCharset(3, h.DEFAULT_CHARSET))
                       break
                     case 3:
                       this._optionsService.rawOptions.windowOptions.setWinLines &&
@@ -16975,11 +17261,11 @@ WARNING: This link could potentially be dangerous`)
               requestMode(C, A) {
                 const N = this._coreService.decPrivateModes,
                   { activeProtocol: B, activeEncoding: z } = this._coreMouseService,
-                  G = this._coreService,
+                  K = this._coreService,
                   { buffers: J, cols: Q } = this._bufferService,
                   { active: H, alt: E } = J,
-                  K = this._optionsService.rawOptions,
-                  X = (se) => (se ? 1 : 2),
+                  G = this._optionsService.rawOptions,
+                  q = (se) => (se ? 1 : 2),
                   Z = C.params[0]
                 return (
                   (Y = Z),
@@ -16987,16 +17273,16 @@ WARNING: This link could potentially be dangerous`)
                     ? Z === 2
                       ? 4
                       : Z === 4
-                        ? X(G.modes.insertMode)
+                        ? q(K.modes.insertMode)
                         : Z === 12
                           ? 3
                           : Z === 20
-                            ? X(K.convertEol)
+                            ? q(G.convertEol)
                             : 0
                     : Z === 1
-                      ? X(N.applicationCursorKeys)
+                      ? q(N.applicationCursorKeys)
                       : Z === 3
-                        ? K.windowOptions.setWinLines
+                        ? G.windowOptions.setWinLines
                           ? Q === 80
                             ? 2
                             : Q === 132
@@ -17004,47 +17290,47 @@ WARNING: This link could potentially be dangerous`)
                               : 0
                           : 0
                         : Z === 6
-                          ? X(N.origin)
+                          ? q(N.origin)
                           : Z === 7
-                            ? X(N.wraparound)
+                            ? q(N.wraparound)
                             : Z === 8
                               ? 3
                               : Z === 9
-                                ? X(B === 'X10')
+                                ? q(B === 'X10')
                                 : Z === 12
-                                  ? X(K.cursorBlink)
+                                  ? q(G.cursorBlink)
                                   : Z === 25
-                                    ? X(!G.isCursorHidden)
+                                    ? q(!K.isCursorHidden)
                                     : Z === 45
-                                      ? X(N.reverseWraparound)
+                                      ? q(N.reverseWraparound)
                                       : Z === 66
-                                        ? X(N.applicationKeypad)
+                                        ? q(N.applicationKeypad)
                                         : Z === 67
                                           ? 4
                                           : Z === 1e3
-                                            ? X(B === 'VT200')
+                                            ? q(B === 'VT200')
                                             : Z === 1002
-                                              ? X(B === 'DRAG')
+                                              ? q(B === 'DRAG')
                                               : Z === 1003
-                                                ? X(B === 'ANY')
+                                                ? q(B === 'ANY')
                                                 : Z === 1004
-                                                  ? X(N.sendFocus)
+                                                  ? q(N.sendFocus)
                                                   : Z === 1005
                                                     ? 4
                                                     : Z === 1006
-                                                      ? X(z === 'SGR')
+                                                      ? q(z === 'SGR')
                                                       : Z === 1015
                                                         ? 4
                                                         : Z === 1016
-                                                          ? X(z === 'SGR_PIXELS')
+                                                          ? q(z === 'SGR_PIXELS')
                                                           : Z === 1048
                                                             ? 1
                                                             : Z === 47 || Z === 1047 || Z === 1049
-                                                              ? X(H === E)
+                                                              ? q(H === E)
                                                               : Z === 2004
-                                                                ? X(N.bracketedPasteMode)
+                                                                ? q(N.bracketedPasteMode)
                                                                 : 0),
-                  G.triggerDataEvent(`${a.C0.ESC}[${A ? '' : '?'}${Y};${V}$y`),
+                  K.triggerDataEvent(`${a.C0.ESC}[${A ? '' : '?'}${Y};${V}$y`),
                   !0
                 )
                 var Y, V
@@ -17054,7 +17340,7 @@ WARNING: This link could potentially be dangerous`)
                   A === 2
                     ? ((C |= 50331648),
                       (C &= -16777216),
-                      (C |= c.AttributeData.fromColorRGB([N, B, z])))
+                      (C |= d.AttributeData.fromColorRGB([N, B, z])))
                     : A === 5 && ((C &= -50331904), (C |= 33554432 | (255 & N))),
                   C
                 )
@@ -17062,18 +17348,18 @@ WARNING: This link could potentially be dangerous`)
               _extractColor(C, A, N) {
                 const B = [0, 0, -1, 0, 0, 0]
                 let z = 0,
-                  G = 0
+                  K = 0
                 do {
-                  if (((B[G + z] = C.params[A + G]), C.hasSubParams(A + G))) {
-                    const J = C.getSubParams(A + G)
+                  if (((B[K + z] = C.params[A + K]), C.hasSubParams(A + K))) {
+                    const J = C.getSubParams(A + K)
                     let Q = 0
-                    do (B[1] === 5 && (z = 1), (B[G + Q + 1 + z] = J[Q]))
-                    while (++Q < J.length && Q + G + 1 + z < B.length)
+                    do (B[1] === 5 && (z = 1), (B[K + Q + 1 + z] = J[Q]))
+                    while (++Q < J.length && Q + K + 1 + z < B.length)
                     break
                   }
-                  if ((B[1] === 5 && G + z >= 2) || (B[1] === 2 && G + z >= 5)) break
+                  if ((B[1] === 5 && K + z >= 2) || (B[1] === 2 && K + z >= 5)) break
                   B[1] && (z = 1)
-                } while (++G + A < C.length && G + z < B.length)
+                } while (++K + A < C.length && K + z < B.length)
                 for (let J = 2; J < B.length; ++J) B[J] === -1 && (B[J] = 0)
                 switch (B[0]) {
                   case 38:
@@ -17092,7 +17378,7 @@ WARNING: This link could potentially be dangerous`)
                         B[5]
                       )))
                 }
-                return G
+                return K
               }
               _processUnderline(C, A) {
                 ;((A.extended = A.extended.clone()),
@@ -17349,12 +17635,12 @@ WARNING: This link could potentially be dangerous`)
                   const B = N.shift(),
                     z = N.shift()
                   if (/^\d+$/.exec(B)) {
-                    const G = parseInt(B)
-                    if (F(G))
-                      if (z === '?') A.push({ type: 0, index: G })
+                    const K = parseInt(B)
+                    if (F(K))
+                      if (z === '?') A.push({ type: 0, index: K })
                       else {
-                        const J = (0, y.parseColor)(z)
-                        J && A.push({ type: 1, index: G, color: J })
+                        const J = (0, S.parseColor)(z)
+                        J && A.push({ type: 1, index: K, color: J })
                       }
                   }
                 }
@@ -17371,7 +17657,7 @@ WARNING: This link could potentially be dangerous`)
                 this._getCurrentLinkId() && this._finishHyperlink()
                 const N = C.split(':')
                 let B
-                const z = N.findIndex((G) => G.startsWith('id='))
+                const z = N.findIndex((K) => K.startsWith('id='))
                 return (
                   z !== -1 && (B = N[z].slice(3) || void 0),
                   (this._curAttrData.extended = this._curAttrData.extended.clone()),
@@ -17396,7 +17682,7 @@ WARNING: This link could potentially be dangerous`)
                 for (let B = 0; B < N.length && !(A >= this._specialColors.length); ++B, ++A)
                   if (N[B] === '?') this._onColor.fire([{ type: 0, index: this._specialColors[A] }])
                   else {
-                    const z = (0, y.parseColor)(N[B])
+                    const z = (0, S.parseColor)(N[B])
                     z && this._onColor.fire([{ type: 1, index: this._specialColors[A], color: z }])
                   }
                 return !0
@@ -17452,7 +17738,7 @@ WARNING: This link could potentially be dangerous`)
               selectDefaultCharset() {
                 return (
                   this._charsetService.setgLevel(0),
-                  this._charsetService.setgCharset(0, d.DEFAULT_CHARSET),
+                  this._charsetService.setgCharset(0, h.DEFAULT_CHARSET),
                   !0
                 )
               }
@@ -17462,7 +17748,7 @@ WARNING: This link could potentially be dangerous`)
                   : (C[0] === '/' ||
                       this._charsetService.setgCharset(
                         L[C[0]],
-                        d.CHARSETS[C[1]] || d.DEFAULT_CHARSET
+                        h.CHARSETS[C[1]] || h.DEFAULT_CHARSET
                       ),
                     !0)
               }
@@ -17556,7 +17842,7 @@ WARNING: This link could potentially be dangerous`)
                 this._dirtyRowTracker.markRangeDirty(C, A)
               }
             }
-            i.InputHandler = T
+            i.InputHandler = O
             let $ = class {
               constructor(W) {
                 ;((this._bufferService = W), this.clearRange())
@@ -17569,7 +17855,7 @@ WARNING: This link could potentially be dangerous`)
                 W < this.start ? (this.start = W) : W > this.end && (this.end = W)
               }
               markRangeDirty(W, C) {
-                ;(W > C && ((R = W), (W = C), (C = R)),
+                ;(W > C && ((D = W), (W = C), (C = D)),
                   W < this.start && (this.start = W),
                   C > this.end && (this.end = C))
               }
@@ -17580,11 +17866,11 @@ WARNING: This link could potentially be dangerous`)
             function F(W) {
               return 0 <= W && W < 256
             }
-            $ = l([f(0, g.IBufferService)], $)
+            $ = l([u(0, v.IBufferService)], $)
           },
           844: (I, i) => {
             function o(l) {
-              for (const f of l) f.dispose()
+              for (const u of l) u.dispose()
               l.length = 0
             }
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
@@ -17607,8 +17893,8 @@ WARNING: This link could potentially be dangerous`)
                   return (this._disposables.push(l), l)
                 }
                 unregister(l) {
-                  const f = this._disposables.indexOf(l)
-                  f !== -1 && this._disposables.splice(f, 1)
+                  const u = this._disposables.indexOf(l)
+                  u !== -1 && this._disposables.splice(u, 1)
                 }
               }),
               (i.MutableDisposable = class {
@@ -17645,11 +17931,11 @@ WARNING: This link could potentially be dangerous`)
               constructor() {
                 this._data = {}
               }
-              set(f, a, d) {
-                ;(this._data[f] || (this._data[f] = {}), (this._data[f][a] = d))
+              set(u, a, h) {
+                ;(this._data[u] || (this._data[u] = {}), (this._data[u][a] = h))
               }
-              get(f, a) {
-                return this._data[f] ? this._data[f][a] : void 0
+              get(u, a) {
+                return this._data[u] ? this._data[u][a] : void 0
               }
               clear() {
                 this._data = {}
@@ -17660,12 +17946,12 @@ WARNING: This link could potentially be dangerous`)
                 constructor() {
                   this._data = new o()
                 }
-                set(l, f, a, d, u) {
-                  ;(this._data.get(l, f) || this._data.set(l, f, new o()),
-                    this._data.get(l, f).set(a, d, u))
+                set(l, u, a, h, f) {
+                  ;(this._data.get(l, u) || this._data.set(l, u, new o()),
+                    this._data.get(l, u).set(a, h, f))
                 }
-                get(l, f, a, d) {
-                  return this._data.get(l, f)?.get(a, d)
+                get(l, u, a, h) {
+                  return this._data.get(l, u)?.get(a, h)
                 }
                 clear() {
                   this._data.clear()
@@ -17694,8 +17980,8 @@ WARNING: This link could potentially be dangerous`)
               (i.isSafari = /^((?!chrome|android).)*safari/i.test(o)),
               (i.getSafariVersion = function () {
                 if (!i.isSafari) return 0
-                const f = o.match(/Version\/(\d+)/)
-                return f === null || f.length < 2 ? 0 : parseInt(f[1])
+                const u = o.match(/Version\/(\d+)/)
+                return u === null || u.length < 2 ? 0 : parseInt(u[1])
               }),
               (i.isMac = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'].includes(l)),
               (i.isIpad = l === 'iPad'),
@@ -17721,15 +18007,15 @@ WARNING: This link could potentially be dangerous`)
               }
               delete(l) {
                 if (this._array.length === 0) return !1
-                const f = this._getKey(l)
+                const u = this._getKey(l)
                 if (
-                  f === void 0 ||
-                  ((o = this._search(f)), o === -1) ||
-                  this._getKey(this._array[o]) !== f
+                  u === void 0 ||
+                  ((o = this._search(u)), o === -1) ||
+                  this._getKey(this._array[o]) !== u
                 )
                   return !1
                 do if (this._array[o] === l) return (this._array.splice(o, 1), !0)
-                while (++o < this._array.length && this._getKey(this._array[o]) === f)
+                while (++o < this._array.length && this._getKey(this._array[o]) === u)
                 return !1
               }
               *getKeyIterator(l) {
@@ -17741,34 +18027,34 @@ WARNING: This link could potentially be dangerous`)
                   do yield this._array[o]
                   while (++o < this._array.length && this._getKey(this._array[o]) === l)
               }
-              forEachByKey(l, f) {
+              forEachByKey(l, u) {
                 if (
                   this._array.length !== 0 &&
                   ((o = this._search(l)),
                   !(o < 0 || o >= this._array.length) && this._getKey(this._array[o]) === l)
                 )
-                  do f(this._array[o])
+                  do u(this._array[o])
                   while (++o < this._array.length && this._getKey(this._array[o]) === l)
               }
               values() {
                 return [...this._array].values()
               }
               _search(l) {
-                let f = 0,
+                let u = 0,
                   a = this._array.length - 1
-                for (; a >= f; ) {
-                  let d = (f + a) >> 1
-                  const u = this._getKey(this._array[d])
-                  if (u > l) a = d - 1
+                for (; a >= u; ) {
+                  let h = (u + a) >> 1
+                  const f = this._getKey(this._array[h])
+                  if (f > l) a = h - 1
                   else {
-                    if (!(u < l)) {
-                      for (; d > 0 && this._getKey(this._array[d - 1]) === l; ) d--
-                      return d
+                    if (!(f < l)) {
+                      for (; h > 0 && this._getKey(this._array[h - 1]) === l; ) h--
+                      return h
                     }
-                    f = d + 1
+                    u = h + 1
                   }
                 }
-                return f
+                return u
               }
             }
           },
@@ -17776,12 +18062,12 @@ WARNING: This link could potentially be dangerous`)
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.DebouncedIdleTask = i.IdleTaskQueue = i.PriorityTaskQueue = void 0))
             const l = o(6114)
-            class f {
+            class u {
               constructor() {
                 ;((this._tasks = []), (this._i = 0))
               }
-              enqueue(u) {
-                ;(this._tasks.push(u), this._start())
+              enqueue(f) {
+                ;(this._tasks.push(f), this._start())
               }
               flush() {
                 for (; this._i < this._tasks.length; ) this._tasks[this._i]() || this._i++
@@ -17797,20 +18083,20 @@ WARNING: This link could potentially be dangerous`)
                 this._idleCallback ||
                   (this._idleCallback = this._requestCallback(this._process.bind(this)))
               }
-              _process(u) {
+              _process(f) {
                 this._idleCallback = void 0
                 let x = 0,
-                  h = 0,
-                  t = u.timeRemaining(),
+                  c = 0,
+                  t = f.timeRemaining(),
                   n = 0
                 for (; this._i < this._tasks.length; ) {
                   if (
                     ((x = Date.now()),
                     this._tasks[this._i]() || this._i++,
                     (x = Math.max(1, Date.now() - x)),
-                    (h = Math.max(x, h)),
-                    (n = u.timeRemaining()),
-                    1.5 * h > n)
+                    (c = Math.max(x, c)),
+                    (n = f.timeRemaining()),
+                    1.5 * c > n)
                   )
                     return (
                       t - x < -20 &&
@@ -17824,27 +18110,27 @@ WARNING: This link could potentially be dangerous`)
                 this.clear()
               }
             }
-            class a extends f {
-              _requestCallback(u) {
-                return setTimeout(() => u(this._createDeadline(16)))
+            class a extends u {
+              _requestCallback(f) {
+                return setTimeout(() => f(this._createDeadline(16)))
               }
-              _cancelCallback(u) {
-                clearTimeout(u)
+              _cancelCallback(f) {
+                clearTimeout(f)
               }
-              _createDeadline(u) {
-                const x = Date.now() + u
+              _createDeadline(f) {
+                const x = Date.now() + f
                 return { timeRemaining: () => Math.max(0, x - Date.now()) }
               }
             }
             ;((i.PriorityTaskQueue = a),
               (i.IdleTaskQueue =
                 !l.isNode && 'requestIdleCallback' in window
-                  ? class extends f {
-                      _requestCallback(d) {
-                        return requestIdleCallback(d)
+                  ? class extends u {
+                      _requestCallback(h) {
+                        return requestIdleCallback(h)
                       }
-                      _cancelCallback(d) {
-                        cancelIdleCallback(d)
+                      _cancelCallback(h) {
+                        cancelIdleCallback(h)
                       }
                     }
                   : a),
@@ -17852,8 +18138,8 @@ WARNING: This link could potentially be dangerous`)
                 constructor() {
                   this._queue = new i.IdleTaskQueue()
                 }
-                set(d) {
-                  ;(this._queue.clear(), this._queue.enqueue(d))
+                set(h) {
+                  ;(this._queue.clear(), this._queue.enqueue(h))
                 }
                 flush() {
                   this._queue.flush()
@@ -17864,15 +18150,15 @@ WARNING: This link could potentially be dangerous`)
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.updateWindowsModeWrappedState = void 0))
             const l = o(643)
-            i.updateWindowsModeWrappedState = function (f) {
-              const a = f.buffer.lines.get(f.buffer.ybase + f.buffer.y - 1),
-                d = a?.get(f.cols - 1),
-                u = f.buffer.lines.get(f.buffer.ybase + f.buffer.y)
-              u &&
-                d &&
-                (u.isWrapped =
-                  d[l.CHAR_DATA_CODE_INDEX] !== l.NULL_CELL_CODE &&
-                  d[l.CHAR_DATA_CODE_INDEX] !== l.WHITESPACE_CELL_CODE)
+            i.updateWindowsModeWrappedState = function (u) {
+              const a = u.buffer.lines.get(u.buffer.ybase + u.buffer.y - 1),
+                h = a?.get(u.cols - 1),
+                f = u.buffer.lines.get(u.buffer.ybase + u.buffer.y)
+              f &&
+                h &&
+                (f.isWrapped =
+                  h[l.CHAR_DATA_CODE_INDEX] !== l.NULL_CELL_CODE &&
+                  h[l.CHAR_DATA_CODE_INDEX] !== l.WHITESPACE_CELL_CODE)
             }
           },
           3734: (I, i) => {
@@ -18059,8 +18345,8 @@ WARNING: This link could potentially be dangerous`)
               set underlineVariantOffset(a) {
                 ;((this._ext &= 536870911), (this._ext |= (a << 29) & 3758096384))
               }
-              constructor(a = 0, d = 0) {
-                ;((this._ext = 0), (this._urlId = 0), (this._ext = a), (this._urlId = d))
+              constructor(a = 0, h = 0) {
+                ;((this._ext = 0), (this._urlId = 0), (this._ext = a), (this._urlId = h))
               }
               clone() {
                 return new l(this._ext, this._urlId)
@@ -18075,20 +18361,20 @@ WARNING: This link could potentially be dangerous`)
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.Buffer = i.MAX_BUFFER_SIZE = void 0))
             const l = o(6349),
-              f = o(7226),
+              u = o(7226),
               a = o(3734),
-              d = o(8437),
-              u = o(4634),
+              h = o(8437),
+              f = o(4634),
               x = o(511),
-              h = o(643),
+              c = o(643),
               t = o(4863),
               n = o(7116)
             ;((i.MAX_BUFFER_SIZE = 4294967295),
               (i.Buffer = class {
-                constructor(s, r, c) {
+                constructor(s, r, d) {
                   ;((this._hasScrollback = s),
                     (this._optionsService = r),
-                    (this._bufferService = c),
+                    (this._bufferService = d),
                     (this.ydisp = 0),
                     (this.ybase = 0),
                     (this.y = 0),
@@ -18096,23 +18382,23 @@ WARNING: This link could potentially be dangerous`)
                     (this.tabs = {}),
                     (this.savedY = 0),
                     (this.savedX = 0),
-                    (this.savedCurAttrData = d.DEFAULT_ATTR_DATA.clone()),
+                    (this.savedCurAttrData = h.DEFAULT_ATTR_DATA.clone()),
                     (this.savedCharset = n.DEFAULT_CHARSET),
                     (this.markers = []),
                     (this._nullCell = x.CellData.fromCharData([
                       0,
-                      h.NULL_CELL_CHAR,
-                      h.NULL_CELL_WIDTH,
-                      h.NULL_CELL_CODE
+                      c.NULL_CELL_CHAR,
+                      c.NULL_CELL_WIDTH,
+                      c.NULL_CELL_CODE
                     ])),
                     (this._whitespaceCell = x.CellData.fromCharData([
                       0,
-                      h.WHITESPACE_CELL_CHAR,
-                      h.WHITESPACE_CELL_WIDTH,
-                      h.WHITESPACE_CELL_CODE
+                      c.WHITESPACE_CELL_CHAR,
+                      c.WHITESPACE_CELL_WIDTH,
+                      c.WHITESPACE_CELL_CODE
                     ])),
                     (this._isClearing = !1),
-                    (this._memoryCleanupQueue = new f.IdleTaskQueue()),
+                    (this._memoryCleanupQueue = new u.IdleTaskQueue()),
                     (this._memoryCleanupPosition = 0),
                     (this._cols = this._bufferService.cols),
                     (this._rows = this._bufferService.rows),
@@ -18146,7 +18432,7 @@ WARNING: This link could potentially be dangerous`)
                   )
                 }
                 getBlankLine(s, r) {
-                  return new d.BufferLine(this._bufferService.cols, this.getNullCell(s), r)
+                  return new h.BufferLine(this._bufferService.cols, this.getNullCell(s), r)
                 }
                 get hasScrollback() {
                   return this._hasScrollback && this.lines.maxLength > this._rows
@@ -18162,7 +18448,7 @@ WARNING: This link could potentially be dangerous`)
                 }
                 fillViewportRows(s) {
                   if (this.lines.length === 0) {
-                    s === void 0 && (s = d.DEFAULT_ATTR_DATA)
+                    s === void 0 && (s = h.DEFAULT_ATTR_DATA)
                     let r = this._rows
                     for (; r--; ) this.lines.push(this.getBlankLine(s))
                   }
@@ -18178,15 +18464,15 @@ WARNING: This link could potentially be dangerous`)
                     this.setupTabStops())
                 }
                 resize(s, r) {
-                  const c = this.getNullCell(d.DEFAULT_ATTR_DATA)
-                  let g = 0
-                  const m = this._getCorrectBufferLength(r)
+                  const d = this.getNullCell(h.DEFAULT_ATTR_DATA)
+                  let v = 0
+                  const _ = this._getCorrectBufferLength(r)
                   if (
-                    (m > this.lines.maxLength && (this.lines.maxLength = m), this.lines.length > 0)
+                    (_ > this.lines.maxLength && (this.lines.maxLength = _), this.lines.length > 0)
                   ) {
                     if (this._cols < s)
                       for (let p = 0; p < this.lines.length; p++)
-                        g += +this.lines.get(p).resize(s, c)
+                        v += +this.lines.get(p).resize(s, d)
                     let b = 0
                     if (this._rows < r)
                       for (let p = this._rows; p < r; p++)
@@ -18194,24 +18480,24 @@ WARNING: This link could potentially be dangerous`)
                           (this._optionsService.rawOptions.windowsMode ||
                           this._optionsService.rawOptions.windowsPty.backend !== void 0 ||
                           this._optionsService.rawOptions.windowsPty.buildNumber !== void 0
-                            ? this.lines.push(new d.BufferLine(s, c))
+                            ? this.lines.push(new h.BufferLine(s, d))
                             : this.ybase > 0 && this.lines.length <= this.ybase + this.y + b + 1
                               ? (this.ybase--, b++, this.ydisp > 0 && this.ydisp--)
-                              : this.lines.push(new d.BufferLine(s, c)))
+                              : this.lines.push(new h.BufferLine(s, d)))
                     else
                       for (let p = this._rows; p > r; p--)
                         this.lines.length > r + this.ybase &&
                           (this.lines.length > this.ybase + this.y + 1
                             ? this.lines.pop()
                             : (this.ybase++, this.ydisp++))
-                    if (m < this.lines.maxLength) {
-                      const p = this.lines.length - m
+                    if (_ < this.lines.maxLength) {
+                      const p = this.lines.length - _
                       ;(p > 0 &&
                         (this.lines.trimStart(p),
                         (this.ybase = Math.max(this.ybase - p, 0)),
                         (this.ydisp = Math.max(this.ydisp - p, 0)),
                         (this.savedY = Math.max(this.savedY - p, 0))),
-                        (this.lines.maxLength = m))
+                        (this.lines.maxLength = _))
                     }
                     ;((this.x = Math.min(this.x, s - 1)),
                       (this.y = Math.min(this.y, r - 1)),
@@ -18223,11 +18509,11 @@ WARNING: This link could potentially be dangerous`)
                     ((this.scrollBottom = r - 1),
                     this._isReflowEnabled && (this._reflow(s, r), this._cols > s))
                   )
-                    for (let b = 0; b < this.lines.length; b++) g += +this.lines.get(b).resize(s, c)
+                    for (let b = 0; b < this.lines.length; b++) v += +this.lines.get(b).resize(s, d)
                   ;((this._cols = s),
                     (this._rows = r),
                     this._memoryCleanupQueue.clear(),
-                    g > 0.1 * this.lines.length &&
+                    v > 0.1 * this.lines.length &&
                       ((this._memoryCleanupPosition = 0),
                       this._memoryCleanupQueue.enqueue(() => this._batchedMemoryCleanup())))
                 }
@@ -18255,66 +18541,66 @@ WARNING: This link could potentially be dangerous`)
                     (s > this._cols ? this._reflowLarger(s, r) : this._reflowSmaller(s, r))
                 }
                 _reflowLarger(s, r) {
-                  const c = (0, u.reflowLargerGetLinesToRemove)(
+                  const d = (0, f.reflowLargerGetLinesToRemove)(
                     this.lines,
                     this._cols,
                     s,
                     this.ybase + this.y,
-                    this.getNullCell(d.DEFAULT_ATTR_DATA)
+                    this.getNullCell(h.DEFAULT_ATTR_DATA)
                   )
-                  if (c.length > 0) {
-                    const g = (0, u.reflowLargerCreateNewLayout)(this.lines, c)
-                    ;((0, u.reflowLargerApplyNewLayout)(this.lines, g.layout),
-                      this._reflowLargerAdjustViewport(s, r, g.countRemoved))
+                  if (d.length > 0) {
+                    const v = (0, f.reflowLargerCreateNewLayout)(this.lines, d)
+                    ;((0, f.reflowLargerApplyNewLayout)(this.lines, v.layout),
+                      this._reflowLargerAdjustViewport(s, r, v.countRemoved))
                   }
                 }
-                _reflowLargerAdjustViewport(s, r, c) {
-                  const g = this.getNullCell(d.DEFAULT_ATTR_DATA)
-                  let m = c
-                  for (; m-- > 0; )
+                _reflowLargerAdjustViewport(s, r, d) {
+                  const v = this.getNullCell(h.DEFAULT_ATTR_DATA)
+                  let _ = d
+                  for (; _-- > 0; )
                     this.ybase === 0
                       ? (this.y > 0 && this.y--,
-                        this.lines.length < r && this.lines.push(new d.BufferLine(s, g)))
+                        this.lines.length < r && this.lines.push(new h.BufferLine(s, v)))
                       : (this.ydisp === this.ybase && this.ydisp--, this.ybase--)
-                  this.savedY = Math.max(this.savedY - c, 0)
+                  this.savedY = Math.max(this.savedY - d, 0)
                 }
                 _reflowSmaller(s, r) {
-                  const c = this.getNullCell(d.DEFAULT_ATTR_DATA),
-                    g = []
-                  let m = 0
+                  const d = this.getNullCell(h.DEFAULT_ATTR_DATA),
+                    v = []
+                  let _ = 0
                   for (let b = this.lines.length - 1; b >= 0; b--) {
                     let p = this.lines.get(b)
                     if (!p || (!p.isWrapped && p.getTrimmedLength() <= s)) continue
-                    const y = [p]
-                    for (; p.isWrapped && b > 0; ) ((p = this.lines.get(--b)), y.unshift(p))
+                    const S = [p]
+                    for (; p.isWrapped && b > 0; ) ((p = this.lines.get(--b)), S.unshift(p))
                     const L = this.ybase + this.y
-                    if (L >= b && L < b + y.length) continue
-                    const M = y[y.length - 1].getTrimmedLength(),
-                      P = (0, u.reflowSmallerGetNewLineLengths)(y, this._cols, s),
-                      j = P.length - y.length
-                    let R
-                    R =
+                    if (L >= b && L < b + S.length) continue
+                    const M = S[S.length - 1].getTrimmedLength(),
+                      P = (0, f.reflowSmallerGetNewLineLengths)(S, this._cols, s),
+                      j = P.length - S.length
+                    let D
+                    D =
                       this.ybase === 0 && this.y !== this.lines.length - 1
                         ? Math.max(0, this.y - this.lines.maxLength + j)
                         : Math.max(0, this.lines.length - this.lines.maxLength + j)
-                    const T = []
+                    const O = []
                     for (let N = 0; N < j; N++) {
-                      const B = this.getBlankLine(d.DEFAULT_ATTR_DATA, !0)
-                      T.push(B)
+                      const B = this.getBlankLine(h.DEFAULT_ATTR_DATA, !0)
+                      O.push(B)
                     }
-                    ;(T.length > 0 &&
-                      (g.push({ start: b + y.length + m, newLines: T }), (m += T.length)),
-                      y.push(...T))
+                    ;(O.length > 0 &&
+                      (v.push({ start: b + S.length + _, newLines: O }), (_ += O.length)),
+                      S.push(...O))
                     let $ = P.length - 1,
                       F = P[$]
                     F === 0 && ($--, (F = P[$]))
-                    let W = y.length - j - 1,
+                    let W = S.length - j - 1,
                       C = M
                     for (; W >= 0; ) {
                       const N = Math.min(C, F)
-                      if (y[$] === void 0) break
+                      if (S[$] === void 0) break
                       if (
-                        (y[$].copyCellsFrom(y[W], C - N, F - N, N, !0),
+                        (S[$].copyCellsFrom(S[W], C - N, F - N, N, !0),
                         (F -= N),
                         F === 0 && ($--, (F = P[$])),
                         (C -= N),
@@ -18322,56 +18608,56 @@ WARNING: This link could potentially be dangerous`)
                       ) {
                         W--
                         const B = Math.max(W, 0)
-                        C = (0, u.getWrappedLineTrimmedLength)(y, B, this._cols)
+                        C = (0, f.getWrappedLineTrimmedLength)(S, B, this._cols)
                       }
                     }
-                    for (let N = 0; N < y.length; N++) P[N] < s && y[N].setCell(P[N], c)
-                    let A = j - R
+                    for (let N = 0; N < S.length; N++) P[N] < s && S[N].setCell(P[N], d)
+                    let A = j - D
                     for (; A-- > 0; )
                       this.ybase === 0
                         ? this.y < r - 1
                           ? (this.y++, this.lines.pop())
                           : (this.ybase++, this.ydisp++)
-                        : this.ybase < Math.min(this.lines.maxLength, this.lines.length + m) - r &&
+                        : this.ybase < Math.min(this.lines.maxLength, this.lines.length + _) - r &&
                           (this.ybase === this.ydisp && this.ydisp++, this.ybase++)
                     this.savedY = Math.min(this.savedY + j, this.ybase + r - 1)
                   }
-                  if (g.length > 0) {
+                  if (v.length > 0) {
                     const b = [],
                       p = []
                     for (let $ = 0; $ < this.lines.length; $++) p.push(this.lines.get($))
-                    const y = this.lines.length
-                    let L = y - 1,
+                    const S = this.lines.length
+                    let L = S - 1,
                       M = 0,
-                      P = g[M]
-                    this.lines.length = Math.min(this.lines.maxLength, this.lines.length + m)
+                      P = v[M]
+                    this.lines.length = Math.min(this.lines.maxLength, this.lines.length + _)
                     let j = 0
-                    for (let $ = Math.min(this.lines.maxLength - 1, y + m - 1); $ >= 0; $--)
+                    for (let $ = Math.min(this.lines.maxLength - 1, S + _ - 1); $ >= 0; $--)
                       if (P && P.start > L + j) {
                         for (let F = P.newLines.length - 1; F >= 0; F--)
                           this.lines.set($--, P.newLines[F])
                         ;($++,
                           b.push({ index: L + 1, amount: P.newLines.length }),
                           (j += P.newLines.length),
-                          (P = g[++M]))
+                          (P = v[++M]))
                       } else this.lines.set($, p[L--])
-                    let R = 0
+                    let D = 0
                     for (let $ = b.length - 1; $ >= 0; $--)
-                      ((b[$].index += R), this.lines.onInsertEmitter.fire(b[$]), (R += b[$].amount))
-                    const T = Math.max(0, y + m - this.lines.maxLength)
-                    T > 0 && this.lines.onTrimEmitter.fire(T)
+                      ((b[$].index += D), this.lines.onInsertEmitter.fire(b[$]), (D += b[$].amount))
+                    const O = Math.max(0, S + _ - this.lines.maxLength)
+                    O > 0 && this.lines.onTrimEmitter.fire(O)
                   }
                 }
-                translateBufferLineToString(s, r, c = 0, g) {
-                  const m = this.lines.get(s)
-                  return m ? m.translateToString(r, c, g) : ''
+                translateBufferLineToString(s, r, d = 0, v) {
+                  const _ = this.lines.get(s)
+                  return _ ? _.translateToString(r, d, v) : ''
                 }
                 getWrappedRangeForLine(s) {
                   let r = s,
-                    c = s
+                    d = s
                   for (; r > 0 && this.lines.get(r).isWrapped; ) r--
-                  for (; c + 1 < this.lines.length && this.lines.get(c + 1).isWrapped; ) c++
-                  return { first: r, last: c }
+                  for (; d + 1 < this.lines.length && this.lines.get(d + 1).isWrapped; ) d++
+                  return { first: r, last: d }
                 }
                 setupTabStops(s) {
                   for (
@@ -18409,19 +18695,19 @@ WARNING: This link could potentially be dangerous`)
                   return (
                     this.markers.push(r),
                     r.register(
-                      this.lines.onTrim((c) => {
-                        ;((r.line -= c), r.line < 0 && r.dispose())
+                      this.lines.onTrim((d) => {
+                        ;((r.line -= d), r.line < 0 && r.dispose())
                       })
                     ),
                     r.register(
-                      this.lines.onInsert((c) => {
-                        r.line >= c.index && (r.line += c.amount)
+                      this.lines.onInsert((d) => {
+                        r.line >= d.index && (r.line += d.amount)
                       })
                     ),
                     r.register(
-                      this.lines.onDelete((c) => {
-                        ;(r.line >= c.index && r.line < c.index + c.amount && r.dispose(),
-                          r.line > c.index && (r.line -= c.amount))
+                      this.lines.onDelete((d) => {
+                        ;(r.line >= d.index && r.line < d.index + d.amount && r.dispose(),
+                          r.line > d.index && (r.line -= d.amount))
                       })
                     ),
                     r.register(r.onDispose(() => this._removeMarker(r))),
@@ -18437,11 +18723,11 @@ WARNING: This link could potentially be dangerous`)
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.BufferLine = i.DEFAULT_ATTR_DATA = void 0))
             const l = o(3734),
-              f = o(511),
+              u = o(511),
               a = o(643),
-              d = o(482)
+              h = o(482)
             i.DEFAULT_ATTR_DATA = Object.freeze(new l.AttributeData())
-            let u = 0
+            let f = 0
             class x {
               constructor(t, n, s = !1) {
                 ;((this.isWrapped = s),
@@ -18450,13 +18736,13 @@ WARNING: This link could potentially be dangerous`)
                   (this._data = new Uint32Array(3 * t)))
                 const r =
                   n ||
-                  f.CellData.fromCharData([
+                  u.CellData.fromCharData([
                     0,
                     a.NULL_CELL_CHAR,
                     a.NULL_CELL_WIDTH,
                     a.NULL_CELL_CODE
                   ])
-                for (let c = 0; c < t; ++c) this.setCell(c, r)
+                for (let d = 0; d < t; ++d) this.setCell(d, r)
                 this.length = t
               }
               get(t) {
@@ -18464,7 +18750,7 @@ WARNING: This link could potentially be dangerous`)
                   s = 2097151 & n
                 return [
                   this._data[3 * t + 1],
-                  2097152 & n ? this._combined[t] : s ? (0, d.stringFromCodePoint)(s) : '',
+                  2097152 & n ? this._combined[t] : s ? (0, h.stringFromCodePoint)(s) : '',
                   n >> 22,
                   2097152 & n ? this._combined[t].charCodeAt(this._combined[t].length - 1) : s
                 ]
@@ -18507,7 +18793,7 @@ WARNING: This link could potentially be dangerous`)
                 return 2097152 & n
                   ? this._combined[t]
                   : 2097151 & n
-                    ? (0, d.stringFromCodePoint)(2097151 & n)
+                    ? (0, h.stringFromCodePoint)(2097151 & n)
                     : ''
               }
               isProtected(t) {
@@ -18515,10 +18801,10 @@ WARNING: This link could potentially be dangerous`)
               }
               loadCell(t, n) {
                 return (
-                  (u = 3 * t),
-                  (n.content = this._data[u + 0]),
-                  (n.fg = this._data[u + 1]),
-                  (n.bg = this._data[u + 2]),
+                  (f = 3 * t),
+                  (n.content = this._data[f + 0]),
+                  (n.fg = this._data[f + 1]),
+                  (n.bg = this._data[f + 2]),
                   2097152 & n.content && (n.combinedData = this._combined[t]),
                   268435456 & n.bg && (n.extended = this._extendedAttrs[t]),
                   n
@@ -18540,10 +18826,10 @@ WARNING: This link could potentially be dangerous`)
               addCodepointToCell(t, n, s) {
                 let r = this._data[3 * t + 0]
                 ;(2097152 & r
-                  ? (this._combined[t] += (0, d.stringFromCodePoint)(n))
+                  ? (this._combined[t] += (0, h.stringFromCodePoint)(n))
                   : 2097151 & r
                     ? ((this._combined[t] =
-                        (0, d.stringFromCodePoint)(2097151 & r) + (0, d.stringFromCodePoint)(n)),
+                        (0, h.stringFromCodePoint)(2097151 & r) + (0, h.stringFromCodePoint)(n)),
                       (r &= -2097152),
                       (r |= 2097152))
                     : (r = n | 4194304),
@@ -18557,20 +18843,20 @@ WARNING: This link could potentially be dangerous`)
                     this.setCellFromCodepoint(t - 1, 0, 1, s),
                   n < this.length - t)
                 ) {
-                  const r = new f.CellData()
-                  for (let c = this.length - t - n - 1; c >= 0; --c)
-                    this.setCell(t + n + c, this.loadCell(t + c, r))
-                  for (let c = 0; c < n; ++c) this.setCell(t + c, s)
+                  const r = new u.CellData()
+                  for (let d = this.length - t - n - 1; d >= 0; --d)
+                    this.setCell(t + n + d, this.loadCell(t + d, r))
+                  for (let d = 0; d < n; ++d) this.setCell(t + d, s)
                 } else for (let r = t; r < this.length; ++r) this.setCell(r, s)
                 this.getWidth(this.length - 1) === 2 &&
                   this.setCellFromCodepoint(this.length - 1, 0, 1, s)
               }
               deleteCells(t, n, s) {
                 if (((t %= this.length), n < this.length - t)) {
-                  const r = new f.CellData()
-                  for (let c = 0; c < this.length - t - n; ++c)
-                    this.setCell(t + c, this.loadCell(t + n + c, r))
-                  for (let c = this.length - n; c < this.length; ++c) this.setCell(c, s)
+                  const r = new u.CellData()
+                  for (let d = 0; d < this.length - t - n; ++d)
+                    this.setCell(t + d, this.loadCell(t + n + d, r))
+                  for (let d = this.length - n; d < this.length; ++d) this.setCell(d, s)
                 } else for (let r = t; r < this.length; ++r) this.setCell(r, s)
                 ;(t && this.getWidth(t - 1) === 2 && this.setCellFromCodepoint(t - 1, 0, 1, s),
                   this.getWidth(t) !== 0 ||
@@ -18618,14 +18904,14 @@ WARNING: This link could potentially be dangerous`)
                 } else {
                   this._data = this._data.subarray(0, s)
                   const r = Object.keys(this._combined)
-                  for (let g = 0; g < r.length; g++) {
-                    const m = parseInt(r[g], 10)
-                    m >= t && delete this._combined[m]
+                  for (let v = 0; v < r.length; v++) {
+                    const _ = parseInt(r[v], 10)
+                    _ >= t && delete this._combined[_]
                   }
-                  const c = Object.keys(this._extendedAttrs)
-                  for (let g = 0; g < c.length; g++) {
-                    const m = parseInt(c[g], 10)
-                    m >= t && delete this._extendedAttrs[m]
+                  const d = Object.keys(this._extendedAttrs)
+                  for (let v = 0; v < d.length; v++) {
+                    const _ = parseInt(d[v], 10)
+                    _ >= t && delete this._extendedAttrs[_]
                   }
                 }
                 return ((this.length = t), 4 * s * 2 < this._data.buffer.byteLength)
@@ -18674,23 +18960,23 @@ WARNING: This link could potentially be dangerous`)
                     return t + (this._data[3 * t + 0] >> 22)
                 return 0
               }
-              copyCellsFrom(t, n, s, r, c) {
-                const g = t._data
-                if (c)
+              copyCellsFrom(t, n, s, r, d) {
+                const v = t._data
+                if (d)
                   for (let b = r - 1; b >= 0; b--) {
-                    for (let p = 0; p < 3; p++) this._data[3 * (s + b) + p] = g[3 * (n + b) + p]
-                    268435456 & g[3 * (n + b) + 2] &&
+                    for (let p = 0; p < 3; p++) this._data[3 * (s + b) + p] = v[3 * (n + b) + p]
+                    268435456 & v[3 * (n + b) + 2] &&
                       (this._extendedAttrs[s + b] = t._extendedAttrs[n + b])
                   }
                 else
                   for (let b = 0; b < r; b++) {
-                    for (let p = 0; p < 3; p++) this._data[3 * (s + b) + p] = g[3 * (n + b) + p]
-                    268435456 & g[3 * (n + b) + 2] &&
+                    for (let p = 0; p < 3; p++) this._data[3 * (s + b) + p] = v[3 * (n + b) + p]
+                    268435456 & v[3 * (n + b) + 2] &&
                       (this._extendedAttrs[s + b] = t._extendedAttrs[n + b])
                   }
-                const m = Object.keys(t._combined)
-                for (let b = 0; b < m.length; b++) {
-                  const p = parseInt(m[b], 10)
+                const _ = Object.keys(t._combined)
+                for (let b = 0; b < _.length; b++) {
+                  const p = parseInt(_[b], 10)
                   p >= n && (this._combined[p - n + s] = t._combined[p])
                 }
               }
@@ -18699,20 +18985,20 @@ WARNING: This link could potentially be dangerous`)
                   (s = s ?? this.length),
                   t && (s = Math.min(s, this.getTrimmedLength())),
                   r && (r.length = 0))
-                let c = ''
+                let d = ''
                 for (; n < s; ) {
-                  const g = this._data[3 * n + 0],
-                    m = 2097151 & g,
+                  const v = this._data[3 * n + 0],
+                    _ = 2097151 & v,
                     b =
-                      2097152 & g
+                      2097152 & v
                         ? this._combined[n]
-                        : m
-                          ? (0, d.stringFromCodePoint)(m)
+                        : _
+                          ? (0, h.stringFromCodePoint)(_)
                           : a.WHITESPACE_CELL_CHAR
-                  if (((c += b), r)) for (let p = 0; p < b.length; ++p) r.push(n)
-                  n += g >> 22 || 1
+                  if (((d += b), r)) for (let p = 0; p < b.length; ++p) r.push(n)
+                  n += v >> 22 || 1
                 }
-                return (r && r.push(n), c)
+                return (r && r.push(n), d)
               }
             }
             i.BufferLine = x
@@ -18729,11 +19015,11 @@ WARNING: This link could potentially be dangerous`)
               }))
           },
           4634: (I, i) => {
-            function o(l, f, a) {
-              if (f === l.length - 1) return l[f].getTrimmedLength()
-              const d = !l[f].hasContent(a - 1) && l[f].getWidth(a - 1) === 1,
-                u = l[f + 1].getWidth(0) === 2
-              return d && u ? a - 1 : a
+            function o(l, u, a) {
+              if (u === l.length - 1) return l[u].getTrimmedLength()
+              const h = !l[u].hasContent(a - 1) && l[u].getWidth(a - 1) === 1,
+                f = l[u + 1].getWidth(0) === 2
+              return h && f ? a - 1 : a
             }
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.getWrappedLineTrimmedLength =
@@ -18742,100 +19028,100 @@ WARNING: This link could potentially be dangerous`)
                 i.reflowLargerCreateNewLayout =
                 i.reflowLargerGetLinesToRemove =
                   void 0),
-              (i.reflowLargerGetLinesToRemove = function (l, f, a, d, u) {
+              (i.reflowLargerGetLinesToRemove = function (l, u, a, h, f) {
                 const x = []
-                for (let h = 0; h < l.length - 1; h++) {
-                  let t = h,
+                for (let c = 0; c < l.length - 1; c++) {
+                  let t = c,
                     n = l.get(++t)
                   if (!n.isWrapped) continue
-                  const s = [l.get(h)]
+                  const s = [l.get(c)]
                   for (; t < l.length && n.isWrapped; ) (s.push(n), (n = l.get(++t)))
-                  if (d >= h && d < t) {
-                    h += s.length - 1
+                  if (h >= c && h < t) {
+                    c += s.length - 1
                     continue
                   }
                   let r = 0,
-                    c = o(s, r, f),
-                    g = 1,
-                    m = 0
-                  for (; g < s.length; ) {
-                    const p = o(s, g, f),
-                      y = p - m,
-                      L = a - c,
-                      M = Math.min(y, L)
-                    ;(s[r].copyCellsFrom(s[g], m, c, M, !1),
-                      (c += M),
-                      c === a && (r++, (c = 0)),
-                      (m += M),
-                      m === p && (g++, (m = 0)),
-                      c === 0 &&
+                    d = o(s, r, u),
+                    v = 1,
+                    _ = 0
+                  for (; v < s.length; ) {
+                    const p = o(s, v, u),
+                      S = p - _,
+                      L = a - d,
+                      M = Math.min(S, L)
+                    ;(s[r].copyCellsFrom(s[v], _, d, M, !1),
+                      (d += M),
+                      d === a && (r++, (d = 0)),
+                      (_ += M),
+                      _ === p && (v++, (_ = 0)),
+                      d === 0 &&
                         r !== 0 &&
                         s[r - 1].getWidth(a - 1) === 2 &&
-                        (s[r].copyCellsFrom(s[r - 1], a - 1, c++, 1, !1),
-                        s[r - 1].setCell(a - 1, u)))
+                        (s[r].copyCellsFrom(s[r - 1], a - 1, d++, 1, !1),
+                        s[r - 1].setCell(a - 1, f)))
                   }
-                  s[r].replaceCells(c, a, u)
+                  s[r].replaceCells(d, a, f)
                   let b = 0
                   for (let p = s.length - 1; p > 0 && (p > r || s[p].getTrimmedLength() === 0); p--)
                     b++
-                  ;(b > 0 && (x.push(h + s.length - b), x.push(b)), (h += s.length - 1))
+                  ;(b > 0 && (x.push(c + s.length - b), x.push(b)), (c += s.length - 1))
                 }
                 return x
               }),
-              (i.reflowLargerCreateNewLayout = function (l, f) {
+              (i.reflowLargerCreateNewLayout = function (l, u) {
                 const a = []
-                let d = 0,
-                  u = f[d],
+                let h = 0,
+                  f = u[h],
                   x = 0
-                for (let h = 0; h < l.length; h++)
-                  if (u === h) {
-                    const t = f[++d]
-                    ;(l.onDeleteEmitter.fire({ index: h - x, amount: t }),
-                      (h += t - 1),
+                for (let c = 0; c < l.length; c++)
+                  if (f === c) {
+                    const t = u[++h]
+                    ;(l.onDeleteEmitter.fire({ index: c - x, amount: t }),
+                      (c += t - 1),
                       (x += t),
-                      (u = f[++d]))
-                  } else a.push(h)
+                      (f = u[++h]))
+                  } else a.push(c)
                 return { layout: a, countRemoved: x }
               }),
-              (i.reflowLargerApplyNewLayout = function (l, f) {
+              (i.reflowLargerApplyNewLayout = function (l, u) {
                 const a = []
-                for (let d = 0; d < f.length; d++) a.push(l.get(f[d]))
-                for (let d = 0; d < a.length; d++) l.set(d, a[d])
-                l.length = f.length
+                for (let h = 0; h < u.length; h++) a.push(l.get(u[h]))
+                for (let h = 0; h < a.length; h++) l.set(h, a[h])
+                l.length = u.length
               }),
-              (i.reflowSmallerGetNewLineLengths = function (l, f, a) {
-                const d = [],
-                  u = l.map((n, s) => o(l, s, f)).reduce((n, s) => n + s)
+              (i.reflowSmallerGetNewLineLengths = function (l, u, a) {
+                const h = [],
+                  f = l.map((n, s) => o(l, s, u)).reduce((n, s) => n + s)
                 let x = 0,
-                  h = 0,
+                  c = 0,
                   t = 0
-                for (; t < u; ) {
-                  if (u - t < a) {
-                    d.push(u - t)
+                for (; t < f; ) {
+                  if (f - t < a) {
+                    h.push(f - t)
                     break
                   }
                   x += a
-                  const n = o(l, h, f)
-                  x > n && ((x -= n), h++)
-                  const s = l[h].getWidth(x - 1) === 2
+                  const n = o(l, c, u)
+                  x > n && ((x -= n), c++)
+                  const s = l[c].getWidth(x - 1) === 2
                   s && x--
                   const r = s ? a - 1 : a
-                  ;(d.push(r), (t += r))
+                  ;(h.push(r), (t += r))
                 }
-                return d
+                return h
               }),
               (i.getWrappedLineTrimmedLength = o))
           },
           5295: (I, i, o) => {
             ;(Object.defineProperty(i, '__esModule', { value: !0 }), (i.BufferSet = void 0))
             const l = o(8460),
-              f = o(844),
+              u = o(844),
               a = o(9092)
-            class d extends f.Disposable {
-              constructor(x, h) {
+            class h extends u.Disposable {
+              constructor(x, c) {
                 ;(super(),
                   (this._optionsService = x),
-                  (this._bufferService = h),
+                  (this._bufferService = c),
                   (this._onBufferActivate = this.register(new l.EventEmitter())),
                   (this.onBufferActivate = this._onBufferActivate.event),
                   this.reset(),
@@ -18893,21 +19179,21 @@ WARNING: This link could potentially be dangerous`)
                     inactiveBuffer: this._normal
                   }))
               }
-              resize(x, h) {
-                ;(this._normal.resize(x, h), this._alt.resize(x, h), this.setupTabStops(x))
+              resize(x, c) {
+                ;(this._normal.resize(x, c), this._alt.resize(x, c), this.setupTabStops(x))
               }
               setupTabStops(x) {
                 ;(this._normal.setupTabStops(x), this._alt.setupTabStops(x))
               }
             }
-            i.BufferSet = d
+            i.BufferSet = h
           },
           511: (I, i, o) => {
             ;(Object.defineProperty(i, '__esModule', { value: !0 }), (i.CellData = void 0))
             const l = o(482),
-              f = o(643),
+              u = o(643),
               a = o(3734)
-            class d extends a.AttributeData {
+            class h extends a.AttributeData {
               constructor() {
                 ;(super(...arguments),
                   (this.content = 0),
@@ -18917,8 +19203,8 @@ WARNING: This link could potentially be dangerous`)
                   (this.combinedData = ''))
               }
               static fromCharData(x) {
-                const h = new d()
-                return (h.setFromCharData(x), h)
+                const c = new h()
+                return (c.setFromCharData(x), c)
               }
               isCombined() {
                 return 2097152 & this.content
@@ -18939,31 +19225,31 @@ WARNING: This link could potentially be dangerous`)
                   : 2097151 & this.content
               }
               setFromCharData(x) {
-                ;((this.fg = x[f.CHAR_DATA_ATTR_INDEX]), (this.bg = 0))
-                let h = !1
-                if (x[f.CHAR_DATA_CHAR_INDEX].length > 2) h = !0
-                else if (x[f.CHAR_DATA_CHAR_INDEX].length === 2) {
-                  const t = x[f.CHAR_DATA_CHAR_INDEX].charCodeAt(0)
+                ;((this.fg = x[u.CHAR_DATA_ATTR_INDEX]), (this.bg = 0))
+                let c = !1
+                if (x[u.CHAR_DATA_CHAR_INDEX].length > 2) c = !0
+                else if (x[u.CHAR_DATA_CHAR_INDEX].length === 2) {
+                  const t = x[u.CHAR_DATA_CHAR_INDEX].charCodeAt(0)
                   if (55296 <= t && t <= 56319) {
-                    const n = x[f.CHAR_DATA_CHAR_INDEX].charCodeAt(1)
+                    const n = x[u.CHAR_DATA_CHAR_INDEX].charCodeAt(1)
                     56320 <= n && n <= 57343
                       ? (this.content =
                           (1024 * (t - 55296) + n - 56320 + 65536) |
-                          (x[f.CHAR_DATA_WIDTH_INDEX] << 22))
-                      : (h = !0)
-                  } else h = !0
+                          (x[u.CHAR_DATA_WIDTH_INDEX] << 22))
+                      : (c = !0)
+                  } else c = !0
                 } else
                   this.content =
-                    x[f.CHAR_DATA_CHAR_INDEX].charCodeAt(0) | (x[f.CHAR_DATA_WIDTH_INDEX] << 22)
-                h &&
-                  ((this.combinedData = x[f.CHAR_DATA_CHAR_INDEX]),
-                  (this.content = 2097152 | (x[f.CHAR_DATA_WIDTH_INDEX] << 22)))
+                    x[u.CHAR_DATA_CHAR_INDEX].charCodeAt(0) | (x[u.CHAR_DATA_WIDTH_INDEX] << 22)
+                c &&
+                  ((this.combinedData = x[u.CHAR_DATA_CHAR_INDEX]),
+                  (this.content = 2097152 | (x[u.CHAR_DATA_WIDTH_INDEX] << 22)))
               }
               getAsCharData() {
                 return [this.fg, this.getChars(), this.getWidth(), this.getCode()]
               }
             }
-            i.CellData = d
+            i.CellData = h
           },
           643: (I, i) => {
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
@@ -18998,13 +19284,13 @@ WARNING: This link could potentially be dangerous`)
           4863: (I, i, o) => {
             ;(Object.defineProperty(i, '__esModule', { value: !0 }), (i.Marker = void 0))
             const l = o(8460),
-              f = o(844)
+              u = o(844)
             class a {
               get id() {
                 return this._id
               }
-              constructor(u) {
-                ;((this.line = u),
+              constructor(f) {
+                ;((this.line = f),
                   (this.isDisposed = !1),
                   (this._disposables = []),
                   (this._id = a._nextId++),
@@ -19016,11 +19302,11 @@ WARNING: This link could potentially be dangerous`)
                   ((this.isDisposed = !0),
                   (this.line = -1),
                   this._onDispose.fire(),
-                  (0, f.disposeArray)(this._disposables),
+                  (0, u.disposeArray)(this._disposables),
                   (this._disposables.length = 0))
               }
-              register(u) {
-                return (this._disposables.push(u), u)
+              register(f) {
+                return (this._disposables.push(f), f)
               }
             }
             ;((i.Marker = a), (a._nextId = 1))
@@ -19185,7 +19471,7 @@ WARNING: This link could potentially be dangerous`)
               }))
           },
           2584: (I, i) => {
-            var o, l, f
+            var o, l, u
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.C1_ESCAPED = i.C1 = i.C0 = void 0),
               (function (a) {
@@ -19261,13 +19547,13 @@ WARNING: This link could potentially be dangerous`)
               })(l || (i.C1 = l = {})),
               (function (a) {
                 a.ST = `${o.ESC}\\`
-              })(f || (i.C1_ESCAPED = f = {})))
+              })(u || (i.C1_ESCAPED = u = {})))
           },
           7399: (I, i, o) => {
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.evaluateKeyboardEvent = void 0))
             const l = o(2584),
-              f = {
+              u = {
                 48: ['0', ')'],
                 49: ['1', '!'],
                 50: ['2', '@'],
@@ -19290,8 +19576,8 @@ WARNING: This link could potentially be dangerous`)
                 221: [']', '}'],
                 222: ["'", '"']
               }
-            i.evaluateKeyboardEvent = function (a, d, u, x) {
-              const h = { type: 0, cancel: !1, key: void 0 },
+            i.evaluateKeyboardEvent = function (a, h, f, x) {
+              const c = { type: 0, cancel: !1, key: void 0 },
                 t =
                   (a.shiftKey ? 1 : 0) |
                   (a.altKey ? 2 : 0) |
@@ -19300,176 +19586,176 @@ WARNING: This link could potentially be dangerous`)
               switch (a.keyCode) {
                 case 0:
                   a.key === 'UIKeyInputUpArrow'
-                    ? (h.key = d ? l.C0.ESC + 'OA' : l.C0.ESC + '[A')
+                    ? (c.key = h ? l.C0.ESC + 'OA' : l.C0.ESC + '[A')
                     : a.key === 'UIKeyInputLeftArrow'
-                      ? (h.key = d ? l.C0.ESC + 'OD' : l.C0.ESC + '[D')
+                      ? (c.key = h ? l.C0.ESC + 'OD' : l.C0.ESC + '[D')
                       : a.key === 'UIKeyInputRightArrow'
-                        ? (h.key = d ? l.C0.ESC + 'OC' : l.C0.ESC + '[C')
+                        ? (c.key = h ? l.C0.ESC + 'OC' : l.C0.ESC + '[C')
                         : a.key === 'UIKeyInputDownArrow' &&
-                          (h.key = d ? l.C0.ESC + 'OB' : l.C0.ESC + '[B')
+                          (c.key = h ? l.C0.ESC + 'OB' : l.C0.ESC + '[B')
                   break
                 case 8:
-                  ;((h.key = a.ctrlKey ? '\b' : l.C0.DEL), a.altKey && (h.key = l.C0.ESC + h.key))
+                  ;((c.key = a.ctrlKey ? '\b' : l.C0.DEL), a.altKey && (c.key = l.C0.ESC + c.key))
                   break
                 case 9:
                   if (a.shiftKey) {
-                    h.key = l.C0.ESC + '[Z'
+                    c.key = l.C0.ESC + '[Z'
                     break
                   }
-                  ;((h.key = l.C0.HT), (h.cancel = !0))
+                  ;((c.key = l.C0.HT), (c.cancel = !0))
                   break
                 case 13:
-                  ;((h.key = a.altKey ? l.C0.ESC + l.C0.CR : l.C0.CR), (h.cancel = !0))
+                  ;((c.key = a.altKey ? l.C0.ESC + l.C0.CR : l.C0.CR), (c.cancel = !0))
                   break
                 case 27:
-                  ;((h.key = l.C0.ESC), a.altKey && (h.key = l.C0.ESC + l.C0.ESC), (h.cancel = !0))
+                  ;((c.key = l.C0.ESC), a.altKey && (c.key = l.C0.ESC + l.C0.ESC), (c.cancel = !0))
                   break
                 case 37:
                   if (a.metaKey) break
                   t
-                    ? ((h.key = l.C0.ESC + '[1;' + (t + 1) + 'D'),
-                      h.key === l.C0.ESC + '[1;3D' && (h.key = l.C0.ESC + (u ? 'b' : '[1;5D')))
-                    : (h.key = d ? l.C0.ESC + 'OD' : l.C0.ESC + '[D')
+                    ? ((c.key = l.C0.ESC + '[1;' + (t + 1) + 'D'),
+                      c.key === l.C0.ESC + '[1;3D' && (c.key = l.C0.ESC + (f ? 'b' : '[1;5D')))
+                    : (c.key = h ? l.C0.ESC + 'OD' : l.C0.ESC + '[D')
                   break
                 case 39:
                   if (a.metaKey) break
                   t
-                    ? ((h.key = l.C0.ESC + '[1;' + (t + 1) + 'C'),
-                      h.key === l.C0.ESC + '[1;3C' && (h.key = l.C0.ESC + (u ? 'f' : '[1;5C')))
-                    : (h.key = d ? l.C0.ESC + 'OC' : l.C0.ESC + '[C')
+                    ? ((c.key = l.C0.ESC + '[1;' + (t + 1) + 'C'),
+                      c.key === l.C0.ESC + '[1;3C' && (c.key = l.C0.ESC + (f ? 'f' : '[1;5C')))
+                    : (c.key = h ? l.C0.ESC + 'OC' : l.C0.ESC + '[C')
                   break
                 case 38:
                   if (a.metaKey) break
                   t
-                    ? ((h.key = l.C0.ESC + '[1;' + (t + 1) + 'A'),
-                      u || h.key !== l.C0.ESC + '[1;3A' || (h.key = l.C0.ESC + '[1;5A'))
-                    : (h.key = d ? l.C0.ESC + 'OA' : l.C0.ESC + '[A')
+                    ? ((c.key = l.C0.ESC + '[1;' + (t + 1) + 'A'),
+                      f || c.key !== l.C0.ESC + '[1;3A' || (c.key = l.C0.ESC + '[1;5A'))
+                    : (c.key = h ? l.C0.ESC + 'OA' : l.C0.ESC + '[A')
                   break
                 case 40:
                   if (a.metaKey) break
                   t
-                    ? ((h.key = l.C0.ESC + '[1;' + (t + 1) + 'B'),
-                      u || h.key !== l.C0.ESC + '[1;3B' || (h.key = l.C0.ESC + '[1;5B'))
-                    : (h.key = d ? l.C0.ESC + 'OB' : l.C0.ESC + '[B')
+                    ? ((c.key = l.C0.ESC + '[1;' + (t + 1) + 'B'),
+                      f || c.key !== l.C0.ESC + '[1;3B' || (c.key = l.C0.ESC + '[1;5B'))
+                    : (c.key = h ? l.C0.ESC + 'OB' : l.C0.ESC + '[B')
                   break
                 case 45:
-                  a.shiftKey || a.ctrlKey || (h.key = l.C0.ESC + '[2~')
+                  a.shiftKey || a.ctrlKey || (c.key = l.C0.ESC + '[2~')
                   break
                 case 46:
-                  h.key = t ? l.C0.ESC + '[3;' + (t + 1) + '~' : l.C0.ESC + '[3~'
+                  c.key = t ? l.C0.ESC + '[3;' + (t + 1) + '~' : l.C0.ESC + '[3~'
                   break
                 case 36:
-                  h.key = t
+                  c.key = t
                     ? l.C0.ESC + '[1;' + (t + 1) + 'H'
-                    : d
+                    : h
                       ? l.C0.ESC + 'OH'
                       : l.C0.ESC + '[H'
                   break
                 case 35:
-                  h.key = t
+                  c.key = t
                     ? l.C0.ESC + '[1;' + (t + 1) + 'F'
-                    : d
+                    : h
                       ? l.C0.ESC + 'OF'
                       : l.C0.ESC + '[F'
                   break
                 case 33:
                   a.shiftKey
-                    ? (h.type = 2)
+                    ? (c.type = 2)
                     : a.ctrlKey
-                      ? (h.key = l.C0.ESC + '[5;' + (t + 1) + '~')
-                      : (h.key = l.C0.ESC + '[5~')
+                      ? (c.key = l.C0.ESC + '[5;' + (t + 1) + '~')
+                      : (c.key = l.C0.ESC + '[5~')
                   break
                 case 34:
                   a.shiftKey
-                    ? (h.type = 3)
+                    ? (c.type = 3)
                     : a.ctrlKey
-                      ? (h.key = l.C0.ESC + '[6;' + (t + 1) + '~')
-                      : (h.key = l.C0.ESC + '[6~')
+                      ? (c.key = l.C0.ESC + '[6;' + (t + 1) + '~')
+                      : (c.key = l.C0.ESC + '[6~')
                   break
                 case 112:
-                  h.key = t ? l.C0.ESC + '[1;' + (t + 1) + 'P' : l.C0.ESC + 'OP'
+                  c.key = t ? l.C0.ESC + '[1;' + (t + 1) + 'P' : l.C0.ESC + 'OP'
                   break
                 case 113:
-                  h.key = t ? l.C0.ESC + '[1;' + (t + 1) + 'Q' : l.C0.ESC + 'OQ'
+                  c.key = t ? l.C0.ESC + '[1;' + (t + 1) + 'Q' : l.C0.ESC + 'OQ'
                   break
                 case 114:
-                  h.key = t ? l.C0.ESC + '[1;' + (t + 1) + 'R' : l.C0.ESC + 'OR'
+                  c.key = t ? l.C0.ESC + '[1;' + (t + 1) + 'R' : l.C0.ESC + 'OR'
                   break
                 case 115:
-                  h.key = t ? l.C0.ESC + '[1;' + (t + 1) + 'S' : l.C0.ESC + 'OS'
+                  c.key = t ? l.C0.ESC + '[1;' + (t + 1) + 'S' : l.C0.ESC + 'OS'
                   break
                 case 116:
-                  h.key = t ? l.C0.ESC + '[15;' + (t + 1) + '~' : l.C0.ESC + '[15~'
+                  c.key = t ? l.C0.ESC + '[15;' + (t + 1) + '~' : l.C0.ESC + '[15~'
                   break
                 case 117:
-                  h.key = t ? l.C0.ESC + '[17;' + (t + 1) + '~' : l.C0.ESC + '[17~'
+                  c.key = t ? l.C0.ESC + '[17;' + (t + 1) + '~' : l.C0.ESC + '[17~'
                   break
                 case 118:
-                  h.key = t ? l.C0.ESC + '[18;' + (t + 1) + '~' : l.C0.ESC + '[18~'
+                  c.key = t ? l.C0.ESC + '[18;' + (t + 1) + '~' : l.C0.ESC + '[18~'
                   break
                 case 119:
-                  h.key = t ? l.C0.ESC + '[19;' + (t + 1) + '~' : l.C0.ESC + '[19~'
+                  c.key = t ? l.C0.ESC + '[19;' + (t + 1) + '~' : l.C0.ESC + '[19~'
                   break
                 case 120:
-                  h.key = t ? l.C0.ESC + '[20;' + (t + 1) + '~' : l.C0.ESC + '[20~'
+                  c.key = t ? l.C0.ESC + '[20;' + (t + 1) + '~' : l.C0.ESC + '[20~'
                   break
                 case 121:
-                  h.key = t ? l.C0.ESC + '[21;' + (t + 1) + '~' : l.C0.ESC + '[21~'
+                  c.key = t ? l.C0.ESC + '[21;' + (t + 1) + '~' : l.C0.ESC + '[21~'
                   break
                 case 122:
-                  h.key = t ? l.C0.ESC + '[23;' + (t + 1) + '~' : l.C0.ESC + '[23~'
+                  c.key = t ? l.C0.ESC + '[23;' + (t + 1) + '~' : l.C0.ESC + '[23~'
                   break
                 case 123:
-                  h.key = t ? l.C0.ESC + '[24;' + (t + 1) + '~' : l.C0.ESC + '[24~'
+                  c.key = t ? l.C0.ESC + '[24;' + (t + 1) + '~' : l.C0.ESC + '[24~'
                   break
                 default:
                   if (!a.ctrlKey || a.shiftKey || a.altKey || a.metaKey)
-                    if ((u && !x) || !a.altKey || a.metaKey)
-                      !u || a.altKey || a.ctrlKey || a.shiftKey || !a.metaKey
+                    if ((f && !x) || !a.altKey || a.metaKey)
+                      !f || a.altKey || a.ctrlKey || a.shiftKey || !a.metaKey
                         ? a.key &&
                           !a.ctrlKey &&
                           !a.altKey &&
                           !a.metaKey &&
                           a.keyCode >= 48 &&
                           a.key.length === 1
-                          ? (h.key = a.key)
+                          ? (c.key = a.key)
                           : a.key &&
                             a.ctrlKey &&
-                            (a.key === '_' && (h.key = l.C0.US),
-                            a.key === '@' && (h.key = l.C0.NUL))
-                        : a.keyCode === 65 && (h.type = 1)
+                            (a.key === '_' && (c.key = l.C0.US),
+                            a.key === '@' && (c.key = l.C0.NUL))
+                        : a.keyCode === 65 && (c.type = 1)
                     else {
-                      const n = f[a.keyCode],
+                      const n = u[a.keyCode],
                         s = n?.[a.shiftKey ? 1 : 0]
-                      if (s) h.key = l.C0.ESC + s
+                      if (s) c.key = l.C0.ESC + s
                       else if (a.keyCode >= 65 && a.keyCode <= 90) {
                         const r = a.ctrlKey ? a.keyCode - 64 : a.keyCode + 32
-                        let c = String.fromCharCode(r)
-                        ;(a.shiftKey && (c = c.toUpperCase()), (h.key = l.C0.ESC + c))
-                      } else if (a.keyCode === 32) h.key = l.C0.ESC + (a.ctrlKey ? l.C0.NUL : ' ')
+                        let d = String.fromCharCode(r)
+                        ;(a.shiftKey && (d = d.toUpperCase()), (c.key = l.C0.ESC + d))
+                      } else if (a.keyCode === 32) c.key = l.C0.ESC + (a.ctrlKey ? l.C0.NUL : ' ')
                       else if (a.key === 'Dead' && a.code.startsWith('Key')) {
                         let r = a.code.slice(3, 4)
                         ;(a.shiftKey || (r = r.toLowerCase()),
-                          (h.key = l.C0.ESC + r),
-                          (h.cancel = !0))
+                          (c.key = l.C0.ESC + r),
+                          (c.cancel = !0))
                       }
                     }
                   else
                     a.keyCode >= 65 && a.keyCode <= 90
-                      ? (h.key = String.fromCharCode(a.keyCode - 64))
+                      ? (c.key = String.fromCharCode(a.keyCode - 64))
                       : a.keyCode === 32
-                        ? (h.key = l.C0.NUL)
+                        ? (c.key = l.C0.NUL)
                         : a.keyCode >= 51 && a.keyCode <= 55
-                          ? (h.key = String.fromCharCode(a.keyCode - 51 + 27))
+                          ? (c.key = String.fromCharCode(a.keyCode - 51 + 27))
                           : a.keyCode === 56
-                            ? (h.key = l.C0.DEL)
+                            ? (c.key = l.C0.DEL)
                             : a.keyCode === 219
-                              ? (h.key = l.C0.ESC)
+                              ? (c.key = l.C0.ESC)
                               : a.keyCode === 220
-                                ? (h.key = l.C0.FS)
-                                : a.keyCode === 221 && (h.key = l.C0.GS)
+                                ? (c.key = l.C0.FS)
+                                : a.keyCode === 221 && (c.key = l.C0.GS)
               }
-              return h
+              return c
             }
           },
           482: (I, i) => {
@@ -19482,16 +19768,16 @@ WARNING: This link could potentially be dangerous`)
                       String.fromCharCode((o % 1024) + 56320))
                   : String.fromCharCode(o)
               }),
-              (i.utf32ToString = function (o, l = 0, f = o.length) {
+              (i.utf32ToString = function (o, l = 0, u = o.length) {
                 let a = ''
-                for (let d = l; d < f; ++d) {
-                  let u = o[d]
-                  u > 65535
-                    ? ((u -= 65536),
+                for (let h = l; h < u; ++h) {
+                  let f = o[h]
+                  f > 65535
+                    ? ((f -= 65536),
                       (a +=
-                        String.fromCharCode(55296 + (u >> 10)) +
-                        String.fromCharCode((u % 1024) + 56320)))
-                    : (a += String.fromCharCode(u))
+                        String.fromCharCode(55296 + (f >> 10)) +
+                        String.fromCharCode((f % 1024) + 56320)))
+                    : (a += String.fromCharCode(f))
                 }
                 return a
               }),
@@ -19503,25 +19789,25 @@ WARNING: This link could potentially be dangerous`)
                   this._interim = 0
                 }
                 decode(o, l) {
-                  const f = o.length
-                  if (!f) return 0
+                  const u = o.length
+                  if (!u) return 0
                   let a = 0,
-                    d = 0
+                    h = 0
                   if (this._interim) {
-                    const u = o.charCodeAt(d++)
-                    ;(56320 <= u && u <= 57343
-                      ? (l[a++] = 1024 * (this._interim - 55296) + u - 56320 + 65536)
-                      : ((l[a++] = this._interim), (l[a++] = u)),
+                    const f = o.charCodeAt(h++)
+                    ;(56320 <= f && f <= 57343
+                      ? (l[a++] = 1024 * (this._interim - 55296) + f - 56320 + 65536)
+                      : ((l[a++] = this._interim), (l[a++] = f)),
                       (this._interim = 0))
                   }
-                  for (let u = d; u < f; ++u) {
-                    const x = o.charCodeAt(u)
+                  for (let f = h; f < u; ++f) {
+                    const x = o.charCodeAt(f)
                     if (55296 <= x && x <= 56319) {
-                      if (++u >= f) return ((this._interim = x), a)
-                      const h = o.charCodeAt(u)
-                      56320 <= h && h <= 57343
-                        ? (l[a++] = 1024 * (x - 55296) + h - 56320 + 65536)
-                        : ((l[a++] = x), (l[a++] = h))
+                      if (++f >= u) return ((this._interim = x), a)
+                      const c = o.charCodeAt(f)
+                      56320 <= c && c <= 57343
+                        ? (l[a++] = 1024 * (x - 55296) + c - 56320 + 65536)
+                        : ((l[a++] = x), (l[a++] = c))
                     } else x !== 65279 && (l[a++] = x)
                   }
                   return a
@@ -19535,125 +19821,125 @@ WARNING: This link could potentially be dangerous`)
                   this.interim.fill(0)
                 }
                 decode(o, l) {
-                  const f = o.length
-                  if (!f) return 0
+                  const u = o.length
+                  if (!u) return 0
                   let a,
-                    d,
-                    u,
+                    h,
+                    f,
                     x,
-                    h = 0,
+                    c = 0,
                     t = 0,
                     n = 0
                   if (this.interim[0]) {
-                    let c = !1,
-                      g = this.interim[0]
-                    g &= (224 & g) == 192 ? 31 : (240 & g) == 224 ? 15 : 7
-                    let m,
+                    let d = !1,
+                      v = this.interim[0]
+                    v &= (224 & v) == 192 ? 31 : (240 & v) == 224 ? 15 : 7
+                    let _,
                       b = 0
-                    for (; (m = 63 & this.interim[++b]) && b < 4; ) ((g <<= 6), (g |= m))
+                    for (; (_ = 63 & this.interim[++b]) && b < 4; ) ((v <<= 6), (v |= _))
                     const p =
                         (224 & this.interim[0]) == 192 ? 2 : (240 & this.interim[0]) == 224 ? 3 : 4,
-                      y = p - b
-                    for (; n < y; ) {
-                      if (n >= f) return 0
-                      if (((m = o[n++]), (192 & m) != 128)) {
-                        ;(n--, (c = !0))
+                      S = p - b
+                    for (; n < S; ) {
+                      if (n >= u) return 0
+                      if (((_ = o[n++]), (192 & _) != 128)) {
+                        ;(n--, (d = !0))
                         break
                       }
-                      ;((this.interim[b++] = m), (g <<= 6), (g |= 63 & m))
+                      ;((this.interim[b++] = _), (v <<= 6), (v |= 63 & _))
                     }
-                    ;(c ||
+                    ;(d ||
                       (p === 2
-                        ? g < 128
+                        ? v < 128
                           ? n--
-                          : (l[h++] = g)
+                          : (l[c++] = v)
                         : p === 3
-                          ? g < 2048 || (g >= 55296 && g <= 57343) || g === 65279 || (l[h++] = g)
-                          : g < 65536 || g > 1114111 || (l[h++] = g)),
+                          ? v < 2048 || (v >= 55296 && v <= 57343) || v === 65279 || (l[c++] = v)
+                          : v < 65536 || v > 1114111 || (l[c++] = v)),
                       this.interim.fill(0))
                   }
-                  const s = f - 4
+                  const s = u - 4
                   let r = n
-                  for (; r < f; ) {
+                  for (; r < u; ) {
                     for (
                       ;
                       !(
                         !(r < s) ||
                         128 & (a = o[r]) ||
-                        128 & (d = o[r + 1]) ||
-                        128 & (u = o[r + 2]) ||
+                        128 & (h = o[r + 1]) ||
+                        128 & (f = o[r + 2]) ||
                         128 & (x = o[r + 3])
                       );
 
                     )
-                      ((l[h++] = a), (l[h++] = d), (l[h++] = u), (l[h++] = x), (r += 4))
-                    if (((a = o[r++]), a < 128)) l[h++] = a
+                      ((l[c++] = a), (l[c++] = h), (l[c++] = f), (l[c++] = x), (r += 4))
+                    if (((a = o[r++]), a < 128)) l[c++] = a
                     else if ((224 & a) == 192) {
-                      if (r >= f) return ((this.interim[0] = a), h)
-                      if (((d = o[r++]), (192 & d) != 128)) {
+                      if (r >= u) return ((this.interim[0] = a), c)
+                      if (((h = o[r++]), (192 & h) != 128)) {
                         r--
                         continue
                       }
-                      if (((t = ((31 & a) << 6) | (63 & d)), t < 128)) {
+                      if (((t = ((31 & a) << 6) | (63 & h)), t < 128)) {
                         r--
                         continue
                       }
-                      l[h++] = t
+                      l[c++] = t
                     } else if ((240 & a) == 224) {
-                      if (r >= f) return ((this.interim[0] = a), h)
-                      if (((d = o[r++]), (192 & d) != 128)) {
+                      if (r >= u) return ((this.interim[0] = a), c)
+                      if (((h = o[r++]), (192 & h) != 128)) {
                         r--
                         continue
                       }
-                      if (r >= f) return ((this.interim[0] = a), (this.interim[1] = d), h)
-                      if (((u = o[r++]), (192 & u) != 128)) {
+                      if (r >= u) return ((this.interim[0] = a), (this.interim[1] = h), c)
+                      if (((f = o[r++]), (192 & f) != 128)) {
                         r--
                         continue
                       }
                       if (
-                        ((t = ((15 & a) << 12) | ((63 & d) << 6) | (63 & u)),
+                        ((t = ((15 & a) << 12) | ((63 & h) << 6) | (63 & f)),
                         t < 2048 || (t >= 55296 && t <= 57343) || t === 65279)
                       )
                         continue
-                      l[h++] = t
+                      l[c++] = t
                     } else if ((248 & a) == 240) {
-                      if (r >= f) return ((this.interim[0] = a), h)
-                      if (((d = o[r++]), (192 & d) != 128)) {
+                      if (r >= u) return ((this.interim[0] = a), c)
+                      if (((h = o[r++]), (192 & h) != 128)) {
                         r--
                         continue
                       }
-                      if (r >= f) return ((this.interim[0] = a), (this.interim[1] = d), h)
-                      if (((u = o[r++]), (192 & u) != 128)) {
+                      if (r >= u) return ((this.interim[0] = a), (this.interim[1] = h), c)
+                      if (((f = o[r++]), (192 & f) != 128)) {
                         r--
                         continue
                       }
-                      if (r >= f)
+                      if (r >= u)
                         return (
                           (this.interim[0] = a),
-                          (this.interim[1] = d),
-                          (this.interim[2] = u),
-                          h
+                          (this.interim[1] = h),
+                          (this.interim[2] = f),
+                          c
                         )
                       if (((x = o[r++]), (192 & x) != 128)) {
                         r--
                         continue
                       }
                       if (
-                        ((t = ((7 & a) << 18) | ((63 & d) << 12) | ((63 & u) << 6) | (63 & x)),
+                        ((t = ((7 & a) << 18) | ((63 & h) << 12) | ((63 & f) << 6) | (63 & x)),
                         t < 65536 || t > 1114111)
                       )
                         continue
-                      l[h++] = t
+                      l[c++] = t
                     }
                   }
-                  return h
+                  return c
                 }
               }))
           },
           225: (I, i, o) => {
             ;(Object.defineProperty(i, '__esModule', { value: !0 }), (i.UnicodeV6 = void 0))
             const l = o(1480),
-              f = [
+              u = [
                 [768, 879],
                 [1155, 1158],
                 [1160, 1161],
@@ -19799,73 +20085,73 @@ WARNING: This link could potentially be dangerous`)
                 [917536, 917631],
                 [917760, 917999]
               ]
-            let d
+            let h
             i.UnicodeV6 = class {
               constructor() {
-                if (((this.version = '6'), !d)) {
-                  ;((d = new Uint8Array(65536)),
-                    d.fill(1),
-                    (d[0] = 0),
-                    d.fill(0, 1, 32),
-                    d.fill(0, 127, 160),
-                    d.fill(2, 4352, 4448),
-                    (d[9001] = 2),
-                    (d[9002] = 2),
-                    d.fill(2, 11904, 42192),
-                    (d[12351] = 1),
-                    d.fill(2, 44032, 55204),
-                    d.fill(2, 63744, 64256),
-                    d.fill(2, 65040, 65050),
-                    d.fill(2, 65072, 65136),
-                    d.fill(2, 65280, 65377),
-                    d.fill(2, 65504, 65511))
-                  for (let u = 0; u < f.length; ++u) d.fill(0, f[u][0], f[u][1] + 1)
+                if (((this.version = '6'), !h)) {
+                  ;((h = new Uint8Array(65536)),
+                    h.fill(1),
+                    (h[0] = 0),
+                    h.fill(0, 1, 32),
+                    h.fill(0, 127, 160),
+                    h.fill(2, 4352, 4448),
+                    (h[9001] = 2),
+                    (h[9002] = 2),
+                    h.fill(2, 11904, 42192),
+                    (h[12351] = 1),
+                    h.fill(2, 44032, 55204),
+                    h.fill(2, 63744, 64256),
+                    h.fill(2, 65040, 65050),
+                    h.fill(2, 65072, 65136),
+                    h.fill(2, 65280, 65377),
+                    h.fill(2, 65504, 65511))
+                  for (let f = 0; f < u.length; ++f) h.fill(0, u[f][0], u[f][1] + 1)
                 }
               }
-              wcwidth(u) {
-                return u < 32
+              wcwidth(f) {
+                return f < 32
                   ? 0
-                  : u < 127
+                  : f < 127
                     ? 1
-                    : u < 65536
-                      ? d[u]
-                      : (function (x, h) {
+                    : f < 65536
+                      ? h[f]
+                      : (function (x, c) {
                             let t,
                               n = 0,
-                              s = h.length - 1
-                            if (x < h[0][0] || x > h[s][1]) return !1
+                              s = c.length - 1
+                            if (x < c[0][0] || x > c[s][1]) return !1
                             for (; s >= n; )
-                              if (((t = (n + s) >> 1), x > h[t][1])) n = t + 1
+                              if (((t = (n + s) >> 1), x > c[t][1])) n = t + 1
                               else {
-                                if (!(x < h[t][0])) return !0
+                                if (!(x < c[t][0])) return !0
                                 s = t - 1
                               }
                             return !1
-                          })(u, a)
+                          })(f, a)
                         ? 0
-                        : (u >= 131072 && u <= 196605) || (u >= 196608 && u <= 262141)
+                        : (f >= 131072 && f <= 196605) || (f >= 196608 && f <= 262141)
                           ? 2
                           : 1
               }
-              charProperties(u, x) {
-                let h = this.wcwidth(u),
-                  t = h === 0 && x !== 0
+              charProperties(f, x) {
+                let c = this.wcwidth(f),
+                  t = c === 0 && x !== 0
                 if (t) {
                   const n = l.UnicodeService.extractWidth(x)
-                  n === 0 ? (t = !1) : n > h && (h = n)
+                  n === 0 ? (t = !1) : n > c && (c = n)
                 }
-                return l.UnicodeService.createPropertyValue(0, h, t)
+                return l.UnicodeService.createPropertyValue(0, c, t)
               }
             }
           },
           5981: (I, i, o) => {
             ;(Object.defineProperty(i, '__esModule', { value: !0 }), (i.WriteBuffer = void 0))
             const l = o(8460),
-              f = o(844)
-            class a extends f.Disposable {
-              constructor(u) {
+              u = o(844)
+            class a extends u.Disposable {
+              constructor(f) {
                 ;(super(),
-                  (this._action = u),
+                  (this._action = f),
                   (this._writeBuffer = []),
                   (this._callbacks = []),
                   (this._pendingData = 0),
@@ -19879,19 +20165,19 @@ WARNING: This link could potentially be dangerous`)
               handleUserInput() {
                 this._didUserInput = !0
               }
-              writeSync(u, x) {
+              writeSync(f, x) {
                 if (x !== void 0 && this._syncCalls > x) return void (this._syncCalls = 0)
                 if (
-                  ((this._pendingData += u.length),
-                  this._writeBuffer.push(u),
+                  ((this._pendingData += f.length),
+                  this._writeBuffer.push(f),
                   this._callbacks.push(void 0),
                   this._syncCalls++,
                   this._isSyncWriting)
                 )
                   return
-                let h
-                for (this._isSyncWriting = !0; (h = this._writeBuffer.shift()); ) {
-                  this._action(h)
+                let c
+                for (this._isSyncWriting = !0; (c = this._writeBuffer.shift()); ) {
+                  this._action(c)
                   const t = this._callbacks.shift()
                   t && t()
                 }
@@ -19900,39 +20186,39 @@ WARNING: This link could potentially be dangerous`)
                   (this._isSyncWriting = !1),
                   (this._syncCalls = 0))
               }
-              write(u, x) {
+              write(f, x) {
                 if (this._pendingData > 5e7)
                   throw new Error('write data discarded, use flow control to avoid losing data')
                 if (!this._writeBuffer.length) {
                   if (((this._bufferOffset = 0), this._didUserInput))
                     return (
                       (this._didUserInput = !1),
-                      (this._pendingData += u.length),
-                      this._writeBuffer.push(u),
+                      (this._pendingData += f.length),
+                      this._writeBuffer.push(f),
                       this._callbacks.push(x),
                       void this._innerWrite()
                     )
                   setTimeout(() => this._innerWrite())
                 }
-                ;((this._pendingData += u.length),
-                  this._writeBuffer.push(u),
+                ;((this._pendingData += f.length),
+                  this._writeBuffer.push(f),
                   this._callbacks.push(x))
               }
-              _innerWrite(u = 0, x = !0) {
-                const h = u || Date.now()
+              _innerWrite(f = 0, x = !0) {
+                const c = f || Date.now()
                 for (; this._writeBuffer.length > this._bufferOffset; ) {
                   const t = this._writeBuffer[this._bufferOffset],
                     n = this._action(t, x)
                   if (n) {
-                    const r = (c) =>
-                      Date.now() - h >= 12
-                        ? setTimeout(() => this._innerWrite(0, c))
-                        : this._innerWrite(h, c)
+                    const r = (d) =>
+                      Date.now() - c >= 12
+                        ? setTimeout(() => this._innerWrite(0, d))
+                        : this._innerWrite(c, d)
                     return void n
                       .catch(
-                        (c) => (
+                        (d) => (
                           queueMicrotask(() => {
-                            throw c
+                            throw d
                           }),
                           Promise.resolve(!1)
                         )
@@ -19944,7 +20230,7 @@ WARNING: This link could potentially be dangerous`)
                     (s && s(),
                     this._bufferOffset++,
                     (this._pendingData -= t.length),
-                    Date.now() - h >= 12)
+                    Date.now() - c >= 12)
                   )
                     break
                 }
@@ -19969,12 +20255,12 @@ WARNING: This link could potentially be dangerous`)
             const o =
                 /^([\da-f])\/([\da-f])\/([\da-f])$|^([\da-f]{2})\/([\da-f]{2})\/([\da-f]{2})$|^([\da-f]{3})\/([\da-f]{3})\/([\da-f]{3})$|^([\da-f]{4})\/([\da-f]{4})\/([\da-f]{4})$/,
               l = /^[\da-f]+$/
-            function f(a, d) {
-              const u = a.toString(16),
-                x = u.length < 2 ? '0' + u : u
-              switch (d) {
+            function u(a, h) {
+              const f = a.toString(16),
+                x = f.length < 2 ? '0' + f : f
+              switch (h) {
                 case 4:
-                  return u[0]
+                  return f[0]
                 case 8:
                   return x
                 case 12:
@@ -19985,34 +20271,34 @@ WARNING: This link could potentially be dangerous`)
             }
             ;((i.parseColor = function (a) {
               if (!a) return
-              let d = a.toLowerCase()
-              if (d.indexOf('rgb:') === 0) {
-                d = d.slice(4)
-                const u = o.exec(d)
-                if (u) {
-                  const x = u[1] ? 15 : u[4] ? 255 : u[7] ? 4095 : 65535
+              let h = a.toLowerCase()
+              if (h.indexOf('rgb:') === 0) {
+                h = h.slice(4)
+                const f = o.exec(h)
+                if (f) {
+                  const x = f[1] ? 15 : f[4] ? 255 : f[7] ? 4095 : 65535
                   return [
-                    Math.round((parseInt(u[1] || u[4] || u[7] || u[10], 16) / x) * 255),
-                    Math.round((parseInt(u[2] || u[5] || u[8] || u[11], 16) / x) * 255),
-                    Math.round((parseInt(u[3] || u[6] || u[9] || u[12], 16) / x) * 255)
+                    Math.round((parseInt(f[1] || f[4] || f[7] || f[10], 16) / x) * 255),
+                    Math.round((parseInt(f[2] || f[5] || f[8] || f[11], 16) / x) * 255),
+                    Math.round((parseInt(f[3] || f[6] || f[9] || f[12], 16) / x) * 255)
                   ]
                 }
               } else if (
-                d.indexOf('#') === 0 &&
-                ((d = d.slice(1)), l.exec(d) && [3, 6, 9, 12].includes(d.length))
+                h.indexOf('#') === 0 &&
+                ((h = h.slice(1)), l.exec(h) && [3, 6, 9, 12].includes(h.length))
               ) {
-                const u = d.length / 3,
+                const f = h.length / 3,
                   x = [0, 0, 0]
-                for (let h = 0; h < 3; ++h) {
-                  const t = parseInt(d.slice(u * h, u * h + u), 16)
-                  x[h] = u === 1 ? t << 4 : u === 2 ? t : u === 3 ? t >> 4 : t >> 8
+                for (let c = 0; c < 3; ++c) {
+                  const t = parseInt(h.slice(f * c, f * c + f), 16)
+                  x[c] = f === 1 ? t << 4 : f === 2 ? t : f === 3 ? t >> 4 : t >> 8
                 }
                 return x
               }
             }),
-              (i.toRgbString = function (a, d = 16) {
-                const [u, x, h] = a
-                return `rgb:${f(u, d)}/${f(x, d)}/${f(h, d)}`
+              (i.toRgbString = function (a, h = 16) {
+                const [f, x, c] = a
+                return `rgb:${u(f, h)}/${u(x, h)}/${u(c, h)}`
               }))
           },
           5770: (I, i) => {
@@ -20024,13 +20310,13 @@ WARNING: This link could potentially be dangerous`)
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.DcsHandler = i.DcsParser = void 0))
             const l = o(482),
-              f = o(8742),
+              u = o(8742),
               a = o(5770),
-              d = []
+              h = []
             i.DcsParser = class {
               constructor() {
                 ;((this._handlers = Object.create(null)),
-                  (this._active = d),
+                  (this._active = h),
                   (this._ident = 0),
                   (this._handlerFb = () => {}),
                   (this._stack = { paused: !1, loopPosition: 0, fallThrough: !1 }))
@@ -20038,16 +20324,16 @@ WARNING: This link could potentially be dangerous`)
               dispose() {
                 ;((this._handlers = Object.create(null)),
                   (this._handlerFb = () => {}),
-                  (this._active = d))
+                  (this._active = h))
               }
-              registerHandler(x, h) {
+              registerHandler(x, c) {
                 this._handlers[x] === void 0 && (this._handlers[x] = [])
                 const t = this._handlers[x]
                 return (
-                  t.push(h),
+                  t.push(c),
                   {
                     dispose: () => {
-                      const n = t.indexOf(h)
+                      const n = t.indexOf(c)
                       n !== -1 && t.splice(n, 1)
                     }
                   }
@@ -20069,24 +20355,24 @@ WARNING: This link could potentially be dangerous`)
                     --x
                   )
                     this._active[x].unhook(!1)
-                ;((this._stack.paused = !1), (this._active = d), (this._ident = 0))
+                ;((this._stack.paused = !1), (this._active = h), (this._ident = 0))
               }
-              hook(x, h) {
+              hook(x, c) {
                 if (
                   (this.reset(),
                   (this._ident = x),
-                  (this._active = this._handlers[x] || d),
+                  (this._active = this._handlers[x] || h),
                   this._active.length)
                 )
-                  for (let t = this._active.length - 1; t >= 0; t--) this._active[t].hook(h)
-                else this._handlerFb(this._ident, 'HOOK', h)
+                  for (let t = this._active.length - 1; t >= 0; t--) this._active[t].hook(c)
+                else this._handlerFb(this._ident, 'HOOK', c)
               }
-              put(x, h, t) {
+              put(x, c, t) {
                 if (this._active.length)
-                  for (let n = this._active.length - 1; n >= 0; n--) this._active[n].put(x, h, t)
-                else this._handlerFb(this._ident, 'PUT', (0, l.utf32ToString)(x, h, t))
+                  for (let n = this._active.length - 1; n >= 0; n--) this._active[n].put(x, c, t)
+                else this._handlerFb(this._ident, 'PUT', (0, l.utf32ToString)(x, c, t))
               }
-              unhook(x, h = !0) {
+              unhook(x, c = !0) {
                 if (this._active.length) {
                   let t = !1,
                     n = this._active.length - 1,
@@ -20094,7 +20380,7 @@ WARNING: This link could potentially be dangerous`)
                   if (
                     (this._stack.paused &&
                       ((n = this._stack.loopPosition - 1),
-                      (t = h),
+                      (t = c),
                       (s = this._stack.fallThrough),
                       (this._stack.paused = !1)),
                     !s && t === !1)
@@ -20118,40 +20404,40 @@ WARNING: This link could potentially be dangerous`)
                         t
                       )
                 } else this._handlerFb(this._ident, 'UNHOOK', x)
-                ;((this._active = d), (this._ident = 0))
+                ;((this._active = h), (this._ident = 0))
               }
             }
-            const u = new f.Params()
-            ;(u.addParam(0),
+            const f = new u.Params()
+            ;(f.addParam(0),
               (i.DcsHandler = class {
                 constructor(x) {
                   ;((this._handler = x),
                     (this._data = ''),
-                    (this._params = u),
+                    (this._params = f),
                     (this._hitLimit = !1))
                 }
                 hook(x) {
-                  ;((this._params = x.length > 1 || x.params[0] ? x.clone() : u),
+                  ;((this._params = x.length > 1 || x.params[0] ? x.clone() : f),
                     (this._data = ''),
                     (this._hitLimit = !1))
                 }
-                put(x, h, t) {
+                put(x, c, t) {
                   this._hitLimit ||
-                    ((this._data += (0, l.utf32ToString)(x, h, t)),
+                    ((this._data += (0, l.utf32ToString)(x, c, t)),
                     this._data.length > a.PAYLOAD_LIMIT &&
                       ((this._data = ''), (this._hitLimit = !0)))
                 }
                 unhook(x) {
-                  let h = !1
-                  if (this._hitLimit) h = !1
+                  let c = !1
+                  if (this._hitLimit) c = !1
                   else if (
                     x &&
-                    ((h = this._handler(this._data, this._params)), h instanceof Promise)
+                    ((c = this._handler(this._data, this._params)), c instanceof Promise)
                   )
-                    return h.then(
-                      (t) => ((this._params = u), (this._data = ''), (this._hitLimit = !1), t)
+                    return c.then(
+                      (t) => ((this._params = f), (this._data = ''), (this._hitLimit = !1), t)
                     )
-                  return ((this._params = u), (this._data = ''), (this._hitLimit = !1), h)
+                  return ((this._params = f), (this._data = ''), (this._hitLimit = !1), c)
                 }
               }))
           },
@@ -20159,57 +20445,57 @@ WARNING: This link could potentially be dangerous`)
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.EscapeSequenceParser = i.VT500_TRANSITION_TABLE = i.TransitionTable = void 0))
             const l = o(844),
-              f = o(8742),
+              u = o(8742),
               a = o(6242),
-              d = o(6351)
-            class u {
+              h = o(6351)
+            class f {
               constructor(n) {
                 this.table = new Uint8Array(n)
               }
               setDefault(n, s) {
                 this.table.fill((n << 4) | s)
               }
-              add(n, s, r, c) {
-                this.table[(s << 8) | n] = (r << 4) | c
+              add(n, s, r, d) {
+                this.table[(s << 8) | n] = (r << 4) | d
               }
-              addMany(n, s, r, c) {
-                for (let g = 0; g < n.length; g++) this.table[(s << 8) | n[g]] = (r << 4) | c
+              addMany(n, s, r, d) {
+                for (let v = 0; v < n.length; v++) this.table[(s << 8) | n[v]] = (r << 4) | d
               }
             }
-            i.TransitionTable = u
+            i.TransitionTable = f
             const x = 160
             i.VT500_TRANSITION_TABLE = (function () {
-              const t = new u(4095),
+              const t = new f(4095),
                 n = Array.apply(null, Array(256)).map((b, p) => p),
                 s = (b, p) => n.slice(b, p),
                 r = s(32, 127),
-                c = s(0, 24)
-              ;(c.push(25), c.push.apply(c, s(28, 32)))
-              const g = s(0, 14)
-              let m
-              for (m in (t.setDefault(1, 0), t.addMany(r, 0, 2, 0), g))
-                (t.addMany([24, 26, 153, 154], m, 3, 0),
-                  t.addMany(s(128, 144), m, 3, 0),
-                  t.addMany(s(144, 152), m, 3, 0),
-                  t.add(156, m, 0, 0),
-                  t.add(27, m, 11, 1),
-                  t.add(157, m, 4, 8),
-                  t.addMany([152, 158, 159], m, 0, 7),
-                  t.add(155, m, 11, 3),
-                  t.add(144, m, 11, 9))
+                d = s(0, 24)
+              ;(d.push(25), d.push.apply(d, s(28, 32)))
+              const v = s(0, 14)
+              let _
+              for (_ in (t.setDefault(1, 0), t.addMany(r, 0, 2, 0), v))
+                (t.addMany([24, 26, 153, 154], _, 3, 0),
+                  t.addMany(s(128, 144), _, 3, 0),
+                  t.addMany(s(144, 152), _, 3, 0),
+                  t.add(156, _, 0, 0),
+                  t.add(27, _, 11, 1),
+                  t.add(157, _, 4, 8),
+                  t.addMany([152, 158, 159], _, 0, 7),
+                  t.add(155, _, 11, 3),
+                  t.add(144, _, 11, 9))
               return (
-                t.addMany(c, 0, 3, 0),
-                t.addMany(c, 1, 3, 1),
+                t.addMany(d, 0, 3, 0),
+                t.addMany(d, 1, 3, 1),
                 t.add(127, 1, 0, 1),
-                t.addMany(c, 8, 0, 8),
-                t.addMany(c, 3, 3, 3),
+                t.addMany(d, 8, 0, 8),
+                t.addMany(d, 3, 3, 3),
                 t.add(127, 3, 0, 3),
-                t.addMany(c, 4, 3, 4),
+                t.addMany(d, 4, 3, 4),
                 t.add(127, 4, 0, 4),
-                t.addMany(c, 6, 3, 6),
-                t.addMany(c, 5, 3, 5),
+                t.addMany(d, 6, 3, 6),
+                t.addMany(d, 5, 3, 5),
                 t.add(127, 5, 0, 5),
-                t.addMany(c, 2, 3, 2),
+                t.addMany(d, 2, 3, 2),
                 t.add(127, 2, 0, 2),
                 t.add(93, 1, 4, 8),
                 t.addMany(r, 8, 5, 8),
@@ -20218,7 +20504,7 @@ WARNING: This link could potentially be dangerous`)
                 t.addMany(s(28, 32), 8, 0, 8),
                 t.addMany([88, 94, 95], 1, 0, 7),
                 t.addMany(r, 7, 0, 7),
-                t.addMany(c, 7, 0, 7),
+                t.addMany(d, 7, 0, 7),
                 t.add(156, 7, 0, 0),
                 t.add(127, 7, 0, 7),
                 t.add(91, 1, 11, 3),
@@ -20244,22 +20530,22 @@ WARNING: This link could potentially be dangerous`)
                 t.addMany([89, 90, 92], 1, 10, 0),
                 t.addMany(s(96, 127), 1, 10, 0),
                 t.add(80, 1, 11, 9),
-                t.addMany(c, 9, 0, 9),
+                t.addMany(d, 9, 0, 9),
                 t.add(127, 9, 0, 9),
                 t.addMany(s(28, 32), 9, 0, 9),
                 t.addMany(s(32, 48), 9, 9, 12),
                 t.addMany(s(48, 60), 9, 8, 10),
                 t.addMany([60, 61, 62, 63], 9, 9, 10),
-                t.addMany(c, 11, 0, 11),
+                t.addMany(d, 11, 0, 11),
                 t.addMany(s(32, 128), 11, 0, 11),
                 t.addMany(s(28, 32), 11, 0, 11),
-                t.addMany(c, 10, 0, 10),
+                t.addMany(d, 10, 0, 10),
                 t.add(127, 10, 0, 10),
                 t.addMany(s(28, 32), 10, 0, 10),
                 t.addMany(s(48, 60), 10, 8, 10),
                 t.addMany([60, 61, 62, 63], 10, 0, 11),
                 t.addMany(s(32, 48), 10, 9, 12),
-                t.addMany(c, 12, 0, 12),
+                t.addMany(d, 12, 0, 12),
                 t.add(127, 12, 0, 12),
                 t.addMany(s(28, 32), 12, 0, 12),
                 t.addMany(s(32, 48), 12, 9, 12),
@@ -20267,7 +20553,7 @@ WARNING: This link could potentially be dangerous`)
                 t.addMany(s(64, 127), 12, 12, 13),
                 t.addMany(s(64, 127), 10, 12, 13),
                 t.addMany(s(64, 127), 9, 12, 13),
-                t.addMany(c, 13, 13, 13),
+                t.addMany(d, 13, 13, 13),
                 t.addMany(r, 13, 13, 13),
                 t.add(127, 13, 0, 13),
                 t.addMany([27, 156, 24, 26], 13, 14, 0),
@@ -20279,7 +20565,7 @@ WARNING: This link could potentially be dangerous`)
                 t
               )
             })()
-            class h extends l.Disposable {
+            class c extends l.Disposable {
               constructor(n = i.VT500_TRANSITION_TABLE) {
                 ;(super(),
                   (this._transitions = n),
@@ -20292,11 +20578,11 @@ WARNING: This link could potentially be dangerous`)
                   }),
                   (this.initialState = 0),
                   (this.currentState = this.initialState),
-                  (this._params = new f.Params()),
+                  (this._params = new u.Params()),
                   this._params.addParam(0),
                   (this._collect = 0),
                   (this.precedingJoinState = 0),
-                  (this._printHandlerFb = (s, r, c) => {}),
+                  (this._printHandlerFb = (s, r, d) => {}),
                   (this._executeHandlerFb = (s) => {}),
                   (this._csiHandlerFb = (s, r) => {}),
                   (this._escHandlerFb = (s) => {}),
@@ -20313,7 +20599,7 @@ WARNING: This link could potentially be dangerous`)
                     })
                   ),
                   (this._oscParser = this.register(new a.OscParser())),
-                  (this._dcsParser = this.register(new d.DcsParser())),
+                  (this._dcsParser = this.register(new h.DcsParser())),
                   (this._errorHandler = this._errorHandlerFb),
                   this.registerEscHandler({ final: '\\' }, () => !0))
               }
@@ -20327,18 +20613,18 @@ WARNING: This link could potentially be dangerous`)
                 if (n.intermediates) {
                   if (n.intermediates.length > 2)
                     throw new Error('only two bytes as intermediates are supported')
-                  for (let g = 0; g < n.intermediates.length; ++g) {
-                    const m = n.intermediates.charCodeAt(g)
-                    if (32 > m || m > 47)
+                  for (let v = 0; v < n.intermediates.length; ++v) {
+                    const _ = n.intermediates.charCodeAt(v)
+                    if (32 > _ || _ > 47)
                       throw new Error('intermediate must be in range 0x20 .. 0x2f')
-                    ;((r <<= 8), (r |= m))
+                    ;((r <<= 8), (r |= _))
                   }
                 }
                 if (n.final.length !== 1) throw new Error('final must be a single byte')
-                const c = n.final.charCodeAt(0)
-                if (s[0] > c || c > s[1])
+                const d = n.final.charCodeAt(0)
+                if (s[0] > d || d > s[1])
                   throw new Error(`final must be in range ${s[0]} .. ${s[1]}`)
-                return ((r <<= 8), (r |= c), r)
+                return ((r <<= 8), (r |= d), r)
               }
               identToString(n) {
                 const s = []
@@ -20354,13 +20640,13 @@ WARNING: This link could potentially be dangerous`)
               registerEscHandler(n, s) {
                 const r = this._identifier(n, [48, 126])
                 this._escHandlers[r] === void 0 && (this._escHandlers[r] = [])
-                const c = this._escHandlers[r]
+                const d = this._escHandlers[r]
                 return (
-                  c.push(s),
+                  d.push(s),
                   {
                     dispose: () => {
-                      const g = c.indexOf(s)
-                      g !== -1 && c.splice(g, 1)
+                      const v = d.indexOf(s)
+                      v !== -1 && d.splice(v, 1)
                     }
                   }
                 )
@@ -20385,13 +20671,13 @@ WARNING: This link could potentially be dangerous`)
               registerCsiHandler(n, s) {
                 const r = this._identifier(n)
                 this._csiHandlers[r] === void 0 && (this._csiHandlers[r] = [])
-                const c = this._csiHandlers[r]
+                const d = this._csiHandlers[r]
                 return (
-                  c.push(s),
+                  d.push(s),
                   {
                     dispose: () => {
-                      const g = c.indexOf(s)
-                      g !== -1 && c.splice(g, 1)
+                      const v = d.indexOf(s)
+                      v !== -1 && d.splice(v, 1)
                     }
                   }
                 )
@@ -20438,17 +20724,17 @@ WARNING: This link could potentially be dangerous`)
                   this._parseStack.state !== 0 &&
                     ((this._parseStack.state = 2), (this._parseStack.handlers = [])))
               }
-              _preserveStack(n, s, r, c, g) {
+              _preserveStack(n, s, r, d, v) {
                 ;((this._parseStack.state = n),
                   (this._parseStack.handlers = s),
                   (this._parseStack.handlerPos = r),
-                  (this._parseStack.transition = c),
-                  (this._parseStack.chunkPos = g))
+                  (this._parseStack.transition = d),
+                  (this._parseStack.chunkPos = v))
               }
               parse(n, s, r) {
-                let c,
-                  g = 0,
-                  m = 0,
+                let d,
+                  v = 0,
+                  _ = 0,
                   b = 0
                 if (this._parseStack.state)
                   if (this._parseStack.state === 2)
@@ -20462,42 +20748,42 @@ WARNING: This link could potentially be dangerous`)
                         )
                       )
                     const p = this._parseStack.handlers
-                    let y = this._parseStack.handlerPos - 1
+                    let S = this._parseStack.handlerPos - 1
                     switch (this._parseStack.state) {
                       case 3:
-                        if (r === !1 && y > -1) {
-                          for (; y >= 0 && ((c = p[y](this._params)), c !== !0); y--)
-                            if (c instanceof Promise) return ((this._parseStack.handlerPos = y), c)
+                        if (r === !1 && S > -1) {
+                          for (; S >= 0 && ((d = p[S](this._params)), d !== !0); S--)
+                            if (d instanceof Promise) return ((this._parseStack.handlerPos = S), d)
                         }
                         this._parseStack.handlers = []
                         break
                       case 4:
-                        if (r === !1 && y > -1) {
-                          for (; y >= 0 && ((c = p[y]()), c !== !0); y--)
-                            if (c instanceof Promise) return ((this._parseStack.handlerPos = y), c)
+                        if (r === !1 && S > -1) {
+                          for (; S >= 0 && ((d = p[S]()), d !== !0); S--)
+                            if (d instanceof Promise) return ((this._parseStack.handlerPos = S), d)
                         }
                         this._parseStack.handlers = []
                         break
                       case 6:
                         if (
-                          ((g = n[this._parseStack.chunkPos]),
-                          (c = this._dcsParser.unhook(g !== 24 && g !== 26, r)),
-                          c)
+                          ((v = n[this._parseStack.chunkPos]),
+                          (d = this._dcsParser.unhook(v !== 24 && v !== 26, r)),
+                          d)
                         )
-                          return c
-                        ;(g === 27 && (this._parseStack.transition |= 1),
+                          return d
+                        ;(v === 27 && (this._parseStack.transition |= 1),
                           this._params.reset(),
                           this._params.addParam(0),
                           (this._collect = 0))
                         break
                       case 5:
                         if (
-                          ((g = n[this._parseStack.chunkPos]),
-                          (c = this._oscParser.end(g !== 24 && g !== 26, r)),
-                          c)
+                          ((v = n[this._parseStack.chunkPos]),
+                          (d = this._oscParser.end(v !== 24 && v !== 26, r)),
+                          d)
                         )
-                          return c
-                        ;(g === 27 && (this._parseStack.transition |= 1),
+                          return d
+                        ;(v === 27 && (this._parseStack.transition |= 1),
                           this._params.reset(),
                           this._params.addParam(0),
                           (this._collect = 0))
@@ -20509,34 +20795,34 @@ WARNING: This link could potentially be dangerous`)
                   }
                 for (let p = b; p < s; ++p) {
                   switch (
-                    ((g = n[p]),
-                    (m = this._transitions.table[(this.currentState << 8) | (g < 160 ? g : x)]),
-                    m >> 4)
+                    ((v = n[p]),
+                    (_ = this._transitions.table[(this.currentState << 8) | (v < 160 ? v : x)]),
+                    _ >> 4)
                   ) {
                     case 2:
                       for (let j = p + 1; ; ++j) {
-                        if (j >= s || (g = n[j]) < 32 || (g > 126 && g < x)) {
+                        if (j >= s || (v = n[j]) < 32 || (v > 126 && v < x)) {
                           ;(this._printHandler(n, p, j), (p = j - 1))
                           break
                         }
-                        if (++j >= s || (g = n[j]) < 32 || (g > 126 && g < x)) {
+                        if (++j >= s || (v = n[j]) < 32 || (v > 126 && v < x)) {
                           ;(this._printHandler(n, p, j), (p = j - 1))
                           break
                         }
-                        if (++j >= s || (g = n[j]) < 32 || (g > 126 && g < x)) {
+                        if (++j >= s || (v = n[j]) < 32 || (v > 126 && v < x)) {
                           ;(this._printHandler(n, p, j), (p = j - 1))
                           break
                         }
-                        if (++j >= s || (g = n[j]) < 32 || (g > 126 && g < x)) {
+                        if (++j >= s || (v = n[j]) < 32 || (v > 126 && v < x)) {
                           ;(this._printHandler(n, p, j), (p = j - 1))
                           break
                         }
                       }
                       break
                     case 3:
-                      ;(this._executeHandlers[g]
-                        ? this._executeHandlers[g]()
-                        : this._executeHandlerFb(g),
+                      ;(this._executeHandlers[v]
+                        ? this._executeHandlers[v]()
+                        : this._executeHandlerFb(v),
                         (this.precedingJoinState = 0))
                       break
                     case 0:
@@ -20545,7 +20831,7 @@ WARNING: This link could potentially be dangerous`)
                       if (
                         this._errorHandler({
                           position: p,
-                          code: g,
+                          code: v,
                           currentState: this.currentState,
                           collect: this._collect,
                           params: this._params,
@@ -20555,16 +20841,16 @@ WARNING: This link could potentially be dangerous`)
                         return
                       break
                     case 7:
-                      const y = this._csiHandlers[(this._collect << 8) | g]
-                      let L = y ? y.length - 1 : -1
-                      for (; L >= 0 && ((c = y[L](this._params)), c !== !0); L--)
-                        if (c instanceof Promise) return (this._preserveStack(3, y, L, m, p), c)
-                      ;(L < 0 && this._csiHandlerFb((this._collect << 8) | g, this._params),
+                      const S = this._csiHandlers[(this._collect << 8) | v]
+                      let L = S ? S.length - 1 : -1
+                      for (; L >= 0 && ((d = S[L](this._params)), d !== !0); L--)
+                        if (d instanceof Promise) return (this._preserveStack(3, S, L, _, p), d)
+                      ;(L < 0 && this._csiHandlerFb((this._collect << 8) | v, this._params),
                         (this.precedingJoinState = 0))
                       break
                     case 8:
                       do
-                        switch (g) {
+                        switch (v) {
                           case 59:
                             this._params.addParam(0)
                             break
@@ -20572,45 +20858,45 @@ WARNING: This link could potentially be dangerous`)
                             this._params.addSubParam(-1)
                             break
                           default:
-                            this._params.addDigit(g - 48)
+                            this._params.addDigit(v - 48)
                         }
-                      while (++p < s && (g = n[p]) > 47 && g < 60)
+                      while (++p < s && (v = n[p]) > 47 && v < 60)
                       p--
                       break
                     case 9:
-                      ;((this._collect <<= 8), (this._collect |= g))
+                      ;((this._collect <<= 8), (this._collect |= v))
                       break
                     case 10:
-                      const M = this._escHandlers[(this._collect << 8) | g]
+                      const M = this._escHandlers[(this._collect << 8) | v]
                       let P = M ? M.length - 1 : -1
-                      for (; P >= 0 && ((c = M[P]()), c !== !0); P--)
-                        if (c instanceof Promise) return (this._preserveStack(4, M, P, m, p), c)
-                      ;(P < 0 && this._escHandlerFb((this._collect << 8) | g),
+                      for (; P >= 0 && ((d = M[P]()), d !== !0); P--)
+                        if (d instanceof Promise) return (this._preserveStack(4, M, P, _, p), d)
+                      ;(P < 0 && this._escHandlerFb((this._collect << 8) | v),
                         (this.precedingJoinState = 0))
                       break
                     case 11:
                       ;(this._params.reset(), this._params.addParam(0), (this._collect = 0))
                       break
                     case 12:
-                      this._dcsParser.hook((this._collect << 8) | g, this._params)
+                      this._dcsParser.hook((this._collect << 8) | v, this._params)
                       break
                     case 13:
                       for (let j = p + 1; ; ++j)
                         if (
                           j >= s ||
-                          (g = n[j]) === 24 ||
-                          g === 26 ||
-                          g === 27 ||
-                          (g > 127 && g < x)
+                          (v = n[j]) === 24 ||
+                          v === 26 ||
+                          v === 27 ||
+                          (v > 127 && v < x)
                         ) {
                           ;(this._dcsParser.put(n, p, j), (p = j - 1))
                           break
                         }
                       break
                     case 14:
-                      if (((c = this._dcsParser.unhook(g !== 24 && g !== 26)), c))
-                        return (this._preserveStack(6, [], 0, m, p), c)
-                      ;(g === 27 && (m |= 1),
+                      if (((d = this._dcsParser.unhook(v !== 24 && v !== 26)), d))
+                        return (this._preserveStack(6, [], 0, _, p), d)
+                      ;(v === 27 && (_ |= 1),
                         this._params.reset(),
                         this._params.addParam(0),
                         (this._collect = 0),
@@ -20621,31 +20907,31 @@ WARNING: This link could potentially be dangerous`)
                       break
                     case 5:
                       for (let j = p + 1; ; j++)
-                        if (j >= s || (g = n[j]) < 32 || (g > 127 && g < x)) {
+                        if (j >= s || (v = n[j]) < 32 || (v > 127 && v < x)) {
                           ;(this._oscParser.put(n, p, j), (p = j - 1))
                           break
                         }
                       break
                     case 6:
-                      if (((c = this._oscParser.end(g !== 24 && g !== 26)), c))
-                        return (this._preserveStack(5, [], 0, m, p), c)
-                      ;(g === 27 && (m |= 1),
+                      if (((d = this._oscParser.end(v !== 24 && v !== 26)), d))
+                        return (this._preserveStack(5, [], 0, _, p), d)
+                      ;(v === 27 && (_ |= 1),
                         this._params.reset(),
                         this._params.addParam(0),
                         (this._collect = 0),
                         (this.precedingJoinState = 0))
                   }
-                  this.currentState = 15 & m
+                  this.currentState = 15 & _
                 }
               }
             }
-            i.EscapeSequenceParser = h
+            i.EscapeSequenceParser = c
           },
           6242: (I, i, o) => {
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.OscHandler = i.OscParser = void 0))
             const l = o(5770),
-              f = o(482),
+              u = o(482),
               a = []
             ;((i.OscParser = class {
               constructor() {
@@ -20656,24 +20942,24 @@ WARNING: This link could potentially be dangerous`)
                   (this._handlerFb = () => {}),
                   (this._stack = { paused: !1, loopPosition: 0, fallThrough: !1 }))
               }
-              registerHandler(d, u) {
-                this._handlers[d] === void 0 && (this._handlers[d] = [])
-                const x = this._handlers[d]
+              registerHandler(h, f) {
+                this._handlers[h] === void 0 && (this._handlers[h] = [])
+                const x = this._handlers[h]
                 return (
-                  x.push(u),
+                  x.push(f),
                   {
                     dispose: () => {
-                      const h = x.indexOf(u)
-                      h !== -1 && x.splice(h, 1)
+                      const c = x.indexOf(f)
+                      c !== -1 && x.splice(c, 1)
                     }
                   }
                 )
               }
-              clearHandler(d) {
-                this._handlers[d] && delete this._handlers[d]
+              clearHandler(h) {
+                this._handlers[h] && delete this._handlers[h]
               }
-              setHandlerFallback(d) {
-                this._handlerFb = d
+              setHandlerFallback(h) {
+                this._handlerFb = h
               }
               dispose() {
                 ;((this._handlers = Object.create(null)),
@@ -20683,100 +20969,100 @@ WARNING: This link could potentially be dangerous`)
               reset() {
                 if (this._state === 2)
                   for (
-                    let d = this._stack.paused
+                    let h = this._stack.paused
                       ? this._stack.loopPosition - 1
                       : this._active.length - 1;
-                    d >= 0;
-                    --d
+                    h >= 0;
+                    --h
                   )
-                    this._active[d].end(!1)
+                    this._active[h].end(!1)
                 ;((this._stack.paused = !1), (this._active = a), (this._id = -1), (this._state = 0))
               }
               _start() {
                 if (((this._active = this._handlers[this._id] || a), this._active.length))
-                  for (let d = this._active.length - 1; d >= 0; d--) this._active[d].start()
+                  for (let h = this._active.length - 1; h >= 0; h--) this._active[h].start()
                 else this._handlerFb(this._id, 'START')
               }
-              _put(d, u, x) {
+              _put(h, f, x) {
                 if (this._active.length)
-                  for (let h = this._active.length - 1; h >= 0; h--) this._active[h].put(d, u, x)
-                else this._handlerFb(this._id, 'PUT', (0, f.utf32ToString)(d, u, x))
+                  for (let c = this._active.length - 1; c >= 0; c--) this._active[c].put(h, f, x)
+                else this._handlerFb(this._id, 'PUT', (0, u.utf32ToString)(h, f, x))
               }
               start() {
                 ;(this.reset(), (this._state = 1))
               }
-              put(d, u, x) {
+              put(h, f, x) {
                 if (this._state !== 3) {
                   if (this._state === 1)
-                    for (; u < x; ) {
-                      const h = d[u++]
-                      if (h === 59) {
+                    for (; f < x; ) {
+                      const c = h[f++]
+                      if (c === 59) {
                         ;((this._state = 2), this._start())
                         break
                       }
-                      if (h < 48 || 57 < h) return void (this._state = 3)
-                      ;(this._id === -1 && (this._id = 0), (this._id = 10 * this._id + h - 48))
+                      if (c < 48 || 57 < c) return void (this._state = 3)
+                      ;(this._id === -1 && (this._id = 0), (this._id = 10 * this._id + c - 48))
                     }
-                  this._state === 2 && x - u > 0 && this._put(d, u, x)
+                  this._state === 2 && x - f > 0 && this._put(h, f, x)
                 }
               }
-              end(d, u = !0) {
+              end(h, f = !0) {
                 if (this._state !== 0) {
                   if (this._state !== 3)
                     if ((this._state === 1 && this._start(), this._active.length)) {
                       let x = !1,
-                        h = this._active.length - 1,
+                        c = this._active.length - 1,
                         t = !1
                       if (
                         (this._stack.paused &&
-                          ((h = this._stack.loopPosition - 1),
-                          (x = u),
+                          ((c = this._stack.loopPosition - 1),
+                          (x = f),
                           (t = this._stack.fallThrough),
                           (this._stack.paused = !1)),
                         !t && x === !1)
                       ) {
-                        for (; h >= 0 && ((x = this._active[h].end(d)), x !== !0); h--)
+                        for (; c >= 0 && ((x = this._active[c].end(h)), x !== !0); c--)
                           if (x instanceof Promise)
                             return (
                               (this._stack.paused = !0),
-                              (this._stack.loopPosition = h),
+                              (this._stack.loopPosition = c),
                               (this._stack.fallThrough = !1),
                               x
                             )
-                        h--
+                        c--
                       }
-                      for (; h >= 0; h--)
-                        if (((x = this._active[h].end(!1)), x instanceof Promise))
+                      for (; c >= 0; c--)
+                        if (((x = this._active[c].end(!1)), x instanceof Promise))
                           return (
                             (this._stack.paused = !0),
-                            (this._stack.loopPosition = h),
+                            (this._stack.loopPosition = c),
                             (this._stack.fallThrough = !0),
                             x
                           )
-                    } else this._handlerFb(this._id, 'END', d)
+                    } else this._handlerFb(this._id, 'END', h)
                   ;((this._active = a), (this._id = -1), (this._state = 0))
                 }
               }
             }),
               (i.OscHandler = class {
-                constructor(d) {
-                  ;((this._handler = d), (this._data = ''), (this._hitLimit = !1))
+                constructor(h) {
+                  ;((this._handler = h), (this._data = ''), (this._hitLimit = !1))
                 }
                 start() {
                   ;((this._data = ''), (this._hitLimit = !1))
                 }
-                put(d, u, x) {
+                put(h, f, x) {
                   this._hitLimit ||
-                    ((this._data += (0, f.utf32ToString)(d, u, x)),
+                    ((this._data += (0, u.utf32ToString)(h, f, x)),
                     this._data.length > l.PAYLOAD_LIMIT &&
                       ((this._data = ''), (this._hitLimit = !0)))
                 }
-                end(d) {
-                  let u = !1
-                  if (this._hitLimit) u = !1
-                  else if (d && ((u = this._handler(this._data)), u instanceof Promise))
-                    return u.then((x) => ((this._data = ''), (this._hitLimit = !1), x))
-                  return ((this._data = ''), (this._hitLimit = !1), u)
+                end(h) {
+                  let f = !1
+                  if (this._hitLimit) f = !1
+                  else if (h && ((f = this._handler(this._data)), f instanceof Promise))
+                    return f.then((x) => ((this._data = ''), (this._hitLimit = !1), x))
+                  return ((this._data = ''), (this._hitLimit = !1), f)
                 }
               }))
           },
@@ -20785,21 +21071,21 @@ WARNING: This link could potentially be dangerous`)
             const o = 2147483647
             class l {
               static fromArray(a) {
-                const d = new l()
-                if (!a.length) return d
-                for (let u = Array.isArray(a[0]) ? 1 : 0; u < a.length; ++u) {
-                  const x = a[u]
-                  if (Array.isArray(x)) for (let h = 0; h < x.length; ++h) d.addSubParam(x[h])
-                  else d.addParam(x)
+                const h = new l()
+                if (!a.length) return h
+                for (let f = Array.isArray(a[0]) ? 1 : 0; f < a.length; ++f) {
+                  const x = a[f]
+                  if (Array.isArray(x)) for (let c = 0; c < x.length; ++c) h.addSubParam(x[c])
+                  else h.addParam(x)
                 }
-                return d
+                return h
               }
-              constructor(a = 32, d = 32) {
-                if (((this.maxLength = a), (this.maxSubParamsLength = d), d > 256))
+              constructor(a = 32, h = 32) {
+                if (((this.maxLength = a), (this.maxSubParamsLength = h), h > 256))
                   throw new Error('maxSubParamsLength must not be greater than 256')
                 ;((this.params = new Int32Array(a)),
                   (this.length = 0),
-                  (this._subParams = new Int32Array(d)),
+                  (this._subParams = new Int32Array(h)),
                   (this._subParamsLength = 0),
                   (this._subParamsIdx = new Uint16Array(a)),
                   (this._rejectDigits = !1),
@@ -20822,11 +21108,11 @@ WARNING: This link could potentially be dangerous`)
               }
               toArray() {
                 const a = []
-                for (let d = 0; d < this.length; ++d) {
-                  a.push(this.params[d])
-                  const u = this._subParamsIdx[d] >> 8,
-                    x = 255 & this._subParamsIdx[d]
-                  x - u > 0 && a.push(Array.prototype.slice.call(this._subParams, u, x))
+                for (let h = 0; h < this.length; ++h) {
+                  a.push(this.params[h])
+                  const f = this._subParamsIdx[h] >> 8,
+                    x = 255 & this._subParamsIdx[h]
+                  x - f > 0 && a.push(Array.prototype.slice.call(this._subParams, f, x))
                 }
                 return a
               }
@@ -20861,30 +21147,30 @@ WARNING: This link could potentially be dangerous`)
                 return (255 & this._subParamsIdx[a]) - (this._subParamsIdx[a] >> 8) > 0
               }
               getSubParams(a) {
-                const d = this._subParamsIdx[a] >> 8,
-                  u = 255 & this._subParamsIdx[a]
-                return u - d > 0 ? this._subParams.subarray(d, u) : null
+                const h = this._subParamsIdx[a] >> 8,
+                  f = 255 & this._subParamsIdx[a]
+                return f - h > 0 ? this._subParams.subarray(h, f) : null
               }
               getSubParamsAll() {
                 const a = {}
-                for (let d = 0; d < this.length; ++d) {
-                  const u = this._subParamsIdx[d] >> 8,
-                    x = 255 & this._subParamsIdx[d]
-                  x - u > 0 && (a[d] = this._subParams.slice(u, x))
+                for (let h = 0; h < this.length; ++h) {
+                  const f = this._subParamsIdx[h] >> 8,
+                    x = 255 & this._subParamsIdx[h]
+                  x - f > 0 && (a[h] = this._subParams.slice(f, x))
                 }
                 return a
               }
               addDigit(a) {
-                let d
+                let h
                 if (
                   this._rejectDigits ||
-                  !(d = this._digitIsSub ? this._subParamsLength : this.length) ||
+                  !(h = this._digitIsSub ? this._subParamsLength : this.length) ||
                   (this._digitIsSub && this._rejectSubDigits)
                 )
                   return
-                const u = this._digitIsSub ? this._subParams : this.params,
-                  x = u[d - 1]
-                u[d - 1] = ~x ? Math.min(10 * x + a, o) : a
+                const f = this._digitIsSub ? this._subParams : this.params,
+                  x = f[h - 1]
+                f[h - 1] = ~x ? Math.min(10 * x + a, o) : a
               }
             }
             i.Params = l
@@ -20901,17 +21187,17 @@ WARNING: This link could potentially be dangerous`)
                     this._addons[o].instance.dispose()
                 }
                 loadAddon(o, l) {
-                  const f = { instance: l, dispose: l.dispose, isDisposed: !1 }
-                  ;(this._addons.push(f),
-                    (l.dispose = () => this._wrappedAddonDispose(f)),
+                  const u = { instance: l, dispose: l.dispose, isDisposed: !1 }
+                  ;(this._addons.push(u),
+                    (l.dispose = () => this._wrappedAddonDispose(u)),
                     l.activate(o))
                 }
                 _wrappedAddonDispose(o) {
                   if (o.isDisposed) return
                   let l = -1
-                  for (let f = 0; f < this._addons.length; f++)
-                    if (this._addons[f] === o) {
-                      l = f
+                  for (let u = 0; u < this._addons.length; u++)
+                    if (this._addons[u] === o) {
+                      l = u
                       break
                     }
                   if (l === -1)
@@ -20923,10 +21209,10 @@ WARNING: This link could potentially be dangerous`)
           8771: (I, i, o) => {
             ;(Object.defineProperty(i, '__esModule', { value: !0 }), (i.BufferApiView = void 0))
             const l = o(3785),
-              f = o(511)
+              u = o(511)
             i.BufferApiView = class {
-              constructor(a, d) {
-                ;((this._buffer = a), (this.type = d))
+              constructor(a, h) {
+                ;((this._buffer = a), (this.type = h))
               }
               init(a) {
                 return ((this._buffer = a), this)
@@ -20947,11 +21233,11 @@ WARNING: This link could potentially be dangerous`)
                 return this._buffer.lines.length
               }
               getLine(a) {
-                const d = this._buffer.lines.get(a)
-                if (d) return new l.BufferLineApiView(d)
+                const h = this._buffer.lines.get(a)
+                if (h) return new l.BufferLineApiView(h)
               }
               getNullCell() {
-                return new f.CellData()
+                return new u.CellData()
               }
             }
           },
@@ -20959,8 +21245,8 @@ WARNING: This link could potentially be dangerous`)
             ;(Object.defineProperty(i, '__esModule', { value: !0 }), (i.BufferLineApiView = void 0))
             const l = o(511)
             i.BufferLineApiView = class {
-              constructor(f) {
-                this._line = f
+              constructor(u) {
+                this._line = u
               }
               get isWrapped() {
                 return this._line.isWrapped
@@ -20968,14 +21254,14 @@ WARNING: This link could potentially be dangerous`)
               get length() {
                 return this._line.length
               }
-              getCell(f, a) {
-                if (!(f < 0 || f >= this._line.length))
+              getCell(u, a) {
+                if (!(u < 0 || u >= this._line.length))
                   return a
-                    ? (this._line.loadCell(f, a), a)
-                    : this._line.loadCell(f, new l.CellData())
+                    ? (this._line.loadCell(u, a), a)
+                    : this._line.loadCell(u, new l.CellData())
               }
-              translateToString(f, a, d) {
-                return this._line.translateToString(f, a, d)
+              translateToString(u, a, h) {
+                return this._line.translateToString(u, a, h)
               }
             }
           },
@@ -20983,13 +21269,13 @@ WARNING: This link could potentially be dangerous`)
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.BufferNamespaceApi = void 0))
             const l = o(8771),
-              f = o(8460),
+              u = o(8460),
               a = o(844)
-            class d extends a.Disposable {
+            class h extends a.Disposable {
               constructor(x) {
                 ;(super(),
                   (this._core = x),
-                  (this._onBufferChange = this.register(new f.EventEmitter())),
+                  (this._onBufferChange = this.register(new u.EventEmitter())),
                   (this.onBufferChange = this._onBufferChange.event),
                   (this._normal = new l.BufferApiView(this._core.buffers.normal, 'normal')),
                   (this._alternate = new l.BufferApiView(this._core.buffers.alt, 'alternate')),
@@ -21007,7 +21293,7 @@ WARNING: This link could potentially be dangerous`)
                 return this._alternate.init(this._core.buffers.alt)
               }
             }
-            i.BufferNamespaceApi = d
+            i.BufferNamespaceApi = h
           },
           7975: (I, i) => {
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
@@ -21017,13 +21303,13 @@ WARNING: This link could potentially be dangerous`)
                   this._core = o
                 }
                 registerCsiHandler(o, l) {
-                  return this._core.registerCsiHandler(o, (f) => l(f.toArray()))
+                  return this._core.registerCsiHandler(o, (u) => l(u.toArray()))
                 }
                 addCsiHandler(o, l) {
                   return this.registerCsiHandler(o, l)
                 }
                 registerDcsHandler(o, l) {
-                  return this._core.registerDcsHandler(o, (f, a) => l(f, a.toArray()))
+                  return this._core.registerDcsHandler(o, (u, a) => l(u, a.toArray()))
                 }
                 addDcsHandler(o, l) {
                   return this.registerDcsHandler(o, l)
@@ -21067,17 +21353,17 @@ WARNING: This link could potentially be dangerous`)
             var l =
                 (this && this.__decorate) ||
                 function (t, n, s, r) {
-                  var c,
-                    g = arguments.length,
-                    m = g < 3 ? n : r === null ? (r = Object.getOwnPropertyDescriptor(n, s)) : r
+                  var d,
+                    v = arguments.length,
+                    _ = v < 3 ? n : r === null ? (r = Object.getOwnPropertyDescriptor(n, s)) : r
                   if (typeof Reflect == 'object' && typeof Reflect.decorate == 'function')
-                    m = Reflect.decorate(t, n, s, r)
+                    _ = Reflect.decorate(t, n, s, r)
                   else
                     for (var b = t.length - 1; b >= 0; b--)
-                      (c = t[b]) && (m = (g < 3 ? c(m) : g > 3 ? c(n, s, m) : c(n, s)) || m)
-                  return (g > 3 && m && Object.defineProperty(n, s, m), m)
+                      (d = t[b]) && (_ = (v < 3 ? d(_) : v > 3 ? d(n, s, _) : d(n, s)) || _)
+                  return (v > 3 && _ && Object.defineProperty(n, s, _), _)
                 },
-              f =
+              u =
                 (this && this.__param) ||
                 function (t, n) {
                   return function (s, r) {
@@ -21087,11 +21373,11 @@ WARNING: This link could potentially be dangerous`)
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.BufferService = i.MINIMUM_ROWS = i.MINIMUM_COLS = void 0))
             const a = o(8460),
-              d = o(844),
-              u = o(5295),
+              h = o(844),
+              f = o(5295),
               x = o(2585)
             ;((i.MINIMUM_COLS = 2), (i.MINIMUM_ROWS = 1))
-            let h = (i.BufferService = class extends d.Disposable {
+            let c = (i.BufferService = class extends h.Disposable {
               get buffer() {
                 return this.buffers.active
               }
@@ -21104,7 +21390,7 @@ WARNING: This link could potentially be dangerous`)
                   (this.onScroll = this._onScroll.event),
                   (this.cols = Math.max(t.rawOptions.cols || 0, i.MINIMUM_COLS)),
                   (this.rows = Math.max(t.rawOptions.rows || 0, i.MINIMUM_ROWS)),
-                  (this.buffers = this.register(new u.BufferSet(t, this))))
+                  (this.buffers = this.register(new f.BufferSet(t, this))))
               }
               resize(t, n) {
                 ;((this.cols = t),
@@ -21122,21 +21408,21 @@ WARNING: This link could potentially be dangerous`)
                   (r && r.length === this.cols && r.getFg(0) === t.fg && r.getBg(0) === t.bg) ||
                     ((r = s.getBlankLine(t, n)), (this._cachedBlankLine = r)),
                   (r.isWrapped = n))
-                const c = s.ybase + s.scrollTop,
-                  g = s.ybase + s.scrollBottom
+                const d = s.ybase + s.scrollTop,
+                  v = s.ybase + s.scrollBottom
                 if (s.scrollTop === 0) {
-                  const m = s.lines.isFull
-                  ;(g === s.lines.length - 1
-                    ? m
+                  const _ = s.lines.isFull
+                  ;(v === s.lines.length - 1
+                    ? _
                       ? s.lines.recycle().copyFrom(r)
                       : s.lines.push(r.clone())
-                    : s.lines.splice(g + 1, 0, r.clone()),
-                    m
+                    : s.lines.splice(v + 1, 0, r.clone()),
+                    _
                       ? this.isUserScrolling && (s.ydisp = Math.max(s.ydisp - 1, 0))
                       : (s.ybase++, this.isUserScrolling || s.ydisp++))
                 } else {
-                  const m = g - c + 1
-                  ;(s.lines.shiftElements(c + 1, m - 1, -1), s.lines.set(g, r.clone()))
+                  const _ = v - d + 1
+                  ;(s.lines.shiftElements(d + 1, _ - 1, -1), s.lines.set(v, r.clone()))
                 }
                 ;(this.isUserScrolling || (s.ydisp = s.ybase), this._onScroll.fire(s.ydisp))
               }
@@ -21146,12 +21432,12 @@ WARNING: This link could potentially be dangerous`)
                   if (r.ydisp === 0) return
                   this.isUserScrolling = !0
                 } else t + r.ydisp >= r.ybase && (this.isUserScrolling = !1)
-                const c = r.ydisp
+                const d = r.ydisp
                 ;((r.ydisp = Math.max(Math.min(r.ydisp + t, r.ybase), 0)),
-                  c !== r.ydisp && (n || this._onScroll.fire(r.ydisp)))
+                  d !== r.ydisp && (n || this._onScroll.fire(r.ydisp)))
               }
             })
-            i.BufferService = h = l([f(0, x.IOptionsService)], h)
+            i.BufferService = c = l([u(0, x.IOptionsService)], c)
           },
           7994: (I, i) => {
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
@@ -21174,28 +21460,28 @@ WARNING: This link could potentially be dangerous`)
           1753: function (I, i, o) {
             var l =
                 (this && this.__decorate) ||
-                function (r, c, g, m) {
+                function (r, d, v, _) {
                   var b,
                     p = arguments.length,
-                    y = p < 3 ? c : m === null ? (m = Object.getOwnPropertyDescriptor(c, g)) : m
+                    S = p < 3 ? d : _ === null ? (_ = Object.getOwnPropertyDescriptor(d, v)) : _
                   if (typeof Reflect == 'object' && typeof Reflect.decorate == 'function')
-                    y = Reflect.decorate(r, c, g, m)
+                    S = Reflect.decorate(r, d, v, _)
                   else
                     for (var L = r.length - 1; L >= 0; L--)
-                      (b = r[L]) && (y = (p < 3 ? b(y) : p > 3 ? b(c, g, y) : b(c, g)) || y)
-                  return (p > 3 && y && Object.defineProperty(c, g, y), y)
+                      (b = r[L]) && (S = (p < 3 ? b(S) : p > 3 ? b(d, v, S) : b(d, v)) || S)
+                  return (p > 3 && S && Object.defineProperty(d, v, S), S)
                 },
-              f =
+              u =
                 (this && this.__param) ||
-                function (r, c) {
-                  return function (g, m) {
-                    c(g, m, r)
+                function (r, d) {
+                  return function (v, _) {
+                    d(v, _, r)
                   }
                 }
             ;(Object.defineProperty(i, '__esModule', { value: !0 }), (i.CoreMouseService = void 0))
             const a = o(2585),
-              d = o(8460),
-              u = o(844),
+              h = o(8460),
+              f = o(844),
               x = {
                 NONE: { events: 0, restrict: () => !1 },
                 X10: {
@@ -21209,56 +21495,56 @@ WARNING: This link could potentially be dangerous`)
                 DRAG: { events: 23, restrict: (r) => r.action !== 32 || r.button !== 3 },
                 ANY: { events: 31, restrict: (r) => !0 }
               }
-            function h(r, c) {
-              let g = (r.ctrl ? 16 : 0) | (r.shift ? 4 : 0) | (r.alt ? 8 : 0)
+            function c(r, d) {
+              let v = (r.ctrl ? 16 : 0) | (r.shift ? 4 : 0) | (r.alt ? 8 : 0)
               return (
                 r.button === 4
-                  ? ((g |= 64), (g |= r.action))
-                  : ((g |= 3 & r.button),
-                    4 & r.button && (g |= 64),
-                    8 & r.button && (g |= 128),
-                    r.action === 32 ? (g |= 32) : r.action !== 0 || c || (g |= 3)),
-                g
+                  ? ((v |= 64), (v |= r.action))
+                  : ((v |= 3 & r.button),
+                    4 & r.button && (v |= 64),
+                    8 & r.button && (v |= 128),
+                    r.action === 32 ? (v |= 32) : r.action !== 0 || d || (v |= 3)),
+                v
               )
             }
             const t = String.fromCharCode,
               n = {
                 DEFAULT: (r) => {
-                  const c = [h(r, !1) + 32, r.col + 32, r.row + 32]
-                  return c[0] > 255 || c[1] > 255 || c[2] > 255
+                  const d = [c(r, !1) + 32, r.col + 32, r.row + 32]
+                  return d[0] > 255 || d[1] > 255 || d[2] > 255
                     ? ''
-                    : `\x1B[M${t(c[0])}${t(c[1])}${t(c[2])}`
+                    : `\x1B[M${t(d[0])}${t(d[1])}${t(d[2])}`
                 },
                 SGR: (r) => {
-                  const c = r.action === 0 && r.button !== 4 ? 'm' : 'M'
-                  return `\x1B[<${h(r, !0)};${r.col};${r.row}${c}`
+                  const d = r.action === 0 && r.button !== 4 ? 'm' : 'M'
+                  return `\x1B[<${c(r, !0)};${r.col};${r.row}${d}`
                 },
                 SGR_PIXELS: (r) => {
-                  const c = r.action === 0 && r.button !== 4 ? 'm' : 'M'
-                  return `\x1B[<${h(r, !0)};${r.x};${r.y}${c}`
+                  const d = r.action === 0 && r.button !== 4 ? 'm' : 'M'
+                  return `\x1B[<${c(r, !0)};${r.x};${r.y}${d}`
                 }
               }
-            let s = (i.CoreMouseService = class extends u.Disposable {
-              constructor(r, c) {
+            let s = (i.CoreMouseService = class extends f.Disposable {
+              constructor(r, d) {
                 ;(super(),
                   (this._bufferService = r),
-                  (this._coreService = c),
+                  (this._coreService = d),
                   (this._protocols = {}),
                   (this._encodings = {}),
                   (this._activeProtocol = ''),
                   (this._activeEncoding = ''),
                   (this._lastEvent = null),
-                  (this._onProtocolChange = this.register(new d.EventEmitter())),
+                  (this._onProtocolChange = this.register(new h.EventEmitter())),
                   (this.onProtocolChange = this._onProtocolChange.event))
-                for (const g of Object.keys(x)) this.addProtocol(g, x[g])
-                for (const g of Object.keys(n)) this.addEncoding(g, n[g])
+                for (const v of Object.keys(x)) this.addProtocol(v, x[v])
+                for (const v of Object.keys(n)) this.addEncoding(v, n[v])
                 this.reset()
               }
-              addProtocol(r, c) {
-                this._protocols[r] = c
+              addProtocol(r, d) {
+                this._protocols[r] = d
               }
-              addEncoding(r, c) {
-                this._encodings[r] = c
+              addEncoding(r, d) {
+                this._encodings[r] = d
               }
               get activeProtocol() {
                 return this._activeProtocol
@@ -21300,12 +21586,12 @@ WARNING: This link could potentially be dangerous`)
                   !this._protocols[this._activeProtocol].restrict(r)
                 )
                   return !1
-                const c = this._encodings[this._activeEncoding](r)
+                const d = this._encodings[this._activeEncoding](r)
                 return (
-                  c &&
+                  d &&
                     (this._activeEncoding === 'DEFAULT'
-                      ? this._coreService.triggerBinaryEvent(c)
-                      : this._coreService.triggerDataEvent(c, !0)),
+                      ? this._coreService.triggerBinaryEvent(d)
+                      : this._coreService.triggerDataEvent(d, !0)),
                   (this._lastEvent = r),
                   !0
                 )
@@ -21319,48 +21605,48 @@ WARNING: This link could potentially be dangerous`)
                   wheel: !!(16 & r)
                 }
               }
-              _equalEvents(r, c, g) {
-                if (g) {
-                  if (r.x !== c.x || r.y !== c.y) return !1
-                } else if (r.col !== c.col || r.row !== c.row) return !1
+              _equalEvents(r, d, v) {
+                if (v) {
+                  if (r.x !== d.x || r.y !== d.y) return !1
+                } else if (r.col !== d.col || r.row !== d.row) return !1
                 return (
-                  r.button === c.button &&
-                  r.action === c.action &&
-                  r.ctrl === c.ctrl &&
-                  r.alt === c.alt &&
-                  r.shift === c.shift
+                  r.button === d.button &&
+                  r.action === d.action &&
+                  r.ctrl === d.ctrl &&
+                  r.alt === d.alt &&
+                  r.shift === d.shift
                 )
               }
             })
-            i.CoreMouseService = s = l([f(0, a.IBufferService), f(1, a.ICoreService)], s)
+            i.CoreMouseService = s = l([u(0, a.IBufferService), u(1, a.ICoreService)], s)
           },
           6975: function (I, i, o) {
             var l =
                 (this && this.__decorate) ||
-                function (s, r, c, g) {
-                  var m,
+                function (s, r, d, v) {
+                  var _,
                     b = arguments.length,
-                    p = b < 3 ? r : g === null ? (g = Object.getOwnPropertyDescriptor(r, c)) : g
+                    p = b < 3 ? r : v === null ? (v = Object.getOwnPropertyDescriptor(r, d)) : v
                   if (typeof Reflect == 'object' && typeof Reflect.decorate == 'function')
-                    p = Reflect.decorate(s, r, c, g)
+                    p = Reflect.decorate(s, r, d, v)
                   else
-                    for (var y = s.length - 1; y >= 0; y--)
-                      (m = s[y]) && (p = (b < 3 ? m(p) : b > 3 ? m(r, c, p) : m(r, c)) || p)
-                  return (b > 3 && p && Object.defineProperty(r, c, p), p)
+                    for (var S = s.length - 1; S >= 0; S--)
+                      (_ = s[S]) && (p = (b < 3 ? _(p) : b > 3 ? _(r, d, p) : _(r, d)) || p)
+                  return (b > 3 && p && Object.defineProperty(r, d, p), p)
                 },
-              f =
+              u =
                 (this && this.__param) ||
                 function (s, r) {
-                  return function (c, g) {
-                    r(c, g, s)
+                  return function (d, v) {
+                    r(d, v, s)
                   }
                 }
             ;(Object.defineProperty(i, '__esModule', { value: !0 }), (i.CoreService = void 0))
             const a = o(1439),
-              d = o(8460),
-              u = o(844),
+              h = o(8460),
+              f = o(844),
               x = o(2585),
-              h = Object.freeze({ insertMode: !1 }),
+              c = Object.freeze({ insertMode: !1 }),
               t = Object.freeze({
                 applicationCursorKeys: !1,
                 applicationKeypad: !1,
@@ -21370,38 +21656,38 @@ WARNING: This link could potentially be dangerous`)
                 sendFocus: !1,
                 wraparound: !0
               })
-            let n = (i.CoreService = class extends u.Disposable {
-              constructor(s, r, c) {
+            let n = (i.CoreService = class extends f.Disposable {
+              constructor(s, r, d) {
                 ;(super(),
                   (this._bufferService = s),
                   (this._logService = r),
-                  (this._optionsService = c),
+                  (this._optionsService = d),
                   (this.isCursorInitialized = !1),
                   (this.isCursorHidden = !1),
-                  (this._onData = this.register(new d.EventEmitter())),
+                  (this._onData = this.register(new h.EventEmitter())),
                   (this.onData = this._onData.event),
-                  (this._onUserInput = this.register(new d.EventEmitter())),
+                  (this._onUserInput = this.register(new h.EventEmitter())),
                   (this.onUserInput = this._onUserInput.event),
-                  (this._onBinary = this.register(new d.EventEmitter())),
+                  (this._onBinary = this.register(new h.EventEmitter())),
                   (this.onBinary = this._onBinary.event),
-                  (this._onRequestScrollToBottom = this.register(new d.EventEmitter())),
+                  (this._onRequestScrollToBottom = this.register(new h.EventEmitter())),
                   (this.onRequestScrollToBottom = this._onRequestScrollToBottom.event),
-                  (this.modes = (0, a.clone)(h)),
+                  (this.modes = (0, a.clone)(c)),
                   (this.decPrivateModes = (0, a.clone)(t)))
               }
               reset() {
-                ;((this.modes = (0, a.clone)(h)), (this.decPrivateModes = (0, a.clone)(t)))
+                ;((this.modes = (0, a.clone)(c)), (this.decPrivateModes = (0, a.clone)(t)))
               }
               triggerDataEvent(s, r = !1) {
                 if (this._optionsService.rawOptions.disableStdin) return
-                const c = this._bufferService.buffer
+                const d = this._bufferService.buffer
                 ;(r &&
                   this._optionsService.rawOptions.scrollOnUserInput &&
-                  c.ybase !== c.ydisp &&
+                  d.ybase !== d.ydisp &&
                   this._onRequestScrollToBottom.fire(),
                   r && this._onUserInput.fire(),
                   this._logService.debug(`sending data "${s}"`, () =>
-                    s.split('').map((g) => g.charCodeAt(0))
+                    s.split('').map((v) => v.charCodeAt(0))
                   ),
                   this._onData.fire(s))
               }
@@ -21414,28 +21700,28 @@ WARNING: This link could potentially be dangerous`)
               }
             })
             i.CoreService = n = l(
-              [f(0, x.IBufferService), f(1, x.ILogService), f(2, x.IOptionsService)],
+              [u(0, x.IBufferService), u(1, x.ILogService), u(2, x.IOptionsService)],
               n
             )
           },
           9074: (I, i, o) => {
             ;(Object.defineProperty(i, '__esModule', { value: !0 }), (i.DecorationService = void 0))
             const l = o(8055),
-              f = o(8460),
+              u = o(8460),
               a = o(844),
-              d = o(6106)
-            let u = 0,
+              h = o(6106)
+            let f = 0,
               x = 0
-            class h extends a.Disposable {
+            class c extends a.Disposable {
               get decorations() {
                 return this._decorations.values()
               }
               constructor() {
                 ;(super(),
-                  (this._decorations = new d.SortedList((s) => s?.marker.line)),
-                  (this._onDecorationRegistered = this.register(new f.EventEmitter())),
+                  (this._decorations = new h.SortedList((s) => s?.marker.line)),
+                  (this._onDecorationRegistered = this.register(new u.EventEmitter())),
                   (this.onDecorationRegistered = this._onDecorationRegistered.event),
-                  (this._onDecorationRemoved = this.register(new f.EventEmitter())),
+                  (this._onDecorationRemoved = this.register(new u.EventEmitter())),
                   (this.onDecorationRemoved = this._onDecorationRemoved.event),
                   this.register((0, a.toDisposable)(() => this.reset())))
               }
@@ -21443,11 +21729,11 @@ WARNING: This link could potentially be dangerous`)
                 if (s.marker.isDisposed) return
                 const r = new t(s)
                 if (r) {
-                  const c = r.marker.onDispose(() => r.dispose())
+                  const d = r.marker.onDispose(() => r.dispose())
                   ;(r.onDispose(() => {
                     r &&
                       (this._decorations.delete(r) && this._onDecorationRemoved.fire(r),
-                      c.dispose())
+                      d.dispose())
                   }),
                     this._decorations.insert(r),
                     this._onDecorationRegistered.fire(r))
@@ -21458,23 +21744,23 @@ WARNING: This link could potentially be dangerous`)
                 for (const s of this._decorations.values()) s.dispose()
                 this._decorations.clear()
               }
-              *getDecorationsAtCell(s, r, c) {
-                let g = 0,
-                  m = 0
+              *getDecorationsAtCell(s, r, d) {
+                let v = 0,
+                  _ = 0
                 for (const b of this._decorations.getKeyIterator(r))
-                  ((g = b.options.x ?? 0),
-                    (m = g + (b.options.width ?? 1)),
-                    s >= g && s < m && (!c || (b.options.layer ?? 'bottom') === c) && (yield b))
+                  ((v = b.options.x ?? 0),
+                    (_ = v + (b.options.width ?? 1)),
+                    s >= v && s < _ && (!d || (b.options.layer ?? 'bottom') === d) && (yield b))
               }
-              forEachDecorationAtCell(s, r, c, g) {
-                this._decorations.forEachByKey(r, (m) => {
-                  ;((u = m.options.x ?? 0),
-                    (x = u + (m.options.width ?? 1)),
-                    s >= u && s < x && (!c || (m.options.layer ?? 'bottom') === c) && g(m))
+              forEachDecorationAtCell(s, r, d, v) {
+                this._decorations.forEachByKey(r, (_) => {
+                  ;((f = _.options.x ?? 0),
+                    (x = f + (_.options.width ?? 1)),
+                    s >= f && s < x && (!d || (_.options.layer ?? 'bottom') === d) && v(_))
                 })
               }
             }
-            i.DecorationService = h
+            i.DecorationService = c
             class t extends a.Disposable {
               get isDisposed() {
                 return this._isDisposed
@@ -21500,9 +21786,9 @@ WARNING: This link could potentially be dangerous`)
               constructor(s) {
                 ;(super(),
                   (this.options = s),
-                  (this.onRenderEmitter = this.register(new f.EventEmitter())),
+                  (this.onRenderEmitter = this.register(new u.EventEmitter())),
                   (this.onRender = this.onRenderEmitter.event),
-                  (this._onDispose = this.register(new f.EventEmitter())),
+                  (this._onDispose = this.register(new u.EventEmitter())),
                   (this.onDispose = this._onDispose.event),
                   (this._cachedBg = null),
                   (this._cachedFg = null),
@@ -21520,24 +21806,24 @@ WARNING: This link could potentially be dangerous`)
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.InstantiationService = i.ServiceCollection = void 0))
             const l = o(2585),
-              f = o(8343)
+              u = o(8343)
             class a {
-              constructor(...u) {
+              constructor(...f) {
                 this._entries = new Map()
-                for (const [x, h] of u) this.set(x, h)
+                for (const [x, c] of f) this.set(x, c)
               }
-              set(u, x) {
-                const h = this._entries.get(u)
-                return (this._entries.set(u, x), h)
+              set(f, x) {
+                const c = this._entries.get(f)
+                return (this._entries.set(f, x), c)
               }
-              forEach(u) {
-                for (const [x, h] of this._entries.entries()) u(x, h)
+              forEach(f) {
+                for (const [x, c] of this._entries.entries()) f(x, c)
               }
-              has(u) {
-                return this._entries.has(u)
+              has(f) {
+                return this._entries.has(f)
               }
-              get(u) {
-                return this._entries.get(u)
+              get(f) {
+                return this._entries.get(f)
               }
             }
             ;((i.ServiceCollection = a),
@@ -21545,29 +21831,29 @@ WARNING: This link could potentially be dangerous`)
                 constructor() {
                   ;((this._services = new a()), this._services.set(l.IInstantiationService, this))
                 }
-                setService(d, u) {
-                  this._services.set(d, u)
+                setService(h, f) {
+                  this._services.set(h, f)
                 }
-                getService(d) {
-                  return this._services.get(d)
+                getService(h) {
+                  return this._services.get(h)
                 }
-                createInstance(d, ...u) {
-                  const x = (0, f.getServiceDependencies)(d).sort((n, s) => n.index - s.index),
-                    h = []
+                createInstance(h, ...f) {
+                  const x = (0, u.getServiceDependencies)(h).sort((n, s) => n.index - s.index),
+                    c = []
                   for (const n of x) {
                     const s = this._services.get(n.id)
                     if (!s)
                       throw new Error(
-                        `[createInstance] ${d.name} depends on UNKNOWN service ${n.id}.`
+                        `[createInstance] ${h.name} depends on UNKNOWN service ${n.id}.`
                       )
-                    h.push(s)
+                    c.push(s)
                   }
-                  const t = x.length > 0 ? x[0].index : u.length
-                  if (u.length !== t)
+                  const t = x.length > 0 ? x[0].index : f.length
+                  if (f.length !== t)
                     throw new Error(
-                      `[createInstance] First service dependency of ${d.name} at position ${t + 1} conflicts with ${u.length} static arguments`
+                      `[createInstance] First service dependency of ${h.name} at position ${t + 1} conflicts with ${f.length} static arguments`
                     )
-                  return new d(...u, ...h)
+                  return new h(...f, ...c)
                 }
               }))
           },
@@ -21575,17 +21861,17 @@ WARNING: This link could potentially be dangerous`)
             var l =
                 (this && this.__decorate) ||
                 function (t, n, s, r) {
-                  var c,
-                    g = arguments.length,
-                    m = g < 3 ? n : r === null ? (r = Object.getOwnPropertyDescriptor(n, s)) : r
+                  var d,
+                    v = arguments.length,
+                    _ = v < 3 ? n : r === null ? (r = Object.getOwnPropertyDescriptor(n, s)) : r
                   if (typeof Reflect == 'object' && typeof Reflect.decorate == 'function')
-                    m = Reflect.decorate(t, n, s, r)
+                    _ = Reflect.decorate(t, n, s, r)
                   else
                     for (var b = t.length - 1; b >= 0; b--)
-                      (c = t[b]) && (m = (g < 3 ? c(m) : g > 3 ? c(n, s, m) : c(n, s)) || m)
-                  return (g > 3 && m && Object.defineProperty(n, s, m), m)
+                      (d = t[b]) && (_ = (v < 3 ? d(_) : v > 3 ? d(n, s, _) : d(n, s)) || _)
+                  return (v > 3 && _ && Object.defineProperty(n, s, _), _)
                 },
-              f =
+              u =
                 (this && this.__param) ||
                 function (t, n) {
                   return function (s, r) {
@@ -21595,24 +21881,24 @@ WARNING: This link could potentially be dangerous`)
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.traceCall = i.setTraceLogger = i.LogService = void 0))
             const a = o(844),
-              d = o(2585),
-              u = {
-                trace: d.LogLevelEnum.TRACE,
-                debug: d.LogLevelEnum.DEBUG,
-                info: d.LogLevelEnum.INFO,
-                warn: d.LogLevelEnum.WARN,
-                error: d.LogLevelEnum.ERROR,
-                off: d.LogLevelEnum.OFF
+              h = o(2585),
+              f = {
+                trace: h.LogLevelEnum.TRACE,
+                debug: h.LogLevelEnum.DEBUG,
+                info: h.LogLevelEnum.INFO,
+                warn: h.LogLevelEnum.WARN,
+                error: h.LogLevelEnum.ERROR,
+                off: h.LogLevelEnum.OFF
               }
             let x,
-              h = (i.LogService = class extends a.Disposable {
+              c = (i.LogService = class extends a.Disposable {
                 get logLevel() {
                   return this._logLevel
                 }
                 constructor(t) {
                   ;(super(),
                     (this._optionsService = t),
-                    (this._logLevel = d.LogLevelEnum.OFF),
+                    (this._logLevel = h.LogLevelEnum.OFF),
                     this._updateLogLevel(),
                     this.register(
                       this._optionsService.onSpecificOptionChange('logLevel', () =>
@@ -21622,7 +21908,7 @@ WARNING: This link could potentially be dangerous`)
                     (x = this))
                 }
                 _updateLogLevel() {
-                  this._logLevel = u[this._optionsService.rawOptions.logLevel]
+                  this._logLevel = f[this._optionsService.rawOptions.logLevel]
                 }
                 _evalLazyOptionalParams(t) {
                   for (let n = 0; n < t.length; n++) typeof t[n] == 'function' && (t[n] = t[n]())
@@ -21636,7 +21922,7 @@ WARNING: This link could potentially be dangerous`)
                     ))
                 }
                 trace(t, ...n) {
-                  this._logLevel <= d.LogLevelEnum.TRACE &&
+                  this._logLevel <= h.LogLevelEnum.TRACE &&
                     this._log(
                       this._optionsService.options.logger?.trace.bind(
                         this._optionsService.options.logger
@@ -21646,7 +21932,7 @@ WARNING: This link could potentially be dangerous`)
                     )
                 }
                 debug(t, ...n) {
-                  this._logLevel <= d.LogLevelEnum.DEBUG &&
+                  this._logLevel <= h.LogLevelEnum.DEBUG &&
                     this._log(
                       this._optionsService.options.logger?.debug.bind(
                         this._optionsService.options.logger
@@ -21656,7 +21942,7 @@ WARNING: This link could potentially be dangerous`)
                     )
                 }
                 info(t, ...n) {
-                  this._logLevel <= d.LogLevelEnum.INFO &&
+                  this._logLevel <= h.LogLevelEnum.INFO &&
                     this._log(
                       this._optionsService.options.logger?.info.bind(
                         this._optionsService.options.logger
@@ -21666,7 +21952,7 @@ WARNING: This link could potentially be dangerous`)
                     )
                 }
                 warn(t, ...n) {
-                  this._logLevel <= d.LogLevelEnum.WARN &&
+                  this._logLevel <= h.LogLevelEnum.WARN &&
                     this._log(
                       this._optionsService.options.logger?.warn.bind(
                         this._optionsService.options.logger
@@ -21676,7 +21962,7 @@ WARNING: This link could potentially be dangerous`)
                     )
                 }
                 error(t, ...n) {
-                  this._logLevel <= d.LogLevelEnum.ERROR &&
+                  this._logLevel <= h.LogLevelEnum.ERROR &&
                     this._log(
                       this._optionsService.options.logger?.error.bind(
                         this._optionsService.options.logger
@@ -21686,18 +21972,18 @@ WARNING: This link could potentially be dangerous`)
                     )
                 }
               })
-            ;((i.LogService = h = l([f(0, d.IOptionsService)], h)),
+            ;((i.LogService = c = l([u(0, h.IOptionsService)], c)),
               (i.setTraceLogger = function (t) {
                 x = t
               }),
               (i.traceCall = function (t, n, s) {
                 if (typeof s.value != 'function') throw new Error('not supported')
                 const r = s.value
-                s.value = function (...c) {
-                  if (x.logLevel !== d.LogLevelEnum.TRACE) return r.apply(this, c)
-                  x.trace(`GlyphRenderer#${r.name}(${c.map((m) => JSON.stringify(m)).join(', ')})`)
-                  const g = r.apply(this, c)
-                  return (x.trace(`GlyphRenderer#${r.name} return`, g), g)
+                s.value = function (...d) {
+                  if (x.logLevel !== h.LogLevelEnum.TRACE) return r.apply(this, d)
+                  x.trace(`GlyphRenderer#${r.name}(${d.map((_) => JSON.stringify(_)).join(', ')})`)
+                  const v = r.apply(this, d)
+                  return (x.trace(`GlyphRenderer#${r.name} return`, v), v)
                 }
               }))
           },
@@ -21705,7 +21991,7 @@ WARNING: This link could potentially be dangerous`)
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
               (i.OptionsService = i.DEFAULT_OPTIONS = void 0))
             const l = o(8460),
-              f = o(844),
+              u = o(844),
               a = o(6114)
             i.DEFAULT_OPTIONS = {
               cols: 80,
@@ -21754,7 +22040,7 @@ WARNING: This link could potentially be dangerous`)
               cancelEvents: !1,
               overviewRulerWidth: 0
             }
-            const d = [
+            const h = [
               'normal',
               'bold',
               '100',
@@ -21767,16 +22053,16 @@ WARNING: This link could potentially be dangerous`)
               '800',
               '900'
             ]
-            class u extends f.Disposable {
-              constructor(h) {
+            class f extends u.Disposable {
+              constructor(c) {
                 ;(super(),
                   (this._onOptionChange = this.register(new l.EventEmitter())),
                   (this.onOptionChange = this._onOptionChange.event))
                 const t = { ...i.DEFAULT_OPTIONS }
-                for (const n in h)
+                for (const n in c)
                   if (n in t)
                     try {
-                      const s = h[n]
+                      const s = c[n]
                       t[n] = this._sanitizeAndValidateOption(n, s)
                     } catch (s) {
                       console.error(s)
@@ -21785,24 +22071,24 @@ WARNING: This link could potentially be dangerous`)
                   (this.options = { ...t }),
                   this._setupOptions(),
                   this.register(
-                    (0, f.toDisposable)(() => {
+                    (0, u.toDisposable)(() => {
                       ;((this.rawOptions.linkHandler = null),
                         (this.rawOptions.documentOverride = null))
                     })
                   ))
               }
-              onSpecificOptionChange(h, t) {
+              onSpecificOptionChange(c, t) {
                 return this.onOptionChange((n) => {
-                  n === h && t(this.rawOptions[h])
+                  n === c && t(this.rawOptions[c])
                 })
               }
-              onMultipleOptionChange(h, t) {
+              onMultipleOptionChange(c, t) {
                 return this.onOptionChange((n) => {
-                  h.indexOf(n) !== -1 && t()
+                  c.indexOf(n) !== -1 && t()
                 })
               }
               _setupOptions() {
-                const h = (n) => {
+                const c = (n) => {
                     if (!(n in i.DEFAULT_OPTIONS)) throw new Error(`No option with key "${n}"`)
                     return this.rawOptions[n]
                   },
@@ -21813,50 +22099,50 @@ WARNING: This link could potentially be dangerous`)
                         ((this.rawOptions[n] = s), this._onOptionChange.fire(n)))
                   }
                 for (const n in this.rawOptions) {
-                  const s = { get: h.bind(this, n), set: t.bind(this, n) }
+                  const s = { get: c.bind(this, n), set: t.bind(this, n) }
                   Object.defineProperty(this.options, n, s)
                 }
               }
-              _sanitizeAndValidateOption(h, t) {
-                switch (h) {
+              _sanitizeAndValidateOption(c, t) {
+                switch (c) {
                   case 'cursorStyle':
                     if (
-                      (t || (t = i.DEFAULT_OPTIONS[h]),
+                      (t || (t = i.DEFAULT_OPTIONS[c]),
                       !(function (n) {
                         return n === 'block' || n === 'underline' || n === 'bar'
                       })(t))
                     )
-                      throw new Error(`"${t}" is not a valid value for ${h}`)
+                      throw new Error(`"${t}" is not a valid value for ${c}`)
                     break
                   case 'wordSeparator':
-                    t || (t = i.DEFAULT_OPTIONS[h])
+                    t || (t = i.DEFAULT_OPTIONS[c])
                     break
                   case 'fontWeight':
                   case 'fontWeightBold':
                     if (typeof t == 'number' && 1 <= t && t <= 1e3) break
-                    t = d.includes(t) ? t : i.DEFAULT_OPTIONS[h]
+                    t = h.includes(t) ? t : i.DEFAULT_OPTIONS[c]
                     break
                   case 'cursorWidth':
                     t = Math.floor(t)
                   case 'lineHeight':
                   case 'tabStopWidth':
-                    if (t < 1) throw new Error(`${h} cannot be less than 1, value: ${t}`)
+                    if (t < 1) throw new Error(`${c} cannot be less than 1, value: ${t}`)
                     break
                   case 'minimumContrastRatio':
                     t = Math.max(1, Math.min(21, Math.round(10 * t) / 10))
                     break
                   case 'scrollback':
                     if ((t = Math.min(t, 4294967295)) < 0)
-                      throw new Error(`${h} cannot be less than 0, value: ${t}`)
+                      throw new Error(`${c} cannot be less than 0, value: ${t}`)
                     break
                   case 'fastScrollSensitivity':
                   case 'scrollSensitivity':
                     if (t <= 0)
-                      throw new Error(`${h} cannot be less than or equal to 0, value: ${t}`)
+                      throw new Error(`${c} cannot be less than or equal to 0, value: ${t}`)
                     break
                   case 'rows':
                   case 'cols':
-                    if (!t && t !== 0) throw new Error(`${h} must be numeric, value: ${t}`)
+                    if (!t && t !== 0) throw new Error(`${c} must be numeric, value: ${t}`)
                     break
                   case 'windowsPty':
                     t = t ?? {}
@@ -21864,55 +22150,55 @@ WARNING: This link could potentially be dangerous`)
                 return t
               }
             }
-            i.OptionsService = u
+            i.OptionsService = f
           },
           2660: function (I, i, o) {
             var l =
                 (this && this.__decorate) ||
-                function (u, x, h, t) {
+                function (f, x, c, t) {
                   var n,
                     s = arguments.length,
-                    r = s < 3 ? x : t === null ? (t = Object.getOwnPropertyDescriptor(x, h)) : t
+                    r = s < 3 ? x : t === null ? (t = Object.getOwnPropertyDescriptor(x, c)) : t
                   if (typeof Reflect == 'object' && typeof Reflect.decorate == 'function')
-                    r = Reflect.decorate(u, x, h, t)
+                    r = Reflect.decorate(f, x, c, t)
                   else
-                    for (var c = u.length - 1; c >= 0; c--)
-                      (n = u[c]) && (r = (s < 3 ? n(r) : s > 3 ? n(x, h, r) : n(x, h)) || r)
-                  return (s > 3 && r && Object.defineProperty(x, h, r), r)
+                    for (var d = f.length - 1; d >= 0; d--)
+                      (n = f[d]) && (r = (s < 3 ? n(r) : s > 3 ? n(x, c, r) : n(x, c)) || r)
+                  return (s > 3 && r && Object.defineProperty(x, c, r), r)
                 },
-              f =
+              u =
                 (this && this.__param) ||
-                function (u, x) {
-                  return function (h, t) {
-                    x(h, t, u)
+                function (f, x) {
+                  return function (c, t) {
+                    x(c, t, f)
                   }
                 }
             ;(Object.defineProperty(i, '__esModule', { value: !0 }), (i.OscLinkService = void 0))
             const a = o(2585)
-            let d = (i.OscLinkService = class {
-              constructor(u) {
-                ;((this._bufferService = u),
+            let h = (i.OscLinkService = class {
+              constructor(f) {
+                ;((this._bufferService = f),
                   (this._nextId = 1),
                   (this._entriesWithId = new Map()),
                   (this._dataByLinkId = new Map()))
               }
-              registerLink(u) {
+              registerLink(f) {
                 const x = this._bufferService.buffer
-                if (u.id === void 0) {
-                  const c = x.addMarker(x.ybase + x.y),
-                    g = { data: u, id: this._nextId++, lines: [c] }
+                if (f.id === void 0) {
+                  const d = x.addMarker(x.ybase + x.y),
+                    v = { data: f, id: this._nextId++, lines: [d] }
                   return (
-                    c.onDispose(() => this._removeMarkerFromLink(g, c)),
-                    this._dataByLinkId.set(g.id, g),
-                    g.id
+                    d.onDispose(() => this._removeMarkerFromLink(v, d)),
+                    this._dataByLinkId.set(v.id, v),
+                    v.id
                   )
                 }
-                const h = u,
-                  t = this._getEntryIdKey(h),
+                const c = f,
+                  t = this._getEntryIdKey(c),
                   n = this._entriesWithId.get(t)
                 if (n) return (this.addLineToLink(n.id, x.ybase + x.y), n.id)
                 const s = x.addMarker(x.ybase + x.y),
-                  r = { id: this._nextId++, key: this._getEntryIdKey(h), data: h, lines: [s] }
+                  r = { id: this._nextId++, key: this._getEntryIdKey(c), data: c, lines: [s] }
                 return (
                   s.onDispose(() => this._removeMarkerFromLink(r, s)),
                   this._entriesWithId.set(r.key, r),
@@ -21920,29 +22206,29 @@ WARNING: This link could potentially be dangerous`)
                   r.id
                 )
               }
-              addLineToLink(u, x) {
-                const h = this._dataByLinkId.get(u)
-                if (h && h.lines.every((t) => t.line !== x)) {
+              addLineToLink(f, x) {
+                const c = this._dataByLinkId.get(f)
+                if (c && c.lines.every((t) => t.line !== x)) {
                   const t = this._bufferService.buffer.addMarker(x)
-                  ;(h.lines.push(t), t.onDispose(() => this._removeMarkerFromLink(h, t)))
+                  ;(c.lines.push(t), t.onDispose(() => this._removeMarkerFromLink(c, t)))
                 }
               }
-              getLinkData(u) {
-                return this._dataByLinkId.get(u)?.data
+              getLinkData(f) {
+                return this._dataByLinkId.get(f)?.data
               }
-              _getEntryIdKey(u) {
-                return `${u.id};;${u.uri}`
+              _getEntryIdKey(f) {
+                return `${f.id};;${f.uri}`
               }
-              _removeMarkerFromLink(u, x) {
-                const h = u.lines.indexOf(x)
-                h !== -1 &&
-                  (u.lines.splice(h, 1),
-                  u.lines.length === 0 &&
-                    (u.data.id !== void 0 && this._entriesWithId.delete(u.key),
-                    this._dataByLinkId.delete(u.id)))
+              _removeMarkerFromLink(f, x) {
+                const c = f.lines.indexOf(x)
+                c !== -1 &&
+                  (f.lines.splice(c, 1),
+                  f.lines.length === 0 &&
+                    (f.data.id !== void 0 && this._entriesWithId.delete(f.key),
+                    this._dataByLinkId.delete(f.id)))
               }
             })
-            i.OscLinkService = d = l([f(0, a.IBufferService)], d)
+            i.OscLinkService = h = l([u(0, a.IBufferService)], h)
           },
           8343: (I, i) => {
             ;(Object.defineProperty(i, '__esModule', { value: !0 }),
@@ -21950,23 +22236,23 @@ WARNING: This link could potentially be dangerous`)
             const o = 'di$target',
               l = 'di$dependencies'
             ;((i.serviceRegistry = new Map()),
-              (i.getServiceDependencies = function (f) {
-                return f[l] || []
+              (i.getServiceDependencies = function (u) {
+                return u[l] || []
               }),
-              (i.createDecorator = function (f) {
-                if (i.serviceRegistry.has(f)) return i.serviceRegistry.get(f)
-                const a = function (d, u, x) {
+              (i.createDecorator = function (u) {
+                if (i.serviceRegistry.has(u)) return i.serviceRegistry.get(u)
+                const a = function (h, f, x) {
                   if (arguments.length !== 3)
                     throw new Error(
                       '@IServiceName-decorator can only be used to decorate a parameter'
                     )
-                  ;(function (h, t, n) {
+                  ;(function (c, t, n) {
                     t[o] === t
-                      ? t[l].push({ id: h, index: n })
-                      : ((t[l] = [{ id: h, index: n }]), (t[o] = t))
-                  })(a, d, x)
+                      ? t[l].push({ id: c, index: n })
+                      : ((t[l] = [{ id: c, index: n }]), (t[o] = t))
+                  })(a, h, x)
                 }
-                return ((a.toString = () => f), i.serviceRegistry.set(f, a), a)
+                return ((a.toString = () => u), i.serviceRegistry.set(u, a), a)
               }))
           },
           2585: (I, i, o) => {
@@ -21984,7 +22270,7 @@ WARNING: This link could potentially be dangerous`)
                 i.IBufferService =
                   void 0))
             const l = o(8343)
-            var f
+            var u
             ;((i.IBufferService = (0, l.createDecorator)('BufferService')),
               (i.ICoreMouseService = (0, l.createDecorator)('CoreMouseService')),
               (i.ICoreService = (0, l.createDecorator)('CoreService')),
@@ -21997,7 +22283,7 @@ WARNING: This link could potentially be dangerous`)
                   (a[(a.WARN = 3)] = 'WARN'),
                   (a[(a.ERROR = 4)] = 'ERROR'),
                   (a[(a.OFF = 5)] = 'OFF'))
-              })(f || (i.LogLevelEnum = f = {})),
+              })(u || (i.LogLevelEnum = u = {})),
               (i.ILogService = (0, l.createDecorator)('LogService')),
               (i.IOptionsService = (0, l.createDecorator)('OptionsService')),
               (i.IOscLinkService = (0, l.createDecorator)('OscLinkService')),
@@ -22007,27 +22293,27 @@ WARNING: This link could potentially be dangerous`)
           1480: (I, i, o) => {
             ;(Object.defineProperty(i, '__esModule', { value: !0 }), (i.UnicodeService = void 0))
             const l = o(8460),
-              f = o(225)
+              u = o(225)
             class a {
-              static extractShouldJoin(u) {
-                return (1 & u) != 0
+              static extractShouldJoin(f) {
+                return (1 & f) != 0
               }
-              static extractWidth(u) {
-                return (u >> 1) & 3
+              static extractWidth(f) {
+                return (f >> 1) & 3
               }
-              static extractCharKind(u) {
-                return u >> 3
+              static extractCharKind(f) {
+                return f >> 3
               }
-              static createPropertyValue(u, x, h = !1) {
-                return ((16777215 & u) << 3) | ((3 & x) << 1) | (h ? 1 : 0)
+              static createPropertyValue(f, x, c = !1) {
+                return ((16777215 & f) << 3) | ((3 & x) << 1) | (c ? 1 : 0)
               }
               constructor() {
                 ;((this._providers = Object.create(null)),
                   (this._active = ''),
                   (this._onChange = new l.EventEmitter()),
                   (this.onChange = this._onChange.event))
-                const u = new f.UnicodeV6()
-                ;(this.register(u), (this._active = u.version), (this._activeProvider = u))
+                const f = new u.UnicodeV6()
+                ;(this.register(f), (this._active = f.version), (this._activeProvider = f))
               }
               dispose() {
                 this._onChange.dispose()
@@ -22038,77 +22324,77 @@ WARNING: This link could potentially be dangerous`)
               get activeVersion() {
                 return this._active
               }
-              set activeVersion(u) {
-                if (!this._providers[u]) throw new Error(`unknown Unicode version "${u}"`)
-                ;((this._active = u),
-                  (this._activeProvider = this._providers[u]),
-                  this._onChange.fire(u))
+              set activeVersion(f) {
+                if (!this._providers[f]) throw new Error(`unknown Unicode version "${f}"`)
+                ;((this._active = f),
+                  (this._activeProvider = this._providers[f]),
+                  this._onChange.fire(f))
               }
-              register(u) {
-                this._providers[u.version] = u
+              register(f) {
+                this._providers[f.version] = f
               }
-              wcwidth(u) {
-                return this._activeProvider.wcwidth(u)
+              wcwidth(f) {
+                return this._activeProvider.wcwidth(f)
               }
-              getStringCellWidth(u) {
+              getStringCellWidth(f) {
                 let x = 0,
-                  h = 0
-                const t = u.length
+                  c = 0
+                const t = f.length
                 for (let n = 0; n < t; ++n) {
-                  let s = u.charCodeAt(n)
+                  let s = f.charCodeAt(n)
                   if (55296 <= s && s <= 56319) {
                     if (++n >= t) return x + this.wcwidth(s)
-                    const g = u.charCodeAt(n)
-                    56320 <= g && g <= 57343
-                      ? (s = 1024 * (s - 55296) + g - 56320 + 65536)
-                      : (x += this.wcwidth(g))
+                    const v = f.charCodeAt(n)
+                    56320 <= v && v <= 57343
+                      ? (s = 1024 * (s - 55296) + v - 56320 + 65536)
+                      : (x += this.wcwidth(v))
                   }
-                  const r = this.charProperties(s, h)
-                  let c = a.extractWidth(r)
-                  ;(a.extractShouldJoin(r) && (c -= a.extractWidth(h)), (x += c), (h = r))
+                  const r = this.charProperties(s, c)
+                  let d = a.extractWidth(r)
+                  ;(a.extractShouldJoin(r) && (d -= a.extractWidth(c)), (x += d), (c = r))
                 }
                 return x
               }
-              charProperties(u, x) {
-                return this._activeProvider.charProperties(u, x)
+              charProperties(f, x) {
+                return this._activeProvider.charProperties(f, x)
               }
             }
             i.UnicodeService = a
           }
         },
         w = {}
-      function O(I) {
+      function T(I) {
         var i = w[I]
         if (i !== void 0) return i.exports
         var o = (w[I] = { exports: {} })
-        return (v[I].call(o.exports, o, o.exports, O), o.exports)
+        return (g[I].call(o.exports, o, o.exports, T), o.exports)
       }
-      var D = {}
+      var R = {}
       return (
         (() => {
-          var I = D
+          var I = R
           ;(Object.defineProperty(I, '__esModule', { value: !0 }), (I.Terminal = void 0))
-          const i = O(9042),
-            o = O(3236),
-            l = O(844),
-            f = O(5741),
-            a = O(8285),
-            d = O(7975),
-            u = O(7090),
+          const i = T(9042),
+            o = T(3236),
+            l = T(844),
+            u = T(5741),
+            a = T(8285),
+            h = T(7975),
+            f = T(7090),
             x = ['cols', 'rows']
-          class h extends l.Disposable {
+          class c extends l.Disposable {
             constructor(n) {
               ;(super(),
                 (this._core = this.register(new o.Terminal(n))),
-                (this._addonManager = this.register(new f.AddonManager())),
+                (this._addonManager = this.register(new u.AddonManager())),
                 (this._publicOptions = { ...this._core.options }))
-              const s = (c) => this._core.options[c],
-                r = (c, g) => {
-                  ;(this._checkReadonlyOptions(c), (this._core.options[c] = g))
+              const s = (d) => this._core.options[d],
+                r = (d, v) => {
+                  ;(this._checkReadonlyOptions(d), (this._core.options[d] = v))
                 }
-              for (const c in this._core.options) {
-                const g = { get: s.bind(this, c), set: r.bind(this, c) }
-                Object.defineProperty(this._publicOptions, c, g)
+              for (const d in this._core.options) {
+                const v = { get: s.bind(this, d), set: r.bind(this, d) }
+                Object.defineProperty(this._publicOptions, d, v)
               }
             }
             _checkReadonlyOptions(n) {
@@ -22160,10 +22446,10 @@ WARNING: This link could potentially be dangerous`)
               return this._core.element
             }
             get parser() {
-              return (this._parser || (this._parser = new d.ParserApi(this._core)), this._parser)
+              return (this._parser || (this._parser = new h.ParserApi(this._core)), this._parser)
             }
             get unicode() {
-              return (this._checkProposedApi(), new u.UnicodeApi(this._core))
+              return (this._checkProposedApi(), new f.UnicodeApi(this._core))
             }
             get textarea() {
               return this._core.textarea
@@ -22340,37 +22626,37 @@ WARNING: This link could potentially be dangerous`)
                   throw new Error('This API only accepts positive integers')
             }
           }
-          I.Terminal = h
+          I.Terminal = c
         })(),
-        D
+        R
       )
     })()
   )
-})(Ws)
-var xi = Ws.exports,
-  zs = { exports: {} }
-;(function (_, S) {
-  ;(function (v, w) {
-    _.exports = w()
+})(zs)
+var wi = zs.exports,
+  Gs = { exports: {} }
+;(function (m, y) {
+  ;(function (g, w) {
+    m.exports = w()
   })(self, () =>
     (() => {
-      var v = {}
+      var g = {}
       return (
         (() => {
-          var w = v
+          var w = g
           ;(Object.defineProperty(w, '__esModule', { value: !0 }),
             (w.FitAddon = void 0),
             (w.FitAddon = class {
-              activate(O) {
-                this._terminal = O
+              activate(T) {
+                this._terminal = T
               }
               dispose() {}
               fit() {
-                const O = this.proposeDimensions()
-                if (!O || !this._terminal || isNaN(O.cols) || isNaN(O.rows)) return
-                const D = this._terminal._core
-                ;(this._terminal.rows === O.rows && this._terminal.cols === O.cols) ||
-                  (D._renderService.clear(), this._terminal.resize(O.cols, O.rows))
+                const T = this.proposeDimensions()
+                if (!T || !this._terminal || isNaN(T.cols) || isNaN(T.rows)) return
+                const R = this._terminal._core
+                ;(this._terminal.rows === T.rows && this._terminal.cols === T.cols) ||
+                  (R._renderService.clear(), this._terminal.resize(T.cols, T.rows))
               }
               proposeDimensions() {
                 if (
@@ -22379,122 +22665,122 @@ var xi = Ws.exports,
                   !this._terminal.element.parentElement
                 )
                   return
-                const O = this._terminal._core,
-                  D = O._renderService.dimensions
-                if (D.css.cell.width === 0 || D.css.cell.height === 0) return
-                const I = this._terminal.options.scrollback === 0 ? 0 : O.viewport.scrollBarWidth,
+                const T = this._terminal._core,
+                  R = T._renderService.dimensions
+                if (R.css.cell.width === 0 || R.css.cell.height === 0) return
+                const I = this._terminal.options.scrollback === 0 ? 0 : T.viewport.scrollBarWidth,
                   i = window.getComputedStyle(this._terminal.element.parentElement),
                   o = parseInt(i.getPropertyValue('height')),
                   l = Math.max(0, parseInt(i.getPropertyValue('width'))),
-                  f = window.getComputedStyle(this._terminal.element),
+                  u = window.getComputedStyle(this._terminal.element),
                   a =
                     o -
-                    (parseInt(f.getPropertyValue('padding-top')) +
-                      parseInt(f.getPropertyValue('padding-bottom'))),
-                  d =
+                    (parseInt(u.getPropertyValue('padding-top')) +
+                      parseInt(u.getPropertyValue('padding-bottom'))),
+                  h =
                     l -
-                    (parseInt(f.getPropertyValue('padding-right')) +
-                      parseInt(f.getPropertyValue('padding-left'))) -
+                    (parseInt(u.getPropertyValue('padding-right')) +
+                      parseInt(u.getPropertyValue('padding-left'))) -
                     I
                 return {
-                  cols: Math.max(2, Math.floor(d / D.css.cell.width)),
-                  rows: Math.max(1, Math.floor(a / D.css.cell.height))
+                  cols: Math.max(2, Math.floor(h / R.css.cell.width)),
+                  rows: Math.max(1, Math.floor(a / R.css.cell.height))
                 }
               }
             }))
         })(),
-        v
+        g
       )
     })()
   )
-})(zs)
-var At = zs.exports
-const bi = qs(At),
-  yi = Ys({ __proto__: null, default: bi }, [At]),
-  Gt = qe()
-function Si() {
-  const { sessionId: _ } = xe(),
-    S = Ze(),
-    v = k.useRef(null),
+})(Gs)
+var It = Gs.exports
+const Ci = Ys(It),
+  ki = er({ __proto__: null, default: Ci }, [It]),
+  Xt = qe()
+function ji() {
+  const { sessionId: m } = xe(),
+    y = Ze(),
+    g = k.useRef(null),
     w = k.useRef(null),
-    O = k.useRef(null),
-    [D, I] = k.useState(null),
+    T = k.useRef(null),
+    [R, I] = k.useState(null),
     [i, o] = k.useState([]),
-    [l, f] = k.useState(!0),
-    [a, d] = k.useState(!1),
-    [u, x] = k.useState(0),
-    [h, t] = k.useState(0),
+    [l, u] = k.useState(!0),
+    [a, h] = k.useState(!1),
+    [f, x] = k.useState(0),
+    [c, t] = k.useState(0),
     [n, s] = k.useState(1),
     r = k.useRef(null)
   ;(k.useEffect(() => {
     ;(async () => {
-      if (_)
+      if (m)
         try {
-          const j = await fetch(`${Gt}/v1/webshell/sessions/${_}/events`, {
+          const j = await fetch(`${Xt}/v1/webshell/sessions/${m}/events`, {
             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
           })
           if (j.ok) {
-            const R = await j.json()
-            ;(I(R.session), o(R.events))
+            const D = await j.json()
+            ;(I(D.session), o(D.events))
           }
         } catch {
         } finally {
-          f(!1)
+          u(!1)
         }
     })()
-  }, [_]),
+  }, [m]),
     k.useEffect(() => {
-      if (!v.current || !D) return
-      const P = new xi.Terminal({
+      if (!g.current || !R) return
+      const P = new wi.Terminal({
           cursorBlink: !1,
           disableStdin: !0,
           fontSize: 14,
           fontFamily: 'Menlo, Monaco, "Courier New", monospace',
           theme: { background: '#1e1e1e', foreground: '#d4d4d4' }
         }),
-        j = new At.FitAddon()
-      ;(P.loadAddon(j), P.open(v.current), j.fit(), (w.current = P), (O.current = j))
-      const R = () => {
+        j = new It.FitAddon()
+      ;(P.loadAddon(j), P.open(g.current), j.fit(), (w.current = P), (T.current = j))
+      const D = () => {
         j.fit()
       }
       return (
-        window.addEventListener('resize', R),
+        window.addEventListener('resize', D),
         () => {
-          ;(window.removeEventListener('resize', R), P.dispose())
+          ;(window.removeEventListener('resize', D), P.dispose())
         }
       )
-    }, [D]),
+    }, [R]),
     k.useEffect(() => {
       if (!a || i.length === 0) {
         r.current && (clearTimeout(r.current), (r.current = null))
         return
       }
       const P = () => {
-        if (u >= i.length) {
-          d(!1)
+        if (f >= i.length) {
+          h(!1)
           return
         }
-        const j = i[u],
-          R = w.current
-        if (R) {
+        const j = i[f],
+          D = w.current
+        if (D) {
           switch (j.event_type) {
             case 'output':
-              j.data && R.write(j.data)
+              j.data && D.write(j.data)
               break
             case 'resize':
-              j.cols && j.rows && R.resize(j.cols, j.rows)
+              j.cols && j.rows && D.resize(j.cols, j.rows)
               break
             case 'connected':
               j.data &&
-                R.write(`\r
+                D.write(`\r
 ${j.data}\r
 `)
               break
           }
-          if ((t(j.time_offset), x(u + 1), u + 1 < i.length)) {
-            const $ = (i[u + 1].time_offset - j.time_offset) / n
+          if ((t(j.time_offset), x(f + 1), f + 1 < i.length)) {
+            const $ = (i[f + 1].time_offset - j.time_offset) / n
             r.current = setTimeout(P, $)
-          } else d(!1)
+          } else h(!1)
         }
       }
       return (
@@ -22503,75 +22789,75 @@ ${j.data}\r
           r.current && (clearTimeout(r.current), (r.current = null))
         }
       )
-    }, [a, u, i, n]))
-  const c = () => {
-      u >= i.length ? g() : d(!a)
+    }, [a, f, i, n]))
+  const d = () => {
+      f >= i.length ? v() : h(!a)
     },
-    g = () => {
-      ;(x(0), t(0), d(!1))
+    v = () => {
+      ;(x(0), t(0), h(!1))
       const P = w.current
       P && P.clear()
     },
-    m = () => {
-      const P = Math.max(0, u - 10)
-      ;(x(P), d(!1))
+    _ = () => {
+      const P = Math.max(0, f - 10)
+      ;(x(P), h(!1))
       const j = w.current
       if (j) {
         j.clear()
-        for (let R = 0; R < P; R++) {
-          const T = i[R]
-          T.event_type === 'output' && T.data && j.write(T.data)
+        for (let D = 0; D < P; D++) {
+          const O = i[D]
+          O.event_type === 'output' && O.data && j.write(O.data)
         }
         P > 0 && t(i[P - 1].time_offset)
       }
     },
     b = () => {
-      const P = Math.min(i.length, u + 10),
+      const P = Math.min(i.length, f + 10),
         j = w.current
       if (j)
-        for (let R = u; R < P; R++) {
-          const T = i[R]
-          T.event_type === 'output' && T.data && j.write(T.data)
+        for (let D = f; D < P; D++) {
+          const O = i[D]
+          O.event_type === 'output' && O.data && j.write(O.data)
         }
       ;(x(P), P > 0 && P <= i.length && t(i[P - 1].time_offset))
     },
     p = (P) => {
-      d(!1)
+      h(!1)
       let j = 0
-      for (let T = 0; T < i.length && i[T].time_offset <= P; T++) j = T + 1
-      const R = w.current
-      if (R) {
-        R.clear()
-        for (let T = 0; T < j; T++) {
-          const $ = i[T]
-          $.event_type === 'output' && $.data && R.write($.data)
+      for (let O = 0; O < i.length && i[O].time_offset <= P; O++) j = O + 1
+      const D = w.current
+      if (D) {
+        D.clear()
+        for (let O = 0; O < j; O++) {
+          const $ = i[O]
+          $.event_type === 'output' && $.data && D.write($.data)
         }
       }
       ;(x(j), t(P))
     },
-    y = (P) => {
+    S = (P) => {
       const j = Math.floor(P / 1e3),
-        R = Math.floor(j / 60),
-        T = j % 60
-      return `${R.toString().padStart(2, '0')}:${T.toString().padStart(2, '0')}`
+        D = Math.floor(j / 60),
+        O = j % 60
+      return `${D.toString().padStart(2, '0')}:${O.toString().padStart(2, '0')}`
     },
     L = i.length > 0 ? i[i.length - 1].time_offset : 0,
     M = async () => {
-      if (_)
+      if (m)
         try {
-          const P = await fetch(`${Gt}/v1/webshell/sessions/${_}/export`, {
+          const P = await fetch(`${Xt}/v1/webshell/sessions/${m}/export`, {
             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
           })
           if (P.ok) {
             const j = await P.blob(),
-              R = window.URL.createObjectURL(j),
-              T = document.createElement('a')
-            ;((T.href = R),
-              (T.download = `webshell-${_}-${D?.started_at}.cast`),
-              document.body.appendChild(T),
-              T.click(),
-              document.body.removeChild(T),
-              window.URL.revokeObjectURL(R))
+              D = window.URL.createObjectURL(j),
+              O = document.createElement('a')
+            ;((O.href = D),
+              (O.download = `webshell-${m}-${R?.started_at}.cast`),
+              document.body.appendChild(O),
+              O.click(),
+              document.body.removeChild(O),
+              window.URL.revokeObjectURL(D))
           }
         } catch {}
     }
@@ -22583,7 +22869,7 @@ ${j.data}\r
           children: '加载中...'
         })
       })
-    : D
+    : R
       ? e.jsxs('div', {
           className: 'flex flex-col h-screen bg-gray-100 dark:bg-gray-900',
           children: [
@@ -22597,9 +22883,9 @@ ${j.data}\r
                     className: 'flex items-center gap-4',
                     children: [
                       e.jsx('button', {
-                        onClick: () => S('/webshell/sessions'),
+                        onClick: () => y('/webshell/sessions'),
                         className: 'p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded',
-                        children: e.jsx(ti, { className: 'w-5 h-5' })
+                        children: e.jsx(ni, { className: 'w-5 h-5' })
                       }),
                       e.jsxs('div', {
                         children: [
@@ -22610,13 +22896,14 @@ ${j.data}\r
                           e.jsxs('p', {
                             className: 'text-sm text-gray-500 dark:text-gray-400',
                             children: [
-                              D.username,
+                              R.username,
                               ' @ ',
-                              D.remote_host,
+                              R.remote_host,
                               ':',
-                              D.remote_port,
-                              ' · ',
-                              new Date(D.started_at).toLocaleString('zh-CN')
+                              R.remote_port,
+                              ' ·',
+                              ' ',
+                              new Date(R.started_at).toLocaleString('zh-CN')
                             ]
                           })
                         ]
@@ -22627,7 +22914,7 @@ ${j.data}\r
                     onClick: M,
                     className:
                       'flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-600',
-                    children: [e.jsx(Fs, { className: 'w-4 h-4' }), '导出']
+                    children: [e.jsx(Ws, { className: 'w-4 h-4' }), '导出']
                   })
                 ]
               })
@@ -22636,7 +22923,7 @@ ${j.data}\r
               className: 'flex-1 p-6',
               children: e.jsx('div', {
                 className: 'h-full bg-[#1e1e1e] rounded-lg overflow-hidden shadow-lg',
-                children: e.jsx('div', { ref: v, className: 'w-full h-full p-4' })
+                children: e.jsx('div', { ref: g, className: 'w-full h-full p-4' })
               })
             }),
             e.jsx('div', {
@@ -22650,7 +22937,7 @@ ${j.data}\r
                     children: [
                       e.jsx('span', {
                         className: 'text-sm text-gray-600 dark:text-gray-400 font-mono w-16',
-                        children: y(h)
+                        children: S(c)
                       }),
                       e.jsx('div', {
                         className: 'flex-1',
@@ -22658,18 +22945,18 @@ ${j.data}\r
                           type: 'range',
                           min: 0,
                           max: L,
-                          value: h,
+                          value: c,
                           onChange: (P) => p(parseInt(P.target.value)),
                           className:
                             'w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer',
                           style: {
-                            background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${(h / L) * 100}%, #e5e7eb ${(h / L) * 100}%, #e5e7eb 100%)`
+                            background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${(c / L) * 100}%, #e5e7eb ${(c / L) * 100}%, #e5e7eb 100%)`
                           }
                         })
                       }),
                       e.jsx('span', {
                         className: 'text-sm text-gray-600 dark:text-gray-400 font-mono w-16',
-                        children: y(L)
+                        children: S(L)
                       })
                     ]
                   }),
@@ -22677,29 +22964,29 @@ ${j.data}\r
                     className: 'flex items-center justify-center gap-4',
                     children: [
                       e.jsx('button', {
-                        onClick: g,
+                        onClick: v,
                         className: 'p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded',
                         title: '重新开始',
-                        children: e.jsx(zt, { className: 'w-5 h-5' })
+                        children: e.jsx(Gt, { className: 'w-5 h-5' })
                       }),
                       e.jsx('button', {
-                        onClick: m,
+                        onClick: _,
                         className: 'p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded',
                         title: '后退',
-                        children: e.jsx(zt, { className: 'w-4 h-4' })
+                        children: e.jsx(Gt, { className: 'w-4 h-4' })
                       }),
                       e.jsx('button', {
-                        onClick: c,
+                        onClick: d,
                         className: 'p-3 bg-blue-600 text-white rounded-full hover:bg-blue-700',
                         children: a
-                          ? e.jsx(ci, { className: 'w-6 h-6' })
-                          : e.jsx($s, { className: 'w-6 h-6' })
+                          ? e.jsx(fi, { className: 'w-6 h-6' })
+                          : e.jsx(Us, { className: 'w-6 h-6' })
                       }),
                       e.jsx('button', {
                         onClick: b,
                         className: 'p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded',
                         title: '前进',
-                        children: e.jsx(pi, { className: 'w-4 h-4' })
+                        children: e.jsx(vi, { className: 'w-4 h-4' })
                       }),
                       e.jsxs('div', {
                         className: 'flex items-center gap-2 ml-4',
@@ -22729,9 +23016,9 @@ ${j.data}\r
                     className:
                       'flex items-center justify-center gap-8 text-sm text-gray-600 dark:text-gray-400',
                     children: [
-                      e.jsxs('span', { children: ['事件: ', u, ' / ', i.length] }),
-                      e.jsxs('span', { children: ['上传: ', qt(D.bytes_sent)] }),
-                      e.jsxs('span', { children: ['下载: ', qt(D.bytes_received)] })
+                      e.jsxs('span', { children: ['事件: ', f, ' / ', i.length] }),
+                      e.jsxs('span', { children: ['上传: ', Jt(R.bytes_sent)] }),
+                      e.jsxs('span', { children: ['下载: ', Jt(R.bytes_received)] })
                     ]
                   })
                 ]
@@ -22749,7 +23036,7 @@ ${j.data}\r
                 children: '会话未找到'
               }),
               e.jsx('button', {
-                onClick: () => S('/webshell/sessions'),
+                onClick: () => y('/webshell/sessions'),
                 className: 'px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700',
                 children: '返回列表'
               })
@@ -22757,39 +23044,39 @@ ${j.data}\r
           })
         })
 }
-function qt(_) {
-  if (_ === 0) return '0 B'
-  const S = 1024,
-    v = ['B', 'KB', 'MB', 'GB'],
-    w = Math.floor(Math.log(_) / Math.log(S))
-  return Math.round((_ / Math.pow(S, w)) * 100) / 100 + ' ' + v[w]
+function Jt(m) {
+  if (m === 0) return '0 B'
+  const y = 1024,
+    g = ['B', 'KB', 'MB', 'GB'],
+    w = Math.floor(Math.log(m) / Math.log(y))
+  return Math.round((m / Math.pow(y, w)) * 100) / 100 + ' ' + g[w]
 }
-function wi() {
-  const { projectId: _ } = xe(),
-    S = Pe((d) => d.setActiveProjectId)
+function Ni() {
+  const { projectId: m } = xe(),
+    y = Te((h) => h.setActiveProjectId)
   k.useEffect(() => {
-    _ && S(_)
-  }, [_, S])
+    m && y(m)
+  }, [m, y])
   const {
-      vpcs: v,
+      vpcs: g,
       routes: w,
-      lbs: O,
-      sgRules: D,
+      lbs: T,
+      sgRules: R,
       asns: I,
       clusters: i,
       snapshots: o,
       volumes: l
     } = Ce(),
-    f = _,
+    u = m,
     a = {
-      vpcs: v.filter((d) => d.projectId === f).length,
-      routes: w.filter((d) => d.projectId === f).length,
-      lbs: O.filter((d) => d.projectId === f).length,
-      sg: D.filter((d) => d.projectId === f).length,
-      asns: I.filter((d) => d.projectId === f).length,
-      clusters: i.filter((d) => d.projectId === f).length,
-      snapshots: o.filter((d) => d.projectId === f).length,
-      volumes: l.filter((d) => d.projectId === f).length
+      vpcs: g.filter((h) => h.projectId === u).length,
+      routes: w.filter((h) => h.projectId === u).length,
+      lbs: T.filter((h) => h.projectId === u).length,
+      sg: R.filter((h) => h.projectId === u).length,
+      asns: I.filter((h) => h.projectId === u).length,
+      clusters: i.filter((h) => h.projectId === u).length,
+      snapshots: o.filter((h) => h.projectId === u).length,
+      volumes: l.filter((h) => h.projectId === u).length
     }
   return e.jsxs('div', {
     className: 'space-y-3',
@@ -22798,7 +23085,7 @@ function wi() {
         className: 'card p-4',
         children: [
           e.jsx('h1', { className: 'text-lg font-semibold', children: 'Project Overview' }),
-          e.jsxs('p', { className: 'text-gray-400', children: ['Project ID: ', _] })
+          e.jsxs('p', { className: 'text-gray-400', children: ['Project ID: ', m] })
         ]
       }),
       e.jsxs('div', {
@@ -22809,9 +23096,9 @@ function wi() {
             children: [
               e.jsx('div', { className: 'text-gray-400', children: 'VPCs' }),
               e.jsx('div', { className: 'text-2xl font-semibold', children: a.vpcs }),
-              e.jsx(Te, {
+              e.jsx(Oe, {
                 className: 'text-oxide-300 hover:underline',
-                to: `/project/${_}/network/vpc`,
+                to: `/project/${m}/network/vpc`,
                 children: 'View'
               })
             ]
@@ -22821,9 +23108,9 @@ function wi() {
             children: [
               e.jsx('div', { className: 'text-gray-400', children: 'ASNs' }),
               e.jsx('div', { className: 'text-2xl font-semibold', children: a.asns }),
-              e.jsx(Te, {
+              e.jsx(Oe, {
                 className: 'text-oxide-300 hover:underline',
-                to: `/project/${_}/network/asns`,
+                to: `/project/${m}/network/asns`,
                 children: 'View'
               })
             ]
@@ -22833,9 +23120,9 @@ function wi() {
             children: [
               e.jsx('div', { className: 'text-gray-400', children: 'Clusters' }),
               e.jsx('div', { className: 'text-2xl font-semibold', children: a.clusters }),
-              e.jsx(Te, {
+              e.jsx(Oe, {
                 className: 'text-oxide-300 hover:underline',
-                to: `/project/${_}/compute/k8s`,
+                to: `/project/${m}/compute/k8s`,
                 children: 'View'
               })
             ]
@@ -22845,9 +23132,9 @@ function wi() {
             children: [
               e.jsx('div', { className: 'text-gray-400', children: 'Snapshots' }),
               e.jsx('div', { className: 'text-2xl font-semibold', children: a.snapshots }),
-              e.jsx(Te, {
+              e.jsx(Oe, {
                 className: 'text-oxide-300 hover:underline',
-                to: `/project/${_}/compute/snapshots`,
+                to: `/project/${m}/compute/snapshots`,
                 children: 'View'
               })
             ]
@@ -22857,9 +23144,9 @@ function wi() {
             children: [
               e.jsx('div', { className: 'text-gray-400', children: 'Volumes' }),
               e.jsx('div', { className: 'text-2xl font-semibold', children: a.volumes }),
-              e.jsx(Te, {
+              e.jsx(Oe, {
                 className: 'text-oxide-300 hover:underline',
-                to: `/project/${_}/storage`,
+                to: `/project/${m}/storage`,
                 children: 'View'
               })
             ]
@@ -22869,26 +23156,26 @@ function wi() {
     ]
   })
 }
-function Xt() {
-  const [_, S] = k.useState([]),
-    [v, w] = k.useState(!1),
-    [O, D] = k.useState(!1),
+function Yt() {
+  const [m, y] = k.useState([]),
+    [g, w] = k.useState(!1),
+    [T, R] = k.useState(!1),
     [I, i] = k.useState(null),
     [o, l] = k.useState(''),
-    [f, a] = k.useState(''),
-    [d, u] = k.useState(!1)
+    [u, a] = k.useState(''),
+    [h, f] = k.useState(!1)
   k.useEffect(() => {
-    ;(async () => S(await ge()))()
+    ;(async () => y(await ge()))()
   }, [])
   const x = k.useMemo(
       () =>
-        _.filter(
+        m.filter(
           (t) =>
-            (t.disk_format === 'qcow2' || t.disk_format === 'raw') && (!f || t.name.includes(f))
+            (t.disk_format === 'qcow2' || t.disk_format === 'raw') && (!u || t.name.includes(u))
         ),
-      [_, f]
+      [m, u]
     ),
-    h = [
+    c = [
       { key: 'name', header: 'Name' },
       {
         key: 'status',
@@ -22919,7 +23206,7 @@ function Xt() {
             children: e.jsx('button', {
               className: 'btn-danger btn-xs',
               onClick: async () => {
-                ;(await ht(t.id), S(await ge()))
+                ;(await ht(t.id), y(await ge()))
               },
               children: 'Delete'
             })
@@ -22930,27 +23217,27 @@ function Xt() {
     className: 'space-y-3',
     children: [
       e.jsx(oe, { title: 'Images', subtitle: 'Templates' }),
-      e.jsxs(Ee, {
+      e.jsxs(Ne, {
         placeholder: 'Search templates',
         onSearch: a,
         children: [
           e.jsx('button', {
             className: 'btn-secondary',
-            onClick: async () => S(await ge()),
+            onClick: async () => y(await ge()),
             children: 'Refresh'
           }),
           e.jsx('button', {
             className: 'btn-secondary',
-            onClick: () => D(!0),
+            onClick: () => R(!0),
             children: 'Register from URL'
           }),
           e.jsx('button', { className: 'btn-primary', onClick: () => w(!0), children: 'Upload' })
         ]
       }),
-      e.jsx(de, { columns: h, data: x, empty: 'No templates' }),
+      e.jsx(de, { columns: c, data: x, empty: 'No templates' }),
       e.jsx(le, {
         title: 'Upload Template',
-        open: v,
+        open: g,
         onClose: () => w(!1),
         footer: e.jsxs(e.Fragment, {
           children: [
@@ -22961,14 +23248,14 @@ function Xt() {
             }),
             e.jsx('button', {
               className: 'btn-primary',
-              disabled: !I || d,
+              disabled: !I || h,
               onClick: async () => {
                 if (I) {
-                  u(!0)
+                  f(!0)
                   try {
-                    ;(await ct(I, { name: I.name }), S(await ge()), w(!1), i(null))
+                    ;(await ct(I, { name: I.name }), y(await ge()), w(!1), i(null))
                   } finally {
-                    u(!1)
+                    f(!1)
                   }
                 }
               },
@@ -22993,35 +23280,35 @@ function Xt() {
       }),
       e.jsx(le, {
         title: 'Register Template from URL',
-        open: O,
-        onClose: () => D(!1),
+        open: T,
+        onClose: () => R(!1),
         footer: e.jsxs(e.Fragment, {
           children: [
             e.jsx('button', {
               className: 'btn-secondary',
-              onClick: () => D(!1),
+              onClick: () => R(!1),
               children: 'Cancel'
             }),
             e.jsx('button', {
               className: 'btn-primary',
-              disabled: !o || d,
+              disabled: !o || h,
               onClick: async () => {
-                u(!0)
+                f(!0)
                 try {
                   const t = o.split('/').pop() || 'template',
-                    { registerImage: n } = await Ge(
+                    { registerImage: n } = await Ke(
                       async () => {
-                        const { registerImage: s } = await Promise.resolve().then(() => Ts)
+                        const { registerImage: s } = await Promise.resolve().then(() => Hs)
                         return { registerImage: s }
                       },
                       void 0
                     )
                   ;(await n({ name: t, disk_format: 'qcow2', rgw_url: o }),
-                    S(await ge()),
-                    D(!1),
+                    y(await ge()),
+                    R(!1),
                     l(''))
                 } finally {
-                  u(!1)
+                  f(!1)
                 }
               },
               children: 'Register'
@@ -23048,21 +23335,21 @@ function Xt() {
     ]
   })
 }
-function Jt() {
-  const [_, S] = k.useState([]),
-    [v, w] = k.useState(!1),
-    [O, D] = k.useState(!1),
+function Zt() {
+  const [m, y] = k.useState([]),
+    [g, w] = k.useState(!1),
+    [T, R] = k.useState(!1),
     [I, i] = k.useState(null),
     [o, l] = k.useState(!1),
-    [f, a] = k.useState('')
+    [u, a] = k.useState('')
   k.useEffect(() => {
-    ;(async () => S(await ge()))()
+    ;(async () => y(await ge()))()
   }, [])
-  const d = k.useMemo(
-      () => _.filter((x) => x.disk_format === 'iso' && (!f || x.name.includes(f))),
-      [_, f]
+  const h = k.useMemo(
+      () => m.filter((x) => x.disk_format === 'iso' && (!u || x.name.includes(u))),
+      [m, u]
     ),
-    u = [
+    f = [
       { key: 'name', header: 'Name' },
       {
         key: 'status',
@@ -23093,7 +23380,7 @@ function Jt() {
             children: e.jsx('button', {
               className: 'btn-danger btn-xs',
               onClick: async () => {
-                ;(await ht(x.id), S(await ge()))
+                ;(await ht(x.id), y(await ge()))
               },
               children: 'Delete'
             })
@@ -23104,27 +23391,27 @@ function Jt() {
     className: 'space-y-3',
     children: [
       e.jsx(oe, { title: 'Images', subtitle: 'ISOs' }),
-      e.jsxs(Ee, {
+      e.jsxs(Ne, {
         placeholder: 'Search ISO',
         onSearch: a,
         children: [
           e.jsx('button', {
             className: 'btn-secondary',
-            onClick: async () => S(await ge()),
+            onClick: async () => y(await ge()),
             children: 'Refresh'
           }),
           e.jsx('button', {
             className: 'btn-secondary',
-            onClick: () => D(!0),
+            onClick: () => R(!0),
             children: 'Register from URL'
           }),
           e.jsx('button', { className: 'btn-primary', onClick: () => w(!0), children: 'Upload' })
         ]
       }),
-      e.jsx(de, { columns: u, data: d, empty: 'No ISOs' }),
+      e.jsx(de, { columns: f, data: h, empty: 'No ISOs' }),
       e.jsx(le, {
         title: 'Upload ISO',
-        open: v,
+        open: g,
         onClose: () => w(!1),
         footer: e.jsxs(e.Fragment, {
           children: [
@@ -23140,7 +23427,7 @@ function Jt() {
                 if (I) {
                   l(!0)
                   try {
-                    ;(await ct(I, { name: I.name }), S(await ge()), w(!1), i(null))
+                    ;(await ct(I, { name: I.name }), y(await ge()), w(!1), i(null))
                   } finally {
                     l(!1)
                   }
@@ -23167,42 +23454,42 @@ function Jt() {
       }),
       e.jsx(le, {
         title: 'Register ISO from URL',
-        open: O,
-        onClose: () => D(!1),
+        open: T,
+        onClose: () => R(!1),
         footer: e.jsxs(e.Fragment, {
           children: [
             e.jsx('button', {
               className: 'btn-secondary',
-              onClick: () => D(!1),
+              onClick: () => R(!1),
               children: 'Cancel'
             }),
-            e.jsx(Vs, {
+            e.jsx(Ks, {
               kind: 'iso',
               onDone: async () => {
-                ;(S(await ge()), D(!1))
+                ;(y(await ge()), R(!1))
               }
             })
           ]
         }),
-        children: e.jsx(Ks, { placeholder: 'https://rgw.example.com/bucket/ubuntu.iso' })
+        children: e.jsx(qs, { placeholder: 'https://rgw.example.com/bucket/ubuntu.iso' })
       })
     ]
   })
 }
-function Yt() {
-  const [_, S] = k.useState([]),
-    [v, w] = k.useState(!1),
-    [O, D] = k.useState(!1),
+function Qt() {
+  const [m, y] = k.useState([]),
+    [g, w] = k.useState(!1),
+    [T, R] = k.useState(!1),
     [I, i] = k.useState(null),
     [o, l] = k.useState(!1),
-    [f, a] = k.useState('')
+    [u, a] = k.useState('')
   k.useEffect(() => {
-    ;(async () => S(await ge()))()
+    ;(async () => y(await ge()))()
   }, [])
-  const d = _.filter(
-      (x) => x.disk_format === 'iso' && /k8s|kubernetes/i.test(x.name) && (!f || x.name.includes(f))
+  const h = m.filter(
+      (x) => x.disk_format === 'iso' && /k8s|kubernetes/i.test(x.name) && (!u || x.name.includes(u))
     ),
-    u = [
+    f = [
       { key: 'name', header: 'Name' },
       {
         key: 'status',
@@ -23233,7 +23520,7 @@ function Yt() {
             children: e.jsx('button', {
               className: 'btn-danger btn-xs',
               onClick: async () => {
-                ;(await ht(x.id), S(await ge()))
+                ;(await ht(x.id), y(await ge()))
               },
               children: 'Delete'
             })
@@ -23244,27 +23531,27 @@ function Yt() {
     className: 'space-y-3',
     children: [
       e.jsx(oe, { title: 'Images', subtitle: 'Kubernetes ISO' }),
-      e.jsxs(Ee, {
+      e.jsxs(Ne, {
         placeholder: 'Search K8s ISO',
         onSearch: a,
         children: [
           e.jsx('button', {
             className: 'btn-secondary',
-            onClick: async () => S(await ge()),
+            onClick: async () => y(await ge()),
             children: 'Refresh'
           }),
           e.jsx('button', {
             className: 'btn-secondary',
-            onClick: () => D(!0),
+            onClick: () => R(!0),
             children: 'Register from URL'
           }),
           e.jsx('button', { className: 'btn-primary', onClick: () => w(!0), children: 'Upload' })
         ]
       }),
-      e.jsx(de, { columns: u, data: d, empty: 'No K8s ISOs' }),
+      e.jsx(de, { columns: f, data: h, empty: 'No K8s ISOs' }),
       e.jsx(le, {
         title: 'Upload K8s ISO',
-        open: v,
+        open: g,
         onClose: () => w(!1),
         footer: e.jsxs(e.Fragment, {
           children: [
@@ -23280,7 +23567,7 @@ function Yt() {
                 if (I) {
                   l(!0)
                   try {
-                    ;(await ct(I, { name: I.name }), S(await ge()), w(!1), i(null))
+                    ;(await ct(I, { name: I.name }), y(await ge()), w(!1), i(null))
                   } finally {
                     l(!1)
                   }
@@ -23307,47 +23594,47 @@ function Yt() {
       }),
       e.jsx(le, {
         title: 'Register K8s ISO from URL',
-        open: O,
-        onClose: () => D(!1),
+        open: T,
+        onClose: () => R(!1),
         footer: e.jsxs(e.Fragment, {
           children: [
             e.jsx('button', {
               className: 'btn-secondary',
-              onClick: () => D(!1),
+              onClick: () => R(!1),
               children: 'Cancel'
             }),
-            e.jsx(Vs, {
+            e.jsx(Ks, {
               kind: 'iso',
               onDone: async () => {
-                ;(S(await ge()), D(!1))
+                ;(y(await ge()), R(!1))
               }
             })
           ]
         }),
-        children: e.jsx(Ks, { placeholder: 'https://rgw.example.com/bucket/k8s-node.iso' })
+        children: e.jsx(qs, { placeholder: 'https://rgw.example.com/bucket/k8s-node.iso' })
       })
     ]
   })
 }
-function Vs({ kind: _, onDone: S }) {
-  const [v, w] = k.useState(!1)
+function Ks({ kind: m, onDone: y }) {
+  const [g, w] = k.useState(!1)
   return e.jsx('button', {
     className: 'btn-primary',
-    disabled: v,
+    disabled: g,
     onClick: async () => {
       w(!0)
       try {
-        const O = document.getElementById('register-url')?.value || ''
-        if (!O) return
-        const D = O.split('/').pop() || (_ === 'iso' ? 'iso' : 'template'),
-          { registerImage: I } = await Ge(
+        const T = document.getElementById('register-url')?.value || ''
+        if (!T) return
+        const R = T.split('/').pop() || (m === 'iso' ? 'iso' : 'template'),
+          { registerImage: I } = await Ke(
             async () => {
-              const { registerImage: i } = await Promise.resolve().then(() => Ts)
+              const { registerImage: i } = await Promise.resolve().then(() => Hs)
               return { registerImage: i }
             },
             void 0
           )
-        ;(await I({ name: D, disk_format: _ === 'iso' ? 'iso' : 'qcow2', rgw_url: O }), S())
+        ;(await I({ name: R, disk_format: m === 'iso' ? 'iso' : 'qcow2', rgw_url: T }), y())
       } finally {
         w(!1)
       }
@@ -23355,11 +23642,11 @@ function Vs({ kind: _, onDone: S }) {
     children: 'Register'
   })
 }
-function Ks({ placeholder: _ }) {
+function qs({ placeholder: m }) {
   return e.jsxs('div', {
     className: 'space-y-3',
     children: [
-      e.jsx('input', { id: 'register-url', className: 'input w-full', placeholder: _ }),
+      e.jsx('input', { id: 'register-url', className: 'input w-full', placeholder: m }),
       e.jsx('p', {
         className: 'text-xs text-muted-foreground',
         children: '支持 RGW/HTTP URL；注册后可在 Images 页面点击 Import 将其落地到 RBD 或文件路径。'
@@ -23367,28 +23654,46 @@ function Ks({ placeholder: _ }) {
     ]
   })
 }
-function Ci() {
-  const { roles: _, addRole: S, removeRole: v } = Ce(),
-    w = [
+function Ei() {
+  const { roles: m, policies: y, addRole: g, updateRole: w, removeRole: T } = Ce(),
+    [R, I] = k.useState(!1),
+    [i, o] = k.useState(null),
+    l = [
       { key: 'name', header: 'Name' },
       { key: 'roleType', header: 'Role Type' },
       {
+        key: 'policyIds',
+        header: 'Policies',
+        render: (c) => e.jsxs('span', { children: [c.policyIds?.length || 0, ' attached'] })
+      },
+      {
         key: 'id',
         header: '',
-        className: 'w-10 text-right',
-        render: (o) =>
-          e.jsx('div', {
-            className: 'flex justify-end',
-            children: e.jsx('button', {
-              className: 'text-red-400 hover:underline',
-              onClick: () => v(o.id),
-              children: 'Delete'
-            })
+        className: 'w-32 text-right',
+        render: (c) =>
+          e.jsxs('div', {
+            className: 'flex justify-end gap-2',
+            children: [
+              e.jsx('button', {
+                className: 'text-blue-400 hover:underline',
+                onClick: () => {
+                  ;(o(c.id), I(!0))
+                },
+                children: 'Policies'
+              }),
+              e.jsx('button', {
+                className: 'text-red-400 hover:underline disabled:opacity-50',
+                onClick: () => T(c.id),
+                disabled: c.roleType === 'system',
+                children: 'Delete'
+              })
+            ]
           })
       }
     ],
-    [O, D] = k.useState(!1),
-    [I, i] = k.useState('')
+    [u, a] = k.useState(!1),
+    [h, f] = k.useState(''),
+    x = m.find((c) => c.id === i)
   return e.jsxs('div', {
     className: 'space-y-3',
     children: [
@@ -23397,26 +23702,26 @@ function Ci() {
         subtitle: 'Roles configuration',
         actions: e.jsx('button', {
           className: 'btn-primary',
-          onClick: () => D(!0),
+          onClick: () => a(!0),
           children: 'Create Role'
         })
       }),
-      e.jsx(de, { columns: w, data: _, empty: 'No roles' }),
+      e.jsx(de, { columns: l, data: m, empty: 'No roles' }),
       e.jsx(le, {
         title: 'Create Role',
-        open: O,
-        onClose: () => D(!1),
+        open: u,
+        onClose: () => a(!1),
         footer: e.jsxs(e.Fragment, {
           children: [
             e.jsx('button', {
               className: 'btn-secondary',
-              onClick: () => D(!1),
+              onClick: () => a(!1),
               children: 'Cancel'
             }),
             e.jsx('button', {
               className: 'btn-primary',
               onClick: () => {
-                I && (S({ name: I, roleType: 'custom' }), i(''), D(!1))
+                h && (g({ name: h, roleType: 'custom', policyIds: [] }), f(''), a(!1))
               },
               children: 'Create'
             })
@@ -23429,34 +23734,250 @@ function Ci() {
               e.jsx('label', { className: 'label', children: 'Name' }),
               e.jsx('input', {
                 className: 'input w-full',
-                value: I,
-                onChange: (o) => i(o.target.value)
+                value: h,
+                onChange: (c) => f(c.target.value)
               })
             ]
+          })
+        })
+      }),
+      e.jsx(le, {
+        title: `Manage Policies for ${x?.name}`,
+        open: R,
+        onClose: () => I(!1),
+        footer: e.jsx('button', {
+          className: 'btn-primary',
+          onClick: () => I(!1),
+          children: 'Done'
+        }),
+        children: e.jsx('div', {
+          className: 'space-y-2 max-h-96 overflow-y-auto',
+          children: y.map((c) => {
+            const t = x?.policyIds?.includes(c.id)
+            return e.jsxs(
+              'div',
+              {
+                className: 'flex items-center justify-between p-2 border rounded',
+                children: [
+                  e.jsxs('div', {
+                    children: [
+                      e.jsx('div', { className: 'font-medium', children: c.name }),
+                      e.jsx('div', { className: 'text-xs text-gray-500', children: c.type })
+                    ]
+                  }),
+                  e.jsx('button', {
+                    className: `btn-sm ${t ? 'btn-danger' : 'btn-secondary'}`,
+                    onClick: () => {
+                      if (!x) return
+                      const n = x.policyIds || [],
+                        s = t ? n.filter((r) => r !== c.id) : [...n, c.id]
+                      w(x.id, { policyIds: s })
+                    },
+                    children: t ? 'Detach' : 'Attach'
+                  })
+                ]
+              },
+              c.id
+            )
           })
         })
       })
     ]
   })
 }
-function ki() {
-  const { accounts: _ } = Ce(),
-    S = [
+function Li() {
+  const { policies: m, addPolicy: y, removePolicy: g } = Ce(),
+    w = [
+      { key: 'name', header: 'Name' },
+      { key: 'type', header: 'Type' },
+      { key: 'description', header: 'Description' },
+      {
+        key: 'id',
+        header: '',
+        className: 'w-10 text-right',
+        render: (h) =>
+          e.jsx('div', {
+            className: 'flex justify-end gap-2',
+            children: e.jsx('button', {
+              className:
+                'text-red-400 hover:underline disabled:opacity-50 disabled:cursor-not-allowed',
+              onClick: () => g(h.id),
+              disabled: h.type === 'system',
+              children: 'Delete'
+            })
+          })
+      }
+    ],
+    [T, R] = k.useState(!1),
+    [I, i] = k.useState(''),
+    [o, l] = k.useState(''),
+    [u, a] = k.useState(`{
+  "Version": "2012-10-17",
+  "Statement": []
+}`)
+  return e.jsxs('div', {
+    className: 'space-y-3',
+    children: [
+      e.jsx(oe, {
+        title: 'IAM - Policies',
+        subtitle: 'Manage access control policies',
+        actions: e.jsx('button', {
+          className: 'btn-primary',
+          onClick: () => R(!0),
+          children: 'Create Policy'
+        })
+      }),
+      e.jsx(de, { columns: w, data: m, empty: 'No policies' }),
+      e.jsx(le, {
+        title: 'Create Policy',
+        open: T,
+        onClose: () => R(!1),
+        footer: e.jsxs(e.Fragment, {
+          children: [
+            e.jsx('button', {
+              className: 'btn-secondary',
+              onClick: () => R(!1),
+              children: 'Cancel'
+            }),
+            e.jsx('button', {
+              className: 'btn-primary',
+              onClick: () => {
+                I &&
+                  u &&
+                  (y({ name: I, description: o, document: u, type: 'custom' }),
+                  i(''),
+                  l(''),
+                  a(`{
+  "Version": "2012-10-17",
+  "Statement": []
+}`),
+                  R(!1))
+              },
+              children: 'Create'
+            })
+          ]
+        }),
+        children: e.jsxs('div', {
+          className: 'space-y-3',
+          children: [
+            e.jsxs('div', {
+              children: [
+                e.jsx('label', { className: 'label', children: 'Name' }),
+                e.jsx('input', {
+                  className: 'input w-full',
+                  value: I,
+                  onChange: (h) => i(h.target.value)
+                })
+              ]
+            }),
+            e.jsxs('div', {
+              children: [
+                e.jsx('label', { className: 'label', children: 'Description' }),
+                e.jsx('input', {
+                  className: 'input w-full',
+                  value: o,
+                  onChange: (h) => l(h.target.value)
+                })
+              ]
+            }),
+            e.jsxs('div', {
+              children: [
+                e.jsx('label', { className: 'label', children: 'Policy Document (JSON)' }),
+                e.jsx('textarea', {
+                  className: 'input w-full h-40 font-mono text-sm',
+                  value: u,
+                  onChange: (h) => a(h.target.value)
+                })
+              ]
+            })
+          ]
+        })
+      })
+    ]
+  })
+}
+function Ri() {
+  const { accounts: m, policies: y, updateAccount: g } = Ce(),
+    [w, T] = k.useState(!1),
+    [R, I] = k.useState(null),
+    i = [
       { key: 'name', header: 'Name' },
       { key: 'status', header: 'Status' },
       { key: 'role', header: 'Role' },
-      { key: 'roleType', header: 'Role Type' },
-      { key: 'source', header: 'Source' }
-    ]
+      {
+        key: 'policyIds',
+        header: 'Policies',
+        render: (l) => e.jsxs('span', { children: [l.policyIds?.length || 0, ' attached'] })
+      },
+      { key: 'source', header: 'Source' },
+      {
+        key: 'id',
+        header: '',
+        className: 'w-32 text-right',
+        render: (l) =>
+          e.jsx('div', {
+            className: 'flex justify-end gap-2',
+            children: e.jsx('button', {
+              className: 'text-blue-400 hover:underline',
+              onClick: () => {
+                ;(I(l.id), T(!0))
+              },
+              children: 'Policies'
+            })
+          })
+      }
+    ],
+    o = m.find((l) => l.id === R)
   return e.jsxs('div', {
     className: 'space-y-3',
     children: [
       e.jsx(oe, { title: 'Accounts', subtitle: 'Current users' }),
-      e.jsx(de, { columns: S, data: _, empty: 'No accounts' })
+      e.jsx(de, { columns: i, data: m, empty: 'No accounts' }),
+      e.jsx(le, {
+        title: `Manage Policies for ${o?.name}`,
+        open: w,
+        onClose: () => T(!1),
+        footer: e.jsx('button', {
+          className: 'btn-primary',
+          onClick: () => T(!1),
+          children: 'Done'
+        }),
+        children: e.jsx('div', {
+          className: 'space-y-2 max-h-96 overflow-y-auto',
+          children: y.map((l) => {
+            const u = o?.policyIds?.includes(l.id)
+            return e.jsxs(
+              'div',
+              {
+                className: 'flex items-center justify-between p-2 border rounded',
+                children: [
+                  e.jsxs('div', {
+                    children: [
+                      e.jsx('div', { className: 'font-medium', children: l.name }),
+                      e.jsx('div', { className: 'text-xs text-gray-500', children: l.type })
+                    ]
+                  }),
+                  e.jsx('button', {
+                    className: `btn-sm ${u ? 'btn-danger' : 'btn-secondary'}`,
+                    onClick: () => {
+                      if (!o) return
+                      const a = o.policyIds || [],
+                        h = u ? a.filter((f) => f !== l.id) : [...a, l.id]
+                      g(o.id, { policyIds: h })
+                    },
+                    children: u ? 'Detach' : 'Attach'
+                  })
+                ]
+              },
+              l.id
+            )
+          })
+        })
+      })
     ]
   })
 }
-function Zt() {
+function es() {
   return e.jsxs('div', {
     className: 'space-y-3',
     children: [
@@ -23468,26 +23989,26 @@ function Zt() {
     ]
   })
 }
-function ji() {
-  const [_, S] = k.useState([]),
-    [v, w] = k.useState(!1),
-    [O, D] = k.useState(''),
+function Di() {
+  const [m, y] = k.useState([]),
+    [g, w] = k.useState(!1),
+    [T, R] = k.useState(''),
     [I, i] = k.useState(!1),
     [o, l] = k.useState(''),
-    [f, a] = k.useState('core'),
-    [d, u] = k.useState('Advanced'),
-    [x, h] = k.useState('enabled'),
+    [u, a] = k.useState('core'),
+    [h, f] = k.useState('Advanced'),
+    [x, c] = k.useState('enabled'),
     t = async () => {
       w(!0)
       try {
         const r = await it()
-        S(
-          r.map((c) => ({
-            id: c.id,
-            name: c.name,
-            allocation: c.allocation,
-            type: c.type,
-            networkType: c.network_type
+        y(
+          r.map((d) => ({
+            id: d.id,
+            name: d.name,
+            allocation: d.allocation,
+            type: d.type,
+            networkType: d.network_type
           }))
         )
       } finally {
@@ -23498,15 +24019,15 @@ function ji() {
     t()
   }, [])
   const n = k.useMemo(() => {
-      const r = O.trim().toLowerCase()
+      const r = T.trim().toLowerCase()
       return r
-        ? _.filter((c) =>
-            [c.name, c.type, c.networkType, c.allocation].some((g) =>
-              String(g).toLowerCase().includes(r)
+        ? m.filter((d) =>
+            [d.name, d.type, d.networkType, d.allocation].some((v) =>
+              String(v).toLowerCase().includes(r)
             )
           )
-        : _
-    }, [O, _]),
+        : m
+    }, [T, m]),
     s = [
       { key: 'name', header: 'Name' },
       {
@@ -23537,19 +24058,19 @@ function ji() {
             e.jsx('button', {
               className: 'btn',
               onClick: t,
-              disabled: v,
-              children: v ? 'Refreshing…' : 'Refresh'
+              disabled: g,
+              children: g ? 'Refreshing…' : 'Refresh'
             }),
             e.jsx('button', {
               className: 'btn btn-primary',
               onClick: () => i(!0),
               children: 'Add Zone'
             }),
-            e.jsx(Ee, { placeholder: 'Search zones', onSearch: D })
+            e.jsx(Ne, { placeholder: 'Search zones', onSearch: R })
           ]
         })
       }),
-      e.jsx(de, { columns: s, data: n, empty: v ? 'Loading…' : 'No zones' }),
+      e.jsx(de, { columns: s, data: n, empty: g ? 'Loading…' : 'No zones' }),
       e.jsx(le, {
         title: 'Add Zone',
         open: I,
@@ -23561,9 +24082,9 @@ function ji() {
               className: 'btn btn-primary',
               onClick: async () => {
                 if (!o) return
-                const r = await Ls({ name: o, type: f, network_type: d, allocation: x })
-                ;(S((c) => [
-                  ...c,
+                const r = await Ds({ name: o, type: u, network_type: h, allocation: x })
+                ;(y((d) => [
+                  ...d,
                   {
                     id: r.id,
                     name: r.name,
@@ -23574,8 +24095,8 @@ function ji() {
                 ]),
                   l(''),
                   a('core'),
-                  u('Advanced'),
-                  h('enabled'),
+                  f('Advanced'),
+                  c('enabled'),
                   i(!1))
               },
               children: 'Save'
@@ -23603,7 +24124,7 @@ function ji() {
                     e.jsx('label', { className: 'label', children: 'Type' }),
                     e.jsxs('select', {
                       className: 'input w-full',
-                      value: f,
+                      value: u,
                       onChange: (r) => a(r.target.value),
                       children: [
                         e.jsx('option', { value: 'core', children: 'core' }),
@@ -23617,8 +24138,8 @@ function ji() {
                     e.jsx('label', { className: 'label', children: 'Network Type' }),
                     e.jsxs('select', {
                       className: 'input w-full',
-                      value: d,
-                      onChange: (r) => u(r.target.value),
+                      value: h,
+                      onChange: (r) => f(r.target.value),
                       children: [
                         e.jsx('option', { value: 'Basic', children: 'Basic' }),
                         e.jsx('option', { value: 'Advanced', children: 'Advanced' })
@@ -23634,7 +24155,7 @@ function ji() {
                 e.jsxs('select', {
                   className: 'input w-full',
                   value: x,
-                  onChange: (r) => h(r.target.value),
+                  onChange: (r) => c(r.target.value),
                   children: [
                     e.jsx('option', { value: 'enabled', children: 'enabled' }),
                     e.jsx('option', { value: 'disabled', children: 'disabled' })
@@ -23648,63 +24169,63 @@ function ji() {
     ]
   })
 }
-function Ni() {
+function Ai() {
   return e.jsx('div', {
     className: 'card p-4',
     children: e.jsx(oe, { title: 'Clusters', subtitle: 'Compute clusters' })
   })
 }
-function Ei() {
-  const [_, S] = k.useState(!1),
-    [v, w] = k.useState([]),
-    [O, D] = k.useState(''),
+function Bi() {
+  const [m, y] = k.useState(!1),
+    [g, w] = k.useState([]),
+    [T, R] = k.useState(''),
     [I, i] = k.useState('all'),
     [o, l] = k.useState(!1),
-    [f, a] = k.useState(new Set()),
-    d = async () => {
-      S(!0)
+    [u, a] = k.useState(new Set()),
+    h = async () => {
+      y(!0)
       try {
-        const h = await ms()
-        w(h)
+        const c = await vs()
+        w(c)
       } finally {
-        S(!1)
+        y(!1)
       }
     }
   k.useEffect(() => {
-    d()
+    h()
   }, [])
-  const u = k.useMemo(() => {
-      const h = Date.now()
-      return v
+  const f = k.useMemo(() => {
+      const c = Date.now()
+      return g
         .map((t) => {
           const n = t.last_heartbeat ? new Date(t.last_heartbeat).getTime() : 0,
-            s = n > 0 && h - n < 6e4,
+            s = n > 0 && c - n < 6e4,
             r = t.labels?.disabled !== 'true',
-            c = !1,
-            g = t.address?.replace(/^https?:\/\//, '').replace(/:.*/, '') || '',
-            m = t.labels?.arch || '',
+            d = !1,
+            v = t.address?.replace(/^https?:\/\//, '').replace(/:.*/, '') || '',
+            _ = t.labels?.arch || '',
             b = t.labels?.hypervisor || t.labels?.driver || '',
             p = t.labels?.kernel || t.labels?.version || '',
-            y = s ? 'up' : 'down',
+            S = s ? 'up' : 'down',
             L = r ? 'enabled' : 'disabled'
           return {
             id: t.id,
             name: t.hostname || t.id,
-            state: y,
+            state: S,
             resourceState: L,
-            ip: g,
-            arch: m,
+            ip: v,
+            arch: _,
             hypervisor: b,
             version: p,
             _alive: s,
             _enabled: r,
-            _alarm: c
+            _alarm: d
           }
         })
         .filter((t) => {
-          if (O) {
-            const n = O.toLowerCase()
-            if (!t.name.toLowerCase().includes(n) && !t.ip.includes(O)) return !1
+          if (T) {
+            const n = T.toLowerCase()
+            if (!t.name.toLowerCase().includes(n) && !t.ip.includes(T)) return !1
           }
           switch (I) {
             case 'up':
@@ -23721,7 +24242,7 @@ function Ei() {
               return !0
           }
         })
-    }, [v, O, I]),
+    }, [g, T, I]),
     x = [
       {
         key: '__sel__',
@@ -23729,21 +24250,21 @@ function Ei() {
         headerRender: e.jsx('input', {
           type: 'checkbox',
           'aria-label': 'Select all',
-          checked: u.length > 0 && u.every((h) => f.has(h.id)),
-          onChange: (h) => {
-            h.target.checked ? a(new Set(u.map((t) => t.id))) : a(new Set())
+          checked: f.length > 0 && f.every((c) => u.has(c.id)),
+          onChange: (c) => {
+            c.target.checked ? a(new Set(f.map((t) => t.id))) : a(new Set())
           }
         }),
-        render: (h) =>
+        render: (c) =>
           e.jsx('input', {
             type: 'checkbox',
-            'aria-label': `Select ${h.name}`,
-            checked: f.has(h.id),
+            'aria-label': `Select ${c.name}`,
+            checked: u.has(c.id),
             onChange: (t) => {
               ;(t.stopPropagation(),
                 a((n) => {
                   const s = new Set(n)
-                  return (t.target.checked ? s.add(h.id) : s.delete(h.id), s)
+                  return (t.target.checked ? s.add(c.id) : s.delete(c.id), s)
                 }))
             },
             onClick: (t) => t.stopPropagation()
@@ -23754,16 +24275,16 @@ function Ei() {
       {
         key: 'state',
         header: 'State',
-        render: (h) =>
-          e.jsx(pe, { variant: h.state === 'up' ? 'success' : 'danger', children: h.state })
+        render: (c) =>
+          e.jsx(pe, { variant: c.state === 'up' ? 'success' : 'danger', children: c.state })
       },
       {
         key: 'resourceState',
         header: 'Resource State',
-        render: (h) =>
+        render: (c) =>
           e.jsx(pe, {
-            variant: h.resourceState === 'enabled' ? 'success' : 'warning',
-            children: h.resourceState
+            variant: c.resourceState === 'enabled' ? 'success' : 'warning',
+            children: c.resourceState
           })
       },
       { key: 'ip', header: 'IP' },
@@ -23786,14 +24307,14 @@ function Ei() {
                 children: [
                   e.jsx('button', {
                     className: 'btn',
-                    onClick: d,
-                    disabled: _,
-                    children: _ ? 'Refreshing…' : 'Refresh'
+                    onClick: h,
+                    disabled: m,
+                    children: m ? 'Refreshing…' : 'Refresh'
                   }),
                   e.jsxs('select', {
                     className: 'select',
                     value: I,
-                    onChange: (h) => i(h.target.value),
+                    onChange: (c) => i(c.target.value),
                     children: [
                       e.jsx('option', { value: 'all', children: 'All' }),
                       e.jsx('option', { value: 'up', children: 'Up' }),
@@ -23808,18 +24329,18 @@ function Ei() {
               e.jsxs('div', {
                 className: 'flex items-center gap-2',
                 children: [
-                  f.size > 0 &&
+                  u.size > 0 &&
                     e.jsx('button', {
                       className: 'btn btn-danger',
                       onClick: async () => {
-                        if (confirm(`Delete ${f.size} host(s) from scheduler?`))
+                        if (confirm(`Delete ${u.size} host(s) from scheduler?`))
                           try {
-                            ;(await Promise.all(Array.from(f).map((h) => gs(h))),
-                              fe.success(`Deleted ${f.size} host(s)`),
+                            ;(await Promise.all(Array.from(u).map((c) => xs(c))),
+                              me.success(`Deleted ${u.size} host(s)`),
                               a(new Set()),
-                              await d())
+                              await h())
                           } catch {
-                            fe.error('Delete failed')
+                            me.error('Delete failed')
                           }
                       },
                       children: 'Delete Selected'
@@ -23829,23 +24350,23 @@ function Ei() {
                     onClick: () => l(!0),
                     children: 'Add Host'
                   }),
-                  e.jsx(Ee, { placeholder: 'Search by IP or hostname', onSearch: D })
+                  e.jsx(Ne, { placeholder: 'Search by IP or hostname', onSearch: R })
                 ]
               })
             ]
           }),
           e.jsx(de, {
             columns: x,
-            data: u,
-            empty: _ ? 'Loading…' : 'No hosts',
-            onRowClick: (h) => {
-              const t = h
+            data: f,
+            empty: m ? 'Loading…' : 'No hosts',
+            onRowClick: (c) => {
+              const t = c
               a((n) => {
                 const s = new Set(n)
                 return (s.has(t.id) ? s.delete(t.id) : s.add(t.id), s)
               })
             },
-            isRowSelected: (h) => f.has(h.id)
+            isRowSelected: (c) => u.has(c.id)
           })
         ]
       }),
@@ -23908,13 +24429,13 @@ WantedBy=multi-user.target`
     ]
   })
 }
-function Li() {
+function Ii() {
   return e.jsx('div', {
     className: 'card p-4',
     children: e.jsx(oe, { title: 'Primary Storage (S3)', subtitle: 'Primary storage backends' })
   })
 }
-function Ri() {
+function Mi() {
   return e.jsx('div', {
     className: 'card p-4',
     children: e.jsx(oe, {
@@ -23923,42 +24444,42 @@ function Ri() {
     })
   })
 }
-function Di() {
+function Pi() {
   return e.jsx('div', {
     className: 'card p-4',
     children: e.jsx(oe, { title: 'DB / Usage Server', subtitle: 'Database and usage services' })
   })
 }
-function Ai() {
+function Ti() {
   return e.jsx('div', {
     className: 'card p-4',
     children: e.jsx(oe, { title: 'Alarms', subtitle: 'Infrastructure alarms' })
   })
 }
-function Bi() {
+function Oi() {
   return e.jsx('div', {
     className: 'space-y-4',
-    children: e.jsxs(ze, {
+    children: e.jsxs(Ve, {
       children: [
-        e.jsx(te, { path: '', element: e.jsx(bt, { to: 'overview', replace: !0 }) }),
-        e.jsx(te, { path: 'overview', element: e.jsx(Zt, {}) }),
-        e.jsx(te, { path: 'zones', element: e.jsx(ji, {}) }),
-        e.jsx(te, { path: 'clusters', element: e.jsx(Ni, {}) }),
-        e.jsx(te, { path: 'hosts', element: e.jsx(Ei, {}) }),
-        e.jsx(te, { path: 'primary-storage', element: e.jsx(Li, {}) }),
-        e.jsx(te, { path: 'secondary-storage', element: e.jsx(Ri, {}) }),
-        e.jsx(te, { path: 'db-usage', element: e.jsx(Di, {}) }),
-        e.jsx(te, { path: 'alarms', element: e.jsx(Ai, {}) }),
-        e.jsx(te, { path: '*', element: e.jsx(Zt, {}) })
+        e.jsx(te, { path: '', element: e.jsx(St, { to: 'overview', replace: !0 }) }),
+        e.jsx(te, { path: 'overview', element: e.jsx(es, {}) }),
+        e.jsx(te, { path: 'zones', element: e.jsx(Di, {}) }),
+        e.jsx(te, { path: 'clusters', element: e.jsx(Ai, {}) }),
+        e.jsx(te, { path: 'hosts', element: e.jsx(Bi, {}) }),
+        e.jsx(te, { path: 'primary-storage', element: e.jsx(Ii, {}) }),
+        e.jsx(te, { path: 'secondary-storage', element: e.jsx(Mi, {}) }),
+        e.jsx(te, { path: 'db-usage', element: e.jsx(Pi, {}) }),
+        e.jsx(te, { path: 'alarms', element: e.jsx(Ti, {}) }),
+        e.jsx(te, { path: '*', element: e.jsx(es, {}) })
       ]
     })
   })
 }
-function Ii({ children: _ }) {
-  const S = lt((I) => I.token),
-    v = at(),
-    [w, O] = k.useState(!1),
-    D = (I) => {
+function Hi({ children: m }) {
+  const y = lt((I) => I.token),
+    g = at(),
+    [w, T] = k.useState(!1),
+    R = (I) => {
       console.log(I)
       try {
         const i = JSON.parse(localStorage.getItem('debug_logs') || '[]')
@@ -23972,73 +24493,74 @@ function Ii({ children: _ }) {
       ;(async () => {
         try {
           const i = localStorage.getItem('auth')
-          ;(D(`[RequireAuth] Checking localStorage auth: ${i ? 'Found' : 'Not found'}`),
+          ;(R(`[RequireAuth] Checking localStorage auth: ${i ? 'Found' : 'Not found'}`),
             i &&
               JSON.parse(i)?.state?.token &&
-              (D('[RequireAuth] Token found in localStorage, waiting for Zustand hydration...'),
+              (R('[RequireAuth] Token found in localStorage, waiting for Zustand hydration...'),
               await new Promise((l) => setTimeout(l, 100))))
         } catch {}
-        O(!0)
+        T(!0)
       })()
     }, []),
     w
-      ? (D(
-          `[RequireAuth] Ready. Token in Zustand store: ${S ? 'Found' : 'Not found'} at ${v.pathname}`
+      ? (R(
+          `[RequireAuth] Ready. Token in Zustand store: ${y ? 'Found' : 'Not found'} at ${g.pathname}`
         ),
-        S
-          ? (D(`[RequireAuth] Authenticated, rendering children for: ${v.pathname}`),
-            e.jsx(e.Fragment, { children: _ }))
-          : (D(`[RequireAuth] No token, redirecting to /login from: ${v.pathname}`),
-            e.jsx(bt, { to: '/login', state: { from: v }, replace: !0 })))
+        y
+          ? (R(`[RequireAuth] Authenticated, rendering children for: ${g.pathname}`),
+            e.jsx(e.Fragment, { children: m }))
+          : (R(`[RequireAuth] No token, redirecting to /login from: ${g.pathname}`),
+            e.jsx(St, { to: '/login', state: { from: g }, replace: !0 })))
       : null
   )
 }
-function Mi() {
+function Fi() {
   return (
     k.useEffect(() => {
       console.log('[App] VC Console loaded - Version: 2025-12-08-23:20')
     }, []),
-    e.jsxs(ze, {
+    e.jsxs(Ve, {
       children: [
-        e.jsx(te, { path: '/login', element: e.jsx(Ur, {}) }),
-        e.jsx(te, { path: '/auth/oidc/callback', element: e.jsx(zr, {}) }),
+        e.jsx(te, { path: '/login', element: e.jsx(Gr, {}) }),
+        e.jsx(te, { path: '/auth/oidc/callback', element: e.jsx(Kr, {}) }),
         e.jsx(te, {
           path: '/*',
-          element: e.jsx(Ii, {
-            children: e.jsx(cr, {
-              children: e.jsxs(ze, {
+          element: e.jsx(Hi, {
+            children: e.jsx(ur, {
+              children: e.jsxs(Ve, {
                 children: [
-                  e.jsx(te, { path: '/', element: e.jsx(bt, { to: '/projects', replace: !0 }) }),
-                  e.jsx(te, { path: '/docs', element: e.jsx(Vr, {}) }),
-                  e.jsx(te, { path: '/images', element: e.jsx(Ot, {}) }),
-                  e.jsx(te, { path: '/utilization', element: e.jsx(Ht, {}) }),
-                  e.jsx(te, { path: '/webshell', element: e.jsx(qr, {}) }),
-                  e.jsx(te, { path: '/webshell/sessions', element: e.jsx(vi, {}) }),
-                  e.jsx(te, { path: '/webshell/replay/:sessionId', element: e.jsx(Si, {}) }),
-                  e.jsx(te, { path: '/images/templates', element: e.jsx(Xt, {}) }),
-                  e.jsx(te, { path: '/images/iso', element: e.jsx(Jt, {}) }),
-                  e.jsx(te, { path: '/images/k8s-iso', element: e.jsx(Yt, {}) }),
-                  e.jsx(te, { path: '/iam/roles', element: e.jsx(Ci, {}) }),
-                  e.jsx(te, { path: '/accounts', element: e.jsx(ki, {}) }),
+                  e.jsx(te, { path: '/', element: e.jsx(St, { to: '/projects', replace: !0 }) }),
+                  e.jsx(te, { path: '/docs', element: e.jsx(Xr, {}) }),
+                  e.jsx(te, { path: '/images', element: e.jsx(Ft, {}) }),
+                  e.jsx(te, { path: '/utilization', element: e.jsx($t, {}) }),
+                  e.jsx(te, { path: '/webshell', element: e.jsx(Zr, {}) }),
+                  e.jsx(te, { path: '/webshell/sessions', element: e.jsx(Si, {}) }),
+                  e.jsx(te, { path: '/webshell/replay/:sessionId', element: e.jsx(ji, {}) }),
+                  e.jsx(te, { path: '/images/templates', element: e.jsx(Yt, {}) }),
+                  e.jsx(te, { path: '/images/iso', element: e.jsx(Zt, {}) }),
+                  e.jsx(te, { path: '/images/k8s-iso', element: e.jsx(Qt, {}) }),
+                  e.jsx(te, { path: '/iam/roles', element: e.jsx(Ei, {}) }),
+                  e.jsx(te, { path: '/iam/policies', element: e.jsx(Li, {}) }),
+                  e.jsx(te, { path: '/accounts', element: e.jsx(Ri, {}) }),
                   e.jsx(te, {
                     path: '/project/:projectId/infrastructure/*',
-                    element: e.jsx(Bi, {})
+                    element: e.jsx(Oi, {})
                   }),
-                  e.jsx(te, { path: '/projects/*', element: e.jsx($r, {}) }),
-                  e.jsx(te, { path: '/project/:projectId', element: e.jsx(wi, {}) }),
-                  e.jsx(te, { path: '/project/:projectId/images', element: e.jsx(Ot, {}) }),
-                  e.jsx(te, { path: '/project/:projectId/utilization', element: e.jsx(Ht, {}) }),
+                  e.jsx(te, { path: '/projects/*', element: e.jsx(zr, {}) }),
+                  e.jsx(te, { path: '/project/:projectId', element: e.jsx(Ni, {}) }),
+                  e.jsx(te, { path: '/project/:projectId/images', element: e.jsx(Ft, {}) }),
+                  e.jsx(te, { path: '/project/:projectId/utilization', element: e.jsx($t, {}) }),
                   e.jsx(te, {
                     path: '/project/:projectId/images/templates',
-                    element: e.jsx(Xt, {})
+                    element: e.jsx(Yt, {})
                   }),
-                  e.jsx(te, { path: '/project/:projectId/images/iso', element: e.jsx(Jt, {}) }),
-                  e.jsx(te, { path: '/project/:projectId/images/k8s-iso', element: e.jsx(Yt, {}) }),
-                  e.jsx(te, { path: '/project/:projectId/compute/*', element: e.jsx(Mr, {}) }),
-                  e.jsx(te, { path: '/project/:projectId/network/*', element: e.jsx(yr, {}) }),
-                  e.jsx(te, { path: '/project/:projectId/storage/*', element: e.jsx(Tr, {}) }),
-                  e.jsx(te, { path: '/settings/*', element: e.jsx(pr, {}) }),
-                  e.jsx(te, { path: '/notifications', element: e.jsx(Wr, {}) })
+                  e.jsx(te, { path: '/project/:projectId/images/iso', element: e.jsx(Zt, {}) }),
+                  e.jsx(te, { path: '/project/:projectId/images/k8s-iso', element: e.jsx(Qt, {}) }),
+                  e.jsx(te, { path: '/project/:projectId/compute/*', element: e.jsx(Or, {}) }),
+                  e.jsx(te, { path: '/project/:projectId/network/*', element: e.jsx(Cr, {}) }),
+                  e.jsx(te, { path: '/project/:projectId/storage/*', element: e.jsx(Fr, {}) }),
+                  e.jsx(te, { path: '/settings/*', element: e.jsx(gr, {}) }),
+                  e.jsx(te, { path: '/notifications', element: e.jsx(Vr, {}) })
                 ]
               })
             })
@@ -24048,6 +24570,6 @@ function Mi() {
     })
   )
 }
-ut.createRoot(document.getElementById('root')).render(
-  e.jsx(Xs.StrictMode, { children: e.jsx(Js, { children: e.jsx(Mi, {}) }) })
+pt.createRoot(document.getElementById('root')).render(
+  e.jsx(Zs.StrictMode, { children: e.jsx(Qs, { children: e.jsx(Fi, {}) }) })
 )

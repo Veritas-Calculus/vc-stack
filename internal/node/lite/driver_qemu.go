@@ -317,6 +317,15 @@ func (d *qemuDriver) createVMNew(req CreateVMRequest) (*VM, error) {
 		cfg.Disks = append(cfg.Disks, cdrom)
 	}
 
+	// Cloud-init.
+	if strings.TrimSpace(req.UserData) != "" || strings.TrimSpace(req.SSHAuthorizedKey) != "" {
+		cfg.CloudInit.Enabled = true
+		cfg.CloudInit.UserData = req.UserData
+		if req.SSHAuthorizedKey != "" {
+			cfg.CloudInit.SSHKeys = []string{req.SSHAuthorizedKey}
+		}
+	}
+
 	// NICs.
 	for i, nic := range req.Nics {
 		nicCfg := qemu.NICConfig{

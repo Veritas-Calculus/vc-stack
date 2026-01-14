@@ -2022,6 +2022,8 @@ func (s *Service) getUserIDFromContext(c *gin.Context) uint {
 	if userID, exists := c.Get("user_id"); exists {
 		if id, ok := userID.(uint); ok {
 			return id
+		} else if id, ok := userID.(float64); ok {
+			return uint(id)
 		}
 	}
 	// Return admin user ID as fallback
@@ -2033,6 +2035,8 @@ func (s *Service) getProjectIDFromContext(c *gin.Context) uint {
 	if projectID, exists := c.Get("project_id"); exists {
 		if id, ok := projectID.(uint); ok {
 			return id
+		} else if id, ok := projectID.(float64); ok {
+			return uint(id)
 		}
 	}
 	// Return default project ID

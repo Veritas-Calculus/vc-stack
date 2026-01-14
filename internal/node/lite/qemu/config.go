@@ -33,6 +33,9 @@ type VMConfig struct {
 	TPM       bool   `json:"tpm"`
 	TPMPath   string `json:"tpm_path"` // path to swtpm socket
 
+	// Cloud-init.
+	CloudInit CloudInitConfig `json:"cloud_init"`
+
 	// Disks.
 	Disks []DiskConfig `json:"disks"`
 
@@ -122,6 +125,14 @@ type MonitorConfig struct {
 	Type    string `json:"type"` // unix, tcp, stdio
 	Path    string `json:"path"`
 	Port    int    `json:"port"`
+}
+
+// CloudInitConfig represents cloud-init configuration.
+type CloudInitConfig struct {
+	Enabled  bool     `json:"enabled"`
+	UserData string   `json:"user_data"`
+	SSHKeys  []string `json:"ssh_keys"`
+	ISOPath  string   `json:"iso_path"` // Path to generated ISO
 }
 
 // DefaultConfig returns a default VM configuration.

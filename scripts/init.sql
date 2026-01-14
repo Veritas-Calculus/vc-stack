@@ -119,9 +119,17 @@ CREATE TABLE IF NOT EXISTS instances (
     user_id INTEGER REFERENCES users(id),
     project_id INTEGER REFERENCES projects(id),
     host_id VARCHAR(255),
+    node_address VARCHAR(255),
+    root_disk_gb INTEGER DEFAULT 0,
+    user_data TEXT,
+    ssh_key TEXT,
+    enable_tpm BOOLEAN DEFAULT false,
+    metadata JSONB,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    launched_at TIMESTAMP
+    launched_at TIMESTAMP,
+    terminated_at TIMESTAMP,
+    deleted_at TIMESTAMP
 );
 
 -- Hypervisor inventory

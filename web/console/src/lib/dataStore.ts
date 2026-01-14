@@ -83,7 +83,20 @@ export type PublicIP = {
   address: string
   status: 'allocated' | 'free'
 }
-export type Role = { id: string; name: string; description?: string; roleType: 'system' | 'custom' }
+export type Role = {
+  id: string
+  name: string
+  description?: string
+  roleType: 'system' | 'custom'
+  policyIds?: string[]
+}
+export type Policy = {
+  id: string
+  name: string
+  description?: string
+  type: 'system' | 'custom'
+  document: string
+}
 export type Account = {
   id: string
   name: string
@@ -91,6 +104,7 @@ export type Account = {
   role: string
   roleType: 'system' | 'custom'
   source: 'SSO' | 'Local'
+  policyIds?: string[]
 }
 export type ISO = { id: string; name: string; sizeGiB: number }
 export type Notice = {
@@ -173,8 +187,13 @@ type State = {
   // IAM / Accounts
   roles: Role[]
   addRole: (r: Omit<Role, 'id'>) => void
+  updateRole: (id: string, r: Partial<Role>) => void
   removeRole: (id: string) => void
+  policies: Policy[]
+  addPolicy: (p: Omit<Policy, 'id'>) => void
+  removePolicy: (id: string) => void
   accounts: Account[]
+  updateAccount: (id: string, a: Partial<Account>) => void
 }
 
 function uid() {
@@ -374,7 +393,27 @@ export const useDataStore = create<State>((set) => ({
     { id: 'r2', name: 'Viewer', roleType: 'system' }
   ],
   addRole: (r) => set((s) => ({ roles: [...s.roles, { id: uid(), ...r }] })),
+  updateRole: (id, r) =>
+    set((s) => ({ roles: s.roles.map((x) => (x.id === id ? { ...x, ...r } : x)) })),
   removeRole: (id) => set((s) => ({ roles: s.roles.filter((x) => x.id !== id) })),
+  policies: [
+    {
+      id: 'p1',
+      name: 'AdministratorAccess',
+      type: 'system',
+      document:
+        '{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Action": "*", "Resource": "*"}]}'
+    },
+    {
+      id: 'p2',
+      name: 'ReadOnlyAccess',
+      type: 'system',
+      document:
+        '{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Action": ["read", "list"], "Resource": "*"}]}'
+    }
+  ],
+  addPolicy: (p) => set((s) => ({ policies: [...s.policies, { id: uid(), ...p }] })),
+  removePolicy: (id) => set((s) => ({ policies: s.policies.filter((x) => x.id !== id) })),
   accounts: [
     {
       id: 'u1',
@@ -384,5 +423,7 @@ export const useDataStore = create<State>((set) => ({
       roleType: 'system',
       source: 'Local'
     }
-  ]
+  ],
+  updateAccount: (id, a) =>
+    set((s) => ({ accounts: s.accounts.map((x) => (x.id === id ? { ...x, ...a } : x)) }))
 }))

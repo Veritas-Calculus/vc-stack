@@ -13,6 +13,8 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/controlplane/middleware"
 )
 
 // Config represents the compute service configuration.
@@ -20,6 +22,7 @@ type Config struct {
 	DB        *gorm.DB
 	Logger    *zap.Logger
 	Scheduler string // Scheduler URL (e.g., http://localhost:8092)
+	JWTSecret string
 }
 
 // Service represents the controller compute service.
@@ -28,6 +31,7 @@ type Service struct {
 	logger    *zap.Logger
 	scheduler string
 	client    *http.Client
+	jwtSecret string
 }
 
 // NewService creates a new compute service.
@@ -46,6 +50,7 @@ func NewService(cfg Config) (*Service, error) {
 		client: &http.Client{
 			Timeout: 30 * time.Second,
 		},
+		jwtSecret: cfg.JWTSecret,
 	}
 
 	// Auto-migrate database schema.
@@ -58,12 +63,13 @@ func NewService(cfg Config) (*Service, error) {
 
 // migrate runs database migrations.
 func (s *Service) migrate() error {
+	// Only migrate tables not managed by init.sql
 	return s.db.AutoMigrate(
-		&Flavor{},
-		&Image{},
-		&Instance{},
-		&Volume{},
-		&Snapshot{},
+		// &Flavor{}, // Managed by init.sql
+		// &Image{}, // Managed by init.sql
+		// &Instance{}, // Managed by init.sql
+		// &Volume{}, // Managed by init.sql
+		// &Snapshot{}, // Managed by init.sql
 		&SSHKey{},
 	)
 }
@@ -71,6 +77,9 @@ func (s *Service) migrate() error {
 // SetupRoutes registers HTTP routes for the compute service.
 func (s *Service) SetupRoutes(router *gin.Engine) {
 	api := router.Group("/api/v1")
+	if s.jwtSecret != "" {
+		api.Use(middleware.AuthMiddleware(s.jwtSecret, s.logger))
+	}
 	{
 		// Flavor routes.
 		api.POST("/flavors", s.createFlavor)
@@ -89,6 +98,8 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		api.GET("/instances", s.listInstances)
 		api.GET("/instances/:id", s.getInstance)
 		api.DELETE("/instances/:id", s.deleteInstance)
+		api.DELETE("/instances/:id/force-delete", s.forceDeleteInstance)
+		api.GET("/instances/:id/deletion-status", s.getInstanceDeletionStatus)
 		api.POST("/instances/:id/start", s.startInstance)
 		api.POST("/instances/:id/stop", s.stopInstance)
 		api.POST("/instances/:id/reboot", s.rebootInstance)
@@ -127,11 +138,14 @@ type ScheduleResponse struct {
 
 // CreateVMRequest represents VM creation request sent to vc-lite.
 type CreateVMRequest struct {
-	Name     string `json:"name"`
-	VCPUs    int    `json:"vcpus"`
-	MemoryMB int    `json:"memory_mb"`
-	DiskGB   int    `json:"disk_gb"`
-	Image    string `json:"image"`
+	Name             string `json:"name"`
+	VCPUs            int    `json:"vcpus"`
+	MemoryMB         int    `json:"memory_mb"`
+	DiskGB           int    `json:"disk_gb"`
+	Image            string `json:"image"`
+	UserData         string `json:"user_data,omitempty"`
+	SSHAuthorizedKey string `json:"ssh_authorized_key,omitempty"`
+	TPM              bool   `json:"tpm"`
 }
 
 // CreateVMResponse represents vc-lite response.
@@ -217,6 +231,8 @@ func (s *Service) createImage(c *gin.Context) {
 	uid := uint(0)
 	if v, ok := userID.(uint); ok {
 		uid = v
+	} else if v, ok := userID.(float64); ok {
+		uid = uint(v)
 	}
 
 	image := &Image{
@@ -291,10 +307,23 @@ func (s *Service) createInstance(c *gin.Context) {
 	uid := uint(0)
 	if v, ok := userID.(uint); ok {
 		uid = v
+	} else if v, ok := userID.(float64); ok {
+		uid = uint(v)
 	}
+
 	pid := uint(0)
 	if v, ok := projectID.(uint); ok {
 		pid = v
+	} else if v, ok := projectID.(float64); ok {
+		pid = uint(v)
+	}
+
+	// Fallback: if project_id is missing but user_id is present, try to find a project for the user.
+	if pid == 0 && uid != 0 {
+		var pID uint
+		if err := s.db.Table("projects").Select("id").Where("user_id = ?", uid).Limit(1).Scan(&pID).Error; err == nil && pID != 0 {
+			pid = pID
+		}
 	}
 
 	// Load flavor and image.
@@ -322,6 +351,9 @@ func (s *Service) createInstance(c *gin.Context) {
 		Status:     "building",
 		PowerState: "shutdown",
 		RootDiskGB: flavor.Disk,
+		UserData:   req.UserData,
+		SSHKey:     req.SSHKey,
+		EnableTPM:  req.EnableTPM,
 	}
 
 	if req.RootDiskGB > 0 {
@@ -474,11 +506,14 @@ func (s *Service) lookupNodeAddress(ctx context.Context, nodeID string) (string,
 // createVMOnNode creates a VM on the selected node via vc-lite.
 func (s *Service) createVMOnNode(ctx context.Context, nodeAddr string, inst *Instance, flavor *Flavor, image *Image) (string, error) {
 	vmReq := CreateVMRequest{
-		Name:     inst.Name,
-		VCPUs:    flavor.VCPUs,
-		MemoryMB: flavor.RAM,
-		DiskGB:   flavor.Disk,
-		Image:    image.FilePath,
+		Name:             inst.Name,
+		VCPUs:            flavor.VCPUs,
+		MemoryMB:         flavor.RAM,
+		DiskGB:           flavor.Disk,
+		Image:            image.FilePath,
+		UserData:         inst.UserData,
+		SSHAuthorizedKey: inst.SSHKey,
+		TPM:              inst.EnableTPM,
 	}
 
 	if image.RBDImage != "" {
@@ -550,10 +585,13 @@ func (s *Service) deleteInstance(c *gin.Context) {
 		return
 	}
 
-	if err := s.db.Model(&instance).Update("status", "deleting").Error; err != nil {
-		s.logger.Error("failed to update instance status", zap.Error(err))
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete instance"})
-		return
+	// If already deleted (but not soft-deleted yet), skip status update to avoid unique constraint violation
+	if instance.Status != "deleted" {
+		if err := s.db.Model(&instance).Update("status", "deleting").Error; err != nil {
+			s.logger.Error("failed to update instance status", zap.Error(err))
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete instance"})
+			return
+		}
 	}
 
 	// Dispatch deletion asynchronously.
@@ -583,7 +621,64 @@ func (s *Service) deleteInstanceOnNode(ctx context.Context, inst *Instance) {
 		"terminated_at": now,
 	}).Error
 
+	// Soft delete the record so it doesn't show up in normal lists
+	if err := s.db.Delete(inst).Error; err != nil {
+		s.logger.Error("failed to soft delete instance", zap.Error(err))
+	}
+
 	s.logger.Info("instance deleted", zap.String("uuid", inst.UUID))
+}
+
+func (s *Service) forceDeleteInstance(c *gin.Context) {
+	id := c.Param("id")
+	var instance Instance
+	// Use Unscoped to find even soft-deleted instances
+	if err := s.db.Unscoped().First(&instance, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "instance not found"})
+		return
+	}
+
+	// Best effort delete on node (async)
+	go func(inst *Instance) {
+		if inst.NodeAddress != "" {
+			req, _ := http.NewRequest("DELETE", inst.NodeAddress+"/api/v1/vms/"+inst.UUID, http.NoBody)
+			if resp, err := s.client.Do(req); err == nil {
+				resp.Body.Close()
+			}
+		}
+	}(&instance)
+
+	// Hard delete from DB
+	if err := s.db.Unscoped().Delete(&instance).Error; err != nil {
+		s.logger.Error("failed to force delete instance", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to force delete instance"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"ok": true})
+}
+
+func (s *Service) getInstanceDeletionStatus(c *gin.Context) {
+	id := c.Param("id")
+	var instance Instance
+	// Check if it exists (including soft-deleted)
+	if err := s.db.Unscoped().First(&instance, id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			// If not found in DB, it's effectively deleted (hard delete case)
+			c.JSON(http.StatusOK, gin.H{"status": "deleted"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "database error"})
+		return
+	}
+
+	// If it has a deletion timestamp, it's deleted
+	if instance.DeletedAt.Valid {
+		c.JSON(http.StatusOK, gin.H{"status": "deleted"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": instance.Status})
 }
 
 func (s *Service) startInstance(c *gin.Context) {
@@ -682,10 +777,23 @@ func (s *Service) createVolume(c *gin.Context) {
 	uid := uint(0)
 	if v, ok := userID.(uint); ok {
 		uid = v
+	} else if v, ok := userID.(float64); ok {
+		uid = uint(v)
 	}
+
 	pid := uint(0)
 	if v, ok := projectID.(uint); ok {
 		pid = v
+	} else if v, ok := projectID.(float64); ok {
+		pid = uint(v)
+	}
+
+	// Fallback: if project_id is missing but user_id is present, try to find a project for the user.
+	if pid == 0 && uid != 0 {
+		var pID uint
+		if err := s.db.Table("projects").Select("id").Where("user_id = ?", uid).Limit(1).Scan(&pID).Error; err == nil && pID != 0 {
+			pid = pID
+		}
 	}
 
 	volume := &Volume{
@@ -803,10 +911,23 @@ func (s *Service) createSSHKey(c *gin.Context) {
 	uid := uint(0)
 	if v, ok := userID.(uint); ok {
 		uid = v
+	} else if v, ok := userID.(float64); ok {
+		uid = uint(v)
 	}
+
 	pid := uint(0)
 	if v, ok := projectID.(uint); ok {
 		pid = v
+	} else if v, ok := projectID.(float64); ok {
+		pid = uint(v)
+	}
+
+	// Fallback: if project_id is missing but user_id is present, try to find a project for the user.
+	if pid == 0 && uid != 0 {
+		var pID uint
+		if err := s.db.Table("projects").Select("id").Where("user_id = ?", uid).Limit(1).Scan(&pID).Error; err == nil && pID != 0 {
+			pid = pID
+		}
 	}
 
 	key := &SSHKey{
@@ -821,7 +942,7 @@ func (s *Service) createSSHKey(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"key": key})
+	c.JSON(http.StatusOK, gin.H{"ssh_key": key})
 }
 
 func (s *Service) listSSHKeys(c *gin.Context) {
@@ -830,7 +951,7 @@ func (s *Service) listSSHKeys(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list ssh keys"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"keys": keys})
+	c.JSON(http.StatusOK, gin.H{"ssh_keys": keys})
 }
 
 func (s *Service) deleteSSHKey(c *gin.Context) {

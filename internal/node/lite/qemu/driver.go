@@ -69,6 +69,35 @@ func (d *Driver) CreateVM(ctx context.Context, cfg *VMConfig) error {
 		return fmt.Errorf("setup networking: %w", err)
 	}
 
+	// Setup cloud-init.
+	if cfg.CloudInit.Enabled {
+		// Use config dir for persistence.
+		isoDir := filepath.Join(d.configDir, "cloud-init")
+		// We always regenerate to ensure it matches config.
+		isoPath, err := GenerateCloudInitISO(isoDir, cfg.ID, cfg.Name, cfg.CloudInit.UserData, cfg.CloudInit.SSHKeys)
+		if err != nil {
+			return fmt.Errorf("generate cloud-init iso: %w", err)
+		}
+
+		if cfg.CloudInit.ISOPath == "" {
+			cfg.CloudInit.ISOPath = isoPath
+			// Append to Disks only if new.
+			cfg.Disks = append(cfg.Disks, DiskConfig{
+				Type:     "file",
+				Path:     isoPath,
+				Format:   "raw",
+				Bus:      "ide",
+				ReadOnly: true,
+			})
+		}
+	}
+
+	// Setup TPM.
+	if err := d.setupTPM(ctx, cfg); err != nil {
+		d.cleanupNetworking(cfg)
+		return fmt.Errorf("setup tpm: %w", err)
+	}
+
 	// Save configuration.
 	if err := cfg.SaveConfig(cfg.ConfigFile); err != nil {
 		return fmt.Errorf("save config: %w", err)
@@ -161,6 +190,7 @@ func (d *Driver) StopVM(ctx context.Context, id string, force bool) error {
 	}
 
 	d.cleanupNetworking(cfg)
+	d.stopTPM(cfg)
 	return nil
 }
 
@@ -179,6 +209,14 @@ func (d *Driver) DeleteVM(ctx context.Context, id string, force bool) error {
 	_ = os.Remove(filepath.Join(d.runDir, id+".pid"))
 	_ = os.Remove(filepath.Join(d.runDir, id+".qmp"))
 	_ = os.Remove(filepath.Join(d.runDir, id+".log"))
+	// Remove cloud-init ISO.
+	_ = os.Remove(filepath.Join(d.configDir, "cloud-init", id+"-cidata.iso"))
+
+	// Cleanup TPM.
+	cfg, _ := LoadConfig(configPath)
+	if cfg != nil {
+		_ = d.cleanupTPM(cfg)
+	}
 
 	return nil
 }
@@ -428,4 +466,94 @@ func connectUnixSocket(path string, timeout time.Duration) (*os.File, error) {
 
 		time.Sleep(100 * time.Millisecond)
 	}
+}
+
+// setupTPM starts swtpm for the VM.
+func (d *Driver) setupTPM(ctx context.Context, cfg *VMConfig) error {
+	if !cfg.TPM {
+		return nil
+	}
+
+	tpmDir := filepath.Join(d.configDir, "tpm", cfg.ID)
+	if err := os.MkdirAll(tpmDir, 0o755); err != nil {
+		return fmt.Errorf("create tpm dir: %w", err)
+	}
+
+	sockPath := filepath.Join(d.runDir, cfg.ID+"-swtpm.sock")
+	pidPath := filepath.Join(d.runDir, cfg.ID+"-swtpm.pid")
+	cfg.TPMPath = sockPath
+
+	// Check if already running.
+	if _, err := os.Stat(pidPath); err == nil {
+		// Already running or stale pid file.
+		_ = d.stopTPM(cfg)
+	}
+
+	args := []string{
+		"socket",
+		"--tpmstate", fmt.Sprintf("dir=%s,mode=0640", tpmDir),
+		"--ctrl", fmt.Sprintf("type=unixio,path=%s", sockPath),
+		"--tpm2",
+		"--log", "level=20",
+		"--daemon",
+		"--pidfile", pidPath,
+	}
+
+	cmd := exec.CommandContext(ctx, "swtpm", args...)
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("start swtpm: %w", err)
+	}
+
+	// Wait for socket.
+	for i := 0; i < 50; i++ {
+		if _, err := os.Stat(sockPath); err == nil {
+			break
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
+
+	return nil
+}
+
+// stopTPM stops swtpm for the VM.
+func (d *Driver) stopTPM(cfg *VMConfig) error {
+	if !cfg.TPM {
+		return nil
+	}
+
+	pidPath := filepath.Join(d.runDir, cfg.ID+"-swtpm.pid")
+	data, err := os.ReadFile(pidPath)
+	if err != nil {
+		return nil // Not running or no pid file
+	}
+
+	pid, err := strconv.Atoi(strings.TrimSpace(string(data)))
+	if err != nil {
+		return nil
+	}
+
+	process, err := os.FindProcess(pid)
+	if err != nil {
+		return nil
+	}
+
+	_ = process.Signal(syscall.SIGTERM)
+
+	// Cleanup pid file and socket
+	_ = os.Remove(pidPath)
+	_ = os.Remove(filepath.Join(d.runDir, cfg.ID+"-swtpm.sock"))
+
+	return nil
+}
+
+// cleanupTPM removes TPM state.
+func (d *Driver) cleanupTPM(cfg *VMConfig) error {
+	if !cfg.TPM {
+		return nil
+	}
+
+	_ = d.stopTPM(cfg)
+
+	tpmDir := filepath.Join(d.configDir, "tpm", cfg.ID)
+	return os.RemoveAll(tpmDir)
 }

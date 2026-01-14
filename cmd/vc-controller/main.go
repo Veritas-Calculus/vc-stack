@@ -16,6 +16,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/Veritas-Calculus/vc-stack/internal/controlplane"
+	"github.com/Veritas-Calculus/vc-stack/internal/controlplane/compute"
 	"github.com/Veritas-Calculus/vc-stack/pkg/database"
 	"github.com/Veritas-Calculus/vc-stack/pkg/logger"
 	pkgsentry "github.com/Veritas-Calculus/vc-stack/pkg/sentry"
@@ -92,11 +93,27 @@ func main() {
 		if err := database.AutoMigrate(db); err != nil {
 			zapLogger.Fatal("database migration failed", zap.Error(err))
 		}
+		// Ensure Instance table has all required columns (e.g. deleted_at)
+		if !db.Migrator().HasColumn(&compute.Instance{}, "DeletedAt") {
+			if err := db.Migrator().AddColumn(&compute.Instance{}, "DeletedAt"); err != nil {
+				zapLogger.Fatal("failed to add deleted_at to instances", zap.Error(err))
+			}
+		}
 		zapLogger.Info("database migrations completed successfully")
 	}
 
 	// Compose controlplane services via aggregator.
-	cpSvc, err := controlplane.New(controlplane.Config{DB: db, Logger: zapLogger})
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		//nolint:gosec // Hardcoded secret is for development only, should be overridden in production
+		jwtSecret = "vc-stack-jwt-secret-change-me-in-production"
+	}
+
+	cpSvc, err := controlplane.New(controlplane.Config{
+		DB:        db,
+		Logger:    zapLogger,
+		JWTSecret: jwtSecret,
+	})
 	if err != nil {
 		zapLogger.Fatal("failed to initialize controlplane services", zap.Error(err))
 	}

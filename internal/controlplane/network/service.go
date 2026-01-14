@@ -298,8 +298,8 @@ func NewService(config Config) (*Service, error) {
 // migrateDatabase auto-migrates the database schema.
 func (s *Service) migrateDatabase() error {
 	if err := s.db.AutoMigrate(
-		&Network{},
-		&Subnet{},
+		// &Network{}, // Managed by init.sql
+		// &Subnet{}, // Managed by init.sql
 		&SecurityGroup{},
 		&SecurityGroupRule{},
 		&FloatingIP{},

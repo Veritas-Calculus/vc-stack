@@ -76,6 +76,7 @@ export function Instances() {
   const [disk, setDisk] = useState('')
   const [networkId, setNetworkId] = useState('')
   const [sshKeyId, setSshKeyId] = useState('')
+  const [enableTPM, setEnableTPM] = useState(false)
   const [sshModal, setSshModal] = useState(false)
   const [sshName, setSshName] = useState('')
   const [sshPub, setSshPub] = useState('')
@@ -340,7 +341,13 @@ export function Instances() {
         root_disk_gb?: number
         networks?: Array<{ uuid?: string; port?: string; fixed_ip?: string }>
         ssh_key?: string
-      } = { name: newName, flavor_id: Number(flavorId), image_id: Number(imageId) }
+        enable_tpm?: boolean
+      } = {
+        name: newName,
+        flavor_id: Number(flavorId),
+        image_id: Number(imageId),
+        enable_tpm: enableTPM
+      }
       const d = Number(disk)
       if (!Number.isNaN(d) && d > 0) body.root_disk_gb = d
       body.networks = [{ uuid: networkId }]
@@ -385,6 +392,7 @@ export function Instances() {
       setDisk('')
       setNetworkId('')
       setSshKeyId('')
+      setEnableTPM(false)
     } finally {
       setSubmitting(false)
     }
@@ -687,6 +695,17 @@ export function Instances() {
                 <option value="__create__">+ Add new SSH key…</option>
               </select>
             </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="enableTPM"
+              checked={enableTPM}
+              onChange={(e) => setEnableTPM(e.target.checked)}
+            />
+            <label htmlFor="enableTPM" className="label cursor-pointer">
+              Enable TPM (Trusted Platform Module)
+            </label>
           </div>
         </div>
       </Modal>

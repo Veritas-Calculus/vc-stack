@@ -22,8 +22,9 @@ import (
 
 // Config aggregates dependencies required by control plane components.
 type Config struct {
-	DB     *gorm.DB
-	Logger *zap.Logger
+	DB        *gorm.DB
+	Logger    *zap.Logger
+	JWTSecret string
 }
 
 // Service composes all control plane services.
@@ -44,9 +45,12 @@ type Service struct {
 // New composes the control plane services. It returns an error if any.
 // underlying service initialization fails.
 func New(cfg Config) (*Service, error) {
-	// TODO: Load JWT secret from config or environment variable
-	//nolint:gosec // Hardcoded secret is for development only, should be overridden in production
-	jwtSecret := "vc-stack-jwt-secret-change-me-in-production"
+	// Use provided secret or fallback to default for dev
+	jwtSecret := cfg.JWTSecret
+	if jwtSecret == "" {
+		//nolint:gosec // Hardcoded secret is for development only, should be overridden in production
+		jwtSecret = "vc-stack-jwt-secret-change-me-in-production"
+	}
 
 	idSvc, err := identity.NewService(identity.Config{
 		DB:     cfg.DB,
@@ -81,9 +85,11 @@ func New(cfg Config) (*Service, error) {
 		Logger: cfg.Logger,
 		DB:     cfg.DB,
 	}
-	gwCfg.Services.Identity = gateway.ServiceEndpoint{Host: "localhost", Port: 8083}
-	gwCfg.Services.Network = gateway.ServiceEndpoint{Host: "localhost", Port: 8082}
-	gwCfg.Services.Scheduler = gateway.ServiceEndpoint{Host: "localhost", Port: 8092}
+	// In monolithic mode, all services run on the same port (default 8080).
+	gwCfg.Services.Identity = gateway.ServiceEndpoint{Host: "localhost", Port: 8080}
+	gwCfg.Services.Network = gateway.ServiceEndpoint{Host: "localhost", Port: 8080}
+	gwCfg.Services.Scheduler = gateway.ServiceEndpoint{Host: "localhost", Port: 8080}
+	gwCfg.Services.Compute = gateway.ServiceEndpoint{Host: "localhost", Port: 8080}
 	// Compute is now built-in to controller; Lite is optional for legacy vc-node access.
 	// gwCfg.Services.Lite = gateway.ServiceEndpoint{Host: "localhost", Port: 8081}
 	gwSvc, err := gateway.NewService(&gwCfg)
@@ -111,7 +117,11 @@ func New(cfg Config) (*Service, error) {
 		return nil, err
 	}
 
-	compSvc, err := compute.NewService(compute.Config{DB: cfg.DB, Logger: cfg.Logger.Named("compute")})
+	compSvc, err := compute.NewService(compute.Config{
+		DB:        cfg.DB,
+		Logger:    cfg.Logger.Named("compute"),
+		JWTSecret: jwtSecret,
+	})
 	if err != nil {
 		return nil, err
 	}

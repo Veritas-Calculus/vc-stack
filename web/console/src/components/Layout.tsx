@@ -122,7 +122,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
           { to: `${prefix}/images/k8s-iso`, label: 'Kubernetes ISO' }
         ]
       },
-      { type: 'link', to: '/iam/roles', label: 'IAM' },
+      {
+        type: 'group',
+        label: 'IAM',
+        base: '/iam',
+        children: [
+          { to: '/iam/roles', label: 'Roles' },
+          { to: '/iam/policies', label: 'Policies' }
+        ]
+      },
       { type: 'link', to: '/accounts', label: 'Accounts' },
       {
         type: 'group',

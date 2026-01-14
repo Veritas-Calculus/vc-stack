@@ -20,6 +20,7 @@ import { Project } from '@/features/project/Project'
 import { Templates } from '@/features/templates/Templates'
 import { Isos, K8sIsos } from '@/features/templates/Isos'
 import { Roles } from '@/features/iam/Roles'
+import { Policies } from '@/features/iam/Policies'
 import { Accounts } from '@/features/accounts/Accounts'
 import { Infrastructure } from '@/features/infrastructure/Infrastructure'
 
@@ -117,6 +118,7 @@ export default function App() {
                 <Route path="/images/iso" element={<Isos />} />
                 <Route path="/images/k8s-iso" element={<K8sIsos />} />
                 <Route path="/iam/roles" element={<Roles />} />
+                <Route path="/iam/policies" element={<Policies />} />
                 <Route path="/accounts" element={<Accounts />} />
                 {/* Project-scoped Infrastructure */}
                 <Route path="/project/:projectId/infrastructure/*" element={<Infrastructure />} />

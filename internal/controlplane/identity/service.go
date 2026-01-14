@@ -6,15 +6,42 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
+
+	"database/sql/driver"
 
 	"github.com/golang-jwt/jwt/v5"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
+
+// JSONMap is a custom type for JSONB fields.
+type JSONMap map[string]interface{}
+
+// Scan implements the sql.Scanner interface.
+func (j *JSONMap) Scan(value interface{}) error {
+	if value == nil {
+		*j = make(map[string]interface{})
+		return nil
+	}
+	bytes, ok := value.([]byte)
+	if !ok {
+		return nil
+	}
+	return json.Unmarshal(bytes, j)
+}
+
+// Value implements the driver.Valuer interface.
+func (j JSONMap) Value() (driver.Value, error) {
+	if j == nil {
+		return json.Marshal(make(map[string]interface{}))
+	}
+	return json.Marshal(j)
+}
 
 // Service represents the identity service.
 type Service struct {
@@ -50,11 +77,43 @@ type LDAPConfig struct {
 	GroupFilter  string
 }
 
+// Policy represents an IAM policy document.
+type Policy struct {
+	ID          uint      `gorm:"primaryKey" json:"id"`
+	Name        string    `gorm:"uniqueIndex;not null" json:"name"`
+	Description string    `json:"description"`
+	Type        string    `gorm:"default:'custom'" json:"type"` // system or custom
+	Document    JSONMap   `gorm:"type:jsonb;not null" json:"document"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
+// UserPolicy represents the attachment of a policy to a user.
+type UserPolicy struct {
+	UserID    uint      `gorm:"primaryKey" json:"user_id"`
+	PolicyID  uint      `gorm:"primaryKey" json:"policy_id"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+// RolePolicy represents the attachment of a policy to a role.
+type RolePolicy struct {
+	RoleID    uint      `gorm:"primaryKey" json:"role_id"`
+	PolicyID  uint      `gorm:"primaryKey" json:"policy_id"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+// RolePermission represents the attachment of a permission to a role.
+type RolePermission struct {
+	RoleID       uint      `gorm:"primaryKey" json:"role_id"`
+	PermissionID uint      `gorm:"primaryKey" json:"permission_id"`
+	CreatedAt    time.Time `json:"created_at"`
+}
+
 // User represents a user in the system.
 type User struct {
 	ID        uint      `gorm:"primaryKey" json:"id"`
-	Username  string    `gorm:"uniqueIndex;not null" json:"username"`
-	Email     string    `gorm:"uniqueIndex;not null" json:"email"`
+	Username  string    `json:"username"`
+	Email     string    `json:"email"`
 	Password  string    `gorm:"not null" json:"-"`
 	FirstName string    `json:"first_name"`
 	LastName  string    `json:"last_name"`
@@ -63,16 +122,18 @@ type User struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	Roles     []Role    `gorm:"many2many:user_roles;" json:"roles"`
+	Policies  []Policy  `gorm:"many2many:user_policies;" json:"policies"`
 }
 
 // Role represents a role in the RBAC system.
 type Role struct {
 	ID          uint         `gorm:"primaryKey" json:"id"`
-	Name        string       `gorm:"uniqueIndex;not null" json:"name"`
+	Name        string       `json:"name"`
 	Description string       `json:"description"`
 	CreatedAt   time.Time    `json:"created_at"`
 	UpdatedAt   time.Time    `json:"updated_at"`
 	Permissions []Permission `gorm:"many2many:role_permissions;" json:"permissions"`
+	Policies    []Policy     `gorm:"many2many:role_policies;" json:"policies"`
 }
 
 // Permission represents a permission in the RBAC system.
@@ -153,6 +214,7 @@ type LoginResponse struct {
 // Claims represents JWT claims.
 type Claims struct {
 	UserID      uint     `json:"user_id"`
+	ProjectID   uint     `json:"project_id"`
 	Username    string   `json:"username"`
 	Email       string   `json:"email"`
 	IsAdmin     bool     `json:"is_admin"`
@@ -174,7 +236,7 @@ func NewService(config Config) (*Service, error) {
 		return nil, fmt.Errorf("failed to migrate database: %w", err)
 	}
 
-	// Create default admin user if not exists.
+	// Initialize default admin user.
 	if err := service.createDefaultAdmin(); err != nil {
 		return nil, fmt.Errorf("failed to create default admin: %w", err)
 	}
@@ -184,8 +246,39 @@ func NewService(config Config) (*Service, error) {
 
 // migrate runs database migrations.
 func (s *Service) migrate() error {
-	// Skip auto-migration since tables are created via SQL scripts.
-	// return s.db.AutoMigrate(&User{}, &Role{}, &Permission{}, &RefreshToken{})
+	// Register join tables to ensure custom fields like CreatedAt are handled
+	if err := s.db.SetupJoinTable(&User{}, "Policies", &UserPolicy{}); err != nil {
+		return err
+	}
+	if err := s.db.SetupJoinTable(&Role{}, "Policies", &RolePolicy{}); err != nil {
+		return err
+	}
+	if err := s.db.SetupJoinTable(&Role{}, "Permissions", &RolePermission{}); err != nil {
+		return err
+	}
+
+	// Only migrate Permission table.
+	// Other tables are managed by init.sql or manual migrations.
+	if err := s.db.AutoMigrate(&Permission{}); err != nil {
+		return err
+	}
+
+	// Manually create role_permissions table if it doesn't exist
+	if !s.db.Migrator().HasTable("role_permissions") {
+		err := s.db.Exec(`
+			CREATE TABLE IF NOT EXISTS role_permissions (
+				role_id INTEGER NOT NULL,
+				permission_id INTEGER NOT NULL,
+				created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+				PRIMARY KEY (role_id, permission_id),
+				CONSTRAINT fk_role_permissions_role FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE,
+				CONSTRAINT fk_role_permissions_permission FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE CASCADE
+			)`).Error
+		if err != nil {
+			return fmt.Errorf("failed to create role_permissions table: %w", err)
+		}
+	}
+
 	return nil
 }
 
@@ -210,9 +303,29 @@ func (s *Service) createDefaultAdmin() error {
 				IsActive:  true,
 				IsAdmin:   true,
 			}
-			return s.db.Create(&admin).Error
+			if err := s.db.Create(&admin).Error; err != nil {
+				return err
+			}
+		} else {
+			return err
 		}
-		return err
+	}
+
+	// Ensure default project exists for admin
+	var project Project
+	if err := s.db.Where("name = ? AND user_id = ?", "default", admin.ID).First(&project).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			project = Project{
+				Name:        "default",
+				Description: "Default project for admin",
+				UserID:      admin.ID,
+			}
+			if err := s.db.Create(&project).Error; err != nil {
+				return fmt.Errorf("failed to create default project: %w", err)
+			}
+		} else {
+			return err
+		}
 	}
 
 	// If admin exists, ensure password is VCStack@123 for dev convenience.
@@ -293,8 +406,16 @@ func (s *Service) generateAccessToken(user *User) (string, error) {
 		}
 	}
 
+	// Find default project for user
+	var project Project
+	var projectID uint
+	if err := s.db.Where("user_id = ?", user.ID).First(&project).Error; err == nil {
+		projectID = project.ID
+	}
+
 	claims := &Claims{
 		UserID:      user.ID,
+		ProjectID:   projectID,
 		Username:    user.Username,
 		Email:       user.Email,
 		IsAdmin:     user.IsAdmin,
@@ -391,6 +512,28 @@ func (s *Service) Logout(ctx context.Context, refreshToken string) error {
 	return s.db.Model(&RefreshToken{}).
 		Where("token = ?", refreshToken).
 		Update("is_revoked", true).Error
+}
+
+// Authorize checks if a user is authorized to perform an action on a resource.
+func (s *Service) Authorize(userID uint, action, resource string) (bool, error) {
+	var user User
+	// Preload User Policies and Role Policies
+	if err := s.db.Preload("Policies").Preload("Roles.Policies").First(&user, userID).Error; err != nil {
+		return false, err
+	}
+
+	if user.IsAdmin {
+		return true, nil
+	}
+
+	var allPolicies []Policy
+	allPolicies = append(allPolicies, user.Policies...)
+
+	for _, role := range user.Roles {
+		allPolicies = append(allPolicies, role.Policies...)
+	}
+
+	return EvaluatePolicies(allPolicies, action, resource), nil
 }
 
 // RegisterIdentityServiceServer registers the identity service with gRPC server.

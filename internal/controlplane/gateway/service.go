@@ -47,6 +47,7 @@ type ServicesConfig struct {
 	Identity  ServiceEndpoint
 	Network   ServiceEndpoint
 	Scheduler ServiceEndpoint
+	Compute   ServiceEndpoint // Added for topology aggregation
 	Lite      ServiceEndpoint // Optional: for legacy vc-node fallback only
 }
 
@@ -145,6 +146,35 @@ func (s *Service) initializeProxies() error {
 		Name:     "network",
 		Target:   networkURL,
 		Proxy:    netProxy,
+		HealthOK: true,
+	}
+
+	// Compute service.
+	// Default to localhost:8080 if not configured (monolithic mode assumption)
+	computeHost := s.config.Services.Compute.Host
+	if computeHost == "" {
+		computeHost = "localhost"
+	}
+	computePort := s.config.Services.Compute.Port
+	if computePort == 0 {
+		computePort = 8080
+	}
+
+	computeURL, err := url.Parse(fmt.Sprintf("http://%s:%d", computeHost, computePort))
+	if err != nil {
+		return fmt.Errorf("invalid compute service URL: %w", err)
+	}
+
+	compProxy := httputil.NewSingleHostReverseProxy(computeURL)
+	compProxy.FlushInterval = 200 * time.Millisecond
+	compProxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
+		s.logger.Error("proxy error", zap.String("service", "compute"), zap.Error(err))
+		http.Error(w, "Bad Gateway", http.StatusBadGateway)
+	}
+	s.services["compute"] = &ServiceProxy{
+		Name:     "compute",
+		Target:   computeURL,
+		Proxy:    compProxy,
 		HealthOK: true,
 	}
 
@@ -402,6 +432,9 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 // Now compute is built-in to controller; this only proxies optional vc-lite access and console.
 func (s *Service) SetupComputeProxyRoutes(router *gin.Engine) {
 	api := router.Group("/api")
+
+	// Aggregated topology endpoint (OpenStack-like graph view)
+	api.GET("/v1/topology", s.topologyHandler)
 
 	// Lite service routes (scheduler-to-node or admin) - only if lite is configured.
 	if _, ok := s.services["lite"]; ok {

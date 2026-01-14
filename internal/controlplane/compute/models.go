@@ -89,6 +89,9 @@ type Instance struct {
 	HostID       string         `json:"host_id"`      // Scheduler node ID
 	NodeAddress  string         `json:"node_address"` // vc-lite address
 	RootDiskGB   int            `gorm:"column:root_disk_gb;default:0" json:"root_disk_gb"`
+	UserData     string         `gorm:"type:text" json:"user_data,omitempty"`
+	SSHKey       string         `gorm:"type:text" json:"ssh_key,omitempty"`
+	EnableTPM    bool           `gorm:"default:false" json:"enable_tpm"`
 	Metadata     JSONMap        `gorm:"type:jsonb" json:"metadata,omitempty"`
 	CreatedAt    time.Time      `json:"created_at"`
 	UpdatedAt    time.Time      `json:"updated_at"`
@@ -99,7 +102,7 @@ type Instance struct {
 
 // TableName specifies the table name for Instance model.
 func (Instance) TableName() string {
-	return "controller_instances"
+	return "instances"
 }
 
 // Volume represents a block storage volume.
@@ -148,6 +151,7 @@ type CreateInstanceRequest struct {
 	ImageID    uint              `json:"image_id" binding:"required"`
 	UserData   string            `json:"user_data"`
 	SSHKey     string            `json:"ssh_key"`
+	EnableTPM  bool              `json:"enable_tpm"`
 	Metadata   map[string]string `json:"metadata"`
 	Networks   []NetworkRequest  `json:"networks"`
 	RootDiskGB int               `json:"root_disk_gb"`
