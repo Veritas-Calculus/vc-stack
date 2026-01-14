@@ -32,10 +32,33 @@ Thumbs.db
 
 # Environment files
 .env
+.env.*
+*.env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Configuration files (non-example)
+configs/vc-controller.yaml
+configs/vc-node.yaml
+configs/docker-compose.yaml
+configs/*.yaml
+!configs/*.yaml.example
+
+# Secrets and keys
+*.key
+*.pem
+*.crt
+*.p12
+*.pfx
+secrets/
+.secrets/
+*.secret
+
+# JWT tokens and authentication
+jwt-secret*
+auth-token*
 
 # Logs
 *.log

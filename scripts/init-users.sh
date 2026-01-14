@@ -1,6 +1,14 @@
 #!/bin/bash
 # 初始化默认用户
 # 用法: ./init-users.sh [host] [container_name]
+#
+# ⚠️  SECURITY WARNING ⚠️
+# This script contains default development credentials!
+# DO NOT use these credentials in production environments.
+# ALWAYS change default passwords before deploying to production.
+# 此脚本包含默认的开发凭据！
+# 请勿在生产环境中使用这些凭据。
+# 在部署到生产环境之前，请务必更改默认密码。
 
 HOST="${1:-10.31.0.3}"
 CONTAINER="${2:-vc-stack-postgres}"
@@ -11,6 +19,7 @@ echo "数据库容器: ${CONTAINER}"
 echo ""
 
 # admin 用户的密码: admin123 (bcrypt 哈希)
+# WARNING: Change this password in production!
 # shellcheck disable=SC2016
 ADMIN_HASH='$2a$10$ELnoQYsFsfsvVwGxmzxtv.UPyXX3xkJxxuuHlsUoyv3sFi2kQX2Ui'
 

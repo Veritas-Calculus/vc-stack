@@ -1,5 +1,14 @@
 # Docker Compose for VC Stack Development
 # This provides a complete development environment with all dependencies
+#
+# ⚠️  SECURITY WARNING - FOR DEVELOPMENT ONLY ⚠️
+# This configuration uses default credentials and is NOT secure for production use.
+# Before deploying to production:
+# 1. Change all passwords and secrets to strong, unique values
+# 2. Use Docker secrets or environment variable files (.env) for sensitive data
+# 3. Enable TLS/SSL for all network communications
+# 4. Review and harden security settings
+# 5. Use proper secret management (e.g., HashiCorp Vault, AWS Secrets Manager)
 
 version: '3.8'
 
@@ -11,7 +20,7 @@ services:
     environment:
       POSTGRES_DB: vcstack
       POSTGRES_USER: vcstack
-      POSTGRES_PASSWORD: vcstack123
+      POSTGRES_PASSWORD: vcstack123  # ⚠️  CHANGE IN PRODUCTION!
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - "5432:5432"
@@ -57,14 +66,14 @@ services:
       DATABASE_PORT: 5432
       DATABASE_NAME: vcstack
       DATABASE_USER: vcstack
-      DATABASE_PASSWORD: vcstack123
+      DATABASE_PASSWORD: vcstack123  # ⚠️  CHANGE IN PRODUCTION!
       DATABASE_AUTO_MIGRATE: "true"
 
       # Server
       SERVER_HOST: 0.0.0.0
       SERVER_PORT: 8080
 
-      # JWT
+      # JWT - ⚠️  CRITICAL: Use strong random secret in production!
       IDENTITY_JWT_SECRET: dev-secret-change-in-production
 
       # Logging

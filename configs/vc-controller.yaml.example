@@ -4,6 +4,15 @@
 # - Identity (Authentication & Authorization)
 # - Network (Virtual Network Management)
 # - Scheduler (VM Placement & Resource Scheduling)
+#
+# ⚠️  SECURITY WARNING ⚠️
+# This is an EXAMPLE configuration file for development/testing purposes.
+# Before deploying to production, you MUST:
+# 1. Change all default passwords and secrets
+# 2. Use strong, randomly generated JWT secrets
+# 3. Enable SSL/TLS for database connections
+# 4. Review and configure authentication settings
+# 5. Copy this file to vc-controller.yaml and update all sensitive values
 
 # Server configuration
 server:
@@ -20,8 +29,8 @@ database:
   port: 5432
   name: vcstack
   username: vcstack
-  password: vcstack123
-  sslmode: disable
+  password: vcstack123  # ⚠️  CHANGE THIS IN PRODUCTION!
+  sslmode: disable      # ⚠️  USE 'require' or 'verify-full' IN PRODUCTION!
   max_idle_conns: 10
   max_open_conns: 100
   conn_max_lifetime: 1h
@@ -56,14 +65,17 @@ gateway:
 identity:
   # JWT token configuration
   jwt:
+    # ⚠️  CRITICAL: Generate a strong random secret for production!
+    # Use: openssl rand -base64 64
     secret: your-super-secret-jwt-key-change-in-production
     access_token_expires_in: 24h
     refresh_token_expires_in: 168h # 7 days
 
   # Default admin user (created on first run if not exists)
+  # ⚠️  SECURITY: Change these credentials immediately after first login!
   default_admin:
     username: admin
-    password: admin123
+    password: admin123  # ⚠️  CHANGE THIS IMMEDIATELY!
     email: admin@vcstack.local
 
   # External authentication (optional)
