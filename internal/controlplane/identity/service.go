@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"time"
 
 	"database/sql/driver"
@@ -330,8 +331,12 @@ func (s *Service) createDefaultAdmin() error {
 
 	// If admin exists, ensure password is VCStack@123 for dev convenience.
 	// Only update if the current hash does not match the desired password.
-	if bcrypt.CompareHashAndPassword([]byte(admin.Password), []byte("VCStack@123")) != nil {
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte("VCStack@123"), bcrypt.DefaultCost)
+	defaultPassword := os.Getenv("ADMIN_DEFAULT_PASSWORD")
+	if defaultPassword == "" {
+		defaultPassword = "ChangeMe123!" // Temporary fallback, should be changed
+	}
+	if bcrypt.CompareHashAndPassword([]byte(admin.Password), []byte(defaultPassword)) != nil {
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(defaultPassword), 12) // Use cost 12
 		if err != nil {
 			return err
 		}

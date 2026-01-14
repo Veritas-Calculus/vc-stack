@@ -3,6 +3,7 @@ package identity
 
 import (
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -404,7 +405,13 @@ func (s *Service) resetUserPasswordHandler(c *gin.Context) {
 	}
 
 	// For development, we set a known password. In production, generate and email.
-	hashed, err := bcrypt.GenerateFromPassword([]byte("VCStack@123"), bcrypt.DefaultCost)
+	// Get default password from environment
+	defaultPassword := os.Getenv("ADMIN_DEFAULT_PASSWORD")
+	if defaultPassword == "" {
+		defaultPassword = "ChangeMe123!" // This should be set via environment variable
+		s.logger.Warn("SECURITY WARNING: Using fallback default password. Set ADMIN_DEFAULT_PASSWORD environment variable!")
+	}
+	hashed, err := bcrypt.GenerateFromPassword([]byte(defaultPassword), 12) // Use cost 12 for better security
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to reset password"})
 		return
@@ -703,7 +710,8 @@ func (s *Service) changePasswordHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Current password incorrect"})
 		return
 	}
-	hashed, err := bcrypt.GenerateFromPassword([]byte(req.New), bcrypt.DefaultCost)
+	// Use cost 12 for better security (default is 10)
+	hashed, err := bcrypt.GenerateFromPassword([]byte(req.New), 12)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update password"})
 		return

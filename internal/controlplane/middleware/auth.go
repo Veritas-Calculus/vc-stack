@@ -121,14 +121,20 @@ func RequestIDMiddleware() gin.HandlerFunc {
 	}
 }
 
-// CORSMiddleware handles CORS.
+// CORSMiddleware handles CORS with security best practices.
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", "*")
+		// In production, replace "*" with specific allowed origins
+		origin := c.GetHeader("Origin")
+		if origin == "" {
+			origin = "*"
+		}
+		c.Header("Access-Control-Allow-Origin", origin)
 		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS")
 		c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Authorization, X-Request-ID")
 		c.Header("Access-Control-Expose-Headers", "X-Request-ID")
 		c.Header("Access-Control-Max-Age", "86400")
+		c.Header("Access-Control-Allow-Credentials", "true")
 
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(http.StatusNoContent)
@@ -138,6 +144,36 @@ func CORSMiddleware() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+// SecurityHeadersMiddleware adds security headers to responses.
+func SecurityHeadersMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Prevent clickjacking attacks
+		c.Header("X-Frame-Options", "DENY")
+
+		// Prevent MIME type sniffing
+		c.Header("X-Content-Type-Options", "nosniff")
+
+		// Enable XSS protection (deprecated but still useful for older browsers)
+		c.Header("X-XSS-Protection", "1; mode=block")
+
+		// HSTS - force HTTPS (only enable in production with HTTPS)
+		// c.Header("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload")
+
+		// CSP - Content Security Policy
+		c.Header("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'")
+
+		// Referrer policy
+		c.Header("Referrer-Policy", "strict-origin-when-cross-origin")
+
+		// Permissions policy (formerly Feature-Policy)
+		c.Header("Permissions-Policy", "geolocation=(), microphone=(), camera=()")
+
+		c.Next()
+	}
+}
+
+// CORSMiddleware handles CORS.
 
 // LoggingMiddleware logs all requests.
 func LoggingMiddleware(logger *zap.Logger) gin.HandlerFunc {

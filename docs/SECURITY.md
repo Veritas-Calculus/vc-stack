@@ -1,8 +1,20 @@
 # Security Best Practices for VC Stack
 
-## ⚠️ Critical Security Warnings
+## CRITICAL Security Warnings
 
 This document outlines essential security practices for deploying and operating VC Stack in production environments.
+
+## Recent Security Improvements
+
+**Version 1.0.1+ includes the following security enhancements:**
+
+- **Removed hardcoded passwords**: Default passwords are now sourced from environment variables
+- **Increased bcrypt cost**: Password hashing now uses cost factor 12 (up from 10) for better security
+- **Input validation**: Added comprehensive validation for network names, IPs, CIDRs to prevent command injection
+- **Security headers**: Added security headers middleware (CSP, X-Frame-Options, HSTS, etc.)
+- **Password strength requirements**: Enforced minimum password complexity requirements
+- **Environment-based configuration**: Sensitive values must be set via environment variables
+- **Improved CORS handling**: More secure CORS configuration with origin validation
 
 ## Table of Contents
 
@@ -18,19 +30,31 @@ This document outlines essential security practices for deploying and operating 
 
 ### Default Credentials
 
-**⚠️ CRITICAL: Change all default credentials before production deployment!**
+**CRITICAL: Default credentials have been removed from the codebase!**
 
-The following default credentials are provided for development/testing only:
+As of version 1.0.1, VC Stack no longer contains hardcoded default passwords. You must set the following environment variables:
 
-- **Admin User**: `admin` / `admin123`
-- **Database**: `vcstack` / `vcstack123`
-- **JWT Secret**: `your-super-secret-jwt-key-change-in-production`
+```bash
+# Required: Set admin default password
+export ADMIN_DEFAULT_PASSWORD="YourSecurePassword123!"
 
-**Actions Required:**
+# Required: Generate and set JWT secret
+export IDENTITY_JWT_SECRET=$(openssl rand -base64 64)
+```
 
-1. **Change admin password immediately after first login**
-2. **Generate strong, unique passwords** (minimum 16 characters, mix of uppercase, lowercase, numbers, and symbols)
-3. **Use a password manager** to store credentials securely
+**If ADMIN_DEFAULT_PASSWORD is not set:**
+
+- A secure random password will be automatically generated on first start
+- The password will be displayed in the logs (WARNING message)
+- You MUST change this password immediately after first login
+
+**Password Requirements:**
+
+- Minimum 8 characters
+- At least one uppercase letter
+- At least one lowercase letter
+- At least one digit
+- At least one special character (!@#$%^&*()_+-=[]{}...)
 
 ### JWT Secret Configuration
 
