@@ -33,8 +33,6 @@ func NewPluginDriver(l *zap.Logger, cfg PluginConfig) *PluginDriver {
 }
 
 // EnsureNetwork creates a logical switch via plugin.
-//
-//nolint:gocognit
 func (d *PluginDriver) EnsureNetwork(n *Network, s *Subnet) error {
 	// Create logical switch.
 	payload := map[string]string{

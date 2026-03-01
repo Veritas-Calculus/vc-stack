@@ -22,9 +22,6 @@ linters:
     - nolintlint
     - whitespace
   settings:
-    govet:
-      enable:
-        - shadow
     gocyclo:
       min-complexity: 30
     gocognit:

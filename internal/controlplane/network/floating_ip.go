@@ -119,8 +119,6 @@ func (s *Service) getFloatingIP(c *gin.Context) {
 }
 
 // updateFloatingIP handles PUT /api/v1/floating-ips/:id.
-//
-//nolint:gocognit
 func (s *Service) updateFloatingIP(c *gin.Context) {
 	id := c.Param("id")
 
@@ -304,8 +302,6 @@ func (s *Service) listPorts(c *gin.Context) {
 }
 
 // createPort handles POST /api/v1/ports.
-//
-//nolint:gocognit
 func (s *Service) createPort(c *gin.Context) {
 	var req CreatePortRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
