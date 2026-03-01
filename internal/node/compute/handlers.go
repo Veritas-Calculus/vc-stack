@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -1330,25 +1331,18 @@ func (s *Service) importImageHandler(c *gin.Context) {
 		return
 	}
 	// Validate source URL scheme to prevent SSRF.
-	parsedURL, err := url.Parse(src)
-	if err != nil || (parsedURL.Scheme != "http" && parsedURL.Scheme != "https") {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid source URL: only http/https allowed"})
+	validatedURL, err := validateImportURL(src)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid source URL: " + err.Error()})
 		return
 	}
-	// Reconstruct URL from validated components to break taint chain.
-	safeURL := &url.URL{
-		Scheme:   parsedURL.Scheme,
-		Host:     parsedURL.Host,
-		Path:     parsedURL.Path,
-		RawQuery: parsedURL.RawQuery,
-	}
-	// Start import using explicit request to avoid SSRF via http.Get.
-	httpReq, err := http.NewRequestWithContext(c.Request.Context(), http.MethodGet, safeURL.String(), nil)
+	// Start import using validated URL.
+	httpReq, err := http.NewRequestWithContext(c.Request.Context(), http.MethodGet, validatedURL, nil)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid source URL"})
 		return
 	}
-	resp, err := http.DefaultClient.Do(httpReq) //nolint:gosec // URL scheme validated above
+	resp, err := http.DefaultClient.Do(httpReq) //nolint:gosec // lgtm[go/request-forgery] -- URL validated by validateImportURL (scheme + host resolution + private IP check)
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": "Failed to fetch source"})
 		return
@@ -2364,4 +2358,38 @@ func genUUIDv4() string {
 	hexs[23] = '-'
 	hex.Encode(hexs[24:36], b[10:16])
 	return string(hexs)
+}
+
+// validateImportURL validates that rawURL is a safe HTTP(S) URL for image import.
+// It rejects non-HTTP schemes and URLs that resolve to private/loopback addresses
+// to prevent SSRF attacks. Returns the validated URL string or an error.
+func validateImportURL(rawURL string) (string, error) {
+	parsed, err := url.Parse(rawURL)
+	if err != nil {
+		return "", fmt.Errorf("invalid URL")
+	}
+	if parsed.Scheme != "http" && parsed.Scheme != "https" {
+		return "", fmt.Errorf("only http/https allowed")
+	}
+	host := parsed.Hostname()
+	if host == "" {
+		return "", fmt.Errorf("missing host")
+	}
+	// Resolve host to check for private/loopback addresses (SSRF prevention).
+	ips, err := net.LookupHost(host)
+	if err != nil {
+		return "", fmt.Errorf("cannot resolve host: %w", err)
+	}
+	for _, ipStr := range ips {
+		ip := net.ParseIP(ipStr)
+		if ip == nil {
+			continue
+		}
+		if ip.IsLoopback() || ip.IsPrivate() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() {
+			return "", fmt.Errorf("URL resolves to private/loopback address")
+		}
+	}
+	// Return a freshly constructed URL string (non-tainted).
+	validated := parsed.Scheme + "://" + parsed.Host + parsed.RequestURI()
+	return validated, nil
 }
