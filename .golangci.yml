@@ -29,14 +29,13 @@ linters:
       min-complexity: 30
     gocognit:
       min-complexity: 50
-
-exclusions:
-  paths:
-    - ".*rbd_manager\\.go$"
-  rules:
-    - path: _test\.go
-      linters:
-        - gocyclo
-        - errcheck
-        - gosec
-        - gocognit
+  exclusions:
+    paths:
+      - ".*rbd_manager\\.go$"
+    rules:
+      - path: _test\.go
+        linters:
+          - gocyclo
+          - errcheck
+          - gosec
+          - gocognit
