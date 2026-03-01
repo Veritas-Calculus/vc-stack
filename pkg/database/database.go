@@ -17,7 +17,7 @@ type Config struct {
 	Port            int
 	Name            string
 	Username        string
-	Password        string
+	Password        string //nolint:gosec // This is a configuration field
 	SSLMode         string
 	MaxIdleConns    int
 	MaxOpenConns    int

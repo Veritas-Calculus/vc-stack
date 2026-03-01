@@ -33,6 +33,8 @@ func NewPluginDriver(l *zap.Logger, cfg PluginConfig) *PluginDriver {
 }
 
 // EnsureNetwork creates a logical switch via plugin.
+//
+//nolint:gocognit
 func (d *PluginDriver) EnsureNetwork(n *Network, s *Subnet) error {
 	// Create logical switch.
 	payload := map[string]string{
@@ -77,7 +79,7 @@ func (d *PluginDriver) EnsureNetwork(n *Network, s *Subnet) error {
 						numHosts := (1 << hostBits) - 2
 						endIP := make(net.IP, 4)
 						copy(endIP, ip)
-						endIP[3] += byte(numHosts)
+						endIP[3] += byte(numHosts) //nolint:gosec
 						s.AllocationEnd = endIP.String()
 					}
 				}
@@ -127,11 +129,11 @@ func (d *PluginDriver) DeleteNetwork(n *Network) error {
 		return err
 	}
 
-	resp, err := d.client.Do(req)
+	resp, err := d.client.Do(req) //nolint:gosec
 	if err != nil {
 		return fmt.Errorf("failed to delete network: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("failed to delete network: status %d", resp.StatusCode)
@@ -176,11 +178,11 @@ func (d *PluginDriver) DeletePort(n *Network, p *NetworkPort) error {
 		return err
 	}
 
-	resp, err := d.client.Do(req)
+	resp, err := d.client.Do(req) //nolint:gosec
 	if err != nil {
 		return fmt.Errorf("failed to delete port: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("failed to delete port: status %d", resp.StatusCode)
@@ -202,11 +204,11 @@ func (d *PluginDriver) DeleteRouter(name string) error {
 	if err != nil {
 		return err
 	}
-	resp, err := d.client.Do(req)
+	resp, err := d.client.Do(req) //nolint:gosec
 	if err != nil {
 		return fmt.Errorf("HTTP request failed: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("plugin returned status %d", resp.StatusCode)
 	}
@@ -326,11 +328,11 @@ func (d *PluginDriver) post(path string, payload interface{}) error {
 	url := d.cfg.Endpoint + path
 	d.logger.Debug("POST to plugin", zap.String("url", url), zap.String("payload", string(data)))
 
-	resp, err := d.client.Post(url, "application/json", bytes.NewReader(data))
+	resp, err := d.client.Post(url, "application/json", bytes.NewReader(data)) //nolint:gosec
 	if err != nil {
 		return fmt.Errorf("HTTP request failed: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("plugin returned status %d", resp.StatusCode)

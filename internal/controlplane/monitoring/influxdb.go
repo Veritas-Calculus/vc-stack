@@ -232,7 +232,7 @@ func (mc *MetricsCollector) QueryMetrics(ctx context.Context, query string) ([]m
 	if err != nil {
 		return nil, fmt.Errorf("query failed: %w", err)
 	}
-	defer result.Close()
+	defer func() { _ = result.Close() }()
 
 	var records []map[string]interface{}
 	for result.Next() {

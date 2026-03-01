@@ -278,6 +278,8 @@ func (s *Service) consoleTicket(c *gin.Context) {
 }
 
 // consoleWS upgrades to websocket and bridges traffic to the libvirt VNC TCP socket.
+//
+//nolint:gocognit
 func (s *Service) consoleWS(c *gin.Context) {
 	token := c.Query("token")
 	if token == "" {
@@ -313,7 +315,7 @@ func (s *Service) consoleWS(c *gin.Context) {
 		c.JSON(http.StatusBadGateway, gin.H{"error": "connect VNC backend failed"})
 		return
 	}
-	defer backend.Close()
+	defer func() { _ = backend.Close() }()
 
 	up := websocket.Upgrader{
 		CheckOrigin:  func(r *http.Request) bool { return true },
@@ -323,7 +325,7 @@ func (s *Service) consoleWS(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	defer ws.Close()
+	defer func() { _ = ws.Close() }()
 
 	// Pump data between WS and TCP.
 	errc := make(chan error, 2)

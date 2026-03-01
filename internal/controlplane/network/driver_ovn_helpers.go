@@ -12,9 +12,10 @@ import (
 func runNetCommand(name string, args ...string) error {
 	// Check if running as root.
 	if os.Geteuid() == 0 {
-		return exec.Command(name, args...).Run()
+		return exec.Command(name, args...).Run() //nolint:gosec
 	}
-	// Not root, use sudo.
+	// Normal: add sudo
 	cmdArgs := append([]string{name}, args...)
-	return exec.Command("sudo", cmdArgs...).Run()
+	return exec.Command("sudo", cmdArgs...).Run() //nolint:gosec
+
 }

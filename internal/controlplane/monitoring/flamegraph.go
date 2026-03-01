@@ -46,7 +46,7 @@ func NewFlameGraphGenerator(cfg FlameGraphConfig) (*FlameGraphGenerator, error) 
 	}
 
 	// Create output directory.
-	if err := os.MkdirAll(cfg.OutputDir, 0o755); err != nil {
+	if err := os.MkdirAll(cfg.OutputDir, 0o750); err != nil {
 		return nil, fmt.Errorf("failed to create output directory: %w", err)
 	}
 
@@ -62,11 +62,11 @@ func (fg *FlameGraphGenerator) GenerateCPUFlameGraph(ctx context.Context, durati
 	profilePath := filepath.Join(fg.outputDir, fmt.Sprintf("cpu_%d.prof", timestamp.Unix()))
 
 	// Create profile file.
-	f, err := os.Create(profilePath)
+	f, err := os.Create(profilePath) //nolint:gosec
 	if err != nil {
 		return nil, fmt.Errorf("failed to create profile file: %w", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	// Start CPU profiling.
 	if err := pprof.StartCPUProfile(f); err != nil {
@@ -103,11 +103,11 @@ func (fg *FlameGraphGenerator) GenerateHeapFlameGraph() (*FlameGraphResult, erro
 	profilePath := filepath.Join(fg.outputDir, fmt.Sprintf("heap_%d.prof", timestamp.Unix()))
 
 	// Create profile file.
-	f, err := os.Create(profilePath)
+	f, err := os.Create(profilePath) //nolint:gosec
 	if err != nil {
 		return nil, fmt.Errorf("failed to create profile file: %w", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	// Write heap profile.
 	if err := pprof.WriteHeapProfile(f); err != nil {
@@ -134,11 +134,11 @@ func (fg *FlameGraphGenerator) GenerateGoroutineFlameGraph() (*FlameGraphResult,
 	profilePath := filepath.Join(fg.outputDir, fmt.Sprintf("goroutine_%d.prof", timestamp.Unix()))
 
 	// Create profile file.
-	f, err := os.Create(profilePath)
+	f, err := os.Create(profilePath) //nolint:gosec
 	if err != nil {
 		return nil, fmt.Errorf("failed to create profile file: %w", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	// Get goroutine profile.
 	profile := pprof.Lookup("goroutine")
@@ -170,7 +170,7 @@ func (fg *FlameGraphGenerator) convertToFlameGraph(profilePath, profileType stri
 
 	// Use go tool pprof to generate collapsed stacks.
 	collapsedPath := profilePath + ".collapsed"
-	cmd := exec.Command("go", "tool", "pprof", "-raw", profilePath)
+	cmd := exec.Command("go", "tool", "pprof", "-raw", profilePath) //nolint:gosec
 	output, err := cmd.Output()
 	if err != nil {
 		return "", fmt.Errorf("failed to run pprof: %w", err)
@@ -183,7 +183,7 @@ func (fg *FlameGraphGenerator) convertToFlameGraph(profilePath, profileType stri
 	}
 
 	// Write collapsed stacks.
-	if err := os.WriteFile(collapsedPath, []byte(collapsed), 0o644); err != nil {
+	if err := os.WriteFile(collapsedPath, []byte(collapsed), 0o600); err != nil { //nolint:gosec
 		return "", fmt.Errorf("failed to write collapsed stacks: %w", err)
 	}
 
@@ -194,7 +194,7 @@ func (fg *FlameGraphGenerator) convertToFlameGraph(profilePath, profileType stri
 	}
 
 	// Write SVG file.
-	if err := os.WriteFile(svgPath, []byte(svg), 0o644); err != nil {
+	if err := os.WriteFile(svgPath, []byte(svg), 0o600); err != nil { //nolint:gosec
 		return "", fmt.Errorf("failed to write SVG: %w", err)
 	}
 

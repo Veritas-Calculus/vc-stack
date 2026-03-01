@@ -56,7 +56,7 @@ func (m *OVNLoadBalancerManager) CreateLoadBalancer(ctx context.Context, name, v
 		"--may-exist", "lb-add", name, vips, protocol,
 	}
 
-	cmd := exec.Command("ovn-nbctl", args...)
+	cmd := exec.Command("ovn-nbctl", args...) //nolint:gosec
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("create load balancer: %v, output: %s", err, string(output))
@@ -102,7 +102,7 @@ func (m *OVNLoadBalancerManager) DeleteLoadBalancer(ctx context.Context, name st
 		"--if-exists", "lb-del", name,
 	}
 
-	cmd := exec.Command("ovn-nbctl", args...)
+	cmd := exec.Command("ovn-nbctl", args...) //nolint:gosec
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("delete load balancer: %v, output: %s", err, string(output))
@@ -132,7 +132,7 @@ func (m *OVNLoadBalancerManager) UpdateBackends(ctx context.Context, name string
 		"lb-add", name, vips, lb.Protocol,
 	}
 
-	cmd := exec.Command("ovn-nbctl", args...)
+	cmd := exec.Command("ovn-nbctl", args...) //nolint:gosec
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("update load balancer: %v, output: %s", err, string(output))
@@ -153,7 +153,7 @@ func (m *OVNLoadBalancerManager) AttachToRouter(ctx context.Context, lbName, rou
 		"lr-lb-add", routerName, lbName,
 	}
 
-	cmd := exec.Command("ovn-nbctl", args...)
+	cmd := exec.Command("ovn-nbctl", args...) //nolint:gosec
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("attach to router: %v, output: %s", err, string(output))
@@ -172,7 +172,7 @@ func (m *OVNLoadBalancerManager) DetachFromRouter(ctx context.Context, lbName, r
 		"--if-exists", "lr-lb-del", routerName, lbName,
 	}
 
-	cmd := exec.Command("ovn-nbctl", args...)
+	cmd := exec.Command("ovn-nbctl", args...) //nolint:gosec
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("detach from router: %v, output: %s", err, string(output))
@@ -191,7 +191,7 @@ func (m *OVNLoadBalancerManager) AttachToSwitch(ctx context.Context, lbName, swi
 		"ls-lb-add", switchName, lbName,
 	}
 
-	cmd := exec.Command("ovn-nbctl", args...)
+	cmd := exec.Command("ovn-nbctl", args...) //nolint:gosec
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("attach to switch: %v, output: %s", err, string(output))
@@ -210,7 +210,7 @@ func (m *OVNLoadBalancerManager) DetachFromSwitch(ctx context.Context, lbName, s
 		"--if-exists", "ls-lb-del", switchName, lbName,
 	}
 
-	cmd := exec.Command("ovn-nbctl", args...)
+	cmd := exec.Command("ovn-nbctl", args...) //nolint:gosec
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("detach from switch: %v, output: %s", err, string(output))
@@ -262,7 +262,7 @@ func (m *OVNLoadBalancerManager) getLoadBalancerUUID(name string) (string, error
 		"find", "Load_Balancer", fmt.Sprintf("name=%s", name),
 	}
 
-	cmd := exec.Command("ovn-nbctl", args...)
+	cmd := exec.Command("ovn-nbctl", args...) //nolint:gosec
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", fmt.Errorf("get load balancer UUID: %v", err)
@@ -292,7 +292,7 @@ func (m *OVNLoadBalancerManager) SetAlgorithm(ctx context.Context, name, algorit
 		fmt.Sprintf("options:hash_fields=%s", algorithm),
 	}
 
-	cmd := exec.Command("ovn-nbctl", args...)
+	cmd := exec.Command("ovn-nbctl", args...) //nolint:gosec
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		m.logger.Warn("Failed to set algorithm",
@@ -318,7 +318,7 @@ func (m *OVNLoadBalancerManager) EnableHealthCheck(ctx context.Context, name str
 		fmt.Sprintf("options:health_check_timeout=%d", timeout),
 	}
 
-	cmd := exec.Command("ovn-nbctl", args...)
+	cmd := exec.Command("ovn-nbctl", args...) //nolint:gosec
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("enable health check: %v, output: %s", err, string(output))
@@ -343,7 +343,7 @@ func (m *OVNLoadBalancerManager) SyncLoadBalancers(ctx context.Context) error {
 		"list", "Load_Balancer",
 	}
 
-	cmd := exec.Command("ovn-nbctl", args...)
+	cmd := exec.Command("ovn-nbctl", args...) //nolint:gosec
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("list load balancers: %w", err)

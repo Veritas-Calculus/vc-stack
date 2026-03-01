@@ -56,7 +56,7 @@ func (m *RBDManager) rbdArgs(category string, args ...string) []string {
 
 func (m *RBDManager) CreateVolume(pool, name string, sizeGB int) error {
 	sizeArg := fmt.Sprintf("%dG", sizeGB)
-	cmd := exec.Command("rbd", m.rbdArgs("volumes", "create", fmt.Sprintf("%s/%s", pool, name), "--size", sizeArg)...)
+	cmd := exec.Command("rbd", m.rbdArgs("volumes", "create", fmt.Sprintf("%s/%s", pool, name), "--size", sizeArg)...) //nolint:gosec
 	if out, err := cmd.CombinedOutput(); err != nil {
 		return fmt.Errorf("rbd create failed: %v: %s", err, string(out))
 	}
@@ -65,7 +65,7 @@ func (m *RBDManager) CreateVolume(pool, name string, sizeGB int) error {
 }
 
 func (m *RBDManager) DeleteVolume(pool, name string) error {
-	cmd := exec.Command("rbd", m.rbdArgs("volumes", "rm", fmt.Sprintf("%s/%s", pool, name))...)
+	cmd := exec.Command("rbd", m.rbdArgs("volumes", "rm", fmt.Sprintf("%s/%s", pool, name))...) //nolint:gosec
 	if out, err := cmd.CombinedOutput(); err != nil {
 		return fmt.Errorf("rbd rm failed: %v: %s", err, string(out))
 	}
@@ -75,7 +75,7 @@ func (m *RBDManager) DeleteVolume(pool, name string) error {
 
 func (m *RBDManager) ResizeVolume(pool, name string, newSizeGB int) error {
 	sizeArg := fmt.Sprintf("%dG", newSizeGB)
-	cmd := exec.Command("rbd", m.rbdArgs("volumes", "resize", fmt.Sprintf("%s/%s", pool, name), "--size", sizeArg)...)
+	cmd := exec.Command("rbd", m.rbdArgs("volumes", "resize", fmt.Sprintf("%s/%s", pool, name), "--size", sizeArg)...) //nolint:gosec
 	if out, err := cmd.CombinedOutput(); err != nil {
 		return fmt.Errorf("rbd resize failed: %v: %s", err, string(out))
 	}

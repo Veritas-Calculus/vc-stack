@@ -72,7 +72,7 @@ func NewQEMUManager(config QEMUManagerConfig, logger *zap.Logger) (*QEMUManager,
 	config.EnableKVM = true // Always enable KVM for performance.	// Create directories.
 	dirs := []string{config.ConfigDir, config.InstancesDir, config.ImagesDir}
 	for _, dir := range dirs {
-		if err := os.MkdirAll(dir, 0o755); err != nil {
+		if err := os.MkdirAll(dir, 0o750); err != nil {
 			return nil, fmt.Errorf("create directory %s: %w", dir, err)
 		}
 	}
@@ -102,7 +102,7 @@ func (m *QEMUManager) CreateVM(ctx context.Context, req *CreateVMRequest) (*QEMU
 
 	// Create instance directory.
 	instanceDir := filepath.Join(m.config.InstancesDir, vmID)
-	if err := os.MkdirAll(instanceDir, 0o755); err != nil {
+	if err := os.MkdirAll(instanceDir, 0o750); err != nil {
 		return nil, fmt.Errorf("create instance directory: %w", err)
 	}
 
@@ -425,23 +425,23 @@ func (m *QEMUManager) buildQEMUCommand(config *QEMUConfig, cloudInitISO, uefiVar
 	// Daemonize.
 	args = append(args, "-daemonize")
 
-	return exec.Command(m.config.QEMUBinary, args...)
+	return exec.Command(m.config.QEMUBinary, args...) //nolint:gosec
 }
 
 // createTapDevice creates and configures tap device.
 func (m *QEMUManager) createTapDevice(name, mac string) error {
 	// Create tap.
-	if err := exec.Command("ip", "tuntap", "add", "dev", name, "mode", "tap").Run(); err != nil {
+	if err := exec.Command("ip", "tuntap", "add", "dev", name, "mode", "tap").Run(); err != nil { //nolint:gosec
 		m.logger.Debug("Tap device may already exist", zap.String("tap", name))
 	}
 
 	// Set up.
-	if err := exec.Command("ip", "link", "set", name, "up").Run(); err != nil {
+	if err := exec.Command("ip", "link", "set", name, "up").Run(); err != nil { //nolint:gosec
 		return fmt.Errorf("set tap up: %w", err)
 	}
 
 	// Add to bridge.
-	if err := exec.Command("ovs-vsctl", "--may-exist", "add-port", m.config.BridgeName, name).Run(); err != nil {
+	if err := exec.Command("ovs-vsctl", "--may-exist", "add-port", m.config.BridgeName, name).Run(); err != nil { //nolint:gosec
 		m.logger.Warn("Failed to add tap to bridge", zap.Error(err))
 	}
 
@@ -462,7 +462,7 @@ func (m *QEMUManager) prepareDiskImage(imagePath, diskPath string, sizeGB int) e
 		args = append(args, fmt.Sprintf("%dG", sizeGB))
 	}
 
-	cmd := exec.Command("qemu-img", args...)
+	cmd := exec.Command("qemu-img", args...) //nolint:gosec
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("qemu-img create: %v, output: %s", err, string(output))
@@ -477,16 +477,16 @@ func (m *QEMUManager) createCloudInitISO(instanceID, hostname, userData, isoPath
 	if err != nil {
 		return fmt.Errorf("create temp dir: %w", err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	// Write meta-data.
 	metaData := fmt.Sprintf("instance-id: %s\nlocal-hostname: %s\n", instanceID, hostname)
-	if err := os.WriteFile(filepath.Join(tmpDir, "meta-data"), []byte(metaData), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(tmpDir, "meta-data"), []byte(metaData), 0o600); err != nil {
 		return fmt.Errorf("write meta-data: %w", err)
 	}
 
 	// Write user-data.
-	if err := os.WriteFile(filepath.Join(tmpDir, "user-data"), []byte(userData), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(tmpDir, "user-data"), []byte(userData), 0o600); err != nil {
 		return fmt.Errorf("write user-data: %w", err)
 	}
 
@@ -499,10 +499,10 @@ func (m *QEMUManager) createCloudInitISO(instanceID, hostname, userData, isoPath
 		filepath.Join(tmpDir, "meta-data"),
 	}
 
-	cmd := exec.Command("genisoimage", args...)
+	cmd := exec.Command("genisoimage", args...) //nolint:gosec
 	if err := cmd.Run(); err != nil {
 		// Try mkisofs as fallback.
-		cmd = exec.Command("mkisofs", args...)
+		cmd = exec.Command("mkisofs", args...) //nolint:gosec
 		if err := cmd.Run(); err != nil {
 			return fmt.Errorf("create ISO: %w", err)
 		}

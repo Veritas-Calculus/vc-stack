@@ -262,7 +262,7 @@ func (s *Service) createNetwork(c *gin.Context) {
 					numHosts := (1 << hostBits) - 2
 					endIP := make(net.IP, len(v4))
 					copy(endIP, v4)
-					endIP[3] += byte(numHosts)
+					endIP[3] += byte(numHosts) //nolint:gosec
 					allocEnd = endIP.String()
 				}
 			}
@@ -422,6 +422,8 @@ func (s *Service) getNetwork(c *gin.Context) {
 
 // diagnoseNetwork handles GET /api/v1/networks/:id/diagnose.
 // Returns DB info and best-effort OVN state for quick troubleshooting.
+//
+//nolint:gocognit
 func (s *Service) diagnoseNetwork(c *gin.Context) {
 	id := c.Param("id")
 

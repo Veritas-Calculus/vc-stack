@@ -24,7 +24,7 @@ import (
 type Config struct {
 	DB        *gorm.DB
 	Logger    *zap.Logger
-	JWTSecret string
+	JWTSecret string //nolint:gosec // This is a configuration field, not a hardcoded secret
 }
 
 // Service composes all control plane services.

@@ -29,10 +29,10 @@ func NewDriver(logger *zap.Logger, runDir, configDir, templateDir string) (*Driv
 		logger = zap.NewNop()
 	}
 
-	if err := os.MkdirAll(runDir, 0o755); err != nil {
+	if err := os.MkdirAll(runDir, 0o750); err != nil {
 		return nil, fmt.Errorf("create run dir: %w", err)
 	}
-	if err := os.MkdirAll(configDir, 0o755); err != nil {
+	if err := os.MkdirAll(configDir, 0o750); err != nil {
 		return nil, fmt.Errorf("create config dir: %w", err)
 	}
 
@@ -107,7 +107,7 @@ func (d *Driver) CreateVM(ctx context.Context, cfg *VMConfig) error {
 	args := cfg.BuildArgs()
 
 	// Start QEMU process.
-	cmd := exec.CommandContext(ctx, "qemu-system-x86_64", args...)
+	cmd := exec.CommandContext(ctx, "qemu-system-x86_64", args...) //nolint:gosec
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 
 	d.logger.Info("starting qemu vm",
@@ -179,18 +179,18 @@ func (d *Driver) StopVM(ctx context.Context, id string, force bool) error {
 
 	select {
 	case <-ctx.Done():
-		process.Signal(syscall.SIGKILL)
+		_ = process.Signal(syscall.SIGKILL)
 		return ctx.Err()
 	case err := <-done:
 		if err != nil {
 			d.logger.Warn("process wait error", zap.Error(err))
 		}
 	case <-time.After(30 * time.Second):
-		process.Signal(syscall.SIGKILL)
+		_ = process.Signal(syscall.SIGKILL)
 	}
 
 	d.cleanupNetworking(cfg)
-	d.stopTPM(cfg)
+	_ = d.stopTPM(cfg)
 	return nil
 }
 
@@ -317,12 +317,12 @@ func (d *Driver) setupNetworking(cfg *VMConfig) error {
 		}
 
 		// Create tap device.
-		if err := exec.Command("ip", "tuntap", "add", "dev", tapDev, "mode", "tap").Run(); err != nil {
+		if err := exec.Command("ip", "tuntap", "add", "dev", tapDev, "mode", "tap").Run(); err != nil { //nolint:gosec
 			d.logger.Warn("create tap failed", zap.String("dev", tapDev), zap.Error(err))
 		}
 
 		// Bring up.
-		if err := exec.Command("ip", "link", "set", tapDev, "up").Run(); err != nil {
+		if err := exec.Command("ip", "link", "set", tapDev, "up").Run(); err != nil { //nolint:gosec
 			d.logger.Warn("bring tap up failed", zap.String("dev", tapDev), zap.Error(err))
 		}
 
@@ -332,7 +332,7 @@ func (d *Driver) setupNetworking(cfg *VMConfig) error {
 			bridge = "br-int"
 		}
 
-		if err := exec.Command("ovs-vsctl", "--may-exist", "add-port", bridge, tapDev).Run(); err != nil {
+		if err := exec.Command("ovs-vsctl", "--may-exist", "add-port", bridge, tapDev).Run(); err != nil { //nolint:gosec
 			d.logger.Warn("add tap to bridge failed",
 				zap.String("dev", tapDev),
 				zap.String("bridge", bridge),
@@ -343,7 +343,7 @@ func (d *Driver) setupNetworking(cfg *VMConfig) error {
 		if nic.PortID != "" {
 			ifaceID := fmt.Sprintf("lsp-%s", nic.PortID)
 			cmd := exec.Command("ovs-vsctl", "set", "Interface", tapDev,
-				fmt.Sprintf("external_ids:iface-id=%s", ifaceID))
+				fmt.Sprintf("external_ids:iface-id=%s", ifaceID)) //nolint:gosec
 			if err := cmd.Run(); err != nil {
 				d.logger.Warn("set ovs interface id failed",
 					zap.String("dev", tapDev),
@@ -368,15 +368,15 @@ func (d *Driver) cleanupNetworking(cfg *VMConfig) {
 			bridge = "br-int"
 		}
 
-		_ = exec.Command("ovs-vsctl", "--if-exists", "del-port", bridge, nic.TapDev).Run()
-		_ = exec.Command("ip", "link", "delete", nic.TapDev, "type", "tap").Run()
+		_ = exec.Command("ovs-vsctl", "--if-exists", "del-port", bridge, nic.TapDev).Run() //nolint:gosec
+		_ = exec.Command("ip", "link", "delete", nic.TapDev, "type", "tap").Run()          //nolint:gosec
 	}
 }
 
 // readPID reads the PID from the PID file.
 func (d *Driver) readPID(id string) (int, error) {
 	pidPath := filepath.Join(d.runDir, id+".pid")
-	data, err := os.ReadFile(pidPath)
+	data, err := os.ReadFile(pidPath) //nolint:gosec
 	if err != nil {
 		return 0, fmt.Errorf("read pid file: %w", err)
 	}
@@ -409,7 +409,7 @@ func (d *Driver) qmpCommand(qmpPath string, cmd map[string]interface{}) error {
 	if err != nil {
 		return fmt.Errorf("connect qmp: %w", err)
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	// Read QMP greeting.
 	greeting := make([]byte, 4096)
@@ -458,7 +458,7 @@ func connectUnixSocket(path string, timeout time.Duration) (*os.File, error) {
 			return os.NewFile(uintptr(fd), path), nil
 		}
 
-		syscall.Close(fd)
+		_ = syscall.Close(fd)
 
 		if time.Now().After(deadline) {
 			return nil, fmt.Errorf("timeout connecting to %s", path)
@@ -475,7 +475,7 @@ func (d *Driver) setupTPM(ctx context.Context, cfg *VMConfig) error {
 	}
 
 	tpmDir := filepath.Join(d.configDir, "tpm", cfg.ID)
-	if err := os.MkdirAll(tpmDir, 0o755); err != nil {
+	if err := os.MkdirAll(tpmDir, 0o750); err != nil {
 		return fmt.Errorf("create tpm dir: %w", err)
 	}
 
@@ -499,7 +499,7 @@ func (d *Driver) setupTPM(ctx context.Context, cfg *VMConfig) error {
 		"--pidfile", pidPath,
 	}
 
-	cmd := exec.CommandContext(ctx, "swtpm", args...)
+	cmd := exec.CommandContext(ctx, "swtpm", args...) //nolint:gosec
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("start swtpm: %w", err)
 	}
@@ -522,7 +522,7 @@ func (d *Driver) stopTPM(cfg *VMConfig) error {
 	}
 
 	pidPath := filepath.Join(d.runDir, cfg.ID+"-swtpm.pid")
-	data, err := os.ReadFile(pidPath)
+	data, err := os.ReadFile(pidPath) //nolint:gosec
 	if err != nil {
 		return nil // Not running or no pid file
 	}

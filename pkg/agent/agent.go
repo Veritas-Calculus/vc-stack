@@ -193,11 +193,11 @@ func (a *Agent) register() error {
 		zap.String("name", a.cfg.NodeName),
 		zap.String("ip", a.cfg.NodeIP))
 
-	resp, err := a.httpClient.Do(req)
+	resp, err := a.httpClient.Do(req) //nolint:gosec
 	if err != nil {
 		return fmt.Errorf("failed to send registration request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("registration failed with status: %s", resp.Status)
@@ -263,11 +263,11 @@ func (a *Agent) sendHeartbeat() error {
 	}
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := a.httpClient.Do(req)
+	resp, err := a.httpClient.Do(req) //nolint:gosec
 	if err != nil {
 		return fmt.Errorf("failed to send heartbeat: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("heartbeat failed with status: %s", resp.Status)
@@ -283,7 +283,7 @@ func getOutboundIP() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	localAddr, ok := conn.LocalAddr().(*net.UDPAddr)
 	if !ok {

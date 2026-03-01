@@ -71,7 +71,7 @@ func main() {
 	}
 }
 
-func runServer(cmd *cobra.Command, args []string) {
+func runServer(_ *cobra.Command, args []string) {
 	flag.Parse()
 
 	// Initialize logger.

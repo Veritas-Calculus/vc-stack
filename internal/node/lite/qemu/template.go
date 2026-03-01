@@ -24,7 +24,7 @@ type TemplateStore struct {
 
 // NewTemplateStore creates a new template store.
 func NewTemplateStore(basePath string) (*TemplateStore, error) {
-	if err := os.MkdirAll(basePath, 0o755); err != nil {
+	if err := os.MkdirAll(basePath, 0o750); err != nil {
 		return nil, fmt.Errorf("create template dir: %w", err)
 	}
 	return &TemplateStore{basePath: basePath}, nil
@@ -37,7 +37,7 @@ func (s *TemplateStore) Save(tmpl *Template) error {
 	if err != nil {
 		return fmt.Errorf("marshal template: %w", err)
 	}
-	if err := os.WriteFile(path, data, 0o644); err != nil {
+	if err := os.WriteFile(path, data, 0o600); err != nil {
 		return fmt.Errorf("write template: %w", err)
 	}
 	return nil
@@ -46,7 +46,7 @@ func (s *TemplateStore) Save(tmpl *Template) error {
 // Load loads a template by name.
 func (s *TemplateStore) Load(name string) (*Template, error) {
 	path := filepath.Join(s.basePath, name+".json")
-	data, err := os.ReadFile(path)
+	data, err := os.ReadFile(path) //nolint:gosec
 	if err != nil {
 		return nil, fmt.Errorf("read template: %w", err)
 	}

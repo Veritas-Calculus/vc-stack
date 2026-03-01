@@ -128,8 +128,8 @@ type WebShellConnectRequest struct {
 	Port       int    `json:"port"`
 	User       string `json:"user" binding:"required"`
 	AuthMethod string `json:"auth_method" binding:"required,oneof=password key"`
-	Password   string `json:"password"`
-	PrivateKey string `json:"private_key"`
+	Password   string `json:"password"`    //nolint:gosec
+	PrivateKey string `json:"private_key"` //nolint:gosec // This is a configuration field
 }
 
 // WebShellMessage represents WebSocket message structure.
@@ -156,7 +156,7 @@ func (s *Service) webShellHandler(c *gin.Context) {
 		s.logger.Error("Failed to upgrade WebSocket connection", zap.Error(err))
 		return
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	// Read connection request.
 	var req WebShellConnectRequest
@@ -278,6 +278,7 @@ func (s *Service) webShellHandler(c *gin.Context) {
 
 		// Provide user-friendly error message.
 		errorMsg := err.Error()
+		//nolint:gocritic
 		if strings.Contains(errorMsg, "unable to authenticate") {
 			s.sendWebShellError(conn, fmt.Sprintf("Authentication failed for user '%s'@%s. Please verify your password or SSH key.", req.User, req.Host))
 		} else if strings.Contains(errorMsg, "connection refused") {
@@ -291,7 +292,7 @@ func (s *Service) webShellHandler(c *gin.Context) {
 		}
 		return
 	}
-	defer sshClient.Close()
+	defer func() { _ = sshClient.Close() }()
 
 	// Create SSH session.
 	session, err := sshClient.NewSession()
@@ -301,7 +302,7 @@ func (s *Service) webShellHandler(c *gin.Context) {
 		s.sendWebShellError(conn, fmt.Sprintf("Failed to create session: %v", err))
 		return
 	}
-	defer session.Close()
+	defer func() { _ = session.Close() }()
 
 	// Get I/O pipes.
 	stdin, err := session.StdinPipe()
@@ -440,7 +441,7 @@ func (s *Service) webShellHandler(c *gin.Context) {
 	// Read from WebSocket and send to SSH stdin.
 	go func() {
 		defer wg.Done()
-		defer stdin.Close()
+		defer func() { _ = stdin.Close() }()
 		for {
 			var msg WebShellMessage
 			if err := conn.ReadJSON(&msg); err != nil {

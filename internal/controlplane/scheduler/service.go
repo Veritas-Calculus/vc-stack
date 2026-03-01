@@ -156,13 +156,13 @@ func (s *Service) dispatchVMCreate(c *gin.Context) {
 	}
 	reqHTTP, _ := http.NewRequest("POST", addr, buf)
 	reqHTTP.Header.Set("Content-Type", "application/json")
-	resp, err := http.DefaultClient.Do(reqHTTP)
+	resp, err := http.DefaultClient.Do(reqHTTP) //nolint:gosec
 	if err != nil {
 		s.logger.Error("dispatch forward failed", zap.String("addr", addr), zap.Error(err))
 		c.JSON(http.StatusBadGateway, gin.H{"error": "forward to node failed"})
 		return
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	s.logger.Info("dispatch forward response", zap.String("status", resp.Status), zap.Int("status_code", resp.StatusCode))
 

@@ -21,7 +21,7 @@ func vmListCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "List virtual machines",
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(_ *cobra.Command, args []string) error {
 			logger, err := zap.NewProduction()
 			if err != nil {
 				return fmt.Errorf("init logger: %w", err)
@@ -54,15 +54,15 @@ func vmListCmd() *cobra.Command {
 			}
 
 			w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-			fmt.Fprintln(w, "ID\tNAME\tSTATUS\tVCPUs\tMEMORY\tPID\tCREATED")
+			_, _ = fmt.Fprintln(w, "ID\tNAME\tSTATUS\tVCPUs\tMEMORY\tPID\tCREATED")
 
 			for _, cfg := range filtered {
 				created := cfg.CreatedAt.Format("2006-01-02 15:04:05")
-				fmt.Fprintf(w, "%s\t%s\t%s\t%d\t%dM\t%d\t%s\n",
+				_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%d\t%dM\t%d\t%s\n",
 					cfg.ID[:12], cfg.Name, cfg.Status, cfg.VCPUs, cfg.MemoryMB, cfg.PID, created)
 			}
 
-			w.Flush()
+			_ = w.Flush()
 			fmt.Printf("\nTotal: %d VMs\n", len(filtered))
 			return nil
 		},
@@ -79,7 +79,7 @@ func vmShowCmd() *cobra.Command {
 		Use:   "show <vm-id>",
 		Short: "Show VM details",
 		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(_ *cobra.Command, args []string) error {
 			vmID := args[0]
 			logger, err := zap.NewProduction()
 			if err != nil {
@@ -166,7 +166,7 @@ func vmStopCmd() *cobra.Command {
 		Use:   "stop <vm-id>",
 		Short: "Stop a VM",
 		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(_ *cobra.Command, args []string) error {
 			vmID := args[0]
 			logger, err := zap.NewProduction()
 			if err != nil {
@@ -208,7 +208,7 @@ func vmDeleteCmd() *cobra.Command {
 		Use:   "delete <vm-id>",
 		Short: "Delete a VM",
 		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(_ *cobra.Command, args []string) error {
 			vmID := args[0]
 			logger, err := zap.NewProduction()
 			if err != nil {
@@ -260,7 +260,7 @@ func vmConsoleCmd() *cobra.Command {
 		Use:   "console <vm-id>",
 		Short: "Show VM console info",
 		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(_ *cobra.Command, args []string) error {
 			vmID := args[0]
 			logger, err := zap.NewProduction()
 			if err != nil {

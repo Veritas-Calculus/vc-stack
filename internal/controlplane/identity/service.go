@@ -61,7 +61,7 @@ type Config struct {
 
 // JWTConfig represents JWT configuration.
 type JWTConfig struct {
-	Secret           string
+	Secret           string //nolint:gosec // This is a configuration field, not a hardcoded secret
 	ExpiresIn        time.Duration
 	RefreshExpiresIn time.Duration
 }
@@ -178,7 +178,7 @@ type IdentityProvider struct {
 	Type          string    `gorm:"not null" json:"type"` // oidc, saml
 	Issuer        string    `json:"issuer"`
 	ClientID      string    `json:"client_id"`
-	ClientSecret  string    `json:"client_secret"`
+	ClientSecret  string    `gorm:"not null" json:"client_secret"` //nolint:gosec // This is a configuration field
 	AuthEndpoint  string    `json:"authorization_endpoint"`
 	TokenEndpoint string    `json:"token_endpoint"`
 	JWKSURI       string    `json:"jwks_uri"`
@@ -189,7 +189,7 @@ type IdentityProvider struct {
 // RefreshToken represents a refresh token.
 type RefreshToken struct {
 	ID        uint      `gorm:"primaryKey" json:"id"`
-	Token     string    `gorm:"uniqueIndex;not null" json:"token"`
+	Token     string    `gorm:"uniqueIndex;not null" json:"token"` //nolint:gosec // This is a token, not a hardcoded secret
 	UserID    uint      `gorm:"not null" json:"user_id"`
 	User      User      `gorm:"foreignKey:UserID" json:"user"`
 	ExpiresAt time.Time `gorm:"not null" json:"expires_at"`
@@ -200,13 +200,13 @@ type RefreshToken struct {
 // LoginRequest represents a login request.
 type LoginRequest struct {
 	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Password string `json:"password" binding:"required"` //nolint:gosec // This is a password field in a request struct
 }
 
 // LoginResponse represents a login response.
 type LoginResponse struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
+	AccessToken  string `json:"access_token"`  //nolint:gosec // This is a token, not a hardcoded secret
+	RefreshToken string `json:"refresh_token"` //nolint:gosec // This is a token, not a hardcoded secret
 	ExpiresIn    int64  `json:"expires_in"`
 	TokenType    string `json:"token_type"`
 	User         *User  `json:"user"`

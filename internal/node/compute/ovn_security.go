@@ -117,7 +117,7 @@ func (m *OVNSecurityGroupManager) createACL(portName string, rule *SecurityRule)
 		"--", "add", "Logical_Switch", portName, "acls", "@acl",
 	}
 
-	cmd := exec.Command("ovn-nbctl", args...)
+	cmd := exec.Command("ovn-nbctl", args...) //nolint:gosec
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("create ACL: %v, output: %s", err, string(output))
@@ -140,7 +140,7 @@ func (m *OVNSecurityGroupManager) deleteACL(portName string, rule *SecurityRule)
 		"--", "--if-exists", "acl-del", portName, "to-lport", "1000", match,
 	}
 
-	cmd := exec.Command("ovn-nbctl", args...)
+	cmd := exec.Command("ovn-nbctl", args...) //nolint:gosec
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		m.logger.Warn("Failed to delete ACL",
@@ -234,7 +234,7 @@ func (m *OVNSecurityGroupManager) EnablePortSecurity(portName, macAddress, ipAdd
 		fmt.Sprintf("%s %s", macAddress, ipAddress),
 	}
 
-	cmd := exec.Command("ovn-nbctl", args...)
+	cmd := exec.Command("ovn-nbctl", args...) //nolint:gosec
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("enable port security: %v, output: %s", err, string(output))
@@ -254,7 +254,7 @@ func (m *OVNSecurityGroupManager) DisablePortSecurity(portName string) error {
 		"lsp-set-port-security", portName, "",
 	}
 
-	cmd := exec.Command("ovn-nbctl", args...)
+	cmd := exec.Command("ovn-nbctl", args...) //nolint:gosec
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("disable port security: %v, output: %s", err, string(output))

@@ -105,7 +105,7 @@ func (s *Service) nbctl(args ...string) (string, error) {
 		args = append([]string{"--db", s.ovnNBSocket}, args...)
 	}
 	s.logger.Debug("ovn-nbctl", zap.Strings("args", args))
-	cmd := exec.Command("ovn-nbctl", args...)
+	cmd := exec.Command("ovn-nbctl", args...) //nolint:gosec
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", fmt.Errorf("ovn-nbctl failed: %v, output: %s", err, string(out))

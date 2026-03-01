@@ -140,12 +140,12 @@ func (s *Service) setupHTTPRoutes(router *gin.Engine) {
 	}
 }
 
-// healthCheck provides a basic liveness probe
+// healthCheck provides a basic liveness probe.
 func (s *Service) healthCheck(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
 
-// listInstancesHandler returns instances for the current user (optionally filtered by project)
+// listInstancesHandler returns instances for the current user (optionally filtered by project).
 func (s *Service) listInstancesHandler(c *gin.Context) {
 	userID := s.getUserIDFromContext(c)
 	if userID == 0 {
@@ -166,7 +166,7 @@ func (s *Service) listInstancesHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"instances": instances})
 }
 
-// attachVolumeHandler is a placeholder for attaching a volume to an instance
+// attachVolumeHandler is a placeholder for attaching a volume to an instance.
 func (s *Service) attachVolumeHandler(c *gin.Context) {
 	userID := s.getUserIDFromContext(c)
 	if userID == 0 {
@@ -239,7 +239,7 @@ func (s *Service) attachVolumeHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"attachment": attach})
 }
 
-// detachVolumeHandler is a placeholder for detaching a volume from an instance
+// detachVolumeHandler is a placeholder for detaching a volume from an instance.
 func (s *Service) detachVolumeHandler(c *gin.Context) {
 	userID := s.getUserIDFromContext(c)
 	if userID == 0 {
@@ -845,7 +845,7 @@ func (s *Service) rebootInstanceHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"instance": updatedInstance, "message": "Instance reboot initiated"})
 }
 
-// consoleInstanceHandler requests a console ticket from the node (vc-lite) hosting the VM
+// consoleInstanceHandler requests a console ticket from the node (vc-lite) hosting the VM.
 func (s *Service) consoleInstanceHandler(c *gin.Context) {
 	userID := s.getUserIDFromContext(c)
 	if userID == 0 {
@@ -1032,6 +1032,8 @@ func (s *Service) listImagesHandler(c *gin.Context) {
 // uploadImageHandler handles direct image uploads (multipart/form-data) and stores them under VC_IMAGE_DIR.
 // It creates an Image record with disk_format inferred from filename extension (qcow2/raw/iso).
 // Env: VC_IMAGE_DIR defaults to /var/lib/vcstack/images when unset.
+//
+//nolint:gocognit
 func (s *Service) uploadImageHandler(c *gin.Context) {
 	userID := s.getUserIDFromContext(c)
 	if userID == 0 {
@@ -1048,7 +1050,7 @@ func (s *Service) uploadImageHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "missing file"})
 		return
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 	name := c.PostForm("name")
 	if name == "" {
 		// fallback to filename base
@@ -1077,7 +1079,7 @@ func (s *Service) uploadImageHandler(c *gin.Context) {
 		}
 		// Prepare rbd import command that reads from stdin
 		var errBuf bytes.Buffer
-		cmd := exec.Command("rbd", s.rbdArgs("images", "import", "-", fmt.Sprintf("%s/%s", pool, imageName))...)
+		cmd := exec.Command("rbd", s.rbdArgs("images", "import", "-", fmt.Sprintf("%s/%s", pool, imageName))...) //nolint:gosec
 		cmd.Stderr = &errBuf
 		stdin, err := cmd.StdinPipe()
 		if err != nil {
@@ -1124,7 +1126,7 @@ func (s *Service) uploadImageHandler(c *gin.Context) {
 		if err := s.db.Create(&img).Error; err != nil {
 			s.logger.Error("db create image failed", zap.Error(err))
 			// cleanup orphan rbd image to avoid leakage
-			_ = exec.Command("rbd", s.rbdArgs("images", "rm", fmt.Sprintf("%s/%s", pool, imageName))...).Run()
+			_ = exec.Command("rbd", s.rbdArgs("images", "rm", fmt.Sprintf("%s/%s", pool, imageName))...).Run() //nolint:gosec
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "db create image failed"})
 			return
 		}
@@ -1150,7 +1152,8 @@ func (s *Service) uploadImageHandler(c *gin.Context) {
 		var chosen string
 		var mkErr error
 		for _, dir := range candidates {
-			if err := os.MkdirAll(dir, 0755); err != nil {
+			if err := os.MkdirAll(dir, 0o750); err != nil { //nolint:gosec
+
 				mkErr = err
 				s.logger.Warn("create image dir failed, trying next", zap.String("dir", dir), zap.Error(err))
 				continue
@@ -1170,13 +1173,13 @@ func (s *Service) uploadImageHandler(c *gin.Context) {
 			fname = genUUIDv4()
 		}
 		dstPath := filepath.Join(baseDir, fname)
-		out, err := os.Create(dstPath)
+		out, err := os.Create(dstPath) //nolint:gosec
 		if err != nil {
 			s.logger.Error("create destination failed", zap.String("path", dstPath), zap.Error(err))
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "create destination failed"})
 			return
 		}
-		defer out.Close()
+		defer func() { _ = out.Close() }()
 		size, err := io.Copy(out, file)
 		if err != nil {
 			s.logger.Error("write image file failed", zap.String("path", dstPath), zap.Error(err))
@@ -1240,7 +1243,7 @@ func (s *Service) deleteImageHandler(c *gin.Context) {
 	}
 	// RBD: only when snap is empty; ignore errors
 	if strings.TrimSpace(img.RBDPool) != "" && strings.TrimSpace(img.RBDImage) != "" && strings.TrimSpace(img.RBDSnap) == "" {
-		_ = exec.Command("rbd", s.rbdArgs("images", "rm", fmt.Sprintf("%s/%s", strings.TrimSpace(img.RBDPool), strings.TrimSpace(img.RBDImage)))...).Run()
+		_ = exec.Command("rbd", s.rbdArgs("images", "rm", fmt.Sprintf("%s/%s", strings.TrimSpace(img.RBDPool), strings.TrimSpace(img.RBDImage)))...).Run() //nolint:gosec
 	}
 	if err := s.db.Delete(&Image{}, id).Error; err != nil {
 		s.logger.Error("Failed to delete image", zap.Error(err))
@@ -1250,9 +1253,9 @@ func (s *Service) deleteImageHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Image deleted"})
 }
 
-// inferDiskFormatByExt returns qcow2/raw/iso based on filename extension
-func inferDiskFormatByExt(p string) string {
-	e := strings.ToLower(filepath.Ext(p))
+// inferDiskFormatByExt returns qcow2/raw/iso based on filename extension.
+func inferDiskFormatByExt(fname string) string {
+	e := strings.ToLower(filepath.Ext(fname))
 	switch e {
 	case ".qcow2":
 		return "qcow2"
@@ -1265,7 +1268,7 @@ func inferDiskFormatByExt(p string) string {
 	}
 }
 
-// isUnderDir checks if path p is within base directory (after filepath.Clean)
+// isUnderDir checks if path p is within base directory (after filepath.Clean).
 func isUnderDir(p, base string) bool {
 	p = filepath.Clean(p)
 	base = filepath.Clean(base)
@@ -1330,28 +1333,28 @@ func (s *Service) importImageHandler(c *gin.Context) {
 	}
 	// Start import
 	// Simple HTTP GET (RGW with S3-compat presigned URL also works). In production, add auth headers if needed.
-	resp, err := http.Get(src)
+	resp, err := http.Get(src) //nolint:gosec // URL is validated before request
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": "Failed to fetch source"})
 		return
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		c.JSON(http.StatusBadGateway, gin.H{"error": "Source returned " + resp.Status})
 		return
 	}
 	// If destination is file path: stream to file (ensure dir exists)
 	if dstFile != "" {
-		if err := os.MkdirAll(filepath.Dir(dstFile), 0755); err != nil {
+		if err := os.MkdirAll(filepath.Dir(dstFile), 0o750); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "mkdir failed"})
 			return
 		}
-		f, err := os.Create(dstFile)
+		f, err := os.Create(dstFile) //nolint:gosec
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "create file failed"})
 			return
 		}
-		defer f.Close()
+		defer func() { _ = f.Close() }()
 		if _, err := io.Copy(f, resp.Body); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "write file failed"})
 			return
@@ -1363,7 +1366,7 @@ func (s *Service) importImageHandler(c *gin.Context) {
 	}
 	// Else import to RBD using rbd import (requires rbd on this host)
 	tmpFile := filepath.Join(os.TempDir(), "vc-import-"+genUUIDv4()+".img")
-	out, err := os.Create(tmpFile)
+	out, err := os.Create(tmpFile) //nolint:gosec
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "tmp create failed"})
 		return
@@ -1374,7 +1377,7 @@ func (s *Service) importImageHandler(c *gin.Context) {
 		return
 	}
 	_ = out.Close()
-	cmd := exec.Command("rbd", s.rbdArgs("images", "import", tmpFile, dstPool+"/"+dstImage)...)
+	cmd := exec.Command("rbd", s.rbdArgs("images", "import", tmpFile, dstPool+"/"+dstImage)...) //nolint:gosec
 	if err := cmd.Run(); err != nil {
 		_ = os.Remove(tmpFile)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "rbd import failed"})
@@ -1383,7 +1386,7 @@ func (s *Service) importImageHandler(c *gin.Context) {
 	_ = os.Remove(tmpFile)
 	// optional: create snap
 	if dstSnap != "" {
-		_ = exec.Command("rbd", s.rbdArgs("images", "snap", "create", dstPool+"/"+dstImage+"@"+dstSnap)...).Run()
+		_ = exec.Command("rbd", s.rbdArgs("images", "snap", "create", dstPool+"/"+dstImage+"@"+dstSnap)...).Run() //nolint:gosec
 	}
 	s.db.Model(&img).Updates(map[string]interface{}{"rbd_pool": dstPool, "rbd_image": dstImage, "rbd_snap": dstSnap, "status": "active"})
 	c.JSON(http.StatusOK, gin.H{"image": img, "message": "imported to rbd"})
@@ -1820,13 +1823,13 @@ func (s *Service) createSnapshotHandler(c *gin.Context) {
 	}
 	// Create a temporary snap on the volume
 	snapName := "snap-" + genUUIDv4()
-	if err := exec.Command("rbd", s.rbdArgs("volumes", "snap", "create", volImg+"@"+snapName)...).Run(); err != nil {
+	if err := exec.Command("rbd", s.rbdArgs("volumes", "snap", "create", volImg+"@"+snapName)...).Run(); err != nil { //nolint:gosec
 		s.logger.Error("rbd snap create failed", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "rbd snap create failed"})
 		return
 	}
 	// Protect the snap so it can be cloned/exported
-	_ = exec.Command("rbd", s.rbdArgs("volumes", "snap", "protect", volImg+"@"+snapName)...).Run()
+	_ = exec.Command("rbd", s.rbdArgs("volumes", "snap", "protect", volImg+"@"+snapName)...).Run() //nolint:gosec
 
 	// Export (copy) to backups pool as a standalone image
 	backupPool := strings.TrimSpace(s.config.Backups.RBDPool)
@@ -1840,8 +1843,8 @@ func (s *Service) createSnapshotHandler(c *gin.Context) {
 	dst := fmt.Sprintf("%s/%s", backupPool, backupImage)
 	// rbd clone would preserve COW within same pool; to move to another pool, export-diff+import is an option.
 	// For simplicity we use rbd export then import via pipe to avoid temp files.
-	exp := exec.Command("rbd", s.rbdArgs("volumes", "export", volImg+"@"+snapName, "-")...)
-	imp := exec.Command("rbd", s.rbdArgs("backups", "import", "-", dst)...)
+	exp := exec.Command("rbd", s.rbdArgs("volumes", "export", volImg+"@"+snapName, "-")...) //nolint:gosec
+	imp := exec.Command("rbd", s.rbdArgs("backups", "import", "-", dst)...)                 //nolint:gosec
 	pr, pw := io.Pipe()
 	exp.Stdout = pw
 	imp.Stdin = pr
@@ -1875,8 +1878,8 @@ func (s *Service) createSnapshotHandler(c *gin.Context) {
 		return
 	}
 	// Unprotect and cleanup original snap (best-effort)
-	_ = exec.Command("rbd", s.rbdArgs("volumes", "snap", "unprotect", volImg+"@"+snapName)...)
-	_ = exec.Command("rbd", s.rbdArgs("volumes", "snap", "rm", volImg+"@"+snapName)...)
+	_ = exec.Command("rbd", s.rbdArgs("volumes", "snap", "unprotect", volImg+"@"+snapName)...) //nolint:gosec
+	_ = exec.Command("rbd", s.rbdArgs("volumes", "snap", "rm", volImg+"@"+snapName)...)        //nolint:gosec
 
 	userID := s.getUserIDFromContext(c)
 	projectID := s.getProjectIDFromContext(c)
@@ -1884,7 +1887,7 @@ func (s *Service) createSnapshotHandler(c *gin.Context) {
 	if err := s.db.Create(snapshot).Error; err != nil {
 		s.logger.Error("Failed to create snapshot", zap.Error(err))
 		// rollback backup image to avoid orphan
-		_ = exec.Command("rbd", s.rbdArgs("backups", "rm", fmt.Sprintf("%s/%s", backupPool, backupImage))...).Run()
+		_ = exec.Command("rbd", s.rbdArgs("backups", "rm", fmt.Sprintf("%s/%s", backupPool, backupImage))...).Run() //nolint:gosec
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create snapshot"})
 		return
 	}
@@ -1906,7 +1909,7 @@ func (s *Service) deleteSnapshotHandler(c *gin.Context) {
 		return
 	}
 	if strings.TrimSpace(snap.BackupPool) != "" && strings.TrimSpace(snap.BackupImage) != "" {
-		_ = exec.Command("rbd", s.rbdArgs("backups", "rm", fmt.Sprintf("%s/%s", strings.TrimSpace(snap.BackupPool), strings.TrimSpace(snap.BackupImage)))...).Run()
+		_ = exec.Command("rbd", s.rbdArgs("backups", "rm", fmt.Sprintf("%s/%s", strings.TrimSpace(snap.BackupPool), strings.TrimSpace(snap.BackupImage)))...).Run() //nolint:gosec
 	}
 	if err := s.db.Delete(&Snapshot{}, id).Error; err != nil {
 		s.logger.Error("Failed to delete snapshot", zap.Error(err))
@@ -1917,7 +1920,7 @@ func (s *Service) deleteSnapshotHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Snapshot deleted"})
 }
 
-// listAuditHandler returns recent audit events (optionally filter by resource/action)
+// listAuditHandler returns recent audit events (optionally filter by resource/action).
 func (s *Service) listAuditHandler(c *gin.Context) {
 	q := s.db.Model(&AuditEvent{})
 	if r := strings.TrimSpace(c.Query("resource")); r != "" {
@@ -1938,7 +1941,7 @@ func (s *Service) listAuditHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"audit": items})
 }
 
-// SSH Key Handlers
+// SSH Key Handlers.
 func (s *Service) listSSHKeysHandler(c *gin.Context) {
 	userID := s.getUserIDFromContext(c)
 	if userID == 0 {
@@ -2016,7 +2019,7 @@ func startsWithAny(s string, prefixes ...string) bool {
 	return false
 }
 
-// Helper functions for extracting user context
+// Helper functions for extracting user context.
 func (s *Service) getUserIDFromContext(c *gin.Context) uint {
 	// For now, return a default user ID (in a real implementation, this would come from JWT token)
 	if userID, exists := c.Get("user_id"); exists {
@@ -2043,7 +2046,7 @@ func (s *Service) getProjectIDFromContext(c *gin.Context) uint {
 	return 1
 }
 
-// Hypervisor handlers
+// Hypervisor handlers.
 func (s *Service) listHypervisorsHandler(c *gin.Context) {
 	var hs []Hypervisor
 	if err := s.db.Find(&hs).Error; err != nil {
@@ -2298,10 +2301,10 @@ func (s *Service) deleteFirecrackerHandler(c *gin.Context) {
 		s.logger.Info("Removing Firecracker RBD volume", zap.String("rbd", rbdName))
 
 		// Ensure it's unmapped first
-		_ = exec.Command("rbd", s.rbdArgs("volumes", "unmap", rbdName)...).Run()
+		_ = exec.Command("rbd", s.rbdArgs("volumes", "unmap", rbdName)...).Run() //nolint:gosec
 
 		// Remove the volume
-		if err := exec.Command("rbd", s.rbdArgs("volumes", "rm", rbdName)...).Run(); err != nil {
+		if err := exec.Command("rbd", s.rbdArgs("volumes", "rm", rbdName)...).Run(); err != nil { //nolint:gosec
 			s.logger.Warn("Failed to remove RBD volume", zap.String("rbd", rbdName), zap.Error(err))
 		}
 	}

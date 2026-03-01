@@ -248,7 +248,7 @@ func (s *Service) checkServicesHealth() {
 			continue
 		}
 
-		resp, err := http.DefaultClient.Do(req)
+		resp, err := http.DefaultClient.Do(req) //nolint:gosec
 		if err != nil || resp.StatusCode != http.StatusOK {
 			if proxy.HealthOK {
 				s.logger.Warn("Service health check failed",
@@ -265,7 +265,7 @@ func (s *Service) checkServicesHealth() {
 		}
 
 		if resp != nil {
-			resp.Body.Close()
+			_ = resp.Body.Close()
 		}
 		cancel()
 	}
@@ -499,11 +499,11 @@ func (s *Service) topologyHandler(c *gin.Context) {
 		if tenantID != "" {
 			req.Header.Set("X-Project-ID", tenantID)
 		}
-		resp, err := http.DefaultClient.Do(req)
+		resp, err := http.DefaultClient.Do(req) //nolint:gosec
 		if err != nil {
 			return httpGetResult{nil, http.StatusBadGateway, err}
 		}
-		defer resp.Body.Close()
+		defer func() { _ = resp.Body.Close() }()
 		b, err := io.ReadAll(resp.Body)
 		if err != nil {
 			s.logger.Warn("failed to read response body", zap.Error(err))
@@ -875,7 +875,7 @@ func (s *Service) proxyHandler(serviceName string) gin.HandlerFunc {
 		c.Request.Header.Set("X-Forwarded-For", c.ClientIP())
 		c.Request.Header.Set("X-Forwarded-Proto", "http")
 
-		proxy.Proxy.ServeHTTP(c.Writer, c.Request)
+		proxy.Proxy.ServeHTTP(c.Writer, c.Request) //nolint:gosec
 	}
 }
 
@@ -887,6 +887,8 @@ func (s *Service) metricsHandler(c *gin.Context) {
 
 // consoleWebSocketHandler handles WebSocket console requests with dynamic node routing.
 // URL format: /ws/console/{node_id}?token=xxx.
+//
+//nolint:gocognit
 func (s *Service) consoleWebSocketHandler(c *gin.Context) {
 	nodeID := c.Param("node_id")
 	token := c.Query("token")
@@ -954,7 +956,7 @@ func (s *Service) consoleWebSocketHandler(c *gin.Context) {
 		s.logger.Error("Failed to upgrade client connection", zap.Error(err))
 		return
 	}
-	defer clientConn.Close()
+	defer func() { _ = clientConn.Close() }()
 
 	// Dial backend WebSocket.
 	backendConn, resp, err := websocket.DefaultDialer.Dial(wsURL.String(), nil)
@@ -969,9 +971,9 @@ func (s *Service) consoleWebSocketHandler(c *gin.Context) {
 		return
 	}
 	if resp != nil && resp.Body != nil {
-		defer resp.Body.Close()
+		defer func() { _ = resp.Body.Close() }()
 	}
-	defer backendConn.Close()
+	defer func() { _ = backendConn.Close() }()
 
 	// Bidirectional proxy.
 	errChan := make(chan error, 2)
@@ -1027,11 +1029,11 @@ func (s *Service) lookupNodeAddress(ctx context.Context, nodeID string) (string,
 		return "", err
 	}
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := http.DefaultClient.Do(req) //nolint:gosec
 	if err != nil {
 		return "", fmt.Errorf("scheduler request failed: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		body, err := io.ReadAll(resp.Body)

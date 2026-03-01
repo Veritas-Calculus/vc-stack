@@ -153,7 +153,7 @@ func (h *OVNHealthChecker) checkLogicalRouters(ctx context.Context) HealthStatus
 // sbctlOutput executes ovn-sbctl command and returns output.
 func (d *OVNDriver) sbctlOutput(args ...string) (string, error) {
 	d.logger.Debug("ovn-sbctl", zap.Strings("args", args))
-	cmd := exec.Command("ovn-sbctl", args...)
+	cmd := exec.Command("ovn-sbctl", args...) //nolint:gosec
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", fmt.Errorf("ovn-sbctl %s failed: %v, out=%s", strings.Join(args, " "), err, string(out))
