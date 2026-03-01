@@ -2007,3 +2007,5 @@ func (s *Service) updateFirecrackerStatus(id uint, status, powerState string) {
 		"power_state": powerState,
 	})
 }
+
+// test

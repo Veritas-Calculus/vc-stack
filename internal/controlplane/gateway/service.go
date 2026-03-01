@@ -461,7 +461,7 @@ func (s *Service) SetupComputeProxyRoutes(router *gin.Engine) {
 // topologyHandler aggregates network and compute resources into a single topology graph.
 // It calls underlying services with the same Authorization and X-Project-ID headers.
 //
-//nolint:gocyclo // Complex topology aggregation logic
+//nolint:gocyclo,gocognit // Complex topology aggregation logic
 func (s *Service) topologyHandler(c *gin.Context) {
 	tenantID := c.Query("tenant_id")
 	// Forward headers.

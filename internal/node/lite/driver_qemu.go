@@ -509,6 +509,7 @@ func (d *qemuDriver) VMStatus(id string) (exists, running bool) {
 	return true, false
 }
 
+//nolint:gocognit
 func (d *qemuDriver) ConsoleURL(id string, _ time.Duration) (string, error) {
 	// Try to query QMP socket for the real VNC port using human-monitor-command 'info vnc'
 	qmpPath := filepath.Join(d.runDir, id+".qmp")

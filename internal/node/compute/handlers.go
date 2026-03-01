@@ -286,7 +286,9 @@ func (s *Service) detachVolumeHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Volume detached"})
 }
 
-// listInstanceVolumesHandler returns volumes attached to an instance (by matching RBD pool/image)
+// listInstanceVolumesHandler returns volumes attached to an instance (by matching RBD pool/image).
+//
+//nolint:gocognit
 func (s *Service) listInstanceVolumesHandler(c *gin.Context) {
 	userID := s.getUserIDFromContext(c)
 	if userID == 0 {
@@ -1451,7 +1453,7 @@ func (s *Service) registerImageHandler(c *gin.Context) {
 
 // listVolumesHandler handles listing volumes.
 //
-//nolint:gocyclo // Complex volume listing with multiple sources
+//nolint:gocyclo,gocognit // Complex volume listing with multiple sources
 func (s *Service) listVolumesHandler(c *gin.Context) {
 	userID := s.getUserIDFromContext(c)
 	if userID == 0 {
