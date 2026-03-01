@@ -1032,8 +1032,6 @@ func (s *Service) listImagesHandler(c *gin.Context) {
 // uploadImageHandler handles direct image uploads (multipart/form-data) and stores them under VC_IMAGE_DIR.
 // It creates an Image record with disk_format inferred from filename extension (qcow2/raw/iso).
 // Env: VC_IMAGE_DIR defaults to /var/lib/vcstack/images when unset.
-//
-//nolint:gocognit
 func (s *Service) uploadImageHandler(c *gin.Context) {
 	userID := s.getUserIDFromContext(c)
 	if userID == 0 {

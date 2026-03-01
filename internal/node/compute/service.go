@@ -334,8 +334,6 @@ type BlockDeviceRequest struct {
 }
 
 // NewService creates a new compute service.
-//
-//nolint:gocognit
 func NewService(config Config) (*Service, error) {
 	service := &Service{
 		db:              config.DB,
@@ -1070,8 +1068,6 @@ func (s *Service) lookupNodeAddress(ctx context.Context, nodeID string) (string,
 }
 
 // callLiteCreate posts a VM creation to vc-lite.
-//
-//nolint:gocognit
 func (s *Service) callLiteCreate(ctx context.Context, liteAddr string, inst *Instance, fl Flavor, img Image) (string, error) {
 	if _, hasDeadline := ctx.Deadline(); !hasDeadline {
 		var cancel context.CancelFunc
