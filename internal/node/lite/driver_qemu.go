@@ -220,8 +220,6 @@ func (d *qemuDriver) CreateVM(req CreateVMRequest) (*VM, error) {
 }
 
 // createVMNew creates a VM using the new QEMU driver.
-//
-//nolint:gocognit
 func (d *qemuDriver) createVMNew(req CreateVMRequest) (*VM, error) {
 	now := time.Now()
 	id := sanitizeName(req.Name)
@@ -579,8 +577,6 @@ func (d *qemuDriver) ConsoleURL(id string, _ time.Duration) (string, error) {
 }
 
 // queryQMP connects to a unix qmp socket, performs handshake, issues a human-monitor-command and returns its output string.
-//
-//nolint:gocognit
 func queryQMP(socketPath, humanCmd string) (string, error) {
 	// Connect with timeout.
 	conn, err := net.DialTimeout("unix", socketPath, 2*time.Second)

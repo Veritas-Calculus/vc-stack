@@ -146,8 +146,6 @@ func (s *Service) deleteNetwork(c *gin.Context) {
 }
 
 // createPort handles POST /api/v1/ports.
-//
-//nolint:gocognit
 func (s *Service) createPort(c *gin.Context) {
 	var req CreatePortRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
