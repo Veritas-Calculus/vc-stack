@@ -332,7 +332,7 @@ func (d *Driver) setupNetworking(cfg *VMConfig) error {
 			bridge = "br-int"
 		}
 
-		if err := exec.Command("ovs-vsctl", "--may-exist", "add-port", bridge, tapDev).Run(); err != nil { //nolint:gosec
+		if err := exec.Command("ovs-vsctl", "--may-exist", "add-port", bridge, tapDev).Run(); err != nil {
 			d.logger.Warn("add tap to bridge failed",
 				zap.String("dev", tapDev),
 				zap.String("bridge", bridge),
@@ -343,7 +343,7 @@ func (d *Driver) setupNetworking(cfg *VMConfig) error {
 		if nic.PortID != "" {
 			ifaceID := fmt.Sprintf("lsp-%s", nic.PortID)
 			cmd := exec.Command("ovs-vsctl", "set", "Interface", tapDev,
-				fmt.Sprintf("external_ids:iface-id=%s", ifaceID)) //nolint:gosec
+				fmt.Sprintf("external_ids:iface-id=%s", ifaceID))
 			if err := cmd.Run(); err != nil {
 				d.logger.Warn("set ovs interface id failed",
 					zap.String("dev", tapDev),
@@ -455,7 +455,7 @@ func connectUnixSocket(path string, timeout time.Duration) (*os.File, error) {
 
 		sa := &syscall.SockaddrUnix{Name: path}
 		if err := syscall.Connect(fd, sa); err == nil {
-			return os.NewFile(uintptr(fd), path), nil
+			return os.NewFile(uintptr(fd), path), nil //nolint:gosec
 		}
 
 		_ = syscall.Close(fd)

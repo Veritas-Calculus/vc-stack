@@ -85,19 +85,10 @@ jobs:
         with:
           go-version: '1.24'
 
-      - name: Install cross-compilation tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc-aarch64-linux-gnu libvirt-dev:${{ matrix.arch }} pkg-config
-        if: matrix.arch != 'amd64'
-
       - name: Build for ${{ matrix.arch }}
         run: |
           export GOARCH=${{ matrix.goarch }}
-          export CC=gcc
-          if [ "${{ matrix.arch }}" = "arm64" ]; then
-            export CC=aarch64-linux-gnu-gcc
-          fi
+          export CGO_ENABLED=0
           make build-all
 
       - name: Package ${{ matrix.arch }} binaries

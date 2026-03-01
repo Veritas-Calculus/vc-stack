@@ -35,7 +35,7 @@ func (m *QEMUManager) prepareTPM(tpmDir string) error {
 		"--create-ek-cert",
 		"--create-platform-cert",
 		"--lock-nvram",
-	) //nolint:gosec
+	)
 
 	if output, err := setupCmd.CombinedOutput(); err != nil {
 		m.logger.Warn("swtpm_setup failed",

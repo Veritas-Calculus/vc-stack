@@ -789,7 +789,7 @@ func (s *Service) launchInstance(ctx context.Context, instance *Instance) {
 
 // dispatchViaScheduler asks scheduler to choose a node and forward the create; returns vmID and the node address if known.
 //
-//nolint:gocyclo,gocritic,gocognit // Complex scheduler dispatch logic with multiple paths
+//nolint:gocyclo,gocognit // Complex scheduler dispatch logic with multiple paths
 func (s *Service) dispatchViaScheduler(ctx context.Context, inst *Instance) (string, string, error) {
 	if _, hasDeadline := ctx.Deadline(); !hasDeadline {
 		var cancel context.CancelFunc

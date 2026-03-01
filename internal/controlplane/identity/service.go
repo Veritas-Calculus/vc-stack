@@ -189,7 +189,7 @@ type IdentityProvider struct {
 // RefreshToken represents a refresh token.
 type RefreshToken struct {
 	ID        uint      `gorm:"primaryKey" json:"id"`
-	Token     string    `gorm:"uniqueIndex;not null" json:"token"` //nolint:gosec // This is a token, not a hardcoded secret
+	Token     string    `gorm:"uniqueIndex;not null" json:"token"`
 	UserID    uint      `gorm:"not null" json:"user_id"`
 	User      User      `gorm:"foreignKey:UserID" json:"user"`
 	ExpiresAt time.Time `gorm:"not null" json:"expires_at"`

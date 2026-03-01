@@ -10,14 +10,15 @@ COMMIT := $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 BUILD_TIME := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 # Go build variables
-GO_VERSION := 1.21
+GO_VERSION := 1.24
 GOPATH := $(shell go env GOPATH)
 GOOS := $(shell go env GOOS)
 GOARCH := $(shell go env GOARCH)
 
-# Build flags following Google's recommendations
-LDFLAGS := -ldflags="-s -w -X 'main.Version=$(VERSION)' -X 'main.Commit=$(COMMIT)' -X 'main.BuildTime=$(BUILD_TIME)'"
-BUILD_FLAGS := -trimpath $(LDFLAGS)
+# Build flags for static compilation
+LDFLAGS := -ldflags="-s -w -extldflags '-static' -X 'main.Version=$(VERSION)' -X 'main.Commit=$(COMMIT)' -X 'main.BuildTime=$(BUILD_TIME)'"
+# Standard build flags with netgo and osusergo for pure Go implementations of net and os/user
+BUILD_FLAGS := -trimpath -tags "netgo osusergo $(GO_BUILD_TAGS)" $(LDFLAGS)
 # Optional Go build tags (e.g., ovn_sdk). Can be overridden: `GO_BUILD_TAGS=ovn_sdk make build`.
 GO_BUILD_TAGS ?=
 
@@ -144,17 +145,7 @@ build-all: $(SERVICES) ## Build all services
 $(SERVICES): ## Build individual service
 	@echo "Building $@..."
 	@mkdir -p $(BIN_DIR)
-	@if [ "$@" = "vc-lite" ]; then \
-		if [ "$(ENABLE_LIBVIRT)" = "1" ]; then \
-			echo "Building vc-lite with libvirt support (CGO enabled)..."; \
-			CGO_ENABLED=1 GOOS=$(GOOS) GOARCH=$(GOARCH) go build -tags "libvirt $(GO_BUILD_TAGS)" $(BUILD_FLAGS) -o $(BIN_DIR)/$@ ./cmd/$@; \
-		else \
-			echo "Building vc-lite without libvirt (CGO disabled) for cross-platform compatibility..."; \
-			CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go build -tags "$(GO_BUILD_TAGS)" $(BUILD_FLAGS) -o $(BIN_DIR)/$@ ./cmd/$@; \
-		fi; \
-	else \
-		CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go build -tags "$(GO_BUILD_TAGS)" $(BUILD_FLAGS) -o $(BIN_DIR)/$@ ./cmd/$@; \
-	fi
+	CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go build $(BUILD_FLAGS) -o $(BIN_DIR)/$@ ./cmd/$@
 
 # Convenience target to build with OVN SDK implementation enabled
 .PHONY: build-ovn-sdk
@@ -162,17 +153,12 @@ build-ovn-sdk: ## Build all services with OVN SDK enabled (GO build tag ovn_sdk)
 	@echo "Building all services with ovn_sdk tag..."
 	@GO_BUILD_TAGS=ovn_sdk $(MAKE) build-all
 
-build-linux: ## Build for Linux
-	@echo "Building for Linux..."
+build-linux: ## Build for Linux (amd64)
+	@echo "Building for Linux (amd64)..."
 	@mkdir -p $(BIN_DIR)/linux
 	@for service in $(SERVICES); do \
-		if [ "$$service" = "vc-lite" ]; then \
-			echo "Building $$service for Linux with libvirt (CGO)..."; \
-			CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -tags libvirt $(BUILD_FLAGS) -o $(BIN_DIR)/linux/$$service ./cmd/$$service; \
-		else \
-			echo "Building $$service for Linux..."; \
-			CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build $(BUILD_FLAGS) -o $(BIN_DIR)/linux/$$service ./cmd/$$service; \
-		fi; \
+		echo "Building $$service for Linux..."; \
+		CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build $(BUILD_FLAGS) -o $(BIN_DIR)/linux/$$service ./cmd/$$service; \
 	done
 
 proto: ## Generate protobuf files

@@ -183,7 +183,7 @@ func (fg *FlameGraphGenerator) convertToFlameGraph(profilePath, profileType stri
 	}
 
 	// Write collapsed stacks.
-	if err := os.WriteFile(collapsedPath, []byte(collapsed), 0o600); err != nil { //nolint:gosec
+	if err := os.WriteFile(collapsedPath, []byte(collapsed), 0o600); err != nil {
 		return "", fmt.Errorf("failed to write collapsed stacks: %w", err)
 	}
 
@@ -194,7 +194,7 @@ func (fg *FlameGraphGenerator) convertToFlameGraph(profilePath, profileType stri
 	}
 
 	// Write SVG file.
-	if err := os.WriteFile(svgPath, []byte(svg), 0o600); err != nil { //nolint:gosec
+	if err := os.WriteFile(svgPath, []byte(svg), 0o600); err != nil {
 		return "", fmt.Errorf("failed to write SVG: %w", err)
 	}
 
