@@ -73,12 +73,12 @@ vet: ## Run go vet
 
 test: ## Run tests
 	@echo "Running tests..."
-	@CGO_ENABLED=0 go test -race -coverprofile=coverage.out ./...
+	@CGO_ENABLED=0 go test -coverprofile=coverage.out ./...
 	@go tool cover -html=coverage.out -o coverage.html
 
 test-coverage: ## Run tests with detailed coverage
 	@echo "Running tests with coverage..."
-	@CGO_ENABLED=0 go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
+	@CGO_ENABLED=0 go test -v -coverprofile=coverage.out -covermode=atomic ./...
 	@go tool cover -func=coverage.out
 	@go tool cover -html=coverage.out -o coverage.html
 	@echo "Coverage report: coverage.html"

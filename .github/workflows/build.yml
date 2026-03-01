@@ -24,7 +24,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.21'
+          go-version: '1.24'
 
 
       - name: Download dependencies
@@ -35,7 +35,7 @@ jobs:
       - name: Build all services
         run: make build-all
         env:
-          CGO_ENABLED: 1  # Required for vc-lite
+          CGO_ENABLED: 0
 
 
       - name: Run tests
@@ -83,7 +83,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.21'
+          go-version: '1.24'
 
       - name: Install cross-compilation tools
         run: |

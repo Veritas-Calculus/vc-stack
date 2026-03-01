@@ -1,5 +1,3 @@
-version: 2
-
 run:
   timeout: 5m
   tests: true
@@ -50,9 +48,3 @@ issues:
         - errcheck
         - gosec
         - gocognit
-
-output:
-  formats:
-    colored-line-number: {}
-  print-issued-lines: true
-  print-linter-name: true
