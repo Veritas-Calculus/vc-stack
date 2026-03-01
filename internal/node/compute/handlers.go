@@ -1335,8 +1335,15 @@ func (s *Service) importImageHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid source URL: only http/https allowed"})
 		return
 	}
+	// Reconstruct URL from validated components to break taint chain.
+	safeURL := &url.URL{
+		Scheme:   parsedURL.Scheme,
+		Host:     parsedURL.Host,
+		Path:     parsedURL.Path,
+		RawQuery: parsedURL.RawQuery,
+	}
 	// Start import using explicit request to avoid SSRF via http.Get.
-	httpReq, err := http.NewRequestWithContext(c.Request.Context(), http.MethodGet, parsedURL.String(), nil)
+	httpReq, err := http.NewRequestWithContext(c.Request.Context(), http.MethodGet, safeURL.String(), nil)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid source URL"})
 		return
@@ -1355,6 +1362,10 @@ func (s *Service) importImageHandler(c *gin.Context) {
 	if dstFile != "" {
 		// Sanitize destination path to prevent path traversal.
 		dstFile = filepath.Clean(dstFile)
+		if strings.Contains(dstFile, "..") {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid destination path"})
+			return
+		}
 		if err := os.MkdirAll(filepath.Dir(dstFile), 0o750); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "mkdir failed"})
 			return

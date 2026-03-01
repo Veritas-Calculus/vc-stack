@@ -89,6 +89,15 @@ type vmMeta struct {
 	VNC     string `json:"vnc"`
 }
 
+// validateVMID checks that id is safe for use in file paths.
+func validateVMID(id string) (string, error) {
+	id = filepath.Base(id)
+	if id == "." || id == "" || strings.Contains(id, "..") || strings.ContainsAny(id, "/\\") {
+		return "", fmt.Errorf("invalid VM id")
+	}
+	return id, nil
+}
+
 func (d *qemuDriver) CreateVM(req CreateVMRequest) (*VM, error) {
 	// Use new QEMU driver if enabled.
 	if d.useNewDrv {
@@ -370,7 +379,11 @@ func (d *qemuDriver) createVMNew(req CreateVMRequest) (*VM, error) {
 
 func (d *qemuDriver) DeleteVM(id string, force bool) error {
 	// Sanitize id to prevent path traversal.
-	id = filepath.Base(id)
+	var err error
+	id, err = validateVMID(id)
+	if err != nil {
+		return err
+	}
 
 	// Use new QEMU driver if enabled.
 	if d.useNewDrv {
@@ -432,7 +445,11 @@ func (d *qemuDriver) DeleteVM(id string, force bool) error {
 
 func (d *qemuDriver) StartVM(id string) error {
 	// Sanitize id to prevent path traversal.
-	id = filepath.Base(id)
+	var err error
+	id, err = validateVMID(id)
+	if err != nil {
+		return err
+	}
 
 	// Use new QEMU driver if enabled.
 	if d.useNewDrv {
@@ -447,7 +464,11 @@ func (d *qemuDriver) StartVM(id string) error {
 
 func (d *qemuDriver) StopVM(id string, force bool) error {
 	// Sanitize id to prevent path traversal.
-	id = filepath.Base(id)
+	var err error
+	id, err = validateVMID(id)
+	if err != nil {
+		return err
+	}
 
 	// Use new QEMU driver if enabled.
 	if d.useNewDrv {
@@ -469,7 +490,11 @@ func (d *qemuDriver) StopVM(id string, force bool) error {
 
 func (d *qemuDriver) RebootVM(id string, force bool) error {
 	// Sanitize id to prevent path traversal.
-	id = filepath.Base(id)
+	var err error
+	id, err = validateVMID(id)
+	if err != nil {
+		return err
+	}
 
 	// Use new QEMU driver if enabled.
 	if d.useNewDrv {
@@ -490,7 +515,11 @@ func (d *qemuDriver) RebootVM(id string, force bool) error {
 
 func (d *qemuDriver) VMStatus(id string) (exists, running bool) {
 	// Sanitize id to prevent path traversal.
-	id = filepath.Base(id)
+	var err error
+	id, err = validateVMID(id)
+	if err != nil {
+		return false, false
+	}
 
 	// Use new QEMU driver if enabled.
 	if d.useNewDrv {
@@ -527,7 +556,11 @@ func (d *qemuDriver) VMStatus(id string) (exists, running bool) {
 //nolint:gocognit
 func (d *qemuDriver) ConsoleURL(id string, _ time.Duration) (string, error) {
 	// Sanitize id to prevent path traversal.
-	id = filepath.Base(id)
+	var err error
+	id, err = validateVMID(id)
+	if err != nil {
+		return "", err
+	}
 
 	// Try to query QMP socket for the real VNC port using human-monitor-command 'info vnc'
 	qmpPath := filepath.Join(d.runDir, id+".qmp")

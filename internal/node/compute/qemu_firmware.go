@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"go.uber.org/zap"
 )
@@ -74,6 +75,9 @@ func (m *QEMUManager) prepareTPM(tpmDir string) error {
 // cleanupTPM stops swtpm process.
 func (m *QEMUManager) cleanupTPM(tpmDir string) error {
 	tpmDir = filepath.Clean(tpmDir)
+	if strings.Contains(tpmDir, "..") {
+		return fmt.Errorf("invalid tpm directory path")
+	}
 	pidPath := filepath.Join(tpmDir, "swtpm.pid")
 
 	data, err := os.ReadFile(pidPath) // #nosec
@@ -104,6 +108,9 @@ func (m *QEMUManager) cleanupTPM(tpmDir string) error {
 func copyFile(src, dst string) error {
 	src = filepath.Clean(src)
 	dst = filepath.Clean(dst)
+	if strings.Contains(src, "..") || strings.Contains(dst, "..") {
+		return fmt.Errorf("invalid file path")
+	}
 	input, err := os.ReadFile(src) // #nosec
 	if err != nil {
 		return fmt.Errorf("read source: %w", err)

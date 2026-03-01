@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -120,6 +121,11 @@ func (s *QEMUConfigStore) Save(config *QEMUConfig) error {
 
 // Load loads VM configuration from disk.
 func (s *QEMUConfigStore) Load(id string) (*QEMUConfig, error) {
+	// Validate id to prevent path traversal.
+	if strings.Contains(id, "..") || strings.ContainsAny(id, "/\\") {
+		return nil, fmt.Errorf("invalid VM id")
+	}
+
 	s.mu.RLock()
 	if cached, ok := s.cache[id]; ok {
 		s.mu.RUnlock()
@@ -150,6 +156,11 @@ func (s *QEMUConfigStore) Load(id string) (*QEMUConfig, error) {
 
 // Delete deletes VM configuration from disk.
 func (s *QEMUConfigStore) Delete(id string) error {
+	// Validate id to prevent path traversal.
+	if strings.Contains(id, "..") || strings.ContainsAny(id, "/\\") {
+		return fmt.Errorf("invalid VM id")
+	}
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 

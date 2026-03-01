@@ -2,6 +2,7 @@ package gateway
 
 import (
 	"crypto/rand"
+	"crypto/subtle"
 	"encoding/hex"
 	"fmt"
 	"io"
@@ -19,6 +20,46 @@ import (
 
 	"github.com/Veritas-Calculus/vc-stack/pkg/models"
 )
+
+// hostKeyStore implements Trust-On-First-Use (TOFU) SSH host key verification
+// for dynamically created VMs. On first connection the host key is stored;
+// subsequent connections verify the key matches the stored one.
+type hostKeyStore struct {
+	mu   sync.RWMutex
+	keys map[string][]byte // host -> marshaled public key
+}
+
+var globalHostKeyStore = &hostKeyStore{keys: make(map[string][]byte)}
+
+// verify implements ssh.HostKeyCallback with TOFU semantics.
+func (s *hostKeyStore) verify(hostname string, _ net.Addr, key ssh.PublicKey) error {
+	marshaledKey := key.Marshal()
+	s.mu.RLock()
+	stored, exists := s.keys[hostname]
+	s.mu.RUnlock()
+
+	if !exists {
+		// First connection: store the key (Trust On First Use).
+		s.mu.Lock()
+		// Double-check after acquiring write lock.
+		if prev, ok := s.keys[hostname]; ok {
+			s.mu.Unlock()
+			if subtle.ConstantTimeCompare(prev, marshaledKey) != 1 {
+				return fmt.Errorf("host key mismatch for %s (TOFU)", hostname)
+			}
+			return nil
+		}
+		s.keys[hostname] = marshaledKey
+		s.mu.Unlock()
+		return nil
+	}
+
+	// Subsequent connection: verify the key matches.
+	if subtle.ConstantTimeCompare(stored, marshaledKey) != 1 {
+		return fmt.Errorf("host key mismatch for %s", hostname)
+	}
+	return nil
+}
 
 // sessionRecorder records SSH session for audit and replay.
 type sessionRecorder struct {
@@ -229,17 +270,10 @@ func (s *Service) webShellHandler(c *gin.Context) {
 	// Create SSH client config.
 	config := &ssh.ClientConfig{
 		User: req.User,
-		// Use a logging host key callback for dynamic VM connections.
-		// VMs are dynamically created so there is no known_hosts to verify against.
-		HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
-			s.logger.Debug("SSH host key accepted for dynamic VM",
-				zap.String("hostname", hostname),
-				zap.String("remote", remote.String()),
-				zap.String("key_type", key.Type()))
-			return nil
-		},
-		Timeout:       15 * time.Second,
-		ClientVersion: "SSH-2.0-OpenSSH_8.0", // Improve compatibility
+		// Trust-On-First-Use host key verification for dynamic VM connections.
+		HostKeyCallback: globalHostKeyStore.verify,
+		Timeout:         15 * time.Second,
+		ClientVersion:   "SSH-2.0-OpenSSH_8.0", // Improve compatibility
 	}
 
 	// Set auth method.

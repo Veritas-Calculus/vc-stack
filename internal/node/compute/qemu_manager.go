@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -278,6 +279,9 @@ func (m *QEMUManager) StopVM(ctx context.Context, id string, force bool) error {
 func (m *QEMUManager) DeleteVM(ctx context.Context, id string) error {
 	// Sanitize id to prevent path traversal.
 	id = filepath.Base(id)
+	if strings.Contains(id, "..") || id == "." || id == "" {
+		return fmt.Errorf("invalid VM id")
+	}
 
 	config, err := m.configStore.Load(id)
 	if err != nil {

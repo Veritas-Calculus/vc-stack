@@ -23,6 +23,15 @@ type Driver struct {
 	templateStore *TemplateStore
 }
 
+// validateVMID checks that id is safe for use in file paths.
+func validateVMID(id string) (string, error) {
+	id = filepath.Base(id)
+	if id == "." || id == "" || strings.Contains(id, "..") || strings.ContainsAny(id, "/\\") {
+		return "", fmt.Errorf("invalid VM id")
+	}
+	return id, nil
+}
+
 // NewDriver creates a new QEMU driver instance.
 func NewDriver(logger *zap.Logger, runDir, configDir, templateDir string) (*Driver, error) {
 	if logger == nil {
@@ -136,7 +145,11 @@ func (d *Driver) CreateVM(ctx context.Context, cfg *VMConfig) error {
 // StopVM stops a running VM.
 func (d *Driver) StopVM(ctx context.Context, id string, force bool) error {
 	// Sanitize id to prevent path traversal.
-	id = filepath.Base(id)
+	var err error
+	id, err = validateVMID(id)
+	if err != nil {
+		return err
+	}
 
 	cfg, err := LoadConfig(filepath.Join(d.configDir, id+".json"))
 	if err != nil {
@@ -200,7 +213,11 @@ func (d *Driver) StopVM(ctx context.Context, id string, force bool) error {
 // DeleteVM deletes a VM and its configuration.
 func (d *Driver) DeleteVM(ctx context.Context, id string, force bool) error {
 	// Sanitize id to prevent path traversal.
-	id = filepath.Base(id)
+	var err error
+	id, err = validateVMID(id)
+	if err != nil {
+		return err
+	}
 
 	// Stop if running.
 	if running, err := d.IsRunning(id); err == nil && running {
@@ -230,7 +247,11 @@ func (d *Driver) DeleteVM(ctx context.Context, id string, force bool) error {
 // StartVM starts a stopped VM.
 func (d *Driver) StartVM(ctx context.Context, id string) error {
 	// Sanitize id to prevent path traversal.
-	id = filepath.Base(id)
+	var err error
+	id, err = validateVMID(id)
+	if err != nil {
+		return err
+	}
 
 	cfg, err := LoadConfig(filepath.Join(d.configDir, id+".json"))
 	if err != nil {
@@ -247,6 +268,13 @@ func (d *Driver) StartVM(ctx context.Context, id string) error {
 
 // RebootVM reboots a VM.
 func (d *Driver) RebootVM(ctx context.Context, id string, force bool) error {
+	// Sanitize id to prevent path traversal.
+	var err error
+	id, err = validateVMID(id)
+	if err != nil {
+		return err
+	}
+
 	cfg, err := LoadConfig(filepath.Join(d.configDir, id+".json"))
 	if err != nil {
 		return fmt.Errorf("load config: %w", err)
@@ -267,6 +295,13 @@ func (d *Driver) RebootVM(ctx context.Context, id string, force bool) error {
 
 // IsRunning checks if a VM is running.
 func (d *Driver) IsRunning(id string) (bool, error) {
+	// Sanitize id to prevent path traversal.
+	var err error
+	id, err = validateVMID(id)
+	if err != nil {
+		return false, err
+	}
+
 	pid, err := d.readPID(id)
 	if err != nil {
 		return false, nil
@@ -284,11 +319,23 @@ func (d *Driver) IsRunning(id string) (bool, error) {
 
 // GetConfig returns the VM configuration.
 func (d *Driver) GetConfig(id string) (*VMConfig, error) {
+	// Sanitize id to prevent path traversal.
+	var err error
+	id, err = validateVMID(id)
+	if err != nil {
+		return nil, err
+	}
 	return LoadConfig(filepath.Join(d.configDir, id+".json"))
 }
 
 // UpdateConfig updates VM configuration (requires restart).
 func (d *Driver) UpdateConfig(id string, cfg *VMConfig) error {
+	// Sanitize id to prevent path traversal.
+	var err2 error
+	id, err2 = validateVMID(id)
+	if err2 != nil {
+		return err2
+	}
 	cfg.ID = id
 	cfg.ConfigFile = filepath.Join(d.configDir, id+".json")
 	return cfg.SaveConfig(cfg.ConfigFile)
@@ -385,7 +432,11 @@ func (d *Driver) cleanupNetworking(cfg *VMConfig) {
 // readPID reads the PID from the PID file.
 func (d *Driver) readPID(id string) (int, error) {
 	// Sanitize id to prevent path traversal.
-	id = filepath.Base(id)
+	var err error
+	id, err = validateVMID(id)
+	if err != nil {
+		return 0, err
+	}
 
 	pidPath := filepath.Join(d.runDir, id+".pid")
 	data, err := os.ReadFile(pidPath) // #nosec
