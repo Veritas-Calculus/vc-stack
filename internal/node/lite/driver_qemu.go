@@ -369,6 +369,9 @@ func (d *qemuDriver) createVMNew(req CreateVMRequest) (*VM, error) {
 }
 
 func (d *qemuDriver) DeleteVM(id string, force bool) error {
+	// Sanitize id to prevent path traversal.
+	id = filepath.Base(id)
+
 	// Use new QEMU driver if enabled.
 	if d.useNewDrv {
 		ctx := context.Background()
@@ -428,6 +431,9 @@ func (d *qemuDriver) DeleteVM(id string, force bool) error {
 }
 
 func (d *qemuDriver) StartVM(id string) error {
+	// Sanitize id to prevent path traversal.
+	id = filepath.Base(id)
+
 	// Use new QEMU driver if enabled.
 	if d.useNewDrv {
 		ctx := context.Background()
@@ -440,6 +446,9 @@ func (d *qemuDriver) StartVM(id string) error {
 }
 
 func (d *qemuDriver) StopVM(id string, force bool) error {
+	// Sanitize id to prevent path traversal.
+	id = filepath.Base(id)
+
 	// Use new QEMU driver if enabled.
 	if d.useNewDrv {
 		ctx := context.Background()
@@ -459,6 +468,9 @@ func (d *qemuDriver) StopVM(id string, force bool) error {
 }
 
 func (d *qemuDriver) RebootVM(id string, force bool) error {
+	// Sanitize id to prevent path traversal.
+	id = filepath.Base(id)
+
 	// Use new QEMU driver if enabled.
 	if d.useNewDrv {
 		ctx := context.Background()
@@ -477,6 +489,9 @@ func (d *qemuDriver) RebootVM(id string, force bool) error {
 }
 
 func (d *qemuDriver) VMStatus(id string) (exists, running bool) {
+	// Sanitize id to prevent path traversal.
+	id = filepath.Base(id)
+
 	// Use new QEMU driver if enabled.
 	if d.useNewDrv {
 		isRunning, err := d.qemuDrv.IsRunning(id)
@@ -511,6 +526,9 @@ func (d *qemuDriver) VMStatus(id string) (exists, running bool) {
 
 //nolint:gocognit
 func (d *qemuDriver) ConsoleURL(id string, _ time.Duration) (string, error) {
+	// Sanitize id to prevent path traversal.
+	id = filepath.Base(id)
+
 	// Try to query QMP socket for the real VNC port using human-monitor-command 'info vnc'
 	qmpPath := filepath.Join(d.runDir, id+".qmp")
 	// Prefer a cached VNC address in metadata.

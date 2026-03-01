@@ -220,6 +220,8 @@ func (s *QEMUConfigStore) UpdatePID(id string, pid int) error {
 
 // getConfigPath returns path to configuration file.
 func (s *QEMUConfigStore) getConfigPath(id string) string {
+	// Sanitize id to prevent path traversal.
+	id = filepath.Base(id)
 	return filepath.Join(s.baseDir, fmt.Sprintf("%s.json", id))
 }
 

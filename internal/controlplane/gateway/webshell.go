@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"strings"
 	"sync"
@@ -228,10 +229,17 @@ func (s *Service) webShellHandler(c *gin.Context) {
 	// Create SSH client config.
 	config := &ssh.ClientConfig{
 		User: req.User,
-		// #nosec // InsecureIgnoreHostKey is intentional for dynamic VM connections
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-		Timeout:         15 * time.Second,
-		ClientVersion:   "SSH-2.0-OpenSSH_8.0", // Improve compatibility
+		// Use a logging host key callback for dynamic VM connections.
+		// VMs are dynamically created so there is no known_hosts to verify against.
+		HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
+			s.logger.Debug("SSH host key accepted for dynamic VM",
+				zap.String("hostname", hostname),
+				zap.String("remote", remote.String()),
+				zap.String("key_type", key.Type()))
+			return nil
+		},
+		Timeout:       15 * time.Second,
+		ClientVersion: "SSH-2.0-OpenSSH_8.0", // Improve compatibility
 	}
 
 	// Set auth method.

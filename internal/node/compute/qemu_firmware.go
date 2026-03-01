@@ -73,6 +73,7 @@ func (m *QEMUManager) prepareTPM(tpmDir string) error {
 
 // cleanupTPM stops swtpm process.
 func (m *QEMUManager) cleanupTPM(tpmDir string) error {
+	tpmDir = filepath.Clean(tpmDir)
 	pidPath := filepath.Join(tpmDir, "swtpm.pid")
 
 	data, err := os.ReadFile(pidPath) // #nosec
@@ -101,6 +102,8 @@ func (m *QEMUManager) cleanupTPM(tpmDir string) error {
 
 // copyFile copies a file from src to dst.
 func copyFile(src, dst string) error {
+	src = filepath.Clean(src)
+	dst = filepath.Clean(dst)
 	input, err := os.ReadFile(src) // #nosec
 	if err != nil {
 		return fmt.Errorf("read source: %w", err)

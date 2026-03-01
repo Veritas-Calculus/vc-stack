@@ -276,6 +276,9 @@ func (m *QEMUManager) StopVM(ctx context.Context, id string, force bool) error {
 
 // DeleteVM deletes a VM and its resources.
 func (m *QEMUManager) DeleteVM(ctx context.Context, id string) error {
+	// Sanitize id to prevent path traversal.
+	id = filepath.Base(id)
+
 	config, err := m.configStore.Load(id)
 	if err != nil {
 		return err

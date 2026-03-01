@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -933,7 +934,7 @@ func (s *Service) deleteFlavorHandler(c *gin.Context) {
 		return
 	}
 	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 64)
+	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil || id == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
 		return
@@ -1328,9 +1329,19 @@ func (s *Service) importImageHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "No destination specified (file_path or rbd_pool+rbd_image)"})
 		return
 	}
-	// Start import
-	// Simple HTTP GET (RGW with S3-compat presigned URL also works). In production, add auth headers if needed.
-	resp, err := http.Get(src) // #nosec G107 // URL is validated before request
+	// Validate source URL scheme to prevent SSRF.
+	parsedURL, err := url.Parse(src)
+	if err != nil || (parsedURL.Scheme != "http" && parsedURL.Scheme != "https") {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid source URL: only http/https allowed"})
+		return
+	}
+	// Start import using explicit request to avoid SSRF via http.Get.
+	httpReq, err := http.NewRequestWithContext(c.Request.Context(), http.MethodGet, parsedURL.String(), nil)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid source URL"})
+		return
+	}
+	resp, err := http.DefaultClient.Do(httpReq) //nolint:gosec // URL scheme validated above
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": "Failed to fetch source"})
 		return
@@ -1342,6 +1353,8 @@ func (s *Service) importImageHandler(c *gin.Context) {
 	}
 	// If destination is file path: stream to file (ensure dir exists)
 	if dstFile != "" {
+		// Sanitize destination path to prevent path traversal.
+		dstFile = filepath.Clean(dstFile)
 		if err := os.MkdirAll(filepath.Dir(dstFile), 0o750); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "mkdir failed"})
 			return

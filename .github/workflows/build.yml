@@ -10,10 +10,15 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Build Services
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Check out code
@@ -68,6 +73,8 @@ jobs:
     name: Build Multi-Architecture
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: read
     strategy:
       matrix:
         include:

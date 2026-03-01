@@ -4,7 +4,9 @@ package monitoring
 import (
 	"context"
 	"net/http"
+	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -262,7 +264,15 @@ func (h *MonitoringHandlers) GenerateGoroutineFlameGraph(c *gin.Context) {
 // GetFlameGraph serves a flamegraph file.
 func (h *MonitoringHandlers) GetFlameGraph(c *gin.Context) {
 	filename := c.Param("filename")
-	c.File(filename)
+	// Sanitize filename to prevent path traversal.
+	filename = filepath.Base(filename)
+	if filename == "." || filename == "/" || strings.Contains(filename, "..") {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid filename"})
+		return
+	}
+	// Serve from the flamegraph output directory only.
+	safePath := filepath.Join(h.flameGraph.outputDir, filename)
+	c.File(safePath)
 }
 
 // AnalyzePerformance analyzes system performance and identifies issues.

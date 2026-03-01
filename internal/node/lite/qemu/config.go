@@ -477,6 +477,7 @@ func (c *VMConfig) SaveConfig(path string) error {
 
 // LoadConfig loads VM configuration from a JSON file.
 func LoadConfig(path string) (*VMConfig, error) {
+	path = filepath.Clean(path)
 	data, err := os.ReadFile(path) // #nosec
 	if err != nil {
 		return nil, fmt.Errorf("read config: %w", err)

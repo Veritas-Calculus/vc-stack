@@ -112,7 +112,7 @@ func (d *Driver) CreateVM(ctx context.Context, cfg *VMConfig) error {
 
 	d.logger.Info("starting qemu vm",
 		zap.String("id", cfg.ID),
-		zap.Strings("args", args))
+		zap.Int("args_count", len(args)))
 
 	if err := cmd.Start(); err != nil {
 		d.cleanupNetworking(cfg)
@@ -135,6 +135,9 @@ func (d *Driver) CreateVM(ctx context.Context, cfg *VMConfig) error {
 
 // StopVM stops a running VM.
 func (d *Driver) StopVM(ctx context.Context, id string, force bool) error {
+	// Sanitize id to prevent path traversal.
+	id = filepath.Base(id)
+
 	cfg, err := LoadConfig(filepath.Join(d.configDir, id+".json"))
 	if err != nil {
 		return fmt.Errorf("load config: %w", err)
@@ -196,6 +199,9 @@ func (d *Driver) StopVM(ctx context.Context, id string, force bool) error {
 
 // DeleteVM deletes a VM and its configuration.
 func (d *Driver) DeleteVM(ctx context.Context, id string, force bool) error {
+	// Sanitize id to prevent path traversal.
+	id = filepath.Base(id)
+
 	// Stop if running.
 	if running, err := d.IsRunning(id); err == nil && running {
 		if err := d.StopVM(ctx, id, force); err != nil {
@@ -223,6 +229,9 @@ func (d *Driver) DeleteVM(ctx context.Context, id string, force bool) error {
 
 // StartVM starts a stopped VM.
 func (d *Driver) StartVM(ctx context.Context, id string) error {
+	// Sanitize id to prevent path traversal.
+	id = filepath.Base(id)
+
 	cfg, err := LoadConfig(filepath.Join(d.configDir, id+".json"))
 	if err != nil {
 		return fmt.Errorf("load config: %w", err)
@@ -375,6 +384,9 @@ func (d *Driver) cleanupNetworking(cfg *VMConfig) {
 
 // readPID reads the PID from the PID file.
 func (d *Driver) readPID(id string) (int, error) {
+	// Sanitize id to prevent path traversal.
+	id = filepath.Base(id)
+
 	pidPath := filepath.Join(d.runDir, id+".pid")
 	data, err := os.ReadFile(pidPath) // #nosec
 	if err != nil {
