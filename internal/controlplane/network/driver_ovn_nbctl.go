@@ -78,7 +78,7 @@ func (d *OVNDriver) nbctlOutput(args ...string) (string, error) {
 
 // EnsureNetwork creates a logical switch and DHCP options.
 //
-//nolint:gocognit,gocyclo // Complex OVN network setup logic
+//nolint:gocyclo // Complex OVN network setup logic
 func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 	lsName := fmt.Sprintf("ls-%s", n.ID)
 	if err := d.nbctl("--may-exist", "ls-add", lsName); err != nil {

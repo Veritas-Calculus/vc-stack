@@ -279,8 +279,6 @@ func (s *Service) consoleTicket(c *gin.Context) {
 }
 
 // consoleWS upgrades to websocket and bridges traffic to the libvirt VNC TCP socket.
-//
-//nolint:gocognit
 func (s *Service) consoleWS(c *gin.Context) {
 	token := c.Query("token")
 	if token == "" {

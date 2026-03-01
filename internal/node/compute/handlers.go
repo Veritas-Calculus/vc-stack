@@ -287,8 +287,6 @@ func (s *Service) detachVolumeHandler(c *gin.Context) {
 }
 
 // listInstanceVolumesHandler returns volumes attached to an instance (by matching RBD pool/image)
-//
-//nolint:gocognit // Complex volume attachment checking logic
 func (s *Service) listInstanceVolumesHandler(c *gin.Context) {
 	userID := s.getUserIDFromContext(c)
 	if userID == 0 {
@@ -1453,7 +1451,7 @@ func (s *Service) registerImageHandler(c *gin.Context) {
 
 // listVolumesHandler handles listing volumes.
 //
-//nolint:gocognit,gocyclo // Complex volume listing with multiple sources
+//nolint:gocyclo // Complex volume listing with multiple sources
 func (s *Service) listVolumesHandler(c *gin.Context) {
 	userID := s.getUserIDFromContext(c)
 	if userID == 0 {

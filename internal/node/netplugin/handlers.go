@@ -245,7 +245,7 @@ func (s *Service) deletePort(c *gin.Context) {
 
 // configureDHCP handles POST /api/v1/dhcp.
 //
-//nolint:gocognit,gocyclo // Complex DHCP configuration logic
+//nolint:gocyclo // Complex DHCP configuration logic
 func (s *Service) configureDHCP(c *gin.Context) {
 	var req ConfigureDHCPRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

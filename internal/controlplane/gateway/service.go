@@ -461,7 +461,7 @@ func (s *Service) SetupComputeProxyRoutes(router *gin.Engine) {
 // topologyHandler aggregates network and compute resources into a single topology graph.
 // It calls underlying services with the same Authorization and X-Project-ID headers.
 //
-//nolint:gocognit,gocyclo // Complex topology aggregation logic
+//nolint:gocyclo // Complex topology aggregation logic
 func (s *Service) topologyHandler(c *gin.Context) {
 	tenantID := c.Query("tenant_id")
 	// Forward headers.
@@ -887,8 +887,6 @@ func (s *Service) metricsHandler(c *gin.Context) {
 
 // consoleWebSocketHandler handles WebSocket console requests with dynamic node routing.
 // URL format: /ws/console/{node_id}?token=xxx.
-//
-//nolint:gocognit
 func (s *Service) consoleWebSocketHandler(c *gin.Context) {
 	nodeID := c.Param("node_id")
 	token := c.Query("token")

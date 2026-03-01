@@ -142,7 +142,7 @@ type WebShellMessage struct {
 
 // webShellHandler handles WebSocket connections for SSH sessions.
 //
-//nolint:gocognit,gocyclo // Complex WebSocket SSH session handling
+//nolint:gocyclo // Complex WebSocket SSH session handling
 func (s *Service) webShellHandler(c *gin.Context) {
 	upgrader := websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {

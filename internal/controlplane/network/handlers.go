@@ -111,7 +111,7 @@ func (s *Service) listNetworks(c *gin.Context) {
 
 // createNetwork handles POST /api/v1/networks.
 //
-//nolint:gocognit,gocyclo // Complex network creation logic with multiple validations
+//nolint:gocyclo // Complex network creation logic with multiple validations
 func (s *Service) createNetwork(c *gin.Context) {
 	var req CreateNetworkRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -422,8 +422,6 @@ func (s *Service) getNetwork(c *gin.Context) {
 
 // diagnoseNetwork handles GET /api/v1/networks/:id/diagnose.
 // Returns DB info and best-effort OVN state for quick troubleshooting.
-//
-//nolint:gocognit
 func (s *Service) diagnoseNetwork(c *gin.Context) {
 	id := c.Param("id")
 
@@ -687,8 +685,6 @@ func (s *Service) updateNetwork(c *gin.Context) {
 }
 
 // deleteNetwork handles DELETE /api/v1/networks/:id.
-//
-//nolint:gocognit // Complex network deletion with cleanup logic
 func (s *Service) deleteNetwork(c *gin.Context) {
 	id := c.Param("id")
 
@@ -799,8 +795,6 @@ func (s *Service) deleteNetwork(c *gin.Context) {
 
 // restartNetwork handles POST /api/v1/networks/:id/restart.
 // It re-applies SDN state for the network and marks it active on success.
-//
-//nolint:gocognit // Complex network restart logic with state management
 func (s *Service) restartNetwork(c *gin.Context) {
 	id := c.Param("id")
 
