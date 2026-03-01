@@ -654,7 +654,7 @@ func (s *Service) CreateInstance(ctx context.Context, req *CreateInstanceRequest
 
 	// Launch the instance asynchronously (orchestrate to vc-lite if configured)
 	// IMPORTANT: do not use the request-scoped context here, it will be canceled after response returns.
-	go s.launchInstance(context.Background(), instance)
+	go s.launchInstance(context.Background(), instance) // #nosec G118
 
 	// Load relationships.
 	if err := s.db.Preload("Flavor").Preload("Image").First(instance, instance.ID).Error; err != nil {
@@ -858,7 +858,7 @@ func (s *Service) dispatchViaScheduler(ctx context.Context, inst *Instance) (str
 	// This allows for slower RBD operations during VM creation (e.g., large ISO export-import)
 	client := &http.Client{Timeout: 125 * time.Second}
 	s.logger.Info("scheduler dispatch request", zap.String("method", req.Method), zap.String("url", url))
-	resp, err := client.Do(req) //nolint:gosec
+	resp, err := client.Do(req) // #nosec
 	if err != nil {
 		s.logger.Error("scheduler dispatch http error", zap.String("url", url), zap.Error(err))
 		if u, perr := neturl.Parse(s.config.Orchestrator.SchedulerURL); perr == nil {
@@ -1014,7 +1014,7 @@ func (s *Service) scheduleNode(ctx context.Context, fl Flavor, requestedDiskGB i
 	req.Header.Set("Content-Type", "application/json")
 	client := &http.Client{Timeout: 6 * time.Second}
 	s.logger.Info("scheduler schedule request", zap.String("url", url))
-	resp, err := client.Do(req) //nolint:gosec
+	resp, err := client.Do(req) // #nosec
 	if err != nil {
 		s.logger.Error("scheduler schedule http error", zap.String("url", url), zap.Error(err))
 		return "", err
@@ -1046,7 +1046,7 @@ func (s *Service) lookupNodeAddress(ctx context.Context, nodeID string) (string,
 	req, _ := http.NewRequestWithContext(ctx, "GET", url, http.NoBody)
 	client := &http.Client{Timeout: 6 * time.Second}
 	s.logger.Info("scheduler nodes request", zap.String("url", url))
-	resp, err := client.Do(req) //nolint:gosec
+	resp, err := client.Do(req) // #nosec
 	if err != nil {
 		s.logger.Error("scheduler nodes http error", zap.String("url", url), zap.Error(err))
 		return "", err
@@ -1143,7 +1143,7 @@ func (s *Service) callLiteCreate(ctx context.Context, liteAddr string, inst *Ins
 	s.logger.Info("vc-lite create", zap.String("vm_id", inst.VMID), zap.String("lite", liteAddr))
 	req, _ := http.NewRequestWithContext(ctx, "POST", url, bytes.NewReader(b))
 	req.Header.Set("Content-Type", "application/json")
-	resp, err := http.DefaultClient.Do(req) //nolint:gosec
+	resp, err := http.DefaultClient.Do(req) // #nosec
 	if err != nil {
 		return "", err
 	}
@@ -1186,7 +1186,7 @@ func (s *Service) confirmLiteVM(parent context.Context, liteAddr, vmID string) b
 		ctx, cancel := context.WithTimeout(parent, 2*time.Second)
 		req, _ := http.NewRequestWithContext(ctx, "GET", url, http.NoBody)
 		s.logger.Info("confirmLiteVM attempt", zap.Int("attempt", i+1), zap.String("url", url))
-		resp, err := http.DefaultClient.Do(req) //nolint:gosec
+		resp, err := http.DefaultClient.Do(req) // #nosec
 		cancel()
 		if err != nil {
 			s.logger.Warn("confirmLiteVM http error", zap.Int("attempt", i+1), zap.String("url", url), zap.Error(err))
@@ -1217,7 +1217,7 @@ func (s *Service) createPortForInstance(ctx context.Context, netReq NetworkReque
 	// Query network details to get subnet_id.
 	subnetID := ""
 	networkURL := strings.TrimRight(base, "/") + "/api/v1/networks/" + netReq.UUID
-	netResp, err := http.Get(networkURL) //nolint:gosec
+	netResp, err := http.Get(networkURL) // #nosec
 
 	if err == nil {
 		defer func() { _ = netResp.Body.Close() }()
@@ -1259,9 +1259,9 @@ func (s *Service) createPortForInstance(ctx context.Context, netReq NetworkReque
 	}
 	b, _ := json.Marshal(body)
 	url := strings.TrimRight(base, "/") + "/api/v1/ports"
-	req, _ := http.NewRequestWithContext(ctx, "POST", url, bytes.NewReader(b))
+	req, _ := http.NewRequestWithContext(ctx, "POST", url, bytes.NewReader(b)) // #nosec
 	req.Header.Set("Content-Type", "application/json")
-	resp, err := http.DefaultClient.Do(req) //nolint:gosec
+	resp, err := http.DefaultClient.Do(req) // #nosec
 	if err != nil {
 		return "", "", err
 	}
@@ -1285,7 +1285,7 @@ func (s *Service) createPortForInstance(ctx context.Context, netReq NetworkReque
 func (s *Service) requestLiteConsole(ctx context.Context, liteAddr, vmID string) (string, error) {
 	url := strings.TrimRight(liteAddr, "/") + "/api/v1/vms/" + vmID + "/console"
 	req, _ := http.NewRequestWithContext(ctx, "POST", url, http.NoBody)
-	resp, err := http.DefaultClient.Do(req) //nolint:gosec
+	resp, err := http.DefaultClient.Do(req) // #nosec
 	if err != nil {
 		return "", err
 	}
@@ -1340,7 +1340,7 @@ func (s *Service) nodePowerOp(ctx context.Context, liteAddr, vmID, op string) er
 	path := "/api/v1/vms/" + vmID + "/" + op
 	url := strings.TrimRight(liteAddr, "/") + path
 	req, _ := http.NewRequestWithContext(ctx, "POST", url, http.NoBody)
-	resp, err := http.DefaultClient.Do(req) //nolint:gosec
+	resp, err := http.DefaultClient.Do(req) // #nosec
 	if err != nil {
 		return err
 	}
@@ -1356,7 +1356,7 @@ func (s *Service) queryVMStatus(ctx context.Context, liteAddr, vmID string) (pow
 	path := "/api/v1/vms/" + vmID
 	url := strings.TrimRight(liteAddr, "/") + path
 	req, _ := http.NewRequestWithContext(ctx, "GET", url, http.NoBody)
-	resp, err := http.DefaultClient.Do(req) //nolint:gosec
+	resp, err := http.DefaultClient.Do(req) // #nosec
 	if err != nil {
 		return "", err
 	}
@@ -1454,7 +1454,7 @@ func (s *Service) DeleteInstance(ctx context.Context, instanceID, userID uint) e
 func (s *Service) nodeDeleteVM(ctx context.Context, liteAddr, vmID string) error {
 	url := strings.TrimRight(liteAddr, "/") + "/api/v1/vms/" + vmID
 	req, _ := http.NewRequestWithContext(ctx, "DELETE", url, http.NoBody)
-	resp, err := http.DefaultClient.Do(req) //nolint:gosec
+	resp, err := http.DefaultClient.Do(req) // #nosec
 	if err != nil {
 		return err
 	}
@@ -1648,7 +1648,7 @@ func (s *Service) verifyVMDeletion(ctx context.Context, liteAddr, vmID string) b
 	url := strings.TrimRight(liteAddr, "/") + "/api/v1/vms/" + vmID
 	req, _ := http.NewRequestWithContext(ctx, "GET", url, http.NoBody)
 
-	resp, err := http.DefaultClient.Do(req) //nolint:gosec
+	resp, err := http.DefaultClient.Do(req) // #nosec
 	if err != nil {
 		// Network error, can't verify - assume not deleted.
 		s.logger.Warn("Verification failed due to network error", zap.Error(err))
@@ -1717,14 +1717,14 @@ func (s *Service) provisionFirecrackerRootDisk(ctx context.Context, instance *Fi
 		zap.String("dst", targetFull))
 
 	// Ensure source snapshot exists and is protected.
-	snapCreate := exec.CommandContext(ctx, "rbd", s.rbdArgs("images", "snap", "create", fmt.Sprintf("%s/%s@%s", srcPool, srcImage, srcSnap))...) //nolint:gosec
+	snapCreate := exec.CommandContext(ctx, "rbd", s.rbdArgs("images", "snap", "create", fmt.Sprintf("%s/%s@%s", srcPool, srcImage, srcSnap))...) // #nosec
 	_ = snapCreate.Run()                                                                                                                         // ignore error if snapshot already exists
 
-	snapProtect := exec.CommandContext(ctx, "rbd", s.rbdArgs("images", "snap", "protect", srcFull)...) //nolint:gosec
+	snapProtect := exec.CommandContext(ctx, "rbd", s.rbdArgs("images", "snap", "protect", srcFull)...) // #nosec
 	_ = snapProtect.Run()                                                                              // ignore error if already protected
 
 	// Clone image to target pool.
-	cloneCmd := exec.CommandContext(ctx, "rbd", s.rbdArgs("volumes", "clone", srcFull, targetFull)...) //nolint:gosec
+	cloneCmd := exec.CommandContext(ctx, "rbd", s.rbdArgs("volumes", "clone", srcFull, targetFull)...) // #nosec
 	if out, err := cloneCmd.CombinedOutput(); err != nil {
 		return "", "", fmt.Errorf("rbd clone failed: %v: %s", err, string(out))
 	}
@@ -1732,7 +1732,7 @@ func (s *Service) provisionFirecrackerRootDisk(ctx context.Context, instance *Fi
 	// Resize if needed.
 	if instance.DiskGB > 0 {
 		sizeBytes := instance.DiskGB * 1024                                                                                                  // Convert GB to MB for rbd resize
-		resizeCmd := exec.CommandContext(ctx, "rbd", s.rbdArgs("volumes", "resize", targetFull, "--size", fmt.Sprintf("%dM", sizeBytes))...) //nolint:gosec
+		resizeCmd := exec.CommandContext(ctx, "rbd", s.rbdArgs("volumes", "resize", targetFull, "--size", fmt.Sprintf("%dM", sizeBytes))...) // #nosec
 		_ = resizeCmd.Run()                                                                                                                  // best-effort
 	}
 
@@ -1746,7 +1746,7 @@ func (s *Service) mapFirecrackerRBD(ctx context.Context, pool, image string) (st
 
 	s.logger.Info("Mapping RBD device", zap.String("rbd", rbdName))
 
-	mapCmd := exec.CommandContext(ctx, "rbd", s.rbdArgs("volumes", "map", rbdName)...) //nolint:gosec
+	mapCmd := exec.CommandContext(ctx, "rbd", s.rbdArgs("volumes", "map", rbdName)...) // #nosec
 	out, err := mapCmd.CombinedOutput()
 	if err != nil {
 		return "", fmt.Errorf("rbd map failed: %v: %s", err, string(out))
@@ -1763,7 +1763,7 @@ func (s *Service) unmapFirecrackerRBD(ctx context.Context, pool, image string) e
 
 	s.logger.Info("Unmapping RBD device", zap.String("rbd", rbdName))
 
-	unmapCmd := exec.CommandContext(ctx, "rbd", s.rbdArgs("volumes", "unmap", rbdName)...)
+	unmapCmd := exec.CommandContext(ctx, "rbd", s.rbdArgs("volumes", "unmap", rbdName)...) // #nosec G204
 	if out, err := unmapCmd.CombinedOutput(); err != nil {
 		s.logger.Warn("Failed to unmap RBD device", zap.String("rbd", rbdName), zap.Error(err), zap.String("output", string(out)))
 		return fmt.Errorf("rbd unmap failed: %v: %s", err, string(out))
@@ -1895,7 +1895,7 @@ func (s *Service) launchFirecrackerVM(ctx context.Context, instance *Firecracker
 	}
 
 	// Start Firecracker process.
-	cmd := exec.CommandContext(ctx, s.config.Firecracker.BinaryPath,
+	cmd := exec.CommandContext(ctx, s.config.Firecracker.BinaryPath, // #nosec G204
 		"--api-sock", socketPath,
 		"--config-file", "/dev/stdin")
 	cmd.Stdin = bytes.NewReader(configJSON)
@@ -1914,7 +1914,7 @@ func (s *Service) launchFirecrackerVM(ctx context.Context, instance *Firecracker
 		if needsRBDCleanup && instance.RBDPool != "" && instance.RBDImage != "" {
 			_ = s.unmapFirecrackerRBD(ctx, instance.RBDPool, instance.RBDImage)
 			// Remove the cloned volume.
-			rbdRm := exec.CommandContext(ctx, "rbd", s.rbdArgs("volumes", "rm", fmt.Sprintf("%s/%s", instance.RBDPool, instance.RBDImage))...)
+			rbdRm := exec.CommandContext(ctx, "rbd", s.rbdArgs("volumes", "rm", fmt.Sprintf("%s/%s", instance.RBDPool, instance.RBDImage))...) // #nosec G204
 			if err := rbdRm.Run(); err == nil {
 				// Also remove DB record if present.
 				_ = s.db.Where("rbd_pool = ? AND rbd_image = ?", instance.RBDPool, instance.RBDImage).Delete(&Volume{}).Error
@@ -1977,7 +1977,7 @@ func (s *Service) stopFirecrackerVM(ctx context.Context, instance *FirecrackerIn
 		req, _ := http.NewRequestWithContext(ctx, "PUT", shutdownURL, bytes.NewReader(payloadBytes))
 		req.Header.Set("Content-Type", "application/json")
 
-		resp, _ := http.DefaultClient.Do(req) //nolint:gosec
+		resp, _ := http.DefaultClient.Do(req) // #nosec
 		if resp != nil {
 			_ = resp.Body.Close()
 		}

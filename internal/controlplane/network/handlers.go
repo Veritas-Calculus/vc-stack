@@ -262,7 +262,7 @@ func (s *Service) createNetwork(c *gin.Context) {
 					numHosts := (1 << hostBits) - 2
 					endIP := make(net.IP, len(v4))
 					copy(endIP, v4)
-					endIP[3] += byte(numHosts) //nolint:gosec
+					endIP[3] += byte(numHosts) // #nosec
 					allocEnd = endIP.String()
 				}
 			}

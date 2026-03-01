@@ -107,7 +107,7 @@ func (d *Driver) CreateVM(ctx context.Context, cfg *VMConfig) error {
 	args := cfg.BuildArgs()
 
 	// Start QEMU process.
-	cmd := exec.CommandContext(ctx, "qemu-system-x86_64", args...) //nolint:gosec
+	cmd := exec.CommandContext(ctx, "qemu-system-x86_64", args...) // #nosec
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 
 	d.logger.Info("starting qemu vm",
@@ -317,12 +317,12 @@ func (d *Driver) setupNetworking(cfg *VMConfig) error {
 		}
 
 		// Create tap device.
-		if err := exec.Command("ip", "tuntap", "add", "dev", tapDev, "mode", "tap").Run(); err != nil { //nolint:gosec
+		if err := exec.Command("ip", "tuntap", "add", "dev", tapDev, "mode", "tap").Run(); err != nil { // #nosec
 			d.logger.Warn("create tap failed", zap.String("dev", tapDev), zap.Error(err))
 		}
 
 		// Bring up.
-		if err := exec.Command("ip", "link", "set", tapDev, "up").Run(); err != nil { //nolint:gosec
+		if err := exec.Command("ip", "link", "set", tapDev, "up").Run(); err != nil { // #nosec
 			d.logger.Warn("bring tap up failed", zap.String("dev", tapDev), zap.Error(err))
 		}
 
@@ -332,7 +332,7 @@ func (d *Driver) setupNetworking(cfg *VMConfig) error {
 			bridge = "br-int"
 		}
 
-		if err := exec.Command("ovs-vsctl", "--may-exist", "add-port", bridge, tapDev).Run(); err != nil {
+		if err := exec.Command("ovs-vsctl", "--may-exist", "add-port", bridge, tapDev).Run(); err != nil { // #nosec G204
 			d.logger.Warn("add tap to bridge failed",
 				zap.String("dev", tapDev),
 				zap.String("bridge", bridge),
@@ -343,7 +343,7 @@ func (d *Driver) setupNetworking(cfg *VMConfig) error {
 		if nic.PortID != "" {
 			ifaceID := fmt.Sprintf("lsp-%s", nic.PortID)
 			cmd := exec.Command("ovs-vsctl", "set", "Interface", tapDev,
-				fmt.Sprintf("external_ids:iface-id=%s", ifaceID))
+				fmt.Sprintf("external_ids:iface-id=%s", ifaceID)) // #nosec G204
 			if err := cmd.Run(); err != nil {
 				d.logger.Warn("set ovs interface id failed",
 					zap.String("dev", tapDev),
@@ -368,15 +368,15 @@ func (d *Driver) cleanupNetworking(cfg *VMConfig) {
 			bridge = "br-int"
 		}
 
-		_ = exec.Command("ovs-vsctl", "--if-exists", "del-port", bridge, nic.TapDev).Run() //nolint:gosec
-		_ = exec.Command("ip", "link", "delete", nic.TapDev, "type", "tap").Run()          //nolint:gosec
+		_ = exec.Command("ovs-vsctl", "--if-exists", "del-port", bridge, nic.TapDev).Run() // #nosec
+		_ = exec.Command("ip", "link", "delete", nic.TapDev, "type", "tap").Run()          // #nosec
 	}
 }
 
 // readPID reads the PID from the PID file.
 func (d *Driver) readPID(id string) (int, error) {
 	pidPath := filepath.Join(d.runDir, id+".pid")
-	data, err := os.ReadFile(pidPath) //nolint:gosec
+	data, err := os.ReadFile(pidPath) // #nosec
 	if err != nil {
 		return 0, fmt.Errorf("read pid file: %w", err)
 	}
@@ -455,7 +455,7 @@ func connectUnixSocket(path string, timeout time.Duration) (*os.File, error) {
 
 		sa := &syscall.SockaddrUnix{Name: path}
 		if err := syscall.Connect(fd, sa); err == nil {
-			return os.NewFile(uintptr(fd), path), nil //nolint:gosec
+			return os.NewFile(uintptr(fd), path), nil // #nosec
 		}
 
 		_ = syscall.Close(fd)
@@ -499,7 +499,7 @@ func (d *Driver) setupTPM(ctx context.Context, cfg *VMConfig) error {
 		"--pidfile", pidPath,
 	}
 
-	cmd := exec.CommandContext(ctx, "swtpm", args...) //nolint:gosec
+	cmd := exec.CommandContext(ctx, "swtpm", args...) // #nosec
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("start swtpm: %w", err)
 	}
@@ -522,7 +522,7 @@ func (d *Driver) stopTPM(cfg *VMConfig) error {
 	}
 
 	pidPath := filepath.Join(d.runDir, cfg.ID+"-swtpm.pid")
-	data, err := os.ReadFile(pidPath) //nolint:gosec
+	data, err := os.ReadFile(pidPath) // #nosec
 	if err != nil {
 		return nil // Not running or no pid file
 	}

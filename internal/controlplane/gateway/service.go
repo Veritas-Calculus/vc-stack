@@ -248,7 +248,7 @@ func (s *Service) checkServicesHealth() {
 			continue
 		}
 
-		resp, err := http.DefaultClient.Do(req) //nolint:gosec
+		resp, err := http.DefaultClient.Do(req) // #nosec
 		if err != nil || resp.StatusCode != http.StatusOK {
 			if proxy.HealthOK {
 				s.logger.Warn("Service health check failed",
@@ -499,7 +499,7 @@ func (s *Service) topologyHandler(c *gin.Context) {
 		if tenantID != "" {
 			req.Header.Set("X-Project-ID", tenantID)
 		}
-		resp, err := http.DefaultClient.Do(req) //nolint:gosec
+		resp, err := http.DefaultClient.Do(req) // #nosec
 		if err != nil {
 			return httpGetResult{nil, http.StatusBadGateway, err}
 		}
@@ -875,7 +875,7 @@ func (s *Service) proxyHandler(serviceName string) gin.HandlerFunc {
 		c.Request.Header.Set("X-Forwarded-For", c.ClientIP())
 		c.Request.Header.Set("X-Forwarded-Proto", "http")
 
-		proxy.Proxy.ServeHTTP(c.Writer, c.Request) //nolint:gosec
+		proxy.Proxy.ServeHTTP(c.Writer, c.Request) // #nosec
 	}
 }
 
@@ -1029,7 +1029,7 @@ func (s *Service) lookupNodeAddress(ctx context.Context, nodeID string) (string,
 		return "", err
 	}
 
-	resp, err := http.DefaultClient.Do(req) //nolint:gosec
+	resp, err := http.DefaultClient.Do(req) // #nosec
 	if err != nil {
 		return "", fmt.Errorf("scheduler request failed: %w", err)
 	}

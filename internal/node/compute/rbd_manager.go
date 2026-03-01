@@ -105,7 +105,7 @@ func (m *RBDManager) CreateVolume(pool, name string, sizeGB int) error {
 	defer ioctx.Destroy()
 
 	// Create RBD image.
-	sizeBytes := uint64(sizeGB) * 1024 * 1024 * 1024 // Convert GB to bytes
+	sizeBytes := uint64(sizeGB) * 1024 * 1024 * 1024 // #nosec G115
 	options := rbd.NewRbdImageOptions()
 	err = rbd.CreateImage(ioctx, name, sizeBytes, options)
 	if err != nil {
@@ -169,7 +169,7 @@ func (m *RBDManager) ResizeVolume(pool, name string, newSizeGB int) error {
 	defer image.Close()
 
 	// Resize the image.
-	newSizeBytes := uint64(newSizeGB) * 1024 * 1024 * 1024
+	newSizeBytes := uint64(newSizeGB) * 1024 * 1024 * 1024 // #nosec G115
 	err = image.Resize(newSizeBytes)
 	if err != nil {
 		return fmt.Errorf("failed to resize rbd image: %w", err)

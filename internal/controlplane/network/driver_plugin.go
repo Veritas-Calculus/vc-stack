@@ -79,7 +79,7 @@ func (d *PluginDriver) EnsureNetwork(n *Network, s *Subnet) error {
 						numHosts := (1 << hostBits) - 2
 						endIP := make(net.IP, 4)
 						copy(endIP, ip)
-						endIP[3] += byte(numHosts) //nolint:gosec
+						endIP[3] += byte(numHosts) // #nosec
 						s.AllocationEnd = endIP.String()
 					}
 				}
@@ -129,7 +129,7 @@ func (d *PluginDriver) DeleteNetwork(n *Network) error {
 		return err
 	}
 
-	resp, err := d.client.Do(req) //nolint:gosec
+	resp, err := d.client.Do(req) // #nosec
 	if err != nil {
 		return fmt.Errorf("failed to delete network: %w", err)
 	}
@@ -178,7 +178,7 @@ func (d *PluginDriver) DeletePort(n *Network, p *NetworkPort) error {
 		return err
 	}
 
-	resp, err := d.client.Do(req) //nolint:gosec
+	resp, err := d.client.Do(req) // #nosec
 	if err != nil {
 		return fmt.Errorf("failed to delete port: %w", err)
 	}
@@ -204,7 +204,7 @@ func (d *PluginDriver) DeleteRouter(name string) error {
 	if err != nil {
 		return err
 	}
-	resp, err := d.client.Do(req) //nolint:gosec
+	resp, err := d.client.Do(req) // #nosec
 	if err != nil {
 		return fmt.Errorf("HTTP request failed: %w", err)
 	}
@@ -328,7 +328,7 @@ func (d *PluginDriver) post(path string, payload interface{}) error {
 	url := d.cfg.Endpoint + path
 	d.logger.Debug("POST to plugin", zap.String("url", url), zap.String("payload", string(data)))
 
-	resp, err := d.client.Post(url, "application/json", bytes.NewReader(data)) //nolint:gosec
+	resp, err := d.client.Post(url, "application/json", bytes.NewReader(data)) // #nosec
 	if err != nil {
 		return fmt.Errorf("HTTP request failed: %w", err)
 	}

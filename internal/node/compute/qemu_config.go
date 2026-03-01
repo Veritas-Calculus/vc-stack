@@ -128,7 +128,7 @@ func (s *QEMUConfigStore) Load(id string) (*QEMUConfig, error) {
 	s.mu.RUnlock()
 
 	configPath := s.getConfigPath(id)
-	data, err := os.ReadFile(configPath) //nolint:gosec
+	data, err := os.ReadFile(configPath) // #nosec
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, fmt.Errorf("VM config not found: %s", id)

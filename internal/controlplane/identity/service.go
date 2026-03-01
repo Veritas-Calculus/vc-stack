@@ -61,7 +61,7 @@ type Config struct {
 
 // JWTConfig represents JWT configuration.
 type JWTConfig struct {
-	Secret           string //nolint:gosec // This is a configuration field, not a hardcoded secret
+	Secret           string // #nosec // This is a configuration field, not a hardcoded secret
 	ExpiresIn        time.Duration
 	RefreshExpiresIn time.Duration
 }
@@ -178,7 +178,7 @@ type IdentityProvider struct {
 	Type          string    `gorm:"not null" json:"type"` // oidc, saml
 	Issuer        string    `json:"issuer"`
 	ClientID      string    `json:"client_id"`
-	ClientSecret  string    `gorm:"not null" json:"client_secret"` //nolint:gosec // This is a configuration field
+	ClientSecret  string    `gorm:"not null" json:"client_secret"` // #nosec // This is a configuration field
 	AuthEndpoint  string    `json:"authorization_endpoint"`
 	TokenEndpoint string    `json:"token_endpoint"`
 	JWKSURI       string    `json:"jwks_uri"`
@@ -200,13 +200,13 @@ type RefreshToken struct {
 // LoginRequest represents a login request.
 type LoginRequest struct {
 	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"` //nolint:gosec // This is a password field in a request struct
+	Password string `json:"password" binding:"required"` // #nosec // This is a password field in a request struct
 }
 
 // LoginResponse represents a login response.
 type LoginResponse struct {
-	AccessToken  string `json:"access_token"`  //nolint:gosec // This is a token, not a hardcoded secret
-	RefreshToken string `json:"refresh_token"` //nolint:gosec // This is a token, not a hardcoded secret
+	AccessToken  string `json:"access_token"`  // #nosec // This is a token, not a hardcoded secret
+	RefreshToken string `json:"refresh_token"` // #nosec // This is a token, not a hardcoded secret
 	ExpiresIn    int64  `json:"expires_in"`
 	TokenType    string `json:"token_type"`
 	User         *User  `json:"user"`

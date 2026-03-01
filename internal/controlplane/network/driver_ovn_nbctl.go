@@ -55,7 +55,7 @@ func (d *OVNDriver) nbctl(args ...string) error {
 		args = append([]string{"--db", d.cfg.NBAddress}, args...)
 	}
 	d.logger.Debug("ovn-nbctl", zap.Strings("args", args))
-	cmd := exec.Command("ovn-nbctl", args...) //nolint:gosec
+	cmd := exec.Command("ovn-nbctl", args...) // #nosec
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("ovn-nbctl %s failed: %v, out=%s", strings.Join(args, " "), err, string(out))
@@ -68,7 +68,7 @@ func (d *OVNDriver) nbctlOutput(args ...string) (string, error) {
 		args = append([]string{"--db", d.cfg.NBAddress}, args...)
 	}
 	d.logger.Debug("ovn-nbctl", zap.Strings("args", args))
-	cmd := exec.Command("ovn-nbctl", args...) //nolint:gosec
+	cmd := exec.Command("ovn-nbctl", args...) // #nosec
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", fmt.Errorf("ovn-nbctl %s failed: %v, out=%s", strings.Join(args, " "), err, string(out))
@@ -142,7 +142,7 @@ func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 					numHosts := (1 << hostBits) - 2
 					endIP := make(net.IP, 4)
 					copy(endIP, ip)
-					endIP[3] += byte(numHosts) //nolint:gosec // numHosts is limited to small subnet sizes
+					endIP[3] += byte(numHosts) // #nosec // numHosts is limited to small subnet sizes
 					allocationEnd = endIP.String()
 					s.AllocationEnd = allocationEnd
 				}

@@ -89,7 +89,7 @@ type VNCConfig struct {
 	Enabled  bool   `json:"enabled"`
 	Display  int    `json:"display"`  // display number (5900 + display)
 	Listen   string `json:"listen"`   // 0.0.0.0, ::, localhost
-	Password string `json:"password"` //nolint:gosec // vnc password (max 8 chars)
+	Password string `json:"password"` // #nosec // vnc password (max 8 chars)
 	TLS      bool   `json:"tls"`
 }
 
@@ -98,7 +98,7 @@ type SpiceConfig struct {
 	Enabled  bool   `json:"enabled"`
 	Port     int    `json:"port"`
 	Listen   string `json:"listen"`
-	Password string `json:"password"` //nolint:gosec
+	Password string `json:"password"` // #nosec
 	TLS      bool   `json:"tls"`
 	TLSPort  int    `json:"tls_port"`
 }
@@ -354,12 +354,12 @@ func (d *DiskConfig) BuildArgs() []string {
 	args := []string{}
 
 	driveSpec := ""
-	//nolint:gocritic
-	if d.Type == "file" {
+	switch d.Type {
+	case "file":
 		driveSpec = fmt.Sprintf("file=%s", d.Path)
-	} else if d.Type == "rbd" {
+	case "rbd":
 		driveSpec = fmt.Sprintf("file=%s", d.Path)
-	} else if d.Type == "nbd" {
+	case "nbd":
 		driveSpec = fmt.Sprintf("file=%s", d.Path)
 	}
 
@@ -372,12 +372,12 @@ func (d *DiskConfig) BuildArgs() []string {
 		bus = "virtio"
 	}
 
-	//nolint:gocritic
-	if bus == "virtio" {
+	switch bus {
+	case "virtio":
 		driveSpec += ",if=virtio"
-	} else if bus == "scsi" {
+	case "scsi":
 		driveSpec += ",if=scsi"
-	} else if bus == "ide" {
+	case "ide":
 		driveSpec += ",if=ide"
 	}
 
@@ -404,17 +404,17 @@ func (n *NICConfig) BuildArgs(index int) []string {
 	netdevID := fmt.Sprintf("net%d", index)
 
 	// Network backend.
-	//nolint:gocritic
-	if n.Type == "tap" {
+	switch n.Type {
+	case "tap":
 		tapSpec := fmt.Sprintf("tap,id=%s", netdevID)
 		if n.TapDev != "" {
 			tapSpec += fmt.Sprintf(",ifname=%s", n.TapDev)
 		}
 		tapSpec += ",script=no,downscript=no"
 		args = append(args, "-netdev", tapSpec)
-	} else if n.Type == "user" {
+	case "user":
 		args = append(args, "-netdev", fmt.Sprintf("user,id=%s", netdevID))
-	} else if n.Type == "bridge" {
+	case "bridge":
 		bridgeSpec := fmt.Sprintf("bridge,id=%s", netdevID)
 		if n.Bridge != "" {
 			bridgeSpec += fmt.Sprintf(",br=%s", n.Bridge)
@@ -477,7 +477,7 @@ func (c *VMConfig) SaveConfig(path string) error {
 
 // LoadConfig loads VM configuration from a JSON file.
 func LoadConfig(path string) (*VMConfig, error) {
-	data, err := os.ReadFile(path) //nolint:gosec
+	data, err := os.ReadFile(path) // #nosec
 	if err != nil {
 		return nil, fmt.Errorf("read config: %w", err)
 	}

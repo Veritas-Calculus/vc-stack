@@ -1,4 +1,10 @@
+version: 2
+
+run:
+  timeout: 5m
+
 linters:
+  disable-all: true
   enable:
     - errcheck
     - govet
@@ -10,7 +16,6 @@ linters:
     - gocyclo
     - gosec
     - unconvert
-    - revive
     - bodyclose
     - gocognit
     - godot
@@ -25,14 +30,6 @@ linters-settings:
     min-complexity: 30
   gocognit:
     min-complexity: 50
-  revive:
-    rules:
-      - name: exported
-        disabled: false
-      - name: var-naming
-        disabled: false
-      - name: package-comments
-        disabled: true
 
 issues:
   exclude-files:

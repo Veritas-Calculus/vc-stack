@@ -46,7 +46,7 @@ func (s *TemplateStore) Save(tmpl *Template) error {
 // Load loads a template by name.
 func (s *TemplateStore) Load(name string) (*Template, error) {
 	path := filepath.Join(s.basePath, name+".json")
-	data, err := os.ReadFile(path) //nolint:gosec
+	data, err := os.ReadFile(path) // #nosec
 	if err != nil {
 		return nil, fmt.Errorf("read template: %w", err)
 	}

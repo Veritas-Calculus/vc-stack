@@ -128,8 +128,8 @@ type WebShellConnectRequest struct {
 	Port       int    `json:"port"`
 	User       string `json:"user" binding:"required"`
 	AuthMethod string `json:"auth_method" binding:"required,oneof=password key"`
-	Password   string `json:"password"`    //nolint:gosec
-	PrivateKey string `json:"private_key"` //nolint:gosec // This is a configuration field
+	Password   string `json:"password"`    // #nosec
+	PrivateKey string `json:"private_key"` // #nosec // This is a configuration field
 }
 
 // WebShellMessage represents WebSocket message structure.
@@ -228,7 +228,7 @@ func (s *Service) webShellHandler(c *gin.Context) {
 	// Create SSH client config.
 	config := &ssh.ClientConfig{
 		User: req.User,
-		//nolint:gosec // InsecureIgnoreHostKey is intentional for dynamic VM connections
+		// #nosec // InsecureIgnoreHostKey is intentional for dynamic VM connections
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 		Timeout:         15 * time.Second,
 		ClientVersion:   "SSH-2.0-OpenSSH_8.0", // Improve compatibility

@@ -105,7 +105,7 @@ func main() {
 	// Compose controlplane services via aggregator.
 	jwtSecret := os.Getenv("JWT_SECRET")
 	if jwtSecret == "" {
-		//nolint:gosec // Hardcoded secret is for development only, should be overridden in production
+		// #nosec // Hardcoded secret is for development only, should be overridden in production
 		jwtSecret = "vc-stack-jwt-secret-change-me-in-production"
 	}
 

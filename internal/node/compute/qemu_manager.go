@@ -425,23 +425,23 @@ func (m *QEMUManager) buildQEMUCommand(config *QEMUConfig, cloudInitISO, uefiVar
 	// Daemonize.
 	args = append(args, "-daemonize")
 
-	return exec.Command(m.config.QEMUBinary, args...) //nolint:gosec
+	return exec.Command(m.config.QEMUBinary, args...) // #nosec
 }
 
 // createTapDevice creates and configures tap device.
 func (m *QEMUManager) createTapDevice(name, mac string) error {
 	// Create tap.
-	if err := exec.Command("ip", "tuntap", "add", "dev", name, "mode", "tap").Run(); err != nil { //nolint:gosec
+	if err := exec.Command("ip", "tuntap", "add", "dev", name, "mode", "tap").Run(); err != nil { // #nosec
 		m.logger.Debug("Tap device may already exist", zap.String("tap", name))
 	}
 
 	// Set up.
-	if err := exec.Command("ip", "link", "set", name, "up").Run(); err != nil { //nolint:gosec
+	if err := exec.Command("ip", "link", "set", name, "up").Run(); err != nil { // #nosec
 		return fmt.Errorf("set tap up: %w", err)
 	}
 
 	// Add to bridge.
-	if err := exec.Command("ovs-vsctl", "--may-exist", "add-port", m.config.BridgeName, name).Run(); err != nil { //nolint:gosec
+	if err := exec.Command("ovs-vsctl", "--may-exist", "add-port", m.config.BridgeName, name).Run(); err != nil { // #nosec
 		m.logger.Warn("Failed to add tap to bridge", zap.Error(err))
 	}
 
@@ -462,7 +462,7 @@ func (m *QEMUManager) prepareDiskImage(imagePath, diskPath string, sizeGB int) e
 		args = append(args, fmt.Sprintf("%dG", sizeGB))
 	}
 
-	cmd := exec.Command("qemu-img", args...) //nolint:gosec
+	cmd := exec.Command("qemu-img", args...) // #nosec
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("qemu-img create: %v, output: %s", err, string(output))
@@ -499,10 +499,10 @@ func (m *QEMUManager) createCloudInitISO(instanceID, hostname, userData, isoPath
 		filepath.Join(tmpDir, "meta-data"),
 	}
 
-	cmd := exec.Command("genisoimage", args...) //nolint:gosec
+	cmd := exec.Command("genisoimage", args...) // #nosec
 	if err := cmd.Run(); err != nil {
 		// Try mkisofs as fallback.
-		cmd = exec.Command("mkisofs", args...) //nolint:gosec
+		cmd = exec.Command("mkisofs", args...) // #nosec
 		if err := cmd.Run(); err != nil {
 			return fmt.Errorf("create ISO: %w", err)
 		}

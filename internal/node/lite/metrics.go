@@ -36,7 +36,7 @@ func (m *LiteMetrics) Inc(name string, delta uint64) {
 func (m *LiteMetrics) ObserveMs(name string, ms float64) {
 	m.mu.Lock()
 	m.sumsMs[name] += ms
-	m.counts[name] += 1
+	m.counts[name]++
 	m.lastsMs[name] = ms
 	m.mu.Unlock()
 }

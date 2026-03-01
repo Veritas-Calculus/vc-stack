@@ -193,7 +193,7 @@ func (a *Agent) register() error {
 		zap.String("name", a.cfg.NodeName),
 		zap.String("ip", a.cfg.NodeIP))
 
-	resp, err := a.httpClient.Do(req) //nolint:gosec
+	resp, err := a.httpClient.Do(req) // #nosec
 	if err != nil {
 		return fmt.Errorf("failed to send registration request: %w", err)
 	}
@@ -263,7 +263,7 @@ func (a *Agent) sendHeartbeat() error {
 	}
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := a.httpClient.Do(req) //nolint:gosec
+	resp, err := a.httpClient.Do(req) // #nosec
 	if err != nil {
 		return fmt.Errorf("failed to send heartbeat: %w", err)
 	}

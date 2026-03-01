@@ -24,7 +24,7 @@ import (
 type Config struct {
 	DB        *gorm.DB
 	Logger    *zap.Logger
-	JWTSecret string //nolint:gosec // This is a configuration field, not a hardcoded secret
+	JWTSecret string // #nosec // This is a configuration field, not a hardcoded secret
 }
 
 // Service composes all control plane services.
@@ -48,7 +48,7 @@ func New(cfg Config) (*Service, error) {
 	// Use provided secret or fallback to default for dev
 	jwtSecret := cfg.JWTSecret
 	if jwtSecret == "" {
-		//nolint:gosec // Hardcoded secret is for development only, should be overridden in production
+		// #nosec // Hardcoded secret is for development only, should be overridden in production
 		jwtSecret = "vc-stack-jwt-secret-change-me-in-production"
 	}
 

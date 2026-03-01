@@ -37,7 +37,7 @@ func newDriver(cfg Config) (Driver, error) {
 	if cfg.QEMURunDir != "" {
 		rd = cfg.QEMURunDir
 	}
-	if err := os.MkdirAll(rd, 0o750); err != nil { //nolint:gosec
+	if err := os.MkdirAll(rd, 0o750); err != nil { // #nosec
 		return nil, fmt.Errorf("create run dir: %w", err)
 	}
 
@@ -109,19 +109,19 @@ func (d *qemuDriver) CreateVM(req CreateVMRequest) (*VM, error) {
 
 	// Prepare tap device and attach to br-int.
 	tap := d.tapName(id)
-	if err := exec.Command("ip", "tuntap", "add", "dev", tap, "mode", "tap").Run(); err != nil { //nolint:gosec
+	if err := exec.Command("ip", "tuntap", "add", "dev", tap, "mode", "tap").Run(); err != nil { // #nosec
 		// Best-effort: log failure to create tap (may already exist or lack permissions)
 		log.Printf("Warning: failed to create tap %s: %v", tap, err)
 	}
-	_ = exec.Command("ip", "link", "set", tap, "up").Run() //nolint:gosec
+	_ = exec.Command("ip", "link", "set", tap, "up").Run() // #nosec
 	// add to br-int via ovs.
-	_ = exec.Command("ovs-vsctl", "--may-exist", "add-port", "br-int", tap).Run() //nolint:gosec
+	_ = exec.Command("ovs-vsctl", "--may-exist", "add-port", "br-int", tap).Run() // #nosec
 	// If OVN/OVS logical port id provided, set Interface external_ids so OVN maps it.
 	if len(req.Nics) > 0 && strings.TrimSpace(req.Nics[0].PortID) != "" {
 		portID := strings.TrimSpace(req.Nics[0].PortID)
 		// libvirt uses iface-id=lsp-<uuid> naming; keep same convention.
 		ifaceID := fmt.Sprintf("lsp-%s", portID)
-		out, err := exec.Command("ovs-vsctl", "set", "Interface", tap, fmt.Sprintf("external_ids:iface-id=%s", ifaceID)).CombinedOutput() //nolint:gosec
+		out, err := exec.Command("ovs-vsctl", "set", "Interface", tap, fmt.Sprintf("external_ids:iface-id=%s", ifaceID)).CombinedOutput() // #nosec
 		if err != nil {
 			log.Printf("Warning: failed to set OVS Interface external_ids for %s: %v, output: %s", tap, err, string(out))
 		} else {
@@ -155,9 +155,9 @@ func (d *qemuDriver) CreateVM(req CreateVMRequest) (*VM, error) {
 		_ = os.WriteFile(ud, []byte(user), 0o600)
 		_ = os.WriteFile(md, []byte(meta), 0o600)
 		// genisoimage or mkisofs.
-		cmd := exec.Command("genisoimage", "-output", seed, "-volid", "cidata", "-joliet", "-rock", ud, md) //nolint:gosec
+		cmd := exec.Command("genisoimage", "-output", seed, "-volid", "cidata", "-joliet", "-rock", ud, md) // #nosec
 		if err := cmd.Run(); err != nil {
-			_ = exec.Command("mkisofs", "-output", seed, "-volid", "cidata", "-joliet", "-rock", ud, md).Run() //nolint:gosec
+			_ = exec.Command("mkisofs", "-output", seed, "-volid", "cidata", "-joliet", "-rock", ud, md).Run() // #nosec
 		}
 		_ = os.Remove(ud)
 		_ = os.Remove(md)
@@ -188,13 +188,13 @@ func (d *qemuDriver) CreateVM(req CreateVMRequest) (*VM, error) {
 	args = append(args, "-qmp", fmt.Sprintf("unix:%s,server,nowait", qmp))
 
 	// Start qemu process.
-	cmd := exec.Command("qemu-system-x86_64", args...) //nolint:gosec
+	cmd := exec.Command("qemu-system-x86_64", args...) // #nosec
 	// Ensure qemu is started in its own process group so we can signal it.
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	if err := cmd.Start(); err != nil {
 		// cleanup tap/ovs on failure.
-		_ = exec.Command("ovs-vsctl", "--if-exists", "del-port", "br-int", tap).Run() //nolint:gosec
-		_ = exec.Command("ip", "link", "delete", tap, "type", "tap").Run()            //nolint:gosec
+		_ = exec.Command("ovs-vsctl", "--if-exists", "del-port", "br-int", tap).Run() // #nosec
+		_ = exec.Command("ip", "link", "delete", tap, "type", "tap").Run()            // #nosec
 		return nil, fmt.Errorf("start qemu: %w", err)
 	}
 
@@ -252,8 +252,8 @@ func (d *qemuDriver) createVMNew(req CreateVMRequest) (*VM, error) {
 				varsTemplate = "/usr/share/OVMF/OVMF_VARS.fd"
 			}
 			if _, err := os.Stat(varsTemplate); err == nil {
-				varsData, _ := os.ReadFile(varsTemplate) //nolint:gosec
-				_ = os.WriteFile(nvramPath, varsData, 0o600)
+				varsData, _ := os.ReadFile(varsTemplate)     // #nosec
+				_ = os.WriteFile(nvramPath, varsData, 0o600) // #nosec
 			}
 		}
 	}
@@ -274,14 +274,14 @@ func (d *qemuDriver) createVMNew(req CreateVMRequest) (*VM, error) {
 			// Create with specified size.
 			cmd := exec.Command("qemu-img", "create", "-f", "qcow2",
 				"-F", "qcow2", "-b", req.Image, diskPath,
-				fmt.Sprintf("%dG", req.DiskGB)) //nolint:gosec
+				fmt.Sprintf("%dG", req.DiskGB)) // #nosec
 			if err := cmd.Run(); err != nil {
 				return nil, fmt.Errorf("create disk image: %w", err)
 			}
 		} else {
 			// Create with backing file only (auto-size).
 			cmd := exec.Command("qemu-img", "create", "-f", "qcow2",
-				"-F", "qcow2", "-b", req.Image, diskPath) //nolint:gosec
+				"-F", "qcow2", "-b", req.Image, diskPath) // #nosec
 			if err := cmd.Run(); err != nil {
 				return nil, fmt.Errorf("create disk image: %w", err)
 			}
@@ -411,8 +411,8 @@ func (d *qemuDriver) DeleteVM(id string, force bool) error {
 			tap = m.Tap
 		}
 	}
-	_ = exec.Command("ovs-vsctl", "--if-exists", "del-port", "br-int", tap).Run() //nolint:gosec
-	_ = exec.Command("ip", "link", "delete", tap, "type", "tap").Run()            //nolint:gosec
+	_ = exec.Command("ovs-vsctl", "--if-exists", "del-port", "br-int", tap).Run() // #nosec
+	_ = exec.Command("ip", "link", "delete", tap, "type", "tap").Run()            // #nosec
 
 	// Remove seed iso if present (from metadata or default path)
 	if mb, err := os.ReadFile(d.metaPath(id)); err == nil {
@@ -512,7 +512,7 @@ func (d *qemuDriver) VMStatus(id string) (exists, running bool) {
 }
 
 //nolint:gocognit // Complex console URL generation logic
-func (d *qemuDriver) ConsoleURL(id string, ttl time.Duration) (string, error) {
+func (d *qemuDriver) ConsoleURL(id string, _ time.Duration) (string, error) {
 	// Try to query QMP socket for the real VNC port using human-monitor-command 'info vnc'
 	qmpPath := filepath.Join(d.runDir, id+".qmp")
 	// Prefer a cached VNC address in metadata.

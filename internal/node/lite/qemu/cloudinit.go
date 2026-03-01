@@ -62,10 +62,10 @@ func GenerateCloudInitISO(dir string, id, hostname, userData string, sshKeys []s
 
 	// Try genisoimage first, then mkisofs.
 	// -output <iso> -volid cidata -joliet -rock <user-data> <meta-data>
-	cmd := exec.Command("genisoimage", "-output", isoPath, "-volid", "cidata", "-joliet", "-rock", userPath, metaPath) //nolint:gosec
+	cmd := exec.Command("genisoimage", "-output", isoPath, "-volid", "cidata", "-joliet", "-rock", userPath, metaPath) // #nosec
 	if output, err := cmd.CombinedOutput(); err != nil {
 		// Try mkisofs
-		cmd = exec.Command("mkisofs", "-output", isoPath, "-volid", "cidata", "-joliet", "-rock", userPath, metaPath) //nolint:gosec
+		cmd = exec.Command("mkisofs", "-output", isoPath, "-volid", "cidata", "-joliet", "-rock", userPath, metaPath) // #nosec
 		if output2, err2 := cmd.CombinedOutput(); err2 != nil {
 			return "", fmt.Errorf("failed to create ISO: genisoimage: %v (%s), mkisofs: %v (%s)", err, string(output), err2, string(output2))
 		}

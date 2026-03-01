@@ -143,7 +143,7 @@ func (s *Service) loginHandler(c *gin.Context) {
 // refreshHandler handles token refresh requests.
 func (s *Service) refreshHandler(c *gin.Context) {
 	var req struct {
-		RefreshToken string `json:"refresh_token" binding:"required"` //nolint:gosec // This is a token, not a hardcoded secret
+		RefreshToken string `json:"refresh_token" binding:"required"` // #nosec // This is a token, not a hardcoded secret
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -163,7 +163,7 @@ func (s *Service) refreshHandler(c *gin.Context) {
 // logoutHandler handles user logout requests.
 func (s *Service) logoutHandler(c *gin.Context) {
 	var req struct {
-		RefreshToken string `json:"refresh_token" binding:"required"` //nolint:gosec // This is a token, not a hardcoded secret
+		RefreshToken string `json:"refresh_token" binding:"required"` // #nosec // This is a token, not a hardcoded secret
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -232,7 +232,7 @@ func (s *Service) createUserHandler(c *gin.Context) {
 	var req struct {
 		Username  string `json:"username" binding:"required"`
 		Email     string `json:"email" binding:"required,email"`
-		Password  string `json:"password" binding:"required,min=8"` //nolint:gosec // This is a password field in a request struct
+		Password  string `json:"password" binding:"required,min=8"` // #nosec // This is a password field in a request struct
 		FirstName string `json:"first_name"`
 		LastName  string `json:"last_name"`
 		IsAdmin   bool   `json:"is_admin"`

@@ -150,7 +150,7 @@ func (m *OVNNetworkManager) createOVSPort(portName, interfaceName string) error 
 		fmt.Sprintf("external_ids:iface-id=%s", portName),
 	}
 
-	cmd := exec.Command("ovs-vsctl", args...) //nolint:gosec
+	cmd := exec.Command("ovs-vsctl", args...) // #nosec
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("ovs-vsctl add-port failed: %v, output: %s", err, string(output))
@@ -165,7 +165,7 @@ func (m *OVNNetworkManager) deleteOVSPort(interfaceName string) error {
 		"--if-exists", "del-port", m.config.IntegrationBridge, interfaceName,
 	}
 
-	cmd := exec.Command("ovs-vsctl", args...) //nolint:gosec
+	cmd := exec.Command("ovs-vsctl", args...) // #nosec
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("ovs-vsctl del-port failed: %v, output: %s", err, string(output))
@@ -190,7 +190,7 @@ func (m *OVNNetworkManager) setPortExternalIDs(portName string, info *PortInfo) 
 			fmt.Sprintf("external_ids:%s=%s", key, value),
 		}
 
-		cmd := exec.Command("ovs-vsctl", args...) //nolint:gosec
+		cmd := exec.Command("ovs-vsctl", args...) // #nosec
 		if output, err := cmd.CombinedOutput(); err != nil {
 			m.logger.Warn("Failed to set external ID",
 				zap.String("key", key),
@@ -247,7 +247,7 @@ func (m *OVNNetworkManager) SyncPorts(ctx context.Context) error {
 	defer m.mu.Unlock()
 
 	// List ports from OVS.
-	cmd := exec.Command("ovs-vsctl", "list-ports", m.config.IntegrationBridge) //nolint:gosec
+	cmd := exec.Command("ovs-vsctl", "list-ports", m.config.IntegrationBridge) // #nosec
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("list OVS ports: %w", err)
@@ -310,7 +310,7 @@ func (m *OVNNetworkManager) GetOVNInfo() map[string]interface{} {
 // ValidateOVNSetup validates OVN integration setup.
 func (m *OVNNetworkManager) ValidateOVNSetup(ctx context.Context) error {
 	// Check if integration bridge exists.
-	cmd := exec.Command("ovs-vsctl", "br-exists", m.config.IntegrationBridge) //nolint:gosec
+	cmd := exec.Command("ovs-vsctl", "br-exists", m.config.IntegrationBridge) // #nosec
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("integration bridge %s not found", m.config.IntegrationBridge)
 	}
@@ -341,7 +341,7 @@ type OVNNetworkStats struct {
 
 // GetPortStats retrieves port statistics.
 func (m *OVNNetworkManager) GetPortStats(portName string) (*OVNNetworkStats, error) {
-	cmd := exec.Command("ovs-vsctl", "get", "Interface", portName, "statistics") //nolint:gosec
+	cmd := exec.Command("ovs-vsctl", "get", "Interface", portName, "statistics") // #nosec
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("get port statistics: %w", err)

@@ -224,18 +224,19 @@ func (s *Service) getVM(c *gin.Context) {
 	}
 	// Optional: verify VM still exists in libvirt (best-effort)
 	// This helps catch cases where VM was defined but failed to start.
-	if exists, running := s.drv.VMStatus(id); !exists {
+	exists, running := s.drv.VMStatus(id)
+	if !exists {
 		s.logger.Warn("getVM: vm in memory but not in libvirt", zap.String("id", id))
 		c.JSON(http.StatusNotFound, gin.H{"error": "vm not found in hypervisor"})
 		return
+	}
+
+	// Update power state from live query.
+	if running {
+		vm.Power = "running"
+		vm.Status = "active"
 	} else {
-		// Update power state from live query.
-		if running {
-			vm.Power = "running"
-			vm.Status = "active"
-		} else {
-			vm.Power = "shutdown"
-		}
+		vm.Power = "shutdown"
 	}
 	c.JSON(http.StatusOK, gin.H{"vm": vm})
 }

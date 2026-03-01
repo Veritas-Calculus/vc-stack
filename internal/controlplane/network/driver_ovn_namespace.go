@@ -123,7 +123,7 @@ func (d *OVNDriver) DeleteRouterNamespace(routerID, networkID string) error {
 // execInNamespace executes a command inside a network namespace.
 func (d *OVNDriver) execInNamespace(nsName, command string, args ...string) error {
 	cmdArgs := append([]string{"ip", "netns", "exec", nsName, command}, args...)
-	cmd := exec.Command("sudo", cmdArgs...) //nolint:gosec
+	cmd := exec.Command("sudo", cmdArgs...) // #nosec
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("command failed: %s, output: %s", err, string(output))
@@ -152,7 +152,7 @@ func (d *OVNDriver) GetRouterNamespaceInfo(routerID string) (map[string]interfac
 	}
 
 	// Get interfaces in namespace.
-	output, err = exec.Command("ip", "netns", "exec", nsName, "ip", "addr", "show").Output() //nolint:gosec
+	output, err = exec.Command("ip", "netns", "exec", nsName, "ip", "addr", "show").Output() // #nosec
 	if err != nil {
 		d.logger.Warn("Failed to get namespace interfaces", zap.Error(err))
 	} else {
@@ -160,7 +160,7 @@ func (d *OVNDriver) GetRouterNamespaceInfo(routerID string) (map[string]interfac
 	}
 
 	// Get routes in namespace.
-	output, err = exec.Command("ip", "netns", "exec", nsName, "ip", "route", "show").Output() //nolint:gosec
+	output, err = exec.Command("ip", "netns", "exec", nsName, "ip", "route", "show").Output() // #nosec
 	if err != nil {
 		d.logger.Warn("Failed to get namespace routes", zap.Error(err))
 	} else {

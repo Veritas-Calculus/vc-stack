@@ -22,7 +22,7 @@ type Config struct {
 	DB        *gorm.DB
 	Logger    *zap.Logger
 	Scheduler string // Scheduler URL (e.g., http://localhost:8092)
-	JWTSecret string //nolint:gosec // This is a configuration field, not a hardcoded secret
+	JWTSecret string // #nosec // This is a configuration field, not a hardcoded secret
 }
 
 // Service represents the controller compute service.
@@ -441,7 +441,7 @@ func (s *Service) scheduleInstance(ctx context.Context, _ *Instance, flavor *Fla
 	req, _ := http.NewRequestWithContext(ctx, "POST", s.scheduler+"/api/v1/schedule", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := s.client.Do(req) //nolint:gosec
+	resp, err := s.client.Do(req) // #nosec
 	if err != nil {
 		return "", "", fmt.Errorf("scheduler request failed: %w", err)
 	}
@@ -477,7 +477,7 @@ func (s *Service) lookupNodeAddress(ctx context.Context, nodeID string) (string,
 	}
 
 	req, _ := http.NewRequestWithContext(ctx, "GET", s.scheduler+"/api/v1/nodes/"+nodeID, http.NoBody)
-	resp, err := s.client.Do(req) //nolint:gosec
+	resp, err := s.client.Do(req) // #nosec
 	if err != nil {
 		return "", fmt.Errorf("node lookup request failed: %w", err)
 	}
@@ -526,7 +526,7 @@ func (s *Service) createVMOnNode(ctx context.Context, nodeAddr string, inst *Ins
 	req, _ := http.NewRequestWithContext(ctx, "POST", url, bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := s.client.Do(req) //nolint:gosec
+	resp, err := s.client.Do(req) // #nosec
 	if err != nil {
 		return "", fmt.Errorf("vc-lite request failed: %w", err)
 	}
@@ -606,7 +606,7 @@ func (s *Service) deleteInstanceOnNode(ctx context.Context, inst *Instance) {
 
 	if inst.NodeAddress != "" {
 		req, _ := http.NewRequestWithContext(ctx, "DELETE", inst.NodeAddress+"/api/v1/vms/"+inst.UUID, http.NoBody)
-		resp, err := s.client.Do(req) //nolint:gosec
+		resp, err := s.client.Do(req) // #nosec
 		if err != nil {
 			s.logger.Error("failed to delete vm on node", zap.Error(err))
 		} else {
@@ -642,7 +642,7 @@ func (s *Service) forceDeleteInstance(c *gin.Context) {
 	go func(inst *Instance) {
 		if inst.NodeAddress != "" {
 			req, _ := http.NewRequest("DELETE", inst.NodeAddress+"/api/v1/vms/"+inst.UUID, http.NoBody)
-			if resp, err := s.client.Do(req); err == nil { //nolint:gosec
+			if resp, err := s.client.Do(req); err == nil { // #nosec
 				_ = resp.Body.Close()
 			}
 		}
@@ -692,7 +692,7 @@ func (s *Service) startInstance(c *gin.Context) {
 	if instance.NodeAddress != "" {
 		go func() {
 			req, _ := http.NewRequest("POST", instance.NodeAddress+"/api/v1/vms/"+instance.UUID+"/start", http.NoBody)
-			resp, err := s.client.Do(req) //nolint:gosec
+			resp, err := s.client.Do(req) // #nosec
 			if err != nil {
 				s.logger.Error("failed to start vm on node", zap.Error(err))
 				return
@@ -719,7 +719,7 @@ func (s *Service) stopInstance(c *gin.Context) {
 	if instance.NodeAddress != "" {
 		go func() {
 			req, _ := http.NewRequest("POST", instance.NodeAddress+"/api/v1/vms/"+instance.UUID+"/stop", http.NoBody)
-			resp, err := s.client.Do(req) //nolint:gosec
+			resp, err := s.client.Do(req) // #nosec
 			if err != nil {
 				s.logger.Error("failed to stop vm on node", zap.Error(err))
 				return
@@ -746,7 +746,7 @@ func (s *Service) rebootInstance(c *gin.Context) {
 	if instance.NodeAddress != "" {
 		go func() {
 			req, _ := http.NewRequest("POST", instance.NodeAddress+"/api/v1/vms/"+instance.UUID+"/reboot", http.NoBody)
-			resp, err := s.client.Do(req) //nolint:gosec
+			resp, err := s.client.Do(req) // #nosec
 			if err != nil {
 				s.logger.Error("failed to reboot vm on node", zap.Error(err))
 				return

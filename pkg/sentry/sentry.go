@@ -51,7 +51,7 @@ func Init(cfg Config) error {
 		TracesSampleRate: cfg.TracesSampleRate,
 		Debug:            cfg.Debug,
 		ServerName:       cfg.ServerName,
-		BeforeSend: func(event *sentry.Event, hint *sentry.EventHint) *sentry.Event {
+		BeforeSend: func(event *sentry.Event, _ *sentry.EventHint) *sentry.Event {
 			// Add custom logic before sending events.
 			// For example, filter sensitive data.
 			return event

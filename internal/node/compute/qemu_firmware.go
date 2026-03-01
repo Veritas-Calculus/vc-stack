@@ -35,7 +35,7 @@ func (m *QEMUManager) prepareTPM(tpmDir string) error {
 		"--create-ek-cert",
 		"--create-platform-cert",
 		"--lock-nvram",
-	)
+	) // #nosec
 
 	if output, err := setupCmd.CombinedOutput(); err != nil {
 		m.logger.Warn("swtpm_setup failed",
@@ -52,7 +52,7 @@ func (m *QEMUManager) prepareTPM(tpmDir string) error {
 		"--tpmstate", fmt.Sprintf("dir=%s", tpmDir),
 		"--ctrl", fmt.Sprintf("type=unixio,path=%s", socketPath),
 		"--log", "level=20",
-	) //nolint:gosec
+	) // #nosec
 
 	if err := swtpmCmd.Start(); err != nil {
 		return fmt.Errorf("start swtpm: %w", err)
@@ -75,7 +75,7 @@ func (m *QEMUManager) prepareTPM(tpmDir string) error {
 func (m *QEMUManager) cleanupTPM(tpmDir string) error {
 	pidPath := filepath.Join(tpmDir, "swtpm.pid")
 
-	data, err := os.ReadFile(pidPath) //nolint:gosec
+	data, err := os.ReadFile(pidPath) // #nosec
 	if err != nil {
 		return nil // No PID file, nothing to clean up.
 	}
@@ -101,12 +101,12 @@ func (m *QEMUManager) cleanupTPM(tpmDir string) error {
 
 // copyFile copies a file from src to dst.
 func copyFile(src, dst string) error {
-	input, err := os.ReadFile(src) //nolint:gosec
+	input, err := os.ReadFile(src) // #nosec
 	if err != nil {
 		return fmt.Errorf("read source: %w", err)
 	}
 
-	if err := os.WriteFile(dst, input, 0o600); err != nil {
+	if err := os.WriteFile(dst, input, 0o600); err != nil { // #nosec
 		return fmt.Errorf("write destination: %w", err)
 	}
 

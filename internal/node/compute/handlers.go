@@ -1079,7 +1079,7 @@ func (s *Service) uploadImageHandler(c *gin.Context) {
 		}
 		// Prepare rbd import command that reads from stdin
 		var errBuf bytes.Buffer
-		cmd := exec.Command("rbd", s.rbdArgs("images", "import", "-", fmt.Sprintf("%s/%s", pool, imageName))...) //nolint:gosec
+		cmd := exec.Command("rbd", s.rbdArgs("images", "import", "-", fmt.Sprintf("%s/%s", pool, imageName))...) // #nosec
 		cmd.Stderr = &errBuf
 		stdin, err := cmd.StdinPipe()
 		if err != nil {
@@ -1126,7 +1126,7 @@ func (s *Service) uploadImageHandler(c *gin.Context) {
 		if err := s.db.Create(&img).Error; err != nil {
 			s.logger.Error("db create image failed", zap.Error(err))
 			// cleanup orphan rbd image to avoid leakage
-			_ = exec.Command("rbd", s.rbdArgs("images", "rm", fmt.Sprintf("%s/%s", pool, imageName))...).Run() //nolint:gosec
+			_ = exec.Command("rbd", s.rbdArgs("images", "rm", fmt.Sprintf("%s/%s", pool, imageName))...).Run() // #nosec
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "db create image failed"})
 			return
 		}
@@ -1152,8 +1152,7 @@ func (s *Service) uploadImageHandler(c *gin.Context) {
 		var chosen string
 		var mkErr error
 		for _, dir := range candidates {
-			if err := os.MkdirAll(dir, 0o750); err != nil { //nolint:gosec
-
+			if err := os.MkdirAll(dir, 0o750); err != nil { // #nosec
 				mkErr = err
 				s.logger.Warn("create image dir failed, trying next", zap.String("dir", dir), zap.Error(err))
 				continue
@@ -1173,7 +1172,7 @@ func (s *Service) uploadImageHandler(c *gin.Context) {
 			fname = genUUIDv4()
 		}
 		dstPath := filepath.Join(baseDir, fname)
-		out, err := os.Create(dstPath) //nolint:gosec
+		out, err := os.Create(dstPath) // #nosec
 		if err != nil {
 			s.logger.Error("create destination failed", zap.String("path", dstPath), zap.Error(err))
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "create destination failed"})
@@ -1243,7 +1242,7 @@ func (s *Service) deleteImageHandler(c *gin.Context) {
 	}
 	// RBD: only when snap is empty; ignore errors
 	if strings.TrimSpace(img.RBDPool) != "" && strings.TrimSpace(img.RBDImage) != "" && strings.TrimSpace(img.RBDSnap) == "" {
-		_ = exec.Command("rbd", s.rbdArgs("images", "rm", fmt.Sprintf("%s/%s", strings.TrimSpace(img.RBDPool), strings.TrimSpace(img.RBDImage)))...).Run() //nolint:gosec
+		_ = exec.Command("rbd", s.rbdArgs("images", "rm", fmt.Sprintf("%s/%s", strings.TrimSpace(img.RBDPool), strings.TrimSpace(img.RBDImage)))...).Run() // #nosec
 	}
 	if err := s.db.Delete(&Image{}, id).Error; err != nil {
 		s.logger.Error("Failed to delete image", zap.Error(err))
@@ -1333,7 +1332,7 @@ func (s *Service) importImageHandler(c *gin.Context) {
 	}
 	// Start import
 	// Simple HTTP GET (RGW with S3-compat presigned URL also works). In production, add auth headers if needed.
-	resp, err := http.Get(src) //nolint:gosec // URL is validated before request
+	resp, err := http.Get(src) // #nosec G107 // URL is validated before request
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": "Failed to fetch source"})
 		return
@@ -1349,7 +1348,7 @@ func (s *Service) importImageHandler(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "mkdir failed"})
 			return
 		}
-		f, err := os.Create(dstFile) //nolint:gosec
+		f, err := os.Create(dstFile) // #nosec
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "create file failed"})
 			return
@@ -1366,7 +1365,7 @@ func (s *Service) importImageHandler(c *gin.Context) {
 	}
 	// Else import to RBD using rbd import (requires rbd on this host)
 	tmpFile := filepath.Join(os.TempDir(), "vc-import-"+genUUIDv4()+".img")
-	out, err := os.Create(tmpFile) //nolint:gosec
+	out, err := os.Create(tmpFile) // #nosec
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "tmp create failed"})
 		return
@@ -1377,7 +1376,7 @@ func (s *Service) importImageHandler(c *gin.Context) {
 		return
 	}
 	_ = out.Close()
-	cmd := exec.Command("rbd", s.rbdArgs("images", "import", tmpFile, dstPool+"/"+dstImage)...) //nolint:gosec
+	cmd := exec.Command("rbd", s.rbdArgs("images", "import", tmpFile, dstPool+"/"+dstImage)...) // #nosec
 	if err := cmd.Run(); err != nil {
 		_ = os.Remove(tmpFile)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "rbd import failed"})
@@ -1386,7 +1385,7 @@ func (s *Service) importImageHandler(c *gin.Context) {
 	_ = os.Remove(tmpFile)
 	// optional: create snap
 	if dstSnap != "" {
-		_ = exec.Command("rbd", s.rbdArgs("images", "snap", "create", dstPool+"/"+dstImage+"@"+dstSnap)...).Run() //nolint:gosec
+		_ = exec.Command("rbd", s.rbdArgs("images", "snap", "create", dstPool+"/"+dstImage+"@"+dstSnap)...).Run() // #nosec
 	}
 	s.db.Model(&img).Updates(map[string]interface{}{"rbd_pool": dstPool, "rbd_image": dstImage, "rbd_snap": dstSnap, "status": "active"})
 	c.JSON(http.StatusOK, gin.H{"image": img, "message": "imported to rbd"})
@@ -1823,13 +1822,13 @@ func (s *Service) createSnapshotHandler(c *gin.Context) {
 	}
 	// Create a temporary snap on the volume
 	snapName := "snap-" + genUUIDv4()
-	if err := exec.Command("rbd", s.rbdArgs("volumes", "snap", "create", volImg+"@"+snapName)...).Run(); err != nil { //nolint:gosec
+	if err := exec.Command("rbd", s.rbdArgs("volumes", "snap", "create", volImg+"@"+snapName)...).Run(); err != nil { // #nosec
 		s.logger.Error("rbd snap create failed", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "rbd snap create failed"})
 		return
 	}
 	// Protect the snap so it can be cloned/exported
-	_ = exec.Command("rbd", s.rbdArgs("volumes", "snap", "protect", volImg+"@"+snapName)...).Run() //nolint:gosec
+	_ = exec.Command("rbd", s.rbdArgs("volumes", "snap", "protect", volImg+"@"+snapName)...).Run() // #nosec
 
 	// Export (copy) to backups pool as a standalone image
 	backupPool := strings.TrimSpace(s.config.Backups.RBDPool)
@@ -1843,8 +1842,8 @@ func (s *Service) createSnapshotHandler(c *gin.Context) {
 	dst := fmt.Sprintf("%s/%s", backupPool, backupImage)
 	// rbd clone would preserve COW within same pool; to move to another pool, export-diff+import is an option.
 	// For simplicity we use rbd export then import via pipe to avoid temp files.
-	exp := exec.Command("rbd", s.rbdArgs("volumes", "export", volImg+"@"+snapName, "-")...) //nolint:gosec
-	imp := exec.Command("rbd", s.rbdArgs("backups", "import", "-", dst)...)                 //nolint:gosec
+	exp := exec.Command("rbd", s.rbdArgs("volumes", "export", volImg+"@"+snapName, "-")...) // #nosec
+	imp := exec.Command("rbd", s.rbdArgs("backups", "import", "-", dst)...)                 // #nosec
 	pr, pw := io.Pipe()
 	exp.Stdout = pw
 	imp.Stdin = pr
@@ -1878,8 +1877,8 @@ func (s *Service) createSnapshotHandler(c *gin.Context) {
 		return
 	}
 	// Unprotect and cleanup original snap (best-effort)
-	_ = exec.Command("rbd", s.rbdArgs("volumes", "snap", "unprotect", volImg+"@"+snapName)...) //nolint:gosec
-	_ = exec.Command("rbd", s.rbdArgs("volumes", "snap", "rm", volImg+"@"+snapName)...)        //nolint:gosec
+	_ = exec.Command("rbd", s.rbdArgs("volumes", "snap", "unprotect", volImg+"@"+snapName)...) // #nosec
+	_ = exec.Command("rbd", s.rbdArgs("volumes", "snap", "rm", volImg+"@"+snapName)...)        // #nosec
 
 	userID := s.getUserIDFromContext(c)
 	projectID := s.getProjectIDFromContext(c)
@@ -1887,7 +1886,7 @@ func (s *Service) createSnapshotHandler(c *gin.Context) {
 	if err := s.db.Create(snapshot).Error; err != nil {
 		s.logger.Error("Failed to create snapshot", zap.Error(err))
 		// rollback backup image to avoid orphan
-		_ = exec.Command("rbd", s.rbdArgs("backups", "rm", fmt.Sprintf("%s/%s", backupPool, backupImage))...).Run() //nolint:gosec
+		_ = exec.Command("rbd", s.rbdArgs("backups", "rm", fmt.Sprintf("%s/%s", backupPool, backupImage))...).Run() // #nosec
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create snapshot"})
 		return
 	}
@@ -1909,7 +1908,7 @@ func (s *Service) deleteSnapshotHandler(c *gin.Context) {
 		return
 	}
 	if strings.TrimSpace(snap.BackupPool) != "" && strings.TrimSpace(snap.BackupImage) != "" {
-		_ = exec.Command("rbd", s.rbdArgs("backups", "rm", fmt.Sprintf("%s/%s", strings.TrimSpace(snap.BackupPool), strings.TrimSpace(snap.BackupImage)))...).Run() //nolint:gosec
+		_ = exec.Command("rbd", s.rbdArgs("backups", "rm", fmt.Sprintf("%s/%s", strings.TrimSpace(snap.BackupPool), strings.TrimSpace(snap.BackupImage)))...).Run() // #nosec
 	}
 	if err := s.db.Delete(&Snapshot{}, id).Error; err != nil {
 		s.logger.Error("Failed to delete snapshot", zap.Error(err))
@@ -2301,10 +2300,10 @@ func (s *Service) deleteFirecrackerHandler(c *gin.Context) {
 		s.logger.Info("Removing Firecracker RBD volume", zap.String("rbd", rbdName))
 
 		// Ensure it's unmapped first
-		_ = exec.Command("rbd", s.rbdArgs("volumes", "unmap", rbdName)...).Run() //nolint:gosec
+		_ = exec.Command("rbd", s.rbdArgs("volumes", "unmap", rbdName)...).Run() // #nosec
 
 		// Remove the volume
-		if err := exec.Command("rbd", s.rbdArgs("volumes", "rm", rbdName)...).Run(); err != nil { //nolint:gosec
+		if err := exec.Command("rbd", s.rbdArgs("volumes", "rm", rbdName)...).Run(); err != nil { // #nosec
 			s.logger.Warn("Failed to remove RBD volume", zap.String("rbd", rbdName), zap.Error(err))
 		}
 	}

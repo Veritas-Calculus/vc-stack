@@ -75,7 +75,7 @@ func (c *ControllerClient) ReportVMStatus(ctx context.Context, config *QEMUConfi
 
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := c.httpClient.Do(req) //nolint:gosec
+	resp, err := c.httpClient.Do(req) // #nosec
 	if err != nil {
 		return fmt.Errorf("send request: %w", err)
 	}
@@ -132,7 +132,7 @@ func (c *ControllerClient) SendHeartbeat(ctx context.Context, stats NodeStats) e
 
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := c.httpClient.Do(req) //nolint:gosec
+	resp, err := c.httpClient.Do(req) // #nosec
 	if err != nil {
 		return fmt.Errorf("send request: %w", err)
 	}
@@ -162,7 +162,7 @@ func (c *ControllerClient) FetchVMConfig(ctx context.Context, vmID string) (*QEM
 		return nil, fmt.Errorf("create request: %w", err)
 	}
 
-	resp, err := c.httpClient.Do(req) //nolint:gosec
+	resp, err := c.httpClient.Do(req) // #nosec
 	if err != nil {
 		return nil, fmt.Errorf("send request: %w", err)
 	}
@@ -301,9 +301,10 @@ func (a *SyncAgent) calculateStats(vms []*QEMUConfig) NodeStats {
 	}
 
 	for _, vm := range vms {
-		if vm.Status == "running" {
+		switch vm.Status {
+		case "running":
 			stats.RunningVMs++
-		} else if vm.Status == "stopped" {
+		case "stopped":
 			stats.StoppedVMs++
 		}
 	}
