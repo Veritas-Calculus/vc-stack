@@ -18,7 +18,7 @@ Add the following environment variables to your deployment:
 #### For vc-management
 
 ```bash
-# /etc/vc-stack/controller.env or systemd environment file
+# /etc/vc-stack/management.env or systemd environment file
 SENTRY_DSN=https://your-public-key@sentry.infra.plz.ac/project-id
 SENTRY_ENVIRONMENT=production  # or staging, development
 ```
@@ -26,7 +26,7 @@ SENTRY_ENVIRONMENT=production  # or staging, development
 #### For vc-compute
 
 ```bash
-# /etc/vc-stack/node.env or systemd environment file
+# /etc/vc-stack/compute.env or systemd environment file
 SENTRY_DSN=https://your-public-key@sentry.infra.plz.ac/project-id
 SENTRY_ENVIRONMENT=production
 ```
@@ -44,7 +44,7 @@ Edit `/etc/systemd/system/vc-management.service`:
 
 ```ini
 [Service]
-EnvironmentFile=/etc/vc-stack/controller.env
+EnvironmentFile=/etc/vc-stack/management.env
 Environment="SENTRY_DSN=https://your-dsn@sentry.infra.plz.ac/1"
 Environment="SENTRY_ENVIRONMENT=production"
 ```

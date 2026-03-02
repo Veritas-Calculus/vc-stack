@@ -10,8 +10,8 @@ configs/
 ├── vc-compute.yaml.example            # ✅ Node 完整配置模板
 ├── docker-compose.yaml.example     # ✅ Docker Compose 部署
 ├── env/                            # ✅ 环境变量配置
-│   ├── controller.env.example      #    Management 环境变量
-│   └── node.env.example            #    Node 环境变量
+│   ├── vc-management.env.example  #    Management 环境变量
+│   └── vc-compute.env.example     #    Compute Node 环境变量
 ├── systemd/                        # ✅ Systemd 服务文件
 │   ├── vc-management.service       #    Management 服务
 │   └── vc-compute.service             #    Node 服务
@@ -30,7 +30,7 @@ configs/
 
 ```bash
 # 复制环境变量配置
-cp configs/env/controller.env.example /etc/vc-stack/management.env
+cp configs/env/vc-management.env.example /etc/vc-stack/management.env
 
 # 编辑配置（修改数据库密码、JWT secret 等）
 vim /etc/vc-stack/management.env
@@ -44,7 +44,7 @@ source /etc/vc-stack/management.env
 
 ```bash
 # 复制环境变量配置
-cp configs/env/node.env.example /etc/vc-stack/compute.env
+cp configs/env/vc-compute.env.example /etc/vc-stack/compute.env
 
 # 编辑配置（修改数据库密码、管理 URL、节点名称等）
 vim /etc/vc-stack/compute.env
@@ -58,15 +58,15 @@ sudo -E ./bin/vc-compute
 
 ```bash
 # Management
-cp configs/env/controller.env.example /etc/vc-stack/controller.env
-vim /etc/vc-stack/controller.env
-source /etc/vc-stack/controller.env
+cp configs/env/vc-management.env.example /etc/vc-stack/management.env
+vim /etc/vc-stack/management.env
+source /etc/vc-stack/management.env
 ./bin/vc-management
 
 # Node
-cp configs/env/node.env.example /etc/vc-stack/node.env
-vim /etc/vc-stack/node.env
-source /etc/vc-stack/node.env
+cp configs/env/vc-compute.env.example /etc/vc-stack/compute.env
+vim /etc/vc-stack/compute.env
+source /etc/vc-stack/compute.env
 sudo ./bin/vc-compute
 ```
 
@@ -78,12 +78,12 @@ sudo cp configs/systemd/vc-management.service /etc/systemd/system/
 sudo cp configs/systemd/vc-compute.service /etc/systemd/system/
 
 # 配置环境变量
-sudo cp configs/env/controller.env.example /etc/vc-stack/controller.env
-sudo cp configs/env/node.env.example /etc/vc-stack/node.env
+sudo cp configs/env/vc-management.env.example /etc/vc-stack/management.env
+sudo cp configs/env/vc-compute.env.example /etc/vc-stack/compute.env
 
 # 编辑配置
-sudo vim /etc/vc-stack/controller.env
-sudo vim /etc/vc-stack/node.env
+sudo vim /etc/vc-stack/management.env
+sudo vim /etc/vc-stack/compute.env
 
 # 启动服务
 sudo systemctl daemon-reload
@@ -164,13 +164,13 @@ storage:
   default_backend: local
 ```
 
-#### env/controller.env.example
+#### env/vc-management.env.example
 
 **用途**: Management 环境变量配置
 **适用场景**: 容器化部署、CI/CD、简化配置
 **包含**: 数据库、JWT、OVN、日志等核心配置
 
-#### env/node.env.example
+#### env/vc-compute.env.example
 
 **用途**: Node 环境变量配置
 **适用场景**: 容器化部署、批量节点部署
@@ -317,10 +317,10 @@ sudo -E ./bin/vc-compute &
 
 ```bash
 # 使用环境变量配置
-source configs/env/controller.env.example
+source configs/env/vc-management.env.example
 ./bin/vc-management
 
-source configs/env/node.env.example
+source configs/env/vc-compute.env.example
 sudo -E ./bin/vc-compute
 ```
 

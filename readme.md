@@ -189,7 +189,7 @@ make dev-start
 
 ```bash
 # Copy and edit configuration
-cp configs/env/controller.env.example .env
+cp configs/env/vc-management.env.example .env
 
 # Start management plane
 ./bin/vc-management
