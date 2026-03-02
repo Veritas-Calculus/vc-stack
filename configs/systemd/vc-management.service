@@ -16,7 +16,7 @@ Group=vcstack
 WorkingDirectory=/opt/vc-stack
 
 # Binary location
-ExecStart=/opt/vc-stack/bin/vc-management --config /etc/vc-stack/management.yaml
+ExecStart=/opt/vc-stack/bin/vc-management
 
 # Restart policy
 Restart=on-failure
@@ -26,11 +26,12 @@ RestartSec=10s
 LimitNOFILE=65535
 LimitNPROC=4096
 
-# Environment
-Environment="DATABASE_HOST=localhost"
-Environment="DATABASE_PORT=5432"
-Environment="DATABASE_NAME=vcstack"
-Environment="DATABASE_USER=vcstack"
+# Environment defaults (overridden by EnvironmentFile below)
+Environment="DB_HOST=localhost"
+Environment="DB_PORT=5432"
+Environment="DB_NAME=vcstack"
+Environment="DB_USER=vcstack"
+Environment="VC_MANAGEMENT_PORT=8080"
 EnvironmentFile=-/etc/vc-stack/management.env
 
 # Security

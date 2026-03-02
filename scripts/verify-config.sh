@@ -76,7 +76,7 @@ check_database() {
     echo "检查数据库连接: $user@$host:$port/$db"
 
     if command -v psql &> /dev/null; then
-        if PGPASSWORD=$DATABASE_PASSWORD psql -h "$host" -p "$port" -U "$user" -d "$db" -c "SELECT 1;" &>/dev/null; then
+        if PGPASSWORD=$DB_PASS psql -h "$host" -p "$port" -U "$user" -d "$db" -c "SELECT 1;" &>/dev/null; then
             echo -e "${GREEN}✓${NC} 数据库连接成功"
             return 0
         else
@@ -127,8 +127,8 @@ if check_file_exists "/etc/vc-stack/controller.yaml" "false"; then
     check_file_permissions "/etc/vc-stack/controller.yaml"
 fi
 
-if check_file_exists "/etc/vc-stack/controller.env" "false"; then
-    check_file_permissions "/etc/vc-stack/controller.env"
+if check_file_exists "/etc/vc-stack/management.env" "false"; then
+    check_file_permissions "/etc/vc-stack/management.env"
 fi
 
 # Node 配置
@@ -137,8 +137,8 @@ if check_file_exists "/etc/vc-stack/node.yaml" "false"; then
     check_file_permissions "/etc/vc-stack/node.yaml"
 fi
 
-if check_file_exists "/etc/vc-stack/node.env" "false"; then
-    check_file_permissions "/etc/vc-stack/node.env"
+if check_file_exists "/etc/vc-stack/compute.env" "false"; then
+    check_file_permissions "/etc/vc-stack/compute.env"
 fi
 
 # Systemd 服务文件
@@ -167,8 +167,8 @@ echo "=== 4. 检查依赖服务 ==="
 echo ""
 
 check_service "postgresql"
-check_service "libvirtd"
 check_service "ovs-vswitchd"
+check_service "ovn-controller"
 
 echo ""
 echo "=== 5. 检查 VC Stack 服务 ==="

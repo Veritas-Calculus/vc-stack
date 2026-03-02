@@ -39,7 +39,7 @@ As of version 1.0.1, VC Stack no longer contains hardcoded default passwords. Yo
 export ADMIN_DEFAULT_PASSWORD="YourSecurePassword123!"
 
 # Required: Generate and set JWT secret
-export IDENTITY_JWT_SECRET=$(openssl rand -base64 64)
+export JWT_SECRET=$(openssl rand -base64 64)
 ```
 
 **If ADMIN_DEFAULT_PASSWORD is not set:**
@@ -143,8 +143,8 @@ Use `.env` files for local development only:
 
 ```bash
 # .env (add to .gitignore)
-DATABASE_PASSWORD=your_secure_password
-IDENTITY_JWT_SECRET=your_jwt_secret
+DB_PASS=your_secure_password
+JWT_SECRET=your_jwt_secret
 ```
 
 **Load in Docker Compose:**

@@ -29,27 +29,29 @@ configs/
 ### 1. Management 部署
 
 ```bash
-# 复制配置模板
-cp configs/vc-management.yaml.example /etc/vc-stack/controller.yaml
+# 复制环境变量配置
+cp configs/env/controller.env.example /etc/vc-stack/management.env
 
 # 编辑配置（修改数据库密码、JWT secret 等）
-vim /etc/vc-stack/controller.yaml
+vim /etc/vc-stack/management.env
 
 # 启动 Management
-./bin/vc-management --config /etc/vc-stack/controller.yaml
+source /etc/vc-stack/management.env
+./bin/vc-management
 ```
 
 ### 2. Node 部署
 
 ```bash
-# 复制配置模板
-cp configs/vc-compute.yaml.example /etc/vc-stack/node.yaml
+# 复制环境变量配置
+cp configs/env/node.env.example /etc/vc-stack/compute.env
 
-# 编辑配置（修改 controller_url、节点名称等）
-vim /etc/vc-stack/node.yaml
+# 编辑配置（修改数据库密码、管理 URL、节点名称等）
+vim /etc/vc-stack/compute.env
 
-# 启动 Node
-sudo ./bin/vc-compute --config /etc/vc-stack/node.yaml
+# 启动 Compute Node
+source /etc/vc-stack/compute.env
+sudo -E ./bin/vc-compute
 ```
 
 ### 3. 使用环境变量 (可选)
@@ -189,7 +191,7 @@ storage:
 **用途**: Node systemd 服务文件
 **特点**:
 
-- 依赖管理 (Libvirtd)
+- 依赖管理 (ovs-vswitchd, ovn-controller)
 - Root 权限运行
 - 自动重启
 
@@ -231,14 +233,19 @@ storage:
 | `identity.jwt.secret` | JWT 密钥 | - | ✅ 生产环境 |
 | `server.port` | API 端口 | 8080 | ❌ |
 
+> **注意**: 环境变量名为 `DB_HOST`, `DB_PASS`, `JWT_SECRET`, `VC_MANAGEMENT_PORT`
+
 ### Node 必须配置
 
 | 配置项 | 说明 | 默认值 | 必须修改 |
 |--------|------|--------|---------|
 | `agent.controller_url` | Management 地址 | - | ✅ |
 | `node.name` | 节点名称 | 主机名 | 推荐 |
-| `libvirt.uri` | Libvirt 连接 | qemu:///system | ❌ |
 | `storage.default_backend` | 存储类型 | local | ❌ |
+
+> **注意**: 环境变量名为 `AGENT_MANAGEMENT_URL`, `NODE_NAME`, `IMAGES_BACKEND`
+>
+> 数据库环境变量: `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS`
 
 ## 🔐 安全建议
 
@@ -283,15 +290,15 @@ openssl rand -base64 32
 
 1. 程序默认值
 2. 配置文件 (`--config` 参数)
-3. 环境变量 (`DATABASE_HOST` 等)
+3. 环境变量 (`DB_HOST`, `DB_PASS`, `JWT_SECRET` 等)
 4. 命令行参数
 
 示例：
 
 ```bash
-# 配置文件 + 环境变量组合
-export DATABASE_PASSWORD=secret
-./bin/vc-management --config /etc/vc-stack/controller.yaml
+# 环境变量覆盖敏感配置
+export DB_PASS=secret
+./bin/vc-management
 ```
 
 ## 🌐 不同场景的配置
@@ -300,18 +307,21 @@ export DATABASE_PASSWORD=secret
 
 ```bash
 # 使用默认配置 + 环境变量
-export DATABASE_HOST=localhost
-export AGENT_CONTROLLER_URL=http://localhost:8080
+export DB_HOST=localhost
+export AGENT_MANAGEMENT_URL=http://localhost:8080
 ./bin/vc-management &
-sudo ./bin/vc-compute &
+sudo -E ./bin/vc-compute &
 ```
 
 ### 测试环境 (小规模)
 
 ```bash
-# 使用配置文件
-./bin/vc-management --config configs/vc-management.yaml.example
-sudo ./bin/vc-compute --config configs/vc-compute.yaml.example
+# 使用环境变量配置
+source configs/env/controller.env.example
+./bin/vc-management
+
+source configs/env/node.env.example
+sudo -E ./bin/vc-compute
 ```
 
 ### 生产环境 (推荐 systemd)

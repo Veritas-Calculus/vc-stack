@@ -4,9 +4,9 @@
 [Unit]
 Description=VC Stack Compute - VM, Network and Storage Agent
 Documentation=https://github.com/Veritas-Calculus/vc-stack
-After=network-online.target libvirtd.service ovs-vswitchd.service
+After=network-online.target ovs-vswitchd.service ovn-controller.service
 Wants=network-online.target
-Requires=libvirtd.service
+Requires=ovs-vswitchd.service
 
 [Service]
 Type=simple
@@ -27,17 +27,15 @@ RestartSec=10s
 LimitNOFILE=65535
 LimitNPROC=8192
 
-# Environment
-Environment="MANAGEMENT_URL=http://localhost:8080"
+# Environment defaults (overridden by EnvironmentFile below)
 Environment="NODE_NAME=compute-1"
 Environment="VC_COMPUTE_PORT=8081"
-Environment="DB_HOST=172.17.0.1"
-Environment="DB_PORT=5432"
+Environment="DB_HOST=localhost"
 Environment="DB_NAME=vcstack"
 Environment="DB_USER=vcstack"
-Environment="DB_PASS=vcstack123"
+EnvironmentFile=-/etc/vc-stack/compute.env
 
-# Security (less restrictive due to libvirt/KVM requirements)
+# Security (less restrictive due to QEMU/OVS requirements)
 NoNewPrivileges=false
 PrivateTmp=false
 
