@@ -206,6 +206,9 @@ func (s *Service) createSecurityGroupRule(c *gin.Context) {
 		return
 	}
 
+	// Push updated ACLs to all ports using this security group.
+	s.propagateSecurityGroupACLs(req.SecurityGroupID)
+
 	s.logger.Info("Security group rule created", zap.String("id", rule.ID))
 	c.JSON(http.StatusCreated, gin.H{"security_group_rule": rule})
 }
@@ -239,6 +242,9 @@ func (s *Service) deleteSecurityGroupRule(c *gin.Context) {
 		return
 	}
 
+	// Push updated ACLs to all ports using this security group.
+	s.propagateSecurityGroupACLs(rule.SecurityGroupID)
+
 	s.logger.Info("Security group rule deleted", zap.String("id", id))
 	c.JSON(http.StatusNoContent, nil)
 }
@@ -269,6 +275,24 @@ func (s *Service) applyPortSecurityACLs(port *NetworkPort) error {
 		}
 	}
 	return s.driver.ReplacePortACLs(port.NetworkID, port.ID, rules)
+}
+
+// propagateSecurityGroupACLs finds all ports referencing a security group and re-applies ACLs.
+func (s *Service) propagateSecurityGroupACLs(securityGroupID string) {
+	var ports []NetworkPort
+	// SecurityGroups is a CSV string; search with LIKE.
+	if err := s.db.Where("security_groups LIKE ?", "%"+securityGroupID+"%").Find(&ports).Error; err != nil {
+		s.logger.Warn("Failed to find ports for SG propagation", zap.Error(err))
+		return
+	}
+	for _, port := range ports {
+		if err := s.applyPortSecurityACLs(&port); err != nil {
+			s.logger.Warn("Failed to propagate ACLs to port",
+				zap.String("port_id", port.ID),
+				zap.String("sg_id", securityGroupID),
+				zap.Error(err))
+		}
+	}
 }
 
 func parseCSV(s string) []string {

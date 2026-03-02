@@ -697,10 +697,14 @@ func (s *Service) deleteNetwork(c *gin.Context) {
 		return
 	}
 
+	// Pre-fetch subnets for post-transaction DHCP cleanup.
+	var subnets []Subnet
+	s.db.Where("network_id = ?", id).Find(&subnets)
+
 	// Cascade delete related resources in a transaction.
 	if err := s.db.Transaction(func(tx *gorm.DB) error {
 		// Step 1: Find and delete routers associated with this network's subnets.
-		var subnets []Subnet
+		// subnets already loaded above.
 		if err := tx.Where("network_id = ?", id).Find(&subnets).Error; err != nil {
 			return err
 		}
@@ -790,6 +794,20 @@ func (s *Service) deleteNetwork(c *gin.Context) {
 	// After successful DB cleanup, try to delete SDN resources (best effort)
 	if err := s.driver.DeleteNetwork(&network); err != nil {
 		s.logger.Warn("SDN delete network failed (DB already cleaned)", zap.String("id", id), zap.Error(err))
+	}
+
+	// Clean up OVN DHCP options for all subnets that belonged to this network.
+	if ovnDrv := s.getOVNDriver(); ovnDrv != nil {
+		for _, snt := range subnets {
+			if snt.EnableDHCP && strings.TrimSpace(snt.CIDR) != "" {
+				if uuids, err := ovnDrv.nbctlOutput("--bare", "--columns=_uuid", "find",
+					"dhcp_options", fmt.Sprintf("cidr=%s", snt.CIDR)); err == nil {
+					for _, uuid := range strings.Fields(strings.TrimSpace(uuids)) {
+						_ = ovnDrv.nbctl("dhcp-options-del", strings.TrimSpace(uuid))
+					}
+				}
+			}
+		}
 	}
 
 	s.logger.Info("Network deleted", zap.String("id", id))
@@ -1132,15 +1150,61 @@ func (s *Service) deleteSubnet(c *gin.Context) {
 	id := c.Param("id")
 
 	var subnet Subnet
-	if err := s.db.First(&subnet, "id = ?", id).Error; err != nil {
+	if err := s.db.Preload("Network").First(&subnet, "id = ?", id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Subnet not found"})
 		return
 	}
 
-	if err := s.db.Delete(&subnet).Error; err != nil {
+	// Check for active ports using this subnet.
+	var portCount int64
+	s.db.Model(&NetworkPort{}).Where("subnet_id = ?", id).Count(&portCount)
+	if portCount > 0 {
+		c.JSON(http.StatusConflict, gin.H{
+			"error":      "Subnet has active ports, remove them first",
+			"port_count": portCount,
+		})
+		return
+	}
+
+	// Cascade cleanup in transaction.
+	if err := s.db.Transaction(func(tx *gorm.DB) error {
+		// 1. Remove router interfaces referencing this subnet.
+		var rifs []RouterInterface
+		if err := tx.Where("subnet_id = ?", id).Find(&rifs).Error; err == nil {
+			for _, rif := range rifs {
+				lrName := lrNameFor(rif.RouterID)
+				if err := s.driver.DisconnectSubnetFromRouter(lrName, &subnet.Network); err != nil {
+					s.logger.Warn("Failed to disconnect subnet from router in OVN",
+						zap.String("router", rif.RouterID), zap.Error(err))
+				}
+			}
+			tx.Where("subnet_id = ?", id).Delete(&RouterInterface{})
+		}
+
+		// 2. Release IP allocations for this subnet.
+		tx.Where("subnet_id = ?", id).Delete(&IPAllocation{})
+
+		// 3. Delete the subnet itself.
+		if err := tx.Delete(&subnet).Error; err != nil {
+			return err
+		}
+		return nil
+	}); err != nil {
 		s.logger.Error("Failed to delete subnet", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete subnet"})
 		return
+	}
+
+	// 4. Best-effort: remove OVN DHCP options for this subnet's CIDR.
+	if subnet.EnableDHCP && strings.TrimSpace(subnet.CIDR) != "" {
+		if ovnDrv := s.getOVNDriver(); ovnDrv != nil {
+			if uuids, err := ovnDrv.nbctlOutput("--bare", "--columns=_uuid", "find",
+				"dhcp_options", fmt.Sprintf("cidr=%s", subnet.CIDR)); err == nil {
+				for _, uuid := range strings.Fields(strings.TrimSpace(uuids)) {
+					_ = ovnDrv.nbctl("dhcp-options-del", strings.TrimSpace(uuid))
+				}
+			}
+		}
 	}
 
 	s.logger.Info("Subnet deleted", zap.String("id", id))

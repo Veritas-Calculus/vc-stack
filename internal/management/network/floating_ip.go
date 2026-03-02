@@ -57,6 +57,12 @@ func (s *Service) createFloatingIP(c *gin.Context) {
 		return
 	}
 
+	// Floating IPs must be allocated from external networks only.
+	if !network.External {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Floating IPs can only be allocated from external networks"})
+		return
+	}
+
 	// Find subnet to allocate from: explicit or first subnet in the network.
 	var subnet Subnet
 	if req.SubnetID != "" {
@@ -142,33 +148,45 @@ func (s *Service) updateFloatingIP(c *gin.Context) {
 	floatingIP.FixedIP = req.FixedIP
 	floatingIP.PortID = req.PortID
 
-	// Helper to resolve the router LR name based on a subnet (via RouterInterface)
+	// Helper to resolve the router LR name based on a subnet (via RouterInterface).
+	// Returns empty string if no router is found — callers must handle this.
 	resolveRouterName := func(subnetID string) string {
 		if strings.TrimSpace(subnetID) == "" {
-			return "lr-main"
+			return ""
 		}
 		var rif RouterInterface
 		if err := s.db.Preload("Router").First(&rif, "subnet_id = ?", subnetID).Error; err == nil {
-			// Some records may store Router.ID as OVN name already (starting with lr-)
 			rname := rif.Router.ID
 			if strings.HasPrefix(rname, "lr-") {
 				return rname
 			}
 			return "lr-" + rname
 		}
-		return "lr-main"
+		return ""
 	}
 
-	// Determine router name based on provided port or fixed IP.
-	routerName := "lr-main"
+	// Determine router name based on provided port.
+	routerName := ""
 	if req.PortID != "" {
 		var port NetworkPort
 		if err := s.db.First(&port, "id = ?", req.PortID).Error; err == nil {
-			// Prefer subnet mapping from port.
 			if port.SubnetID != "" {
 				routerName = resolveRouterName(port.SubnetID)
 			}
 		}
+	}
+	if routerName == "" {
+		// Try to find router via the FIP's own network.
+		var fipSubnet Subnet
+		if err := s.db.Where("network_id = ?", floatingIP.NetworkID).First(&fipSubnet).Error; err == nil {
+			routerName = resolveRouterName(fipSubnet.ID)
+		}
+	}
+	if routerName == "" {
+		s.logger.Error("Cannot resolve router for FIP operation",
+			zap.String("fip_id", id), zap.String("port_id", req.PortID))
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No router found for floating IP association"})
+		return
 	}
 
 	// NAT operations.
@@ -226,7 +244,7 @@ func (s *Service) deleteFloatingIP(c *gin.Context) {
 
 	// Remove NAT mapping if associated; resolve router by PortID if available.
 	if floatingIP.FixedIP != "" && floatingIP.Status == "associated" {
-		routerName := "lr-main"
+		routerName := ""
 		if floatingIP.PortID != "" {
 			var port NetworkPort
 			if err := s.db.First(&port, "id = ?", floatingIP.PortID).Error; err == nil {
@@ -316,7 +334,13 @@ func (s *Service) createPort(c *gin.Context) {
 		return
 	}
 
-	// Check if subnet exists (if provided)
+	// Resolve subnet: use provided or auto-resolve default subnet for the network.
+	if req.SubnetID == "" {
+		var defaultSubnet Subnet
+		if err := s.db.Where("network_id = ?", req.NetworkID).Order("created_at asc").First(&defaultSubnet).Error; err == nil {
+			req.SubnetID = defaultSubnet.ID
+		}
+	}
 	if req.SubnetID != "" {
 		var subnet Subnet
 		if err := s.db.First(&subnet, "id = ?", req.SubnetID).Error; err != nil {
