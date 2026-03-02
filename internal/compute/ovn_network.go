@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"os/exec"
 	"strings"
 	"sync"
@@ -15,6 +16,8 @@ import (
 
 // OVNNetworkConfig holds OVN integration configuration.
 type OVNNetworkConfig struct {
+	// Management plane URL for port info lookups.
+	ManagementURL string
 	// OVS database connection.
 	OVSDBSocket string
 	// OVN southbound database connection.
@@ -202,15 +205,50 @@ func (m *OVNNetworkManager) setPortExternalIDs(portName string, info *PortInfo) 
 	return nil
 }
 
-// getPortInfo retrieves port information from controller.
+// getPortInfo retrieves port information from the management plane API.
 func (m *OVNNetworkManager) getPortInfo(ctx context.Context, portID string) (*PortInfo, error) {
-	// This would typically call the controller API.
-	// For now, return mock data.
+	url := fmt.Sprintf("%s/api/v1/ports/%s", m.config.ManagementURL, portID)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, http.NoBody)
+	if err != nil {
+		return nil, fmt.Errorf("create request: %w", err)
+	}
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("request management API: %w", err)
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("management API returned status %d for port %s", resp.StatusCode, portID)
+	}
+
+	var result struct {
+		Port struct {
+			ID         string `json:"id"`
+			MACAddress string `json:"mac_address"`
+			FixedIPs   []struct {
+				IP string `json:"ip"`
+			} `json:"fixed_ips"`
+			DeviceID string `json:"device_id"`
+		} `json:"port"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("decode port response: %w", err)
+	}
+
+	ipAddr := ""
+	if len(result.Port.FixedIPs) > 0 {
+		ipAddr = result.Port.FixedIPs[0].IP
+	}
+
 	return &PortInfo{
-		UUID:       portID,
-		MACAddress: "fa:16:3e:00:00:01",
-		IPAddress:  "10.0.0.10",
-		InstanceID: portID,
+		UUID:       result.Port.ID,
+		MACAddress: result.Port.MACAddress,
+		IPAddress:  ipAddr,
+		InstanceID: result.Port.DeviceID,
 	}, nil
 }
 

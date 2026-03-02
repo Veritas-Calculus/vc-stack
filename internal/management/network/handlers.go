@@ -260,9 +260,10 @@ func (s *Service) createNetwork(c *gin.Context) {
 				if bits == 32 {
 					hostBits := bits - ones
 					numHosts := (1 << hostBits) - 2
-					endIP := make(net.IP, len(v4))
-					copy(endIP, v4)
-					endIP[3] += byte(numHosts) // #nosec
+					// Compute end IP using full 32-bit arithmetic to avoid byte overflow.
+					baseIP := uint32(v4[0])<<24 | uint32(v4[1])<<16 | uint32(v4[2])<<8 | uint32(v4[3])
+					endIPu32 := baseIP + uint32(numHosts)
+					endIP := net.IP{byte(endIPu32 >> 24), byte(endIPu32 >> 16), byte(endIPu32 >> 8), byte(endIPu32)}
 					allocEnd = endIP.String()
 				}
 			}

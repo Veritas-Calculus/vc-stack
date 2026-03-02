@@ -1,6 +1,7 @@
 package network
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"net"
 	"net/http"
@@ -310,17 +311,21 @@ func (s *Service) configureDHCP(c *gin.Context) {
 				}
 			}
 
-			// Wait for deletions to complete.
-			time.Sleep(300 * time.Millisecond)
-
-			// Verify cleanup.
-			checkUUIDs, _ := s.nbctl("--bare", "--columns=_uuid", "find", "dhcp_options", fmt.Sprintf("cidr=%s", req.CIDR))
-			if strings.TrimSpace(checkUUIDs) != "" {
-				s.logger.Warn("Force deleting remaining DHCP options", zap.String("remaining", strings.TrimSpace(checkUUIDs)))
-				for _, uuid := range strings.Fields(strings.TrimSpace(checkUUIDs)) {
-					_, _ = s.nbctl("dhcp-options-del", strings.TrimSpace(uuid))
+			// Poll to verify cleanup instead of blind sleep.
+			for attempt := 0; attempt < 5; attempt++ {
+				checkUUIDs, _ := s.nbctl("--bare", "--columns=_uuid", "find", "dhcp_options", fmt.Sprintf("cidr=%s", req.CIDR))
+				if strings.TrimSpace(checkUUIDs) == "" {
+					break
 				}
-				time.Sleep(200 * time.Millisecond)
+				if attempt < 4 {
+					time.Sleep(100 * time.Millisecond)
+				} else {
+					// Final attempt: force delete remaining.
+					s.logger.Warn("Force deleting remaining DHCP options", zap.String("remaining", strings.TrimSpace(checkUUIDs)))
+					for _, uuid := range strings.Fields(strings.TrimSpace(checkUUIDs)) {
+						_, _ = s.nbctl("dhcp-options-del", strings.TrimSpace(uuid))
+					}
+				}
 			}
 
 			// Create new.
@@ -378,7 +383,7 @@ func (s *Service) configureDHCP(c *gin.Context) {
 		"dhcp-options-set-options",
 		dhcpUUID,
 		fmt.Sprintf("server_id=%s", gateway),
-		"server_mac=00:00:00:00:00:01",
+		"server_mac=c0:ff:ee:00:00:01",
 		fmt.Sprintf("lease_time=%d", leaseTime),
 		fmt.Sprintf("router=%s", gateway),
 		fmt.Sprintf("dns_server={%s}", dns),
@@ -661,12 +666,11 @@ func incIPv4(ip net.IP) net.IP {
 	return res
 }
 
-// helper: stable pseudo MAC like OVN driver.
+// helper: stable pseudo MAC from seed via SHA-256 hash.
+// Produces a locally-administered unicast MAC address.
 func p2pMAC(seed string) string {
-	hex := seed
-	if len(hex) < 6 {
-		hex = fmt.Sprintf("%06s", seed)
-	}
-	tail := strings.ReplaceAll(hex[:6], "-", "0")
-	return fmt.Sprintf("02:00:%s:%s:%s:%s", tail[0:2], tail[2:4], tail[4:6], "01")
+	h := sha256.Sum256([]byte(seed))
+	// Set locally administered (bit 1) and clear multicast (bit 0)
+	b0 := (h[0] | 0x02) & 0xFE
+	return fmt.Sprintf("%02x:%02x:%02x:%02x:%02x:%02x", b0, h[1], h[2], h[3], h[4], h[5])
 }

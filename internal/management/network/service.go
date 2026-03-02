@@ -382,7 +382,7 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 			networks.DELETE("/:id", s.deleteNetwork)
 			networks.POST("/:id/restart", s.restartNetwork)
 			networks.POST("/:id/repair-l3", s.repairNetworkL3)
-			networks.POST(":id/repair-ports", s.repairNetworkPorts)
+			networks.POST("/:id/repair-ports", s.repairNetworkPorts)
 			// Diagnostics.
 			networks.GET("/:id/diagnose", s.diagnoseNetwork)
 			networks.GET("/diagnose", s.diagnoseNetworkByName)

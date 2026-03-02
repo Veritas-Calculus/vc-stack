@@ -67,8 +67,8 @@ func detectOVNSocket() string {
 }
 
 func (s *Service) SetupRoutes(r *gin.Engine) {
-	r.GET("/api/netplugin/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"status": "healthy", "service": "vc-network-plugin", "ovn_socket": s.ovnNBSocket})
+	r.GET("/api/v1/network-agent/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"status": "healthy", "service": "vc-compute-network", "ovn_socket": s.ovnNBSocket})
 	})
 	v1 := r.Group("/api/v1")
 	{

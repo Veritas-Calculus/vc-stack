@@ -75,9 +75,10 @@ func (d *PluginDriver) EnsureNetwork(n *Network, s *Subnet) error {
 					if bits == 32 {
 						hostBits := bits - ones
 						numHosts := (1 << hostBits) - 2
-						endIP := make(net.IP, 4)
-						copy(endIP, ip)
-						endIP[3] += byte(numHosts) // #nosec
+						// Compute end IP using full 32-bit arithmetic to avoid byte overflow.
+						baseIP := uint32(ip[0])<<24 | uint32(ip[1])<<16 | uint32(ip[2])<<8 | uint32(ip[3])
+						endIPu32 := baseIP + uint32(numHosts)
+						endIP := net.IP{byte(endIPu32 >> 24), byte(endIPu32 >> 16), byte(endIPu32 >> 8), byte(endIPu32)}
 						s.AllocationEnd = endIP.String()
 					}
 				}
@@ -275,32 +276,44 @@ func (d *PluginDriver) SetRouterSNAT(router string, enable bool, internalCIDR, e
 	return d.post(path, payload)
 }
 
-// EnsureFIPNAT configures floating IP NAT (stub for now).
+// EnsureFIPNAT configures floating IP NAT via DNAT+SNAT rules on the router.
 func (d *PluginDriver) EnsureFIPNAT(router, floatingIP, fixedIP string) error {
-	d.logger.Debug("EnsureFIPNAT called")
-	// TODO: Implement NAT via plugin
-	return nil
+	payload := map[string]interface{}{
+		"type":        "dnat_and_snat",
+		"floating_ip": floatingIP,
+		"fixed_ip":    fixedIP,
+	}
+	path := fmt.Sprintf("/api/v1/routers/%s/nat", router)
+	return d.post(path, payload)
 }
 
-// RemoveFIPNAT removes floating IP NAT (stub for now).
+// RemoveFIPNAT removes floating IP NAT from the router.
 func (d *PluginDriver) RemoveFIPNAT(router, floatingIP, fixedIP string) error {
-	d.logger.Debug("RemoveFIPNAT called")
-	// TODO: Implement NAT removal via plugin
-	return nil
+	payload := map[string]interface{}{
+		"floating_ip": floatingIP,
+		"fixed_ip":    fixedIP,
+	}
+	path := fmt.Sprintf("/api/v1/routers/%s/nat/delete", router)
+	return d.post(path, payload)
 }
 
-// ReplacePortACLs updates port ACLs (stub for now).
+// ReplacePortACLs updates port ACLs via the plugin.
 func (d *PluginDriver) ReplacePortACLs(networkID, portID string, rules []ACLRule) error {
-	d.logger.Debug("ReplacePortACLs called")
-	// TODO: Implement ACL management via plugin
-	return nil
+	payload := map[string]interface{}{
+		"network_id": networkID,
+		"port_id":    portID,
+		"rules":      rules,
+	}
+	return d.post("/api/v1/acls", payload)
 }
 
-// EnsurePortSecurity applies security groups to port (stub for now).
+// EnsurePortSecurity applies security groups to port via the plugin.
 func (d *PluginDriver) EnsurePortSecurity(portID string, groups []CompiledSecurityGroup) error {
-	d.logger.Debug("EnsurePortSecurity called")
-	// TODO: Implement security group management via plugin
-	return nil
+	payload := map[string]interface{}{
+		"port_id": portID,
+		"groups":  groups,
+	}
+	return d.post("/api/v1/port-security", payload)
 }
 
 // small helper for IPv4 increment.
