@@ -3,13 +3,13 @@
 # Usage:
 #   docker compose up -d                 # Start PostgreSQL only (for local dev)
 #   docker compose --profile app up -d   # Start PostgreSQL + vc-management
-#   docker compose --profile full up -d  # Start everything (PostgreSQL + management + compute)
+#   docker compose --profile full up -d  # Start everything
 #   docker compose down -v               # Stop and remove volumes
 
 services:
   # ---- PostgreSQL (always starts) ----
   postgres:
-    image: postgres:15-alpine
+    image: postgres:latest
     container_name: vc-stack-postgres
     environment:
       POSTGRES_DB: vcstack
@@ -34,6 +34,7 @@ services:
     build:
       context: .
       target: vc-management
+    image: vc-management:latest
     container_name: vc-stack-management
     profiles: [ "app", "full" ]
     depends_on:
@@ -56,11 +57,12 @@ services:
 
   # ---- vc-compute (profile: full) ----
   # NOTE: Compute node requires KVM/OVS on the host.
-  # This is useful for integration testing only.
+  # Useful for integration testing only.
   vc-compute:
     build:
       context: .
       target: vc-compute
+    image: vc-compute:latest
     container_name: vc-stack-compute
     profiles: [ "full" ]
     depends_on:

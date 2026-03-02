@@ -240,6 +240,19 @@ dev-stop: ## Stop development environment
 dev-logs: ## Show development environment logs
 	@docker compose -f docker-compose.dev.yml logs -f
 
+docker-build: ## Build Docker images for vc-management and vc-compute
+	@echo "Building Docker images..."
+	@docker build --target vc-management \
+		--build-arg VERSION=$(VERSION) --build-arg COMMIT=$(COMMIT) \
+		-t vc-management:latest .
+	@docker build --target vc-compute \
+		--build-arg VERSION=$(VERSION) --build-arg COMMIT=$(COMMIT) \
+		-t vc-compute:latest .
+	@echo "Docker images built successfully"
+
+docker-up: docker-build ## Build images and start full stack
+	@docker compose -f docker-compose.dev.yml --profile full up -d
+
 ##@ Deployment
 
 deploy-k8s: ## Deploy to Kubernetes
