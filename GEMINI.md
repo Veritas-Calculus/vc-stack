@@ -30,7 +30,7 @@ The project follows a two-component architecture for simplified deployment:
   gRPC/Protobuf, Cobra (CLI), Zap (Logging), Sentry (Error Tracking).
 - **Frontend**: React 18+, TypeScript, TailwindCSS, Vite,
   Zustand (State Management), xterm.js (WebShell), noVNC.
-- **Database**: PostgreSQL 15 (Primary), Redis 7 (Cache/Session),
+- **Database**: PostgreSQL 15 (Primary),
   InfluxDB (Metrics).
 - **Infrastructure**: OVN/OVS (Software Defined Networking),
   Ceph/RBD (Distributed Storage), QEMU/KVM (Virtualization).
@@ -56,7 +56,7 @@ The project follows a two-component architecture for simplified deployment:
 | `make test` | Runs all backend tests with race detection and coverage. |
 | `make lint` | Runs `golangci-lint` for static analysis. |
 | `make proto` | Generates Go code from Protobuf definitions in `api/proto/`. |
-| `make dev-start` | Starts PostgreSQL + Redis using Docker Compose. |
+| `make dev-start` | Starts PostgreSQL using Docker Compose. |
 | `make dev-stop` | Stops the development infrastructure. |
 | `make install-tools` | Installs necessary Go development tools. |
 | `make pre-commit-install` | Installs the pre-commit hooks. |

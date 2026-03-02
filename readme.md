@@ -75,7 +75,7 @@ The system has only **two binaries**:
 | Backend | Go 1.24, Gin, GORM, Cobra, Zap, Sentry |
 | Frontend | React 18, TypeScript, TailwindCSS, Vite, Zustand |
 | Console | xterm.js (WebShell), noVNC (VNC Console) |
-| Database | PostgreSQL 15 (Primary), Redis 7 (Cache) |
+| Database | PostgreSQL 15 |
 | Metrics | InfluxDB, Prometheus |
 | Virtualization | QEMU/KVM (direct process management) |
 | Networking | OVN/OVS (SDN, security groups, floating IPs) |
@@ -170,7 +170,7 @@ GO_BUILD_TAGS=ceph make build
 ### 2. Start Development Infrastructure
 
 ```bash
-# Starts PostgreSQL 15 and Redis 7
+# Starts PostgreSQL 15
 make dev-start
 ```
 
@@ -212,7 +212,7 @@ sudo -E ./bin/vc-compute
 | `make lint` | Run golangci-lint |
 | `make fmt` | Format Go code |
 | `make proto` | Regenerate Protobuf code |
-| `make dev-start` | Start dev PostgreSQL + Redis |
+| `make dev-start` | Start dev PostgreSQL |
 | `make dev-stop` | Stop dev infrastructure |
 | `make install-tools` | Install dev tools |
 

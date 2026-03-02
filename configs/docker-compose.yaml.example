@@ -35,46 +35,27 @@ services:
     networks:
       - vcstack
 
-  # Redis (optional, for caching)
-  redis:
-    image: redis:7-alpine
-    container_name: vcstack-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis-data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 3s
-      retries: 5
-    networks:
-      - vcstack
-
-  # VC Stack Controller (Control Plane)
+  # VC Stack Management (Control Plane)
   vc-management:
     build:
       context: .
       dockerfile: Dockerfile.controller
-    container_name: vcstack-controller
+    container_name: vcstack-management
     depends_on:
       postgres:
         condition: service_healthy
     environment:
       # Database
-      DATABASE_HOST: postgres
-      DATABASE_PORT: 5432
-      DATABASE_NAME: vcstack
-      DATABASE_USER: vcstack
-      DATABASE_PASSWORD: vcstack123  # ⚠️  CHANGE IN PRODUCTION!
-      DATABASE_AUTO_MIGRATE: "true"
+      DB_HOST: postgres
+      DB_NAME: vcstack
+      DB_USER: vcstack
+      DB_PASS: vcstack123  # CHANGE IN PRODUCTION!
 
       # Server
-      SERVER_HOST: 0.0.0.0
-      SERVER_PORT: 8080
+      VC_MANAGEMENT_PORT: 8080
 
-      # JWT - ⚠️  CRITICAL: Use strong random secret in production!
-      IDENTITY_JWT_SECRET: dev-secret-change-in-production
+      # JWT - CRITICAL: Use strong random secret in production!
+      JWT_SECRET: dev-secret-change-in-production
 
       # Logging
       LOGGING_LEVEL: debug
@@ -86,8 +67,6 @@ services:
     ports:
       - "8080:8080"
       - "9090:9090"  # Metrics
-    volumes:
-      - ./configs/vc-management.yaml.example:/etc/vc-stack/controller.yaml:ro
     networks:
       - vcstack
     restart: unless-stopped
@@ -160,8 +139,6 @@ services:
 
 volumes:
   postgres-data:
-    driver: local
-  redis-data:
     driver: local
   ovn-nb-data:
     driver: local

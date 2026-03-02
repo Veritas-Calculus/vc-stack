@@ -201,7 +201,6 @@ storage:
 **包含服务**:
 
 - PostgreSQL 数据库
-- Redis (可选)
 - VC Management
 - OVN NB/SB (可选)
 - Prometheus (可选)

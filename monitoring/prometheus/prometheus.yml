@@ -49,11 +49,6 @@ scrape_configs:
     static_configs:
       - targets: ['postgres-exporter:9187']
 
-  # Redis
-  - job_name: 'redis'
-    static_configs:
-      - targets: ['redis-exporter:9121']
-
   # Kubernetes API Server (if running in Kubernetes)
   - job_name: 'kubernetes-apiservers'
     kubernetes_sd_configs:
