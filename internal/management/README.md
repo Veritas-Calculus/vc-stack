@@ -1,4 +1,4 @@
-# VC-Controller 增强功能
+# VC Management Plane
 
 ## 📋 概述
 
@@ -109,15 +109,16 @@ vc-management
 ├── Host Service          (主机管理)
 ├── Scheduler Service     (资源调度)
 ├── Gateway Service       (API网关)
-├── Metadata Service      (元数据服务) ✨ NEW
-├── Event Service         (事件审计) ✨ NEW
-├── Quota Service         (配额管理) ✨ NEW
-└── Monitoring Service    (健康监控) ✨ NEW
+├── Compute Service       (实例调度)
+├── Metadata Service      (元数据服务)
+├── Event Service         (事件审计)
+├── Quota Service         (配额管理)
+└── Monitoring Service    (健康监控)
 ```
 
 ### 技术栈
 
-- **语言**: Go 1.21+
+- **语言**: Go 1.24+
 - **框架**: Gin (HTTP), GORM (ORM)
 - **数据库**: PostgreSQL 15+
 - **认证**: JWT
@@ -142,7 +143,7 @@ export DB_PASS=vcstack
 
 ```bash
 # 配置环境变量
-export VC_CONTROLLER_PORT=8080
+export VC_MANAGEMENT_PORT=8080
 
 # 启动
 ./bin/vc-management

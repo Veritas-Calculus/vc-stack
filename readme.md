@@ -1,172 +1,276 @@
 # VC Stack
 
-<p align="center">
-  <b>A Modern, Lightweight Cloud Infrastructure Platform (IaaS)</b>
-</p>
-
-VC Stack is designed as a simplified, highly-performant alternative to
-OpenStack. It offers core cloud infrastructure services — compute, network,
-storage, and identity — built on a modern technology stack. It empowers you
-to build your own private cloud or edge computing infrastructure with
-bare-metal performance and cloud-native management.
-
----
+A modern, lightweight IaaS (Infrastructure as a Service) platform designed
+as a simplified alternative to OpenStack. VC Stack delivers core cloud
+infrastructure services — compute, network, storage, and identity —
+with a clean two-component architecture and a modern tech stack.
 
 ## Architecture
 
-VC Stack is composed of two primary components and a unified CLI:
+```text
+┌─────────────────────────────────────────────────────────┐
+│                    vc-management                        │
+│              (Management Plane - Single Binary)         │
+│                                                         │
+│  ┌──────────┐ ┌──────────┐ ┌───────────┐ ┌──────────┐  │
+│  │ Identity │ │ Compute  │ │ Scheduler │ │ Network  │  │
+│  │  (IAM)   │ │ (Inst.)  │ │           │ │  (OVN)   │  │
+│  └──────────┘ └──────────┘ └───────────┘ └──────────┘  │
+│  ┌──────────┐ ┌──────────┐ ┌───────────┐ ┌──────────┐  │
+│  │  Quota   │ │  Event   │ │  Gateway  │ │ Metadata │  │
+│  └──────────┘ └──────────┘ └───────────┘ └──────────┘  │
+│  ┌──────────┐ ┌──────────┐                              │
+│  │   Host   │ │Monitoring│    ┌──────────────────────┐  │
+│  │ Manager  │ │          │    │ Web Console (React)  │  │
+│  └──────────┘ └──────────┘    └──────────────────────┘  │
+├────────────────── REST API ─────────────────────────────┤
+│                   PostgreSQL                            │
+└──────────┬──────────────────────────────┬───────────────┘
+           │ Schedule / Dispatch          │ Heartbeat
+           ▼                              ▼
+┌─────────────────────┐      ┌─────────────────────┐
+│    vc-compute (N1)  │      │    vc-compute (N2)  │
+│   (Compute Node)    │      │   (Compute Node)    │
+│                     │      │                     │
+│ ┌─────────────────┐ │      │ ┌─────────────────┐ │
+│ │  Orchestrator   │ │      │ │  Orchestrator   │ │
+│ │ (VM Lifecycle)  │ │      │ │ (VM Lifecycle)  │ │
+│ ├─────────────────┤ │      │ ├─────────────────┤ │
+│ │   VM Driver     │ │      │ │   VM Driver     │ │
+│ │  (QEMU/KVM)    │ │      │ │  (QEMU/KVM)    │ │
+│ ├─────────────────┤ │      │ ├─────────────────┤ │
+│ │ Network Agent   │ │      │ │ Network Agent   │ │
+│ │  (OVN/OVS)     │ │      │ │  (OVN/OVS)     │ │
+│ ├─────────────────┤ │      │ ├─────────────────┤ │
+│ │ Storage Agent   │ │      │ │ Storage Agent   │ │
+│ │  (Ceph/RBD)    │ │      │ │  (Ceph/RBD)    │ │
+│ └─────────────────┘ │      │ └─────────────────┘ │
+└─────────────────────┘      └─────────────────────┘
+```
 
-1. **`vc-management`** (Management Plane)
-   - The centralized controller of your cloud.
-   - Responsible for IAM (Identity & Access Management), OVN network
-     orchestration, VM scheduling, quota management, and exposing the
-     public REST API.
-   - Hosts the integrated React-based Web Console.
+The system has only **two binaries**:
 
-2. **`vc-compute`** (Compute Node Agent)
-   - The worker agent running on the physical hypervisor nodes.
-   - Manages local Virtual Machines (via QEMU/KVM).
-   - Configures local networking (via OVN/OVS integration).
-   - Handles localized storage operations (Ceph/RBD).
+- **`vc-management`** — The centralized management plane. Exposes a
+  REST API and Web Console. Manages identity (IAM with RBAC), instance
+  scheduling, OVN network orchestration, host registration, quotas,
+  events/audit, monitoring (InfluxDB + Prometheus), and metadata.
 
-3. **`vcctl`** (Command Line Interface)
-   - The official, AWS CLI-inspired tool for interacting with the
-     VC Stack API.
-   - Provides full management capabilities:
-     `vcctl compute instances create ...`, `vcctl network list`,
-     `vcctl secrets init`, etc.
+- **`vc-compute`** — The compute node agent. Runs on each hypervisor
+  host. Composes three internal services via direct in-process calls
+  (no internal HTTP):
+  - **Orchestrator**: VM lifecycle (create, delete, start, stop,
+    reboot, resize, snapshot, backup), image/volume/SSH key management.
+  - **VM Driver** (`vm/`): Low-level QEMU/KVM process management,
+    cloud-init seed ISO generation, QMP socket control, VNC console.
+  - **Network Agent** (`network/`): Local OVN/OVS port configuration
+    for tenant network isolation.
+
+- **`vcctl`** — AWS CLI-inspired command-line tool covering compute,
+  network, storage, identity, cluster, and secrets management.
 
 ## Technology Stack
 
-- **Backend**: Go 1.24+, Gin, GORM, gRPC/Protobuf, Cobra, Zap Logger.
-- **Frontend**: React 18+, TypeScript, TailwindCSS, Vite, Zustand,
-  xterm.js (WebShell), noVNC.
-- **Data & Metrics**: PostgreSQL (Primary), Redis (Cache/Session),
-  InfluxDB (Metrics).
-- **Core Infrastructure**:
-  - Virtualization: **QEMU / KVM**
-  - SDN (Software Defined Networking): **OVN / OVS**
-  - Distributed Storage: **Ceph / RBD**
+| Layer | Technologies |
+| :--- | :--- |
+| Backend | Go 1.24, Gin, GORM, Cobra, Zap, Sentry |
+| Frontend | React 18, TypeScript, TailwindCSS, Vite, Zustand |
+| Console | xterm.js (WebShell), noVNC (VNC Console) |
+| Database | PostgreSQL 15 (Primary), Redis 7 (Cache) |
+| Metrics | InfluxDB, Prometheus |
+| Virtualization | QEMU/KVM (direct process management) |
+| Networking | OVN/OVS (SDN, security groups, floating IPs) |
+| Storage | Ceph/RBD (images, volumes, snapshots, backups) |
+| API | REST + Protobuf (Identity gRPC) |
 
-## Getting Started
+## Features
+
+### Compute
+
+- [x] Instance lifecycle (create, delete, start, stop, reboot)
+- [x] Flavors (resource templates: vCPU, RAM, Disk)
+- [x] Image management (qcow2, raw; local filesystem and Ceph/RBD)
+- [x] Volume management with Ceph/RBD backend
+- [x] Snapshots and backups (RBD snapshot export)
+- [x] SSH key injection via cloud-init
+- [x] UEFI and vTPM support
+- [x] VNC console access (noVNC WebSocket proxy)
+- [x] WebShell terminal (xterm.js)
+- [x] Scheduler-based multi-node VM placement
+- [x] Async deletion queue with retry
+
+### Networking
+
+- [x] OVN logical networks and subnets
+- [x] IPAM (IP Address Management)
+- [x] Security groups and rules (OVN ACLs)
+- [x] Floating IPs
+- [x] Router support
+- [x] Load balancer (OVN LB)
+- [x] Namespace isolation
+
+### Identity & Access
+
+- [x] JWT-based authentication (access + refresh tokens)
+- [x] Multi-project support
+- [x] IAM policies and RBAC
+- [x] User and account management
+
+### Operations
+
+- [x] Host registration with heartbeat monitoring
+- [x] Resource quota management
+- [x] Event audit logging
+- [x] InfluxDB metrics collection
+- [x] Prometheus metrics endpoint
+- [x] Sentry error tracking integration
+- [x] SonarQube code quality integration
+
+### Security
+
+- [x] CloudStack-style encrypted secrets (`ENC()` with AES-256-GCM)
+- [x] Master key-based credential management
+- [x] Input validation (network CIDRs, usernames, IPs)
+- [x] Security headers middleware (CSP, HSTS, X-Frame-Options)
+- [x] CORS configuration
+
+## Quick Start
 
 ### Prerequisites
 
-- Go 1.21 or higher
+- Go 1.24+
 - Node.js 18+ and npm
-- Docker and Docker Compose (for local database & infrastructure)
-- `make`, `protoc` (if modifying API definitions)
+- Docker and Docker Compose
+- `make`
 
-### 1. Build the Project
+### 1. Build
 
 ```bash
-# Clone the repository
 git clone https://github.com/Veritas-Calculus/vc-stack.git
 cd vc-stack
-
-# Build all binaries (vc-management, vc-compute, vcctl)
 make build
 ```
 
-Binaries will be output to the `bin/` directory.
-
-### 2. Start Local Development Infrastructure
-
-VC Stack requires a PostgreSQL database and optionally Redis/InfluxDB.
-You can start these quickly using Docker Compose:
+### 2. Start Development Infrastructure
 
 ```bash
+# Starts PostgreSQL 15 and Redis 7
 make dev-start
 ```
 
-### 3. Setup Configuration
-
-Generate a master encryption key (CloudStack-style encrypted secrets
-are supported):
+### 3. Configure Secrets
 
 ```bash
-# Generate the key and save it
-./bin/vcctl secrets init -f /tmp/master.key
-export VC_MASTER_KEY=$(cat /tmp/master.key)
+# Generate a master encryption key
+./bin/vcctl secrets init -f /etc/vc-stack/master.key
 
-# Optionally encrypt your database password for the config
+# Encrypt your database password
 ./bin/vcctl secrets encrypt "your-db-password"
+# Output: ENC(base64_ciphertext...)
 ```
 
-Copy the example configurations and adjust them:
+### 4. Run
 
 ```bash
-cp configs/env/controller.env.example configs/env/controller.env
-cp configs/env/node.env.example configs/env/node.env
-```
+# Copy and edit configuration
+cp configs/env/controller.env.example .env
 
-### 4. Run the Services
-
-**Run the Management Plane:**
-
-```bash
-export $(grep -v '^#' configs/env/controller.env | xargs)
+# Start management plane
 ./bin/vc-management
-```
 
-**Run the Compute Agent (requires root/sudo for KVM/OVS):**
-
-```bash
-export $(grep -v '^#' configs/env/node.env | xargs)
+# Start compute node (requires root for KVM/OVS)
 sudo -E ./bin/vc-compute
 ```
 
-### 5. Access the Web Console
+### 5. Access
 
-Navigate to `http://localhost:8080` in your browser.
+- **Web Console**: <http://localhost:8080>
+- **API**: <http://localhost:8080/api/v1/>
 
-If `ADMIN_DEFAULT_PASSWORD` wasn't set in the environment, check the
-`vc-management` startup logs for the auto-generated secure password.
-
-## Development Commands
+## Development
 
 | Command | Description |
 | :--- | :--- |
-| `make build` | Compiles the backend binaries into `bin/`. |
-| `make test` | Runs backend unit tests with race detection. |
-| `make lint` | Runs `golangci-lint` to ensure code quality. |
-| `make proto` | Regenerates Go code from Protobuf definitions. |
-| `npm run dev` | *(in `web/console/`)* Starts the Vite dev server. |
+| `make build` | Build all binaries to `bin/` |
+| `make test` | Run tests with race detection |
+| `make lint` | Run golangci-lint |
+| `make fmt` | Format Go code |
+| `make proto` | Regenerate Protobuf code |
+| `make dev-start` | Start dev PostgreSQL + Redis |
+| `make dev-stop` | Stop dev infrastructure |
+| `make install-tools` | Install dev tools |
 
-## Security
+Frontend (in `web/console/`):
 
-VC Stack enforces strict security policies out-of-the-box:
+| Command | Description |
+| :--- | :--- |
+| `npm run dev` | Vite dev server |
+| `npm run build` | Production build |
+| `npm run lint` | ESLint + Prettier |
+| `npm run test` | Vitest |
 
-- **No Hardcoded Passwords**: All initial credentials must be injected
-  via environment variables or are auto-generated.
-- **CloudStack-style Encrypted Storage**: Passwords in configurations
-  can be wrapped in `ENC(...)` and dynamically decrypted via AES-256-GCM
-  using a Master Key.
-- **Strict Validation**: All network CIDRs, usernames, and IDs flow
-  through rigid security checks to prevent injection.
-
-See [docs/SECURITY.md](docs/SECURITY.md) for full production deployment
-hardening guidelines.
-
-## Codebase Layout
+## Project Structure
 
 ```text
-api/proto/          Protobuf API definitions
 cmd/
-  vc-management/    Management plane entry point
-  vc-compute/       Compute node entry point
-  vcctl/            CLI utility
-configs/            Example config templates and systemd unit files
-docs/               Architectural and security documentation
+  vc-management/       Management plane entry point
+  vc-compute/          Compute node entry point + VM commands
+  vcctl/               CLI (compute, network, storage, identity,
+                        cluster, secrets, server, config)
 internal/
-  management/       API endpoints, Identity, Scheduling, OVN config
-  compute/          VM orchestration, hypervisor drivers, OVS logic
-    vm/             Low-level QEMU/KVM driver
-    network/        OVN/OVS network agent
-pkg/                Shared libraries (Security, Database, Logger, Models)
-web/console/        React administration dashboard
-migrations/         PostgreSQL schema definitions
+  management/          Management plane services
+    identity/            IAM, JWT auth, RBAC policies
+    compute/             Instance scheduling and dispatch
+    scheduler/           Multi-node VM placement
+    network/             OVN orchestration (19 files)
+    gateway/             API proxy, WebShell sessions
+    host/                Node registration and health
+    quota/               Resource quotas
+    event/               Audit event logging
+    metadata/            Instance metadata service
+    monitoring/          InfluxDB + Prometheus metrics
+    middleware/          Auth middleware
+  compute/             Compute node (unified package)
+    compute.go           Node aggregator (composes all services)
+    service.go           Orchestrator (75KB, VM lifecycle)
+    handlers.go          REST handlers (83KB)
+    ovn_network.go       Local OVN network configuration
+    ovn_security.go      Security group enforcement
+    qemu_*.go            QEMU config, firmware, handlers
+    rbd_manager*.go      Ceph/RBD storage operations
+    controller_client.go Heartbeat and status reporting
+    vm/                  QEMU/KVM driver
+      service.go           VM service with HTTP + direct API
+      driver.go            Driver interface
+      driver_qemu.go       QEMU process management (744 lines)
+      direct.go            In-process call API
+      qemu/                Config, templates, cloud-init
+    network/             OVN/OVS network agent
+      service.go           Port configuration service
+      handlers.go          Network REST endpoints
+pkg/
+  database/            PostgreSQL connection (auto-decrypts ENC())
+  security/            AES-256-GCM crypto, input validation
+  logger/              Zap logger setup
+  models/              Shared data models (Host, Instance, etc.)
+  agent/               Compute node agent configuration
+  sentry/              Sentry error tracking
+configs/               YAML, env, systemd, nginx, docker-compose
+docs/                  SECURITY.md, IAM API, Sentry, SonarQube
+web/console/           React dashboard (17 feature modules)
+migrations/            PostgreSQL schema (5 migration files)
+api/proto/             Protobuf definitions (identity.proto)
+scripts/               Deploy, rollback, DB init/migration
 ```
+
+## Documentation
+
+- [Security Best Practices](docs/SECURITY.md)
+- [IAM API Reference](docs/iam-api.md)
+- [Sentry Integration](docs/sentry-integration.md)
+- [SonarQube Integration](docs/sonarqube-integration.md)
+- [Pre-commit Hooks](docs/pre-commit.md)
+- [Configuration Guide](configs/README.md)
+- [vcctl CLI Reference](cmd/vcctl/README.md)
 
 ## License
 
