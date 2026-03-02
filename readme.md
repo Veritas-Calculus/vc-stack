@@ -43,7 +43,7 @@ with a clean two-component architecture and a modern tech stack.
 │ │  (OVN/OVS)     │ │      │ │  (OVN/OVS)     │ │
 │ ├─────────────────┤ │      │ ├─────────────────┤ │
 │ │ Storage Agent   │ │      │ │ Storage Agent   │ │
-│ │  (Ceph/RBD)    │ │      │ │  (Ceph/RBD)    │ │
+│ │ (Local/Ceph)   │ │      │ │ (Local/Ceph)   │ │
 │ └─────────────────┘ │      │ └─────────────────┘ │
 └─────────────────────┘      └─────────────────────┘
 ```
@@ -79,7 +79,7 @@ The system has only **two binaries**:
 | Metrics | InfluxDB, Prometheus |
 | Virtualization | QEMU/KVM (direct process management) |
 | Networking | OVN/OVS (SDN, security groups, floating IPs) |
-| Storage | Ceph/RBD (images, volumes, snapshots, backups) |
+| Storage | Local filesystem (dev), Ceph/RBD (production) |
 | API | REST + Protobuf (Identity gRPC) |
 
 ## Features
@@ -89,7 +89,7 @@ The system has only **two binaries**:
 - [x] Instance lifecycle (create, delete, start, stop, reboot)
 - [x] Flavors (resource templates: vCPU, RAM, Disk)
 - [x] Image management (qcow2, raw; local filesystem and Ceph/RBD)
-- [x] Volume management with Ceph/RBD backend
+- [x] Volume management (local qcow2 for dev, Ceph/RBD for production)
 - [x] Snapshots and backups (RBD snapshot export)
 - [x] SSH key injection via cloud-init
 - [x] UEFI and vTPM support
@@ -97,6 +97,18 @@ The system has only **two binaries**:
 - [x] WebShell terminal (xterm.js)
 - [x] Scheduler-based multi-node VM placement
 - [x] Async deletion queue with retry
+
+### Storage
+
+- [x] Dual-backend: local filesystem or Ceph/RBD (configurable per-service)
+- [x] Local backend for images and volumes (dev/test only)
+- [x] Ceph/RBD backend for images, volumes, snapshots, backups
+- [x] Static build without Ceph SDK (uses `rbd` CLI fallback)
+- [x] Optional native Ceph SDK via `GO_BUILD_TAGS=ceph`
+
+> **Warning**: Local storage provides NO high availability, NO live migration,
+> and NO data protection. A node failure means permanent data loss for all VMs
+> on that node. **Production deployments MUST use Ceph/RBD.**
 
 ### Networking
 
@@ -147,7 +159,12 @@ The system has only **two binaries**:
 ```bash
 git clone https://github.com/Veritas-Calculus/vc-stack.git
 cd vc-stack
+
+# Standard build (static, no Ceph SDK dependency)
 make build
+
+# With native Ceph SDK (requires librados-dev, librbd-dev)
+GO_BUILD_TAGS=ceph make build
 ```
 
 ### 2. Start Development Infrastructure
@@ -236,7 +253,8 @@ internal/
     ovn_network.go       Local OVN network configuration
     ovn_security.go      Security group enforcement
     qemu_*.go            QEMU config, firmware, handlers
-    rbd_manager*.go      Ceph/RBD storage operations
+    rbd_manager.go       Ceph/RBD (native SDK, build tag: ceph)
+    rbd_manager_nocgo.go Ceph/RBD (CLI fallback, default build)
     controller_client.go Heartbeat and status reporting
     vm/                  QEMU/KVM driver
       service.go           VM service with HTTP + direct API
@@ -244,9 +262,9 @@ internal/
       driver_qemu.go       QEMU process management (744 lines)
       direct.go            In-process call API
       qemu/                Config, templates, cloud-init
-    network/             OVN/OVS network agent
-      service.go           Port configuration service
-      handlers.go          Network REST endpoints
+    network/             OVS network agent (local port ops only)
+      service.go           Port attach/detach on br-int
+      bootstrap.go         Node network init (OVS/OVN/encap)
 pkg/
   database/            PostgreSQL connection (auto-decrypts ENC())
   security/            AES-256-GCM crypto, input validation
