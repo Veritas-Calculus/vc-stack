@@ -1,13 +1,13 @@
 # VC Stack - Local Development Docker Compose
 #
 # Usage:
-#   docker compose up -d                 # Start PostgreSQL only (for local dev)
-#   docker compose --profile app up -d   # Start PostgreSQL + vc-management
-#   docker compose --profile full up -d  # Start everything
+#   docker compose up -d                 # Start PostgreSQL only (for local go run)
+#   docker compose --profile app up -d   # Start PG + management + nginx (web dev)
+#   docker compose --profile full up -d  # Start everything including compute
 #   docker compose down -v               # Stop and remove volumes
 
 services:
-  # ---- PostgreSQL (always starts) ----
+  # ---- PostgreSQL ----
   postgres:
     image: postgres:latest
     container_name: vc-stack-postgres
@@ -17,6 +17,7 @@ services:
       POSTGRES_PASSWORD: vcstack123
       POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
     ports:
+      # Expose to host ONLY for local go run / debugging
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -29,7 +30,7 @@ services:
     networks:
       - vc-stack
 
-  # ---- vc-management (profile: app) ----
+  # ---- vc-management (no port exposed, nginx proxies) ----
   vc-management:
     build:
       context: .
@@ -49,13 +50,27 @@ services:
       VC_MANAGEMENT_PORT: "8080"
       LOGGING_LEVEL: debug
       LOGGING_FORMAT: text
-    ports:
-      - "8080:8080"
+    # No ports exposed — nginx handles external access
     networks:
       - vc-stack
     restart: unless-stopped
 
-  # ---- vc-compute (profile: full) ----
+  # ---- Nginx reverse proxy ----
+  nginx:
+    image: nginx:latest
+    container_name: vc-stack-nginx
+    profiles: [ "app", "full" ]
+    depends_on:
+      - vc-management
+    ports:
+      - "80:80"
+    volumes:
+      - ./configs/nginx/vc-stack.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - vc-stack
+    restart: unless-stopped
+
+  # ---- vc-compute (no port exposed, internal only) ----
   # NOTE: Compute node requires KVM/OVS on the host.
   # Useful for integration testing only.
   vc-compute:
@@ -81,8 +96,7 @@ services:
       VOLUMES_LOCAL_PATH: /var/lib/vcstack/volumes
       LOGGING_LEVEL: debug
       LOGGING_FORMAT: text
-    ports:
-      - "8081:8081"
+    # No ports exposed — management communicates via internal network
     privileged: true
     networks:
       - vc-stack
