@@ -63,6 +63,29 @@ func NewNode(cfg NodeConfig) (*Node, error) {
 		return nil, err
 	}
 
+	// Bootstrap node networking (OVS bridges, OVN controller, encap, bridge_mappings).
+	// This must happen before any VM port operations.
+	ovnRemote := getEnvOrDefault("NETWORK_OVN_SB_ADDRESS", "")
+	if ovnRemote != "" {
+		bootstrapCfg := network.BootstrapConfig{
+			OVNRemote:         ovnRemote,
+			EncapType:         getEnvOrDefault("NETWORK_ENCAP_TYPE", "geneve"),
+			EncapIP:           getEnvOrDefault("NETWORK_ENCAP_IP", ""),
+			SystemID:          getEnvOrDefault("NODE_NAME", ""),
+			IntegrationBridge: getEnvOrDefault("OVS_INTEGRATION_BRIDGE", "br-int"),
+			ProviderBridge:    getEnvOrDefault("NETWORK_EXTERNAL_BRIDGE", "br-provider"),
+			BridgeMappings:    getEnvOrDefault("NETWORK_BRIDGE_MAPPINGS", ""),
+			ProviderInterface: getEnvOrDefault("NETWORK_PROVIDER_INTERFACE", ""),
+			SingleNIC:         getEnvBool("NETWORK_SINGLE_NIC", false),
+		}
+		if err := network.Bootstrap(bootstrapCfg, cfg.Logger); err != nil {
+			cfg.Logger.Error("Network bootstrap failed — VM networking may not work", zap.Error(err))
+			// Don't return error; allow compute node to start for management ops.
+		}
+	} else {
+		cfg.Logger.Warn("NETWORK_OVN_SB_ADDRESS not set, skipping network bootstrap. VM networking will not work.")
+	}
+
 	// Initialize network agent service (local OVS only).
 	netSvc, err := network.NewService(network.Config{
 		Logger:            cfg.Logger,
