@@ -10,17 +10,17 @@ VC Stack is designed as a simplified alternative to OpenStack, offering core clo
 
 ### Architecture
 
-The project follows a modular architecture, recently consolidated into a few key binaries for simplified deployment:
+The project follows a two-component architecture for simplified deployment:
 
-- **`vc-controller`**: The centralized control plane. It aggregates services like identity (IAM),
+- **`vc-management`**: The centralized management plane. It aggregates services like identity (IAM),
   networking (OVN orchestration), scheduling, and global compute management.
-- **`vc-node`**: The worker node agent. It manages local virtual machines (via QEMU/KVM) and configures
-  local networking (via OVN/OVS).
+- **`vc-compute`**: The compute node agent. It manages local virtual machines (via QEMU/KVM),
+  configures local networking (via OVN/OVS), and handles storage (Ceph/RBD).
 - **`vcctl`**: The official CLI tool for interacting with the VC Stack API.
 
 ### Technical Stack
 
-- **Backend**: Go 1.21+, Gin (Web Framework), GORM (ORM), gRPC/Protobuf, Cobra (CLI), Zap (Logging),
+- **Backend**: Go 1.24+, Gin (Web Framework), GORM (ORM), gRPC/Protobuf, Cobra (CLI), Zap (Logging),
   Sentry (Error Tracking).
 - **Frontend**: React 18+, TypeScript, TailwindCSS, Vite, Zustand (State Management), xterm.js (WebShell), noVNC.
 - **Database**: PostgreSQL (Primary), Redis (Cache/Session), InfluxDB (Metrics).
@@ -44,7 +44,7 @@ The project follows a modular architecture, recently consolidated into a few key
 
 | Command | Description |
 | :--- | :--- |
-| `make build` | Builds all binaries (`vc-controller`, `vc-node`, `vcctl`) into `bin/`. |
+| `make build` | Builds all binaries (`vc-management`, `vc-compute`, `vcctl`) into `bin/`. |
 | `make test` | Runs all backend tests with race detection and coverage. |
 | `make lint` | Runs `golangci-lint` for static analysis. |
 | `make proto` | Generates Go code from Protobuf definitions in `api/proto/`. |
@@ -66,12 +66,14 @@ The project follows a modular architecture, recently consolidated into a few key
 ## Codebase Structure
 
 - `api/proto/`: Protobuf API definitions.
-- `cmd/`: Entry points for `vc-controller`, `vc-node`, and `vcctl`.
+- `cmd/`: Entry points for `vc-management`, `vc-compute`, and `vcctl`.
 - `configs/`: Example configuration files and systemd service templates.
 - `docs/`: Technical documentation, including security and API guides.
 - `internal/`: Core business logic.
-  - `controlplane/`: Implementation of all control plane services.
-  - `node/`: Implementation of node-side logic (VM drivers, netplugins).
+  - `management/`: Implementation of all management plane services.
+  - `compute/`: Compute node logic (VM orchestration, lifecycle management).
+    - `vm/`: Low-level VM driver (QEMU/KVM).
+    - `network/`: OVN/OVS network agent.
 - `pkg/`: Shared utility packages (logger, database, security, sentry).
 - `web/console/`: React-based management dashboard.
 - `migrations/`: SQL migration files for PostgreSQL.
@@ -101,7 +103,7 @@ The project follows a modular architecture, recently consolidated into a few key
 
 ## Interaction Instructions for Gemini CLI
 
-- **Researching**: When investigating issues, check both the controller and node logic as they are often
+- **Researching**: When investigating issues, check both the management and compute logic as they are often
   interdependent.
 - **Testing**: Always run `make test` after backend changes and `npm run test` after frontend changes.
 - **API Changes**: If modifying Protobuf files, remember to run `make proto` and update both backend services

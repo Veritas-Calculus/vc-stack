@@ -3,8 +3,6 @@ package models
 // Package models defines data models for the VC Stack system.
 
 import (
-	"database/sql/driver"
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -44,29 +42,7 @@ const (
 	ResourceStateError       HostResourceState = "error"
 )
 
-// JSONMap is a custom type for JSONB fields.
-type JSONMap map[string]interface{}
-
-// Scan implements the sql.Scanner interface.
-func (j *JSONMap) Scan(value interface{}) error {
-	if value == nil {
-		*j = make(map[string]interface{})
-		return nil
-	}
-	bytes, ok := value.([]byte)
-	if !ok {
-		return nil
-	}
-	return json.Unmarshal(bytes, j)
-}
-
-// Value implements the driver.Valuer interface.
-func (j JSONMap) Value() (driver.Value, error) {
-	if j == nil {
-		return json.Marshal(make(map[string]interface{}))
-	}
-	return json.Marshal(j)
-}
+// NOTE: JSONMap is defined in types.go within this package.
 
 // Host represents a physical or virtual host in the cluster.
 type Host struct {

@@ -15,7 +15,7 @@ interface ComponentMetric {
 export function ComponentMonitoring() {
   const { loading, error, getComponentMetrics, getErrorMetrics } = useMonitoring()
 
-  const [selectedComponent, setSelectedComponent] = useState('vc-controller')
+  const [selectedComponent, setSelectedComponent] = useState('vc-management')
   const [duration, setDuration] = useState('1h')
   const [metrics, setMetrics] = useState<ComponentMetric[]>([])
   const [errors, setErrors] = useState<ComponentMetric[]>([])
@@ -50,8 +50,8 @@ export function ComponentMonitoring() {
             onChange={(e) => setSelectedComponent(e.target.value)}
             className="px-4 py-2 border rounded"
           >
-            <option value="vc-controller">VC Controller</option>
-            <option value="vc-node">VC Node</option>
+            <option value="vc-management">VC Management</option>
+            <option value="vc-compute">VC Compute</option>
             <option value="compute">Compute Service</option>
             <option value="network">Network Service</option>
             <option value="storage">Storage Service</option>

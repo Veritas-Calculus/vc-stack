@@ -52,7 +52,7 @@ services:
       - vcstack
 
   # VC Stack Controller (Control Plane)
-  vc-controller:
+  vc-management:
     build:
       context: .
       dockerfile: Dockerfile.controller
@@ -87,7 +87,7 @@ services:
       - "8080:8080"
       - "9090:9090"  # Metrics
     volumes:
-      - ./configs/vc-controller.yaml.example:/etc/vc-stack/controller.yaml:ro
+      - ./configs/vc-management.yaml.example:/etc/vc-stack/controller.yaml:ro
     networks:
       - vcstack
     restart: unless-stopped

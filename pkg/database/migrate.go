@@ -21,9 +21,19 @@ func AutoMigrate(db *gorm.DB) error {
 		return fmt.Errorf("failed to create custom types: %w", err)
 	}
 
-	// Auto-migrate models.
+	// Auto-migrate all shared models.
+	// This is the single source of truth for database schema.
+	// Node services must NOT run their own AutoMigrate.
 	if err := db.AutoMigrate(
+		// Infrastructure models
 		&models.Host{},
+		// Compute models
+		&models.Flavor{},
+		&models.Image{},
+		&models.Instance{},
+		&models.Volume{},
+		&models.Snapshot{},
+		&models.SSHKey{},
 	); err != nil {
 		return fmt.Errorf("failed to auto-migrate: %w", err)
 	}

@@ -4,8 +4,10 @@ package database
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
+	"github.com/Veritas-Calculus/vc-stack/pkg/security"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -26,8 +28,29 @@ type Config struct {
 
 // New creates a new database connection using the provided configuration.
 func New(config Config) (*gorm.DB, error) {
+	// Attempt to decrypt credentials if wrapped in ENC(...)
+	username := config.Username
+	password := config.Password // #nosec
+
+	// If at least one of them looks like it's encrypted, look for a master key
+	if strings.HasPrefix(username, "ENC(") || strings.HasPrefix(password, "ENC(") {
+		key, err := security.GetMasterKey("")
+		if err == nil && len(key) >= 16 {
+			if strings.HasPrefix(username, "ENC(") {
+				if dec, err := security.Decrypt(username, key); err == nil {
+					username = dec
+				}
+			}
+			if strings.HasPrefix(password, "ENC(") {
+				if dec, err := security.Decrypt(password, key); err == nil {
+					password = dec
+				}
+			}
+		}
+	}
+
 	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
-		config.Host, config.Port, config.Username, config.Password, config.Name, config.SSLMode)
+		config.Host, config.Port, username, password, config.Name, config.SSLMode)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),

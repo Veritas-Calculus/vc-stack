@@ -114,6 +114,29 @@ Enforce strong password policies:
 4. **Kubernetes Secrets** - For K8s deployments
 5. **Docker Secrets** - For Docker Swarm
 
+### Encrypted Configuration (CloudStack Style)
+
+VC Stack supports CloudStack-style encrypted strings in its configuration files to avoid plaintext passwords.
+
+1. **Initialize a Master Key**:
+
+   ```bash
+   vcctl secrets init -f /etc/vc-stack/master.key
+   # OR set via environment: export VC_MASTER_KEY="..."
+   ```
+
+2. **Encrypt your Database Password**:
+
+   ```bash
+   vcctl secrets encrypt "my_super_secret_password"
+   # Output: ENC(base64_encoded_ciphertext)
+   ```
+
+3. **Use in Configuration**:
+   Any configuration field (like database username/password) that starts with
+   `ENC(` and ends with `)` will be automatically decrypted at runtime using
+   the Master Key.
+
 ### Environment Variables
 
 Use `.env` files for local development only:
@@ -128,7 +151,7 @@ IDENTITY_JWT_SECRET=your_jwt_secret
 
 ```yaml
 services:
-  vc-controller:
+  vc-management:
     env_file:
       - .env
 ```
@@ -144,8 +167,8 @@ database:
   host: db.example.com
   port: 5432
   name: vcstack
-  username: vcstack_app
-  password: ${DATABASE_PASSWORD}  # From environment or secrets manager
+  username: ENC(encrypted_username)
+  password: ENC(encrypted_password)  # Encrypted using VC_MASTER_KEY
   sslmode: verify-full  # ⚠️ REQUIRED for production
   # SSL certificate configuration
   sslrootcert: /path/to/ca.crt
@@ -229,8 +252,8 @@ Set restrictive permissions on configuration files:
 
 ```bash
 # Configuration files
-chmod 600 /etc/vc-stack/vc-controller.yaml
-chown vcstack:vcstack /etc/vc-stack/vc-controller.yaml
+chmod 600 /etc/vc-stack/vc-management.yaml
+chown vcstack:vcstack /etc/vc-stack/vc-management.yaml
 
 # SSL certificates
 chmod 600 /etc/ssl/private/vcstack.key
@@ -248,7 +271,7 @@ chown root:ssl-cert /etc/ssl/private/vcstack.key
 ### Example Secure Configuration Pattern
 
 ```yaml
-# vc-controller.yaml
+# vc-management.yaml
 database:
   host: ${DB_HOST}
   port: ${DB_PORT}

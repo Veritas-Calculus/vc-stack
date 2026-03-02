@@ -43,8 +43,8 @@ rollback() {
     # shellcheck disable=SC2087
     ssh "${REMOTE_USER}@${REMOTE_HOST}" << EOF
 # 停止服务
-sudo systemctl stop vc-controller
-sudo systemctl stop vc-node
+sudo systemctl stop vc-management
+sudo systemctl stop vc-compute
 sleep 3
 
 # 回滚二进制
@@ -62,8 +62,8 @@ if [ -d "${backup_dir}/configs" ]; then
 fi
 
 # 重启服务
-sudo systemctl start vc-controller
-sudo systemctl start vc-node
+sudo systemctl start vc-management
+sudo systemctl start vc-compute
 
 echo "回滚完成"
 EOF

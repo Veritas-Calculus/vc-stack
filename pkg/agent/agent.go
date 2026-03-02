@@ -27,7 +27,7 @@ type Config struct {
 	// NodeIP is the IP address of this node (auto-detected if empty).
 	NodeIP string
 
-	// ManagementPort is the port for the vc-lite API.
+	// ManagementPort is the port for the compute agent API.
 	ManagementPort int
 
 	// CPUCores is the number of CPU cores on this node.

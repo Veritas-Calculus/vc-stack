@@ -98,24 +98,24 @@ stop_remote_services() {
 
     ssh "${REMOTE_USER}@${REMOTE_HOST}" << 'EOF'
 # 停止 systemd 服务
-sudo systemctl stop vc-controller 2>/dev/null || true
-sudo systemctl stop vc-node 2>/dev/null || true
+sudo systemctl stop vc-management 2>/dev/null || true
+sudo systemctl stop vc-compute 2>/dev/null || true
 
 # 查找并停止所有相关进程
-sudo pkill -f vc-controller || true
-sudo pkill -f vc-node || true
+sudo pkill -f vc-management || true
+sudo pkill -f vc-compute || true
 sudo pkill -f vcctl || true
 
 # 等待进程完全停止
 sleep 3
 
 # 确认进程已停止
-if pgrep -f "vc-controller|vc-node" > /dev/null; then
+if pgrep -f "vc-management|vc-compute" > /dev/null; then
     echo "警告: 仍有进程在运行"
-    ps aux | grep -E "vc-controller|vc-node" | grep -v grep
+    ps aux | grep -E "vc-management|vc-compute" | grep -v grep
     echo "强制终止..."
-    sudo pkill -9 -f vc-controller || true
-    sudo pkill -9 -f vc-node || true
+    sudo pkill -9 -f vc-management || true
+    sudo pkill -9 -f vc-compute || true
     sleep 2
 fi
 
@@ -179,12 +179,12 @@ deploy_binaries() {
     # 然后使用 sudo 移动到目标目录并设置权限
     # shellcheck disable=SC2087
     ssh "${REMOTE_USER}@${REMOTE_HOST}" << EOF
-sudo mv /tmp/vc-controller ${REMOTE_BIN_DIR}/ 2>/dev/null || true
-sudo mv /tmp/vc-node ${REMOTE_BIN_DIR}/ 2>/dev/null || true
+sudo mv /tmp/vc-management ${REMOTE_BIN_DIR}/ 2>/dev/null || true
+sudo mv /tmp/vc-compute ${REMOTE_BIN_DIR}/ 2>/dev/null || true
 sudo mv /tmp/vcctl ${REMOTE_BIN_DIR}/ 2>/dev/null || true
 
-sudo chmod +x ${REMOTE_BIN_DIR}/vc-controller
-sudo chmod +x ${REMOTE_BIN_DIR}/vc-node
+sudo chmod +x ${REMOTE_BIN_DIR}/vc-management
+sudo chmod +x ${REMOTE_BIN_DIR}/vc-compute
 sudo chmod +x ${REMOTE_BIN_DIR}/vcctl
 
 echo "二进制文件部署完成"
@@ -232,7 +232,7 @@ deploy_systemd_services() {
     log_info "部署 systemd 服务文件..."
 
     # 创建临时服务文件
-    cat > /tmp/vc-controller.service << 'EOF'
+    cat > /tmp/vc-management.service << 'EOF'
 [Unit]
 Description=VC Stack Controller - Control Plane Services
 Documentation=https://github.com/Veritas-Calculus/vc-stack
@@ -246,7 +246,7 @@ User=user
 Group=user
 
 WorkingDirectory=/opt/tiger
-ExecStart=/opt/tiger/bin/vc-controller
+ExecStart=/opt/tiger/bin/vc-management
 
 Restart=on-failure
 RestartSec=10s
@@ -263,13 +263,13 @@ Environment="VC_CONTROLLER_PORT=8080"
 
 StandardOutput=journal
 StandardError=journal
-SyslogIdentifier=vc-controller
+SyslogIdentifier=vc-management
 
 [Install]
 WantedBy=multi-user.target
 EOF
 
-    cat > /tmp/vc-node.service << 'EOF'
+    cat > /tmp/vc-compute.service << 'EOF'
 [Unit]
 Description=VC Stack Node - Compute and Network Agent
 Documentation=https://github.com/Veritas-Calculus/vc-stack
@@ -283,7 +283,7 @@ User=root
 Group=root
 
 WorkingDirectory=/opt/tiger
-ExecStart=/opt/tiger/bin/vc-node
+ExecStart=/opt/tiger/bin/vc-compute
 
 Restart=on-failure
 RestartSec=10s
@@ -304,27 +304,27 @@ Environment="NODE_PORT=8091"
 
 StandardOutput=journal
 StandardError=journal
-SyslogIdentifier=vc-node
+SyslogIdentifier=vc-compute
 
 [Install]
 WantedBy=multi-user.target
 EOF
 
     # 复制到远程
-    scp /tmp/vc-controller.service "${REMOTE_USER}@${REMOTE_HOST}:/tmp/"
-    scp /tmp/vc-node.service "${REMOTE_USER}@${REMOTE_HOST}:/tmp/"
+    scp /tmp/vc-management.service "${REMOTE_USER}@${REMOTE_HOST}:/tmp/"
+    scp /tmp/vc-compute.service "${REMOTE_USER}@${REMOTE_HOST}:/tmp/"
 
     # 安装服务文件
     ssh "${REMOTE_USER}@${REMOTE_HOST}" << 'EOFREMOTE'
-sudo mv /tmp/vc-controller.service /etc/systemd/system/
-sudo mv /tmp/vc-node.service /etc/systemd/system/
+sudo mv /tmp/vc-management.service /etc/systemd/system/
+sudo mv /tmp/vc-compute.service /etc/systemd/system/
 
 sudo systemctl daemon-reload
 echo "systemd 服务文件已更新"
 EOFREMOTE
 
     # 清理本地临时文件
-    rm -f /tmp/vc-controller.service /tmp/vc-node.service
+    rm -f /tmp/vc-management.service /tmp/vc-compute.service
 
     log_info "systemd 服务文件部署完成"
 }
@@ -379,34 +379,34 @@ start_services() {
 
     ssh "${REMOTE_USER}@${REMOTE_HOST}" << 'EOF'
 # 启动 controller
-sudo systemctl enable vc-controller
-sudo systemctl start vc-controller
+sudo systemctl enable vc-management
+sudo systemctl start vc-management
 
 # 等待 controller 启动
 sleep 5
 
 # 检查 controller 状态
-if sudo systemctl is-active --quiet vc-controller; then
-    echo "vc-controller 启动成功"
+if sudo systemctl is-active --quiet vc-management; then
+    echo "vc-management 启动成功"
 else
-    echo "vc-controller 启动失败，查看日志:"
-    sudo journalctl -u vc-controller -n 20 --no-pager
+    echo "vc-management 启动失败，查看日志:"
+    sudo journalctl -u vc-management -n 20 --no-pager
     exit 1
 fi
 
 # 启动 node
-sudo systemctl enable vc-node
-sudo systemctl start vc-node
+sudo systemctl enable vc-compute
+sudo systemctl start vc-compute
 
 # 等待 node 启动
 sleep 5
 
 # 检查 node 状态
-if sudo systemctl is-active --quiet vc-node; then
-    echo "vc-node 启动成功"
+if sudo systemctl is-active --quiet vc-compute; then
+    echo "vc-compute 启动成功"
 else
-    echo "vc-node 启动失败，查看日志:"
-    sudo journalctl -u vc-node -n 20 --no-pager
+    echo "vc-compute 启动失败，查看日志:"
+    sudo journalctl -u vc-compute -n 20 --no-pager
     exit 1
 fi
 
@@ -414,9 +414,9 @@ echo ""
 echo "所有服务启动完成"
 echo ""
 echo "服务状态:"
-sudo systemctl status vc-controller --no-pager -l
+sudo systemctl status vc-management --no-pager -l
 echo ""
-sudo systemctl status vc-node --no-pager -l
+sudo systemctl status vc-compute --no-pager -l
 EOF
 
     log_info "服务启动完成"
@@ -437,8 +437,8 @@ ls -lh /opt/tiger/bin/
 
 echo ""
 echo "服务状态:"
-sudo systemctl is-active vc-controller && echo "✓ vc-controller: 运行中" || echo "✗ vc-controller: 未运行"
-sudo systemctl is-active vc-node && echo "✓ vc-node: 运行中" || echo "✗ vc-node: 未运行"
+sudo systemctl is-active vc-management && echo "✓ vc-management: 运行中" || echo "✗ vc-management: 未运行"
+sudo systemctl is-active vc-compute && echo "✓ vc-compute: 运行中" || echo "✗ vc-compute: 未运行"
 
 echo ""
 echo "监听端口:"
@@ -473,12 +473,12 @@ show_deployment_info() {
     echo "    - Monitoring: http://${REMOTE_HOST}:9090"
     echo ""
     echo "  配置文件:"
-    echo "    - Controller: ${REMOTE_CONFIG_DIR}/vc-controller.yaml"
-    echo "    - Node: ${REMOTE_CONFIG_DIR}/vc-node.yaml"
+    echo "    - Controller: ${REMOTE_CONFIG_DIR}/vc-management.yaml"
+    echo "    - Node: ${REMOTE_CONFIG_DIR}/vc-compute.yaml"
     echo ""
     echo "  日志查看:"
-    echo "    - Controller: sudo journalctl -u vc-controller -f"
-    echo "    - Node: sudo journalctl -u vc-node -f"
+    echo "    - Controller: sudo journalctl -u vc-management -f"
+    echo "    - Node: sudo journalctl -u vc-compute -f"
     echo ""
 }
 

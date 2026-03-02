@@ -178,8 +178,8 @@ GOOS=linux GOARCH=amd64 make vcctl
 
 ```bash
 # Old way - separate binaries for each service
-./bin/vc-controller    # Control plane
-./bin/vc-node          # Compute node
+./bin/vc-management    # Management plane
+./bin/vc-compute       # Compute node
 ./bin/vc-scheduler     # Scheduler (deprecated)
 ./bin/vc-gateway       # Gateway (deprecated)
 ./bin/vc-identity      # Identity (deprecated)

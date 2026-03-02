@@ -33,10 +33,10 @@ PROTO_DIR := ./api/proto
 DOCS_DIR := ./docs
 
 # Services
-## Reduced service set: build controller and node binaries, plus vcctl CLI.
-## These combined binaries aggregate multiple previously-separate services
-## to simplify deployment (controller: control-plane services, node: compute/node services).
-SERVICES := vc-controller vc-node vcctl
+## Two-component architecture: management plane and compute node, plus vcctl CLI.
+## vc-management: management plane services (identity, scheduler, network, etc.)
+## vc-compute: compute node services (VM, network agent, storage agent)
+SERVICES := vc-management vc-compute vcctl
 
 # Mark service targets as phony so Make won't treat existing files in repo root
 # (e.g., ./vc-compute) as up-to-date targets and skip building into ./bin/

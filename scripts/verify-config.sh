@@ -142,15 +142,15 @@ if check_file_exists "/etc/vc-stack/node.env" "false"; then
 fi
 
 # Systemd 服务文件
-check_file_exists "/etc/systemd/system/vc-controller.service" "false"
-check_file_exists "/etc/systemd/system/vc-node.service" "false"
+check_file_exists "/etc/systemd/system/vc-management.service" "false"
+check_file_exists "/etc/systemd/system/vc-compute.service" "false"
 
 echo ""
 echo "=== 2. 检查二进制文件 ==="
 echo ""
 
-check_file_exists "/opt/vc-stack/bin/vc-controller" "false"
-check_file_exists "/opt/vc-stack/bin/vc-node" "false"
+check_file_exists "/opt/vc-stack/bin/vc-management" "false"
+check_file_exists "/opt/vc-stack/bin/vc-compute" "false"
 check_file_exists "/opt/vc-stack/bin/vcctl" "false"
 
 echo ""
@@ -174,8 +174,8 @@ echo ""
 echo "=== 5. 检查 VC Stack 服务 ==="
 echo ""
 
-check_service "vc-controller"
-check_service "vc-node"
+check_service "vc-management"
+check_service "vc-compute"
 
 echo ""
 echo "======================================"

@@ -6,19 +6,19 @@
 
 ```
 configs/
-├── vc-controller.yaml.example      # ✅ Controller 完整配置模板
-├── vc-node.yaml.example            # ✅ Node 完整配置模板
+├── vc-management.yaml.example      # ✅ Management 完整配置模板
+├── vc-compute.yaml.example            # ✅ Node 完整配置模板
 ├── docker-compose.yaml.example     # ✅ Docker Compose 部署
 ├── env/                            # ✅ 环境变量配置
-│   ├── controller.env.example      #    Controller 环境变量
+│   ├── controller.env.example      #    Management 环境变量
 │   └── node.env.example            #    Node 环境变量
 ├── systemd/                        # ✅ Systemd 服务文件
-│   ├── vc-controller.service       #    Controller 服务
-│   └── vc-node.service             #    Node 服务
-├── compute.yaml                    # ⚠️  已废弃 (使用 vc-node.yaml)
-├── identity.yaml                   # ⚠️  已废弃 (使用 vc-controller.yaml)
-├── network.yaml                    # ⚠️  已废弃 (使用 vc-controller.yaml)
-├── lite.yaml                       # ⚠️  已废弃 (使用 vc-node.yaml)
+│   ├── vc-management.service       #    Management 服务
+│   └── vc-compute.service             #    Node 服务
+├── compute.yaml                    # ⚠️  已废弃 (使用 vc-compute.yaml)
+├── identity.yaml                   # ⚠️  已废弃 (使用 vc-management.yaml)
+├── network.yaml                    # ⚠️  已废弃 (使用 vc-management.yaml)
+├── lite.yaml                       # ⚠️  已废弃 (使用 vc-compute.yaml)
 ├── config.yaml                     # ⚠️  已废弃 (已拆分)
 ├── lite-with-agent.yaml.example    # ℹ️  参考用 (Agent 配置示例)
 └── netplugin.yaml.example          # ℹ️  参考用 (网络插件配置)
@@ -26,54 +26,54 @@ configs/
 
 ## 🚀 快速开始
 
-### 1. Controller 部署
+### 1. Management 部署
 
 ```bash
 # 复制配置模板
-cp configs/vc-controller.yaml.example /etc/vc-stack/controller.yaml
+cp configs/vc-management.yaml.example /etc/vc-stack/controller.yaml
 
 # 编辑配置（修改数据库密码、JWT secret 等）
 vim /etc/vc-stack/controller.yaml
 
-# 启动 Controller
-./bin/vc-controller --config /etc/vc-stack/controller.yaml
+# 启动 Management
+./bin/vc-management --config /etc/vc-stack/controller.yaml
 ```
 
 ### 2. Node 部署
 
 ```bash
 # 复制配置模板
-cp configs/vc-node.yaml.example /etc/vc-stack/node.yaml
+cp configs/vc-compute.yaml.example /etc/vc-stack/node.yaml
 
 # 编辑配置（修改 controller_url、节点名称等）
 vim /etc/vc-stack/node.yaml
 
 # 启动 Node
-sudo ./bin/vc-node --config /etc/vc-stack/node.yaml
+sudo ./bin/vc-compute --config /etc/vc-stack/node.yaml
 ```
 
 ### 3. 使用环境变量 (可选)
 
 ```bash
-# Controller
+# Management
 cp configs/env/controller.env.example /etc/vc-stack/controller.env
 vim /etc/vc-stack/controller.env
 source /etc/vc-stack/controller.env
-./bin/vc-controller
+./bin/vc-management
 
 # Node
 cp configs/env/node.env.example /etc/vc-stack/node.env
 vim /etc/vc-stack/node.env
 source /etc/vc-stack/node.env
-sudo ./bin/vc-node
+sudo ./bin/vc-compute
 ```
 
 ### 4. 使用 Systemd (生产环境推荐)
 
 ```bash
 # 安装服务文件
-sudo cp configs/systemd/vc-controller.service /etc/systemd/system/
-sudo cp configs/systemd/vc-node.service /etc/systemd/system/
+sudo cp configs/systemd/vc-management.service /etc/systemd/system/
+sudo cp configs/systemd/vc-compute.service /etc/systemd/system/
 
 # 配置环境变量
 sudo cp configs/env/controller.env.example /etc/vc-stack/controller.env
@@ -85,12 +85,12 @@ sudo vim /etc/vc-stack/node.env
 
 # 启动服务
 sudo systemctl daemon-reload
-sudo systemctl enable vc-controller vc-node
-sudo systemctl start vc-controller vc-node
+sudo systemctl enable vc-management vc-compute
+sudo systemctl start vc-management vc-compute
 
 # 查看状态
-sudo systemctl status vc-controller
-sudo systemctl status vc-node
+sudo systemctl status vc-management
+sudo systemctl status vc-compute
 ```
 
 ### 5. 使用 Docker Compose (开发环境)
@@ -103,16 +103,16 @@ cp configs/docker-compose.yaml.example docker-compose.yaml
 docker-compose up -d
 
 # 查看日志
-docker-compose logs -f vc-controller
+docker-compose logs -f vc-management
 ```
 
 ## 📋 配置文件说明
 
 ### ✅ 新架构配置 (当前使用)
 
-#### vc-controller.yaml.example
+#### vc-management.yaml.example
 
-**用途**: VC Stack Controller 完整配置
+**用途**: VC Stack Management 完整配置
 **包含服务**: Gateway, Identity, Network, Scheduler
 **关键配置**:
 
@@ -136,7 +136,7 @@ identity:
     secret: your-secret-key
 ```
 
-#### vc-node.yaml.example
+#### vc-compute.yaml.example
 
 **用途**: VC Stack Node 完整配置
 **包含服务**: Compute, Lite Agent, Network Plugin
@@ -164,7 +164,7 @@ storage:
 
 #### env/controller.env.example
 
-**用途**: Controller 环境变量配置
+**用途**: Management 环境变量配置
 **适用场景**: 容器化部署、CI/CD、简化配置
 **包含**: 数据库、JWT、OVN、日志等核心配置
 
@@ -174,9 +174,9 @@ storage:
 **适用场景**: 容器化部署、批量节点部署
 **包含**: Agent、Libvirt、存储等核心配置
 
-#### systemd/vc-controller.service
+#### systemd/vc-management.service
 
-**用途**: Controller systemd 服务文件
+**用途**: Management systemd 服务文件
 **特点**:
 
 - 依赖管理 (PostgreSQL)
@@ -184,7 +184,7 @@ storage:
 - 资源限制
 - 日志集成
 
-#### systemd/vc-node.service
+#### systemd/vc-compute.service
 
 **用途**: Node systemd 服务文件
 **特点**:
@@ -200,19 +200,19 @@ storage:
 
 - PostgreSQL 数据库
 - Redis (可选)
-- VC Controller
+- VC Management
 - OVN NB/SB (可选)
 - Prometheus (可选)
 - Grafana (可选)
 
 ### ⚠️ 已废弃配置 (不再使用)
 
-这些配置文件对应的独立服务已经合并到 `vc-controller` 和 `vc-node`：
+这些配置文件对应的独立服务已经合并到 `vc-management` 和 `vc-compute`：
 
-- **compute.yaml** → 迁移到 `vc-node.yaml`
-- **identity.yaml** → 迁移到 `vc-controller.yaml` (identity 段)
-- **network.yaml** → 迁移到 `vc-controller.yaml` (network 段)
-- **lite.yaml** → 迁移到 `vc-node.yaml`
+- **compute.yaml** → 迁移到 `vc-compute.yaml`
+- **identity.yaml** → 迁移到 `vc-management.yaml` (identity 段)
+- **network.yaml** → 迁移到 `vc-management.yaml` (network 段)
+- **lite.yaml** → 迁移到 `vc-compute.yaml`
 - **config.yaml** → 已拆分到 controller 和 node 配置
 
 ### ℹ️ 参考配置
@@ -222,7 +222,7 @@ storage:
 
 ## 🔑 重要配置项
 
-### Controller 必须配置
+### Management 必须配置
 
 | 配置项 | 说明 | 默认值 | 必须修改 |
 |--------|------|--------|---------|
@@ -235,7 +235,7 @@ storage:
 
 | 配置项 | 说明 | 默认值 | 必须修改 |
 |--------|------|--------|---------|
-| `agent.controller_url` | Controller 地址 | - | ✅ |
+| `agent.controller_url` | Management 地址 | - | ✅ |
 | `node.name` | 节点名称 | 主机名 | 推荐 |
 | `libvirt.uri` | Libvirt 连接 | qemu:///system | ❌ |
 | `storage.default_backend` | 存储类型 | local | ❌ |
@@ -245,7 +245,7 @@ storage:
 ### 生产环境必须修改的配置
 
 ```yaml
-# vc-controller.yaml
+# vc-management.yaml
 identity:
   jwt:
     secret: <生成 64 位随机字符串>  # 使用 openssl rand -hex 32
@@ -291,7 +291,7 @@ openssl rand -base64 32
 ```bash
 # 配置文件 + 环境变量组合
 export DATABASE_PASSWORD=secret
-./bin/vc-controller --config /etc/vc-stack/controller.yaml
+./bin/vc-management --config /etc/vc-stack/controller.yaml
 ```
 
 ## 🌐 不同场景的配置
@@ -302,24 +302,24 @@ export DATABASE_PASSWORD=secret
 # 使用默认配置 + 环境变量
 export DATABASE_HOST=localhost
 export AGENT_CONTROLLER_URL=http://localhost:8080
-./bin/vc-controller &
-sudo ./bin/vc-node &
+./bin/vc-management &
+sudo ./bin/vc-compute &
 ```
 
 ### 测试环境 (小规模)
 
 ```bash
 # 使用配置文件
-./bin/vc-controller --config configs/vc-controller.yaml.example
-sudo ./bin/vc-node --config configs/vc-node.yaml.example
+./bin/vc-management --config configs/vc-management.yaml.example
+sudo ./bin/vc-compute --config configs/vc-compute.yaml.example
 ```
 
 ### 生产环境 (推荐 systemd)
 
 ```bash
 # 使用 systemd 服务
-sudo systemctl start vc-controller
-sudo systemctl start vc-node
+sudo systemctl start vc-management
+sudo systemctl start vc-compute
 ```
 
 ## 🔍 验证配置
@@ -328,11 +328,11 @@ sudo systemctl start vc-node
 
 ```bash
 # 使用 yamllint
-yamllint configs/vc-controller.yaml.example
-yamllint configs/vc-node.yaml.example
+yamllint configs/vc-management.yaml.example
+yamllint configs/vc-compute.yaml.example
 
 # 使用 Python
-python3 -c "import yaml; yaml.safe_load(open('configs/vc-controller.yaml.example'))"
+python3 -c "import yaml; yaml.safe_load(open('configs/vc-management.yaml.example'))"
 ```
 
 ### 测试连接
@@ -341,7 +341,7 @@ python3 -c "import yaml; yaml.safe_load(open('configs/vc-controller.yaml.example
 # 测试数据库连接
 psql -h localhost -U vcstack -d vcstack -c "SELECT 1;"
 
-# 测试 Controller API
+# 测试 Management API
 curl http://localhost:8080/health
 
 # 测试 Metrics
@@ -379,8 +379,8 @@ curl http://localhost:9090/metrics
 
 ```bash
 # Systemd 方式
-sudo systemctl restart vc-controller
-sudo systemctl restart vc-node
+sudo systemctl restart vc-management
+sudo systemctl restart vc-compute
 
 # 直接运行方式
 # 先停止进程，再用新配置启动

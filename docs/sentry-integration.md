@@ -15,7 +15,7 @@ VC Stack is integrated with Sentry for comprehensive error tracking and performa
 
 Add the following environment variables to your deployment:
 
-#### For vc-controller
+#### For vc-management
 
 ```bash
 # /etc/vc-stack/controller.env or systemd environment file
@@ -23,7 +23,7 @@ SENTRY_DSN=https://your-public-key@sentry.infra.plz.ac/project-id
 SENTRY_ENVIRONMENT=production  # or staging, development
 ```
 
-#### For vc-node
+#### For vc-compute
 
 ```bash
 # /etc/vc-stack/node.env or systemd environment file
@@ -40,7 +40,7 @@ SENTRY_ENVIRONMENT=production
 
 ### 3. Update Systemd Service Files
 
-Edit `/etc/systemd/system/vc-controller.service`:
+Edit `/etc/systemd/system/vc-management.service`:
 
 ```ini
 [Service]
@@ -53,8 +53,8 @@ Reload and restart:
 
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl restart vc-controller
-sudo systemctl restart vc-node
+sudo systemctl restart vc-management
+sudo systemctl restart vc-compute
 ```
 
 ## Features
@@ -179,7 +179,7 @@ The SDK is configured to automatically filter:
 2. Check logs for Sentry initialization:
 
    ```bash
-   journalctl -u vc-controller | grep sentry
+   journalctl -u vc-management | grep sentry
    ```
 
 3. Verify network connectivity:
@@ -211,7 +211,7 @@ pkgsentry.Init(pkgsentry.Config{
 
 For Sentry-related issues:
 
-1. Check logs: `journalctl -u vc-controller -f`
+1. Check logs: `journalctl -u vc-management -f`
 2. Verify configuration in Sentry dashboard
 3. Review error details in Sentry UI
 4. Contact platform team for access issues
