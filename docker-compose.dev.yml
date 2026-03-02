@@ -1,6 +1,13 @@
-version: '3.8'
+# VC Stack - Local Development Docker Compose
+#
+# Usage:
+#   docker compose up -d                 # Start PostgreSQL only (for local dev)
+#   docker compose --profile app up -d   # Start PostgreSQL + vc-management
+#   docker compose --profile full up -d  # Start everything (PostgreSQL + management + compute)
+#   docker compose down -v               # Stop and remove volumes
 
 services:
+  # ---- PostgreSQL (always starts) ----
   postgres:
     image: postgres:15-alpine
     container_name: vc-stack-postgres
@@ -13,7 +20,6 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U vcstack -d vcstack" ]
       interval: 10s
@@ -22,6 +28,63 @@ services:
     restart: unless-stopped
     networks:
       - vc-stack
+
+  # ---- vc-management (profile: app) ----
+  vc-management:
+    build:
+      context: .
+      target: vc-management
+    container_name: vc-stack-management
+    profiles: [ "app", "full" ]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_NAME: vcstack
+      DB_USER: vcstack
+      DB_PASS: vcstack123
+      JWT_SECRET: dev-secret-do-not-use-in-production
+      VC_MANAGEMENT_PORT: "8080"
+      LOGGING_LEVEL: debug
+      LOGGING_FORMAT: text
+    ports:
+      - "8080:8080"
+    networks:
+      - vc-stack
+    restart: unless-stopped
+
+  # ---- vc-compute (profile: full) ----
+  # NOTE: Compute node requires KVM/OVS on the host.
+  # This is useful for integration testing only.
+  vc-compute:
+    build:
+      context: .
+      target: vc-compute
+    container_name: vc-stack-compute
+    profiles: [ "full" ]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_NAME: vcstack
+      DB_USER: vcstack
+      DB_PASS: vcstack123
+      VC_COMPUTE_PORT: "8081"
+      NODE_NAME: dev-compute-1
+      IMAGES_BACKEND: local
+      IMAGES_LOCAL_PATH: /var/lib/vcstack/images
+      VOLUMES_BACKEND: local
+      VOLUMES_LOCAL_PATH: /var/lib/vcstack/volumes
+      LOGGING_LEVEL: debug
+      LOGGING_FORMAT: text
+    ports:
+      - "8081:8081"
+    privileged: true
+    networks:
+      - vc-stack
+    restart: unless-stopped
 
 volumes:
   postgres_data:

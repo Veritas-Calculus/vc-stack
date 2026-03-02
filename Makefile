@@ -231,14 +231,14 @@ migrate-create: ## Create new migration (usage: make migrate-create NAME=create_
 
 dev-start: ## Start development environment
 	@echo "Starting development environment..."
-	@docker-compose -f deployments/docker-compose.dev.yml up -d
+	@docker compose -f docker-compose.dev.yml up -d
 
 dev-stop: ## Stop development environment
 	@echo "Stopping development environment..."
-	@docker-compose -f deployments/docker-compose.dev.yml down
+	@docker compose -f docker-compose.dev.yml down
 
 dev-logs: ## Show development environment logs
-	@docker-compose -f deployments/docker-compose.dev.yml logs -f
+	@docker compose -f docker-compose.dev.yml logs -f
 
 ##@ Deployment
 

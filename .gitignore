@@ -14,6 +14,10 @@ go.work.sum
 /build/
 /dist/
 
+# Test coverage
+coverage.out
+coverage.html
+
 # IDEs
 .vscode/
 .idea/
@@ -33,16 +37,10 @@ Thumbs.db
 # Environment files
 .env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
-# But allow .env.example
+.env.*.local
 !.env.example
 
 # Configuration files (non-example)
-configs/vc-controller.yaml
-configs/vc-node.yaml
-configs/docker-compose.yaml
 configs/*.yaml
 !configs/*.yaml.example
 
@@ -56,7 +54,7 @@ secrets/
 .secrets/
 *.secret
 
-# JWT tokens and authentication
+# JWT tokens and auth
 jwt-secret*
 auth-token*
 
@@ -64,75 +62,35 @@ auth-token*
 *.log
 logs/
 
-# Runtime data
-pids
+# Runtime
 *.pid
-*.seed
 *.pid.lock
+*.seed
+pids
 
-# Coverage directory used by tools like istanbul
-coverage/
-*.cover
-*.py,cover
-
-# nyc test coverage
-.nyc_output
-
-# Dependency directories
-node_modules/
-vendor/
-
-# TypeScript build info
+# Frontend build output (rebuilt from source)
+web/console/dist/
+web/console/node_modules/
 *.tsbuildinfo
 
-# Optional npm cache directory
+# Optional npm/yarn
 .npm
-
-# Optional REPL history
-.node_repl_history
-
-# Output of 'npm pack'
-*.tgz
-
-# Yarn Integrity file
 .yarn-integrity
-
-# parcel-bundler cache (https://parceljs.org/)
+*.tgz
 .cache
 .parcel-cache
 
-# next.js build output
-.next
-
-# nuxt.js build output
-.nuxt
-
-# vuepress build output
-.vuepress/dist
-
-# Serverless directories
-.serverless
-
-# FuseBox cache
-.fusebox/
-
-# DynamoDB Local files
-.dynamodb/
-
-# TernJS port file
-.tern-port
+# Go lint/analysis reports
+golangci-lint-report.xml
 
 # Temporary folders
 tmp/
 temp/
 
-# Database
+# Database files
 *.db
 *.sqlite
 *.sqlite3
-
-# Docker
-.dockerignore
 
 # Kubernetes
 *.kubeconfig
@@ -150,4 +108,6 @@ temp/
 # Local development
 /local/
 /dev/
-coverage.html
+
+# Gemini AI context
+.gemini/

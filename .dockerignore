@@ -1,0 +1,57 @@
+# Docker ignore for VC Stack builds
+# Keeps build context small and prevents secrets from leaking into images
+
+# Version control
+.git
+.gitignore
+
+# Build outputs
+bin/
+build/
+dist/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.crt
+secrets/
+
+# Test / coverage
+coverage.out
+coverage.html
+*.test
+
+# Documentation (not needed in image)
+docs/
+*.md
+!README.md
+
+# Local dev
+local/
+dev/
+tmp/
+temp/
+
+# Frontend node_modules (rebuilt in Docker)
+web/console/node_modules/
+web/console/dist/
+
+# Monitoring configs (not needed in image)
+monitoring/
+
+# Gemini AI context
+.gemini/
+GEMINI.md
