@@ -109,12 +109,14 @@ func NewNode(cfg NodeConfig) (*Node, error) {
 			SchedulerURL: getEnvOrDefault("SCHEDULER_URL", ""),
 		},
 		Images: ImagesConfig{
-			DefaultBackend: getEnvOrDefault("IMAGES_BACKEND", "rbd"),
+			DefaultBackend: getEnvOrDefault("IMAGES_BACKEND", "local"),
+			LocalPath:      getEnvOrDefault("IMAGES_LOCAL_PATH", "/var/lib/vcstack/images"),
 			RBDPool:        getEnvOrDefault("IMAGES_RBD_POOL", "vcstack-images"),
 			RBDClient:      getEnvOrDefault("IMAGES_RBD_CLIENT", "vcstack"),
 		},
 		Volumes: VolumesConfig{
-			DefaultBackend: "rbd",
+			DefaultBackend: getEnvOrDefault("VOLUMES_BACKEND", "local"),
+			LocalPath:      getEnvOrDefault("VOLUMES_LOCAL_PATH", "/var/lib/vcstack/volumes"),
 			RBDPool:        getEnvOrDefault("VOLUMES_RBD_POOL", "vcstack-volumes"),
 			RBDClient:      getEnvOrDefault("VOLUMES_RBD_CLIENT", "vcstack"),
 		},

@@ -78,10 +78,13 @@ type OrchestratorConfig struct {
 	LiteURL string
 }
 
-// ImagesConfig controls how image data is stored by default (filesystem or rbd).
+// ImagesConfig controls how image data is stored by default.
 type ImagesConfig struct {
-	//DefaultBackend: "filesystem" (default) or "rbd".
+	// DefaultBackend: "local" (default, uses filesystem) or "rbd" (Ceph).
 	DefaultBackend string
+	// LocalPath is the directory to store images when DefaultBackend is "local".
+	// Default: /var/lib/vcstack/images
+	LocalPath string
 	// RBDPool is the Ceph RBD pool to store images when DefaultBackend is rbd (e.g., "vcstack-images")
 	RBDPool string
 	// RBDClient is the Ceph client id to use for image operations (e.g., "vcstack" or "vcstack-images"). Optional.
@@ -92,10 +95,13 @@ type ImagesConfig struct {
 	Keyring string
 }
 
-// VolumesConfig controls how volumes are provisioned (currently only RBD).
+// VolumesConfig controls how volumes are provisioned.
 type VolumesConfig struct {
-	// DefaultBackend: "rbd" (default)
+	// DefaultBackend: "local" (default, uses qcow2 files) or "rbd" (Ceph).
 	DefaultBackend string
+	// LocalPath is the directory to store volume files when DefaultBackend is "local".
+	// Default: /var/lib/vcstack/volumes
+	LocalPath string
 	// RBDPool for volumes (e.g., "vcstack-volumes")
 	RBDPool string
 	// RBDClient for volumes operations.

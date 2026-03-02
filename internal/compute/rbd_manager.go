@@ -1,5 +1,5 @@
-//go:build cgo
-// +build cgo
+//go:build ceph
+// +build ceph
 
 // Package compute provides RBD storage management.
 //
