@@ -63,10 +63,10 @@ func NewNode(cfg NodeConfig) (*Node, error) {
 		return nil, err
 	}
 
-	// Initialize network agent service (OVN/OVS).
+	// Initialize network agent service (local OVS only).
 	netSvc, err := network.NewService(network.Config{
-		Logger:      cfg.Logger,
-		OVNNBSocket: getEnvOrDefault("OVN_NB_SOCKET", ""),
+		Logger:            cfg.Logger,
+		IntegrationBridge: getEnvOrDefault("OVS_INTEGRATION_BRIDGE", "br-int"),
 	})
 	if err != nil {
 		return nil, err

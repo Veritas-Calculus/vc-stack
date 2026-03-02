@@ -3,6 +3,7 @@
 package network
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"net"
 	"os/exec"
@@ -236,10 +237,11 @@ func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 					ones, bits := ipnet.Mask.Size()
 					if bits == 32 {
 						hostBits := bits - ones
-						numHosts := (1 << hostBits) - 2 // Subtract network and broadcast
-						endIP := make(net.IP, 4)
-						copy(endIP, ip)
-						endIP[3] = endIP[3] + byte(numHosts)
+						numHosts := (1 << hostBits) - 2
+						// Use full 32-bit arithmetic to avoid byte overflow.
+						baseIP := uint32(ip[0])<<24 | uint32(ip[1])<<16 | uint32(ip[2])<<8 | uint32(ip[3])
+						endIPu32 := baseIP + uint32(numHosts)
+						endIP := net.IP{byte(endIPu32 >> 24), byte(endIPu32 >> 16), byte(endIPu32 >> 8), byte(endIPu32)}
 						allocationEnd = endIP.String()
 						s.AllocationEnd = allocationEnd
 					}
@@ -930,15 +932,12 @@ func (d *OVNDriver) SetRouterSNAT(router string, enable bool, internalCIDR strin
 	return nil
 }
 
-// p2pMAC creates a stable pseudo-MAC for router ports based on network id hash.
+// p2pMAC generates a deterministic locally-administered unicast MAC from a seed string.
 func p2pMAC(seed string) string {
-	// deterministic but simple: use first 6 hex chars of seed as last 3 octets.
-	hex := seed
-	if len(hex) < 6 {
-		hex = fmt.Sprintf("%06s", seed)
-	}
-	tail := strings.ReplaceAll(hex[:6], "-", "0")
-	return fmt.Sprintf("02:00:%s:%s:%s:%s", tail[0:2], tail[2:4], tail[4:6], "01")
+	h := sha256.Sum256([]byte(seed))
+	// Set locally administered (bit 1) and clear multicast (bit 0)
+	b0 := (h[0] | 0x02) & 0xFE
+	return fmt.Sprintf("%02x:%02x:%02x:%02x:%02x:%02x", b0, h[1], h[2], h[3], h[4], h[5])
 }
 
 // incIP increments an IPv4 address by 1 (in place) and returns it.

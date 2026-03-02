@@ -258,7 +258,9 @@ func NewService(config Config) (*Service, error) {
 		// Use plugin driver if endpoint is configured.
 		if config.SDN.PluginEndpoint != "" {
 			// Build both drivers: plugin (primary) and direct OVN (secondary) so we can fallback if plugin is down.
-			config.Logger.Info("Using network plugin driver with fallback", zap.String("endpoint", config.SDN.PluginEndpoint))
+			config.Logger.Warn("DEPRECATED: PluginEndpoint is deprecated. Use direct OVN driver (set OVN_NB_ADDRESS) instead. "+
+				"The compute network agent no longer handles OVN NB operations.",
+				zap.String("endpoint", config.SDN.PluginEndpoint))
 			plugin := NewPluginDriver(config.Logger, PluginConfig{Endpoint: config.SDN.PluginEndpoint})
 			ovnCfg := config.SDN.OVN
 			// Allow environment variable to override NB address.
