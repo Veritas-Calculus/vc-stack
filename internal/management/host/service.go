@@ -114,8 +114,8 @@ type RegisterRequest struct {
 	Capabilities      map[string]interface{} `json:"capabilities"`
 	Labels            map[string]interface{} `json:"labels"`
 	AgentVersion      string                 `json:"agent_version"`
-	ZoneID            *uint                  `json:"zone_id"`
-	ClusterID         *uint                  `json:"cluster_id"`
+	ZoneID            *string                `json:"zone_id"`
+	ClusterID         *string                `json:"cluster_id"`
 }
 
 // HeartbeatRequest represents a heartbeat update from a host.
@@ -209,7 +209,7 @@ func (s *Service) registerHost(c *gin.Context) {
 			hostType = models.HostType(req.HostType)
 		}
 
-		managementPort := 8091
+		managementPort := 8081
 		if req.ManagementPort > 0 {
 			managementPort = req.ManagementPort
 		}

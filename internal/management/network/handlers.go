@@ -1367,6 +1367,132 @@ func (s *Service) deleteZone(c *gin.Context) {
 	c.JSON(http.StatusNoContent, nil)
 }
 
+// ===== Cluster Handlers =====.
+
+// listClusters: GET /api/v1/clusters.
+func (s *Service) listClusters(c *gin.Context) {
+	var clusters []Cluster
+	query := s.db.Model(&Cluster{})
+	if zoneID := c.Query("zone_id"); zoneID != "" {
+		query = query.Where("zone_id = ?", zoneID)
+	}
+	if err := query.Find(&clusters).Error; err != nil {
+		s.logger.Error("Failed to list clusters", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list clusters"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"clusters": clusters})
+}
+
+type createClusterRequest struct {
+	Name           string  `json:"name" binding:"required"`
+	ZoneID         *string `json:"zone_id"`
+	Allocation     string  `json:"allocation"`
+	HypervisorType string  `json:"hypervisor_type"`
+	Description    string  `json:"description"`
+}
+
+// createCluster: POST /api/v1/clusters.
+func (s *Service) createCluster(c *gin.Context) {
+	var req createClusterRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if req.Allocation == "" {
+		req.Allocation = "enabled"
+	}
+	if req.HypervisorType == "" {
+		req.HypervisorType = "kvm"
+	}
+	// Validate zone exists if specified.
+	if req.ZoneID != nil && *req.ZoneID != "" {
+		var zone Zone
+		if err := s.db.First(&zone, "id = ?", *req.ZoneID).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Zone not found"})
+			return
+		}
+	}
+	cl := Cluster{
+		ID:             generateUUID(),
+		Name:           req.Name,
+		ZoneID:         req.ZoneID,
+		Allocation:     req.Allocation,
+		HypervisorType: req.HypervisorType,
+		Description:    req.Description,
+	}
+	if err := s.db.Create(&cl).Error; err != nil {
+		s.logger.Error("Failed to create cluster", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create cluster"})
+		return
+	}
+	c.JSON(http.StatusCreated, gin.H{"cluster": cl})
+}
+
+// getCluster: GET /api/v1/clusters/:id.
+func (s *Service) getCluster(c *gin.Context) {
+	id := c.Param("id")
+	var cl Cluster
+	if err := s.db.First(&cl, "id = ?", id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Cluster not found"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"cluster": cl})
+}
+
+// updateCluster: PUT /api/v1/clusters/:id.
+func (s *Service) updateCluster(c *gin.Context) {
+	id := c.Param("id")
+	var cl Cluster
+	if err := s.db.First(&cl, "id = ?", id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Cluster not found"})
+		return
+	}
+	var req struct {
+		Name           *string `json:"name"`
+		ZoneID         *string `json:"zone_id"`
+		Allocation     *string `json:"allocation"`
+		HypervisorType *string `json:"hypervisor_type"`
+		Description    *string `json:"description"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if req.Name != nil {
+		cl.Name = *req.Name
+	}
+	if req.ZoneID != nil {
+		cl.ZoneID = req.ZoneID
+	}
+	if req.Allocation != nil {
+		cl.Allocation = *req.Allocation
+	}
+	if req.HypervisorType != nil {
+		cl.HypervisorType = *req.HypervisorType
+	}
+	if req.Description != nil {
+		cl.Description = *req.Description
+	}
+	if err := s.db.Save(&cl).Error; err != nil {
+		s.logger.Error("Failed to update cluster", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update cluster"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"cluster": cl})
+}
+
+// deleteCluster: DELETE /api/v1/clusters/:id.
+func (s *Service) deleteCluster(c *gin.Context) {
+	id := c.Param("id")
+	if err := s.db.Delete(&Cluster{}, "id = ?", id).Error; err != nil {
+		s.logger.Error("Failed to delete cluster", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete cluster"})
+		return
+	}
+	c.JSON(http.StatusNoContent, nil)
+}
+
 // repairNetworkL3: POST /api/v1/networks/:id/repair-l3.
 // Force-bind LRP networks and LSP router binding in OVN for the given network (quick fix on the machine).
 func (s *Service) repairNetworkL3(c *gin.Context) {

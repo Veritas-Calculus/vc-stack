@@ -222,6 +222,21 @@ type Zone struct {
 // TableName sets a custom table name for the Zone model.
 func (Zone) TableName() string { return "infra_zones" }
 
+// Cluster represents a compute cluster within a zone.
+type Cluster struct {
+	ID             string    `json:"id" gorm:"primaryKey;type:varchar(36)"`
+	Name           string    `json:"name" gorm:"uniqueIndex;not null"`
+	ZoneID         *string   `json:"zone_id,omitempty" gorm:"type:varchar(36);index"`
+	Allocation     string    `json:"allocation" gorm:"default:'enabled'"` // enabled | disabled
+	HypervisorType string    `json:"hypervisor_type" gorm:"default:'kvm'"`
+	Description    string    `json:"description"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+}
+
+// TableName sets a custom table name for the Cluster model.
+func (Cluster) TableName() string { return "infra_clusters" }
+
 // NetworkPort represents a network port.
 type NetworkPort struct {
 	ID             string      `json:"id" gorm:"primaryKey;type:varchar(36)"`
@@ -468,6 +483,16 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 			zones.GET("/:id", s.getZone)
 			zones.PUT("/:id", s.updateZone)
 			zones.DELETE("/:id", s.deleteZone)
+		}
+
+		// Cluster routes.
+		clusters := api.Group("/clusters")
+		{
+			clusters.GET("", s.listClusters)
+			clusters.POST("", s.createCluster)
+			clusters.GET("/:id", s.getCluster)
+			clusters.PUT("/:id", s.updateCluster)
+			clusters.DELETE("/:id", s.deleteCluster)
 		}
 
 		// Router routes.

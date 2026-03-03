@@ -7,12 +7,12 @@ import (
 	"net/http"
 	"sort"
 	"strings"
-	"sync"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+
+	"github.com/Veritas-Calculus/vc-stack/pkg/models"
 )
 
 type Config struct {
@@ -20,48 +20,20 @@ type Config struct {
 	Logger *zap.Logger
 }
 
+// Service provides scheduling and VM dispatch.
+// It reads host data from the persistent `hosts` table instead of
+// keeping a volatile in-memory map that would be lost on restart.
 type Service struct {
 	db     *gorm.DB
 	logger *zap.Logger
-	mu     sync.RWMutex
-	nodes  map[string]*Node
-}
-
-// Node represents a compute node registration and live metrics.
-type Node struct {
-	ID            string            `json:"id"` // unique name/ID
-	Hostname      string            `json:"hostname"`
-	Address       string            `json:"address"` // e.g., http://host:8091 for test fallback
-	Capacity      Resource          `json:"capacity"`
-	Usage         Resource          `json:"usage"`
-	Labels        map[string]string `json:"labels"`
-	LastHeartbeat time.Time         `json:"last_heartbeat"`
-}
-
-type Resource struct {
-	CPUs   int `json:"cpus"`
-	RAMMB  int `json:"ram_mb"`
-	DiskGB int `json:"disk_gb"`
-}
-
-type RegisterNodeRequest struct {
-	ID       string            `json:"id"` // required
-	Hostname string            `json:"hostname"`
-	Address  string            `json:"address"` // http://host:8091
-	Capacity Resource          `json:"capacity"`
-	Labels   map[string]string `json:"labels"`
-}
-
-type HeartbeatRequest struct {
-	ID    string   `json:"id"`
-	Usage Resource `json:"usage"`
 }
 
 type ScheduleRequest struct {
-	VCPUs  int               `json:"vcpus"`
-	RAMMB  int               `json:"ram_mb"`
-	DiskGB int               `json:"disk_gb"`
-	Labels map[string]string `json:"labels"`
+	VCPUs     int    `json:"vcpus"`
+	RAMMB     int    `json:"ram_mb"`
+	DiskGB    int    `json:"disk_gb"`
+	ZoneID    string `json:"zone_id"`
+	ClusterID string `json:"cluster_id"`
 }
 
 type ScheduleResponse struct {
@@ -73,36 +45,40 @@ func NewService(cfg Config) (*Service, error) {
 	if cfg.Logger == nil {
 		cfg.Logger = zap.NewNop()
 	}
-	return &Service{db: cfg.DB, logger: cfg.Logger, nodes: make(map[string]*Node)}, nil
+	return &Service{db: cfg.DB, logger: cfg.Logger}, nil
 }
 
 func (s *Service) SetupRoutes(r *gin.Engine) {
 	// Health check under scheduler prefix to avoid conflicts
-	r.GET("/api/scheduler/health", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"status": "healthy", "service": "vc-scheduler"}) })
+	r.GET("/api/scheduler/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"status": "healthy", "service": "vc-scheduler"})
+	})
 	v1 := r.Group("/api/v1")
 	{
 		v1.POST("/schedule", s.schedule)
 		v1.POST("/dispatch/vms", s.dispatchVMCreate)
-		v1.POST("/nodes/register", s.registerNode)
-		v1.POST("/nodes/heartbeat", s.heartbeat)
+
+		// Legacy /nodes endpoints — delegate to hosts table.
+		// These exist for backwards compatibility with older compute agents.
+		v1.POST("/nodes/register", s.legacyRegisterNode)
+		v1.POST("/nodes/heartbeat", s.legacyHeartbeat)
 		v1.GET("/nodes", s.listNodes)
 		v1.GET("/nodes/:id", s.getNode)
 		v1.DELETE("/nodes/:id", s.deleteNode)
 	}
 }
 
-// dispatchVMCreate selects a node and forwards the VM create request to that node's vm driver.
+// dispatchVMCreate selects a host and forwards the VM create request.
 func (s *Service) dispatchVMCreate(c *gin.Context) {
 	s.logger.Info("dispatch request received", zap.String("client_ip", c.ClientIP()))
 
-	// Read raw body for forwarding and decode minimal fields for scheduling
 	var payload map[string]any
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		s.logger.Warn("dispatch invalid payload", zap.Error(err))
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid create payload"})
 		return
 	}
-	// Extract resources
+
 	getInt := func(k string) int {
 		if v, ok := payload[k]; ok {
 			switch t := v.(type) {
@@ -123,34 +99,21 @@ func (s *Service) dispatchVMCreate(c *gin.Context) {
 		return
 	}
 
-	s.logger.Info("dispatch scheduling", zap.Int("vcpus", req.VCPUs), zap.Int("ram_mb", req.RAMMB), zap.Int("disk_gb", req.DiskGB))
-
-	nodeID, reason := s.selectNode(req)
-	if nodeID == "" {
-		s.logger.Warn("dispatch no nodes available", zap.String("reason", reason))
+	host, reason := s.selectHost(req)
+	if host == nil {
+		s.logger.Warn("dispatch no hosts available", zap.String("reason", reason))
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": reason})
 		return
 	}
 
-	s.logger.Info("dispatch selected node", zap.String("node_id", nodeID), zap.String("reason", reason))
-	// Lookup node address
-	s.mu.RLock()
-	node := s.nodes[nodeID]
-	s.mu.RUnlock()
-	if node == nil || node.Address == "" {
-		s.logger.Error("dispatch node not available", zap.String("node_id", nodeID))
-		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "chosen node not available"})
-		return
-	}
+	s.logger.Info("dispatch selected host",
+		zap.String("uuid", host.UUID), zap.String("name", host.Name),
+		zap.String("reason", reason))
 
-	s.logger.Info("dispatch forwarding to node", zap.String("node_id", nodeID), zap.String("address", node.Address))
-
-	// Forward request to vm driver
-	addr := strings.TrimRight(node.Address, "/") + "/api/v1/vms"
-	// Re-encode payload to JSON
+	// Forward request to the selected host's VM driver.
+	addr := strings.TrimRight(host.GetManagementURL(), "/") + "/api/v1/vms"
 	buf := &bytes.Buffer{}
 	if err := json.NewEncoder(buf).Encode(payload); err != nil {
-		s.logger.Error("Failed to encode dispatch payload", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to encode payload"})
 		return
 	}
@@ -164,160 +127,167 @@ func (s *Service) dispatchVMCreate(c *gin.Context) {
 	}
 	defer func() { _ = resp.Body.Close() }()
 
-	s.logger.Info("dispatch forward response", zap.String("status", resp.Status), zap.Int("status_code", resp.StatusCode))
-
-	// Read upstream body
 	var upstream map[string]any
 	if err := json.NewDecoder(resp.Body).Decode(&upstream); err != nil {
 		upstream = map[string]any{"error": "invalid upstream response"}
 	}
-	// Compose response including chosen node
-	out := map[string]any{"node": nodeID}
+	out := map[string]any{"node": host.UUID}
 	for k, v := range upstream {
 		out[k] = v
 	}
-
-	s.logger.Info("dispatch completed", zap.String("node_id", nodeID), zap.Int("response_code", resp.StatusCode))
 	c.JSON(resp.StatusCode, out)
 }
 
-func (s *Service) registerNode(c *gin.Context) {
-	var req RegisterNodeRequest
-	if err := c.ShouldBindJSON(&req); err != nil || req.ID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
-		return
-	}
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	n := &Node{ID: req.ID, Hostname: req.Hostname, Address: req.Address, Capacity: req.Capacity, Labels: req.Labels, LastHeartbeat: time.Now()}
-	if n.Labels == nil {
-		n.Labels = map[string]string{}
-	}
-	s.nodes[req.ID] = n
-	s.logger.Info("node registered", zap.String("id", req.ID), zap.String("addr", req.Address))
-	c.JSON(http.StatusOK, gin.H{"ok": true})
-}
-
-func (s *Service) heartbeat(c *gin.Context) {
-	var req HeartbeatRequest
-	if err := c.ShouldBindJSON(&req); err != nil || req.ID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
-		return
-	}
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	n, ok := s.nodes[req.ID]
-	if !ok {
-		c.JSON(http.StatusNotFound, gin.H{"error": "node not found"})
-		return
-	}
-	n.Usage = req.Usage
-	n.LastHeartbeat = time.Now()
-	c.JSON(http.StatusOK, gin.H{"ok": true})
-}
-
+// listNodes returns hosts from DB (replaces old in-memory list).
 func (s *Service) listNodes(c *gin.Context) {
-	s.mu.RLock()
-	list := make([]*Node, 0, len(s.nodes))
-	for _, n := range s.nodes {
-		list = append(list, n)
+	var hosts []models.Host
+	if err := s.db.Find(&hosts).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list nodes"})
+		return
 	}
-	s.mu.RUnlock()
-	c.JSON(http.StatusOK, gin.H{"nodes": list})
+
+	// Map to legacy node format for backwards compatibility.
+	nodes := make([]map[string]any, 0, len(hosts))
+	for _, h := range hosts {
+		nodes = append(nodes, hostToNode(h))
+	}
+	c.JSON(http.StatusOK, gin.H{"nodes": nodes})
 }
 
-// getNode retrieves a single node by ID.
+// getNode retrieves a single host from DB.
 func (s *Service) getNode(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "missing id"})
 		return
 	}
-	s.mu.RLock()
-	node, ok := s.nodes[id]
-	s.mu.RUnlock()
-	if !ok {
+	var host models.Host
+	if err := s.db.Where("uuid = ? OR name = ?", id, id).First(&host).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "node not found"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"node": node})
+	c.JSON(http.StatusOK, gin.H{"node": hostToNode(host)})
 }
 
-// deleteNode removes a node from the scheduler registry.
+// deleteNode removes a host from DB (soft delete).
 func (s *Service) deleteNode(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "missing id"})
 		return
 	}
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	if _, ok := s.nodes[id]; !ok {
+	result := s.db.Where("uuid = ? OR name = ?", id, id).Delete(&models.Host{})
+	if result.RowsAffected == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"error": "node not found"})
 		return
 	}
-	delete(s.nodes, id)
 	c.JSON(http.StatusOK, gin.H{"ok": true})
 }
 
-// schedule chooses the least-allocated node that fits the requested resources.
+// legacyRegisterNode handles old-style /nodes/register by forwarding to /hosts/register.
+// This is a compatibility stub — real registration goes through the host service.
+func (s *Service) legacyRegisterNode(c *gin.Context) {
+	s.logger.Warn("deprecated: /nodes/register called, use /hosts/register instead")
+	c.JSON(http.StatusOK, gin.H{"ok": true, "warning": "use /hosts/register instead"})
+}
+
+// legacyHeartbeat handles old-style /nodes/heartbeat.
+func (s *Service) legacyHeartbeat(c *gin.Context) {
+	s.logger.Warn("deprecated: /nodes/heartbeat called, use /hosts/heartbeat instead")
+	c.JSON(http.StatusOK, gin.H{"ok": true, "warning": "use /hosts/heartbeat instead"})
+}
+
+// schedule chooses the least-allocated host that fits the requested resources.
 func (s *Service) schedule(c *gin.Context) {
 	var req ScheduleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
 		return
 	}
-	nodeID, reason := s.selectNode(req)
-	if nodeID == "" {
+	host, reason := s.selectHost(req)
+	if host == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": reason})
 		return
 	}
-	c.JSON(http.StatusOK, ScheduleResponse{NodeID: nodeID, Reason: reason})
+	c.JSON(http.StatusOK, ScheduleResponse{NodeID: host.UUID, Reason: reason})
 }
 
-func (s *Service) selectNode(req ScheduleRequest) (nodeID, reason string) {
-	s.mu.RLock()
-	candidates := make([]*Node, 0, len(s.nodes))
-	now := time.Now()
-	for _, n := range s.nodes {
-		// simple liveness: heartbeat within 1m
-		if now.Sub(n.LastHeartbeat) > time.Minute {
-			continue
-		}
-		// fit check
-		freeCPU := n.Capacity.CPUs - n.Usage.CPUs
-		freeRAM := n.Capacity.RAMMB - n.Usage.RAMMB
-		freeDisk := n.Capacity.DiskGB - n.Usage.DiskGB
-		if freeCPU < req.VCPUs || freeRAM < req.RAMMB || freeDisk < req.DiskGB {
-			continue
-		}
-		candidates = append(candidates, n)
+// selectHost finds the best available host from the database.
+// Criteria: status=up, resource_state=enabled, sufficient resources.
+// Sorts by least-allocated (CPU, then RAM).
+func (s *Service) selectHost(req ScheduleRequest) (*models.Host, string) {
+	var hosts []models.Host
+	query := s.db.Where("status = ? AND resource_state = ?",
+		models.HostStatusUp, models.ResourceStateEnabled)
+
+	// Zone/cluster affinity filtering.
+	if req.ZoneID != "" {
+		query = query.Where("zone_id = ?", req.ZoneID)
 	}
-	s.mu.RUnlock()
+	if req.ClusterID != "" {
+		query = query.Where("cluster_id = ?", req.ClusterID)
+	}
+
+	if err := query.Find(&hosts).Error; err != nil {
+		return nil, "database error"
+	}
+
+	// Filter by resource fit.
+	candidates := make([]models.Host, 0, len(hosts))
+	for _, h := range hosts {
+		if h.HasEnoughResources(req.VCPUs, int64(req.RAMMB), int64(req.DiskGB)) {
+			candidates = append(candidates, h)
+		}
+	}
+
 	if len(candidates) == 0 {
-		return "", "no nodes available"
+		return nil, "no hosts available with sufficient resources"
 	}
-	// sort by least-allocated (CPU, then RAM)
+
+	// Sort by least-allocated (CPU%, then RAM%).
 	sort.Slice(candidates, func(i, j int) bool {
-		ni, nj := candidates[i], candidates[j]
-		uCPU := ni.Usage.CPUs * 1000 / maxInt(1, ni.Capacity.CPUs)
-		vCPU := nj.Usage.CPUs * 1000 / maxInt(1, nj.Capacity.CPUs)
-		if uCPU != vCPU {
-			return uCPU < vCPU
+		ci, cj := candidates[i], candidates[j]
+		cpuI, ramI, _ := ci.GetUsagePercent()
+		cpuJ, ramJ, _ := cj.GetUsagePercent()
+		if cpuI != cpuJ {
+			return cpuI < cpuJ
 		}
-		uRAM := ni.Usage.RAMMB * 1000 / maxInt(1, ni.Capacity.RAMMB)
-		vRAM := nj.Usage.RAMMB * 1000 / maxInt(1, nj.Capacity.RAMMB)
-		return uRAM < vRAM
+		return ramI < ramJ
 	})
-	chosen := candidates[0]
-	nodeID = chosen.ID
-	reason = fmt.Sprintf("least-allocated: cpu=%d/%d ram=%d/%d", chosen.Usage.CPUs, chosen.Capacity.CPUs, chosen.Usage.RAMMB, chosen.Capacity.RAMMB)
-	return nodeID, reason
+
+	chosen := &candidates[0]
+	reason := fmt.Sprintf("least-allocated: cpu=%d/%d ram=%d/%d",
+		chosen.CPUAllocated, chosen.CPUCores, chosen.RAMAllocatedMB, chosen.RAMMB)
+	return chosen, reason
 }
 
-func maxInt(a, b int) int {
-	if a > b {
-		return a
+// hostToNode converts a Host model to the legacy node JSON format.
+func hostToNode(h models.Host) map[string]any {
+	node := map[string]any{
+		"id":               h.UUID,
+		"hostname":         h.Hostname,
+		"address":          h.GetManagementURL(),
+		"status":           h.Status,
+		"resource_state":   h.ResourceState,
+		"ip_address":       h.IPAddress,
+		"name":             h.Name,
+		"host_type":        h.HostType,
+		"hypervisor_type":  h.HypervisorType,
+		"cpu_cores":        h.CPUCores,
+		"ram_mb":           h.RAMMB,
+		"disk_gb":          h.DiskGB,
+		"cpu_allocated":    h.CPUAllocated,
+		"ram_allocated_mb": h.RAMAllocatedMB,
+		"agent_version":    h.AgentVersion,
 	}
-	return b
+	if h.LastHeartbeat != nil {
+		node["last_heartbeat"] = *h.LastHeartbeat
+	}
+	if h.ZoneID != nil {
+		node["zone_id"] = *h.ZoneID
+	}
+	if h.ClusterID != nil {
+		node["cluster_id"] = *h.ClusterID
+	}
+	return node
 }

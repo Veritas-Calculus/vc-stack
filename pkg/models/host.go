@@ -58,7 +58,7 @@ type Host struct {
 	// Connection info.
 	Hostname       string `gorm:"not null" json:"hostname"`
 	IPAddress      string `gorm:"type:inet;not null" json:"ip_address"`
-	ManagementPort int    `gorm:"default:8091" json:"management_port"`
+	ManagementPort int    `gorm:"default:8081" json:"management_port"`
 
 	// Hypervisor info.
 	HypervisorType    string `gorm:"default:'kvm'" json:"hypervisor_type"`
@@ -81,9 +81,8 @@ type Host struct {
 	Labels       JSONMap `gorm:"type:jsonb" json:"labels,omitempty"`
 
 	// Placement.
-	ZoneID    *uint `json:"zone_id,omitempty"`
-	ClusterID *uint `json:"cluster_id,omitempty"`
-	PodID     *uint `json:"pod_id,omitempty"`
+	ZoneID    *string `gorm:"type:varchar(36)" json:"zone_id,omitempty"`
+	ClusterID *string `gorm:"type:varchar(36)" json:"cluster_id,omitempty"`
 
 	// Health tracking.
 	LastHeartbeat  *time.Time `json:"last_heartbeat,omitempty"`

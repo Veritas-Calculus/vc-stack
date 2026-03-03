@@ -118,8 +118,8 @@ func (c *ControllerClient) RegisterNode(ctx context.Context, info NodeInfo, port
 		DiskGB            int64             `json:"disk_gb"`
 		AgentVersion      string            `json:"agent_version"`
 		Labels            map[string]string `json:"labels"`
-		ZoneID            *uint             `json:"zone_id,omitempty"`
-		ClusterID         *uint             `json:"cluster_id,omitempty"`
+		ZoneID            *string           `json:"zone_id,omitempty"`
+		ClusterID         *string           `json:"cluster_id,omitempty"`
 	}
 
 	req := regReq{
@@ -144,14 +144,10 @@ func (c *ControllerClient) RegisterNode(ctx context.Context, info NodeInfo, port
 	}
 
 	if zoneID != "" {
-		if v, err := parseUint(zoneID); err == nil {
-			req.ZoneID = &v
-		}
+		req.ZoneID = &zoneID
 	}
 	if clusterID != "" {
-		if v, err := parseUint(clusterID); err == nil {
-			req.ClusterID = &v
-		}
+		req.ClusterID = &clusterID
 	}
 
 	data, err := json.Marshal(req)
@@ -190,12 +186,6 @@ func (c *ControllerClient) RegisterNode(ctx context.Context, info NodeInfo, port
 		zap.String("ip", info.IPAddress))
 
 	return result.UUID, nil
-}
-
-func parseUint(s string) (uint, error) {
-	var v uint
-	_, err := fmt.Sscanf(s, "%d", &v)
-	return v, err
 }
 
 // SendHeartbeat sends heartbeat to the host service on management.
