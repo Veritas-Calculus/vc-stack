@@ -251,7 +251,7 @@ docker-build: ## Build Docker images for vc-management and vc-compute
 	@echo "Docker images built successfully"
 
 docker-up: docker-build ## Build images and start full stack
-	@docker compose -f docker-compose.dev.yml --profile full up -d
+	@docker compose -f docker-compose.dev.yml up -d
 
 ##@ Deployment
 

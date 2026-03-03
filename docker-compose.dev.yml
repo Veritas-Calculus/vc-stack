@@ -1,10 +1,9 @@
 # VC Stack - Local Development Docker Compose
 #
 # Usage:
-#   docker compose up -d                 # Start PostgreSQL only (for local go run)
-#   docker compose --profile app up -d   # Start PG + management + nginx (web dev)
-#   docker compose --profile full up -d  # Start everything including compute
-#   docker compose down -v               # Stop and remove volumes
+#   docker compose up -d                    # Start PG + management + nginx
+#   docker compose --profile compute up -d  # Also start compute node (needs KVM)
+#   docker compose down -v                  # Stop and remove volumes
 
 services:
   # ---- PostgreSQL ----
@@ -16,9 +15,6 @@ services:
       POSTGRES_USER: vcstack
       POSTGRES_PASSWORD: vcstack123
       POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
-    ports:
-      # Expose to host ONLY for local go run / debugging
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
     healthcheck:
@@ -30,14 +26,13 @@ services:
     networks:
       - vc-stack
 
-  # ---- vc-management (no port exposed, nginx proxies) ----
+  # ---- vc-management ----
   vc-management:
     build:
       context: .
       target: vc-management
     image: vc-management:latest
     container_name: vc-stack-management
-    profiles: [ "app", "full" ]
     depends_on:
       postgres:
         condition: service_healthy
@@ -50,7 +45,6 @@ services:
       VC_MANAGEMENT_PORT: "8080"
       LOGGING_LEVEL: debug
       LOGGING_FORMAT: text
-    # No ports exposed — nginx handles external access
     networks:
       - vc-stack
     restart: unless-stopped
@@ -59,7 +53,6 @@ services:
   nginx:
     image: nginx:latest
     container_name: vc-stack-nginx
-    profiles: [ "app", "full" ]
     depends_on:
       - vc-management
     ports:
@@ -70,16 +63,14 @@ services:
       - vc-stack
     restart: unless-stopped
 
-  # ---- vc-compute (no port exposed, internal only) ----
-  # NOTE: Compute node requires KVM/OVS on the host.
-  # Useful for integration testing only.
+  # ---- vc-compute (optional, needs KVM/OVS on host) ----
   vc-compute:
     build:
       context: .
       target: vc-compute
     image: vc-compute:latest
     container_name: vc-stack-compute
-    profiles: [ "full" ]
+    profiles: [ "compute" ]
     depends_on:
       postgres:
         condition: service_healthy
@@ -96,7 +87,6 @@ services:
       VOLUMES_LOCAL_PATH: /var/lib/vcstack/volumes
       LOGGING_LEVEL: debug
       LOGGING_FORMAT: text
-    # No ports exposed — management communicates via internal network
     privileged: true
     networks:
       - vc-stack
