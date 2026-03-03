@@ -231,14 +231,14 @@ migrate-create: ## Create new migration (usage: make migrate-create NAME=create_
 
 dev-start: ## Start development environment
 	@echo "Starting development environment..."
-	@docker compose -f docker-compose.dev.yml up -d
+	@docker compose up -d
 
 dev-stop: ## Stop development environment
 	@echo "Stopping development environment..."
-	@docker compose -f docker-compose.dev.yml down
+	@docker compose down
 
 dev-logs: ## Show development environment logs
-	@docker compose -f docker-compose.dev.yml logs -f
+	@docker compose logs -f
 
 docker-build: ## Build Docker images for vc-management and vc-compute
 	@echo "Building Docker images..."
@@ -251,7 +251,7 @@ docker-build: ## Build Docker images for vc-management and vc-compute
 	@echo "Docker images built successfully"
 
 docker-up: docker-build ## Build images and start full stack
-	@docker compose -f docker-compose.dev.yml up -d
+	@docker compose up -d
 
 ##@ Deployment
 
