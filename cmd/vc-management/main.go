@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 
@@ -125,6 +127,45 @@ func main() {
 
 	// Register all management plane routes via aggregator.
 	mgmtSvc.SetupRoutes(router)
+
+	// Serve frontend Web Console (SPA).
+	// Default paths: Docker = /opt/vc-stack/web/console/dist
+	//                Local  = ./web/console/dist
+	webDir := os.Getenv("WEB_CONSOLE_DIR")
+	if webDir == "" {
+		// Try Docker path first, fall back to local dev path
+		if fi, err := os.Stat("/opt/vc-stack/web/console/dist/index.html"); err == nil && !fi.IsDir() {
+			webDir = "/opt/vc-stack/web/console/dist"
+		} else {
+			webDir = "./web/console/dist"
+		}
+	}
+	indexHTML := filepath.Join(webDir, "index.html")
+	if _, err := os.Stat(indexHTML); err == nil {
+		zapLogger.Info("serving web console", zap.String("dir", webDir))
+		router.Static("/assets", filepath.Join(webDir, "assets"))
+		router.Static("/config", filepath.Join(webDir, "config"))
+		router.StaticFile("/favicon.ico", filepath.Join(webDir, "favicon.ico"))
+		router.StaticFile("/logo-42.svg", filepath.Join(webDir, "logo-42.svg"))
+		// SPA fallback: any non-API, non-asset path → index.html
+		router.NoRoute(func(c *gin.Context) {
+			p := c.Request.URL.Path
+			if strings.HasPrefix(p, "/api/") || strings.HasPrefix(p, "/ws/") {
+				c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+				return
+			}
+			// Try to serve the file directly if it exists in webDir.
+			filePath := filepath.Join(webDir, filepath.Clean(p))
+			if fi, err := os.Stat(filePath); err == nil && !fi.IsDir() {
+				c.File(filePath)
+				return
+			}
+			c.File(indexHTML)
+		})
+	} else {
+		zapLogger.Warn("web console dist not found, frontend will not be served",
+			zap.String("expected", indexHTML))
+	}
 
 	port := 8080
 	if v := os.Getenv("VC_MANAGEMENT_PORT"); v != "" {

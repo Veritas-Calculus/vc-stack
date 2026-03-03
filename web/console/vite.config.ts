@@ -1,12 +1,30 @@
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import { fileURLToPath, URL } from 'node:url'
 import { readFileSync } from 'node:fs'
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf-8'))
 
+// noVNC 1.6 has a broken Babel transpilation: line 179 of browser.js
+// uses top-level `await` inside a CJS module, which Rollup cannot parse.
+// This plugin rewrites it to a .then() pattern at build time.
+function fixNoVNCTopLevelAwait(): Plugin {
+  return {
+    name: 'fix-novnc-top-level-await',
+    transform(code, id) {
+      if (id.includes('@novnc/novnc') && id.includes('browser.js')) {
+        return code.replace(
+          /exports\.supportsWebCodecsH264Decode\s*=\s*supportsWebCodecsH264Decode\s*=\s*await\s+_checkWebCodecsH264DecodeSupport\(\);/,
+          '_checkWebCodecsH264DecodeSupport().then(function(r) { exports.supportsWebCodecsH264Decode = supportsWebCodecsH264Decode = r; });'
+        )
+      }
+      return null
+    }
+  }
+}
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), fixNoVNCTopLevelAwait()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
@@ -19,20 +37,18 @@ export default defineConfig({
   },
   build: {
     // 确保所有资源都打包到本地
-    assetsInlineLimit: 0, // 禁用小文件内联，确保资源可追踪
+    assetsInlineLimit: 0,
     rollupOptions: {
       input: {
         main: fileURLToPath(new URL('./index.html', import.meta.url)),
         novnc: fileURLToPath(new URL('./src/novnc-entry.ts', import.meta.url))
       },
       output: {
-        // 确保chunk文件名稳定
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'ui-vendor': ['xterm'],
           'utils-vendor': ['axios', 'zustand']
         },
-        // 为novnc-entry创建独立的输出
         entryFileNames: (chunkInfo) => {
           if (chunkInfo.name === 'novnc') {
             return 'assets/novnc-[hash].js'
@@ -41,15 +57,10 @@ export default defineConfig({
         }
       }
     },
-    // 生成source map便于调试
     sourcemap: false,
-    // 优化chunk大小
     chunkSizeWarningLimit: 1000,
-    // 确保CSS也被正确处理
     cssCodeSplit: true,
-    // 使用esbuild压缩，速度更快且无需额外依赖
     minify: 'esbuild',
-    // 使用ES2022以支持top-level await等特性（noVNC需要）
     target: 'es2022'
   },
   test: {

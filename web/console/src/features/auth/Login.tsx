@@ -9,6 +9,7 @@ export function Login() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
   const location = useLocation()
   const login = useAuthStore((s) => s.login)
@@ -48,13 +49,11 @@ export function Login() {
   }
 
   // Only clear state on first mount, but DON'T clear the token
-  // The token might have just been set during navigation here
   const didInit = useRef(false)
   useEffect(() => {
     if (didInit.current) return
     didInit.current = true
     try {
-      // Only clear app state, NOT the auth token
       setActiveProjectId(null)
       setProjectContext(false)
     } catch {
@@ -64,6 +63,7 @@ export function Login() {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError(null)
     setLoading(true)
 
     const debugLog = (msg: string) => {
@@ -80,7 +80,10 @@ export function Login() {
     }
 
     try {
-      if (!username || !password) return
+      if (!username || !password) {
+        setError('Please enter username and password.')
+        return
+      }
       debugLog(`[Login] Attempting login for user: ${username}`)
       const res = await loginApi(username, password)
       const token = res.access_token
@@ -88,26 +91,31 @@ export function Login() {
         debugLog('[Login] Login successful, token received')
         login(token)
 
-        // Wait a bit to ensure token is persisted to localStorage
         await new Promise((resolve) => setTimeout(resolve, 100))
 
-        // Verify token was saved
         const savedAuth = localStorage.getItem('auth')
         debugLog(`[Login] Token saved to localStorage: ${savedAuth ? 'Yes' : 'No'}`)
         if (!savedAuth || !savedAuth.includes(token)) {
           debugLog('[Login] Warning: Token may not have been saved correctly')
-          alert('Warning: Token may not have been saved correctly')
         }
 
-        // Navigate to the page they were trying to access, or /projects by default
         const state = location.state as { from?: { pathname: string } } | null
         const from = state?.from?.pathname || '/projects'
         debugLog(`[Login] Navigating to: ${from}`)
         navigate(from, { replace: true })
+      } else {
+        setError('Login failed: No token received from server.')
       }
-    } catch (error) {
-      debugLog(`[Login] Login failed: ${error}`)
-      alert('Login failed. Please check your credentials.')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      debugLog(`[Login] Login failed: ${message}`)
+      if (message.includes('401') || message.includes('Unauthorized')) {
+        setError('Incorrect username or password.')
+      } else if (message.includes('Failed to fetch') || message.includes('NetworkError')) {
+        setError('Unable to connect to the server. Please check your network.')
+      } else {
+        setError(`Login failed: ${message}`)
+      }
     } finally {
       setLoading(false)
     }
@@ -128,6 +136,11 @@ export function Login() {
           <h1 className="text-xl font-semibold">Sign in to VC Console</h1>
         </div>
         <p className="text-sm text-gray-400">Use your account to access the console.</p>
+        {error && (
+          <div className="rounded-md bg-red-900/50 border border-red-700 px-3 py-2 text-sm text-red-200">
+            {error}
+          </div>
+        )}
         {oidcSupported && (
           <div className="space-y-2">
             <button
@@ -152,7 +165,10 @@ export function Login() {
             id="username"
             className="input w-full rounded-md bg-oxide-900 border border-oxide-700 px-3 py-2 text-sm text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-oxide-600"
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={(e) => {
+              setUsername(e.target.value)
+              setError(null)
+            }}
           />
         </div>
         <div className="space-y-2">
@@ -164,7 +180,10 @@ export function Login() {
             type="password"
             className="input w-full rounded-md bg-oxide-900 border border-oxide-700 px-3 py-2 text-sm text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-oxide-600"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value)
+              setError(null)
+            }}
           />
         </div>
         <button
