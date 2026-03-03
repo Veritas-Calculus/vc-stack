@@ -57,6 +57,7 @@ func (c *apiClient) post(path string, body interface{}) (map[string]interface{},
 	return c.do(req)
 }
 
+//nolint:unused // Available for future CLI commands.
 func (c *apiClient) put(path string, body interface{}) (map[string]interface{}, error) {
 	data, err := json.Marshal(body)
 	if err != nil {

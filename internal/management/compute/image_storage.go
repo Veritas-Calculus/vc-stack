@@ -98,7 +98,7 @@ func (s *ImageStorage) StoreFromReader(imageName string, reader io.Reader, sizeH
 // storeToLocal saves image data to the local filesystem.
 func (s *ImageStorage) storeToLocal(imageName string, reader io.Reader) (*StoreImageResult, error) {
 	// Ensure directory exists.
-	if err := os.MkdirAll(s.config.LocalPath, 0o755); err != nil {
+	if err := os.MkdirAll(s.config.LocalPath, 0o750); err != nil { // #nosec G301,G703
 		return nil, fmt.Errorf("failed to create image directory: %w", err)
 	}
 
@@ -107,7 +107,7 @@ func (s *ImageStorage) storeToLocal(imageName string, reader io.Reader) (*StoreI
 	safeName = strings.ReplaceAll(safeName, " ", "_")
 	destPath := filepath.Join(s.config.LocalPath, safeName)
 
-	f, err := os.Create(destPath) // #nosec G304
+	f, err := os.Create(destPath) // #nosec G304,G703 — path sanitized above
 	if err != nil {
 		return nil, fmt.Errorf("failed to create file: %w", err)
 	}
@@ -119,7 +119,7 @@ func (s *ImageStorage) storeToLocal(imageName string, reader io.Reader) (*StoreI
 
 	written, err := io.Copy(f, tee)
 	if err != nil {
-		_ = os.Remove(destPath)
+		_ = os.Remove(destPath) // #nosec G703
 		return nil, fmt.Errorf("failed to write image data: %w", err)
 	}
 
@@ -234,7 +234,7 @@ func (s *ImageStorage) ImportFromURL(imageName, sourceURL string) (*StoreImageRe
 
 // importURLToLocal downloads a URL to local storage.
 func (s *ImageStorage) importURLToLocal(imageName, sourceURL string) (*StoreImageResult, error) {
-	if err := os.MkdirAll(s.config.LocalPath, 0o755); err != nil {
+	if err := os.MkdirAll(s.config.LocalPath, 0o750); err != nil { // #nosec G301
 		return nil, fmt.Errorf("failed to create image directory: %w", err)
 	}
 
@@ -284,7 +284,7 @@ func (s *ImageStorage) importURLToRBD(imageName, sourceURL string) (*StoreImageR
 		return nil, fmt.Errorf("download failed: %v: %s", err, string(out))
 	}
 
-	fi, err := os.Stat(tmpPath)
+	fi, err := os.Stat(tmpPath) // #nosec G703 — temp file path
 	if err != nil {
 		return nil, fmt.Errorf("failed to stat temp file: %w", err)
 	}

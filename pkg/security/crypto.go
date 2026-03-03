@@ -36,7 +36,7 @@ func GetMasterKey(keyPath string) ([]byte, error) {
 		p = DefaultMasterKeyPath
 	}
 
-	keyFile, err := os.ReadFile(p)
+	keyFile, err := os.ReadFile(p) // #nosec G304 — path from trusted config/env
 	if err != nil {
 		return nil, fmt.Errorf("read master key file %s: %w", p, err)
 	}

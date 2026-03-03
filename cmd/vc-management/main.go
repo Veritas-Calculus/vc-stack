@@ -141,7 +141,7 @@ func main() {
 		}
 	}
 	indexHTML := filepath.Join(webDir, "index.html")
-	if _, err := os.Stat(indexHTML); err == nil {
+	if _, err := os.Stat(indexHTML); err == nil { // #nosec G703
 		zapLogger.Info("serving web console", zap.String("dir", webDir))
 		router.Static("/assets", filepath.Join(webDir, "assets"))
 		router.Static("/config", filepath.Join(webDir, "config"))
@@ -156,8 +156,8 @@ func main() {
 			}
 			// Try to serve the file directly if it exists in webDir.
 			filePath := filepath.Join(webDir, filepath.Clean(p))
-			if fi, err := os.Stat(filePath); err == nil && !fi.IsDir() {
-				c.File(filePath)
+			if fi, err := os.Stat(filePath); err == nil && !fi.IsDir() { // #nosec G703 — path cleaned
+				c.File(filePath) // #nosec G703
 				return
 			}
 			c.File(indexHTML)

@@ -230,8 +230,8 @@ func (s *Service) createNetwork(c *gin.Context) {
 					hostBits := bits - ones
 					numHosts := (1 << hostBits) - 2
 					baseIP := uint32(v4[0])<<24 | uint32(v4[1])<<16 | uint32(v4[2])<<8 | uint32(v4[3])
-					endIPu32 := baseIP + uint32(numHosts)
-					endIP := net.IP{byte(endIPu32 >> 24), byte(endIPu32 >> 16), byte(endIPu32 >> 8), byte(endIPu32)}
+					endIPu32 := baseIP + uint32(numHosts) //nolint:gosec // G115: safe, subnet size bounded
+					endIP := net.IP{byte(endIPu32 >> 24), byte(endIPu32 >> 16), byte(endIPu32 >> 8), byte(endIPu32)} //nolint:gosec // G115: uint32 to byte is safe for IP octets
 					allocEnd = endIP.String()
 				}
 			}

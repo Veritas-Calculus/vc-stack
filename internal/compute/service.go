@@ -338,6 +338,7 @@ func NewService(config Config) (*Service, error) {
 }
 
 // migrate runs database migrations.
+//
 // Deprecated: Schema migrations are now managed exclusively by vc-management.
 // This function is retained for reference but is no longer called on startup.
 // If you need to run migrations, start vc-management which handles all DDL.
@@ -631,7 +632,8 @@ func (s *Service) launchInstance(ctx context.Context, instance *Instance) {
 
 		// Fallback: if not launched yet, try direct in-process call first, then HTTP.
 		if createdVMID == "" {
-			if s.vmDriver != nil {
+			switch {
+			case s.vmDriver != nil:
 				// Preferred: direct in-process call (no HTTP overhead).
 				s.logger.Info("attempting direct VM create (in-process)", zap.String("vm_id", inst.VMID))
 				if vmid, err := s.callVMCreateDirect(&inst, inst.Flavor, inst.Image); err == nil {
@@ -642,7 +644,7 @@ func (s *Service) launchInstance(ctx context.Context, instance *Instance) {
 					createErr = err
 					s.logger.Warn("direct VM create (in-process) failed", zap.Error(err))
 				}
-			} else if strings.TrimSpace(s.config.Orchestrator.LiteURL) != "" {
+			case strings.TrimSpace(s.config.Orchestrator.LiteURL) != "":
 				// Fallback: HTTP call to localhost (legacy path).
 				vmURL := strings.TrimSpace(s.config.Orchestrator.LiteURL)
 				s.logger.Info("attempting direct VM create (HTTP)", zap.String("vm_driver_url", vmURL), zap.String("vm_id", inst.VMID))
@@ -654,7 +656,7 @@ func (s *Service) launchInstance(ctx context.Context, instance *Instance) {
 					createErr = err
 					s.logger.Warn("vm driver create via direct LiteURL failed", zap.String("vm_driver_url", vmURL), zap.Error(err))
 				}
-			} else {
+			default:
 				s.logger.Warn("no VM created: scheduler dispatch failed/skipped, no lite service or LiteURL configured")
 			}
 		}

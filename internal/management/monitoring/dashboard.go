@@ -174,14 +174,7 @@ func (s *Service) dashboardSummary(c *gin.Context) {
 		s.logger.Debug("failed to get recent events for dashboard", zap.Error(err))
 	}
 	for _, e := range dbEvents {
-		summary.RecentEvents = append(summary.RecentEvents, EventEntry{
-			ID:           e.ID,
-			EventType:    e.EventType,
-			ResourceType: e.ResourceType,
-			Action:       e.Action,
-			Status:       e.Status,
-			Timestamp:    e.Timestamp,
-		})
+		summary.RecentEvents = append(summary.RecentEvents, EventEntry(e))
 	}
 
 	// Initialize nil slices to empty arrays for JSON

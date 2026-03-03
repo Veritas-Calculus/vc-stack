@@ -609,7 +609,7 @@ func (s *Service) testConnection(c *gin.Context) {
 		})
 		return
 	}
-	conn.Close()
+	_ = conn.Close()
 
 	s.logger.Info("test connection succeeded", zap.String("addr", addr))
 	c.JSON(http.StatusOK, gin.H{

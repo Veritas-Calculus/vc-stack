@@ -801,6 +801,7 @@ function ACLPage() {
       const list = Array.isArray(res.data) ? res.data : (res.data.network_acls ?? [])
       setAcls(list)
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error('Failed to load ACLs', err)
     } finally {
       setLoading(false)
@@ -820,6 +821,7 @@ function ACLPage() {
       setCreateOpen(false)
       await load()
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error('Failed to create ACL', err)
     }
   }
@@ -829,6 +831,7 @@ function ACLPage() {
       await api.delete(`/v1/network-acls/${id}`)
       await load()
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error('Failed to delete ACL', err)
     }
   }
@@ -855,6 +858,7 @@ function ACLPage() {
       setRuleNumber('100')
       await load()
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error('Failed to add ACL rule', err)
     }
   }
@@ -864,6 +868,7 @@ function ACLPage() {
       await api.delete(`/v1/network-acls/${aclId}/rules/${ruleId}`)
       await load()
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error('Failed to delete ACL rule', err)
     }
   }
@@ -936,20 +941,18 @@ function ACLPage() {
                       <td className="py-1.5 pr-3 text-gray-500">{rule.number}</td>
                       <td className="py-1.5 pr-3">
                         <span
-                          className={`px-1.5 py-0.5 rounded text-xs border ${
-                            rule.direction === 'ingress'
-                              ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
-                              : 'bg-purple-500/15 text-purple-400 border-purple-500/30'
-                          }`}
+                          className={`px-1.5 py-0.5 rounded text-xs border ${rule.direction === 'ingress'
+                            ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
+                            : 'bg-purple-500/15 text-purple-400 border-purple-500/30'
+                            }`}
                         >
                           {rule.direction}
                         </span>
                       </td>
                       <td className="py-1.5 pr-3">
                         <span
-                          className={`text-xs font-medium ${
-                            rule.action === 'allow' ? 'text-emerald-400' : 'text-red-400'
-                          }`}
+                          className={`text-xs font-medium ${rule.action === 'allow' ? 'text-emerald-400' : 'text-red-400'
+                            }`}
                         >
                           {rule.action.toUpperCase()}
                         </span>

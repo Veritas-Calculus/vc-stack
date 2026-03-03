@@ -71,12 +71,12 @@ func CollectNodeInfo(logger *zap.Logger) NodeInfo {
 
 	// Memory
 	if memInfo, err := mem.VirtualMemory(); err == nil {
-		info.RAMMB = int64(memInfo.Total / 1024 / 1024)
+		info.RAMMB = int64(memInfo.Total / 1024 / 1024) //nolint:gosec // G115: safe, RAM in MB fits int64
 	}
 
 	// Disk — root filesystem
 	if diskInfo, err := disk.Usage("/"); err == nil {
-		info.DiskGB = int64(diskInfo.Total / 1024 / 1024 / 1024)
+		info.DiskGB = int64(diskInfo.Total / 1024 / 1024 / 1024) //nolint:gosec // G115: safe, disk in GB fits int64
 	}
 
 	// OS info

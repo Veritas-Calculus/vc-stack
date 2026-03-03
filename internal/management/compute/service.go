@@ -1233,7 +1233,8 @@ func (s *Service) importImage(c *gin.Context) {
 func (s *Service) doImageImport(imageID uint, imageName string, req ImportImageRequest) {
 	var updates map[string]interface{}
 
-	if req.RBDPool != "" && req.RBDImage != "" {
+	switch {
+	case req.RBDPool != "" && req.RBDImage != "":
 		// Source is an existing RBD image — clone it.
 		dstImage := fmt.Sprintf("img-%s", imageName)
 		if err := s.imageStorage.CloneRBDImage(req.RBDPool, req.RBDImage, req.RBDSnap, "", dstImage); err != nil {
@@ -1247,7 +1248,7 @@ func (s *Service) doImageImport(imageID uint, imageName string, req ImportImageR
 			"rbd_image": dstImage,
 			"rbd_snap":  req.RBDSnap,
 		}
-	} else if req.SourceURL != "" {
+	case req.SourceURL != "":
 		// Source is a URL — download and store.
 		result, err := s.imageStorage.ImportFromURL(imageName, req.SourceURL)
 		if err != nil {
@@ -1263,13 +1264,13 @@ func (s *Service) doImageImport(imageID uint, imageName string, req ImportImageR
 			"rbd_image": result.RBDImage,
 			"rgw_url":   req.SourceURL,
 		}
-	} else if req.FilePath != "" {
+	case req.FilePath != "":
 		// Direct file path — just reference it.
 		updates = map[string]interface{}{
 			"status":    "active",
 			"file_path": req.FilePath,
 		}
-	} else {
+	default:
 		s.logger.Warn("import request has no source", zap.Uint("image_id", imageID))
 		_ = s.db.Model(&Image{}).Where("id = ?", imageID).Update("status", "error").Error
 		return

@@ -8,7 +8,7 @@ import (
 )
 
 // generateInstallScript returns a shell script that automates compute node setup.
-// Query params: zone_id, cluster_id, port (optional, default 8081)
+// Query params: zone_id, cluster_id, port (optional, default 8081).
 func (s *Service) generateInstallScript(c *gin.Context) {
 	controllerURL := s.externalURL
 	if controllerURL == "" {

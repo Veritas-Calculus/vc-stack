@@ -97,13 +97,13 @@ func runClusterNodesList(cmd *cobra.Command, args []string) error {
 	}
 
 	w := newTabWriter()
-	fmt.Fprintln(w, "UUID\tNAME\tSTATUS\tSTATE\tIP\tCPU\tRAM (MB)\tDISK (GB)\tZONE\tCLUSTER")
+	_, _ = fmt.Fprintln(w, "UUID\tNAME\tSTATUS\tSTATE\tIP\tCPU\tRAM (MB)\tDISK (GB)\tZONE\tCLUSTER")
 	for _, h := range hosts {
 		m, ok := h.(map[string]interface{})
 		if !ok {
 			continue
 		}
-		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%.0f\t%.0f\t%.0f\t%s\t%s\n",
+		_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%.0f\t%.0f\t%.0f\t%s\t%s\n",
 			getString(m, "uuid"),
 			getString(m, "name"),
 			getString(m, "status"),
@@ -116,7 +116,7 @@ func runClusterNodesList(cmd *cobra.Command, args []string) error {
 			getString(m, "cluster_id"),
 		)
 	}
-	w.Flush()
+	_ = w.Flush()
 	return nil
 }
 
@@ -232,13 +232,13 @@ func runClusterZonesList(cmd *cobra.Command, args []string) error {
 	}
 
 	w := newTabWriter()
-	fmt.Fprintln(w, "ID\tNAME\tTYPE\tNETWORK\tALLOCATION")
+	_, _ = fmt.Fprintln(w, "ID\tNAME\tTYPE\tNETWORK\tALLOCATION")
 	for _, z := range zones {
 		m, ok := z.(map[string]interface{})
 		if !ok {
 			continue
 		}
-		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n",
+		_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n",
 			getString(m, "id"),
 			getString(m, "name"),
 			getString(m, "type"),
@@ -246,7 +246,7 @@ func runClusterZonesList(cmd *cobra.Command, args []string) error {
 			getString(m, "allocation"),
 		)
 	}
-	w.Flush()
+	_ = w.Flush()
 	return nil
 }
 
@@ -352,13 +352,13 @@ func runClusterClustersList(cmd *cobra.Command, args []string) error {
 	}
 
 	w := newTabWriter()
-	fmt.Fprintln(w, "ID\tNAME\tZONE\tHYPERVISOR\tALLOCATION\tDESCRIPTION")
+	_, _ = fmt.Fprintln(w, "ID\tNAME\tZONE\tHYPERVISOR\tALLOCATION\tDESCRIPTION")
 	for _, cl := range clusters {
 		m, ok := cl.(map[string]interface{})
 		if !ok {
 			continue
 		}
-		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\n",
+		_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\n",
 			getString(m, "id"),
 			getString(m, "name"),
 			getString(m, "zone_id"),
@@ -367,7 +367,7 @@ func runClusterClustersList(cmd *cobra.Command, args []string) error {
 			getString(m, "description"),
 		)
 	}
-	w.Flush()
+	_ = w.Flush()
 	return nil
 }
 

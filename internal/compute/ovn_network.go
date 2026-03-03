@@ -214,7 +214,7 @@ func (m *OVNNetworkManager) getPortInfo(ctx context.Context, portID string) (*Po
 	}
 
 	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Do(req)
+	resp, err := client.Do(req) // #nosec G704 — URL built from internal config
 	if err != nil {
 		return nil, fmt.Errorf("request management API: %w", err)
 	}

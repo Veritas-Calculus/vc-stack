@@ -21,7 +21,7 @@ type DeployRequest struct {
 	Host      string `json:"host" binding:"required"`
 	Port      int    `json:"port"`
 	User      string `json:"user"`
-	Password  string `json:"password" binding:"required"`
+	Password  string `json:"password" binding:"required"` //nolint:gosec // G117: required field, not a hardcoded secret
 	ZoneID    string `json:"zone_id"`
 	ClusterID string `json:"cluster_id"`
 	AgentPort string `json:"agent_port"`
@@ -72,7 +72,7 @@ func (s *Service) deployHost(c *gin.Context) {
 
 	sendEvent := func(evt DeployEvent) {
 		data, _ := json.Marshal(evt)
-		fmt.Fprintf(c.Writer, "data: %s\n\n", data)
+		_, _ = fmt.Fprintf(c.Writer, "data: %s\n\n", data)
 		c.Writer.Flush()
 	}
 
@@ -267,6 +267,8 @@ func sshRunStreaming(ctx context.Context, client *ssh.Client, cmd string, onLine
 }
 
 // sshCheckConnectivity is a quick check if SSH is reachable.
+//
+//nolint:unused // May be used by future host health-check logic.
 func sshCheckConnectivity(host string, port int) error {
 	conn, err := net.DialTimeout("tcp", fmt.Sprintf("%s:%d", host, port), 5*time.Second)
 	if err != nil {

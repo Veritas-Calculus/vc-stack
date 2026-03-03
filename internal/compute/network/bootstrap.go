@@ -236,7 +236,7 @@ func detectEncapIP(ovnRemote string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("cannot determine route to %s: %w", host, err)
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	localAddr := conn.LocalAddr().(*net.UDPAddr)
 	return localAddr.IP.String(), nil
