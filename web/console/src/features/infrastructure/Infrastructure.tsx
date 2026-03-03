@@ -668,6 +668,8 @@ function Hosts() {
   >('all')
   const [showAdd, setShowAdd] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [deleteConfirm, setDeleteConfirm] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   const load = async () => {
     setLoading(true)
@@ -686,7 +688,7 @@ function Hosts() {
   type HostRow = {
     id: string
     name: string
-    state: 'up' | 'down'
+    state: 'up' | 'down' | 'connecting'
     resourceState: 'enabled' | 'disabled'
     ip: string
     arch: string
@@ -710,7 +712,8 @@ function Hosts() {
         const arch = n.labels?.arch || ''
         const hypervisor = n.hypervisor_type || n.labels?.hypervisor || ''
         const version = n.agent_version || n.hypervisor_version || n.labels?.version || ''
-        const state: 'up' | 'down' = alive ? ('up' as const) : ('down' as const)
+        const state: 'up' | 'down' | 'connecting' =
+          status === 'up' ? 'up' : status === 'connecting' ? 'connecting' : 'down'
         const resourceState: 'enabled' | 'disabled' = enabled
           ? ('enabled' as const)
           : ('disabled' as const)
@@ -795,7 +798,11 @@ function Hosts() {
       key: 'state',
       header: 'State',
       render: (r: HostRow) => (
-        <Badge variant={r.state === 'up' ? 'success' : 'danger'}>{r.state}</Badge>
+        <Badge
+          variant={r.state === 'up' ? 'success' : r.state === 'connecting' ? 'warning' : 'danger'}
+        >
+          {r.state}
+        </Badge>
       )
     },
     {
@@ -839,21 +846,8 @@ function Hosts() {
           </div>
           <div className="flex items-center gap-2">
             {selectedIds.size > 0 && (
-              <button
-                className="btn btn-danger"
-                onClick={async () => {
-                  if (!confirm(`Delete ${selectedIds.size} host(s) from scheduler?`)) return
-                  try {
-                    await Promise.all(Array.from(selectedIds).map((id) => deleteNode(id)))
-                    toast.success(`Deleted ${selectedIds.size} host(s)`)
-                    setSelectedIds(new Set())
-                    await load()
-                  } catch {
-                    toast.error('Delete failed')
-                  }
-                }}
-              >
-                Delete Selected
+              <button className="btn btn-danger" onClick={() => setDeleteConfirm(true)}>
+                Delete Selected ({selectedIds.size})
               </button>
             )}
             <button className="btn btn-primary" onClick={() => setShowAdd(true)}>
@@ -894,6 +888,44 @@ function Hosts() {
             load()
           }}
         />
+      </Modal>
+      <Modal
+        title="Confirm Delete"
+        open={deleteConfirm}
+        onClose={() => setDeleteConfirm(false)}
+        footer={
+          <div className="flex gap-2 justify-end">
+            <button className="btn" onClick={() => setDeleteConfirm(false)}>
+              Cancel
+            </button>
+            <button
+              className="btn btn-danger"
+              disabled={deleting}
+              onClick={async () => {
+                setDeleting(true)
+                try {
+                  await Promise.all(Array.from(selectedIds).map((id) => deleteNode(id)))
+                  toast.success(`Deleted ${selectedIds.size} host(s)`)
+                  setSelectedIds(new Set())
+                  setDeleteConfirm(false)
+                  await load()
+                } catch {
+                  toast.error('Delete failed')
+                } finally {
+                  setDeleting(false)
+                }
+              }}
+            >
+              {deleting ? 'Deleting...' : `Delete ${selectedIds.size} Host(s)`}
+            </button>
+          </div>
+        }
+      >
+        <p className="text-sm text-gray-300">
+          Are you sure you want to delete{' '}
+          <span className="font-semibold text-white">{selectedIds.size}</span> selected host(s)?
+          This action cannot be undone.
+        </p>
       </Modal>
     </div>
   )

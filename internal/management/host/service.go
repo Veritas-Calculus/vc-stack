@@ -207,7 +207,7 @@ func (s *Service) registerHost(c *gin.Context) {
 			UUID:              uuid.New().String(),
 			Name:              req.Name,
 			HostType:          hostType,
-			Status:            models.HostStatusUp,
+			Status:            models.HostStatusConnecting,
 			ResourceState:     models.ResourceStateEnabled,
 			Hostname:          req.Hostname,
 			IPAddress:         req.IPAddress,

@@ -560,7 +560,7 @@ export async function fetchNodes(): Promise<NodeInfo[]> {
 }
 
 export async function deleteNode(id: string): Promise<void> {
-  await api.delete(`/v1/nodes/${id}`)
+  await api.delete(`/v1/hosts/${id}`)
 }
 
 export async function startConsole(instanceId: string): Promise<string> {
