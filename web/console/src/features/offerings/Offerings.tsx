@@ -48,20 +48,20 @@ interface NetworkOffering {
   disabled: boolean
 }
 
-const TAB_CONFIG: Record<Tab, { label: string; icon: string; desc: string }> = {
+const TAB_CONFIG: Record<Tab, { label: string; abbrev: string; desc: string }> = {
   compute: {
     label: 'Compute Offerings',
-    icon: '⚡',
+    abbrev: 'VM',
     desc: 'CPU, memory, and default disk configurations'
   },
   disk: {
     label: 'Disk Offerings',
-    icon: '💾',
+    abbrev: 'VOL',
     desc: 'Storage tiers with IOPS and throughput limits'
   },
   network: {
     label: 'Network Offerings',
-    icon: '🌐',
+    abbrev: 'NET',
     desc: 'Network service packages and configurations'
   }
 }
@@ -148,14 +148,18 @@ export function Offerings() {
                 : 'text-gray-400 hover:text-gray-200 hover:bg-oxide-800'
             }`}
           >
-            <span>{TAB_CONFIG[t].icon}</span>
+            <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-oxide-700 text-gray-400">
+              {TAB_CONFIG[t].abbrev}
+            </span>
             {TAB_CONFIG[t].label}
           </button>
         ))}
       </div>
 
       <div className="mb-4 flex items-center gap-3">
-        <span className="text-2xl">{cfg.icon}</span>
+        <span className="px-2 py-1 rounded text-xs font-mono bg-oxide-700 text-gray-300">
+          {cfg.abbrev}
+        </span>
         <div>
           <h2 className="text-lg font-semibold text-white">{cfg.label}</h2>
           <p className="text-xs text-gray-500">{cfg.desc}</p>
@@ -379,10 +383,5 @@ function StatusBadge({ active }: { active: boolean }) {
 }
 
 function EmptyState({ text }: { text: string }) {
-  return (
-    <div className="text-center py-16 text-gray-500">
-      <div className="text-3xl mb-2">📦</div>
-      {text}
-    </div>
-  )
+  return <div className="text-center py-16 text-gray-500">{text}</div>
 }

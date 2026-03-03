@@ -173,7 +173,6 @@ export function Accounts() {
             ) : users.length === 0 ? (
               <tr>
                 <td colSpan={6} className="text-center py-12 text-gray-500">
-                  <div className="text-3xl mb-2">👤</div>
                   No users found
                 </td>
               </tr>

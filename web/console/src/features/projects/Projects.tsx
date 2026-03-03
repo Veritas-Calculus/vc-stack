@@ -265,10 +265,7 @@ export function Projects() {
                   <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
                 </div>
               ) : members.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <div className="text-2xl mb-1">👥</div>
-                  No members yet
-                </div>
+                <div className="text-center py-8 text-gray-500">No members yet</div>
               ) : (
                 members.map((m) => (
                   <div

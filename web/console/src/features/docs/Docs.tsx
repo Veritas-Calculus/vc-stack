@@ -29,7 +29,7 @@ interface ServiceDocs {
 const apiDocs: ServiceDocs[] = [
   {
     name: 'Identity',
-    icon: '🔐',
+    icon: 'IAM',
     description: 'Authentication, authorization, and user management',
     endpoints: [
       {
@@ -109,7 +109,7 @@ const apiDocs: ServiceDocs[] = [
   },
   {
     name: 'IAM',
-    icon: '🛡️',
+    icon: 'ACL',
     description: 'Roles, permissions, and policy management',
     endpoints: [
       { method: 'GET', path: '/api/v1/roles', description: 'List all roles' },
@@ -142,7 +142,7 @@ const apiDocs: ServiceDocs[] = [
   },
   {
     name: 'Compute',
-    icon: '⚡',
+    icon: 'VM',
     description: 'Virtual machine lifecycle and resource management',
     endpoints: [
       {
@@ -206,7 +206,7 @@ const apiDocs: ServiceDocs[] = [
   },
   {
     name: 'Images',
-    icon: '📀',
+    icon: 'IMG',
     description: 'Image and template management',
     endpoints: [
       { method: 'GET', path: '/api/v1/images', description: 'List all images' },
@@ -232,7 +232,7 @@ const apiDocs: ServiceDocs[] = [
   },
   {
     name: 'Storage',
-    icon: '💾',
+    icon: 'VOL',
     description: 'Volume, snapshot, and backup management',
     endpoints: [
       { method: 'GET', path: '/api/v1/volumes', description: 'List all volumes' },
@@ -261,7 +261,7 @@ const apiDocs: ServiceDocs[] = [
   },
   {
     name: 'Network',
-    icon: '🌐',
+    icon: 'NET',
     description: 'SDN network, subnet, router, and security management',
     endpoints: [
       { method: 'GET', path: '/api/v1/networks', description: 'List all networks' },
@@ -322,7 +322,7 @@ const apiDocs: ServiceDocs[] = [
   },
   {
     name: 'Infrastructure',
-    icon: '🏗️',
+    icon: 'INF',
     description: 'Host, zone, and cluster management',
     endpoints: [
       { method: 'GET', path: '/api/v1/hosts', description: 'List all compute hosts' },
@@ -357,7 +357,7 @@ const apiDocs: ServiceDocs[] = [
   },
   {
     name: 'Quotas',
-    icon: '📊',
+    icon: 'MON',
     description: 'Resource quota management',
     endpoints: [
       { method: 'GET', path: '/api/v1/quotas/default', description: 'Get default quota limits' },
@@ -376,7 +376,7 @@ const apiDocs: ServiceDocs[] = [
   },
   {
     name: 'Events',
-    icon: '📋',
+    icon: 'EVT',
     description: 'System events and audit trail',
     endpoints: [
       {
@@ -405,7 +405,7 @@ const apiDocs: ServiceDocs[] = [
   },
   {
     name: 'Monitoring',
-    icon: '📡',
+    icon: 'GW',
     description: 'System health, metrics, and dashboard',
     endpoints: [
       { method: 'GET', path: '/health', description: 'Global system health check' },
@@ -426,7 +426,7 @@ const apiDocs: ServiceDocs[] = [
   },
   {
     name: 'WebShell',
-    icon: '🖥️',
+    icon: 'SH',
     description: 'Terminal session management',
     endpoints: [
       { method: 'GET', path: '/api/v1/shell/sessions', description: 'List terminal sessions' },
@@ -556,7 +556,9 @@ export function Docs() {
               className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur overflow-hidden"
             >
               <div className="px-4 py-3 border-b border-oxide-800 bg-oxide-900/80 flex items-center gap-2">
-                <span className="text-lg">{doc.icon}</span>
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-oxide-700 text-gray-400">
+                  {doc.icon}
+                </span>
                 <h3 className="text-sm font-medium text-white">{doc.name}</h3>
                 <span className="text-xs text-gray-500">— {doc.endpoints.length} matches</span>
               </div>
@@ -569,7 +571,6 @@ export function Docs() {
           ))}
           {allFilteredDocs.length === 0 && (
             <div className="text-center py-12 text-gray-500">
-              <div className="text-3xl mb-2">🔍</div>
               No endpoints match "{searchQuery}"
             </div>
           )}
@@ -598,7 +599,9 @@ export function Docs() {
                         : 'text-gray-400 hover:bg-oxide-800/50 hover:text-gray-200 border-l-2 border-l-transparent'
                     }`}
                   >
-                    <span className="text-base">{doc.icon}</span>
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-oxide-700 text-gray-400">
+                      {doc.icon}
+                    </span>
                     <div>
                       <div className="font-medium">{doc.name}</div>
                       <div className="text-xs text-gray-500">{doc.endpoints.length} endpoints</div>
@@ -614,7 +617,9 @@ export function Docs() {
             {activeDocs && (
               <div className="space-y-4">
                 <div className="flex items-center gap-3 mb-4">
-                  <span className="text-2xl">{activeDocs.icon}</span>
+                  <span className="px-2 py-1 rounded text-xs font-mono bg-oxide-700 text-gray-300">
+                    {activeDocs.icon}
+                  </span>
                   <div>
                     <h2 className="text-xl font-semibold text-white">{activeDocs.name} API</h2>
                     <p className="text-sm text-gray-400">{activeDocs.description}</p>
