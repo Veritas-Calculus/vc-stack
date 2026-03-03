@@ -2,7 +2,7 @@
 #
 # Usage:
 #   docker compose up -d                    # Start PG + management + nginx
-#   docker compose --profile compute up -d  # Also start compute node (needs KVM)
+#   docker compose --profile compute up -d  # Also start compute node + OVN
 #   docker compose down -v                  # Stop and remove volumes
 
 services:
@@ -63,7 +63,32 @@ services:
       - vc-stack
     restart: unless-stopped
 
-  # ---- vc-compute (optional, auto-detects KVM or uses QEMU TCG) ----
+  # ---- OVN Central (NB + SB databases) ----
+  ovn-central:
+    image: debian:bookworm-slim
+    container_name: vc-stack-ovn-central
+    profiles: [ "compute" ]
+    command: >
+      bash -c "
+        apt-get update -qq && apt-get install -y -qq ovn-central > /dev/null 2>&1 &&
+        mkdir -p /var/run/ovn /var/lib/ovn /var/log/ovn &&
+        /usr/share/ovn/scripts/ovn-ctl start_northd &&
+        ovn-nbctl set-connection ptcp:6641:0.0.0.0 &&
+        ovn-sbctl set-connection ptcp:6642:0.0.0.0 &&
+        echo '[ovn-central] OVN NB/SB databases listening on tcp:6641/6642' &&
+        tail -f /var/log/ovn/ovn-northd.log
+      "
+    healthcheck:
+      test: [ "CMD-SHELL", "ovn-nbctl --timeout=3 show > /dev/null 2>&1 || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
+    networks:
+      - vc-stack
+    restart: unless-stopped
+
+  # ---- vc-compute (auto-detects KVM or uses QEMU TCG) ----
   vc-compute:
     build:
       context: .
@@ -72,6 +97,8 @@ services:
     profiles: [ "compute" ]
     depends_on:
       postgres:
+        condition: service_healthy
+      ovn-central:
         condition: service_healthy
     environment:
       DB_HOST: postgres
@@ -85,6 +112,9 @@ services:
       IMAGES_LOCAL_PATH: /var/lib/vcstack/images
       VOLUMES_BACKEND: local
       VOLUMES_LOCAL_PATH: /var/lib/vcstack/volumes
+      # OVN networking
+      NETWORK_OVN_SB_ADDRESS: "tcp:ovn-central:6642"
+      NETWORK_ENCAP_TYPE: geneve
       LOGGING_LEVEL: debug
       LOGGING_FORMAT: text
     privileged: true
