@@ -10,7 +10,9 @@ import {
   fetchZones,
   createZone,
   deleteNode,
-  fetchHealthStatus
+  fetchHealthStatus,
+  getInstallScriptURL,
+  resolveApiBase
 } from '@/lib/api'
 import { toast } from '@/lib/toast'
 import { Modal } from '@/components/ui/Modal'
@@ -201,6 +203,235 @@ function Clusters() {
     </div>
   )
 }
+// ────────────── Add Host Wizard ──────────────
+function AddHostWizard({ onClose }: { onClose: () => void }) {
+  const [tab, setTab] = useState<'script' | 'manual'>('script')
+  const [zones, setZones] = useState<{ id: string; name: string }[]>([])
+  const [zoneId, setZoneId] = useState('')
+  const [clusterId, setClusterId] = useState('')
+  const [port, setPort] = useState('8081')
+  const [copied, setCopied] = useState(false)
+
+  // Manual registration
+  const [manualIP, setManualIP] = useState('')
+  const [manualHostname, setManualHostname] = useState('')
+  const [manualCPU, setManualCPU] = useState('')
+  const [manualRAM, setManualRAM] = useState('')
+  const [manualDisk, setManualDisk] = useState('')
+  const [manualSubmitting, setManualSubmitting] = useState(false)
+
+  useEffect(() => {
+    fetchZones()
+      .then((z) => setZones(z.map((x) => ({ id: x.id, name: x.name }))))
+      .catch(() => {})
+  }, [])
+
+  const scriptURL = useMemo(
+    () =>
+      getInstallScriptURL({ zoneId: zoneId || undefined, clusterId: clusterId || undefined, port }),
+    [zoneId, clusterId, port]
+  )
+
+  const curlCommand = `curl -sSL '${window.location.origin}${scriptURL}' | sudo bash`
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(curlCommand)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleManualSubmit = async () => {
+    if (!manualIP || !manualHostname) {
+      toast.error('IP and Hostname are required')
+      return
+    }
+    setManualSubmitting(true)
+    try {
+      const base = resolveApiBase()
+      const body: Record<string, unknown> = {
+        name: manualHostname,
+        hostname: manualHostname,
+        ip_address: manualIP,
+        management_port: parseInt(port) || 8081,
+        host_type: 'compute',
+        hypervisor_type: 'kvm',
+        cpu_cores: parseInt(manualCPU) || 1,
+        ram_mb: parseInt(manualRAM) || 1024,
+        disk_gb: parseInt(manualDisk) || 10
+      }
+      if (zoneId) body.zone_id = parseInt(zoneId)
+      if (clusterId) body.cluster_id = parseInt(clusterId)
+
+      const res = await fetch(`${base}/v1/hosts/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      })
+      if (!res.ok) throw new Error(await res.text())
+      toast.success('Host registered successfully')
+      onClose()
+    } catch (e) {
+      toast.error(`Registration failed: ${e instanceof Error ? e.message : 'Unknown error'}`)
+    } finally {
+      setManualSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Tab Bar */}
+      <div className="flex gap-1 bg-oxide-900 rounded-lg p-1">
+        <button
+          className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            tab === 'script' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-gray-200'
+          }`}
+          onClick={() => setTab('script')}
+        >
+          Install Script
+        </button>
+        <button
+          className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            tab === 'manual' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-gray-200'
+          }`}
+          onClick={() => setTab('manual')}
+        >
+          Manual Registration
+        </button>
+      </div>
+
+      {/* Common: Zone / Cluster / Port */}
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <label className="text-xs text-gray-400 block mb-1">Zone</label>
+          <select
+            className="input w-full text-sm"
+            value={zoneId}
+            onChange={(e) => setZoneId(e.target.value)}
+          >
+            <option value="">Any</option>
+            {zones.map((z) => (
+              <option key={z.id} value={String(z.id)}>
+                {z.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="text-xs text-gray-400 block mb-1">Cluster ID</label>
+          <input
+            className="input w-full text-sm"
+            placeholder="Optional"
+            value={clusterId}
+            onChange={(e) => setClusterId(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="text-xs text-gray-400 block mb-1">Agent Port</label>
+          <input
+            className="input w-full text-sm"
+            value={port}
+            onChange={(e) => setPort(e.target.value)}
+          />
+        </div>
+      </div>
+
+      {tab === 'script' && (
+        <div className="space-y-3">
+          <p className="text-sm text-gray-300">
+            Run this command on the target node as <code className="text-blue-400">root</code>:
+          </p>
+          <div className="relative">
+            <pre className="bg-oxide-950 border border-oxide-800 rounded-lg p-3 pr-20 text-xs text-green-400 font-mono overflow-x-auto whitespace-pre-wrap break-all">
+              {curlCommand}
+            </pre>
+            <button
+              className="absolute top-2 right-2 px-3 py-1 text-xs rounded bg-oxide-700 hover:bg-oxide-600 text-gray-300 transition-colors"
+              onClick={handleCopy}
+            >
+              {copied ? '✓ Copied' : 'Copy'}
+            </button>
+          </div>
+          <div className="text-xs text-gray-500 space-y-1">
+            <p>The script will automatically:</p>
+            <ol className="list-decimal list-inside space-y-0.5 text-gray-400">
+              <li>Detect your OS (Debian/Ubuntu/RHEL)</li>
+              <li>Install qemu-kvm, libvirt, and dependencies</li>
+              <li>Download vc-compute from this controller</li>
+              <li>Generate configuration and systemd service</li>
+              <li>Start the agent and register with this management server</li>
+            </ol>
+          </div>
+        </div>
+      )}
+
+      {tab === 'manual' && (
+        <div className="space-y-3">
+          <p className="text-sm text-gray-300">
+            Register a host that already has vc-compute installed:
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs text-gray-400 block mb-1">IP Address *</label>
+              <input
+                className="input w-full text-sm"
+                placeholder="192.168.1.100"
+                value={manualIP}
+                onChange={(e) => setManualIP(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-xs text-gray-400 block mb-1">Hostname *</label>
+              <input
+                className="input w-full text-sm"
+                placeholder="node-01"
+                value={manualHostname}
+                onChange={(e) => setManualHostname(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-xs text-gray-400 block mb-1">CPU Cores</label>
+              <input
+                className="input w-full text-sm"
+                type="number"
+                placeholder="4"
+                value={manualCPU}
+                onChange={(e) => setManualCPU(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-xs text-gray-400 block mb-1">RAM (MB)</label>
+              <input
+                className="input w-full text-sm"
+                type="number"
+                placeholder="8192"
+                value={manualRAM}
+                onChange={(e) => setManualRAM(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-xs text-gray-400 block mb-1">Disk (GB)</label>
+              <input
+                className="input w-full text-sm"
+                type="number"
+                placeholder="100"
+                value={manualDisk}
+                onChange={(e) => setManualDisk(e.target.value)}
+              />
+            </div>
+          </div>
+          <button
+            className="btn btn-primary w-full"
+            onClick={handleManualSubmit}
+            disabled={manualSubmitting}
+          >
+            {manualSubmitting ? 'Registering...' : 'Register Host'}
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function Hosts() {
   const [loading, setLoading] = useState(false)
   const [nodes, setNodes] = useState<NodeInfo[]>([])
@@ -430,40 +661,12 @@ function Hosts() {
           </button>
         }
       >
-        <div className="text-sm text-gray-300 space-y-2">
-          <p>On the target node (Debian 12):</p>
-          <ol className="list-decimal list-inside space-y-1">
-            <li>
-              Install dependencies: qemu-kvm, libvirt-daemon-system, libvirt-clients; enable
-              libvirtd.
-            </li>
-            <li>Copy vc-lite binary to /opt/tiger/bin/ and make it executable.</li>
-            <li>Create /opt/tiger/configs/env with:</li>
-          </ol>
-          <pre className="bg-oxide-950 border border-oxide-800 rounded p-2 text-xs overflow-auto">{`VC_SCHEDULER_URL=http://<control-ip>:8092
-VC_LITE_PUBLIC_URL=http://<node-ip>:8091
-# Optional:
-LIBVIRT_URI=qemu:///system
-VC_NODE_ID=<unique-id>`}</pre>
-          <p>Create systemd unit /etc/systemd/system/vc-lite.service and start it:</p>
-          <pre className="bg-oxide-950 border border-oxide-800 rounded p-2 text-xs overflow-auto">{`[Unit]
-Description=VC Stack Lite (Node Agent)
-After=network-online.target libvirtd.service
-Wants=network-online.target
-
-[Service]
-User=tiger
-Group=tiger
-EnvironmentFile=-/opt/tiger/configs/env
-ExecStart=/opt/tiger/bin/vc-lite
-WorkingDirectory=/opt/tiger
-Restart=on-failure
-RestartSec=2s
-
-[Install]
-WantedBy=multi-user.target`}</pre>
-          <p>Once started, click Refresh to see the host appear here.</p>
-        </div>
+        <AddHostWizard
+          onClose={() => {
+            setShowAdd(false)
+            load()
+          }}
+        />
       </Modal>
     </div>
   )

@@ -1221,3 +1221,27 @@ export async function fetchHealthStatus(): Promise<HealthResponse> {
   const res = await axios.get<HealthResponse>(`${base}/health`)
   return res.data
 }
+
+// ── Install Script ──────────────────────────────
+export function getInstallScriptURL(opts?: {
+  zoneId?: string
+  clusterId?: string
+  port?: string
+}): string {
+  const params = new URLSearchParams()
+  if (opts?.zoneId) params.set('zone_id', opts.zoneId)
+  if (opts?.clusterId) params.set('cluster_id', opts.clusterId)
+  if (opts?.port) params.set('port', opts.port)
+  const qs = params.toString()
+  return `${resolveApiBase()}/v1/hosts/install-script${qs ? '?' + qs : ''}`
+}
+
+export async function fetchInstallScript(opts?: {
+  zoneId?: string
+  clusterId?: string
+  port?: string
+}): Promise<string> {
+  const url = getInstallScriptURL(opts)
+  const res = await axios.get<string>(url, { responseType: 'text' as const })
+  return res.data
+}
