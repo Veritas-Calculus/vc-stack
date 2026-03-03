@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import api from '@/lib/api'
 
+import { EmptyState } from '@/components/ui/EmptyState'
 interface SnapshotSchedule {
   id: number
   name: string
@@ -85,11 +86,10 @@ export function SnapshotSchedules() {
           <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : schedules.length === 0 ? (
-        <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur p-12 text-center text-gray-500">
-          <div className="text-4xl mb-3">📸</div>
-          <p>No snapshot schedules configured</p>
-          <p className="text-xs mt-1">Create schedules from the Volumes page</p>
-        </div>
+        <EmptyState
+          title="No snapshot schedules"
+          subtitle="Create schedules from the Volumes page"
+        />
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {schedules.map((s) => (
@@ -99,7 +99,7 @@ export function SnapshotSchedules() {
             >
               <div className="px-4 py-3 border-b border-oxide-800/50 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">📸</span>
+                  <span className="w-2 h-2 rounded-full bg-blue-500 inline-block" />
                   <span className="text-sm font-medium text-white">{s.name}</span>
                 </div>
                 <span

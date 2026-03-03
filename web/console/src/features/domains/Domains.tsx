@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { useState, useEffect, useCallback } from 'react'
 import api from '@/lib/api'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface Domain {
   id: number
@@ -277,10 +278,10 @@ export function Domains() {
               </div>
             </div>
           ) : (
-            <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur p-12 text-center text-gray-500">
-              <div className="text-4xl mb-3">🏢</div>
-              <div>Select a domain from the tree to view details</div>
-            </div>
+            <EmptyState
+              title="Select a domain"
+              subtitle="Choose a domain from the tree to view details"
+            />
           )}
         </div>
       </div>
@@ -323,7 +324,7 @@ function TreeItem({
           </button>
         )}
         {!hasChildren && <span className="w-4" />}
-        <span className="text-base">{d.parent_id === null ? '🏛️' : '📁'}</span>
+        <span className="text-xs text-gray-500">{d.parent_id === null ? '◆' : '○'}</span>
         <span className="font-medium">{d.name}</span>
         {d.state !== 'active' && (
           <span className="px-1 py-0.5 rounded text-[10px] bg-red-500/20 text-red-400">

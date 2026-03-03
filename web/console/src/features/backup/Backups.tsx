@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { useState, useEffect, useCallback } from 'react'
 import api from '@/lib/api'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface BackupOffering {
   id: number
@@ -113,10 +114,7 @@ export function Backups() {
         <>
           {tab === 'backups' &&
             (backups.length === 0 ? (
-              <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 p-12 text-center text-gray-500">
-                <div className="text-4xl mb-3">💾</div>
-                <p>No backups</p>
-              </div>
+              <EmptyState title="No backups" subtitle="Create your first VM backup" />
             ) : (
               <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 overflow-hidden">
                 <table className="w-full text-sm">

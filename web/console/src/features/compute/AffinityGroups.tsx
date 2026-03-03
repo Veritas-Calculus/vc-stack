@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { useState, useEffect, useCallback } from 'react'
 import api from '@/lib/api'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface AffinityGroup {
   id: number
@@ -143,10 +144,7 @@ export function AffinityGroups() {
           <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : groups.length === 0 ? (
-        <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur p-12 text-center text-gray-500">
-          <div className="text-4xl mb-3">🔗</div>
-          <p>No affinity groups</p>
-        </div>
+        <EmptyState title="No affinity groups" subtitle="Create a group to manage VM placement" />
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {groups.map((g) => (
@@ -156,7 +154,9 @@ export function AffinityGroups() {
             >
               <div className="px-4 py-3 border-b border-oxide-800/50 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">{g.type === 'host-affinity' ? '🧲' : '↔️'}</span>
+                  <span
+                    className={`w-2 h-2 rounded-full inline-block ${g.type === 'host-affinity' ? 'bg-amber-400' : 'bg-blue-400'}`}
+                  />
                   <span className="text-sm font-medium text-white">{g.name}</span>
                 </div>
                 <span

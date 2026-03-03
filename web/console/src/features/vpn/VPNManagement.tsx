@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { useState, useEffect, useCallback } from 'react'
 import api from '@/lib/api'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface VPNGateway {
   id: string
@@ -116,7 +117,7 @@ export function VPNManagement() {
         <>
           {tab === 'gateways' &&
             (gateways.length === 0 ? (
-              <Empty icon="🔒" text="No VPN gateways" />
+              <EmptyState title="No VPN gateways" />
             ) : (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {gateways.map((g) => (
@@ -135,7 +136,7 @@ export function VPNManagement() {
             ))}
           {tab === 'customers' &&
             (customers.length === 0 ? (
-              <Empty icon="🏢" text="No customer gateways" />
+              <EmptyState title="No customer gateways" />
             ) : (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {customers.map((c) => (
@@ -150,7 +151,7 @@ export function VPNManagement() {
             ))}
           {tab === 'connections' &&
             (connections.length === 0 ? (
-              <Empty icon="🔗" text="No VPN connections" />
+              <EmptyState title="No VPN connections" />
             ) : (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {connections.map((cn) => (
@@ -169,15 +170,6 @@ export function VPNManagement() {
             ))}
         </>
       )}
-    </div>
-  )
-}
-
-function Empty({ icon, text }: { icon: string; text: string }) {
-  return (
-    <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur p-12 text-center text-gray-500">
-      <div className="text-4xl mb-3">{icon}</div>
-      <p>{text}</p>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { useState, useEffect, useCallback } from 'react'
 import api from '@/lib/api'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface ASGroup {
   id: number
@@ -93,10 +94,10 @@ export function AutoScale() {
           <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : groups.length === 0 ? (
-        <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 p-12 text-center text-gray-500">
-          <div className="text-4xl mb-3">📈</div>
-          <p>No auto-scale groups</p>
-        </div>
+        <EmptyState
+          title="No auto-scale groups"
+          subtitle="Create a group to enable automatic scaling"
+        />
       ) : (
         <div className="flex gap-6">
           {/* Group list */}

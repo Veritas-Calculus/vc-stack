@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { useState, useEffect, useCallback } from 'react'
 import api from '@/lib/api'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface Tariff {
   id: number
@@ -152,10 +153,10 @@ export function UsageBilling() {
           {/* Usage Tab */}
           {tab === 'usage' &&
             (usageSummary.length === 0 ? (
-              <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur p-12 text-center text-gray-500">
-                <div className="text-4xl mb-3">📊</div>
-                <p>No usage data yet</p>
-              </div>
+              <EmptyState
+                title="No usage data"
+                subtitle="Usage records will appear as resources are consumed"
+              />
             ) : (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {usageSummary.map((u, i) => (
@@ -176,10 +177,10 @@ export function UsageBilling() {
           {/* Billing Tab */}
           {tab === 'billing' &&
             (billingSummaries.length === 0 ? (
-              <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur p-12 text-center text-gray-500">
-                <div className="text-4xl mb-3">💰</div>
-                <p>No billing data</p>
-              </div>
+              <EmptyState
+                title="No billing data"
+                subtitle="Billing summaries will appear when credits are applied"
+              />
             ) : (
               <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur overflow-hidden">
                 <table className="w-full text-sm">

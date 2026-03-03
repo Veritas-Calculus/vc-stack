@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import api from '@/lib/api'
 
+import { EmptyState } from '@/components/ui/EmptyState'
 interface SecurityGroupRule {
   id: string
   security_group_id: string
@@ -197,7 +198,21 @@ export function SecurityGroups() {
                 </div>
               ) : securityGroups.length === 0 ? (
                 <div className="px-4 py-8 text-center text-gray-500">
-                  <div className="text-2xl mb-1">🛡️</div>
+                  <div className="w-8 h-8 rounded-lg bg-blue-500/15 flex items-center justify-center mb-1">
+                    <svg
+                      className="w-4 h-4 text-blue-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={1.5}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
+                      />
+                    </svg>
+                  </div>
                   No security groups
                 </div>
               ) : (
@@ -306,10 +321,10 @@ export function SecurityGroups() {
               </div>
             </div>
           ) : (
-            <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur p-12 text-center">
-              <div className="text-4xl mb-3">🛡️</div>
-              <p className="text-gray-400 text-sm">Select a security group to view its rules</p>
-            </div>
+            <EmptyState
+              title="Select a security group"
+              subtitle="Choose a group from the list to view its rules"
+            />
           )}
         </div>
       </div>

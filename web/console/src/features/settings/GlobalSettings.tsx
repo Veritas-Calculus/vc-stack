@@ -14,15 +14,15 @@ interface Setting {
   updated_at: string
 }
 
-const CATEGORY_ICONS: Record<string, string> = {
-  General: '⚙️',
-  Compute: '⚡',
-  Storage: '💾',
-  Network: '🌐',
-  Security: '🔐',
-  Infrastructure: '🏗️',
-  Events: '📋',
-  UI: '🎨'
+const CATEGORY_COLORS: Record<string, string> = {
+  General: 'bg-gray-400',
+  Compute: 'bg-amber-400',
+  Storage: 'bg-emerald-400',
+  Network: 'bg-indigo-400',
+  Security: 'bg-red-400',
+  Infrastructure: 'bg-purple-400',
+  Events: 'bg-cyan-400',
+  UI: 'bg-pink-400'
 }
 
 export function GlobalSettings() {
@@ -156,9 +156,9 @@ export function GlobalSettings() {
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-base">
-                        {cat === 'All' ? '📋' : CATEGORY_ICONS[cat] || '📦'}
-                      </span>
+                      <span
+                        className={`w-2 h-2 rounded-full ${cat === 'All' ? 'bg-blue-400' : CATEGORY_COLORS[cat] || 'bg-gray-400'}`}
+                      />
                       <span>{cat}</span>
                     </div>
                     <span className="text-xs text-gray-500">{count}</span>
@@ -176,7 +176,6 @@ export function GlobalSettings() {
             </div>
           ) : settings.length === 0 ? (
             <div className="text-center py-16 text-gray-500">
-              <div className="text-3xl mb-2">⚙️</div>
               {searchQuery ? `No settings match "${searchQuery}"` : 'No settings found'}
             </div>
           ) : activeCategory === 'All' ? (
@@ -186,7 +185,9 @@ export function GlobalSettings() {
                 className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur overflow-hidden"
               >
                 <div className="px-4 py-3 border-b border-oxide-800 bg-oxide-900/80 flex items-center gap-2">
-                  <span className="text-base">{CATEGORY_ICONS[category] || '📦'}</span>
+                  <span
+                    className={`w-2 h-2 rounded-full ${CATEGORY_COLORS[category] || 'bg-gray-400'}`}
+                  />
                   <h3 className="text-sm font-medium text-white">{category}</h3>
                   <span className="text-xs text-gray-500">{items.length} settings</span>
                 </div>
@@ -215,7 +216,9 @@ export function GlobalSettings() {
           ) : (
             <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur overflow-hidden">
               <div className="px-4 py-3 border-b border-oxide-800 bg-oxide-900/80 flex items-center gap-2">
-                <span className="text-base">{CATEGORY_ICONS[activeCategory] || '📦'}</span>
+                <span
+                  className={`w-2 h-2 rounded-full ${CATEGORY_COLORS[activeCategory] || 'bg-gray-400'}`}
+                />
                 <h3 className="text-sm font-medium text-white">{activeCategory}</h3>
               </div>
               <div className="divide-y divide-oxide-800/30">

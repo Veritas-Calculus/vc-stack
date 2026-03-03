@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react'
 import api from '@/lib/api'
 import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '@/lib/appStore'
+import { Icons } from '@/components/ui/Icons'
 
 interface DashboardData {
   infrastructure: {
@@ -60,16 +61,16 @@ interface DashboardData {
   }>
 }
 
-const RESOURCE_ICONS: Record<string, string> = {
-  instance: '🖥️',
-  volume: '💾',
-  network: '🌐',
-  image: '📀',
-  snapshot: '📸',
-  user: '👤',
-  project: '📁',
-  security_group: '🛡️',
-  floating_ip: '🌍'
+const RESOURCE_ABBREV: Record<string, string> = {
+  instance: 'VM',
+  volume: 'Vol',
+  network: 'Net',
+  image: 'Img',
+  snapshot: 'Snap',
+  user: 'Usr',
+  project: 'Proj',
+  security_group: 'SG',
+  floating_ip: 'FIP'
 }
 
 const STATUS_DOT: Record<string, string> = {
@@ -198,39 +199,39 @@ export function Dashboard() {
           {
             label: 'Zones',
             value: d.infrastructure.zones,
-            icon: '🌍',
+            icon: Icons.globe('w-5 h-5 text-blue-400'),
             link: `${prefix}/infrastructure/zones`
           },
           {
             label: 'Clusters',
             value: d.infrastructure.clusters,
-            icon: '🏗️',
+            icon: Icons.server('w-5 h-5 text-purple-400'),
             link: `${prefix}/infrastructure/clusters`
           },
           {
             label: 'Hosts',
             value: d.infrastructure.hosts,
-            icon: '🖥️',
+            icon: Icons.cpu('w-5 h-5 text-cyan-400'),
             sub: `${d.infrastructure.hosts_up} up`,
             link: `${prefix}/infrastructure/hosts`
           },
           {
             label: 'Instances',
             value: d.compute.total_instances,
-            icon: '⚡',
+            icon: Icons.bolt('w-5 h-5 text-amber-400'),
             sub: `${d.compute.active_instances} active`,
             link: `${prefix}/compute/instances`
           },
           {
             label: 'Volumes',
             value: d.storage.total_volumes,
-            icon: '💾',
+            icon: Icons.drive('w-5 h-5 text-emerald-400'),
             link: `${prefix}/storage/volumes`
           },
           {
             label: 'Networks',
             value: d.network.total_networks,
-            icon: '🌐',
+            icon: Icons.network('w-5 h-5 text-indigo-400'),
             link: `${prefix}/network/vpc`
           }
         ].map((item) => (
@@ -240,7 +241,7 @@ export function Dashboard() {
             className="rounded-xl border border-oxide-800 bg-oxide-900/60 backdrop-blur p-4 text-left hover:bg-oxide-800/60 hover:border-oxide-700 transition-all group"
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="text-lg">{item.icon}</span>
+              {item.icon}
               <span className="text-2xl font-bold text-white group-hover:text-blue-400 transition-colors">
                 {item.value}
               </span>
@@ -383,7 +384,10 @@ export function Dashboard() {
                     <span
                       className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[evt.status] || 'bg-gray-500'}`}
                     />
-                    <span className="text-sm">{RESOURCE_ICONS[evt.resource_type] || '📦'}</span>
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-oxide-700 text-gray-400">
+                      {RESOURCE_ABBREV[evt.resource_type] ||
+                        evt.resource_type.slice(0, 3).toUpperCase()}
+                    </span>
                     <div>
                       <span className="text-sm text-gray-200 capitalize">{evt.action}</span>
                       <span className="text-sm text-gray-500"> · </span>

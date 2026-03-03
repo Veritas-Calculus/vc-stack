@@ -34,20 +34,20 @@ const TYPE_COLORS: Record<string, string> = {
   action: 'text-amber-400'
 }
 
-const RESOURCE_ICONS: Record<string, string> = {
-  vm: '🖥️',
-  instance: '🖥️',
-  network: '🌐',
-  volume: '💾',
-  image: '📀',
-  snapshot: '📸',
-  user: '👤',
-  project: '📁',
-  flavor: '⚡',
-  security_group: '🛡️',
-  floating_ip: '🌍',
-  subnet: '📡',
-  port: '🔌'
+const RESOURCE_ABBREV: Record<string, string> = {
+  vm: 'VM',
+  instance: 'VM',
+  network: 'Net',
+  volume: 'Vol',
+  image: 'Img',
+  snapshot: 'Snap',
+  user: 'Usr',
+  project: 'Proj',
+  flavor: 'Flv',
+  security_group: 'SG',
+  floating_ip: 'FIP',
+  subnet: 'Sub',
+  port: 'Port'
 }
 
 export function Events() {
@@ -254,7 +254,10 @@ export function Events() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-base">{RESOURCE_ICONS[evt.resource_type] || '📦'}</span>
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-oxide-700 text-gray-400">
+                        {RESOURCE_ABBREV[evt.resource_type] ||
+                          evt.resource_type.slice(0, 3).toUpperCase()}
+                      </span>
                       <div>
                         <div className="text-gray-200 capitalize">{evt.resource_type}</div>
                         {evt.resource_id && (
@@ -350,8 +353,9 @@ export function Events() {
             <div className="px-6 py-5 space-y-5">
               {/* Status Badge */}
               <div className="flex items-center gap-3">
-                <span className="text-2xl">
-                  {RESOURCE_ICONS[selectedEvent.resource_type] || '📦'}
+                <span className="px-2 py-1 rounded text-xs font-mono bg-oxide-700 text-gray-300">
+                  {RESOURCE_ABBREV[selectedEvent.resource_type] ||
+                    selectedEvent.resource_type.slice(0, 3).toUpperCase()}
                 </span>
                 <div>
                   <span
