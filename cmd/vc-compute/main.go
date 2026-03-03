@@ -168,6 +168,38 @@ func runServer(_ *cobra.Command, args []string) {
 		}
 	}()
 
+	// Auto-register with management controller if CONTROLLER_URL is set.
+	if controllerURL := os.Getenv("CONTROLLER_URL"); controllerURL != "" {
+		go func() {
+			time.Sleep(2 * time.Second) // Wait for server to fully start
+			zapLogger.Info("auto-registering with controller", zap.String("url", controllerURL))
+
+			nodeInfo := computenode.CollectNodeInfo(zapLogger)
+			client := computenode.NewControllerClient(controllerURL, nodeInfo.Hostname, zapLogger)
+
+			zoneID := os.Getenv("ZONE_ID")
+			clusterID := os.Getenv("CLUSTER_ID")
+
+			regCtx, regCancel := context.WithTimeout(context.Background(), 30*time.Second)
+			defer regCancel()
+
+			uuid, regErr := client.RegisterNode(regCtx, nodeInfo, port, zoneID, clusterID)
+			if regErr != nil {
+				zapLogger.Warn("auto-registration failed, will retry on next heartbeat",
+					zap.Error(regErr))
+			} else {
+				zapLogger.Info("auto-registration successful",
+					zap.String("uuid", uuid),
+					zap.String("ip", nodeInfo.IPAddress),
+					zap.Int("cpu_cores", nodeInfo.CPUCores),
+					zap.Int64("ram_mb", nodeInfo.RAMMB),
+					zap.Int64("disk_gb", nodeInfo.DiskGB))
+			}
+		}()
+	} else {
+		zapLogger.Info("CONTROLLER_URL not set, skipping auto-registration")
+	}
+
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit

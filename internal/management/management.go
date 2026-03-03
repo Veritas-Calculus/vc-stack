@@ -1,6 +1,7 @@
 package management
 
 import (
+	"os"
 	"time"
 
 	"github.com/Veritas-Calculus/vc-stack/internal/management/compute"
@@ -68,7 +69,9 @@ func New(cfg Config) (*Service, error) {
 		return nil, err
 	}
 
-	hostSvc, err := host.NewService(host.Config{DB: cfg.DB, Logger: cfg.Logger.Named("host")})
+	externalURL := os.Getenv("EXTERNAL_URL")
+
+	hostSvc, err := host.NewService(host.Config{DB: cfg.DB, Logger: cfg.Logger.Named("host"), ExternalURL: externalURL})
 	if err != nil {
 		return nil, err
 	}

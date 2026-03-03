@@ -96,6 +96,103 @@ func (c *ControllerClient) ReportVMStatus(ctx context.Context, config *QEMUConfi
 	return nil
 }
 
+// RegisterNode registers this compute node with the management server.
+func (c *ControllerClient) RegisterNode(ctx context.Context, info NodeInfo, port int, zoneID, clusterID string) (string, error) {
+	type regReq struct {
+		Name              string            `json:"name"`
+		Hostname          string            `json:"hostname"`
+		IPAddress         string            `json:"ip_address"`
+		ManagementPort    int               `json:"management_port"`
+		HostType          string            `json:"host_type"`
+		HypervisorType    string            `json:"hypervisor_type"`
+		HypervisorVersion string            `json:"hypervisor_version"`
+		CPUCores          int               `json:"cpu_cores"`
+		CPUSockets        int               `json:"cpu_sockets"`
+		CPUMhz            int64             `json:"cpu_mhz"`
+		RAMMB             int64             `json:"ram_mb"`
+		DiskGB            int64             `json:"disk_gb"`
+		AgentVersion      string            `json:"agent_version"`
+		Labels            map[string]string `json:"labels"`
+		ZoneID            *uint             `json:"zone_id,omitempty"`
+		ClusterID         *uint             `json:"cluster_id,omitempty"`
+	}
+
+	req := regReq{
+		Name:              info.Hostname,
+		Hostname:          info.Hostname,
+		IPAddress:         info.IPAddress,
+		ManagementPort:    port,
+		HostType:          "compute",
+		HypervisorType:    info.HypervisorType,
+		HypervisorVersion: info.HypervisorVersion,
+		CPUCores:          info.CPUCores,
+		CPUSockets:        info.CPUSockets,
+		CPUMhz:            info.CPUMhz,
+		RAMMB:             info.RAMMB,
+		DiskGB:            info.DiskGB,
+		AgentVersion:      "vc-compute",
+		Labels: map[string]string{
+			"kernel": info.Kernel,
+			"os":     info.OS + " " + info.OSVersion,
+			"arch":   info.Arch,
+		},
+	}
+
+	if zoneID != "" {
+		if v, err := parseUint(zoneID); err == nil {
+			req.ZoneID = &v
+		}
+	}
+	if clusterID != "" {
+		if v, err := parseUint(clusterID); err == nil {
+			req.ClusterID = &v
+		}
+	}
+
+	data, err := json.Marshal(req)
+	if err != nil {
+		return "", fmt.Errorf("marshal register: %w", err)
+	}
+
+	url := fmt.Sprintf("%s/api/v1/hosts/register", c.baseURL)
+	httpReq, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewReader(data))
+	if err != nil {
+		return "", fmt.Errorf("create request: %w", err)
+	}
+	httpReq.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.httpClient.Do(httpReq) // #nosec
+	if err != nil {
+		return "", fmt.Errorf("send request: %w", err)
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	body, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("register failed: status %d: %s", resp.StatusCode, string(body))
+	}
+
+	// Extract UUID from response
+	var result struct {
+		UUID string `json:"uuid"`
+	}
+	if err := json.Unmarshal(body, &result); err != nil {
+		return "", fmt.Errorf("decode response: %w", err)
+	}
+
+	c.logger.Info("Node registered with management",
+		zap.String("uuid", result.UUID),
+		zap.String("ip", info.IPAddress))
+
+	return result.UUID, nil
+}
+
+func parseUint(s string) (uint, error) {
+	var v uint
+	_, err := fmt.Sscanf(s, "%d", &v)
+	return v, err
+}
+
 // NodeHeartbeat represents node heartbeat to management.
 type NodeHeartbeat struct {
 	NodeID      string    `json:"node_id"`

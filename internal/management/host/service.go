@@ -23,6 +23,10 @@ type Config struct {
 
 	// HeartbeatTimeout is the duration after which a host is considered down.
 	HeartbeatTimeout time.Duration
+
+	// ExternalURL is the publicly reachable URL of the management server.
+	// Used to generate install scripts for compute nodes.
+	ExternalURL string
 }
 
 // Service provides host management operations.
@@ -30,6 +34,7 @@ type Service struct {
 	db               *gorm.DB
 	logger           *zap.Logger
 	heartbeatTimeout time.Duration
+	externalURL      string
 }
 
 // NewService creates a new host management service.
@@ -48,6 +53,7 @@ func NewService(cfg Config) (*Service, error) {
 		db:               cfg.DB,
 		logger:           cfg.Logger,
 		heartbeatTimeout: cfg.HeartbeatTimeout,
+		externalURL:      cfg.ExternalURL,
 	}
 
 	// Start background tasks
@@ -63,6 +69,7 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		api.POST("/hosts/register", s.registerHost)
 		api.POST("/hosts/heartbeat", s.heartbeat)
 		api.GET("/hosts", s.listHosts)
+		api.GET("/hosts/install-script", s.generateInstallScript)
 		api.GET("/hosts/:id", s.getHost)
 		api.PUT("/hosts/:id", s.updateHost)
 		api.DELETE("/hosts/:id", s.deleteHost)
