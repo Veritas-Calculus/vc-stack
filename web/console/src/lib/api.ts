@@ -126,18 +126,18 @@ type ListSnapshotsResponse = {
 // Mappers to UI types
 const mapInstance =
   (p: string | undefined) =>
-    (x: ListInstancesResponse['instances'][number]): UIInstance => ({
-      id: String(x.id),
-      projectId: p ?? String(x.project_id ?? ''),
-      name: x.name,
-      ip: '',
-      // Check both status and power_state for running state
-      // Backend may return status='running' or 'active', and power_state='running'
-      state:
-        x.power_state === 'running' || x.status === 'active' || x.status === 'running'
-          ? 'running'
-          : 'stopped'
-    })
+  (x: ListInstancesResponse['instances'][number]): UIInstance => ({
+    id: String(x.id),
+    projectId: p ?? String(x.project_id ?? ''),
+    name: x.name,
+    ip: '',
+    // Check both status and power_state for running state
+    // Backend may return status='running' or 'active', and power_state='running'
+    state:
+      x.power_state === 'running' || x.status === 'active' || x.status === 'running'
+        ? 'running'
+        : 'stopped'
+  })
 
 const mapFlavor = (x: ListFlavorsResponse['flavors'][number]): UIFlavor => ({
   id: String(x.id),
@@ -1070,6 +1070,71 @@ export async function createProject(body: {
 
 export async function deleteProject(id: string): Promise<void> {
   await api.delete(`/v1/projects/${id}`)
+}
+
+export type UIProjectMember = {
+  id: string
+  project_id: string
+  user_id: string
+  role: string // admin, member, viewer
+  user?: { id: number; username: string; email: string; first_name?: string; last_name?: string }
+  created_at?: string
+}
+
+export async function fetchProjectMembers(projectId: string): Promise<UIProjectMember[]> {
+  const res = await api.get<{
+    members: Array<{
+      id: number
+      project_id: number
+      user_id: number
+      role: string
+      created_at?: string
+      user?: {
+        id: number
+        username: string
+        email: string
+        first_name?: string
+        last_name?: string
+      }
+    }>
+  }>(`/v1/projects/${projectId}/members`)
+  return (res.data.members ?? []).map((m) => ({
+    id: String(m.id),
+    project_id: String(m.project_id),
+    user_id: String(m.user_id),
+    role: m.role,
+    user: m.user,
+    created_at: m.created_at
+  }))
+}
+
+export async function addProjectMember(
+  projectId: string,
+  userId: number,
+  role = 'member'
+): Promise<UIProjectMember> {
+  const res = await api.post<{
+    member: { id: number; project_id: number; user_id: number; role: string }
+  }>(`/v1/projects/${projectId}/members`, { user_id: userId, role })
+  const m = res.data.member
+  return {
+    id: String(m.id),
+    project_id: String(m.project_id),
+    user_id: String(m.user_id),
+    role: m.role
+  }
+}
+
+export async function updateProjectMemberRole(
+  projectId: string,
+  memberId: string,
+  role: string
+): Promise<void> {
+  await api.put(`/v1/projects/${projectId}/members/${memberId}`, { role })
+}
+
+export async function removeProjectMember(projectId: string, memberId: string): Promise<void> {
+  await api.delete(`/v1/projects/${projectId}/members/${memberId}`)
 }
 
 export type UIUser = {

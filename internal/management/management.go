@@ -4,7 +4,11 @@ import (
 	"os"
 	"time"
 
+	"github.com/Veritas-Calculus/vc-stack/internal/management/autoscale"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/backup"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/compute"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/config"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/domain"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/event"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/gateway"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/host"
@@ -14,6 +18,9 @@ import (
 	"github.com/Veritas-Calculus/vc-stack/internal/management/network"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/quota"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/scheduler"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/tools"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/usage"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/vpn"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -39,6 +46,13 @@ type Service struct {
 	Event      *event.Service
 	Quota      *quota.Service
 	Monitoring *monitoring.Service
+	Config     *config.Service
+	Domain     *domain.Service
+	Tools      *tools.Service
+	Usage      *usage.Service
+	VPN        *vpn.Service
+	Backup     *backup.Service
+	AutoScale  *autoscale.Service
 }
 
 // New composes the management plane services. It returns an error if any
@@ -116,11 +130,47 @@ func New(cfg Config) (*Service, error) {
 		return nil, err
 	}
 
+	cfgSvc, err := config.NewService(config.Config{DB: cfg.DB, Logger: cfg.Logger.Named("config")})
+	if err != nil {
+		return nil, err
+	}
+
 	compSvc, err := compute.NewService(compute.Config{
-		DB:        cfg.DB,
-		Logger:    cfg.Logger.Named("compute"),
-		JWTSecret: jwtSecret,
+		DB:          cfg.DB,
+		Logger:      cfg.Logger.Named("compute"),
+		JWTSecret:   jwtSecret,
+		EventLogger: eventSvc,
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	domainSvc, err := domain.NewService(domain.Config{DB: cfg.DB, Logger: cfg.Logger.Named("domain")})
+	if err != nil {
+		return nil, err
+	}
+
+	toolsSvc, err := tools.NewService(tools.Config{DB: cfg.DB, Logger: cfg.Logger.Named("tools")})
+	if err != nil {
+		return nil, err
+	}
+
+	usageSvc, err := usage.NewService(usage.Config{DB: cfg.DB, Logger: cfg.Logger.Named("usage")})
+	if err != nil {
+		return nil, err
+	}
+
+	vpnSvc, err := vpn.NewService(vpn.Config{DB: cfg.DB, Logger: cfg.Logger.Named("vpn")})
+	if err != nil {
+		return nil, err
+	}
+
+	backupSvc, err := backup.NewService(backup.Config{DB: cfg.DB, Logger: cfg.Logger.Named("backup")})
+	if err != nil {
+		return nil, err
+	}
+
+	asSvc, err := autoscale.NewService(autoscale.Config{DB: cfg.DB, Logger: cfg.Logger.Named("autoscale")})
 	if err != nil {
 		return nil, err
 	}
@@ -136,6 +186,13 @@ func New(cfg Config) (*Service, error) {
 		Event:      eventSvc,
 		Quota:      quotaSvc,
 		Monitoring: monSvc,
+		Config:     cfgSvc,
+		Domain:     domainSvc,
+		Tools:      toolsSvc,
+		Usage:      usageSvc,
+		VPN:        vpnSvc,
+		Backup:     backupSvc,
+		AutoScale:  asSvc,
 	}, nil
 }
 
@@ -159,6 +216,27 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	s.Metadata.SetupRoutes(router)
 	s.Event.SetupRoutes(router)
 	s.Quota.SetupRoutes(router)
+	if s.Config != nil {
+		s.Config.SetupRoutes(router)
+	}
+	if s.Domain != nil {
+		s.Domain.SetupRoutes(router)
+	}
+	if s.Tools != nil {
+		s.Tools.SetupRoutes(router)
+	}
+	if s.Usage != nil {
+		s.Usage.SetupRoutes(router)
+	}
+	if s.VPN != nil {
+		s.VPN.SetupRoutes(router)
+	}
+	if s.Backup != nil {
+		s.Backup.SetupRoutes(router)
+	}
+	if s.AutoScale != nil {
+		s.AutoScale.SetupRoutes(router)
+	}
 
 	// Gateway proxy routes - only for external compute service (vc-compute)
 	// Use SetupComputeProxyRoutes to avoid conflicts with directly registered routes.

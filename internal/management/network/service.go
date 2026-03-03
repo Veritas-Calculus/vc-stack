@@ -330,6 +330,11 @@ func (s *Service) migrateDatabase() error {
 		return err
 	}
 
+	// Migrate VPC and ACL tables.
+	if err := s.migrateVPC(); err != nil {
+		s.logger.Warn("failed to migrate VPC tables", zap.Error(err))
+	}
+
 	// Ensure unique constraint on vlan_id only for vlan_id > 0 (allow multiple 0/no-VLAN networks)
 	// Drop legacy unconditional unique index if it exists, then create a partial unique index.
 	_ = s.db.Exec(`DO $$
@@ -405,15 +410,27 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 			networks.GET("/diagnose", s.diagnoseNetworkByName)
 		}
 
-		// VPC alias routes (same as networks)
+		// VPC routes.
 		vpcs := api.Group("/vpcs")
 		{
-			vpcs.GET("", s.listNetworks)
-			vpcs.POST("", s.createNetwork)
-			vpcs.GET("/:id", s.getNetwork)
-			vpcs.PUT("/:id", s.updateNetwork)
-			vpcs.DELETE("/:id", s.deleteNetwork)
-			vpcs.POST("/:id/restart", s.restartNetwork)
+			vpcs.GET("", s.listVPCs)
+			vpcs.POST("", s.createVPC)
+			vpcs.GET("/:id", s.getVPC)
+			vpcs.DELETE("/:id", s.deleteVPC)
+			vpcs.POST("/:id/restart", s.restartVPC)
+			// VPC Tiers.
+			vpcs.POST("/:id/tiers", s.createVPCTier)
+			vpcs.DELETE("/:id/tiers/:tierId", s.deleteVPCTier)
+		}
+
+		// Network ACL routes.
+		acls := api.Group("/network-acls")
+		{
+			acls.GET("", s.listNetworkACLs)
+			acls.POST("", s.createNetworkACL)
+			acls.DELETE("/:id", s.deleteNetworkACL)
+			acls.POST("/:id/rules", s.addACLRule)
+			acls.DELETE("/:id/rules/:ruleId", s.deleteACLRule)
 		}
 
 		// Subnet routes.

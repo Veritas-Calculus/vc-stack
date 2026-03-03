@@ -100,14 +100,36 @@ type Volume struct {
 type Snapshot struct {
 	ID          uint      `gorm:"primaryKey" json:"id"`
 	Name        string    `gorm:"not null" json:"name"`
+	Description string    `json:"description"`
 	VolumeID    uint      `gorm:"not null" json:"volume_id"`
+	Volume      *Volume   `gorm:"foreignKey:VolumeID" json:"volume,omitempty"`
 	Status      string    `gorm:"not null;default:'available'" json:"status"`
+	SizeBytes   int64     `gorm:"default:0" json:"size_bytes"`
 	UserID      uint      `json:"user_id"`
 	ProjectID   uint      `json:"project_id"`
 	BackupPool  string    `json:"backup_pool"`
 	BackupImage string    `json:"backup_image"`
+	ScheduleID  *uint     `gorm:"index" json:"schedule_id"` // null = manual
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
+}
+
+// SnapshotSchedule represents an automated snapshot policy.
+type SnapshotSchedule struct {
+	ID            uint       `gorm:"primaryKey" json:"id"`
+	Name          string     `gorm:"not null" json:"name"`
+	VolumeID      uint       `gorm:"not null;index" json:"volume_id"`
+	Volume        *Volume    `gorm:"foreignKey:VolumeID" json:"volume,omitempty"`
+	IntervalHours int        `gorm:"not null;default:24" json:"interval_hours"` // e.g. 1, 6, 12, 24
+	MaxSnapshots  int        `gorm:"not null;default:7" json:"max_snapshots"`   // retention count
+	TimeZone      string     `gorm:"default:'UTC'" json:"timezone"`
+	Enabled       bool       `gorm:"default:true" json:"enabled"`
+	UserID        uint       `json:"user_id"`
+	ProjectID     uint       `json:"project_id"`
+	LastRunAt     *time.Time `json:"last_run_at"`
+	NextRunAt     *time.Time `json:"next_run_at"`
+	CreatedAt     time.Time  `json:"created_at"`
+	UpdatedAt     time.Time  `json:"updated_at"`
 }
 
 // SSHKey represents a user's SSH public key scoped to a project.
@@ -141,4 +163,42 @@ type AuditLog struct {
 	UserID     uint      `json:"user_id"`
 	ProjectID  uint      `json:"project_id"`
 	CreatedAt  time.Time `json:"created_at"`
+}
+
+// DiskOffering represents a storage tier / disk specification template.
+type DiskOffering struct {
+	ID          uint      `gorm:"primaryKey" json:"id"`
+	Name        string    `gorm:"not null;uniqueIndex" json:"name"`
+	DisplayText string    `json:"display_text"`
+	DiskSizeGB  int       `gorm:"not null;column:disk_size_gb" json:"disk_size_gb"` // 0 = custom
+	IsCustom    bool      `gorm:"default:false" json:"is_custom"`                   // user picks size
+	StorageType string    `gorm:"not null;default:'shared'" json:"storage_type"`    // shared, local, ssd, nvme
+	MinIOPS     int       `gorm:"default:0;column:min_iops" json:"min_iops"`
+	MaxIOPS     int       `gorm:"default:0;column:max_iops" json:"max_iops"`
+	BurstIOPS   int       `gorm:"default:0;column:burst_iops" json:"burst_iops"`
+	Throughput  int       `gorm:"default:0" json:"throughput"` // MB/s
+	IsPublic    bool      `gorm:"default:true" json:"is_public"`
+	Disabled    bool      `gorm:"default:false" json:"disabled"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
+// NetworkOffering represents a network service package template.
+type NetworkOffering struct {
+	ID              uint      `gorm:"primaryKey" json:"id"`
+	Name            string    `gorm:"not null;uniqueIndex" json:"name"`
+	DisplayText     string    `json:"display_text"`
+	GuestIPType     string    `gorm:"not null;default:'isolated'" json:"guest_ip_type"` // isolated, shared, l2
+	TrafficType     string    `gorm:"not null;default:'guest'" json:"traffic_type"`     // guest, management, public
+	EnableDHCP      bool      `gorm:"default:true" json:"enable_dhcp"`
+	EnableFirewall  bool      `gorm:"default:true" json:"enable_firewall"`
+	EnableLB        bool      `gorm:"default:false" json:"enable_lb"`  // load balancer
+	EnableVPN       bool      `gorm:"default:false" json:"enable_vpn"` // VPN
+	EnableSourceNAT bool      `gorm:"default:true" json:"enable_source_nat"`
+	MaxConnections  int       `gorm:"default:0" json:"max_connections"` // 0 = unlimited
+	IsPublic        bool      `gorm:"default:true" json:"is_public"`
+	IsDefault       bool      `gorm:"default:false" json:"is_default"`
+	Disabled        bool      `gorm:"default:false" json:"disabled"`
+	CreatedAt       time.Time `json:"created_at"`
+	UpdatedAt       time.Time `json:"updated_at"`
 }

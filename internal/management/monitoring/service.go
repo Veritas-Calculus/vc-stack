@@ -132,6 +132,9 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		api.GET("/status", s.componentStatus)
 	}
 
+	// Dashboard summary endpoint — aggregates counts and usage across all services.
+	router.GET("/api/v1/dashboard/summary", s.dashboardSummary)
+
 	// Setup additional monitoring routes if handlers are available.
 	if s.handlers != nil {
 		s.handlers.SetupRoutes(router)

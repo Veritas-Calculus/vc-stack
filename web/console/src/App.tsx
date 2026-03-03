@@ -23,6 +23,19 @@ import { Roles } from '@/features/iam/Roles'
 import { Policies } from '@/features/iam/Policies'
 import { Accounts } from '@/features/accounts/Accounts'
 import { Infrastructure } from '@/features/infrastructure/Infrastructure'
+import { Dashboard } from '@/features/dashboard/Dashboard'
+import { Events } from '@/features/events/Events'
+import { SecurityGroups } from '@/features/network/SecurityGroups'
+import { GlobalSettings } from '@/features/settings/GlobalSettings'
+import { Offerings } from '@/features/offerings/Offerings'
+import { Domains } from '@/features/domains/Domains'
+import { SnapshotSchedules } from '@/features/storage/SnapshotSchedules'
+import { AffinityGroups } from '@/features/compute/AffinityGroups'
+import { UsageBilling } from '@/features/billing/UsageBilling'
+import { Webhooks } from '@/features/tools/Webhooks'
+import { VPNManagement } from '@/features/vpn/VPNManagement'
+import { Backups } from '@/features/backup/Backups'
+import { AutoScale } from '@/features/autoscale/AutoScale'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const token = useAuthStore((s) => s.token)
@@ -107,6 +120,8 @@ export default function App() {
               <Routes>
                 <Route path="/" element={<Navigate to="/projects" replace />} />
                 {/* Global/top-level */}
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/events" element={<Events />} />
                 <Route path="/docs" element={<Docs />} />
                 <Route path="/images" element={<Images />} />
                 <Route path="/utilization" element={<Utilization />} />
@@ -120,6 +135,32 @@ export default function App() {
                 <Route path="/iam/roles" element={<Roles />} />
                 <Route path="/iam/policies" element={<Policies />} />
                 <Route path="/accounts" element={<Accounts />} />
+                {/* Security Groups (global) */}
+                <Route path="/network/security-groups" element={<SecurityGroups />} />
+                {/* Service Offerings */}
+                <Route path="/offerings" element={<Offerings />} />
+                {/* Global Settings */}
+                <Route path="/settings/global" element={<GlobalSettings />} />
+                {/* Domains */}
+                <Route path="/domains" element={<Domains />} />
+                {/* Snapshot Schedules */}
+                <Route path="/snapshot-schedules" element={<SnapshotSchedules />} />
+                {/* Affinity Groups */}
+                <Route path="/affinity-groups" element={<AffinityGroups />} />
+                {/* Usage & Billing */}
+                <Route path="/usage" element={<UsageBilling />} />
+                {/* Webhooks */}
+                <Route path="/webhooks" element={<Webhooks />} />
+                {/* VPN */}
+                <Route path="/vpn" element={<VPNManagement />} />
+                {/* Backups */}
+                <Route path="/backups" element={<Backups />} />
+                {/* Auto Scale */}
+                <Route path="/autoscale" element={<AutoScale />} />
+                {/* Global Infrastructure */}
+                <Route path="/infrastructure/*" element={<Infrastructure />} />
+                {/* Project-scoped Security Groups */}
+                <Route path="/project/:projectId/network/sg" element={<SecurityGroups />} />
                 {/* Project-scoped Infrastructure */}
                 <Route path="/project/:projectId/infrastructure/*" element={<Infrastructure />} />
                 <Route path="/projects/*" element={<Projects />} />

@@ -14,6 +14,7 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 
+	"github.com/Veritas-Calculus/vc-stack/internal/management/event"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 )
 
@@ -24,6 +25,7 @@ type Config struct {
 	Scheduler    string // Scheduler URL (e.g., http://localhost:8092)
 	JWTSecret    string // #nosec // This is a configuration field, not a hardcoded secret
 	ImageStorage ImageStorageConfig
+	EventLogger  event.EventLogger
 }
 
 // Service represents the controller compute service.
@@ -34,6 +36,7 @@ type Service struct {
 	client       *http.Client
 	jwtSecret    string
 	imageStorage *ImageStorage
+	eventLogger  event.EventLogger
 }
 
 // NewService creates a new compute service.
@@ -54,6 +57,7 @@ func NewService(cfg Config) (*Service, error) {
 		},
 		jwtSecret:    cfg.JWTSecret,
 		imageStorage: NewImageStorage(cfg.Logger, cfg.ImageStorage),
+		eventLogger:  cfg.EventLogger,
 	}
 
 	// Auto-migrate database schema.
@@ -64,7 +68,32 @@ func NewService(cfg Config) (*Service, error) {
 	// Seed default flavors if none exist.
 	s.seedDefaultFlavors()
 
+	// Migrate and seed offerings.
+	if err := s.migrateOfferings(); err != nil {
+		s.logger.Warn("failed to migrate offerings", zap.Error(err))
+	}
+	s.seedDefaultDiskOfferings()
+	s.seedDefaultNetworkOfferings()
+
+	// Migrate snapshot schedules.
+	if err := s.migrateSchedules(); err != nil {
+		s.logger.Warn("failed to migrate snapshot schedules", zap.Error(err))
+	}
+
+	// Migrate affinity groups.
+	if err := s.migrateAffinityGroups(); err != nil {
+		s.logger.Warn("failed to migrate affinity groups", zap.Error(err))
+	}
+
 	return s, nil
+}
+
+// emitEvent logs an event if the event logger is configured.
+func (s *Service) emitEvent(eventType, resourceID, action, status, userID string, details map[string]interface{}, errMsg string) {
+	if s.eventLogger == nil {
+		return
+	}
+	go s.eventLogger.LogEvent(eventType, "instance", resourceID, action, status, userID, "", details, errMsg)
 }
 
 // migrate runs database migrations.
@@ -173,6 +202,29 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 
 		// Audit routes.
 		api.GET("/audit", s.listAudit)
+
+		// Disk Offering routes.
+		api.GET("/disk-offerings", s.listDiskOfferings)
+		api.POST("/disk-offerings", s.createDiskOffering)
+		api.DELETE("/disk-offerings/:id", s.deleteDiskOffering)
+
+		// Network Offering routes.
+		api.GET("/network-offerings", s.listNetworkOfferings)
+		api.POST("/network-offerings", s.createNetworkOffering)
+		api.DELETE("/network-offerings/:id", s.deleteNetworkOffering)
+
+		// Snapshot Schedule routes.
+		api.GET("/snapshot-schedules", s.listSnapshotSchedules)
+		api.POST("/snapshot-schedules", s.createSnapshotSchedule)
+		api.PUT("/snapshot-schedules/:id", s.updateSnapshotSchedule)
+		api.DELETE("/snapshot-schedules/:id", s.deleteSnapshotSchedule)
+
+		// Affinity Group routes.
+		api.GET("/affinity-groups", s.listAffinityGroups)
+		api.POST("/affinity-groups", s.createAffinityGroup)
+		api.DELETE("/affinity-groups/:id", s.deleteAffinityGroup)
+		api.POST("/affinity-groups/:id/members", s.addAffinityGroupMember)
+		api.DELETE("/affinity-groups/:id/members/:memberId", s.removeAffinityGroupMember)
 	}
 }
 
@@ -429,6 +481,10 @@ func (s *Service) createInstance(c *gin.Context) {
 
 	s.logger.Info("instance created", zap.String("name", instance.Name), zap.String("uuid", instance.UUID), zap.Uint("id", instance.ID))
 
+	s.emitEvent("create", instance.UUID, "create", "success", fmt.Sprintf("%d", uid), map[string]interface{}{
+		"name": instance.Name, "flavor_id": req.FlavorID, "image_id": req.ImageID,
+	}, "")
+
 	// Dispatch to scheduler asynchronously.
 	go s.dispatchInstance(context.Background(), instance, &flavor, &image)
 
@@ -650,6 +706,10 @@ func (s *Service) deleteInstance(c *gin.Context) {
 	// Dispatch deletion asynchronously.
 	go s.deleteInstanceOnNode(context.Background(), &instance)
 
+	s.emitEvent("delete", instance.UUID, "delete", "success", "", map[string]interface{}{
+		"name": instance.Name,
+	}, "")
+
 	c.JSON(http.StatusAccepted, gin.H{"ok": true})
 }
 
@@ -758,6 +818,7 @@ func (s *Service) startInstance(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to start instance"})
 		return
 	}
+	s.emitEvent("action", instance.UUID, "start", "success", "", map[string]interface{}{"name": instance.Name}, "")
 	c.JSON(http.StatusAccepted, gin.H{"ok": true})
 }
 
@@ -785,6 +846,7 @@ func (s *Service) stopInstance(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to stop instance"})
 		return
 	}
+	s.emitEvent("action", instance.UUID, "stop", "success", "", map[string]interface{}{"name": instance.Name}, "")
 	c.JSON(http.StatusAccepted, gin.H{"ok": true})
 }
 
@@ -812,6 +874,7 @@ func (s *Service) rebootInstance(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to reboot instance"})
 		return
 	}
+	s.emitEvent("action", instance.UUID, "reboot", "success", "", map[string]interface{}{"name": instance.Name}, "")
 	c.JSON(http.StatusAccepted, gin.H{"ok": true})
 }
 

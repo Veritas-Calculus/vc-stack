@@ -62,14 +62,38 @@ export function Layout({ children }: { children: React.ReactNode }) {
     if (!projectId || !projectContext) {
       // pre-project sidebar
       return [
+        { type: 'link', to: '/dashboard', label: 'Dashboard' },
         { type: 'link', to: '/docs', label: 'Docs' },
         { type: 'link', to: '/projects', label: 'Project' },
         { type: 'link', to: '/images', label: 'Images' },
+        { type: 'link', to: '/events', label: 'Events' },
+        { type: 'link', to: '/offerings', label: 'Offerings' },
+        { type: 'link', to: '/accounts', label: 'Accounts' },
+        { type: 'link', to: '/domains', label: 'Domains' },
+        {
+          type: 'group',
+          label: 'Infrastructure',
+          base: '/infrastructure',
+          children: [
+            { to: '/infrastructure/overview', label: 'Overview' },
+            { to: '/infrastructure/zones', label: 'Zones' },
+            { to: '/infrastructure/clusters', label: 'Clusters' },
+            { to: '/infrastructure/hosts', label: 'Hosts' }
+          ]
+        },
+        { type: 'link', to: '/settings/global', label: 'Global Settings' },
+        { type: 'link', to: '/affinity-groups', label: 'Affinity Groups' },
+        { type: 'link', to: '/usage', label: 'Usage & Billing' },
+        { type: 'link', to: '/webhooks', label: 'Webhooks' },
+        { type: 'link', to: '/vpn', label: 'VPN' },
+        { type: 'link', to: '/backups', label: 'Backups' },
+        { type: 'link', to: '/autoscale', label: 'Auto Scale' },
         { type: 'link', to: '/utilization', label: 'Utilization' }
       ]
     }
     const prefix = `/project/${encodeURIComponent(projectId)}`
     return [
+      { type: 'link', to: '/dashboard', label: 'Dashboard' },
       { type: 'link', to: '/docs', label: 'Docs' },
       { type: 'link', to: `${prefix}/utilization`, label: 'Utilization' },
       {
@@ -92,6 +116,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         children: [
           { to: `${prefix}/storage/volumes`, label: 'Volumes' },
           { to: `${prefix}/storage/snapshots`, label: 'Snapshots' },
+          { to: '/snapshot-schedules', label: 'Schedules' },
           { to: `${prefix}/storage/backups`, label: 'Backups' }
         ]
       },
@@ -131,6 +156,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         ]
       },
       { type: 'link', to: '/accounts', label: 'Accounts' },
+      { type: 'link', to: '/events', label: 'Events' },
+      { type: 'link', to: '/offerings', label: 'Offerings' },
+      { type: 'link', to: '/domains', label: 'Domains' },
       {
         type: 'group',
         label: 'Infrastructure',
@@ -146,6 +174,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
           { to: `${prefix}/infrastructure/alarms`, label: 'Alarms' }
         ]
       },
+      { type: 'link', to: '/settings/global', label: 'Global Settings' },
+      { type: 'link', to: '/affinity-groups', label: 'Affinity Groups' },
+      { type: 'link', to: '/usage', label: 'Usage & Billing' },
+      { type: 'link', to: '/webhooks', label: 'Webhooks' },
+      { type: 'link', to: '/vpn', label: 'VPN' },
+      { type: 'link', to: '/backups', label: 'Backups' },
+      { type: 'link', to: '/autoscale', label: 'Auto Scale' },
       { type: 'link', to: '/notifications', label: 'Notifications' }
     ]
   }, [projectId, projectContext])
@@ -576,6 +611,38 @@ function NavIcon({ name, small }: { name: string; small?: boolean }) {
   const size = small ? 14 : 16
   const c = 'currentColor'
   const map: Record<string, JSX.Element> = {
+    Dashboard: (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="3" y="3" width="7" height="9" rx="1" />
+        <rect x="14" y="3" width="7" height="5" rx="1" />
+        <rect x="14" y="12" width="7" height="9" rx="1" />
+        <rect x="3" y="16" width="7" height="5" rx="1" />
+      </svg>
+    ),
+    Events: (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M12 8v4l3 3" />
+        <circle cx="12" cy="12" r="9" />
+      </svg>
+    ),
     Docs: (
       <svg
         width={size}
@@ -634,6 +701,54 @@ function NavIcon({ name, small }: { name: string; small?: boolean }) {
       >
         <path d="M3 3v18h18" />
         <path d="M19 9l-5 5-4-4-3 3" />
+      </svg>
+    ),
+    Offerings: (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+        <path d="M3.27 6.96L12 12.01l8.73-5.05" />
+        <path d="M12 22.08V12" />
+      </svg>
+    ),
+    Domains: (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="3" y="3" width="18" height="18" rx="2" />
+        <path d="M9 3v18" />
+        <path d="M9 9h12" />
+        <path d="M9 15h12" />
+      </svg>
+    ),
+    'Global Settings': (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle cx="12" cy="12" r="3" />
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
       </svg>
     ),
     Compute: (

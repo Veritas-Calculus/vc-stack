@@ -23,6 +23,12 @@ type Config struct {
 	RetentionDays int
 }
 
+// EventLogger is the interface that other services use to log events.
+// This keeps the dependency lightweight and testable.
+type EventLogger interface {
+	LogEvent(eventType, resourceType, resourceID, action, status, userID, tenantID string, details map[string]interface{}, errorMsg string)
+}
+
 // Service provides event logging and querying operations.
 type Service struct {
 	db            *gorm.DB
