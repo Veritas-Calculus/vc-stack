@@ -559,6 +559,18 @@ export async function fetchNodes(): Promise<NodeInfo[]> {
   return res.data.nodes ?? []
 }
 
+export async function testHostConnection(
+  ip: string,
+  port: number
+): Promise<{ reachable: boolean; error?: string; resolved_ip?: string }> {
+  const res = await api.post<{
+    reachable: boolean
+    error?: string
+    resolved_ip?: string
+  }>('/v1/hosts/test-connection', { ip, port })
+  return res.data
+}
+
 export async function deleteNode(id: string): Promise<void> {
   await api.delete(`/v1/hosts/${id}`)
 }

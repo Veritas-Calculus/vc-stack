@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -69,6 +70,7 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	{
 		api.POST("/hosts/register", s.registerHost)
 		api.POST("/hosts/heartbeat", s.heartbeat)
+		api.POST("/hosts/test-connection", s.testConnection)
 		api.GET("/hosts", s.listHosts)
 		api.GET("/hosts/install-script", s.generateInstallScript)
 		api.POST("/hosts/deploy", s.deployHost)
@@ -79,6 +81,20 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		api.POST("/hosts/:id/disable", s.disableHost)
 		api.POST("/hosts/:id/maintenance", s.maintenanceMode)
 	}
+}
+
+// findHostByID looks up a host by UUID or numeric ID, handling PostgreSQL
+// UUID type safely (avoids 'invalid input syntax for type uuid' errors).
+func (s *Service) findHostByID(id string) (*models.Host, error) {
+	var host models.Host
+	query := s.db.Model(&models.Host{})
+	if _, err := uuid.Parse(id); err == nil {
+		query = query.Where("uuid = ?", id)
+	} else {
+		query = query.Where("id = ?", id)
+	}
+	err := query.First(&host).Error
+	return &host, err
 }
 
 // RegisterRequest represents a host registration request.
@@ -366,8 +382,8 @@ func (s *Service) updateHost(c *gin.Context) {
 		return
 	}
 
-	var host models.Host
-	if err := s.db.Where("uuid = ? OR id = ?", id, id).First(&host).Error; err != nil {
+	host, err := s.findHostByID(id)
+	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "host not found"})
 		return
 	}
@@ -384,7 +400,7 @@ func (s *Service) updateHost(c *gin.Context) {
 	}
 
 	if len(updates) > 0 {
-		if err := s.db.Model(&host).Updates(updates).Error; err != nil {
+		if err := s.db.Model(host).Updates(updates).Error; err != nil {
 			s.logger.Error("failed to update host", zap.Error(err))
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update host"})
 			return
@@ -398,13 +414,13 @@ func (s *Service) updateHost(c *gin.Context) {
 func (s *Service) deleteHost(c *gin.Context) {
 	id := c.Param("id")
 
-	var host models.Host
-	if err := s.db.Where("uuid = ? OR id = ?", id, id).First(&host).Error; err != nil {
+	host, err := s.findHostByID(id)
+	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "host not found"})
 		return
 	}
 
-	if err := s.db.Delete(&host).Error; err != nil {
+	if err := s.db.Delete(host).Error; err != nil {
 		s.logger.Error("failed to delete host", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete host"})
 		return
@@ -433,8 +449,8 @@ func (s *Service) maintenanceMode(c *gin.Context) {
 func (s *Service) updateHostState(c *gin.Context, resourceState models.HostResourceState, status models.HostStatus) {
 	id := c.Param("id")
 
-	var host models.Host
-	if err := s.db.Where("uuid = ? OR id = ?", id, id).First(&host).Error; err != nil {
+	host, err := s.findHostByID(id)
+	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "host not found"})
 		return
 	}
@@ -444,7 +460,7 @@ func (s *Service) updateHostState(c *gin.Context, resourceState models.HostResou
 		"status":         status,
 	}
 
-	if err := s.db.Model(&host).Updates(updates).Error; err != nil {
+	if err := s.db.Model(host).Updates(updates).Error; err != nil {
 		s.logger.Error("failed to update host state", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update host state"})
 		return
@@ -508,4 +524,54 @@ func (s *Service) GetAvailableHosts() ([]models.Host, error) {
 		Order("cpu_allocated ASC, ram_allocated_mb ASC").
 		Find(&hosts).Error
 	return hosts, err
+}
+
+// testConnection checks TCP connectivity to a host:port.
+func (s *Service) testConnection(c *gin.Context) {
+	var req struct {
+		IP   string `json:"ip" binding:"required"`
+		Port int    `json:"port"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	port := req.Port
+	if port == 0 {
+		port = 8081
+	}
+
+	// Resolve hostname if needed
+	ip := req.IP
+	if parsed := net.ParseIP(ip); parsed == nil {
+		addrs, err := net.LookupHost(ip)
+		if err != nil || len(addrs) == 0 {
+			c.JSON(http.StatusOK, gin.H{
+				"reachable": false,
+				"error":     fmt.Sprintf("cannot resolve hostname '%s'", ip),
+			})
+			return
+		}
+		ip = addrs[0]
+	}
+
+	addr := net.JoinHostPort(ip, strconv.Itoa(port))
+	conn, err := net.DialTimeout("tcp", addr, 5*time.Second)
+	if err != nil {
+		s.logger.Info("test connection failed",
+			zap.String("addr", addr), zap.Error(err))
+		c.JSON(http.StatusOK, gin.H{
+			"reachable": false,
+			"error":     fmt.Sprintf("connection to %s failed: %v", addr, err),
+		})
+		return
+	}
+	conn.Close()
+
+	s.logger.Info("test connection succeeded", zap.String("addr", addr))
+	c.JSON(http.StatusOK, gin.H{
+		"reachable":   true,
+		"resolved_ip": ip,
+	})
 }

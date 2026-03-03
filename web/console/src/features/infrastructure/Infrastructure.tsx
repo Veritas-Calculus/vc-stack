@@ -12,7 +12,8 @@ import {
   deleteNode,
   fetchHealthStatus,
   getInstallScriptURL,
-  resolveApiBase
+  resolveApiBase,
+  testHostConnection
 } from '@/lib/api'
 import { toast } from '@/lib/toast'
 import { Modal } from '@/components/ui/Modal'
@@ -226,6 +227,10 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
   const [manualRAM, setManualRAM] = useState('')
   const [manualDisk, setManualDisk] = useState('')
   const [manualSubmitting, setManualSubmitting] = useState(false)
+  const [connectionTested, setConnectionTested] = useState(false)
+  const [connectionOk, setConnectionOk] = useState(false)
+  const [connectionError, setConnectionError] = useState('')
+  const [testing, setTesting] = useState(false)
 
   // SSH deploy
   const [sshHost, setSshHost] = useState('')
@@ -646,13 +651,56 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
               />
             </div>
           </div>
-          <button
-            className="btn btn-primary w-full"
-            onClick={handleManualSubmit}
-            disabled={manualSubmitting}
-          >
-            {manualSubmitting ? 'Registering...' : 'Register Host'}
-          </button>
+          <div className="flex gap-2">
+            <button
+              className={`btn ${connectionOk ? 'btn-success' : 'btn-secondary'} flex-1`}
+              onClick={async () => {
+                if (!manualIP) {
+                  toast.error('IP Address is required')
+                  return
+                }
+                setTesting(true)
+                setConnectionTested(false)
+                setConnectionOk(false)
+                setConnectionError('')
+                try {
+                  const result = await testHostConnection(manualIP, parseInt(port) || 8081)
+                  setConnectionTested(true)
+                  if (result.reachable) {
+                    setConnectionOk(true)
+                    toast.success(`Connection to ${manualIP}:${port} succeeded`)
+                  } else {
+                    setConnectionError(result.error || 'Connection failed')
+                    toast.error(result.error || 'Connection failed')
+                  }
+                } catch {
+                  setConnectionTested(true)
+                  setConnectionError('Test request failed')
+                  toast.error('Test request failed')
+                } finally {
+                  setTesting(false)
+                }
+              }}
+              disabled={testing || !manualIP}
+            >
+              {testing ? 'Testing...' : connectionOk ? '✓ Connected' : 'Test Connection'}
+            </button>
+            <button
+              className="btn btn-primary flex-1"
+              onClick={handleManualSubmit}
+              disabled={manualSubmitting || !connectionOk}
+            >
+              {manualSubmitting ? 'Registering...' : 'Register Host'}
+            </button>
+          </div>
+          {connectionTested && !connectionOk && connectionError && (
+            <p className="text-xs text-red-400 mt-1">{connectionError}</p>
+          )}
+          {connectionTested && connectionOk && (
+            <p className="text-xs text-green-400 mt-1">
+              ✓ Host is reachable. You can now register it.
+            </p>
+          )}
         </div>
       )}
     </div>
