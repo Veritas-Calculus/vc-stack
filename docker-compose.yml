@@ -63,7 +63,7 @@ services:
       - vc-stack
     restart: unless-stopped
 
-  # ---- vc-compute (optional, needs KVM/OVS on host) ----
+  # ---- vc-compute (optional, auto-detects KVM or uses QEMU TCG) ----
   vc-compute:
     build:
       context: .

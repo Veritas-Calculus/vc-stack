@@ -61,6 +61,9 @@ func NewService(cfg Config) (*Service, error) {
 		return nil, fmt.Errorf("failed to migrate database: %w", err)
 	}
 
+	// Seed default flavors if none exist.
+	s.seedDefaultFlavors()
+
 	return s, nil
 }
 
@@ -71,6 +74,46 @@ func (s *Service) migrate() error {
 		&VolumeAttachment{},
 		&AuditLog{},
 	)
+}
+
+// seedDefaultFlavors creates default compute flavors if none exist.
+func (s *Service) seedDefaultFlavors() {
+	var count int64
+	if err := s.db.Model(&Flavor{}).Count(&count).Error; err != nil {
+		s.logger.Warn("failed to count flavors for seeding", zap.Error(err))
+		return
+	}
+	if count > 0 {
+		return // Already have flavors
+	}
+
+	defaults := []Flavor{
+		// Micro / Nano (dev & testing)
+		{Name: "vc.nano", VCPUs: 1, RAM: 512, Disk: 10, IsPublic: true},
+		{Name: "vc.micro", VCPUs: 1, RAM: 1024, Disk: 20, IsPublic: true},
+		// Small–Medium
+		{Name: "vc.small", VCPUs: 1, RAM: 2048, Disk: 40, IsPublic: true},
+		{Name: "vc.medium", VCPUs: 2, RAM: 4096, Disk: 60, IsPublic: true},
+		// Standard
+		{Name: "vc.large", VCPUs: 4, RAM: 8192, Disk: 80, IsPublic: true},
+		{Name: "vc.xlarge", VCPUs: 8, RAM: 16384, Disk: 160, IsPublic: true},
+		{Name: "vc.2xlarge", VCPUs: 16, RAM: 32768, Disk: 320, IsPublic: true},
+		// Memory-optimized
+		{Name: "vc.mem.small", VCPUs: 2, RAM: 8192, Disk: 40, IsPublic: true},
+		{Name: "vc.mem.medium", VCPUs: 4, RAM: 16384, Disk: 80, IsPublic: true},
+		{Name: "vc.mem.large", VCPUs: 8, RAM: 32768, Disk: 160, IsPublic: true},
+		// CPU-optimized
+		{Name: "vc.cpu.small", VCPUs: 4, RAM: 4096, Disk: 40, IsPublic: true},
+		{Name: "vc.cpu.medium", VCPUs: 8, RAM: 8192, Disk: 80, IsPublic: true},
+		{Name: "vc.cpu.large", VCPUs: 16, RAM: 16384, Disk: 160, IsPublic: true},
+	}
+
+	for _, f := range defaults {
+		if err := s.db.Create(&f).Error; err != nil {
+			s.logger.Warn("failed to seed flavor", zap.String("name", f.Name), zap.Error(err))
+		}
+	}
+	s.logger.Info("seeded default flavors", zap.Int("count", len(defaults)))
 }
 
 // SetupRoutes registers HTTP routes for the compute service.

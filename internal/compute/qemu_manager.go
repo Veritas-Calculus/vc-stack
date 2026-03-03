@@ -70,7 +70,16 @@ func NewQEMUManager(config QEMUManagerConfig, logger *zap.Logger) (*QEMUManager,
 		config.OVMFVarsPath = "/usr/share/OVMF/OVMF_VARS.fd"
 	}
 
-	config.EnableKVM = true // Always enable KVM for performance.	// Create directories.
+	// Auto-detect KVM: only enable if /dev/kvm exists and is accessible.
+	if _, err := os.Stat("/dev/kvm"); err == nil {
+		config.EnableKVM = true
+		logger.Info("KVM acceleration available")
+	} else {
+		config.EnableKVM = false
+		logger.Info("KVM not available, using QEMU TCG (software emulation)")
+	}
+
+	// Create directories.
 	dirs := []string{config.ConfigDir, config.InstancesDir, config.ImagesDir}
 	for _, dir := range dirs {
 		if err := os.MkdirAll(dir, 0o750); err != nil {
@@ -340,10 +349,18 @@ func (m *QEMUManager) buildQEMUCommand(config *QEMUConfig, cloudInitISO, uefiVar
 		machineType = "q35"
 	}
 
+	// Select accelerator and CPU model.
+	accel := "tcg"
+	cpuModel := "max" // Best emulation fidelity for TCG.
+	if m.config.EnableKVM {
+		accel = "kvm"
+		cpuModel = "host" // Pass-through host CPU features.
+	}
+
 	args = []string{
 		"-name", config.Name,
-		"-machine", fmt.Sprintf("type=%s,accel=kvm", machineType),
-		"-cpu", "host",
+		"-machine", fmt.Sprintf("type=%s,accel=%s", machineType, accel),
+		"-cpu", cpuModel,
 		"-smp", strconv.Itoa(config.VCPUs),
 		"-m", strconv.Itoa(config.MemoryMB),
 		"-nographic",
@@ -362,16 +379,6 @@ func (m *QEMUManager) buildQEMUCommand(config *QEMUConfig, cloudInitISO, uefiVar
 		// Enable secure boot if requested.
 		if config.SecureBoot {
 			args = append(args, "-global", "driver=cfi.pflash01,property=secure,value=on")
-		}
-	}
-
-	// Add KVM if enabled.
-	if !m.config.EnableKVM {
-		// Remove kvm accel if disabled.
-		for i, arg := range args {
-			if arg == "-machine" {
-				args[i+1] = fmt.Sprintf("type=%s", machineType)
-			}
 		}
 	}
 
