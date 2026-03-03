@@ -80,6 +80,7 @@ services:
       DB_PASS: vcstack123
       VC_COMPUTE_PORT: "8081"
       NODE_NAME: dev-compute-1
+      CONTROLLER_URL: http://vc-management:8080
       IMAGES_BACKEND: local
       IMAGES_LOCAL_PATH: /var/lib/vcstack/images
       VOLUMES_BACKEND: local
