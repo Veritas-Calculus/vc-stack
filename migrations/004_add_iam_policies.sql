@@ -1,4 +1,9 @@
 -- Migration: Add IAM policies tables
+--
+-- NOTE: The policies table is also managed by GORM AutoMigrate
+-- in internal/management/identity/service.go (Policy model).
+-- user_policies and role_policies are kept here as they use composite PKs
+-- which GORM handles differently.
 
 CREATE TABLE IF NOT EXISTS policies (
     id BIGSERIAL PRIMARY KEY,

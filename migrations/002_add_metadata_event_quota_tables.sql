@@ -1,6 +1,10 @@
 -- Migration: Add metadata, event, and quota tables
 -- Date: 2025-12-08
 -- Description: Support for instance metadata, event logging, and quota management
+--
+-- NOTE: quota_sets and quota_usage are also managed by GORM AutoMigrate
+-- in internal/management/quota/service.go (QuotaSet, QuotaUsage models).
+-- This file is kept for historical reference and non-GORM deployments.
 
 -- Instance metadata table
 CREATE TABLE IF NOT EXISTS instance_metadata (

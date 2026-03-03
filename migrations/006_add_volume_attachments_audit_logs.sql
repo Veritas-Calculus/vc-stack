@@ -1,5 +1,6 @@
 -- Migration: Add volume_attachments and audit_logs tables
--- These tables are primarily managed by GORM AutoMigrate.
+-- These tables are also managed by GORM AutoMigrate
+-- in internal/management/compute/service.go (VolumeAttachment, AuditLog models).
 -- This SQL file serves as documentation and for non-GORM deployments.
 
 CREATE TABLE IF NOT EXISTS volume_attachments (
