@@ -381,6 +381,8 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	api.Any("/v1/networks/*path", s.proxyHandler("network"))
 	api.Any("/v1/zones", s.proxyHandler("network"))
 	api.Any("/v1/zones/*path", s.proxyHandler("network"))
+	api.Any("/v1/clusters", s.proxyHandler("network"))
+	api.Any("/v1/clusters/*path", s.proxyHandler("network"))
 	api.Any("/v1/vpcs", s.proxyHandler("network"))
 	api.Any("/v1/vpcs/*path", s.proxyHandler("network"))
 	api.Any("/v1/subnets", s.proxyHandler("network"))

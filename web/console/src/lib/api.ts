@@ -126,18 +126,18 @@ type ListSnapshotsResponse = {
 // Mappers to UI types
 const mapInstance =
   (p: string | undefined) =>
-  (x: ListInstancesResponse['instances'][number]): UIInstance => ({
-    id: String(x.id),
-    projectId: p ?? String(x.project_id ?? ''),
-    name: x.name,
-    ip: '',
-    // Check both status and power_state for running state
-    // Backend may return status='running' or 'active', and power_state='running'
-    state:
-      x.power_state === 'running' || x.status === 'active' || x.status === 'running'
-        ? 'running'
-        : 'stopped'
-  })
+    (x: ListInstancesResponse['instances'][number]): UIInstance => ({
+      id: String(x.id),
+      projectId: p ?? String(x.project_id ?? ''),
+      name: x.name,
+      ip: '',
+      // Check both status and power_state for running state
+      // Backend may return status='running' or 'active', and power_state='running'
+      state:
+        x.power_state === 'running' || x.status === 'active' || x.status === 'running'
+          ? 'running'
+          : 'stopped'
+    })
 
 const mapFlavor = (x: ListFlavorsResponse['flavors'][number]): UIFlavor => ({
   id: String(x.id),
@@ -534,29 +534,45 @@ export type NodeInfo = {
   ram_allocated_mb?: number
   disk_allocated_gb?: number
   labels?: Record<string, string>
-  zone_id?: number
-  cluster_id?: number
+  zone_id?: string
+  cluster_id?: string
   last_heartbeat?: string
   agent_version?: string
-  // Legacy scheduler fields (fallback)
-  address?: string
-  capacity?: { cpus: number; ram_mb: number; disk_gb: number }
-  usage?: { cpus: number; ram_mb: number; disk_gb: number }
+}
+
+export interface ClusterInfo {
+  id: string
+  name: string
+  zone_id?: string
+  allocation: string
+  hypervisor_type: string
+  description: string
+  created_at: string
+  updated_at: string
 }
 
 export async function fetchNodes(): Promise<NodeInfo[]> {
-  // Try host service first (DB-backed, authoritative)
-  try {
-    const res = await api.get<{ hosts: NodeInfo[] }>('/v1/hosts')
-    if (res.data.hosts && res.data.hosts.length > 0) {
-      return res.data.hosts
-    }
-  } catch {
-    // fall through to scheduler
-  }
-  // Fallback: scheduler in-memory nodes
-  const res = await api.get<{ nodes: NodeInfo[] }>('/v1/nodes')
-  return res.data.nodes ?? []
+  const res = await api.get<{ hosts: NodeInfo[] }>('/v1/hosts')
+  return res.data.hosts ?? []
+}
+
+export async function fetchClusters(): Promise<ClusterInfo[]> {
+  const res = await api.get<{ clusters: ClusterInfo[] }>('/v1/clusters')
+  return res.data.clusters ?? []
+}
+
+export async function createCluster(data: {
+  name: string
+  zone_id?: string
+  hypervisor_type?: string
+  description?: string
+}): Promise<ClusterInfo> {
+  const res = await api.post<{ cluster: ClusterInfo }>('/v1/clusters', data)
+  return res.data.cluster
+}
+
+export async function deleteCluster(id: string): Promise<void> {
+  await api.delete('/v1/clusters/' + id)
 }
 
 export async function testHostConnection(

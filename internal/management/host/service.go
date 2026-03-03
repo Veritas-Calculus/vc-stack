@@ -479,8 +479,17 @@ func (s *Service) monitorHosts() {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
 
-	for range ticker.C {
-		s.checkHostHealth()
+	// Run stale host cleanup less frequently (every 10 minutes).
+	cleanupTicker := time.NewTicker(10 * time.Minute)
+	defer cleanupTicker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			s.checkHostHealth()
+		case <-cleanupTicker.C:
+			s.cleanupStaleHosts()
+		}
 	}
 }
 
@@ -513,6 +522,39 @@ func (s *Service) checkHostHealth() {
 			zap.String("uuid", host.UUID),
 			zap.String("name", host.Name),
 			zap.Time("last_heartbeat", *host.LastHeartbeat))
+	}
+}
+
+// cleanupStaleHosts soft-deletes hosts that have been down for more than 7 days.
+// This prevents zombie host records from accumulating in the database.
+func (s *Service) cleanupStaleHosts() {
+	staleThreshold := time.Now().Add(-7 * 24 * time.Hour) // 7 days
+
+	var staleHosts []models.Host
+	if err := s.db.Where("status = ? AND disconnected_at IS NOT NULL AND disconnected_at < ?",
+		models.HostStatusDown, staleThreshold).Find(&staleHosts).Error; err != nil {
+		s.logger.Error("failed to query stale hosts", zap.Error(err))
+		return
+	}
+
+	for _, host := range staleHosts {
+		if err := s.db.Delete(&host).Error; err != nil {
+			s.logger.Error("failed to cleanup stale host",
+				zap.String("uuid", host.UUID),
+				zap.String("name", host.Name),
+				zap.Error(err))
+			continue
+		}
+
+		s.logger.Info("stale host auto-cleaned",
+			zap.String("uuid", host.UUID),
+			zap.String("name", host.Name),
+			zap.Time("disconnected_at", *host.DisconnectedAt))
+	}
+
+	if len(staleHosts) > 0 {
+		s.logger.Info("stale host cleanup complete",
+			zap.Int("cleaned", len(staleHosts)))
 	}
 }
 

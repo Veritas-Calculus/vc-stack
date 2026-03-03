@@ -82,17 +82,17 @@ function Zones() {
     header: string
     render?: (row: ZoneRow) => React.ReactNode
   }[] = [
-    { key: 'name', header: 'Name' },
-    {
-      key: 'allocation',
-      header: 'Allocation state',
-      render: (r) => (
-        <Badge variant={r.allocation === 'enabled' ? 'success' : 'warning'}>{r.allocation}</Badge>
-      )
-    },
-    { key: 'type', header: 'Type', render: (r) => <span className="uppercase">{r.type}</span> },
-    { key: 'networkType', header: 'Network Type' }
-  ]
+      { key: 'name', header: 'Name' },
+      {
+        key: 'allocation',
+        header: 'Allocation state',
+        render: (r) => (
+          <Badge variant={r.allocation === 'enabled' ? 'success' : 'warning'}>{r.allocation}</Badge>
+        )
+      },
+      { key: 'type', header: 'Type', render: (r) => <span className="uppercase">{r.type}</span> },
+      { key: 'networkType', header: 'Network Type' }
+    ]
 
   return (
     <div className="space-y-3">
@@ -245,7 +245,7 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     fetchZones()
       .then((z) => setZones(z.map((x) => ({ id: x.id, name: x.name }))))
-      .catch(() => {})
+      .catch(() => { })
   }, [])
 
   const scriptURL = useMemo(
@@ -392,9 +392,8 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
         {(['script', 'ssh', 'manual'] as const).map((t) => (
           <button
             key={t}
-            className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-              tab === t ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-gray-200'
-            }`}
+            className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${tab === t ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-gray-200'
+              }`}
             onClick={() => setTab(t)}
           >
             {t === 'script' ? 'Install Script' : t === 'ssh' ? 'SSH Deploy' : 'Manual'}
@@ -553,13 +552,12 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
                 {deploySteps.map((evt, i) => (
                   <div
                     key={i}
-                    className={`text-xs font-mono py-0.5 ${
-                      evt.status === 'error'
+                    className={`text-xs font-mono py-0.5 ${evt.status === 'error'
                         ? 'text-red-400'
                         : evt.status === 'success' || evt.status === 'done'
                           ? 'text-emerald-400'
                           : 'text-gray-400'
-                    }`}
+                      }`}
                   >
                     <span className="text-gray-600 mr-2">
                       [{evt.step}/{evt.total}]
@@ -756,10 +754,10 @@ function Hosts() {
         const resState = (n.resource_state as 'enabled' | 'disabled') || 'enabled'
         const enabled = resState === 'enabled'
         const alarm = status === 'error'
-        const ip = n.ip_address || n.address?.replace(/^https?:\/\//, '').replace(/:.*/, '') || ''
+        const ip = n.ip_address || ''
         const arch = n.labels?.arch || ''
-        const hypervisor = n.hypervisor_type || n.labels?.hypervisor || ''
-        const version = n.agent_version || n.hypervisor_version || n.labels?.version || ''
+        const hypervisor = n.hypervisor_type || ''
+        const version = n.agent_version || n.hypervisor_version || ''
         const state: 'up' | 'down' | 'connecting' =
           status === 'up' ? 'up' : status === 'connecting' ? 'connecting' : 'down'
         const resourceState: 'enabled' | 'disabled' = enabled
@@ -808,65 +806,65 @@ function Hosts() {
     headerRender?: React.ReactNode
     className?: string
   }[] = [
-    {
-      key: '__sel__',
-      header: '',
-      headerRender: (
-        <input
-          type="checkbox"
-          aria-label="Select all"
-          checked={rows.length > 0 && rows.every((r) => selectedIds.has(r.id))}
-          onChange={(e) => {
-            if (e.target.checked) setSelectedIds(new Set(rows.map((r) => r.id)))
-            else setSelectedIds(new Set())
-          }}
-        />
-      ),
-      render: (r) => (
-        <input
-          type="checkbox"
-          aria-label={`Select ${r.name}`}
-          checked={selectedIds.has(r.id)}
-          onChange={(e) => {
-            e.stopPropagation()
-            setSelectedIds((prev) => {
-              const next = new Set(prev)
-              if (e.target.checked) next.add(r.id)
-              else next.delete(r.id)
-              return next
-            })
-          }}
-          onClick={(e) => e.stopPropagation()}
-        />
-      ),
-      className: 'w-8'
-    },
-    { key: 'name', header: 'Name' },
-    {
-      key: 'state',
-      header: 'State',
-      render: (r: HostRow) => (
-        <Badge
-          variant={r.state === 'up' ? 'success' : r.state === 'connecting' ? 'warning' : 'danger'}
-        >
-          {r.state}
-        </Badge>
-      )
-    },
-    {
-      key: 'resourceState',
-      header: 'Resource State',
-      render: (r: HostRow) => (
-        <Badge variant={r.resourceState === 'enabled' ? 'success' : 'warning'}>
-          {r.resourceState}
-        </Badge>
-      )
-    },
-    { key: 'ip', header: 'IP' },
-    { key: 'arch', header: 'Arch' },
-    { key: 'hypervisor', header: 'Hypervisor' },
-    { key: 'version', header: 'Version' }
-  ]
+      {
+        key: '__sel__',
+        header: '',
+        headerRender: (
+          <input
+            type="checkbox"
+            aria-label="Select all"
+            checked={rows.length > 0 && rows.every((r) => selectedIds.has(r.id))}
+            onChange={(e) => {
+              if (e.target.checked) setSelectedIds(new Set(rows.map((r) => r.id)))
+              else setSelectedIds(new Set())
+            }}
+          />
+        ),
+        render: (r) => (
+          <input
+            type="checkbox"
+            aria-label={`Select ${r.name}`}
+            checked={selectedIds.has(r.id)}
+            onChange={(e) => {
+              e.stopPropagation()
+              setSelectedIds((prev) => {
+                const next = new Set(prev)
+                if (e.target.checked) next.add(r.id)
+                else next.delete(r.id)
+                return next
+              })
+            }}
+            onClick={(e) => e.stopPropagation()}
+          />
+        ),
+        className: 'w-8'
+      },
+      { key: 'name', header: 'Name' },
+      {
+        key: 'state',
+        header: 'State',
+        render: (r: HostRow) => (
+          <Badge
+            variant={r.state === 'up' ? 'success' : r.state === 'connecting' ? 'warning' : 'danger'}
+          >
+            {r.state}
+          </Badge>
+        )
+      },
+      {
+        key: 'resourceState',
+        header: 'Resource State',
+        render: (r: HostRow) => (
+          <Badge variant={r.resourceState === 'enabled' ? 'success' : 'warning'}>
+            {r.resourceState}
+          </Badge>
+        )
+      },
+      { key: 'ip', header: 'IP' },
+      { key: 'arch', header: 'Arch' },
+      { key: 'hypervisor', header: 'Hypervisor' },
+      { key: 'version', header: 'Version' }
+    ]
 
   return (
     <div className="space-y-3">
@@ -1024,13 +1022,13 @@ function DBUsage() {
         timestamp: data.timestamp,
         db: dbComp
           ? {
-              status: dbComp.status,
-              message: dbComp.message,
-              latency_ms: Number(dbComp.details?.latency_ms ?? 0),
-              open: Number(dbComp.details?.open_connections ?? 0),
-              inUse: Number(dbComp.details?.in_use ?? 0),
-              idle: Number(dbComp.details?.idle ?? 0)
-            }
+            status: dbComp.status,
+            message: dbComp.message,
+            latency_ms: Number(dbComp.details?.latency_ms ?? 0),
+            open: Number(dbComp.details?.open_connections ?? 0),
+            inUse: Number(dbComp.details?.in_use ?? 0),
+            idle: Number(dbComp.details?.idle ?? 0)
+          }
           : undefined
       })
     } catch {
