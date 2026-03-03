@@ -31,7 +31,6 @@ services:
     build:
       context: .
       target: vc-management
-    image: vc-management:latest
     container_name: vc-stack-management
     depends_on:
       postgres:
@@ -43,6 +42,7 @@ services:
       DB_PASS: vcstack123
       JWT_SECRET: dev-secret-do-not-use-in-production
       VC_MANAGEMENT_PORT: "8080"
+      ADMIN_DEFAULT_PASSWORD: "ChangeMe123!"
       LOGGING_LEVEL: debug
       LOGGING_FORMAT: text
     networks:
@@ -68,7 +68,6 @@ services:
     build:
       context: .
       target: vc-compute
-    image: vc-compute:latest
     container_name: vc-stack-compute
     profiles: [ "compute" ]
     depends_on:

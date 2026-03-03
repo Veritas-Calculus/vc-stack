@@ -223,9 +223,10 @@ func NewService(config Config) (*Service, error) {
 	return service, nil
 }
 
-// migrate runs database migrations.
+// migrate runs database migrations for all identity models.
 func (s *Service) migrate() error {
-	// Register join tables to ensure custom fields like CreatedAt are handled
+	// Register custom join tables so GORM uses our structs (with CreatedAt)
+	// instead of auto-generating plain join tables.
 	if err := s.db.SetupJoinTable(&User{}, "Policies", &UserPolicy{}); err != nil {
 		return err
 	}
@@ -236,40 +237,43 @@ func (s *Service) migrate() error {
 		return err
 	}
 
-	// Only migrate Permission table.
-	// Other tables are managed by init.sql or manual migrations.
-	if err := s.db.AutoMigrate(&Permission{}); err != nil {
-		return err
-	}
-
-	// Manually create role_permissions table if it doesn't exist
-	if !s.db.Migrator().HasTable("role_permissions") {
-		err := s.db.Exec(`
-			CREATE TABLE IF NOT EXISTS role_permissions (
-				role_id INTEGER NOT NULL,
-				permission_id INTEGER NOT NULL,
-				created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-				PRIMARY KEY (role_id, permission_id),
-				CONSTRAINT fk_role_permissions_role FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE,
-				CONSTRAINT fk_role_permissions_permission FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE CASCADE
-			)`).Error
-		if err != nil {
-			return fmt.Errorf("failed to create role_permissions table: %w", err)
-		}
+	// AutoMigrate all IAM models. GORM handles table creation order
+	// and foreign key constraints automatically.
+	if err := s.db.AutoMigrate(
+		// Base tables (no FK dependencies)
+		&User{},
+		&Role{},
+		&Permission{},
+		&Policy{},
+		&Project{},
+		&Quota{},
+		&IdentityProvider{},
+		&RefreshToken{},
+	); err != nil {
+		return fmt.Errorf("failed to auto-migrate identity models: %w", err)
 	}
 
 	return nil
 }
 
-// createDefaultAdmin creates the default admin user.
+// createDefaultAdmin creates the default admin user if it doesn't exist.
+// The admin password is read from the ADMIN_DEFAULT_PASSWORD environment variable.
+// If not set, falls back to "ChangeMe123!".
+// IMPORTANT: The password is only set on first creation. Subsequent restarts
+// will NOT overwrite a user-changed password.
 func (s *Service) createDefaultAdmin() error {
-	// Ensure an admin user exists and has a known default password.
 	var admin User
 	err := s.db.Where("username = ?", "admin").First(&admin).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			// Create admin user.
-			hashedPassword, err := bcrypt.GenerateFromPassword([]byte("VCStack@123"), bcrypt.DefaultCost)
+			// Determine the initial password from environment.
+			defaultPassword := os.Getenv("ADMIN_DEFAULT_PASSWORD")
+			if defaultPassword == "" {
+				defaultPassword = "ChangeMe123!"
+				s.logger.Warn("ADMIN_DEFAULT_PASSWORD not set, using fallback default. Set this env var in production!")
+			}
+
+			hashedPassword, err := bcrypt.GenerateFromPassword([]byte(defaultPassword), 12)
 			if err != nil {
 				return err
 			}
@@ -285,12 +289,13 @@ func (s *Service) createDefaultAdmin() error {
 			if err := s.db.Create(&admin).Error; err != nil {
 				return err
 			}
+			s.logger.Info("default admin user created", zap.String("username", "admin"))
 		} else {
 			return err
 		}
 	}
 
-	// Ensure default project exists for admin
+	// Ensure default project exists for admin.
 	var project Project
 	if err := s.db.Where("name = ? AND user_id = ?", "default", admin.ID).First(&project).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -305,20 +310,6 @@ func (s *Service) createDefaultAdmin() error {
 		} else {
 			return err
 		}
-	}
-
-	// If admin exists, ensure password is VCStack@123 for dev convenience.
-	// Only update if the current hash does not match the desired password.
-	defaultPassword := os.Getenv("ADMIN_DEFAULT_PASSWORD")
-	if defaultPassword == "" {
-		defaultPassword = "ChangeMe123!" // Temporary fallback, should be changed
-	}
-	if bcrypt.CompareHashAndPassword([]byte(admin.Password), []byte(defaultPassword)) != nil {
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(defaultPassword), 12) // Use cost 12
-		if err != nil {
-			return err
-		}
-		return s.db.Model(&admin).Update("password", string(hashedPassword)).Error
 	}
 
 	return nil
