@@ -200,52 +200,15 @@ function uid() {
   return Math.random().toString(36).slice(2, 9)
 }
 
-const now = () => new Date().toISOString()
-
 export const useDataStore = create<State>((set) => ({
-  projects: [
-    { id: '1', name: 'admin' },
-    { id: '2', name: 'demo' }
-  ],
-  capacity: { vcpu: 200, memGiB: 1024, storageGiB: 5000 },
-  utilization: [
-    {
-      projectId: '1',
-      points: Array.from({ length: 24 }).map((_, i) => ({
-        t: Date.now() - (24 - i) * 3600_000,
-        vcpu: 40 + (i % 5),
-        memGiB: 300 + (i % 7) * 5,
-        storageGiB: 1200 + i * 10
-      }))
-    },
-    {
-      projectId: '2',
-      points: Array.from({ length: 24 }).map((_, i) => ({
-        t: Date.now() - (24 - i) * 3600_000,
-        vcpu: 15 + (i % 3),
-        memGiB: 120 + (i % 6) * 3,
-        storageGiB: 600 + i * 7
-      }))
-    }
-  ],
-  // Seed data
-  vpcs: [
-    { id: 'vpc1', projectId: '1', name: 'prod-vpc', cidr: '10.0.0.0/16', state: 'available' },
-    { id: 'vpc2', projectId: '2', name: 'dev-vpc', cidr: '10.1.0.0/16', state: 'available' }
-  ],
-  routes: [{ id: 'r1', projectId: '1', destination: '0.0.0.0/0', target: 'igw-123' }],
-  lbs: [{ id: 'lb1', projectId: '1', name: 'web-lb', type: 'L7', status: 'active' }],
-  sgRules: [
-    {
-      id: 'sg1',
-      projectId: '1',
-      direction: 'ingress',
-      protocol: 'tcp',
-      ports: '80,443',
-      cidr: '0.0.0.0/0'
-    }
-  ],
-  asns: [{ id: 'asn1', projectId: '1', number: 65001, description: 'Primary ASN' }],
+  projects: [],
+  capacity: { vcpu: 0, memGiB: 0, storageGiB: 0 },
+  utilization: [],
+  vpcs: [],
+  routes: [],
+  lbs: [],
+  sgRules: [],
+  asns: [],
   addVpc: (v) =>
     set((s) => ({
       vpcs: [
@@ -263,19 +226,13 @@ export const useDataStore = create<State>((set) => ({
   addAsn: (a) => set((s) => ({ asns: [...s.asns, { id: uid(), ...a }] })),
   removeAsn: (id) => set((s) => ({ asns: s.asns.filter((x) => x.id !== id) })),
 
-  clusters: [{ id: 'c1', projectId: '1', name: 'prod-k8s', version: '1.29', status: 'running' }],
+  clusters: [],
   images: [],
   flavors: [],
   setFlavors: (f) => set(() => ({ flavors: f })),
-  snapshots: [
-    { id: 'snp1', projectId: '1', sourceId: 'vm-1', kind: 'vm', status: 'ready' },
-    { id: 'snp2', projectId: '1', sourceId: 'vol1', kind: 'volume', status: 'ready' }
-  ],
+  snapshots: [],
   setSnapshots: (s) => set(() => ({ snapshots: s })),
-  hypervisors: [
-    { id: 'hv1', name: 'hv-a', virtType: 'KVM', status: 'online' },
-    { id: 'hv2', name: 'hv-b', virtType: 'QEMU', status: 'online' }
-  ],
+  hypervisors: [],
   sshKeys: [],
   addCluster: (c) =>
     set((s) => ({
@@ -288,104 +245,30 @@ export const useDataStore = create<State>((set) => ({
     set((s) => ({ snapshots: [...s.snapshots, { id: uid(), ...sn, status: 'creating' }] })),
   addSSHKey: (k) => set((s) => ({ sshKeys: [...s.sshKeys, { id: uid(), ...k }] })),
   removeSSHKey: (id) => set((s) => ({ sshKeys: s.sshKeys.filter((x) => x.id !== id) })),
-  instances: [
-    { id: 'vm-1', projectId: '1', name: 'web-app', ip: '10.0.0.21', state: 'running' },
-    { id: 'vm-2', projectId: '2', name: 'dev-vm', ip: '10.1.0.30', state: 'stopped' }
-  ],
+  instances: [],
   setInstances: (list) => set(() => ({ instances: list })),
   addInstance: (i) => set((s) => ({ instances: [...s.instances, { id: uid(), ...i }] })),
-  publicIPs: [{ id: 'pip1', projectId: '1', address: '203.0.113.10', status: 'allocated' }],
+  publicIPs: [],
   addPublicIP: (p) => set((s) => ({ publicIPs: [...s.publicIPs, { id: uid(), ...p }] })),
 
-  volumes: [{ id: 'vol1', projectId: '1', name: 'data-1', sizeGiB: 100, status: 'available' }],
+  volumes: [],
   addVolume: (v) =>
     set((s) => ({ volumes: [...s.volumes, { id: uid(), status: v.status ?? 'available', ...v }] })),
-  backups: [{ id: 'b1', projectId: '1', sourceId: 'vol1', status: 'ready' }],
+  backups: [],
   addBackup: (b) =>
     set((s) => ({ backups: [...s.backups, { id: uid(), ...b, status: 'creating' }] })),
 
-  backends: [
-    {
-      id: 'bk1',
-      name: 's3-primary',
-      category: 'Primary',
-      type: 'S3',
-      endpoint: 's3.example.com',
-      status: 'connected'
-    },
-    {
-      id: 'bk2',
-      name: 'ceph-rbd',
-      category: 'Secondary',
-      type: 'CephRBD',
-      endpoint: 'ceph-mon01:6789',
-      status: 'connected'
-    }
-  ],
+  backends: [],
   addBackend: (b) =>
     set((s) => ({
       backends: [...s.backends, { id: uid(), status: b.status ?? 'connected', ...b }]
     })),
   removeBackend: (id) => set((s) => ({ backends: s.backends.filter((x) => x.id !== id) })),
 
-  notices: [{ id: 'n1', time: now(), resource: 'prod-vpc', type: 'created', status: 'unread' }],
+  notices: [],
   markNotice: (id, status) =>
     set((s) => ({ notices: s.notices.map((n) => (n.id === id ? { ...n, status } : n)) })),
-  cmdb: [
-    {
-      id: 'grp-root',
-      name: 'Datacenter',
-      kind: 'group',
-      children: [
-        {
-          id: 'grp-prod',
-          name: 'Production',
-          kind: 'group',
-          children: [
-            {
-              id: 'h1',
-              name: 'web-01',
-              kind: 'host',
-              address: '10.0.0.11',
-              defaultUser: 'ubuntu',
-              tags: ['vm']
-            },
-            {
-              id: 'h2',
-              name: 'web-02',
-              kind: 'host',
-              address: '10.0.0.12',
-              defaultUser: 'ubuntu',
-              tags: ['vm']
-            },
-            {
-              id: 'h3',
-              name: 'db-01',
-              kind: 'host',
-              address: '10.0.1.10',
-              defaultUser: 'postgres',
-              tags: ['bm']
-            }
-          ]
-        },
-        {
-          id: 'grp-dev',
-          name: 'Development',
-          kind: 'group',
-          children: [
-            {
-              id: 'h4',
-              name: 'dev-app',
-              kind: 'host',
-              address: '10.1.0.20',
-              defaultUser: 'dev',
-              tags: ['vm']
-            }
-          ]
-        }
-      ]
-    }
-  ],
+  cmdb: [],
   isos: [],
   k8sIsos: [],
   roles: [

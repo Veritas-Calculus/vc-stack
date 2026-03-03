@@ -998,6 +998,22 @@ export async function fetchProjects(): Promise<UIProject[]> {
   }))
 }
 
+export async function createProject(body: {
+  name: string
+  description?: string
+}): Promise<UIProject> {
+  const res = await api.post<{ project: { id: number; name: string; description?: string } }>(
+    '/v1/projects',
+    body
+  )
+  const p = res.data.project
+  return { id: String(p.id), name: p.name, description: p.description }
+}
+
+export async function deleteProject(id: string): Promise<void> {
+  await api.delete(`/v1/projects/${id}`)
+}
+
 export type UIUser = {
   id: string
   username?: string
