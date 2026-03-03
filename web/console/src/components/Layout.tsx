@@ -71,7 +71,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
     const prefix = `/project/${encodeURIComponent(projectId)}`
     return [
       { type: 'link', to: '/docs', label: 'Docs' },
-      { type: 'link', to: `${prefix}/images`, label: 'Images' },
       { type: 'link', to: `${prefix}/utilization`, label: 'Utilization' },
       {
         type: 'group',

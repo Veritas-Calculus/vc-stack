@@ -1199,3 +1199,25 @@ export async function fetchTopology(
   })
   return { nodes: res.data.nodes || [], edges: res.data.edges || [] }
 }
+
+// Health / Monitoring
+export type HealthComponentStatus = {
+  status: 'healthy' | 'degraded' | 'unhealthy'
+  message: string
+  checked_at: string
+  details: Record<string, number | string>
+}
+
+export type HealthResponse = {
+  status: 'healthy' | 'unhealthy'
+  timestamp: string
+  uptime: number
+  components: Record<string, HealthComponentStatus>
+}
+
+export async function fetchHealthStatus(): Promise<HealthResponse> {
+  // /health is a root-level route, not under /api
+  const base = resolveApiBase().replace(/\/api\/?$/, '') || ''
+  const res = await axios.get<HealthResponse>(`${base}/health`)
+  return res.data
+}
