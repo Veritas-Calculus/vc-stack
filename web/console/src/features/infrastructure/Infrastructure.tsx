@@ -204,8 +204,15 @@ function Clusters() {
   )
 }
 // ────────────── Add Host Wizard ──────────────
+type DeployStep = {
+  step: number
+  total: number
+  status: 'running' | 'success' | 'error' | 'done'
+  message: string
+}
+
 function AddHostWizard({ onClose }: { onClose: () => void }) {
-  const [tab, setTab] = useState<'script' | 'manual'>('script')
+  const [tab, setTab] = useState<'script' | 'ssh' | 'manual'>('script')
   const [zones, setZones] = useState<{ id: string; name: string }[]>([])
   const [zoneId, setZoneId] = useState('')
   const [clusterId, setClusterId] = useState('')
@@ -219,6 +226,16 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
   const [manualRAM, setManualRAM] = useState('')
   const [manualDisk, setManualDisk] = useState('')
   const [manualSubmitting, setManualSubmitting] = useState(false)
+
+  // SSH deploy
+  const [sshHost, setSshHost] = useState('')
+  const [sshPort, setSshPort] = useState('22')
+  const [sshUser, setSshUser] = useState('root')
+  const [sshPassword, setSshPassword] = useState('')
+  const [deploying, setDeploying] = useState(false)
+  const [deploySteps, setDeploySteps] = useState<DeployStep[]>([])
+  const [deployDone, setDeployDone] = useState(false)
+  const [deployError, setDeployError] = useState(false)
 
   useEffect(() => {
     fetchZones()
@@ -277,26 +294,107 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
     }
   }
 
+  const handleSSHDeploy = async () => {
+    if (!sshHost || !sshPassword) {
+      toast.error('Host IP and Password are required')
+      return
+    }
+    setDeploying(true)
+    setDeploySteps([])
+    setDeployDone(false)
+    setDeployError(false)
+
+    try {
+      const base = resolveApiBase()
+      const res = await fetch(`${base}/v1/hosts/deploy`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          host: sshHost,
+          port: parseInt(sshPort) || 22,
+          user: sshUser,
+          password: sshPassword,
+          zone_id: zoneId,
+          cluster_id: clusterId,
+          agent_port: port
+        })
+      })
+
+      if (!res.ok || !res.body) {
+        const text = await res.text()
+        throw new Error(text || `HTTP ${res.status}`)
+      }
+
+      // Read SSE stream
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        buffer += decoder.decode(value, { stream: true })
+        const lines = buffer.split('\n')
+        buffer = lines.pop() || ''
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const evt: DeployStep = JSON.parse(line.slice(6))
+              setDeploySteps((prev) => {
+                // Update existing step or append
+                const idx = prev.findIndex((s) => s.step === evt.step && s.status === 'running')
+                if (idx >= 0) {
+                  const copy = [...prev]
+                  copy[idx] = evt
+                  return copy
+                }
+                return [...prev, evt]
+              })
+              if (evt.status === 'done') {
+                setDeployDone(true)
+              }
+              if (evt.status === 'error') {
+                setDeployError(true)
+              }
+            } catch {
+              // ignore parse errors
+            }
+          }
+        }
+      }
+    } catch (e) {
+      toast.error(`Deploy failed: ${e instanceof Error ? e.message : 'Unknown error'}`)
+      setDeployError(true)
+    } finally {
+      setDeploying(false)
+    }
+  }
+
+  const stepLabels = [
+    'SSH Connection',
+    'System Detection',
+    'Download Script',
+    'Install & Configure',
+    'Verify Agent'
+  ]
+
   return (
     <div className="space-y-4">
       {/* Tab Bar */}
       <div className="flex gap-1 bg-oxide-900 rounded-lg p-1">
-        <button
-          className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-            tab === 'script' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-gray-200'
-          }`}
-          onClick={() => setTab('script')}
-        >
-          Install Script
-        </button>
-        <button
-          className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-            tab === 'manual' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-gray-200'
-          }`}
-          onClick={() => setTab('manual')}
-        >
-          Manual Registration
-        </button>
+        {(['script', 'ssh', 'manual'] as const).map((t) => (
+          <button
+            key={t}
+            className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              tab === t ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-gray-200'
+            }`}
+            onClick={() => setTab(t)}
+          >
+            {t === 'script' ? 'Install Script' : t === 'ssh' ? 'SSH Deploy' : 'Manual'}
+          </button>
+        ))}
       </div>
 
       {/* Common: Zone / Cluster / Port */}
@@ -361,6 +459,135 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
               <li>Start the agent and register with this management server</li>
             </ol>
           </div>
+        </div>
+      )}
+
+      {tab === 'ssh' && (
+        <div className="space-y-3">
+          <p className="text-sm text-gray-300">Install vc-compute remotely via SSH:</p>
+          {!deploying && !deployDone && (
+            <>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-gray-400 block mb-1">Host IP *</label>
+                  <input
+                    className="input w-full text-sm"
+                    placeholder="192.168.1.100"
+                    value={sshHost}
+                    onChange={(e) => setSshHost(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-400 block mb-1">SSH Port</label>
+                  <input
+                    className="input w-full text-sm"
+                    value={sshPort}
+                    onChange={(e) => setSshPort(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-400 block mb-1">Username</label>
+                  <input
+                    className="input w-full text-sm"
+                    value={sshUser}
+                    onChange={(e) => setSshUser(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-400 block mb-1">Password *</label>
+                  <input
+                    className="input w-full text-sm"
+                    type="password"
+                    placeholder="••••••••"
+                    value={sshPassword}
+                    onChange={(e) => setSshPassword(e.target.value)}
+                  />
+                </div>
+              </div>
+              <button className="btn btn-primary w-full" onClick={handleSSHDeploy}>
+                Start Deployment
+              </button>
+            </>
+          )}
+
+          {/* Progress display */}
+          {(deploying || deployDone || deployError) && (
+            <div className="space-y-2">
+              {/* Step indicators */}
+              <div className="flex justify-between mb-3">
+                {stepLabels.map((label, i) => {
+                  const stepNum = i + 1
+                  const latest = deploySteps.filter((s) => s.step === stepNum).pop()
+                  let color = 'bg-oxide-700 text-gray-500'
+                  if (latest?.status === 'running') color = 'bg-blue-600 text-white animate-pulse'
+                  else if (latest?.status === 'success' || latest?.status === 'done')
+                    color = 'bg-emerald-600 text-white'
+                  else if (latest?.status === 'error') color = 'bg-red-600 text-white'
+
+                  return (
+                    <div key={stepNum} className="flex flex-col items-center gap-1">
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${color}`}
+                      >
+                        {latest?.status === 'success' || latest?.status === 'done'
+                          ? '✓'
+                          : latest?.status === 'error'
+                            ? '✗'
+                            : stepNum}
+                      </div>
+                      <span className="text-[10px] text-gray-500 text-center leading-tight w-16">
+                        {label}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* Log messages */}
+              <div className="bg-oxide-950 border border-oxide-800 rounded-lg p-3 max-h-48 overflow-y-auto">
+                {deploySteps.map((evt, i) => (
+                  <div
+                    key={i}
+                    className={`text-xs font-mono py-0.5 ${
+                      evt.status === 'error'
+                        ? 'text-red-400'
+                        : evt.status === 'success' || evt.status === 'done'
+                          ? 'text-emerald-400'
+                          : 'text-gray-400'
+                    }`}
+                  >
+                    <span className="text-gray-600 mr-2">
+                      [{evt.step}/{evt.total}]
+                    </span>
+                    {evt.message}
+                  </div>
+                ))}
+                {deploying && <div className="text-xs text-blue-400 animate-pulse py-0.5">▋</div>}
+              </div>
+
+              {/* Done actions */}
+              {deployDone && (
+                <div className="flex gap-2">
+                  <button className="btn btn-primary flex-1" onClick={onClose}>
+                    Done
+                  </button>
+                </div>
+              )}
+              {deployError && !deploying && (
+                <div className="flex gap-2">
+                  <button
+                    className="btn flex-1"
+                    onClick={() => {
+                      setDeploySteps([])
+                      setDeployError(false)
+                    }}
+                  >
+                    Retry
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 

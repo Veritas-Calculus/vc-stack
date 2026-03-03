@@ -70,6 +70,7 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		api.POST("/hosts/heartbeat", s.heartbeat)
 		api.GET("/hosts", s.listHosts)
 		api.GET("/hosts/install-script", s.generateInstallScript)
+		api.POST("/hosts/deploy", s.deployHost)
 		api.GET("/hosts/:id", s.getHost)
 		api.PUT("/hosts/:id", s.updateHost)
 		api.DELETE("/hosts/:id", s.deleteHost)
