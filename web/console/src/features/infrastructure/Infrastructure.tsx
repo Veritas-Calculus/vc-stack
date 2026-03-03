@@ -698,25 +698,25 @@ function Hosts() {
   }
 
   const rows: HostRow[] = useMemo(() => {
-    const now = Date.now()
     return nodes
       .map((n) => {
-        const last = n.last_heartbeat ? new Date(n.last_heartbeat).getTime() : 0
-        const alive = last > 0 && now - last < 60_000 // 1m以内为 up
-        const enabled = n.labels?.disabled !== 'true'
-        const alarm = false // 预留：后续接入监控/告警
-        const ip = n.address?.replace(/^https?:\/\//, '').replace(/:.*/, '') || ''
-        // derive arch/hv/version from labels (预留字段，节点可在注册时附带)
+        // Use DB-backed host fields when available, fallback to scheduler fields
+        const status = n.status || 'down'
+        const alive = status === 'up'
+        const resState = (n.resource_state as 'enabled' | 'disabled') || 'enabled'
+        const enabled = resState === 'enabled'
+        const alarm = status === 'error'
+        const ip = n.ip_address || n.address?.replace(/^https?:\/\//, '').replace(/:.*/, '') || ''
         const arch = n.labels?.arch || ''
-        const hypervisor = n.labels?.hypervisor || n.labels?.driver || ''
-        const version = n.labels?.kernel || n.labels?.version || ''
+        const hypervisor = n.hypervisor_type || n.labels?.hypervisor || ''
+        const version = n.agent_version || n.hypervisor_version || n.labels?.version || ''
         const state: 'up' | 'down' = alive ? ('up' as const) : ('down' as const)
         const resourceState: 'enabled' | 'disabled' = enabled
           ? ('enabled' as const)
           : ('disabled' as const)
         return {
-          id: n.id,
-          name: n.hostname || n.id,
+          id: String(n.id),
+          name: n.name || n.hostname || String(n.id),
           state,
           resourceState,
           ip,

@@ -5,6 +5,7 @@ package host
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 	"time"
 
@@ -125,6 +126,24 @@ func (s *Service) registerHost(c *gin.Context) {
 		s.logger.Warn("invalid registration request", zap.Error(err))
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
+	}
+
+	// Validate / resolve IP address — the DB column is type inet and requires a valid IP
+	if ip := net.ParseIP(req.IPAddress); ip == nil {
+		// Not a valid IP, try to resolve as hostname
+		addrs, err := net.LookupHost(req.IPAddress)
+		if err != nil || len(addrs) == 0 {
+			s.logger.Warn("invalid ip_address and DNS resolution failed",
+				zap.String("ip_address", req.IPAddress), zap.Error(err))
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": fmt.Sprintf("ip_address '%s' is not a valid IP and could not be resolved via DNS", req.IPAddress),
+			})
+			return
+		}
+		s.logger.Info("resolved hostname to IP",
+			zap.String("hostname", req.IPAddress),
+			zap.String("resolved_ip", addrs[0]))
+		req.IPAddress = addrs[0]
 	}
 
 	// Check if host already exists by IP and port

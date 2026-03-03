@@ -516,15 +516,45 @@ export async function fetchAudit(
 // Scheduler / Nodes
 export type NodeInfo = {
   id: string
+  uuid?: string
+  name?: string
   hostname?: string
+  ip_address?: string
+  management_port?: number
+  host_type?: string
+  status?: string
+  resource_state?: string
+  hypervisor_type?: string
+  hypervisor_version?: string
+  cpu_cores?: number
+  cpu_sockets?: number
+  ram_mb?: number
+  disk_gb?: number
+  cpu_allocated?: number
+  ram_allocated_mb?: number
+  disk_allocated_gb?: number
+  labels?: Record<string, string>
+  zone_id?: number
+  cluster_id?: number
+  last_heartbeat?: string
+  agent_version?: string
+  // Legacy scheduler fields (fallback)
   address?: string
   capacity?: { cpus: number; ram_mb: number; disk_gb: number }
   usage?: { cpus: number; ram_mb: number; disk_gb: number }
-  labels?: Record<string, string>
-  last_heartbeat?: string
 }
 
 export async function fetchNodes(): Promise<NodeInfo[]> {
+  // Try host service first (DB-backed, authoritative)
+  try {
+    const res = await api.get<{ hosts: NodeInfo[] }>('/v1/hosts')
+    if (res.data.hosts && res.data.hosts.length > 0) {
+      return res.data.hosts
+    }
+  } catch {
+    // fall through to scheduler
+  }
+  // Fallback: scheduler in-memory nodes
   const res = await api.get<{ nodes: NodeInfo[] }>('/v1/nodes')
   return res.data.nodes ?? []
 }
