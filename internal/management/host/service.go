@@ -295,8 +295,8 @@ func (s *Service) heartbeat(c *gin.Context) {
 		updates["agent_version"] = req.AgentVersion
 	}
 
-	// Update status to up if it was down
-	if host.Status == models.HostStatusDown || host.Status == models.HostStatusDisconnected {
+	// Update status to up if it was down, disconnected, or connecting
+	if host.Status == models.HostStatusDown || host.Status == models.HostStatusDisconnected || host.Status == models.HostStatusConnecting {
 		updates["status"] = models.HostStatusUp
 		s.logger.Info("host came back online", zap.String("uuid", host.UUID))
 	}

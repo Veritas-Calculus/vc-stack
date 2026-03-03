@@ -194,6 +194,14 @@ func runServer(_ *cobra.Command, args []string) {
 					zap.Int("cpu_cores", nodeInfo.CPUCores),
 					zap.Int64("ram_mb", nodeInfo.RAMMB),
 					zap.Int64("disk_gb", nodeInfo.DiskGB))
+
+				// Update client's nodeID to the returned UUID for heartbeats
+				client.SetNodeID(uuid)
+
+				// Start heartbeat sync agent (30s interval)
+				syncAgent := computenode.NewSyncAgent(client, nil, zapLogger, 30*time.Second)
+				syncAgent.Start()
+				zapLogger.Info("heartbeat sync agent started", zap.Duration("interval", 30*time.Second))
 			}
 		}()
 	} else {

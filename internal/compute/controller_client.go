@@ -33,6 +33,11 @@ func NewControllerClient(baseURL, nodeID string, logger *zap.Logger) *Controller
 	}
 }
 
+// SetNodeID updates the node identifier (e.g. to use the UUID returned from registration).
+func (c *ControllerClient) SetNodeID(id string) {
+	c.nodeID = id
+}
+
 // VMStatusUpdate represents VM status update to management.
 type VMStatusUpdate struct {
 	NodeID    string    `json:"node_id"`
@@ -193,27 +198,21 @@ func parseUint(s string) (uint, error) {
 	return v, err
 }
 
-// NodeHeartbeat represents node heartbeat to management.
-type NodeHeartbeat struct {
-	NodeID      string    `json:"node_id"`
-	Timestamp   time.Time `json:"timestamp"`
-	VMCount     int       `json:"vm_count"`
-	RunningVMs  int       `json:"running_vms"`
-	StoppedVMs  int       `json:"stopped_vms"`
-	CPUUsage    float64   `json:"cpu_usage"`
-	MemoryUsage float64   `json:"memory_usage"`
-}
-
-// SendHeartbeat sends heartbeat to management.
+// SendHeartbeat sends heartbeat to the host service on management.
 func (c *ControllerClient) SendHeartbeat(ctx context.Context, stats NodeStats) error {
-	heartbeat := NodeHeartbeat{
-		NodeID:      c.nodeID,
-		Timestamp:   time.Now(),
-		VMCount:     stats.TotalVMs,
-		RunningVMs:  stats.RunningVMs,
-		StoppedVMs:  stats.StoppedVMs,
-		CPUUsage:    stats.CPUUsage,
-		MemoryUsage: stats.MemoryUsage,
+	// Matches management host.HeartbeatRequest struct.
+	heartbeat := struct {
+		UUID            string `json:"uuid"`
+		CPUAllocated    int    `json:"cpu_allocated"`
+		RAMAllocatedMB  int64  `json:"ram_allocated_mb"`
+		DiskAllocatedGB int64  `json:"disk_allocated_gb"`
+		AgentVersion    string `json:"agent_version"`
+	}{
+		UUID:            c.nodeID,
+		CPUAllocated:    stats.AllocatedCPU,
+		RAMAllocatedMB:  stats.AllocatedRAMMB,
+		DiskAllocatedGB: stats.AllocatedDiskGB,
+		AgentVersion:    "vc-compute",
 	}
 
 	data, err := json.Marshal(heartbeat)
@@ -221,7 +220,7 @@ func (c *ControllerClient) SendHeartbeat(ctx context.Context, stats NodeStats) e
 		return fmt.Errorf("marshal heartbeat: %w", err)
 	}
 
-	url := fmt.Sprintf("%s/api/v1/nodes/%s/heartbeat", c.baseURL, c.nodeID)
+	url := fmt.Sprintf("%s/api/v1/hosts/heartbeat", c.baseURL)
 	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewReader(data))
 	if err != nil {
 		return fmt.Errorf("create request: %w", err)
@@ -300,11 +299,14 @@ func (c *ControllerClient) UpdateVMResources(ctx context.Context, vmID string, u
 
 // NodeStats represents compute node statistics.
 type NodeStats struct {
-	TotalVMs    int
-	RunningVMs  int
-	StoppedVMs  int
-	CPUUsage    float64
-	MemoryUsage float64
+	TotalVMs        int
+	RunningVMs      int
+	StoppedVMs      int
+	AllocatedCPU    int
+	AllocatedRAMMB  int64
+	AllocatedDiskGB int64
+	CPUUsage        float64
+	MemoryUsage     float64
 }
 
 // SyncAgent periodically syncs with management.
@@ -359,24 +361,29 @@ func (a *SyncAgent) syncLoop() {
 func (a *SyncAgent) performSync() {
 	ctx := context.Background()
 
-	// Sync VM states.
-	if err := a.manager.SyncVMs(ctx); err != nil {
-		a.logger.Warn("VM sync failed", zap.Error(err))
-	}
+	var vms []*QEMUConfig
 
-	// Get all VMs.
-	vms, err := a.manager.ListVMs(ctx)
-	if err != nil {
-		a.logger.Error("Failed to list VMs", zap.Error(err))
-		return
-	}
+	if a.manager != nil {
+		// Sync VM states.
+		if err := a.manager.SyncVMs(ctx); err != nil {
+			a.logger.Warn("VM sync failed", zap.Error(err))
+		}
 
-	// Report each VM status.
-	for _, vm := range vms {
-		if err := a.client.ReportVMStatus(ctx, vm); err != nil {
-			a.logger.Warn("Failed to report VM status",
-				zap.String("vm_id", vm.ID),
-				zap.Error(err))
+		// Get all VMs.
+		var err error
+		vms, err = a.manager.ListVMs(ctx)
+		if err != nil {
+			a.logger.Error("Failed to list VMs", zap.Error(err))
+			return
+		}
+
+		// Report each VM status.
+		for _, vm := range vms {
+			if err := a.client.ReportVMStatus(ctx, vm); err != nil {
+				a.logger.Warn("Failed to report VM status",
+					zap.String("vm_id", vm.ID),
+					zap.Error(err))
+			}
 		}
 	}
 
@@ -401,14 +408,13 @@ func (a *SyncAgent) calculateStats(vms []*QEMUConfig) NodeStats {
 		switch vm.Status {
 		case "running":
 			stats.RunningVMs++
+			stats.AllocatedCPU += vm.VCPUs
+			stats.AllocatedRAMMB += int64(vm.MemoryMB)
+			stats.AllocatedDiskGB += int64(vm.DiskGB)
 		case "stopped":
 			stats.StoppedVMs++
 		}
 	}
-
-	// TODO: Calculate actual CPU and memory usage.
-	stats.CPUUsage = 0.0
-	stats.MemoryUsage = 0.0
 
 	return stats
 }
