@@ -19,19 +19,21 @@ import (
 
 // Config represents the compute service configuration.
 type Config struct {
-	DB        *gorm.DB
-	Logger    *zap.Logger
-	Scheduler string // Scheduler URL (e.g., http://localhost:8092)
-	JWTSecret string // #nosec // This is a configuration field, not a hardcoded secret
+	DB           *gorm.DB
+	Logger       *zap.Logger
+	Scheduler    string // Scheduler URL (e.g., http://localhost:8092)
+	JWTSecret    string // #nosec // This is a configuration field, not a hardcoded secret
+	ImageStorage ImageStorageConfig
 }
 
 // Service represents the controller compute service.
 type Service struct {
-	db        *gorm.DB
-	logger    *zap.Logger
-	scheduler string
-	client    *http.Client
-	jwtSecret string
+	db           *gorm.DB
+	logger       *zap.Logger
+	scheduler    string
+	client       *http.Client
+	jwtSecret    string
+	imageStorage *ImageStorage
 }
 
 // NewService creates a new compute service.
@@ -50,7 +52,8 @@ func NewService(cfg Config) (*Service, error) {
 		client: &http.Client{
 			Timeout: 30 * time.Second,
 		},
-		jwtSecret: cfg.JWTSecret,
+		jwtSecret:    cfg.JWTSecret,
+		imageStorage: NewImageStorage(cfg.Logger, cfg.ImageStorage),
 	}
 
 	// Auto-migrate database schema.
@@ -63,14 +66,10 @@ func NewService(cfg Config) (*Service, error) {
 
 // migrate runs database migrations.
 func (s *Service) migrate() error {
-	// Only migrate tables not managed by init.sql
 	return s.db.AutoMigrate(
-		// &Flavor{}, // Managed by init.sql
-		// &Image{}, // Managed by init.sql
-		// &Instance{}, // Managed by init.sql
-		// &Volume{}, // Managed by init.sql
-		// &Snapshot{}, // Managed by init.sql
 		&SSHKey{},
+		&VolumeAttachment{},
+		&AuditLog{},
 	)
 }
 
@@ -92,23 +91,31 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		api.GET("/images", s.listImages)
 		api.GET("/images/:id", s.getImage)
 		api.DELETE("/images/:id", s.deleteImage)
+		api.POST("/images/register", s.registerImage)
+		api.POST("/images/upload", s.uploadImage)
+		api.POST("/images/:id/import", s.importImage)
 
 		// Instance routes.
 		api.POST("/instances", s.createInstance)
 		api.GET("/instances", s.listInstances)
 		api.GET("/instances/:id", s.getInstance)
 		api.DELETE("/instances/:id", s.deleteInstance)
-		api.DELETE("/instances/:id/force-delete", s.forceDeleteInstance)
+		api.POST("/instances/:id/force-delete", s.forceDeleteInstance)
 		api.GET("/instances/:id/deletion-status", s.getInstanceDeletionStatus)
 		api.POST("/instances/:id/start", s.startInstance)
 		api.POST("/instances/:id/stop", s.stopInstance)
 		api.POST("/instances/:id/reboot", s.rebootInstance)
+		api.POST("/instances/:id/console", s.getInstanceConsole)
+		api.GET("/instances/:id/volumes", s.listInstanceVolumes)
+		api.POST("/instances/:id/volumes", s.attachVolume)
+		api.DELETE("/instances/:id/volumes/:volumeId", s.detachVolume)
 
 		// Volume routes.
 		api.POST("/volumes", s.createVolume)
 		api.GET("/volumes", s.listVolumes)
 		api.GET("/volumes/:id", s.getVolume)
 		api.DELETE("/volumes/:id", s.deleteVolume)
+		api.POST("/volumes/:id/resize", s.resizeVolume)
 
 		// Snapshot routes.
 		api.POST("/snapshots", s.createSnapshot)
@@ -120,6 +127,9 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		api.POST("/ssh-keys", s.createSSHKey)
 		api.GET("/ssh-keys", s.listSSHKeys)
 		api.DELETE("/ssh-keys/:id", s.deleteSSHKey)
+
+		// Audit routes.
+		api.GET("/audit", s.listAudit)
 	}
 }
 
@@ -961,4 +971,385 @@ func (s *Service) deleteSSHKey(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"ok": true})
+}
+
+// Image register/import/upload handlers.
+
+func (s *Service) registerImage(c *gin.Context) {
+	var req RegisterImageRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	userID, _ := c.Get("user_id")
+	uid := uint(0)
+	if v, ok := userID.(float64); ok {
+		uid = uint(v)
+	}
+
+	image := &Image{
+		Name:        req.Name,
+		UUID:        uuid.New().String(),
+		Description: req.Description,
+		DiskFormat:  req.DiskFormat,
+		Visibility:  req.Visibility,
+		MinDisk:     req.MinDisk,
+		MinRAM:      req.MinRAM,
+		Size:        req.Size,
+		Checksum:    req.Checksum,
+		FilePath:    req.FilePath,
+		RBDPool:     req.RBDPool,
+		RBDImage:    req.RBDImage,
+		RBDSnap:     req.RBDSnap,
+		RGWURL:      req.RGWURL,
+		OwnerID:     uid,
+		Status:      "queued",
+	}
+
+	if err := s.db.Create(image).Error; err != nil {
+		s.logger.Error("failed to register image", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to register image"})
+		return
+	}
+
+	s.logger.Info("image registered", zap.String("name", image.Name), zap.Uint("id", image.ID))
+	c.JSON(http.StatusOK, gin.H{"image": image})
+}
+
+func (s *Service) uploadImage(c *gin.Context) {
+	file, header, err := c.Request.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "file is required"})
+		return
+	}
+	defer func() { _ = file.Close() }()
+
+	userID, _ := c.Get("user_id")
+	uid := uint(0)
+	if v, ok := userID.(float64); ok {
+		uid = uint(v)
+	}
+
+	name := c.PostForm("name")
+	if name == "" {
+		name = header.Filename
+	}
+
+	image := &Image{
+		Name:       name,
+		UUID:       uuid.New().String(),
+		OwnerID:    uid,
+		Size:       header.Size,
+		Status:     "uploading",
+		DiskFormat: c.PostForm("disk_format"),
+	}
+
+	if err := s.db.Create(image).Error; err != nil {
+		s.logger.Error("failed to create image record for upload", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create image"})
+		return
+	}
+
+	// Store the uploaded file to the configured storage backend (local or RBD).
+	go s.storeUploadedImage(image.ID, name, file, header.Size)
+
+	s.logger.Info("image upload accepted", zap.String("name", image.Name), zap.Uint("id", image.ID), zap.Int64("size", header.Size))
+	c.JSON(http.StatusAccepted, gin.H{"image": image})
+}
+
+// storeUploadedImage performs the actual storage write asynchronously.
+func (s *Service) storeUploadedImage(imageID uint, name string, reader io.Reader, sizeHint int64) {
+	result, err := s.imageStorage.StoreFromReader(name, reader, sizeHint)
+	if err != nil {
+		s.logger.Error("failed to store image", zap.Uint("image_id", imageID), zap.Error(err))
+		_ = s.db.Model(&Image{}).Where("id = ?", imageID).Updates(map[string]interface{}{
+			"status": "error",
+		}).Error
+		return
+	}
+
+	updates := map[string]interface{}{
+		"status": "active",
+		"size":   result.Size,
+	}
+	if result.Checksum != "" {
+		updates["checksum"] = result.Checksum
+	}
+	if result.FilePath != "" {
+		updates["file_path"] = result.FilePath
+	}
+	if result.RBDPool != "" {
+		updates["rbd_pool"] = result.RBDPool
+	}
+	if result.RBDImage != "" {
+		updates["rbd_image"] = result.RBDImage
+	}
+
+	if err := s.db.Model(&Image{}).Where("id = ?", imageID).Updates(updates).Error; err != nil {
+		s.logger.Error("failed to update image after storage", zap.Uint("image_id", imageID), zap.Error(err))
+		return
+	}
+
+	s.logger.Info("image stored successfully",
+		zap.Uint("image_id", imageID),
+		zap.String("file_path", result.FilePath),
+		zap.String("rbd_image", result.RBDImage),
+		zap.Int64("size", result.Size))
+}
+
+func (s *Service) importImage(c *gin.Context) {
+	id := c.Param("id")
+	var image Image
+	if err := s.db.First(&image, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "image not found"})
+		return
+	}
+
+	var req ImportImageRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Mark as importing.
+	_ = s.db.Model(&image).Update("status", "importing").Error
+
+	// Dispatch actual import asynchronously.
+	go s.doImageImport(image.ID, image.Name, req)
+
+	s.logger.Info("image import initiated", zap.String("name", image.Name), zap.Uint("id", image.ID))
+	_ = s.db.First(&image, id).Error
+	c.JSON(http.StatusAccepted, gin.H{"image": image})
+}
+
+// doImageImport performs the actual image import asynchronously.
+func (s *Service) doImageImport(imageID uint, imageName string, req ImportImageRequest) {
+	var updates map[string]interface{}
+
+	if req.RBDPool != "" && req.RBDImage != "" {
+		// Source is an existing RBD image — clone it.
+		dstImage := fmt.Sprintf("img-%s", imageName)
+		if err := s.imageStorage.CloneRBDImage(req.RBDPool, req.RBDImage, req.RBDSnap, "", dstImage); err != nil {
+			s.logger.Error("failed to clone RBD image", zap.Uint("image_id", imageID), zap.Error(err))
+			_ = s.db.Model(&Image{}).Where("id = ?", imageID).Update("status", "error").Error
+			return
+		}
+		updates = map[string]interface{}{
+			"status":    "active",
+			"rbd_pool":  s.imageStorage.config.RBDPool,
+			"rbd_image": dstImage,
+			"rbd_snap":  req.RBDSnap,
+		}
+	} else if req.SourceURL != "" {
+		// Source is a URL — download and store.
+		result, err := s.imageStorage.ImportFromURL(imageName, req.SourceURL)
+		if err != nil {
+			s.logger.Error("failed to import image from URL", zap.Uint("image_id", imageID), zap.Error(err))
+			_ = s.db.Model(&Image{}).Where("id = ?", imageID).Update("status", "error").Error
+			return
+		}
+		updates = map[string]interface{}{
+			"status":    "active",
+			"size":      result.Size,
+			"file_path": result.FilePath,
+			"rbd_pool":  result.RBDPool,
+			"rbd_image": result.RBDImage,
+			"rgw_url":   req.SourceURL,
+		}
+	} else if req.FilePath != "" {
+		// Direct file path — just reference it.
+		updates = map[string]interface{}{
+			"status":    "active",
+			"file_path": req.FilePath,
+		}
+	} else {
+		s.logger.Warn("import request has no source", zap.Uint("image_id", imageID))
+		_ = s.db.Model(&Image{}).Where("id = ?", imageID).Update("status", "error").Error
+		return
+	}
+
+	if err := s.db.Model(&Image{}).Where("id = ?", imageID).Updates(updates).Error; err != nil {
+		s.logger.Error("failed to update image after import", zap.Uint("image_id", imageID), zap.Error(err))
+	} else {
+		s.logger.Info("image import completed", zap.Uint("image_id", imageID))
+	}
+}
+
+// Volume resize handler.
+
+func (s *Service) resizeVolume(c *gin.Context) {
+	id := c.Param("id")
+	var volume Volume
+	if err := s.db.First(&volume, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "volume not found"})
+		return
+	}
+
+	var req struct {
+		NewSizeGB int `json:"new_size_gb" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if req.NewSizeGB <= volume.SizeGB {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "new size must be larger than current size"})
+		return
+	}
+
+	if err := s.db.Model(&volume).Update("size_gb", req.NewSizeGB).Error; err != nil {
+		s.logger.Error("failed to resize volume", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to resize volume"})
+		return
+	}
+
+	_ = s.db.First(&volume, id).Error
+	c.JSON(http.StatusOK, gin.H{"volume": volume})
+}
+
+// Instance volume attach/detach/list handlers.
+
+func (s *Service) listInstanceVolumes(c *gin.Context) {
+	instanceID := c.Param("id")
+	var instance Instance
+	if err := s.db.First(&instance, instanceID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "instance not found"})
+		return
+	}
+
+	var attachments []VolumeAttachment
+	if err := s.db.Where("instance_id = ?", instance.ID).Find(&attachments).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list volumes"})
+		return
+	}
+
+	// Fetch actual volume records for the attached volumes.
+	volumeIDs := make([]uint, len(attachments))
+	for i, a := range attachments {
+		volumeIDs[i] = a.VolumeID
+	}
+
+	var volumes []Volume
+	if len(volumeIDs) > 0 {
+		if err := s.db.Where("id IN ?", volumeIDs).Find(&volumes).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch volumes"})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"volumes": volumes})
+}
+
+func (s *Service) attachVolume(c *gin.Context) {
+	instanceID := c.Param("id")
+	var instance Instance
+	if err := s.db.First(&instance, instanceID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "instance not found"})
+		return
+	}
+
+	var req struct {
+		VolumeID uint   `json:"volume_id" binding:"required"`
+		Device   string `json:"device"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Verify volume exists.
+	var volume Volume
+	if err := s.db.First(&volume, req.VolumeID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "volume not found"})
+		return
+	}
+
+	attachment := &VolumeAttachment{
+		VolumeID:   req.VolumeID,
+		InstanceID: instance.ID,
+		Device:     req.Device,
+	}
+
+	if err := s.db.Create(attachment).Error; err != nil {
+		s.logger.Error("failed to attach volume", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to attach volume"})
+		return
+	}
+
+	// Update volume status.
+	_ = s.db.Model(&volume).Update("status", "in-use").Error
+
+	c.JSON(http.StatusOK, gin.H{"ok": true, "attachment": attachment})
+}
+
+func (s *Service) detachVolume(c *gin.Context) {
+	instanceID := c.Param("id")
+	volumeID := c.Param("volumeId")
+
+	var attachment VolumeAttachment
+	if err := s.db.Where("instance_id = ? AND volume_id = ?", instanceID, volumeID).First(&attachment).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "volume attachment not found"})
+		return
+	}
+
+	if err := s.db.Delete(&attachment).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to detach volume"})
+		return
+	}
+
+	// Update volume status back to available.
+	_ = s.db.Model(&Volume{}).Where("id = ?", volumeID).Update("status", "available").Error
+
+	c.JSON(http.StatusOK, gin.H{"ok": true})
+}
+
+// Instance console handler.
+
+func (s *Service) getInstanceConsole(c *gin.Context) {
+	id := c.Param("id")
+	var instance Instance
+	if err := s.db.First(&instance, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "instance not found"})
+		return
+	}
+
+	if instance.HostID == "" {
+		c.JSON(http.StatusConflict, gin.H{"error": "instance is not assigned to any node"})
+		return
+	}
+
+	// Generate a short-lived console token.
+	token := uuid.New().String()
+
+	// Build WebSocket URL pointing to the gateway's console endpoint.
+	wsPath := fmt.Sprintf("/ws/console/%s?token=%s", instance.HostID, token)
+
+	c.JSON(http.StatusOK, gin.H{
+		"ws":               wsPath,
+		"token_expires_in": 300,
+	})
+}
+
+// Audit log handler.
+
+func (s *Service) listAudit(c *gin.Context) {
+	var audits []AuditLog
+	query := s.db.Order("created_at DESC").Limit(100)
+
+	if resource := c.Query("resource"); resource != "" {
+		query = query.Where("resource = ?", resource)
+	}
+	if action := c.Query("action"); action != "" {
+		query = query.Where("action = ?", action)
+	}
+
+	if err := query.Find(&audits).Error; err != nil {
+		s.logger.Error("failed to list audit logs", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list audit logs"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"audit": audits})
 }

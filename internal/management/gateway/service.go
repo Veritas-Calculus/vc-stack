@@ -271,11 +271,11 @@ func (s *Service) checkServicesHealth() {
 	}
 }
 
-// SetupRoutes sets up HTTP routes for the gateway.
-func (s *Service) SetupRoutes(router *gin.Engine) {
+// SetupMiddleware registers CORS, rate limiting, and logging middleware on the router.
+// Called by management.SetupRoutes in monolithic mode where services register
+// their own route handlers directly (no proxy needed).
+func (s *Service) SetupMiddleware(router *gin.Engine) {
 	// CORS middleware.
-	// Always enable CORS to properly handle browser preflight (OPTIONS),
-	// even if the backend service (e.g., identity) doesn't register OPTIONS routes.
 	corsConfig := cors.Config{
 		AllowOrigins:     s.config.Security.CORS.AllowedOrigins,
 		AllowMethods:     s.config.Security.CORS.AllowedMethods,
@@ -283,7 +283,6 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		AllowCredentials: s.config.Security.CORS.AllowCredentials,
 		MaxAge:           12 * time.Hour,
 	}
-	// Sensible defaults when not specified in config.
 	if len(corsConfig.AllowOrigins) == 0 {
 		corsConfig.AllowAllOrigins = true
 	}
@@ -293,7 +292,6 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	if len(corsConfig.AllowHeaders) == 0 {
 		corsConfig.AllowHeaders = []string{"Authorization", "Content-Type", "X-Requested-With", "Origin", "Accept", "X-Project-ID"}
 	} else {
-		// Ensure X-Project-ID is allowed even if configured list exists.
 		hasProj := false
 		for _, h := range corsConfig.AllowHeaders {
 			if h == "X-Project-ID" {
@@ -306,11 +304,6 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		}
 	}
 
-	// If credentials are allowed, browsers disallow Access-Control-Allow-Origin: *.
-	// To support wildcard while using credentials, echo back the request's Origin.
-	// We do this when either:
-	// - allowed_origins is empty (allow all), or.
-	//  - allowed_origins explicitly contains "*".
 	if corsConfig.AllowCredentials {
 		hasStar := false
 		for _, o := range corsConfig.AllowOrigins {
@@ -334,6 +327,13 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 
 	// Logging middleware.
 	router.Use(s.loggingMiddleware())
+}
+
+// SetupRoutes sets up HTTP routes for the gateway (standalone mode).
+// In monolithic mode, use SetupMiddleware + SetupComputeProxyRoutes instead.
+func (s *Service) SetupRoutes(router *gin.Engine) {
+	// Apply middleware
+	s.SetupMiddleware(router)
 
 	// Health check under gateway prefix to avoid conflicts.
 	router.GET("/api/gateway/health", s.healthHandler)

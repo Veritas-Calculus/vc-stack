@@ -138,6 +138,11 @@ func New(cfg Config) (*Service, error) {
 
 // SetupRoutes registers all management plane routes onto the provided Gin router.
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	// Apply gateway middleware (CORS, rate limiting, logging) first.
+	// In monolithic mode, services register handlers directly (no proxy),
+	// but middleware is still needed for browser CORS and observability.
+	s.Gateway.SetupMiddleware(router)
+
 	// Register monitoring first for health checks and metrics.
 	s.Monitoring.SetupRoutes(router)
 

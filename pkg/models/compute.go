@@ -120,3 +120,25 @@ type SSHKey struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
+
+// VolumeAttachment represents the attachment of a volume to an instance.
+type VolumeAttachment struct {
+	ID         uint      `gorm:"primaryKey" json:"id"`
+	VolumeID   uint      `gorm:"not null;index" json:"volume_id"`
+	InstanceID uint      `gorm:"not null;index" json:"instance_id"`
+	Device     string    `json:"device"` // e.g., /dev/vdb
+	CreatedAt  time.Time `json:"created_at"`
+}
+
+// AuditLog represents an audit trail entry for resource operations.
+type AuditLog struct {
+	ID         uint      `gorm:"primaryKey" json:"id"`
+	Resource   string    `gorm:"not null;index" json:"resource"` // e.g., instance, volume, image
+	ResourceID uint      `gorm:"not null" json:"resource_id"`
+	Action     string    `gorm:"not null;index" json:"action"`             // e.g., create, delete, start, stop
+	Status     string    `gorm:"not null;default:'success'" json:"status"` // success, error
+	Message    string    `json:"message,omitempty"`
+	UserID     uint      `json:"user_id"`
+	ProjectID  uint      `json:"project_id"`
+	CreatedAt  time.Time `json:"created_at"`
+}

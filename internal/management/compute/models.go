@@ -16,6 +16,8 @@ type Instance = models.Instance
 type Volume = models.Volume
 type Snapshot = models.Snapshot
 type SSHKey = models.SSHKey
+type VolumeAttachment = models.VolumeAttachment
+type AuditLog = models.AuditLog
 
 // CreateInstanceRequest represents a request to create an instance.
 type CreateInstanceRequest struct {
@@ -61,6 +63,32 @@ type CreateImageRequest struct {
 	FilePath        string `json:"file_path"`
 	RBDPool         string `json:"rbd_pool"`
 	RBDImage        string `json:"rbd_image"`
+}
+
+// RegisterImageRequest represents a request to register an image (metadata only, no upload).
+type RegisterImageRequest struct {
+	Name        string `json:"name" binding:"required"`
+	Description string `json:"description"`
+	Visibility  string `json:"visibility"`
+	DiskFormat  string `json:"disk_format"`
+	MinDisk     int    `json:"min_disk"`
+	MinRAM      int    `json:"min_ram"`
+	Size        int64  `json:"size"`
+	Checksum    string `json:"checksum"`
+	FilePath    string `json:"file_path"`
+	RBDPool     string `json:"rbd_pool"`
+	RBDImage    string `json:"rbd_image"`
+	RBDSnap     string `json:"rbd_snap"`
+	RGWURL      string `json:"rgw_url"`
+}
+
+// ImportImageRequest represents a request to import an image from an external source.
+type ImportImageRequest struct {
+	FilePath  string `json:"file_path"`
+	RBDPool   string `json:"rbd_pool"`
+	RBDImage  string `json:"rbd_image"`
+	RBDSnap   string `json:"rbd_snap"`
+	SourceURL string `json:"source_url"`
 }
 
 // CreateVolumeRequest represents a request to create a volume.

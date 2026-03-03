@@ -34,6 +34,8 @@ func AutoMigrate(db *gorm.DB) error {
 		&models.Volume{},
 		&models.Snapshot{},
 		&models.SSHKey{},
+		&models.VolumeAttachment{},
+		&models.AuditLog{},
 	); err != nil {
 		return fmt.Errorf("failed to auto-migrate: %w", err)
 	}
