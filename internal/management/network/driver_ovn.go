@@ -150,9 +150,6 @@ func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 	case "vlan":
 		// VLAN network: tagged traffic on physical network.
 		vlanID := n.SegmentationID
-		if vlanID == 0 && n.VLANID != 0 {
-			vlanID = n.VLANID // Fallback to legacy field
-		}
 		if vlanID < 1 || vlanID > 4094 {
 			return fmt.Errorf("invalid VLAN ID %d: must be 1-4094", vlanID)
 		}

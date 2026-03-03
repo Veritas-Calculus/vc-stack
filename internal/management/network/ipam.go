@@ -48,6 +48,16 @@ func (i *IPAM) Allocate(subnet *Subnet, portID string) (string, error) {
 	for k := 0; k < i.opt.ReservedLast; k++ {
 		cutoff = prevIP(cutoff)
 	}
+
+	// Batch-load all allocated IPs for this subnet in a single query,
+	// instead of checking each candidate IP individually (O(n) → O(1) DB queries).
+	var allocations []IPAllocation
+	i.db.Where("subnet_id = ?", subnet.ID).Find(&allocations)
+	allocated := make(map[string]struct{}, len(allocations))
+	for _, a := range allocations {
+		allocated[a.IP] = struct{}{}
+	}
+
 	for ip := begin; ipnet.Contains(ip) && compareIP(ip, cutoff) <= 0; ip = nextIP(ip) {
 		if end != "" && compareIP(ip, net.ParseIP(end)) > 0 {
 			break
@@ -58,14 +68,13 @@ func (i *IPAM) Allocate(subnet *Subnet, portID string) (string, error) {
 		if i.opt.ReserveGateway && subnet.Gateway != "" && ip.Equal(net.ParseIP(subnet.Gateway)) {
 			continue
 		}
-		var count int64
-		i.db.Model(&IPAllocation{}).Where("subnet_id = ? AND ip = ?", subnet.ID, ip.String()).Count(&count)
-		if count == 0 {
-			rec := IPAllocation{SubnetID: subnet.ID, IP: ip.String(), PortID: portID}
+		ipStr := ip.String()
+		if _, taken := allocated[ipStr]; !taken {
+			rec := IPAllocation{SubnetID: subnet.ID, IP: ipStr, PortID: portID}
 			if err := i.db.Create(&rec).Error; err != nil {
 				return "", err
 			}
-			return ip.String(), nil
+			return ipStr, nil
 		}
 	}
 	return "", fmt.Errorf("no free IPs in subnet %s", subnet.ID)

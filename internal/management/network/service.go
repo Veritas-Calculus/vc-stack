@@ -77,9 +77,9 @@ type Network struct {
 	// Segmentation ID: VLAN ID (1-4094) for vlan, VNI for vxlan, tunnel key for gre.
 	SegmentationID int `json:"segmentation_id" gorm:"index"`
 	// Deprecated: use SegmentationID for VLAN networks.
-	VLANID     int    `json:"vlan_id" gorm:"column:vlan_id;index"`
+	VLANID     int    `json:"vlan_id" gorm:"column:vlan_id;index"` // Deprecated: kept in sync with SegmentationID
 	Gateway    string `json:"gateway"`
-	DNSServers string `json:"dns_servers" gorm:"type:text"`
+	DNSServers string `json:"dns_servers" gorm:"type:text"` // Comma-separated; same data as Subnet.DNSNameservers
 	Zone       string `json:"zone" gorm:"index"`
 	// Shared network flag (can be used by multiple tenants)
 	Shared bool `json:"shared" gorm:"default:false"`
@@ -209,6 +209,8 @@ type FloatingIP struct {
 func (FloatingIP) TableName() string { return "net_floating_ips" }
 
 // Zone represents an infrastructure zone (e.g., core/edge).
+// TODO: Zone and Cluster are infrastructure-level concepts and should be moved
+// to pkg/models/ to avoid coupling with the network package.
 type Zone struct {
 	ID          string    `json:"id" gorm:"primaryKey;type:varchar(36)"`
 	Name        string    `json:"name" gorm:"uniqueIndex;not null"`
@@ -315,8 +317,8 @@ func NewService(config Config) (*Service, error) {
 // migrateDatabase auto-migrates the database schema.
 func (s *Service) migrateDatabase() error {
 	if err := s.db.AutoMigrate(
-		// &Network{}, // Managed by init.sql
-		// &Subnet{}, // Managed by init.sql
+		&Network{},
+		&Subnet{},
 		&SecurityGroup{},
 		&SecurityGroupRule{},
 		&FloatingIP{},

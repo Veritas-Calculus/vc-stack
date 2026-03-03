@@ -125,7 +125,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         label: 'Network',
         base: `${prefix}/network`,
         children: [
-          { to: `${prefix}/network/vpc`, label: 'VPC' },
+          { to: `${prefix}/network/vpc`, label: 'Networks' },
           { to: `${prefix}/network/routers`, label: 'Routers' },
           { to: `${prefix}/network/sg`, label: 'Security Groups' },
           { to: `${prefix}/network/topology`, label: 'Topology' },

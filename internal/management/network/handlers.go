@@ -48,9 +48,10 @@ type CreateNetworkRequest struct {
 	Name        string `json:"name" binding:"required"`
 	Description string `json:"description"`
 	CIDR        string `json:"cidr" binding:"required"`
-	VLANID      int    `json:"vlan_id"`
+	VLANID      int    `json:"vlan_id"` // Deprecated: use SegmentationID; auto-synced
 	Gateway     string `json:"gateway"`
-	// Either provide dns_servers or individual DNS entries.
+	// DNS: provide dns_servers (comma-separated) OR individual dns1/dns2 fields.
+	// Normalized into comma-separated string stored as Network.DNSServers and Subnet.DNSNameservers.
 	DNSServers string `json:"dns_servers"`
 	DNS1       string `json:"dns1"`
 	DNS2       string `json:"dns2"`
@@ -173,8 +174,13 @@ func (s *Service) createNetwork(c *gin.Context) {
 	}
 	segID := req.SegmentationID
 	if segID == 0 && req.VLANID != 0 {
-		// backward-compat: honor legacy vlan_id.
+		// backward-compat: honor legacy vlan_id field in requests.
 		segID = req.VLANID
+	}
+	// Always sync VLANID from SegmentationID for backward compatibility.
+	vlanID := req.VLANID
+	if segID != 0 {
+		vlanID = segID
 	}
 	// Defaults for MTU if not explicitly provided.
 	mtu := req.MTU
@@ -195,43 +201,7 @@ func (s *Service) createNetwork(c *gin.Context) {
 		external = *req.External
 	}
 
-	network := Network{
-		ID:          generateUUID(),
-		Name:        req.Name,
-		Description: req.Description,
-		CIDR:        req.CIDR,
-		VLANID:      req.VLANID,
-		Gateway:     req.Gateway,
-		DNSServers:  dns,
-		Zone:        req.Zone,
-		Status:      "creating",
-		TenantID:    req.TenantID,
-		// Provider/overlay fields.
-		NetworkType:     nt,
-		PhysicalNetwork: req.PhysicalNetwork,
-		SegmentationID:  segID,
-		Shared:          shared,
-		External:        external,
-		MTU:             mtu,
-	}
-
-	if err := s.db.Create(&network).Error; err != nil {
-		s.logger.Error("Failed to create network", zap.Error(err))
-		errStr := strings.ToLower(err.Error())
-		if strings.Contains(errStr, "idx_net_networks_name") || strings.Contains(errStr, "uniq_net_networks_tenant_name") {
-			c.JSON(http.StatusConflict, gin.H{"error": "Network name already exists in tenant"})
-			return
-		}
-		if strings.Contains(errStr, "idx_net_networks_vlan_id") || strings.Contains(errStr, "uniq_net_networks_vlan_notzero") {
-			c.JSON(http.StatusConflict, gin.H{"error": "VLAN ID already in use"})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create network"})
-		return
-	}
-
-	// Derive gateway and allocation defaults before persisting, so DB reflects actual intent.
-	// This also keeps RouterInterface binding consistent with OVN.
+	// --- Compute gateway and allocation pool BEFORE any DB writes ---
 	gw := strings.TrimSpace(req.Gateway)
 	if gw == "" {
 		if _, ipnet, err := net.ParseCIDR(req.CIDR); err == nil {
@@ -244,7 +214,6 @@ func (s *Service) createNetwork(c *gin.Context) {
 			}
 		}
 	}
-	// Calculate allocation pool if not provided.
 	allocStart := strings.TrimSpace(req.AllocationStart)
 	allocEnd := strings.TrimSpace(req.AllocationEnd)
 	if allocStart == "" || allocEnd == "" {
@@ -260,7 +229,6 @@ func (s *Service) createNetwork(c *gin.Context) {
 				if bits == 32 {
 					hostBits := bits - ones
 					numHosts := (1 << hostBits) - 2
-					// Compute end IP using full 32-bit arithmetic to avoid byte overflow.
 					baseIP := uint32(v4[0])<<24 | uint32(v4[1])<<16 | uint32(v4[2])<<8 | uint32(v4[3])
 					endIPu32 := baseIP + uint32(numHosts)
 					endIP := net.IP{byte(endIPu32 >> 24), byte(endIPu32 >> 16), byte(endIPu32 >> 8), byte(endIPu32)}
@@ -270,7 +238,36 @@ func (s *Service) createNetwork(c *gin.Context) {
 		}
 	}
 
-	// Create default subnet for this network.
+	// Determine initial status based on start flag.
+	start := true
+	if req.Start != nil {
+		start = *req.Start
+	}
+	initialStatus := "created"
+	if start {
+		initialStatus = "creating"
+	}
+
+	// --- Build complete objects with all computed fields ---
+	network := Network{
+		ID:              generateUUID(),
+		Name:            req.Name,
+		Description:     req.Description,
+		CIDR:            req.CIDR,
+		VLANID:          vlanID, // Deprecated: kept in sync with SegmentationID
+		Gateway:         gw,     // Already computed, no post-write fixup needed
+		DNSServers:      dns,
+		Zone:            req.Zone,
+		Status:          initialStatus,
+		TenantID:        req.TenantID,
+		NetworkType:     nt,
+		PhysicalNetwork: req.PhysicalNetwork,
+		SegmentationID:  segID,
+		Shared:          shared,
+		External:        external,
+		MTU:             mtu,
+	}
+
 	subnet := Subnet{
 		ID:              generateUUID(),
 		Name:            req.Name + "-subnet",
@@ -283,24 +280,34 @@ func (s *Service) createNetwork(c *gin.Context) {
 		AllocationStart: allocStart,
 		AllocationEnd:   allocEnd,
 		HostRoutes:      req.HostRoutes,
-		Status:          "creating",
+		Status:          initialStatus,
 		TenantID:        req.TenantID,
 	}
 
-	if err := s.db.Create(&subnet).Error; err != nil {
-		s.logger.Error("Failed to create subnet", zap.Error(err))
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create subnet"})
+	// --- Transaction: create network + subnet atomically ---
+	if err := s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(&network).Error; err != nil {
+			return err
+		}
+		return tx.Create(&subnet).Error
+	}); err != nil {
+		s.logger.Error("Failed to create network", zap.Error(err))
+		errStr := strings.ToLower(err.Error())
+		if strings.Contains(errStr, "idx_net_networks_name") || strings.Contains(errStr, "uniq_net_networks_tenant_name") {
+			c.JSON(http.StatusConflict, gin.H{"error": "Network name already exists in tenant"})
+			return
+		}
+		if strings.Contains(errStr, "idx_net_networks_vlan_id") || strings.Contains(errStr, "uniq_net_networks_vlan_notzero") {
+			c.JSON(http.StatusConflict, gin.H{"error": "VLAN ID already in use"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create network"})
 		return
 	}
 
-	// SDN ensure if start is true (default true)
-	start := true
-	if req.Start != nil {
-		start = *req.Start
-	}
+	// --- Post-transaction: SDN provisioning (best-effort, outside transaction) ---
 	if start {
 		if err := s.driver.EnsureNetwork(&network, &subnet); err != nil {
-			// Don't fail the API if SDN backend is unavailable; mark as created and warn.
 			s.logger.Error("SDN ensure network failed", zap.Error(err))
 			network.Status = "created"
 			subnet.Status = "created"
@@ -308,83 +315,79 @@ func (s *Service) createNetwork(c *gin.Context) {
 			network.Status = "active"
 			subnet.Status = "active"
 		}
-	} else {
-		network.Status = "created"
-		subnet.Status = "created"
-	}
-	s.db.Save(&network)
-	s.db.Save(&subnet)
-
-	// Persist network-level gateway for convenience/binding.
-	// If not provided explicitly, mirror from subnet gateway.
-	if strings.TrimSpace(network.Gateway) == "" && strings.TrimSpace(subnet.Gateway) != "" {
-		network.Gateway = subnet.Gateway
-		_ = s.db.Save(&network).Error
+		// Single targeted update for final status.
+		_ = s.db.Model(&network).Update("status", network.Status).Error
+		_ = s.db.Model(&subnet).Update("status", subnet.Status).Error
 	}
 
-	// Auto-create router for tenant/overlay networks only (not for external provider networks)
+	// Auto-create router for tenant/overlay networks only (not for external provider networks).
 	if network.Status == "active" && !network.External {
-		router := Router{
-			ID:       "lr-" + network.ID,
-			Name:     network.Name + "-router",
-			TenantID: network.TenantID,
-			Status:   "active",
-		}
-		if err := s.db.Create(&router).Error; err != nil {
-			s.logger.Warn("Failed to create router record", zap.Error(err), zap.String("router_id", router.ID))
-		} else {
-			// Ensure router in SDN and connect subnet to router.
-			lrName := router.ID
-			if err := s.driver.EnsureRouter(lrName); err != nil {
-				s.logger.Warn("Failed to ensure router in SDN", zap.Error(err), zap.String("name", lrName))
-			}
-			// Connect subnet to router.
-			routerIface := RouterInterface{
-				ID:        "rif-" + subnet.ID,
-				RouterID:  router.ID,
-				SubnetID:  subnet.ID,
-				IPAddress: subnet.Gateway, // record router interface IP as subnet gateway
-			}
-			if err := s.db.Create(&routerIface).Error; err != nil {
-				s.logger.Warn("Failed to create router interface", zap.Error(err))
-			} else {
-				if err := s.driver.ConnectSubnetToRouter(lrName, &network, &subnet); err != nil {
-					s.logger.Warn("Failed to connect subnet to router in SDN", zap.Error(err))
-				}
-				// Best-effort: read back OVN LRP networks to bind DB gateway/interface IP to actual value.
-				if ovnDrv := s.getOVNDriver(); ovnDrv != nil {
-					lrpName := fmt.Sprintf("lrp-%s-%s", lrName, network.ID)
-					if nets, err := ovnDrv.nbctlOutput("get", "Logical_Router_Port", lrpName, "networks"); err == nil {
-						if ip := parseFirstIPFromNetworks(strings.TrimSpace(nets)); ip != "" {
-							// Update subnet and router interface if needed.
-							changed := false
-							if subnet.Gateway != ip {
-								subnet.Gateway = ip
-								changed = true
-							}
-							if routerIface.IPAddress != ip {
-								routerIface.IPAddress = ip
-								_ = s.db.Save(&routerIface).Error
-							}
-							if changed {
-								_ = s.db.Save(&subnet).Error
-								if strings.TrimSpace(network.Gateway) == "" {
-									network.Gateway = ip
-									_ = s.db.Save(&network).Error
-								}
-							}
-						}
-					}
-				}
-				s.logger.Info("Auto-created router for network",
-					zap.String("router_id", router.ID),
-					zap.String("network_id", network.ID))
-			}
-		}
+		s.autoCreateRouter(&network, &subnet)
 	}
 
 	s.logger.Info("Network created", zap.String("id", network.ID), zap.String("name", network.Name))
 	c.JSON(http.StatusCreated, gin.H{"network": network, "subnet": subnet})
+}
+
+// autoCreateRouter creates a default router and connects a subnet to it.
+// This is best-effort; failures are logged but do not cause the network creation to fail.
+func (s *Service) autoCreateRouter(network *Network, subnet *Subnet) {
+	router := Router{
+		ID:       "lr-" + network.ID,
+		Name:     network.Name + "-router",
+		TenantID: network.TenantID,
+		Status:   "active",
+	}
+	if err := s.db.Create(&router).Error; err != nil {
+		s.logger.Warn("Failed to create router record", zap.Error(err), zap.String("router_id", router.ID))
+		return
+	}
+
+	// Ensure router in SDN.
+	lrName := router.ID
+	if err := s.driver.EnsureRouter(lrName); err != nil {
+		s.logger.Warn("Failed to ensure router in SDN", zap.Error(err), zap.String("name", lrName))
+	}
+
+	// Connect subnet to router.
+	routerIface := RouterInterface{
+		ID:        "rif-" + subnet.ID,
+		RouterID:  router.ID,
+		SubnetID:  subnet.ID,
+		IPAddress: subnet.Gateway,
+	}
+	if err := s.db.Create(&routerIface).Error; err != nil {
+		s.logger.Warn("Failed to create router interface", zap.Error(err))
+		return
+	}
+	if err := s.driver.ConnectSubnetToRouter(lrName, network, subnet); err != nil {
+		s.logger.Warn("Failed to connect subnet to router in SDN", zap.Error(err))
+	}
+
+	// Best-effort: read back OVN LRP networks to bind DB gateway to actual OVN value.
+	if ovnDrv := s.getOVNDriver(); ovnDrv != nil {
+		lrpName := fmt.Sprintf("lrp-%s-%s", lrName, network.ID)
+		if nets, err := ovnDrv.nbctlOutput("get", "Logical_Router_Port", lrpName, "networks"); err == nil {
+			if ip := parseFirstIPFromNetworks(strings.TrimSpace(nets)); ip != "" {
+				if subnet.Gateway != ip {
+					subnet.Gateway = ip
+					_ = s.db.Save(subnet).Error
+				}
+				if routerIface.IPAddress != ip {
+					routerIface.IPAddress = ip
+					_ = s.db.Save(&routerIface).Error
+				}
+				if network.Gateway != ip {
+					network.Gateway = ip
+					_ = s.db.Save(network).Error
+				}
+			}
+		}
+	}
+
+	s.logger.Info("Auto-created router for network",
+		zap.String("router_id", router.ID),
+		zap.String("network_id", network.ID))
 }
 
 // getNetwork handles GET /api/v1/networks/:id.
@@ -401,24 +404,13 @@ func (s *Service) getNetwork(c *gin.Context) {
 	var subnets []Subnet
 	s.db.Where("network_id = ?", network.ID).Find(&subnets)
 
-	// Build response with subnets.
-	response := map[string]interface{}{
-		"id":          network.ID,
-		"name":        network.Name,
-		"description": network.Description,
-		"cidr":        network.CIDR,
-		"vlan_id":     network.VLANID,
-		"gateway":     network.Gateway,
-		"dns_servers": network.DNSServers,
-		"zone":        network.Zone,
-		"status":      network.Status,
-		"tenant_id":   network.TenantID,
-		"created_at":  network.CreatedAt,
-		"updated_at":  network.UpdatedAt,
-		"subnets":     subnets,
+	// Return the full Network struct plus subnets; avoids manual field mapping
+	// that could miss newly added fields (was previously missing network_type, mtu, etc.).
+	type networkResponse struct {
+		Network
+		Subnets []Subnet `json:"subnets"`
 	}
-
-	c.JSON(http.StatusOK, gin.H{"network": response})
+	c.JSON(http.StatusOK, gin.H{"network": networkResponse{Network: network, Subnets: subnets}})
 }
 
 // diagnoseNetwork handles GET /api/v1/networks/:id/diagnose.
@@ -661,10 +653,8 @@ func (s *Service) updateNetwork(c *gin.Context) {
 	}
 	if req.SegmentationID != nil {
 		network.SegmentationID = *req.SegmentationID
-		// keep legacy vlan_id for compatibility if vlan.
-		if strings.EqualFold(network.NetworkType, "vlan") {
-			network.VLANID = *req.SegmentationID
-		}
+		// Always keep legacy VLANID in sync (deprecated field).
+		network.VLANID = *req.SegmentationID
 	}
 	if req.Shared != nil {
 		network.Shared = *req.Shared
