@@ -311,3 +311,10 @@ func ipCmd(args ...string) error {
 func linkUp(name string) error {
 	return ipCmd("link", "set", name, "up")
 }
+
+// CheckBridgeExists checks if an OVS bridge exists.
+// Used by compute.go to verify if the entrypoint script set up OVS.
+func CheckBridgeExists(bridge string) bool {
+	cmd := exec.Command("ovs-vsctl", "br-exists", bridge) // #nosec
+	return cmd.Run() == nil
+}

@@ -66,13 +66,14 @@ func NewNode(cfg NodeConfig) (*Node, error) {
 	// Bootstrap node networking (OVS bridges, OVN controller, encap, bridge_mappings).
 	// This must happen before any VM port operations.
 	ovnRemote := getEnvOrDefault("NETWORK_OVN_SB_ADDRESS", "")
+	integrationBridge := getEnvOrDefault("OVS_INTEGRATION_BRIDGE", "br-int")
 	if ovnRemote != "" {
 		bootstrapCfg := network.BootstrapConfig{
 			OVNRemote:         ovnRemote,
 			EncapType:         getEnvOrDefault("NETWORK_ENCAP_TYPE", "geneve"),
 			EncapIP:           getEnvOrDefault("NETWORK_ENCAP_IP", ""),
 			SystemID:          getEnvOrDefault("NODE_NAME", ""),
-			IntegrationBridge: getEnvOrDefault("OVS_INTEGRATION_BRIDGE", "br-int"),
+			IntegrationBridge: integrationBridge,
 			ProviderBridge:    getEnvOrDefault("NETWORK_EXTERNAL_BRIDGE", "br-provider"),
 			BridgeMappings:    getEnvOrDefault("NETWORK_BRIDGE_MAPPINGS", ""),
 			ProviderInterface: getEnvOrDefault("NETWORK_PROVIDER_INTERFACE", ""),
@@ -83,7 +84,15 @@ func NewNode(cfg NodeConfig) (*Node, error) {
 			// Don't return error; allow compute node to start for management ops.
 		}
 	} else {
-		cfg.Logger.Warn("NETWORK_OVN_SB_ADDRESS not set, skipping network bootstrap. VM networking will not work.")
+		// No OVN configured — use local-only OVS mode.
+		// The entrypoint script should have started ovs-vswitchd and created br-int.
+		if network.CheckBridgeExists(integrationBridge) {
+			cfg.Logger.Info("Local OVS mode: bridge ready (no OVN overlay)",
+				zap.String("bridge", integrationBridge))
+		} else {
+			cfg.Logger.Warn("OVS bridge not found and OVN not configured — VM networking unavailable",
+				zap.String("bridge", integrationBridge))
+		}
 	}
 
 	// Initialize network agent service (local OVS only).

@@ -87,7 +87,7 @@ ENTRYPOINT ["vc-management"]
 FROM debian:bookworm-slim AS vc-compute
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates tzdata curl \
+    ca-certificates tzdata curl iproute2 \
     qemu-system-x86 qemu-utils \
     openvswitch-switch ovn-host \
     ceph-common librados2 librbd1 libcephfs2 \
@@ -95,12 +95,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY --from=builder /out/vc-compute /usr/local/bin/vc-compute
 COPY --from=builder /out/vcctl /usr/local/bin/vcctl
+COPY scripts/compute-entrypoint.sh /usr/local/bin/compute-entrypoint.sh
 
 WORKDIR /opt/vc-stack
 
 # Compute node runs as root (needs KVM/OVS access)
 EXPOSE 8081
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
     CMD curl -sf http://localhost:8081/health || exit 1
 
-ENTRYPOINT ["vc-compute"]
+ENTRYPOINT ["compute-entrypoint.sh"]
+CMD ["vc-compute"]
+
