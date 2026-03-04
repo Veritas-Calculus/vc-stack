@@ -132,7 +132,7 @@ const mapInstance =
       id: String(x.id),
       projectId: p ?? String(x.project_id ?? ''),
       name: x.name,
-      ip: '',
+      ip: x.ip_address || '',
       // Check both status and power_state for running state
       // Backend may return status='running' or 'active', and power_state='running'
       state:
