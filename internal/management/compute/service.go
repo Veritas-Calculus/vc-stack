@@ -1613,9 +1613,10 @@ func (s *Service) getInstanceConsole(c *gin.Context) {
 	}
 
 	// Determine the VM ID on the compute node.
+	// CreateVM uses instance.Name as the VM ID, so we must match it here.
 	vmID := instance.VMID
 	if vmID == "" {
-		vmID = instance.UUID
+		vmID = instance.Name
 	}
 
 	// Request a console ticket from the compute node.
