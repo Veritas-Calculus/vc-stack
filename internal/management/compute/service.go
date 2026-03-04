@@ -184,6 +184,7 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		api.GET("/instances/:id/deletion-status", s.getInstanceDeletionStatus)
 		api.POST("/instances/:id/start", s.startInstance)
 		api.POST("/instances/:id/stop", s.stopInstance)
+		api.POST("/instances/:id/force-stop", s.forceStopInstance)
 		api.POST("/instances/:id/reboot", s.rebootInstance)
 		api.POST("/instances/:id/console", s.getInstanceConsole)
 		api.GET("/instances/:id/volumes", s.listInstanceVolumes)
@@ -782,7 +783,7 @@ func (s *Service) deleteInstanceOnNode(ctx context.Context, inst *Instance) {
 	s.logger.Info("deleting instance from node", zap.String("uuid", inst.UUID), zap.String("node_addr", inst.NodeAddress))
 
 	if inst.NodeAddress != "" {
-		req, _ := http.NewRequestWithContext(ctx, "DELETE", inst.NodeAddress+"/api/v1/vms/"+inst.UUID, http.NoBody)
+		req, _ := http.NewRequestWithContext(ctx, "DELETE", inst.NodeAddress+"/api/v1/vms/"+inst.Name, http.NoBody)
 		resp, err := s.client.Do(req) // #nosec
 		if err != nil {
 			s.logger.Error("failed to delete vm on node", zap.Error(err))
@@ -833,7 +834,7 @@ func (s *Service) forceDeleteInstance(c *gin.Context) {
 	// Best effort delete on node (async)
 	go func(inst *Instance) {
 		if inst.NodeAddress != "" {
-			req, _ := http.NewRequest("DELETE", inst.NodeAddress+"/api/v1/vms/"+inst.UUID, http.NoBody)
+			req, _ := http.NewRequest("DELETE", inst.NodeAddress+"/api/v1/vms/"+inst.Name, http.NoBody)
 			if resp, err := s.client.Do(req); err == nil { // #nosec
 				_ = resp.Body.Close()
 			}
@@ -884,6 +885,32 @@ func (s *Service) getInstanceDeletionStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": instance.Status})
 }
 
+// proxyPowerOp sends a power operation to the compute node synchronously,
+// using instance.Name as the VM ID (matches CreateVM request).
+// Returns true if the operation succeeded (or node was unreachable but we should still update DB).
+func (s *Service) proxyPowerOp(instance *Instance, op string) error {
+	if instance.NodeAddress == "" {
+		return nil // no node assigned, just update DB
+	}
+	url := instance.NodeAddress + "/api/v1/vms/" + instance.Name + "/" + op
+	req, err := http.NewRequest("POST", url, http.NoBody)
+	if err != nil {
+		return fmt.Errorf("create request: %w", err)
+	}
+	resp, err := s.client.Do(req) // #nosec
+	if err != nil {
+		s.logger.Error("power op: node unreachable", zap.String("op", op), zap.String("url", url), zap.Error(err))
+		return fmt.Errorf("node unreachable: %w", err)
+	}
+	defer func() { _ = resp.Body.Close() }()
+	if resp.StatusCode >= 400 {
+		body, _ := io.ReadAll(resp.Body)
+		s.logger.Error("power op: node returned error", zap.String("op", op), zap.Int("status", resp.StatusCode), zap.String("body", string(body)))
+		return fmt.Errorf("node returned %d: %s", resp.StatusCode, string(body))
+	}
+	return nil
+}
+
 func (s *Service) startInstance(c *gin.Context) {
 	id := c.Param("id")
 	var instance Instance
@@ -892,20 +919,13 @@ func (s *Service) startInstance(c *gin.Context) {
 		return
 	}
 
-	if instance.NodeAddress != "" {
-		go func() {
-			req, _ := http.NewRequest("POST", instance.NodeAddress+"/api/v1/vms/"+instance.UUID+"/start", http.NoBody)
-			resp, err := s.client.Do(req) // #nosec
-			if err != nil {
-				s.logger.Error("failed to start vm on node", zap.Error(err))
-				return
-			}
-			_ = resp.Body.Close()
-		}()
+	if err := s.proxyPowerOp(&instance, "start"); err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "failed to start vm on node: " + err.Error()})
+		return
 	}
 
 	if err := s.db.Model(&instance).Update("power_state", "running").Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to start instance"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update instance"})
 		return
 	}
 	s.emitEvent("action", instance.UUID, "start", "success", "", map[string]interface{}{"name": instance.Name}, "")
@@ -920,23 +940,42 @@ func (s *Service) stopInstance(c *gin.Context) {
 		return
 	}
 
-	if instance.NodeAddress != "" {
-		go func() {
-			req, _ := http.NewRequest("POST", instance.NodeAddress+"/api/v1/vms/"+instance.UUID+"/stop", http.NoBody)
-			resp, err := s.client.Do(req) // #nosec
-			if err != nil {
-				s.logger.Error("failed to stop vm on node", zap.Error(err))
-				return
-			}
-			_ = resp.Body.Close()
-		}()
+	op := "stop"
+	if c.Query("force") == "true" {
+		op = "force-stop"
+	}
+
+	if err := s.proxyPowerOp(&instance, op); err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "failed to stop vm on node: " + err.Error()})
+		return
 	}
 
 	if err := s.db.Model(&instance).Update("power_state", "shutdown").Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to stop instance"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update instance"})
 		return
 	}
-	s.emitEvent("action", instance.UUID, "stop", "success", "", map[string]interface{}{"name": instance.Name}, "")
+	s.emitEvent("action", instance.UUID, op, "success", "", map[string]interface{}{"name": instance.Name}, "")
+	c.JSON(http.StatusAccepted, gin.H{"ok": true})
+}
+
+func (s *Service) forceStopInstance(c *gin.Context) {
+	id := c.Param("id")
+	var instance Instance
+	if err := s.db.First(&instance, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "instance not found"})
+		return
+	}
+
+	if err := s.proxyPowerOp(&instance, "force-stop"); err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "failed to force-stop vm on node: " + err.Error()})
+		return
+	}
+
+	if err := s.db.Model(&instance).Update("power_state", "shutdown").Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update instance"})
+		return
+	}
+	s.emitEvent("action", instance.UUID, "force-stop", "success", "", map[string]interface{}{"name": instance.Name}, "")
 	c.JSON(http.StatusAccepted, gin.H{"ok": true})
 }
 
@@ -948,20 +987,13 @@ func (s *Service) rebootInstance(c *gin.Context) {
 		return
 	}
 
-	if instance.NodeAddress != "" {
-		go func() {
-			req, _ := http.NewRequest("POST", instance.NodeAddress+"/api/v1/vms/"+instance.UUID+"/reboot", http.NoBody)
-			resp, err := s.client.Do(req) // #nosec
-			if err != nil {
-				s.logger.Error("failed to reboot vm on node", zap.Error(err))
-				return
-			}
-			_ = resp.Body.Close()
-		}()
+	if err := s.proxyPowerOp(&instance, "reboot"); err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "failed to reboot vm on node: " + err.Error()})
+		return
 	}
 
 	if err := s.db.Model(&instance).Update("power_state", "running").Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to reboot instance"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update instance"})
 		return
 	}
 	s.emitEvent("action", instance.UUID, "reboot", "success", "", map[string]interface{}{"name": instance.Name}, "")
