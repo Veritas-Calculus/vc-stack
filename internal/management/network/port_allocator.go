@@ -72,6 +72,12 @@ func (s *Service) AllocatePort(networkID, deviceID, tenantID, requestedIP string
 	s.db.Model(&IPAllocation{}).Where("subnet_id = ? AND ip = ?", subnet.ID, ip).
 		Update("port_id", port.ID)
 
+	// 7.5 Ensure OVN logical switch + DHCP Options exist (idempotent).
+	// Networks created before OVN driver was active may lack DHCP configuration.
+	if err := s.driver.EnsureNetwork(&network, &subnet); err != nil {
+		s.logger.Warn("EnsureNetwork pre-check failed (non-fatal)", zap.Error(err), zap.String("network_id", networkID))
+	}
+
 	// 8. OVN: create LSP + DHCP binding.
 	if err := s.driver.EnsurePort(&network, &subnet, &port); err != nil {
 		s.logger.Error("EnsurePort failed (port created in DB, OVN may need repair)",

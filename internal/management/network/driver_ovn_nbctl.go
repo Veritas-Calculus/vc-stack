@@ -127,87 +127,9 @@ func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 	}
 
 	if s != nil && strings.TrimSpace(s.CIDR) != "" && s.EnableDHCP {
-		gateway := s.Gateway
-		if gateway == "" {
-			_, ipnet, err := net.ParseCIDR(s.CIDR)
-			if err != nil {
-				return fmt.Errorf("invalid CIDR %s: %w", s.CIDR, err)
-			}
-			ip := ipnet.IP.To4()
-			ip[3]++
-			gateway = ip.String()
-			s.Gateway = gateway
-		}
-
-		allocationStart, allocationEnd := s.AllocationStart, s.AllocationEnd
-		if allocationStart == "" || allocationEnd == "" {
-			_, ipnet, err := net.ParseCIDR(s.CIDR)
-			if err == nil {
-				ip := ipnet.IP.To4()
-				startIP := make(net.IP, 4)
-				copy(startIP, ip)
-				startIP[3] += 2
-				allocationStart = startIP.String()
-				s.AllocationStart = allocationStart
-				ones, bits := ipnet.Mask.Size()
-				if bits == 32 {
-					hostBits := bits - ones
-					numHosts := (1 << hostBits) - 2
-					// Use full 32-bit arithmetic to avoid byte overflow for large subnets.
-					baseIP := uint32(ip[0])<<24 | uint32(ip[1])<<16 | uint32(ip[2])<<8 | uint32(ip[3])
-					endIPu32 := baseIP + uint32(numHosts)                                                            // #nosec G115 -- safe, subnet size bounded
-					endIP := net.IP{byte(endIPu32 >> 24), byte(endIPu32 >> 16), byte(endIPu32 >> 8), byte(endIPu32)} // #nosec G115 -- uint32 to byte is safe for IP octets
-					allocationEnd = endIP.String()
-					s.AllocationEnd = allocationEnd
-				}
-			}
-		}
-
-		dnsServers := s.DNSNameservers
-		if dnsServers == "" {
-			dnsServers = "8.8.8.8,8.8.4.4"
-			s.DNSNameservers = dnsServers
-		}
-		cidr := s.CIDR
-
-		dhcpUUID, err := d.nbctlOutput("--bare", "--columns=_uuid", "find", "dhcp_options", fmt.Sprintf("cidr=%s", cidr))
+		dhcpUUID, err := d.ensureDHCPOptions(n, s)
 		if err != nil {
-			return fmt.Errorf("failed to query DHCP options: %w", err)
-		}
-		dhcpUUID = strings.TrimSpace(dhcpUUID)
-		if dhcpUUID == "" {
-			createdUUID, err := d.nbctlOutput("create", "dhcp_options", fmt.Sprintf("cidr=%s", cidr))
-			if err != nil {
-				return fmt.Errorf("failed to create DHCP options: %w", err)
-			}
-			dhcpUUID = strings.TrimSpace(createdUUID)
-			if dhcpUUID == "" {
-				dhcpUUID, err = d.nbctlOutput("--bare", "--columns=_uuid", "find", "dhcp_options", fmt.Sprintf("cidr=%s", cidr))
-				if err != nil {
-					return fmt.Errorf("failed to locate DHCP options after create: %w", err)
-				}
-				dhcpUUID = strings.TrimSpace(dhcpUUID)
-				if dhcpUUID == "" {
-					return fmt.Errorf("failed to create or find DHCP options for %s", cidr)
-				}
-			}
-		}
-
-		dns := strings.ReplaceAll(dnsServers, ",", " ")
-		leaseTime := s.DHCPLeaseTime
-		if leaseTime == 0 {
-			leaseTime = 86400
-		}
-		mac := p2pMAC(n.ID)
-		setArgs := []string{"set", "dhcp_options", dhcpUUID,
-			fmt.Sprintf("options:server_id=%s", gateway),
-			fmt.Sprintf("options:server_mac=%s", mac),
-			fmt.Sprintf("options:lease_time=%d", leaseTime),
-			fmt.Sprintf("options:router=%s", gateway),
-			fmt.Sprintf("options:dns_server={%s}", dns),
-		}
-		if err := d.nbctl(setArgs...); err != nil {
-			return fmt.Errorf("failed to set DHCP options: %w", err)
+			return fmt.Errorf("DHCP setup for network %s: %w", n.ID, err)
 		}
 		d.logger.Info("DHCP configured successfully", zap.String("network", n.ID), zap.String("subnet", s.ID), zap.String("dhcp_uuid", dhcpUUID))
 	}
@@ -286,12 +208,13 @@ func (d *OVNDriver) EnsurePort(n *Network, s *Subnet, p *NetworkPort) error {
 		return err
 	}
 	if s != nil && strings.TrimSpace(s.CIDR) != "" && s.EnableDHCP {
-		dhcpUUID, err := d.nbctlOutput("--bare", "--columns=_uuid", "find", "dhcp_options", fmt.Sprintf("cidr=%s", s.CIDR))
-		if err == nil {
-			dhcpUUID = strings.TrimSpace(dhcpUUID)
-			if dhcpUUID != "" {
-				_ = d.nbctl("set", "Logical_Switch_Port", lspName, fmt.Sprintf("dhcpv4_options=%s", dhcpUUID))
-			}
+		// Ensure DHCP options exist (auto-create if missing).
+		dhcpUUID, err := d.ensureDHCPOptions(n, s)
+		if err != nil {
+			d.logger.Warn("failed to ensure DHCP options for port", zap.Error(err), zap.String("port", p.ID))
+		} else if dhcpUUID != "" {
+			_ = d.nbctl("set", "Logical_Switch_Port", lspName, fmt.Sprintf("dhcpv4_options=%s", dhcpUUID))
+			d.logger.Info("DHCP bound to port", zap.String("port", p.ID), zap.String("dhcp_uuid", dhcpUUID))
 		}
 	}
 	return nil
@@ -300,6 +223,76 @@ func (d *OVNDriver) EnsurePort(n *Network, s *Subnet, p *NetworkPort) error {
 func (d *OVNDriver) DeletePort(n *Network, p *NetworkPort) error {
 	lspName := fmt.Sprintf("lsp-%s", p.ID)
 	return d.nbctl("--", "lsp-del", lspName)
+}
+
+// ensureDHCPOptions creates DHCP Options for a subnet if they don't exist,
+// and returns the OVN UUID of the DHCP Options row.
+// This is idempotent — safe to call on every port allocation.
+func (d *OVNDriver) ensureDHCPOptions(n *Network, s *Subnet) (string, error) {
+	if s == nil || strings.TrimSpace(s.CIDR) == "" {
+		return "", fmt.Errorf("subnet has no CIDR")
+	}
+
+	gateway := s.Gateway
+	if gateway == "" {
+		_, ipnet, err := net.ParseCIDR(s.CIDR)
+		if err != nil {
+			return "", fmt.Errorf("invalid CIDR %s: %w", s.CIDR, err)
+		}
+		ip := ipnet.IP.To4()
+		ip[3]++
+		gateway = ip.String()
+	}
+
+	cidr := s.CIDR
+
+	// Find or create DHCP options for this CIDR.
+	dhcpUUID, err := d.nbctlOutput("--bare", "--columns=_uuid", "find", "dhcp_options", fmt.Sprintf("cidr=%s", cidr))
+	if err != nil {
+		return "", fmt.Errorf("failed to query DHCP options: %w", err)
+	}
+	dhcpUUID = strings.TrimSpace(dhcpUUID)
+	if dhcpUUID == "" {
+		createdUUID, err := d.nbctlOutput("create", "dhcp_options", fmt.Sprintf("cidr=%s", cidr))
+		if err != nil {
+			return "", fmt.Errorf("failed to create DHCP options: %w", err)
+		}
+		dhcpUUID = strings.TrimSpace(createdUUID)
+		if dhcpUUID == "" {
+			dhcpUUID, err = d.nbctlOutput("--bare", "--columns=_uuid", "find", "dhcp_options", fmt.Sprintf("cidr=%s", cidr))
+			if err != nil {
+				return "", fmt.Errorf("failed to locate DHCP options after create: %w", err)
+			}
+			dhcpUUID = strings.TrimSpace(dhcpUUID)
+			if dhcpUUID == "" {
+				return "", fmt.Errorf("failed to create or find DHCP options for %s", cidr)
+			}
+		}
+	}
+
+	// Set DHCP options (idempotent).
+	dnsServers := s.DNSNameservers
+	if dnsServers == "" {
+		dnsServers = "8.8.8.8,8.8.4.4"
+	}
+	dns := strings.ReplaceAll(dnsServers, ",", " ")
+	leaseTime := s.DHCPLeaseTime
+	if leaseTime == 0 {
+		leaseTime = 86400
+	}
+	mac := p2pMAC(n.ID)
+	setArgs := []string{"set", "dhcp_options", dhcpUUID,
+		fmt.Sprintf("options:server_id=%s", gateway),
+		fmt.Sprintf("options:server_mac=%s", mac),
+		fmt.Sprintf("options:lease_time=%d", leaseTime),
+		fmt.Sprintf("options:router=%s", gateway),
+		fmt.Sprintf("options:dns_server={%s}", dns),
+	}
+	if err := d.nbctl(setArgs...); err != nil {
+		return "", fmt.Errorf("failed to set DHCP options: %w", err)
+	}
+
+	return dhcpUUID, nil
 }
 
 func firstIPFromFixedIPs(list FixedIPList) string {
