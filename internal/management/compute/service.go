@@ -897,7 +897,10 @@ func (s *Service) proxyPowerOp(instance *Instance, op string) error {
 	if err != nil {
 		return fmt.Errorf("create request: %w", err)
 	}
-	resp, err := s.client.Do(req) // #nosec
+	// Use a dedicated client with longer timeout for power ops
+	// (compute side StopVM waits up to 30s for graceful shutdown).
+	powerClient := &http.Client{Timeout: 60 * time.Second} // #nosec
+	resp, err := powerClient.Do(req)
 	if err != nil {
 		s.logger.Error("power op: node unreachable", zap.String("op", op), zap.String("url", url), zap.Error(err))
 		return fmt.Errorf("node unreachable: %w", err)
