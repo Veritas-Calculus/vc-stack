@@ -102,12 +102,26 @@ func (s *ImageStorage) storeToLocal(imageName string, reader io.Reader) (*StoreI
 		return nil, fmt.Errorf("failed to create image directory: %w", err)
 	}
 
-	// Sanitize filename.
-	safeName := strings.ReplaceAll(imageName, "/", "_")
+	// Sanitize filename: strip path components and dangerous characters.
+	safeName := filepath.Base(imageName)
+	safeName = strings.ReplaceAll(safeName, "/", "_")
 	safeName = strings.ReplaceAll(safeName, " ", "_")
+	if safeName == "." || safeName == ".." || safeName == "" {
+		return nil, fmt.Errorf("invalid image name")
+	}
 	destPath := filepath.Join(s.config.LocalPath, safeName)
 
-	f, err := os.Create(destPath) // #nosec G304,G703 — path sanitized above
+	// Verify the resolved path stays within the storage directory.
+	absDest, err := filepath.Abs(destPath)
+	if err != nil {
+		return nil, fmt.Errorf("resolve path: %w", err)
+	}
+	absBase, _ := filepath.Abs(s.config.LocalPath)
+	if !strings.HasPrefix(absDest, absBase+string(filepath.Separator)) {
+		return nil, fmt.Errorf("path traversal blocked")
+	}
+
+	f, err := os.Create(absDest) // #nosec G304,G703 — path validated above
 	if err != nil {
 		return nil, fmt.Errorf("failed to create file: %w", err)
 	}
@@ -119,19 +133,19 @@ func (s *ImageStorage) storeToLocal(imageName string, reader io.Reader) (*StoreI
 
 	written, err := io.Copy(f, tee)
 	if err != nil {
-		_ = os.Remove(destPath) // #nosec G703
+		_ = os.Remove(absDest) // #nosec G703 — path validated above
 		return nil, fmt.Errorf("failed to write image data: %w", err)
 	}
 
 	checksum := fmt.Sprintf("%x", hasher.Sum(nil))
 
 	s.logger.Info("image stored locally",
-		zap.String("path", destPath),
+		zap.String("path", absDest),
 		zap.Int64("size", written),
 		zap.String("checksum", checksum))
 
 	return &StoreImageResult{
-		FilePath: destPath,
+		FilePath: absDest,
 		Size:     written,
 		Checksum: checksum,
 	}, nil

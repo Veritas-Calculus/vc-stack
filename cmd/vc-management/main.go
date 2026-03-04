@@ -155,9 +155,21 @@ func main() {
 				return
 			}
 			// Try to serve the file directly if it exists in webDir.
-			filePath := filepath.Join(webDir, filepath.Clean(p))
-			if fi, err := os.Stat(filePath); err == nil && !fi.IsDir() { // #nosec G703 — path cleaned
-				c.File(filePath) // #nosec G703
+			// Validate that resolved path stays within webDir to prevent path traversal.
+			cleaned := filepath.Clean(p)
+			filePath := filepath.Join(webDir, cleaned)
+			absFile, err := filepath.Abs(filePath)
+			if err != nil {
+				c.File(indexHTML)
+				return
+			}
+			absWeb, _ := filepath.Abs(webDir)
+			if !strings.HasPrefix(absFile, absWeb+string(filepath.Separator)) {
+				c.File(indexHTML)
+				return
+			}
+			if fi, err := os.Stat(absFile); err == nil && !fi.IsDir() { // #nosec G703 — path validated
+				c.File(absFile)
 				return
 			}
 			c.File(indexHTML)

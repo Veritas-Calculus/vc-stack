@@ -1342,7 +1342,16 @@ func (s *Service) importImageHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid source URL"})
 		return
 	}
-	resp, err := http.DefaultClient.Do(httpReq) //nolint:gosec // lgtm[go/request-forgery] -- URL validated by validateImportURL (scheme + host resolution + private IP check)
+	importClient := &http.Client{
+		Timeout: 5 * time.Minute,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			if len(via) >= 3 {
+				return fmt.Errorf("too many redirects")
+			}
+			return nil
+		},
+	}
+	resp, err := importClient.Do(httpReq) // #nosec G704 — URL validated by validateImportURL
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": "Failed to fetch source"})
 		return
