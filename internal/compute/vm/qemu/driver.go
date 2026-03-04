@@ -179,38 +179,42 @@ func (d *Driver) StopVM(ctx context.Context, id string, force bool) error {
 			return fmt.Errorf("kill process: %w", err)
 		}
 	} else {
-		// Try graceful shutdown via QMP.
+		// Try graceful shutdown via QMP (sends ACPI power button).
 		if cfg.QMP.Enabled && cfg.QMP.Type == "unix" {
 			if err := d.qmpShutdown(cfg.QMP.Path); err != nil {
-				d.logger.Warn("qmp shutdown failed, using signal", zap.Error(err))
-				if err := process.Signal(syscall.SIGTERM); err != nil {
-					return fmt.Errorf("term process: %w", err)
+				d.logger.Warn("qmp shutdown failed, falling back to SIGTERM", zap.Error(err))
+			}
+		}
+
+		// Wait briefly for ACPI-aware VMs to shut down.
+		for i := 0; i < 25; i++ { // 5 seconds
+			if err := process.Signal(syscall.Signal(0)); err != nil {
+				goto exited
+			}
+			time.Sleep(200 * time.Millisecond)
+		}
+
+		// ACPI didn't work (e.g., CirroS). Fall back to SIGTERM.
+		d.logger.Info("ACPI shutdown not effective, sending SIGTERM", zap.String("id", id))
+		if err := process.Signal(syscall.SIGTERM); err == nil {
+			// Wait another 5s for SIGTERM.
+			for i := 0; i < 25; i++ {
+				if err := process.Signal(syscall.Signal(0)); err != nil {
+					goto exited
 				}
+				time.Sleep(200 * time.Millisecond)
 			}
-		} else {
-			if err := process.Signal(syscall.SIGTERM); err != nil {
-				return fmt.Errorf("term process: %w", err)
-			}
+		}
+
+		// Still alive? Force kill.
+		if err := process.Signal(syscall.Signal(0)); err == nil {
+			d.logger.Warn("graceful shutdown timed out, forcing kill", zap.String("id", id))
+			_ = process.Signal(syscall.SIGKILL)
+			time.Sleep(500 * time.Millisecond)
 		}
 	}
 
-	// Wait for process to exit using signal(0) polling
-	// (process.Wait() only works for Go's own children; QEMU is daemonized).
-	deadline := time.Now().Add(30 * time.Second)
-	for time.Now().Before(deadline) {
-		if err := process.Signal(syscall.Signal(0)); err != nil {
-			// Process exited.
-			break
-		}
-		time.Sleep(200 * time.Millisecond)
-	}
-	// If still alive after timeout, force kill.
-	if err := process.Signal(syscall.Signal(0)); err == nil && !force {
-		d.logger.Warn("graceful shutdown timed out, forcing kill", zap.String("id", id))
-		_ = process.Signal(syscall.SIGKILL)
-		time.Sleep(500 * time.Millisecond)
-	}
-
+exited:
 	d.cleanupNetworking(cfg)
 	_ = d.stopTPM(cfg)
 	return nil
