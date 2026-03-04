@@ -15,13 +15,13 @@ export function Templates() {
   const [search, setSearch] = useState('')
   const [busy, setBusy] = useState(false)
   useEffect(() => {
-    ;(async () => setRows(await fetchImages()))()
+    ; (async () => setRows(await fetchImages()))()
   }, [])
   const templates = useMemo(
     () =>
       rows.filter(
         (r) =>
-          (r.disk_format === 'qcow2' || r.disk_format === 'raw') &&
+          r.disk_format !== 'iso' &&
           (!search || r.name.includes(search))
       ),
     [rows, search]
@@ -97,6 +97,8 @@ export function Templates() {
                   setRows(await fetchImages())
                   setOpen(false)
                   setFile(null)
+                  // Re-fetch after delay to pick up async status change (uploading -> active)
+                  setTimeout(async () => setRows(await fetchImages()), 3000)
                 } finally {
                   setBusy(false)
                 }

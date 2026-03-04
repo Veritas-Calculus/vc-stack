@@ -128,7 +128,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
           { to: `${prefix}/network/vpc`, label: 'Networks' },
           { to: `${prefix}/network/routers`, label: 'Routers' },
           { to: `${prefix}/network/sg`, label: 'Security Groups' },
-          { to: `${prefix}/network/topology`, label: 'Topology' },
           { to: `${prefix}/network/public-ips`, label: 'Public IPs' },
           { to: `${prefix}/network/asns`, label: 'ASNs' },
           { to: `${prefix}/network/vpn`, label: 'VPN' },
@@ -279,11 +278,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
                       setOpen((o) => ({ ...o, [s.base]: !o[s.base] }))
                     }
                   }}
-                  className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center px-2 py-2' : 'justify-between px-3 py-2 text-sm'} rounded-md hover:bg-oxide-800 ${
-                    location.pathname.startsWith(s.base)
+                  className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center px-2 py-2' : 'justify-between px-3 py-2 text-sm'} rounded-md hover:bg-oxide-800 ${location.pathname.startsWith(s.base)
                       ? 'bg-oxide-800 text-white'
                       : 'text-gray-300'
-                  }`}
+                    }`}
                 >
                   <span className="flex items-center gap-2">
                     <NavIcon name={s.label} />
@@ -1094,24 +1092,7 @@ function NavIcon({ name, small }: { name: string; small?: boolean }) {
         <path d="M7 16h6" />
       </svg>
     ),
-    Topology: (
-      <svg
-        width={size}
-        height={size}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke={c}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <circle cx="12" cy="7" r="3" />
-        <circle cx="5" cy="17" r="3" />
-        <circle cx="19" cy="17" r="3" />
-        <path d="M12 10v4" />
-        <path d="M9 17h6" />
-      </svg>
-    ),
+
     ISO: (
       <svg
         width={size}

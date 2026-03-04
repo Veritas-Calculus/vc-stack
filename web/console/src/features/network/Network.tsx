@@ -12,19 +12,11 @@ import {
   deleteNetwork,
   restartNetwork,
   fetchZones,
-  fetchTopology,
   fetchSubnets,
   fetchNetworkConfig,
   suggestCIDR,
-  setRouterGateway,
-  clearRouterGateway,
-  updateRouter,
-  addRouterInterface,
-  removeRouterInterface,
   type UINetwork,
   type UIZone,
-  type UITopologyNode,
-  type UITopologyEdge,
   type UISubnet,
   type BridgeMapping
 } from '@/lib/api'
@@ -45,6 +37,7 @@ function NetworksPage() {
   const [cidr, setCidr] = useState('')
   const [zone, setZone] = useState('')
   const [account, setAccount] = useState<string>(projectId ?? '')
+  const [step, setStep] = useState(1)
   const [desc, setDesc] = useState('')
   const [dns1, setDns1] = useState('8.8.8.8')
   const [dns2, setDns2] = useState('8.8.4.4')
@@ -158,13 +151,17 @@ function NetworksPage() {
     return null
   }, [cidr, rows, existingCidrs])
 
-  // Load CIDR suggestions when dialog opens
+  // Load CIDR suggestions — verify conflict before filling
   const loadCIDRSuggestion = useCallback(
     async (prefix = '10', mask = '24') => {
       try {
         const suggestion = await suggestCIDR(prefix, mask)
-        setCidr(suggestion.suggested_cidr)
         setExistingCidrs(suggestion.existing_cidrs ?? [])
+        // Verify suggested CIDR is not already in use
+        const used = (suggestion.existing_cidrs ?? []).includes(suggestion.suggested_cidr)
+        if (!used) {
+          setCidr(suggestion.suggested_cidr)
+        }
       } catch {
         /* ignore */
       }
@@ -173,6 +170,21 @@ function NetworksPage() {
   )
 
   const cidrInfo = useMemo(() => parseCIDRInfo(cidr), [cidr, parseCIDRInfo])
+
+  // Step validation
+  const isStepValid = useCallback(
+    (s: number) => {
+      switch (s) {
+        case 1:
+          return !!zone && !!networkType
+        case 2:
+          return !!name && !!cidr && !cidrConflict
+        default:
+          return true
+      }
+    },
+    [zone, networkType, name, cidr, cidrConflict]
+  )
 
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase()
@@ -285,7 +297,14 @@ function NetworksPage() {
         </div>
       )
     },
-    { key: 'tenant_id', header: 'Account' },
+    {
+      key: 'tenant_id',
+      header: 'Project',
+      render: (r) => {
+        const proj = projects.find((p) => p.id === r.tenant_id)
+        return proj?.name ?? r.tenant_id ?? '-'
+      }
+    },
     { key: 'zone', header: 'Zone' },
     {
       key: 'actions',
@@ -367,97 +386,129 @@ function NetworksPage() {
       <Modal
         title="Create Network"
         open={open}
-        onClose={() => setOpen(false)}
+        onClose={() => {
+          setOpen(false)
+          setStep(1)
+        }}
         footer={
           <>
-            <button className="btn-secondary" onClick={() => setOpen(false)}>
-              Cancel
-            </button>
             <button
-              className="btn-primary"
-              onClick={async () => {
-                if (!account || !name || !cidr || !zone) return
-                const payload = {
-                  name,
-                  cidr,
-                  zone,
-                  description: desc || undefined,
-                  dns1: dns1 || undefined,
-                  dns2: dns2 || undefined,
-                  start,
-                  enable_dhcp: enableDhcp,
-                  dhcp_lease_time: parseInt(dhcpLeaseTime) || 86400,
-                  gateway: gateway || undefined,
-                  allocation_start: allocationStart || undefined,
-                  allocation_end: allocationEnd || undefined,
-                  network_type: networkType,
-                  physical_network: physicalNetwork || undefined,
-                  segmentation_id: segmentationId ? parseInt(segmentationId) : undefined,
-                  shared: isShared,
-                  external: isExternal,
-                  mtu: mtu ? parseInt(mtu) : undefined
-                }
-
-                const n = await createNetwork(account, payload)
-                setRows((prev) => [...prev, n])
-                // Reset form
-                setName('')
-                setCidr('')
-                setZone('')
-                setDesc('')
-                setDns1('8.8.8.8')
-                setDns2('8.8.4.4')
-                setStart(true)
-                setEnableDhcp(true)
-                setGateway('')
-                setAllocationStart('')
-                setAllocationEnd('')
-                setDhcpLeaseTime('86400')
-                setAccount(projectId ?? '')
-                setNetworkType('vxlan')
-                setPhysicalNetwork('')
-                setSegmentationId('')
-                setIsShared(false)
-                setIsExternal(false)
-                setMtu('1450')
+              className="btn-secondary"
+              onClick={() => {
                 setOpen(false)
+                setStep(1)
               }}
             >
-              Create
+              Cancel
             </button>
+            {step > 1 && (
+              <button className="btn-secondary" onClick={() => setStep((s) => s - 1)}>
+                Back
+              </button>
+            )}
+            {step < 3 ? (
+              <button
+                className="btn-primary"
+                disabled={!isStepValid(step)}
+                onClick={() => setStep((s) => s + 1)}
+              >
+                Next
+              </button>
+            ) : (
+              <button
+                className="btn-primary"
+                disabled={!isStepValid(2) || !!cidrConflict}
+                onClick={async () => {
+                  const tid = projectId || account
+                  if (!tid || !name || !cidr || !zone) return
+                  const payload = {
+                    name,
+                    cidr,
+                    zone,
+                    description: desc || undefined,
+                    dns1: dns1 || undefined,
+                    dns2: dns2 || undefined,
+                    start,
+                    enable_dhcp: enableDhcp,
+                    dhcp_lease_time: parseInt(dhcpLeaseTime) || 86400,
+                    gateway: gateway || undefined,
+                    allocation_start: allocationStart || undefined,
+                    allocation_end: allocationEnd || undefined,
+                    network_type: networkType,
+                    physical_network: physicalNetwork || undefined,
+                    segmentation_id: segmentationId ? parseInt(segmentationId) : undefined,
+                    shared: isShared,
+                    external: isExternal,
+                    mtu: mtu ? parseInt(mtu) : undefined
+                  }
+                  const n = await createNetwork(tid, payload)
+                  setRows((prev) => [...prev, n])
+                  setName('')
+                  setCidr('')
+                  setZone('')
+                  setDesc('')
+                  setDns1('8.8.8.8')
+                  setDns2('8.8.4.4')
+                  setStart(true)
+                  setEnableDhcp(true)
+                  setGateway('')
+                  setAllocationStart('')
+                  setAllocationEnd('')
+                  setDhcpLeaseTime('86400')
+                  setAccount(projectId ?? '')
+                  setNetworkType('vxlan')
+                  setPhysicalNetwork('')
+                  setSegmentationId('')
+                  setIsShared(false)
+                  setIsExternal(false)
+                  setMtu('1450')
+                  setStep(1)
+                  setOpen(false)
+                }}
+              >
+                Create
+              </button>
+            )}
           </>
         }
       >
-        <div className="space-y-4">
-          <div className="space-y-3 border-b border-gray-700 pb-4">
-            <h3 className="text-sm font-semibold text-gray-200">Network Information</h3>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="label">Name *</label>
-                <input
-                  className="input w-full"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="label">Zone *</label>
-                <select
-                  className="input w-full"
-                  value={zone}
-                  onChange={(e) => setZone(e.target.value)}
+        {/* Step Indicator */}
+        <div className="flex items-center gap-2 pb-3 mb-1">
+          {[
+            { n: 1, label: 'Type & Location' },
+            { n: 2, label: 'Address' },
+            { n: 3, label: 'DHCP & Review' }
+          ].map((s, i) => (
+            <span key={s.n} className="contents">
+              <button
+                onClick={() => {
+                  if (s.n < step) setStep(s.n)
+                }}
+                className={`flex items-center gap-1.5 text-xs font-medium ${step === s.n
+                  ? 'text-blue-400'
+                  : step > s.n
+                    ? 'text-gray-300 cursor-pointer hover:text-blue-300'
+                    : 'text-gray-500 cursor-default'
+                  }`}
+              >
+                <span
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold ${step >= s.n ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400'
+                    }`}
                 >
-                  <option value="" disabled>
-                    Select a zone
-                  </option>
-                  {zoneOptions.map((z) => (
-                    <option key={z} value={z}>
-                      {z}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+                  {s.n}
+                </span>
+                {s.label}
+              </button>
+              {i < 2 && (
+                <div className={`flex-1 h-px ${step > s.n ? 'bg-blue-600' : 'bg-gray-700'}`} />
+              )}
+            </span>
+          ))}
+        </div>
+
+        {/* Step 1: Type & Location */}
+        {step === 1 && (
+          <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="label">Network Type *</label>
@@ -467,11 +518,10 @@ function NetworksPage() {
                   onChange={(e) => {
                     const type = e.target.value
                     setNetworkType(type)
-                    // Auto-set MTU based on network type
                     if (type === 'vxlan' || type === 'gre' || type === 'geneve') {
-                      setMtu('1450') // Overlay networks
+                      setMtu('1450')
                     } else {
-                      setMtu('1500') // Provider networks
+                      setMtu('1500')
                     }
                   }}
                 >
@@ -492,17 +542,21 @@ function NetworksPage() {
                 </p>
               </div>
               <div>
-                <label className="label">MTU</label>
-                <input
+                <label className="label">Zone *</label>
+                <select
                   className="input w-full"
-                  type="number"
-                  placeholder="1450"
-                  value={mtu}
-                  onChange={(e) => setMtu(e.target.value)}
-                />
-                <p className="text-xs text-gray-400 mt-1">
-                  1450 for overlay, 1500 for provider networks
-                </p>
+                  value={zone}
+                  onChange={(e) => setZone(e.target.value)}
+                >
+                  <option value="" disabled>
+                    Select a zone
+                  </option>
+                  {zoneOptions.map((z) => (
+                    <option key={z} value={z}>
+                      {z}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
             {(networkType === 'vlan' || networkType === 'flat') && (
@@ -523,16 +577,19 @@ function NetworksPage() {
                           }
                         }}
                       >
-                        <option value="" disabled>Select physical network</option>
+                        <option value="" disabled>
+                          Select physical network
+                        </option>
                         {bridgeMappings.map((m) => (
                           <option key={m.physical_network} value={m.physical_network}>
-                            {m.physical_network} → {m.bridge}
+                            {m.physical_network} / {m.bridge}
                           </option>
                         ))}
                         <option value="__custom__">Custom...</option>
                       </select>
                       <p className="text-xs text-emerald-400 mt-1">
-                        ✓ {bridgeMappings.length} bridge mapping{bridgeMappings.length > 1 ? 's' : ''} detected from OVN config
+                        {bridgeMappings.length} bridge mapping
+                        {bridgeMappings.length > 1 ? 's' : ''} detected from OVN config
                       </p>
                     </>
                   ) : (
@@ -551,12 +608,12 @@ function NetworksPage() {
                             setPhysicalNetwork('')
                           }}
                         >
-                          ← Back to detected mappings
+                          Back to detected mappings
                         </button>
                       )}
                       {bridgeMappings.length === 0 && (
                         <p className="text-xs text-amber-400 mt-1">
-                          ⚠ No bridge mappings detected. Ensure bridge_mappings is configured.
+                          No bridge mappings detected. Ensure bridge_mappings is configured.
                         </p>
                       )}
                     </>
@@ -597,21 +654,34 @@ function NetworksPage() {
             )}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="label">Account *</label>
-                <select
+                <label className="label">MTU</label>
+                <input
                   className="input w-full"
-                  value={account}
-                  onChange={(e) => setAccount(e.target.value)}
-                >
-                  <option value="" disabled>
-                    Select an account
-                  </option>
-                  {projects.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name} ({p.id})
-                    </option>
-                  ))}
-                </select>
+                  type="number"
+                  placeholder="1450"
+                  value={mtu}
+                  onChange={(e) => setMtu(e.target.value)}
+                />
+                <p className="text-xs text-gray-400 mt-1">
+                  1450 for overlay, 1500 for provider
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Address Configuration */}
+        {step === 2 && (
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="label">Name *</label>
+                <input
+                  className="input w-full"
+                  placeholder="my-network"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
               </div>
               <div>
                 <label className="label">CIDR *</label>
@@ -632,7 +702,7 @@ function NetworksPage() {
                   </button>
                 </div>
                 {cidrConflict && (
-                  <p className="text-xs text-red-400 mt-1">⚠ {cidrConflict}</p>
+                  <p className="text-xs text-red-400 mt-1">{cidrConflict}</p>
                 )}
                 {!cidrConflict && cidrInfo && (
                   <p className="text-xs text-gray-400 mt-1">
@@ -668,6 +738,26 @@ function NetworksPage() {
                 onChange={(e) => setDesc(e.target.value)}
               />
             </div>
+            {/* Account: only show when no projectId (admin global view) */}
+            {!projectId && (
+              <div>
+                <label className="label">Project *</label>
+                <select
+                  className="input w-full"
+                  value={account}
+                  onChange={(e) => setAccount(e.target.value)}
+                >
+                  <option value="" disabled>
+                    Select a project
+                  </option>
+                  {projects.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
             <div className="flex gap-6">
               <div className="flex items-center gap-2">
                 <input
@@ -697,128 +787,122 @@ function NetworksPage() {
               </div>
             </div>
           </div>
+        )}
 
-          <div className="space-y-3 border-b border-gray-700 pb-4">
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={enableDhcp}
-                onChange={(e) => setEnableDhcp(e.target.checked)}
-              />
-              <h3 className="text-sm font-semibold text-gray-200">Enable DHCP</h3>
+        {/* Step 3: DHCP & Review */}
+        {step === 3 && (
+          <div className="space-y-3">
+            <div className="space-y-3 border-b border-gray-700 pb-3">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={enableDhcp}
+                  onChange={(e) => setEnableDhcp(e.target.checked)}
+                />
+                <h3 className="text-sm font-semibold text-gray-200">Enable DHCP</h3>
+              </div>
+              {enableDhcp && (
+                <>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="label">Gateway IP</label>
+                      <input
+                        className="input w-full"
+                        placeholder="Auto (e.g., 10.0.0.1)"
+                        value={gateway}
+                        onChange={(e) => setGateway(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="label">Lease Time (seconds)</label>
+                      <input
+                        className="input w-full"
+                        type="number"
+                        placeholder="86400"
+                        value={dhcpLeaseTime}
+                        onChange={(e) => setDhcpLeaseTime(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="label">Pool Start</label>
+                      <input
+                        className="input w-full"
+                        placeholder="Auto"
+                        value={allocationStart}
+                        onChange={(e) => setAllocationStart(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="label">Pool End</label>
+                      <input
+                        className="input w-full"
+                        placeholder="Auto"
+                        value={allocationEnd}
+                        onChange={(e) => setAllocationEnd(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="label">Primary DNS</label>
+                      <input
+                        className="input w-full"
+                        placeholder="8.8.8.8"
+                        value={dns1}
+                        onChange={(e) => setDns1(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="label">Secondary DNS</label>
+                      <input
+                        className="input w-full"
+                        placeholder="8.8.4.4"
+                        value={dns2}
+                        onChange={(e) => setDns2(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
-            {enableDhcp && (
-              <>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="label">Gateway IP</label>
-                    <input
-                      className="input w-full"
-                      placeholder="Auto (e.g., 10.0.0.1)"
-                      value={gateway}
-                      onChange={(e) => setGateway(e.target.value)}
-                    />
-                    <p className="text-xs text-gray-400 mt-1">
-                      Leave empty for auto-calculation (.1 of subnet)
-                    </p>
-                  </div>
-                  <div>
-                    <label className="label">DHCP Lease Time (seconds)</label>
-                    <input
-                      className="input w-full"
-                      type="number"
-                      placeholder="86400"
-                      value={dhcpLeaseTime}
-                      onChange={(e) => setDhcpLeaseTime(e.target.value)}
-                    />
-                    <p className="text-xs text-gray-400 mt-1">Default: 86400 (24 hours)</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="label">Allocation Pool Start</label>
-                    <input
-                      className="input w-full"
-                      placeholder="Auto (e.g., 10.0.0.2)"
-                      value={allocationStart}
-                      onChange={(e) => setAllocationStart(e.target.value)}
-                    />
-                    <p className="text-xs text-gray-400 mt-1">First IP in DHCP pool</p>
-                  </div>
-                  <div>
-                    <label className="label">Allocation Pool End</label>
-                    <input
-                      className="input w-full"
-                      placeholder="Auto (last usable IP)"
-                      value={allocationEnd}
-                      onChange={(e) => setAllocationEnd(e.target.value)}
-                    />
-                    <p className="text-xs text-gray-400 mt-1">Last IP in DHCP pool</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="label">Primary DNS</label>
-                    <input
-                      className="input w-full"
-                      placeholder="8.8.8.8"
-                      value={dns1}
-                      onChange={(e) => setDns1(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="label">Secondary DNS</label>
-                    <input
-                      className="input w-full"
-                      placeholder="8.8.4.4"
-                      value={dns2}
-                      onChange={(e) => setDns2(e.target.value)}
-                    />
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
 
-          {/* Network Preview Card */}
-          {(name || cidr) && (
+            {/* Review Card */}
             <div className="p-3 bg-gray-800/50 border border-gray-700 rounded-lg">
               <h4 className="text-xs font-semibold text-gray-300 uppercase tracking-wide mb-2">
-                📡 Network Preview
+                Network Preview
               </h4>
               <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                {name && (
-                  <div className="col-span-2 font-medium text-white">
-                    {name}{' '}
-                    <span className="text-xs text-gray-400">
-                      ({networkType})
-                    </span>
-                  </div>
-                )}
-                {cidr && (
-                  <>
-                    <div className="text-gray-400">CIDR</div>
-                    <div className={`text-gray-200 ${cidrConflict ? 'text-red-400' : ''}`}>
-                      {cidr} {cidrConflict && '⚠'}
-                    </div>
-                  </>
-                )}
+                <div className="col-span-2 font-medium text-white">
+                  {name || '(unnamed)'}{' '}
+                  <span className="text-xs text-gray-400">({networkType})</span>
+                </div>
+                <div className="text-gray-400">Zone</div>
+                <div className="text-gray-200">{zone || '-'}</div>
+                <div className="text-gray-400">CIDR</div>
+                <div className={`text-gray-200 ${cidrConflict ? 'text-red-400' : ''}`}>
+                  {cidr || '-'}
+                </div>
                 {cidrInfo && (
                   <>
                     <div className="text-gray-400">Gateway</div>
                     <div className="text-gray-200">{gateway || cidrInfo.gateway}</div>
                     <div className="text-gray-400">DHCP Pool</div>
                     <div className="text-gray-200">
-                      {allocationStart || cidrInfo.allocationStart} — {allocationEnd || cidrInfo.allocationEnd}
+                      {allocationStart || cidrInfo.allocationStart} &mdash;{' '}
+                      {allocationEnd || cidrInfo.allocationEnd}
                     </div>
-                    <div className="text-gray-400">Usable Hosts</div>
+                    <div className="text-gray-400">Hosts</div>
                     <div className="text-gray-200">~{cidrInfo.numHosts.toLocaleString()}</div>
                   </>
                 )}
                 {(dns1 || dns2) && (
                   <>
                     <div className="text-gray-400">DNS</div>
-                    <div className="text-gray-200">{[dns1, dns2].filter(Boolean).join(', ')}</div>
+                    <div className="text-gray-200">
+                      {[dns1, dns2].filter(Boolean).join(', ')}
+                    </div>
                   </>
                 )}
                 {(networkType === 'vlan' || networkType === 'flat') && physicalNetwork && (
@@ -832,19 +916,22 @@ function NetworksPage() {
                 )}
               </div>
             </div>
-          )}
 
-          <div className="flex items-center gap-2">
-            <input type="checkbox" checked={start} onChange={(e) => setStart(e.target.checked)} />
-            <label className="label m-0">Activate Network Immediately</label>
-            <span className="text-xs text-gray-400">(create in SDN backend)</span>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={start}
+                onChange={(e) => setStart(e.target.checked)}
+              />
+              <label className="label m-0">Activate Network Immediately</label>
+              <span className="text-xs text-gray-400">(create in SDN backend)</span>
+            </div>
           </div>
-        </div>
+        )}
       </Modal>
     </div>
   )
 }
-
 function VPNPage() {
   return (
     <div className="space-y-3">
@@ -865,7 +952,6 @@ export function Network() {
         <Route path="vpc" element={<NetworksPage />} />
         <Route path="routers" element={<RouterManagement />} />
         <Route path="sg" element={<SecurityGroups />} />
-        <Route path="topology" element={<TopologyPage />} />
         <Route path="public-ips" element={<PublicIPs />} />
         <Route path="asns" element={<ASNPage />} />
         <Route path="vpn" element={<VPNPage />} />
@@ -1327,891 +1413,6 @@ function ACLPage() {
           </div>
         </div>
       </Modal>
-    </div>
-  )
-}
-
-function TopologyPage() {
-  const { projectId } = useParams()
-  const [viewMode, setViewMode] = useState<'graph' | 'list'>('graph')
-  const [loading, setLoading] = useState(false)
-  const [topology, setTopology] = useState<{ nodes: UITopologyNode[]; edges: UITopologyEdge[] }>({
-    nodes: [],
-    edges: []
-  })
-
-  useEffect(() => {
-    if (!projectId) return
-    let alive = true
-    setLoading(true)
-    fetchTopology(projectId)
-      .then((t) => {
-        if (!alive) return
-        setTopology(t)
-      })
-      .finally(() => alive && setLoading(false))
-    return () => {
-      alive = false
-    }
-  }, [projectId])
-
-  const refreshTopology = async () => {
-    if (!projectId) return
-    setLoading(true)
-    try {
-      const t = await fetchTopology(projectId)
-      setTopology(t)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return (
-    <div className="space-y-3">
-      <PageHeader
-        title="Network Topology"
-        subtitle="Visualize network architecture and resources"
-        actions={
-          <div className="flex gap-2">
-            <button
-              className={`px-4 py-2 rounded ${viewMode === 'graph' ? 'bg-blue-600 text-white' : 'bg-oxide-800 text-gray-300'}`}
-              onClick={() => setViewMode('graph')}
-            >
-              <span className="flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
-                  />
-                </svg>
-                Topology Graph
-              </span>
-            </button>
-            <button
-              className={`px-4 py-2 rounded ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-oxide-800 text-gray-300'}`}
-              onClick={() => setViewMode('list')}
-            >
-              <span className="flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 6h16M4 10h16M4 14h16M4 18h16"
-                  />
-                </svg>
-                Network Diagram
-              </span>
-            </button>
-          </div>
-        }
-      />
-
-      {loading ? (
-        <div className="card p-8 text-center text-gray-400">Loading topology...</div>
-      ) : viewMode === 'graph' ? (
-        <TopologyGraphViewAgg topology={topology} onRefresh={refreshTopology} />
-      ) : (
-        <NetworkDiagramViewAgg topology={topology} />
-      )}
-    </div>
-  )
-}
-
-// Draggable Topology Graph (aggregated): networks, subnets, routers, instances
-function TopologyGraphViewAgg({
-  topology,
-  onRefresh
-}: {
-  topology: { nodes: UITopologyNode[]; edges: UITopologyEdge[] }
-  onRefresh?: () => void
-}) {
-  const { projectId } = useParams()
-  const [selectedNode, setSelectedNode] = useState<string | null>(null)
-  const [positions, setPositions] = useState<Record<string, { x: number; y: number }>>({})
-  // Router actions state
-  const [extNetsState, setExtNetsState] = useState<UINetwork[] | null>(null)
-  const [modalSubnets, setModalSubnets] = useState<UISubnet[] | null>(null)
-  const [loadingAction, setLoadingAction] = useState(false)
-  // Modals
-  const [showSetGw, setShowSetGw] = useState(false)
-  const [selectedExtNet, setSelectedExtNet] = useState<string>('')
-  const [showAddIface, setShowAddIface] = useState(false)
-  const [selectedSubnetAdd, setSelectedSubnetAdd] = useState<string>('')
-  const [showRemoveIface, setShowRemoveIface] = useState(false)
-  const [selectedSubnetRemove, setSelectedSubnetRemove] = useState<string>('')
-
-  // Simple auto-layout for first render
-  useEffect(() => {
-    if (topology.nodes.length === 0) return
-    const pos: Record<string, { x: number; y: number }> = {}
-    let x1 = 150,
-      x2 = 150,
-      x3 = 150,
-      x4 = 150
-    for (const n of topology.nodes) {
-      if (n.type === 'network' && n.external) {
-        pos[n.id] = { x: x1, y: 80 }
-        x1 += 220
-      }
-    }
-    for (const n of topology.nodes) {
-      if (n.type === 'router') {
-        pos[n.id] = { x: x2, y: 250 }
-        x2 += 260
-      }
-    }
-    for (const n of topology.nodes) {
-      if (n.type === 'subnet') {
-        pos[n.id] = { x: x3, y: 420 }
-        x3 += 200
-      }
-    }
-    for (const n of topology.nodes) {
-      if (n.type === 'instance') {
-        pos[n.id] = { x: x4, y: 540 }
-        x4 += 180
-      }
-    }
-    setPositions((prev) => ({ ...pos, ...prev }))
-  }, [topology.nodes])
-  // Parent owns topology reload via onRefresh
-
-  const onDrag = (id: string, dx: number, dy: number) => {
-    setPositions((prev) => {
-      const p = prev[id] || { x: 0, y: 0 }
-      return { ...prev, [id]: { x: p.x + dx, y: p.y + dy } }
-    })
-  }
-
-  if (topology.nodes.length === 0) {
-    return (
-      <div className="card p-8 text-center">
-        <div className="text-gray-400 mb-4">No network resources found</div>
-        <div className="text-sm text-gray-500">
-          Create a network or router to begin building your topology
-        </div>
-      </div>
-    )
-  }
-
-  const extNets = topology.nodes.filter((n) => n.type === 'network' && n.external)
-  const routers = topology.nodes.filter((n) => n.type === 'router')
-  const subnets = topology.nodes.filter((n) => n.type === 'subnet')
-  const instances = topology.nodes.filter((n) => n.type === 'instance')
-
-  // Drag handlers
-  const draggable = {
-    onMouseDown: (e: React.MouseEvent<SVGGElement>, id: string) => {
-      const startX = e.clientX,
-        startY = e.clientY
-      const move = (ev: MouseEvent) => onDrag(id, ev.clientX - startX, ev.clientY - startY)
-      const up = () => {
-        window.removeEventListener('mousemove', move)
-        window.removeEventListener('mouseup', up)
-      }
-      window.addEventListener('mousemove', move)
-      window.addEventListener('mouseup', up)
-    }
-  }
-
-  return (
-    <div className="card p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-4 text-xs">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-purple-500"></div>
-            <span className="text-gray-400">External Network</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-            <span className="text-gray-400">Internal Network</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-green-500"></div>
-            <span className="text-gray-400">Router</span>
-          </div>
-        </div>
-        {selectedNode && (
-          <button
-            className="text-xs text-gray-400 hover:text-gray-200"
-            onClick={() => setSelectedNode(null)}
-          >
-            Clear Selection
-          </button>
-        )}
-      </div>
-
-      <svg
-        viewBox="0 0 1200 680"
-        className="w-full h-[600px] bg-oxide-950 rounded border border-oxide-800"
-      >
-        <defs>
-          <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-            <polygon points="0 0, 10 3, 0 6" fill="#64748b" />
-          </marker>
-        </defs>
-
-        {/* External Networks - Top Row */}
-        {extNets.map((net, idx) => {
-          const id = net.id
-          const p = positions[id] || { x: 150 + idx * 250, y: 80 }
-          const isSelected = selectedNode === id
-          return (
-            <g
-              key={id}
-              onClick={() => setSelectedNode(id)}
-              className="cursor-move"
-              onMouseDown={(e) => draggable.onMouseDown(e, id)}
-            >
-              <rect
-                x={p.x - 60}
-                y={p.y - 30}
-                width="120"
-                height="60"
-                rx="8"
-                fill={isSelected ? '#7c3aed' : '#6d28d9'}
-                stroke={isSelected ? '#a78bfa' : '#8b5cf6'}
-                strokeWidth="2"
-              />
-              <text
-                x={p.x}
-                y={p.y - 5}
-                textAnchor="middle"
-                fill="#e5e7eb"
-                fontSize="13"
-                fontWeight="600"
-              >
-                {(net.name ?? '').length > 15
-                  ? (net.name ?? '').substring(0, 15) + '...'
-                  : (net.name ?? '')}
-              </text>
-              <text x={p.x} y={p.y + 12} textAnchor="middle" fill="#d1d5db" fontSize="11">
-                External • {net.cidr}
-              </text>
-            </g>
-          )
-        })}
-
-        {/* Edges (L3/L2/Attachments) */}
-        {topology.edges.map((e, i) => {
-          const s = positions[e.source] || { x: 0, y: 0 }
-          const t = positions[e.target] || { x: 0, y: 0 }
-          const color =
-            e.type === 'l3-gateway'
-              ? '#64748b'
-              : e.type === 'l3'
-                ? '#5eead4'
-                : e.type === 'l2'
-                  ? '#60a5fa'
-                  : '#a3e635'
-          const dash = e.type === 'l3' ? '3,3' : undefined
-          return (
-            <line
-              key={i}
-              x1={s.x}
-              y1={s.y}
-              x2={t.x}
-              y2={t.y}
-              stroke={color}
-              strokeWidth="2"
-              strokeDasharray={dash}
-              markerEnd="url(#arrowhead)"
-            />
-          )
-        })}
-
-        {/* Routers - Middle Row */}
-        {routers.map((router, idx) => {
-          const id = router.id
-          const p = positions[id] || { x: 200 + idx * 300, y: 250 }
-          const isSelected = selectedNode === id
-          const hasGateway = !!topology.nodes.find((n) => n.id === id)?.external_gateway_network_id
-
-          return (
-            <g
-              key={id}
-              onClick={() => setSelectedNode(id)}
-              className="cursor-move"
-              onMouseDown={(e) => draggable.onMouseDown(e, id)}
-            >
-              <circle
-                cx={p.x}
-                cy={p.y}
-                r="35"
-                fill={isSelected ? '#10b981' : '#059669'}
-                stroke={isSelected ? '#34d399' : '#10b981'}
-                strokeWidth="2"
-              />
-              <text
-                x={p.x}
-                y={p.y + 5}
-                textAnchor="middle"
-                fill="#e5e7eb"
-                fontSize="12"
-                fontWeight="600"
-              >
-                {(router.name ?? '').length > 10
-                  ? (router.name ?? '').substring(0, 10) + '...'
-                  : (router.name ?? '')}
-              </text>
-              <text x={p.x} y={p.y + 55} textAnchor="middle" fill="#d1d5db" fontSize="10">
-                Router
-              </text>
-              {hasGateway && (
-                <text x={p.x} y={p.y + 68} textAnchor="middle" fill="#34d399" fontSize="9">
-                  ✓ Gateway
-                </text>
-              )}
-              {topology.nodes.find((n) => n.id === id)?.enable_snat && (
-                <text x={p.x} y={p.y + 81} textAnchor="middle" fill="#60a5fa" fontSize="9">
-                  SNAT
-                </text>
-              )}
-            </g>
-          )
-        })}
-
-        {/* Subnets - Lower Row */}
-        {subnets.map((net, idx) => {
-          const id = net.id
-          const p = positions[id] || { x: 150 + idx * 200, y: 420 }
-          const isSelected = selectedNode === id
-          return (
-            <g
-              key={id}
-              onClick={() => setSelectedNode(id)}
-              className="cursor-move"
-              onMouseDown={(e) => draggable.onMouseDown(e, id)}
-            >
-              <rect
-                x={p.x - 60}
-                y={p.y - 30}
-                width="120"
-                height="60"
-                rx="8"
-                fill={isSelected ? '#3b82f6' : '#2563eb'}
-                stroke={isSelected ? '#60a5fa' : '#3b82f6'}
-                strokeWidth="2"
-              />
-              <text
-                x={p.x}
-                y={p.y - 5}
-                textAnchor="middle"
-                fill="#e5e7eb"
-                fontSize="13"
-                fontWeight="600"
-              >
-                {(net.name ?? '').length > 15
-                  ? (net.name ?? '').substring(0, 15) + '...'
-                  : (net.name ?? '')}
-              </text>
-              <text x={p.x} y={p.y + 12} textAnchor="middle" fill="#d1d5db" fontSize="11">
-                {net.cidr}
-              </text>
-            </g>
-          )
-        })}
-
-        {/* Instances - Bottom-most Row */}
-        {instances.map((ins, idx) => {
-          const id = ins.id
-          const p = positions[id] || { x: 150 + idx * 180, y: 560 }
-          const isSelected = selectedNode === id
-          return (
-            <g
-              key={id}
-              onClick={() => setSelectedNode(id)}
-              className="cursor-move"
-              onMouseDown={(e) => draggable.onMouseDown(e, id)}
-            >
-              <rect
-                x={p.x - 50}
-                y={p.y - 20}
-                width="100"
-                height="40"
-                rx="6"
-                fill={isSelected ? '#0ea5e9' : '#0284c7'}
-                stroke={isSelected ? '#38bdf8' : '#0ea5e9'}
-                strokeWidth="2"
-              />
-              <text
-                x={p.x}
-                y={p.y - 2}
-                textAnchor="middle"
-                fill="#e5e7eb"
-                fontSize="12"
-                fontWeight="600"
-              >
-                {ins.name ?? 'VM'}
-              </text>
-              <text x={p.x} y={p.y + 12} textAnchor="middle" fill="#d1d5db" fontSize="10">
-                {ins.state ?? ''}
-              </text>
-            </g>
-          )
-        })}
-      </svg>
-
-      {/* Details Panel */}
-      {selectedNode && (
-        <div className="mt-4 p-4 bg-oxide-900 rounded border border-oxide-700">
-          <div className="text-sm font-semibold text-gray-200 mb-2">Selected Resource</div>
-          <div className="text-xs text-gray-400">
-            {(() => {
-              const node = topology.nodes.find((n) => n.id === selectedNode)
-              if (!node) return 'Unknown'
-              if (node.type === 'network') return `Network: ${node.name}`
-              if (node.type === 'subnet') return `Subnet: ${node.name} (${node.cidr})`
-              if (node.type === 'router') return `Router: ${node.name}`
-              if (node.type === 'instance') return `Instance: ${node.name} (${node.state ?? ''})`
-              return 'Unknown'
-            })()}
-          </div>
-          {/* Router Actions */}
-          {(() => {
-            const node = topology.nodes.find((n) => n.id === selectedNode)
-            if (!node || node.type !== 'router') return null
-            const routerId = node.resource_id || ''
-            const hasGateway = !!node.external_gateway_network_id
-            const snatEnabled = !!node.enable_snat
-            const openSetGateway = async () => {
-              if (!projectId) return
-              // Lazy load external networks list
-              if (!extNetsState) {
-                const nets = await fetchNetworks(projectId)
-                setExtNetsState(nets.filter((n) => n.external))
-              }
-              setSelectedExtNet('')
-              setShowSetGw(true)
-            }
-            const doClearGateway = async () => {
-              if (!routerId) return
-              setLoadingAction(true)
-              try {
-                await clearRouterGateway(routerId)
-                onRefresh?.()
-              } finally {
-                setLoadingAction(false)
-              }
-            }
-            const doToggleSNAT = async () => {
-              if (!routerId) return
-              setLoadingAction(true)
-              try {
-                await updateRouter(routerId, { enable_snat: !snatEnabled })
-                onRefresh?.()
-              } finally {
-                setLoadingAction(false)
-              }
-            }
-            const openAddInterface = async () => {
-              if (!projectId) return
-              if (!modalSubnets) {
-                const ss = await fetchSubnets(projectId)
-                setModalSubnets(ss)
-              }
-              setSelectedSubnetAdd('')
-              setShowAddIface(true)
-            }
-            const openRemoveInterface = async () => {
-              if (!projectId) return
-              if (!modalSubnets) {
-                const ss = await fetchSubnets(projectId)
-                setModalSubnets(ss)
-              }
-              setSelectedSubnetRemove('')
-              setShowRemoveIface(true)
-            }
-            return (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {!hasGateway ? (
-                  <button className="btn-primary btn-xs" onClick={openSetGateway}>
-                    Set Gateway
-                  </button>
-                ) : (
-                  <button
-                    className="btn-secondary btn-xs"
-                    onClick={doClearGateway}
-                    disabled={loadingAction}
-                  >
-                    Clear Gateway
-                  </button>
-                )}
-                <button
-                  className="btn-secondary btn-xs"
-                  onClick={doToggleSNAT}
-                  disabled={loadingAction}
-                >
-                  {snatEnabled ? 'Disable SNAT' : 'Enable SNAT'}
-                </button>
-                <button className="btn-secondary btn-xs" onClick={openAddInterface}>
-                  Add Interface
-                </button>
-                <button className="btn-secondary btn-xs" onClick={openRemoveInterface}>
-                  Remove Interface
-                </button>
-              </div>
-            )
-          })()}
-          {/* Modals for actions */}
-          {showSetGw && (
-            <Modal
-              title="Set Router Gateway"
-              open={showSetGw}
-              onClose={() => setShowSetGw(false)}
-              footer={
-                <>
-                  <button className="btn-secondary" onClick={() => setShowSetGw(false)}>
-                    Cancel
-                  </button>
-                  <button
-                    className="btn-primary"
-                    disabled={!selectedExtNet || loadingAction}
-                    onClick={async () => {
-                      const node = topology.nodes.find((n) => n.id === selectedNode)
-                      const routerId = node?.resource_id || ''
-                      if (!routerId || !selectedExtNet) return
-                      setLoadingAction(true)
-                      try {
-                        await setRouterGateway(routerId, selectedExtNet)
-                        onRefresh?.()
-                        setShowSetGw(false)
-                      } finally {
-                        setLoadingAction(false)
-                      }
-                    }}
-                  >
-                    Set Gateway
-                  </button>
-                </>
-              }
-            >
-              <div className="space-y-3">
-                <div>
-                  <label className="label">External Network</label>
-                  <select
-                    className="input w-full"
-                    value={selectedExtNet}
-                    onChange={(e) => setSelectedExtNet(e.target.value)}
-                  >
-                    <option value="" disabled>
-                      Select external network
-                    </option>
-                    {(extNetsState ?? []).map((n) => (
-                      <option key={n.id} value={n.id}>
-                        {n.name} ({n.cidr})
-                      </option>
-                    ))}
-                  </select>
-                  {extNetsState !== null && extNetsState.length === 0 && (
-                    <p className="text-xs text-gray-400 mt-2">
-                      No external networks available. Create a flat/VLAN network and mark it
-                      External.
-                    </p>
-                  )}
-                </div>
-              </div>
-            </Modal>
-          )}
-          {showAddIface && (
-            <Modal
-              title="Add Router Interface"
-              open={showAddIface}
-              onClose={() => setShowAddIface(false)}
-              footer={
-                <>
-                  <button className="btn-secondary" onClick={() => setShowAddIface(false)}>
-                    Cancel
-                  </button>
-                  <button
-                    className="btn-primary"
-                    disabled={!selectedSubnetAdd || loadingAction}
-                    onClick={async () => {
-                      const node = topology.nodes.find((n) => n.id === selectedNode)
-                      const routerId = node?.resource_id || ''
-                      if (!routerId || !selectedSubnetAdd) return
-                      setLoadingAction(true)
-                      try {
-                        await addRouterInterface(routerId, selectedSubnetAdd)
-                        onRefresh?.()
-                        setShowAddIface(false)
-                      } finally {
-                        setLoadingAction(false)
-                      }
-                    }}
-                  >
-                    Add Interface
-                  </button>
-                </>
-              }
-            >
-              <div className="space-y-3">
-                <div>
-                  <label className="label">Subnet</label>
-                  <select
-                    className="input w-full"
-                    value={selectedSubnetAdd}
-                    onChange={(e) => setSelectedSubnetAdd(e.target.value)}
-                  >
-                    <option value="" disabled>
-                      Select subnet
-                    </option>
-                    {(() => {
-                      const node = topology.nodes.find((n) => n.id === selectedNode)
-                      const already = new Set(node?.interfaces ?? [])
-                      return (modalSubnets ?? [])
-                        .filter((s) => !already.has(s.id))
-                        .map((s) => (
-                          <option key={s.id} value={s.id}>
-                            {s.name} ({s.cidr})
-                          </option>
-                        ))
-                    })()}
-                  </select>
-                </div>
-              </div>
-            </Modal>
-          )}
-          {showRemoveIface && (
-            <Modal
-              title="Remove Router Interface"
-              open={showRemoveIface}
-              onClose={() => setShowRemoveIface(false)}
-              footer={
-                <>
-                  <button className="btn-secondary" onClick={() => setShowRemoveIface(false)}>
-                    Cancel
-                  </button>
-                  <button
-                    className="btn-danger"
-                    disabled={!selectedSubnetRemove || loadingAction}
-                    onClick={async () => {
-                      const node = topology.nodes.find((n) => n.id === selectedNode)
-                      const routerId = node?.resource_id || ''
-                      if (!routerId || !selectedSubnetRemove) return
-                      setLoadingAction(true)
-                      try {
-                        await removeRouterInterface(routerId, selectedSubnetRemove)
-                        onRefresh?.()
-                        setShowRemoveIface(false)
-                      } finally {
-                        setLoadingAction(false)
-                      }
-                    }}
-                  >
-                    Remove Interface
-                  </button>
-                </>
-              }
-            >
-              <div className="space-y-3">
-                <div>
-                  <label className="label">Subnet</label>
-                  <select
-                    className="input w-full"
-                    value={selectedSubnetRemove}
-                    onChange={(e) => setSelectedSubnetRemove(e.target.value)}
-                  >
-                    <option value="" disabled>
-                      Select subnet
-                    </option>
-                    {(() => {
-                      const node = topology.nodes.find((n) => n.id === selectedNode)
-                      const only = new Set(node?.interfaces ?? [])
-                      const list = (modalSubnets ?? []).filter((s) => only.has(s.id))
-                      return list.length > 0 ? (
-                        list.map((s) => (
-                          <option key={s.id} value={s.id}>
-                            {s.name} ({s.cidr})
-                          </option>
-                        ))
-                      ) : (
-                        <option value="" disabled>
-                          No interfaces to remove
-                        </option>
-                      )
-                    })()}
-                  </select>
-                </div>
-              </div>
-            </Modal>
-          )}
-        </div>
-      )}
-    </div>
-  )
-}
-
-// Network Diagram View (aggregated): lists by resource type
-function NetworkDiagramViewAgg({
-  topology
-}: {
-  topology: { nodes: UITopologyNode[]; edges: UITopologyEdge[] }
-}) {
-  const nets = topology.nodes.filter((n) => n.type === 'network')
-  const routers = topology.nodes.filter((n) => n.type === 'router')
-  const subnets = topology.nodes.filter((n) => n.type === 'subnet')
-  const instances = topology.nodes.filter((n) => n.type === 'instance')
-
-  if (nets.length === 0 && routers.length === 0 && subnets.length === 0 && instances.length === 0) {
-    return (
-      <div className="card p-8 text-center">
-        <div className="text-gray-400 mb-4">No network resources found</div>
-        <div className="text-sm text-gray-500">Create a network or router to begin</div>
-      </div>
-    )
-  }
-
-  return (
-    <div className="space-y-4">
-      {/* Routers Section */}
-      {routers.length > 0 && (
-        <div className="card">
-          <div className="p-4 border-b border-oxide-800">
-            <h3 className="text-sm font-semibold text-gray-200">Routers ({routers.length})</h3>
-          </div>
-          <div className="divide-y divide-oxide-800">
-            {routers.map((router) => (
-              <div key={router.id} className="p-4 hover:bg-oxide-900/50">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center text-white text-xs font-bold">
-                      R
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-gray-200">{router.name}</div>
-                      <div className="text-xs text-gray-400">Router • {router.id}</div>
-                    </div>
-                  </div>
-                  {/* Labels determined from edges or future API enrichments */}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* External Networks Section */}
-      {nets.filter((n) => n.external).length > 0 && (
-        <div className="card">
-          <div className="p-4 border-b border-oxide-800">
-            <h3 className="text-sm font-semibold text-gray-200">
-              External Networks ({nets.filter((n) => n.external).length})
-            </h3>
-          </div>
-          <div className="divide-y divide-oxide-800">
-            {nets
-              .filter((n) => n.external)
-              .map((net) => (
-                <div key={net.id} className="p-4 hover:bg-oxide-900/50">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded bg-purple-600 flex items-center justify-center text-white text-xs font-bold">
-                        EXT
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-gray-200">{net.name}</div>
-                        <div className="text-xs text-gray-400">{net.cidr}</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-1 text-xs bg-purple-900/30 text-purple-400 rounded">
-                        External
-                      </span>
-                      {/* shared flag can be exposed in future topology enrichment */}
-                    </div>
-                  </div>
-                </div>
-              ))}
-          </div>
-        </div>
-      )}
-
-      {/* Internal Networks Section */}
-      {nets.filter((n) => !n.external).length > 0 && (
-        <div className="card">
-          <div className="p-4 border-b border-oxide-800">
-            <h3 className="text-sm font-semibold text-gray-200">
-              Internal Networks ({nets.filter((n) => !n.external).length})
-            </h3>
-          </div>
-          <div className="divide-y divide-oxide-800">
-            {nets
-              .filter((n) => !n.external)
-              .map((net) => (
-                <div key={net.id} className="p-4 hover:bg-oxide-900/50">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded bg-blue-600 flex items-center justify-center text-white text-xs font-bold">
-                        NET
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-gray-200">{net.name}</div>
-                        <div className="text-xs text-gray-400">{net.cidr}</div>
-                      </div>
-                    </div>
-                    {/* Additional labels can be shown when backend enriches topology */}
-                  </div>
-                </div>
-              ))}
-          </div>
-        </div>
-      )}
-
-      {/* Subnets Section */}
-      {subnets.length > 0 && (
-        <div className="card">
-          <div className="p-4 border-b border-oxide-800">
-            <h3 className="text-sm font-semibold text-gray-200">Subnets ({subnets.length})</h3>
-          </div>
-          <div className="divide-y divide-oxide-800">
-            {subnets.map((s) => (
-              <div key={s.id} className="p-4 hover:bg-oxide-900/50">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded bg-cyan-600 flex items-center justify-center text-white text-xs font-bold">
-                      S
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-gray-200">{s.name}</div>
-                      <div className="text-xs text-gray-400">{s.cidr}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Instances Section */}
-      {instances.length > 0 && (
-        <div className="card">
-          <div className="p-4 border-b border-oxide-800">
-            <h3 className="text-sm font-semibold text-gray-200">Instances ({instances.length})</h3>
-          </div>
-          <div className="divide-y divide-oxide-800">
-            {instances.map((vm) => (
-              <div key={vm.id} className="p-4 hover:bg-oxide-900/50">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded bg-sky-600 flex items-center justify-center text-white text-xs font-bold">
-                      VM
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-gray-200">{vm.name}</div>
-                      <div className="text-xs text-gray-400">{vm.state ?? ''}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   )
 }
