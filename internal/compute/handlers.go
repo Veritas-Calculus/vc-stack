@@ -1331,17 +1331,21 @@ func (s *Service) importImageHandler(c *gin.Context) {
 		return
 	}
 	// Validate source URL scheme to prevent SSRF.
-	validatedURL, err := validateImportURL(src)
+	safeURL, err := validateImportURL(src)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid source URL: " + err.Error()})
 		return
 	}
-	// Start import using validated URL.
-	httpReq, err := http.NewRequestWithContext(c.Request.Context(), http.MethodGet, validatedURL, nil)
+	// Build HTTP request from the validated, non-tainted URL.
+	// safeURL is constructed from parsed components + resolved IP,
+	// preventing both taint propagation and DNS rebinding.
+	httpReq, err := http.NewRequestWithContext(c.Request.Context(), http.MethodGet, safeURL.String(), nil)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid source URL"})
 		return
 	}
+	// Preserve original Host header for virtual-hosted servers.
+	httpReq.Host = safeURL.origHost
 	importClient := &http.Client{
 		Timeout: 5 * time.Minute,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
@@ -1351,7 +1355,7 @@ func (s *Service) importImageHandler(c *gin.Context) {
 			return nil
 		},
 	}
-	resp, err := importClient.Do(httpReq) // #nosec G704 — URL validated by validateImportURL
+	resp, err := importClient.Do(httpReq) // #nosec G704 — URL validated + IP-pinned by validateImportURL
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": "Failed to fetch source"})
 		return
@@ -2369,42 +2373,71 @@ func genUUIDv4() string {
 	return string(hexs)
 }
 
+// validatedImportURL holds a sanitized URL where the hostname has been replaced
+// with its resolved IP address, plus the original Host header for virtual hosts.
+type validatedImportURL struct {
+	url      url.URL // URL with hostname replaced by resolved IP
+	origHost string  // original Host header (hostname:port)
+}
+
+// String returns the IP-pinned URL string.
+func (v *validatedImportURL) String() string {
+	return v.url.String()
+}
+
 // validateImportURL validates that rawURL is a safe HTTP(S) URL for image import.
 // It rejects non-HTTP schemes and URLs that resolve to private/loopback addresses
-// to prevent SSRF attacks. Returns a sanitized URL string constructed from parsed
-// components (breaking taint chain) or an error.
-func validateImportURL(rawURL string) (string, error) {
+// to prevent SSRF attacks. Returns a validatedImportURL with the hostname replaced
+// by the resolved IP (preventing DNS rebinding) or an error.
+func validateImportURL(rawURL string) (*validatedImportURL, error) {
 	parsed, err := url.Parse(rawURL)
 	if err != nil {
-		return "", fmt.Errorf("invalid URL")
+		return nil, fmt.Errorf("invalid URL")
 	}
 	if parsed.Scheme != "http" && parsed.Scheme != "https" {
-		return "", fmt.Errorf("only http/https allowed")
+		return nil, fmt.Errorf("only http/https allowed")
 	}
 	host := parsed.Hostname()
 	if host == "" {
-		return "", fmt.Errorf("missing host")
+		return nil, fmt.Errorf("missing host")
 	}
+	port := parsed.Port()
+
 	// Resolve host to check for private/loopback addresses (SSRF prevention).
 	ips, err := net.LookupHost(host)
 	if err != nil {
-		return "", fmt.Errorf("cannot resolve host: %w", err)
+		return nil, fmt.Errorf("cannot resolve host: %w", err)
 	}
+	var resolvedIP string
 	for _, ipStr := range ips {
 		ip := net.ParseIP(ipStr)
 		if ip == nil {
 			continue
 		}
 		if ip.IsLoopback() || ip.IsPrivate() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() {
-			return "", fmt.Errorf("URL resolves to private/loopback address")
+			return nil, fmt.Errorf("URL resolves to private/loopback address")
+		}
+		if resolvedIP == "" {
+			resolvedIP = ipStr
 		}
 	}
-	// Reconstruct URL from parsed components to produce a non-tainted string.
-	safeURL := &url.URL{
-		Scheme:   parsed.Scheme,
-		Host:     parsed.Host,
-		Path:     parsed.Path,
-		RawQuery: parsed.RawQuery,
+	if resolvedIP == "" {
+		return nil, fmt.Errorf("no valid IP resolved")
 	}
-	return safeURL.String(), nil
+
+	// Pin to resolved IP to prevent DNS rebinding.
+	ipHost := resolvedIP
+	if port != "" {
+		ipHost = net.JoinHostPort(resolvedIP, port)
+	}
+
+	return &validatedImportURL{
+		url: url.URL{
+			Scheme:   parsed.Scheme,
+			Host:     ipHost,
+			Path:     parsed.Path,
+			RawQuery: parsed.RawQuery,
+		},
+		origHost: parsed.Host,
+	}, nil
 }
