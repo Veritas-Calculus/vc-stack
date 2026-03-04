@@ -1231,6 +1231,122 @@ func (s *Service) healthCheck(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// getNetworkConfig returns current network service configuration for UI form population.
+// GET /api/v1/networks/config.
+func (s *Service) getNetworkConfig(c *gin.Context) {
+	bridgeMappings := []map[string]string{}
+
+	// Try to extract bridge mappings from the OVN driver.
+	if ovnDrv := s.getOVNDriver(); ovnDrv != nil {
+		bridgeMappings = ovnDrv.BridgeMappingsList()
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"sdn_provider":            s.config.SDN.Provider,
+		"bridge_mappings":         bridgeMappings,
+		"supported_network_types": []string{"vxlan", "vlan", "flat", "geneve", "gre", "local"},
+	})
+}
+
+// suggestCIDR analyzes existing networks and suggests the next available CIDR.
+// GET /api/v1/networks/suggest-cidr?prefix=10&mask=24.
+func (s *Service) suggestCIDR(c *gin.Context) {
+	prefixStr := c.DefaultQuery("prefix", "10")
+	maskStr := c.DefaultQuery("mask", "24")
+
+	// Parse mask.
+	mask := 24
+	if _, err := fmt.Sscanf(maskStr, "%d", &mask); err != nil || mask < 8 || mask > 30 {
+		mask = 24
+	}
+
+	// Collect existing CIDRs.
+	var networks []Network
+	if err := s.db.Select("cidr").Find(&networks).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query networks"})
+		return
+	}
+
+	existingCIDRs := make([]string, 0, len(networks))
+	usedThirdOctet := make(map[int]bool)
+	for _, n := range networks {
+		existingCIDRs = append(existingCIDRs, n.CIDR)
+		// Parse third octet for /24 collision detection.
+		parts := strings.Split(strings.Split(n.CIDR, "/")[0], ".")
+		if len(parts) == 4 {
+			var o3 int
+			if _, err := fmt.Sscanf(parts[2], "%d", &o3); err == nil {
+				// Track used if same prefix.
+				if parts[0] == prefixStr && parts[1] == "0" {
+					usedThirdOctet[o3] = true
+				}
+			}
+		}
+	}
+
+	// Find next available third octet for /24 networks.
+	suggestedThird := 0
+	for i := 0; i < 256; i++ {
+		if !usedThirdOctet[i] {
+			suggestedThird = i
+			break
+		}
+	}
+
+	// Build suggested CIDR.
+	var suggestedCIDR, gw, allocStart, allocEnd string
+	switch mask {
+	case 24:
+		suggestedCIDR = fmt.Sprintf("%s.0.%d.0/24", prefixStr, suggestedThird)
+		gw = fmt.Sprintf("%s.0.%d.1", prefixStr, suggestedThird)
+		allocStart = fmt.Sprintf("%s.0.%d.2", prefixStr, suggestedThird)
+		allocEnd = fmt.Sprintf("%s.0.%d.254", prefixStr, suggestedThird)
+	case 16:
+		// Find next second octet.
+		usedSecond := make(map[int]bool)
+		for _, n := range networks {
+			parts := strings.Split(strings.Split(n.CIDR, "/")[0], ".")
+			if len(parts) == 4 && parts[0] == prefixStr {
+				var o2 int
+				if _, err := fmt.Sscanf(parts[1], "%d", &o2); err == nil {
+					usedSecond[o2] = true
+				}
+			}
+		}
+		next := 0
+		for i := 0; i < 256; i++ {
+			if !usedSecond[i] {
+				next = i
+				break
+			}
+		}
+		suggestedCIDR = fmt.Sprintf("%s.%d.0.0/16", prefixStr, next)
+		gw = fmt.Sprintf("%s.%d.0.1", prefixStr, next)
+		allocStart = fmt.Sprintf("%s.%d.0.2", prefixStr, next)
+		allocEnd = fmt.Sprintf("%s.%d.255.254", prefixStr, next)
+	default:
+		suggestedCIDR = fmt.Sprintf("%s.0.%d.0/%d", prefixStr, suggestedThird, mask)
+		gw = fmt.Sprintf("%s.0.%d.1", prefixStr, suggestedThird)
+		allocStart = fmt.Sprintf("%s.0.%d.2", prefixStr, suggestedThird)
+		// Compute end IP based on mask.
+		hostBits := 32 - mask
+		numHosts := (1 << hostBits) - 2
+		lastOctet := numHosts
+		if lastOctet > 254 {
+			lastOctet = 254
+		}
+		allocEnd = fmt.Sprintf("%s.0.%d.%d", prefixStr, suggestedThird, lastOctet)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"suggested_cidr":   suggestedCIDR,
+		"gateway":          gw,
+		"allocation_start": allocStart,
+		"allocation_end":   allocEnd,
+		"existing_cidrs":   existingCIDRs,
+	})
+}
+
 // ===== ASN Handlers =====.
 
 // listASNs returns a list of ASNs.

@@ -401,6 +401,8 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		{
 			networks.GET("", s.listNetworks)
 			networks.POST("", s.createNetwork)
+			networks.GET("/config", s.getNetworkConfig)
+			networks.GET("/suggest-cidr", s.suggestCIDR)
 			networks.GET("/:id", s.getNetwork)
 			networks.PUT("/:id", s.updateNetwork)
 			networks.DELETE("/:id", s.deleteNetwork)

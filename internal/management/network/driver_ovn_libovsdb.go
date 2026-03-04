@@ -166,6 +166,18 @@ func (d *OVNDriver) parseBridgeMappings(mappings string) {
 	}
 }
 
+// BridgeMappingsList returns the configured bridge mappings as a list of {physical_network, bridge} pairs.
+func (d *OVNDriver) BridgeMappingsList() []map[string]string {
+	result := make([]map[string]string, 0, len(d.bridgeMappings))
+	for physnet, bridge := range d.bridgeMappings {
+		result = append(result, map[string]string{
+			"physical_network": physnet,
+			"bridge":           bridge,
+		})
+	}
+	return result
+}
+
 // EnsureNetwork creates a logical switch and DHCP options using libovsdb.
 func (d *OVNDriver) EnsureNetwork(n *Network, s *Subnet) error {
 	if d.ovs == nil {

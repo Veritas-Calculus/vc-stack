@@ -14,6 +14,8 @@ import {
   fetchZones,
   fetchTopology,
   fetchSubnets,
+  fetchNetworkConfig,
+  suggestCIDR,
   setRouterGateway,
   clearRouterGateway,
   updateRouter,
@@ -23,7 +25,8 @@ import {
   type UIZone,
   type UITopologyNode,
   type UITopologyEdge,
-  type UISubnet
+  type UISubnet,
+  type BridgeMapping
 } from '@/lib/api'
 import { useDataStore, type ASN } from '@/lib/dataStore'
 import { PublicIPs } from './PublicIPs'
@@ -64,6 +67,12 @@ function NetworksPage() {
   const [isExternal, setIsExternal] = useState(false)
   const [mtu, setMtu] = useState('1450')
 
+  // Bridge mappings from backend config
+  const [bridgeMappings, setBridgeMappings] = useState<BridgeMapping[]>([])
+  const [customPhysicalNetwork, setCustomPhysicalNetwork] = useState(false)
+  // CIDR suggestion
+  const [existingCidrs, setExistingCidrs] = useState<string[]>([])
+
   const load = async () => {
     setLoading(true)
     try {
@@ -83,18 +92,87 @@ function NetworksPage() {
   useEffect(() => {
     let alive = true
     setLoading(true)
-    Promise.all([fetchNetworks(projectId), fetchZones(), fetchSubnets(projectId)])
-      .then(([nets, zs, subs]) => {
+    Promise.all([
+      fetchNetworks(projectId),
+      fetchZones(),
+      fetchSubnets(projectId),
+      fetchNetworkConfig().catch(() => ({ sdn_provider: '', bridge_mappings: [], supported_network_types: [] }))
+    ])
+      .then(([nets, zs, subs, cfg]) => {
         if (!alive) return
         setRows(nets)
         setZones(zs)
         setSubnets(subs)
+        setBridgeMappings(cfg.bridge_mappings)
       })
       .finally(() => alive && setLoading(false))
     return () => {
       alive = false
     }
   }, [projectId])
+
+  // CIDR helper: parse CIDR and auto-compute gateway + pool
+  const parseCIDRInfo = useCallback((cidrStr: string) => {
+    if (!cidrStr || !cidrStr.includes('/')) return null
+    const [ip, maskStr] = cidrStr.split('/')
+    const mask = parseInt(maskStr)
+    if (isNaN(mask) || mask < 8 || mask > 30) return null
+    const parts = ip.split('.').map(Number)
+    if (parts.length !== 4 || parts.some(isNaN)) return null
+    const hostBits = 32 - mask
+    const numHosts = Math.min((1 << hostBits) - 2, 65534)
+    // Compute network address
+    const ipNum = (parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3]
+    const maskNum = (~0 << hostBits) >>> 0
+    const netAddr = (ipNum & maskNum) >>> 0
+    const gwNum = netAddr + 1
+    const startNum = netAddr + 2
+    const endNum = netAddr + numHosts
+    const toIP = (n: number) =>
+      `${(n >>> 24) & 0xff}.${(n >>> 16) & 0xff}.${(n >>> 8) & 0xff}.${n & 0xff}`
+    return {
+      gateway: toIP(gwNum),
+      allocationStart: toIP(startNum),
+      allocationEnd: toIP(endNum),
+      numHosts
+    }
+  }, [])
+
+  // Auto-fill gateway and allocation pool when CIDR changes
+  useEffect(() => {
+    const info = parseCIDRInfo(cidr)
+    if (info) {
+      setGateway(info.gateway)
+      setAllocationStart(info.allocationStart)
+      setAllocationEnd(info.allocationEnd)
+    }
+  }, [cidr, parseCIDRInfo])
+
+  // CIDR conflict detection
+  const cidrConflict = useMemo(() => {
+    if (!cidr) return null
+    const match = rows.find((r) => r.cidr === cidr)
+    if (match) return `Conflicts with "${match.name}"`
+    const matchExisting = existingCidrs.find((c) => c === cidr)
+    if (matchExisting) return `CIDR ${cidr} is already in use`
+    return null
+  }, [cidr, rows, existingCidrs])
+
+  // Load CIDR suggestions when dialog opens
+  const loadCIDRSuggestion = useCallback(
+    async (prefix = '10', mask = '24') => {
+      try {
+        const suggestion = await suggestCIDR(prefix, mask)
+        setCidr(suggestion.suggested_cidr)
+        setExistingCidrs(suggestion.existing_cidrs ?? [])
+      } catch {
+        /* ignore */
+      }
+    },
+    []
+  )
+
+  const cidrInfo = useMemo(() => parseCIDRInfo(cidr), [cidr, parseCIDRInfo])
 
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase()
@@ -431,15 +509,58 @@ function NetworksPage() {
               <div className="grid grid-cols-2 gap-3 p-3 bg-blue-900/10 border border-blue-800/30 rounded">
                 <div>
                   <label className="label">Physical Network *</label>
-                  <input
-                    className="input w-full"
-                    placeholder="provider"
-                    value={physicalNetwork}
-                    onChange={(e) => setPhysicalNetwork(e.target.value)}
-                  />
-                  <p className="text-xs text-gray-400 mt-1">
-                    Must match bridge_mappings config (e.g., "provider", "external")
-                  </p>
+                  {bridgeMappings.length > 0 && !customPhysicalNetwork ? (
+                    <>
+                      <select
+                        className="input w-full"
+                        value={physicalNetwork}
+                        onChange={(e) => {
+                          if (e.target.value === '__custom__') {
+                            setCustomPhysicalNetwork(true)
+                            setPhysicalNetwork('')
+                          } else {
+                            setPhysicalNetwork(e.target.value)
+                          }
+                        }}
+                      >
+                        <option value="" disabled>Select physical network</option>
+                        {bridgeMappings.map((m) => (
+                          <option key={m.physical_network} value={m.physical_network}>
+                            {m.physical_network} → {m.bridge}
+                          </option>
+                        ))}
+                        <option value="__custom__">Custom...</option>
+                      </select>
+                      <p className="text-xs text-emerald-400 mt-1">
+                        ✓ {bridgeMappings.length} bridge mapping{bridgeMappings.length > 1 ? 's' : ''} detected from OVN config
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <input
+                        className="input w-full"
+                        placeholder="provider"
+                        value={physicalNetwork}
+                        onChange={(e) => setPhysicalNetwork(e.target.value)}
+                      />
+                      {bridgeMappings.length > 0 && (
+                        <button
+                          className="text-xs text-blue-400 hover:text-blue-300 mt-1"
+                          onClick={() => {
+                            setCustomPhysicalNetwork(false)
+                            setPhysicalNetwork('')
+                          }}
+                        >
+                          ← Back to detected mappings
+                        </button>
+                      )}
+                      {bridgeMappings.length === 0 && (
+                        <p className="text-xs text-amber-400 mt-1">
+                          ⚠ No bridge mappings detected. Ensure bridge_mappings is configured.
+                        </p>
+                      )}
+                    </>
+                  )}
                 </div>
                 {networkType === 'vlan' && (
                   <div>
@@ -494,12 +615,49 @@ function NetworksPage() {
               </div>
               <div>
                 <label className="label">CIDR *</label>
-                <input
-                  className="input w-full"
-                  placeholder="10.0.0.0/16"
-                  value={cidr}
-                  onChange={(e) => setCidr(e.target.value)}
-                />
+                <div className="flex gap-2">
+                  <input
+                    className={`input flex-1 ${cidrConflict ? 'border-red-500' : ''}`}
+                    placeholder="10.0.0.0/24"
+                    value={cidr}
+                    onChange={(e) => setCidr(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className="btn-secondary text-xs whitespace-nowrap"
+                    onClick={() => loadCIDRSuggestion()}
+                    title="Auto-suggest an available CIDR"
+                  >
+                    Auto
+                  </button>
+                </div>
+                {cidrConflict && (
+                  <p className="text-xs text-red-400 mt-1">⚠ {cidrConflict}</p>
+                )}
+                {!cidrConflict && cidrInfo && (
+                  <p className="text-xs text-gray-400 mt-1">
+                    ~{cidrInfo.numHosts} hosts | GW: {cidrInfo.gateway}
+                  </p>
+                )}
+                <div className="flex gap-1 mt-1">
+                  {[
+                    { label: '/24 Small', cidr: '10.0.0.0/24' },
+                    { label: '/20 Medium', cidr: '172.16.0.0/20' },
+                    { label: '/16 Large', cidr: '10.0.0.0/16' }
+                  ].map((tpl) => (
+                    <button
+                      key={tpl.cidr}
+                      type="button"
+                      className={`text-xs px-2 py-0.5 rounded border transition-colors ${cidr === tpl.cidr
+                        ? 'border-blue-500 bg-blue-500/20 text-blue-300'
+                        : 'border-gray-600 text-gray-400 hover:border-gray-500 hover:text-gray-300'
+                        }`}
+                      onClick={() => setCidr(tpl.cidr)}
+                    >
+                      {tpl.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
             <div>
@@ -621,6 +779,60 @@ function NetworksPage() {
               </>
             )}
           </div>
+
+          {/* Network Preview Card */}
+          {(name || cidr) && (
+            <div className="p-3 bg-gray-800/50 border border-gray-700 rounded-lg">
+              <h4 className="text-xs font-semibold text-gray-300 uppercase tracking-wide mb-2">
+                📡 Network Preview
+              </h4>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                {name && (
+                  <div className="col-span-2 font-medium text-white">
+                    {name}{' '}
+                    <span className="text-xs text-gray-400">
+                      ({networkType})
+                    </span>
+                  </div>
+                )}
+                {cidr && (
+                  <>
+                    <div className="text-gray-400">CIDR</div>
+                    <div className={`text-gray-200 ${cidrConflict ? 'text-red-400' : ''}`}>
+                      {cidr} {cidrConflict && '⚠'}
+                    </div>
+                  </>
+                )}
+                {cidrInfo && (
+                  <>
+                    <div className="text-gray-400">Gateway</div>
+                    <div className="text-gray-200">{gateway || cidrInfo.gateway}</div>
+                    <div className="text-gray-400">DHCP Pool</div>
+                    <div className="text-gray-200">
+                      {allocationStart || cidrInfo.allocationStart} — {allocationEnd || cidrInfo.allocationEnd}
+                    </div>
+                    <div className="text-gray-400">Usable Hosts</div>
+                    <div className="text-gray-200">~{cidrInfo.numHosts.toLocaleString()}</div>
+                  </>
+                )}
+                {(dns1 || dns2) && (
+                  <>
+                    <div className="text-gray-400">DNS</div>
+                    <div className="text-gray-200">{[dns1, dns2].filter(Boolean).join(', ')}</div>
+                  </>
+                )}
+                {(networkType === 'vlan' || networkType === 'flat') && physicalNetwork && (
+                  <>
+                    <div className="text-gray-400">Provider</div>
+                    <div className="text-gray-200">
+                      {physicalNetwork}
+                      {networkType === 'vlan' && segmentationId && ` (VLAN ${segmentationId})`}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
 
           <div className="flex items-center gap-2">
             <input type="checkbox" checked={start} onChange={(e) => setStart(e.target.checked)} />
@@ -941,20 +1153,18 @@ function ACLPage() {
                       <td className="py-1.5 pr-3 text-gray-500">{rule.number}</td>
                       <td className="py-1.5 pr-3">
                         <span
-                          className={`px-1.5 py-0.5 rounded text-xs border ${
-                            rule.direction === 'ingress'
-                              ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
-                              : 'bg-purple-500/15 text-purple-400 border-purple-500/30'
-                          }`}
+                          className={`px-1.5 py-0.5 rounded text-xs border ${rule.direction === 'ingress'
+                            ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
+                            : 'bg-purple-500/15 text-purple-400 border-purple-500/30'
+                            }`}
                         >
                           {rule.direction}
                         </span>
                       </td>
                       <td className="py-1.5 pr-3">
                         <span
-                          className={`text-xs font-medium ${
-                            rule.action === 'allow' ? 'text-emerald-400' : 'text-red-400'
-                          }`}
+                          className={`text-xs font-medium ${rule.action === 'allow' ? 'text-emerald-400' : 'text-red-400'
+                            }`}
                         >
                           {rule.action.toUpperCase()}
                         </span>

@@ -126,18 +126,18 @@ type ListSnapshotsResponse = {
 // Mappers to UI types
 const mapInstance =
   (p: string | undefined) =>
-  (x: ListInstancesResponse['instances'][number]): UIInstance => ({
-    id: String(x.id),
-    projectId: p ?? String(x.project_id ?? ''),
-    name: x.name,
-    ip: '',
-    // Check both status and power_state for running state
-    // Backend may return status='running' or 'active', and power_state='running'
-    state:
-      x.power_state === 'running' || x.status === 'active' || x.status === 'running'
-        ? 'running'
-        : 'stopped'
-  })
+    (x: ListInstancesResponse['instances'][number]): UIInstance => ({
+      id: String(x.id),
+      projectId: p ?? String(x.project_id ?? ''),
+      name: x.name,
+      ip: '',
+      // Check both status and power_state for running state
+      // Backend may return status='running' or 'active', and power_state='running'
+      state:
+        x.power_state === 'running' || x.status === 'active' || x.status === 'running'
+          ? 'running'
+          : 'stopped'
+    })
 
 const mapFlavor = (x: ListFlavorsResponse['flavors'][number]): UIFlavor => ({
   id: String(x.id),
@@ -766,6 +766,43 @@ export async function createNetwork(
     external: n.external,
     mtu: n.mtu
   }
+}
+
+// Network Config — bridge mappings and supported types
+export type BridgeMapping = {
+  physical_network: string
+  bridge: string
+}
+export type NetworkConfig = {
+  sdn_provider: string
+  bridge_mappings: BridgeMapping[]
+  supported_network_types: string[]
+}
+export async function fetchNetworkConfig(): Promise<NetworkConfig> {
+  const res = await api.get<NetworkConfig>('/v1/networks/config')
+  return {
+    sdn_provider: res.data.sdn_provider ?? '',
+    bridge_mappings: res.data.bridge_mappings ?? [],
+    supported_network_types: res.data.supported_network_types ?? []
+  }
+}
+
+// CIDR suggestion
+export type CIDRSuggestion = {
+  suggested_cidr: string
+  gateway: string
+  allocation_start: string
+  allocation_end: string
+  existing_cidrs: string[]
+}
+export async function suggestCIDR(
+  prefix: string = '10',
+  mask: string = '24'
+): Promise<CIDRSuggestion> {
+  const res = await api.get<CIDRSuggestion>('/v1/networks/suggest-cidr', {
+    params: { prefix, mask }
+  })
+  return res.data
 }
 
 // Subnets
