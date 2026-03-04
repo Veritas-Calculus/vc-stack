@@ -6,6 +6,7 @@ import (
 
 	"gorm.io/gorm"
 
+	"github.com/Veritas-Calculus/vc-stack/internal/management/event"
 	"github.com/Veritas-Calculus/vc-stack/pkg/models"
 )
 
@@ -36,6 +37,8 @@ func AutoMigrate(db *gorm.DB) error {
 		&models.SSHKey{},
 		&models.VolumeAttachment{},
 		&models.AuditLog{},
+		// Event models
+		&event.Event{},
 	); err != nil {
 		return fmt.Errorf("failed to auto-migrate: %w", err)
 	}

@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"syscall"
@@ -138,8 +139,17 @@ func (d *qemuDriver) CreateVM(req CreateVMRequest) (*VM, error) {
 		}
 	}
 
-	// Build qemu args.
-	args := []string{"-name", id, "-m", strconv.Itoa(req.MemoryMB), "-smp", strconv.Itoa(req.VCPUs), "-enable-kvm"}
+	// Build qemu args with runtime KVM + architecture detection.
+	accelArgs := []string{}
+	if _, err := os.Stat("/dev/kvm"); err == nil {
+		accelArgs = append(accelArgs, "-enable-kvm", "-cpu", "host")
+	} else if runtime.GOARCH == "arm64" {
+		accelArgs = append(accelArgs, "-cpu", "cortex-a57", "-machine", "virt,accel=tcg")
+	} else {
+		accelArgs = append(accelArgs, "-cpu", "qemu64")
+	}
+	args := []string{"-name", id, "-m", strconv.Itoa(req.MemoryMB), "-smp", strconv.Itoa(req.VCPUs)}
+	args = append(args, accelArgs...)
 
 	// Disk.
 	if strings.TrimSpace(req.Image) != "" {
@@ -196,8 +206,11 @@ func (d *qemuDriver) CreateVM(req CreateVMRequest) (*VM, error) {
 	_ = os.Remove(qmp)
 	args = append(args, "-qmp", fmt.Sprintf("unix:%s,server,nowait", qmp))
 
+	// Detect QEMU binary: prefer architecture-specific, fallback to what's available.
+	qemuBin := detectQEMUBinary()
+
 	// Start qemu process.
-	cmd := exec.Command("qemu-system-x86_64", args...) // #nosec
+	cmd := exec.Command(qemuBin, args...) // #nosec
 	// Ensure qemu is started in its own process group so we can signal it.
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	if err := cmd.Start(); err != nil {
@@ -276,21 +289,35 @@ func (d *qemuDriver) createVMNew(req CreateVMRequest) (*VM, error) {
 		// Create disk from image.
 		diskPath := filepath.Join(d.runDir, id+"-disk.qcow2")
 
+		// Detect the backing file format using qemu-img info.
+		backingFormat := "raw"                                                                        // safe default
+		infoOut, err := exec.Command("qemu-img", "info", "--output=json", req.Image).CombinedOutput() // #nosec
+		if err == nil {
+			var info struct {
+				Format string `json:"format"`
+			}
+			if json.Unmarshal(infoOut, &info) == nil && info.Format != "" {
+				backingFormat = info.Format
+			}
+		}
+
 		// Create qcow2 disk with backing file.
 		if req.DiskGB > 0 {
 			// Create with specified size.
 			cmd := exec.Command("qemu-img", "create", "-f", "qcow2",
-				"-F", "qcow2", "-b", req.Image, diskPath,
+				"-F", backingFormat, "-b", req.Image, diskPath,
 				fmt.Sprintf("%dG", req.DiskGB)) // #nosec
-			if err := cmd.Run(); err != nil {
-				return nil, fmt.Errorf("create disk image: %w", err)
+			out, cerr := cmd.CombinedOutput()
+			if cerr != nil {
+				return nil, fmt.Errorf("create disk image: %w, output: %s", cerr, string(out))
 			}
 		} else {
 			// Create with backing file only (auto-size).
 			cmd := exec.Command("qemu-img", "create", "-f", "qcow2",
-				"-F", "qcow2", "-b", req.Image, diskPath) // #nosec
-			if err := cmd.Run(); err != nil {
-				return nil, fmt.Errorf("create disk image: %w", err)
+				"-F", backingFormat, "-b", req.Image, diskPath) // #nosec
+			out, cerr := cmd.CombinedOutput()
+			if cerr != nil {
+				return nil, fmt.Errorf("create disk image: %w, output: %s", cerr, string(out))
 			}
 		}
 
@@ -299,8 +326,8 @@ func (d *qemuDriver) createVMNew(req CreateVMRequest) (*VM, error) {
 			Path:   diskPath,
 			Format: "qcow2",
 			Bus:    "virtio",
-			Cache:  "none",
-			AIO:    "native",
+			Cache:  "writeback",
+			AIO:    "threads",
 			SizeGB: req.DiskGB,
 		}
 		cfg.Disks = append(cfg.Disks, disk)
@@ -341,18 +368,19 @@ func (d *qemuDriver) createVMNew(req CreateVMRequest) (*VM, error) {
 			Type:   "tap",
 			MAC:    nic.MAC,
 			Model:  "virtio-net-pci",
-			TapDev: fmt.Sprintf("tap-%s-%d", id[:8], i),
+			TapDev: fmt.Sprintf("tap-%s-%d", safePrefix(id, 8), i),
 			PortID: nic.PortID,
 		}
 		cfg.NICs = append(cfg.NICs, nicCfg)
 	}
 
 	// Add default NIC if none specified.
+	// Use user-mode networking (built-in DHCP/NAT) when no explicit network is configured.
+	// Tap networking requires a properly configured SDN bridge (OVN) with DHCP.
 	if len(cfg.NICs) == 0 {
 		cfg.NICs = append(cfg.NICs, qemu.NICConfig{
-			Type:   "tap",
-			Model:  "virtio-net-pci",
-			TapDev: fmt.Sprintf("tap-%s-0", id[:8]),
+			Type:  "user",
+			Model: "virtio-net-pci",
 		})
 	}
 
@@ -722,6 +750,19 @@ func queryQMP(socketPath, humanCmd string) (string, error) {
 func (d *qemuDriver) Status() NodeStatus {
 	// Best-effort: query /proc/meminfo and /proc/cpuinfo would be better, but return config-derived defaults.
 	return NodeStatus{CPUsTotal: 8, CPUsUsed: 0, RAMMBTotal: 32768, RAMMBUsed: 0, DiskGBTotal: 500, DiskGBUsed: 0}
+}
+
+// detectQEMUBinary returns the appropriate qemu-system binary for the host architecture.
+func detectQEMUBinary() string {
+	return qemu.DetectQEMUBinary()
+}
+
+// safePrefix returns at most n characters from s, safe from bounds panic.
+func safePrefix(s string, n int) string {
+	if len(s) <= n {
+		return s
+	}
+	return s[:n]
 }
 
 // local sanitizeName similar to libvirt helper: make a filesystem/hypervisor friendly name.

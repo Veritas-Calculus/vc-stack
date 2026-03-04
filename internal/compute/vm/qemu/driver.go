@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"syscall"
@@ -115,17 +116,24 @@ func (d *Driver) CreateVM(ctx context.Context, cfg *VMConfig) error {
 	// Build QEMU arguments.
 	args := cfg.BuildArgs()
 
-	// Start QEMU process.
-	cmd := exec.CommandContext(ctx, "qemu-system-x86_64", args...) // #nosec
+	// Start QEMU process with architecture-aware binary.
+	qemuBin := DetectQEMUBinary()
+	cmd := exec.CommandContext(ctx, qemuBin, args...) // #nosec
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+
+	// Capture stderr for error diagnostics.
+	var stderrBuf strings.Builder
+	cmd.Stderr = &stderrBuf
 
 	d.logger.Info("starting qemu vm",
 		zap.String("id", cfg.ID),
-		zap.Int("args_count", len(args)))
+		zap.String("binary", qemuBin),
+		zap.Int("args_count", len(args)),
+		zap.String("args", strings.Join(args, " ")))
 
 	if err := cmd.Start(); err != nil {
 		d.cleanupNetworking(cfg)
-		return fmt.Errorf("start qemu: %w", err)
+		return fmt.Errorf("start qemu: %w, stderr: %s", err, stderrBuf.String())
 	}
 
 	// Wait for daemonization.
@@ -133,7 +141,7 @@ func (d *Driver) CreateVM(ctx context.Context, cfg *VMConfig) error {
 		if exitErr, ok := err.(*exec.ExitError); ok {
 			if exitErr.ExitCode() != 0 {
 				d.cleanupNetworking(cfg)
-				return fmt.Errorf("qemu failed: %w", err)
+				return fmt.Errorf("qemu failed (exit %d): %s", exitErr.ExitCode(), stderrBuf.String())
 			}
 		}
 	}
@@ -619,4 +627,24 @@ func (d *Driver) cleanupTPM(cfg *VMConfig) error {
 
 	tpmDir := filepath.Join(d.configDir, "tpm", cfg.ID)
 	return os.RemoveAll(tpmDir)
+}
+
+// DetectQEMUBinary returns the appropriate qemu-system binary for the host architecture.
+func DetectQEMUBinary() string {
+	arch := runtime.GOARCH
+	switch arch {
+	case "arm64":
+		if _, err := exec.LookPath("qemu-system-aarch64"); err == nil {
+			return "qemu-system-aarch64"
+		}
+		return "qemu-system-x86_64" // fallback
+	default:
+		if _, err := exec.LookPath("qemu-system-x86_64"); err == nil {
+			return "qemu-system-x86_64"
+		}
+		if _, err := exec.LookPath("qemu-system-aarch64"); err == nil {
+			return "qemu-system-aarch64"
+		}
+		return "qemu-system-x86_64"
+	}
 }

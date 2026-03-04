@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -139,12 +140,12 @@ type CloudInitConfig struct {
 // DefaultConfig returns a default VM configuration.
 func DefaultConfig(name string) *VMConfig {
 	return &VMConfig{
-		Name:        name,
-		VCPUs:       1,
-		MemoryMB:    1024,
-		CPUModel:    "host",
-		MachineType: "q35",
-		Boot:        []string{"c"},
+		Name:     name,
+		VCPUs:    1,
+		MemoryMB: 1024,
+		// Leave CPUModel and MachineType empty for auto-detection
+		// based on host architecture and KVM availability.
+		Boot: []string{"c"},
 		VNC: VNCConfig{
 			Enabled: true,
 			Display: 0,
@@ -229,8 +230,15 @@ func (c *VMConfig) buildCPUMemoryArgs() []string {
 	args = append(args, "-smp", fmt.Sprintf("%d", c.VCPUs))
 
 	cpuSpec := c.CPUModel
-	if cpuSpec == "" {
-		cpuSpec = "host"
+	if cpuSpec == "" || cpuSpec == "host" {
+		// "host" requires KVM; fallback to architecture-appropriate model.
+		if _, err := os.Stat("/dev/kvm"); err == nil {
+			cpuSpec = "host"
+		} else if runtime.GOARCH == "arm64" {
+			cpuSpec = "cortex-a57"
+		} else {
+			cpuSpec = "qemu64"
+		}
 	}
 	if len(c.CPUFlags) > 0 {
 		for _, flag := range c.CPUFlags {
@@ -246,10 +254,21 @@ func (c *VMConfig) buildMachineArgs() []string {
 	args := []string{}
 	machineSpec := c.MachineType
 	if machineSpec == "" {
-		machineSpec = "q35"
+		// Auto-detect machine type based on architecture.
+		if runtime.GOARCH == "arm64" {
+			machineSpec = "virt"
+		} else {
+			machineSpec = "q35"
+		}
 	}
-	args = append(args, "-machine", machineSpec)
-	args = append(args, "-enable-kvm")
+
+	// Check if KVM is available at runtime.
+	if _, err := os.Stat("/dev/kvm"); err == nil {
+		args = append(args, "-machine", machineSpec+",accel=kvm")
+	} else {
+		// Fallback to TCG (software emulation) when KVM is not available.
+		args = append(args, "-machine", machineSpec+",accel=tcg")
+	}
 	return args
 }
 
@@ -257,14 +276,47 @@ func (c *VMConfig) buildMachineArgs() []string {
 func (c *VMConfig) buildFirmwareArgs() []string {
 	args := []string{}
 
-	if c.UEFI {
+	// Auto-enable UEFI on aarch64 virt machine (it has no BIOS).
+	uefiEnabled := c.UEFI
+	if !uefiEnabled && runtime.GOARCH == "arm64" && (c.MachineType == "" || c.MachineType == "virt") {
+		uefiEnabled = true
+	}
+
+	if uefiEnabled {
 		uefiPath := c.UEFIPath
 		if uefiPath == "" {
-			uefiPath = "/usr/share/OVMF/OVMF_CODE.fd"
+			// Auto-detect UEFI firmware path.
+			candidates := []string{}
+			if runtime.GOARCH == "arm64" {
+				candidates = []string{
+					"/usr/share/AAVMF/AAVMF_CODE.fd",
+					"/usr/share/qemu-efi-aarch64/QEMU_EFI.fd",
+					"/usr/share/OVMF/OVMF_CODE.fd",
+				}
+			} else {
+				candidates = []string{
+					"/usr/share/OVMF/OVMF_CODE.fd",
+					"/usr/share/edk2/ovmf/OVMF_CODE.fd",
+				}
+			}
+			for _, p := range candidates {
+				if _, err := os.Stat(p); err == nil {
+					uefiPath = p
+					break
+				}
+			}
 		}
-		args = append(args, "-drive", fmt.Sprintf("if=pflash,format=raw,readonly=on,file=%s", uefiPath))
-		if c.NVRAMPath != "" {
-			args = append(args, "-drive", fmt.Sprintf("if=pflash,format=raw,file=%s", c.NVRAMPath))
+		if uefiPath != "" {
+			if runtime.GOARCH == "arm64" {
+				// ARM64: use -bios for QEMU_EFI.fd (simpler, no NVRAM needed).
+				args = append(args, "-bios", uefiPath)
+			} else {
+				// x86: use pflash.
+				args = append(args, "-drive", fmt.Sprintf("if=pflash,format=raw,readonly=on,file=%s", uefiPath))
+				if c.NVRAMPath != "" {
+					args = append(args, "-drive", fmt.Sprintf("if=pflash,format=raw,file=%s", c.NVRAMPath))
+				}
+			}
 		}
 	}
 
