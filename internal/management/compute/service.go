@@ -798,6 +798,21 @@ func (s *Service) deleteInstanceOnNode(ctx context.Context, inst *Instance) {
 		"terminated_at": now,
 	}).Error
 
+	// Deallocate network ports associated with this instance (best-effort).
+	// Ports are identified by device_id = instance UUID.
+	if s.portAllocator != nil {
+		type portRow struct{ ID string }
+		var ports []portRow
+		if err := s.db.Table("net_ports").Select("id").Where("device_id = ?", inst.UUID).Find(&ports).Error; err == nil {
+			for _, p := range ports {
+				if err := s.portAllocator.DeallocatePort(p.ID); err != nil {
+					s.logger.Warn("failed to deallocate port on instance delete",
+						zap.Error(err), zap.String("port_id", p.ID), zap.String("instance", inst.UUID))
+				}
+			}
+		}
+	}
+
 	// Soft delete the record so it doesn't show up in normal lists
 	if err := s.db.Delete(inst).Error; err != nil {
 		s.logger.Error("failed to soft delete instance", zap.Error(err))
@@ -824,6 +839,17 @@ func (s *Service) forceDeleteInstance(c *gin.Context) {
 			}
 		}
 	}(&instance)
+
+	// Deallocate network ports (best-effort).
+	if s.portAllocator != nil {
+		type portRow struct{ ID string }
+		var ports []portRow
+		if err := s.db.Table("net_ports").Select("id").Where("device_id = ?", instance.UUID).Find(&ports).Error; err == nil {
+			for _, p := range ports {
+				_ = s.portAllocator.DeallocatePort(p.ID)
+			}
+		}
+	}
 
 	// Hard delete from DB
 	if err := s.db.Unscoped().Delete(&instance).Error; err != nil {
