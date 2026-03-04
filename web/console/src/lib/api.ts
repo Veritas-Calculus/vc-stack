@@ -101,6 +101,8 @@ type ListInstancesResponse = {
     project_id?: number
     user_id?: number
     host_id?: string
+    ip_address?: string
+    floating_ip?: string
   }>
 }
 
@@ -280,10 +282,14 @@ export async function importImage(
 }
 
 // Upload image (multipart)
-export async function uploadImage(file: File, opts?: { name?: string }): Promise<{ id: string }> {
+export async function uploadImage(file: File, opts?: { name?: string; disk_format?: string }): Promise<{ id: string }> {
   const form = new FormData()
   form.append('file', file)
   if (opts?.name) form.append('name', opts.name)
+  // Auto-detect disk format from file extension if not specified
+  const ext = (file.name.split('.').pop() || '').toLowerCase()
+  const autoFormat = ext === 'iso' ? 'iso' : ext === 'raw' ? 'raw' : ext === 'img' ? 'raw' : 'qcow2'
+  form.append('disk_format', opts?.disk_format || autoFormat)
   const res = await api.post<{ image: { id: number } }>('/v1/images/upload', form, {
     headers: { 'Content-Type': 'multipart/form-data' }
   })

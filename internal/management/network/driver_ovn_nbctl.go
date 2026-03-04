@@ -362,6 +362,11 @@ func (d *OVNDriver) ConnectSubnetToRouter(router string, n *Network, s *Subnet) 
 			return err3
 		}
 	}
+	// Ensure the network's logical switch exists in OVN.
+	// This handles cases where networks were created before OVN CLI was available.
+	if err := d.nbctl("--may-exist", "ls-add", lsName); err != nil {
+		return fmt.Errorf("failed to ensure network switch: %w", err)
+	}
 	if err := d.nbctl("--", "--may-exist", "lsp-add", lsName, lspName, "--", "lsp-set-type", lspName, "router", "--", "lsp-set-options", lspName, fmt.Sprintf("router-port=%s", lrpName)); err != nil {
 		return err
 	}
@@ -389,6 +394,13 @@ func (d *OVNDriver) SetRouterGateway(router string, externalNetwork *Network, ex
 	lsName := fmt.Sprintf("ls-%s", externalNetwork.ID)
 	lrpName := fmt.Sprintf("lrp-%s-gw", router)
 	lspName := fmt.Sprintf("lsp-%s-gw", router)
+
+	// Ensure the external network's logical switch exists in OVN.
+	// This handles cases where networks were created before OVN CLI was available.
+	if err := d.nbctl("--may-exist", "ls-add", lsName); err != nil {
+		return "", fmt.Errorf("failed to ensure external network switch: %w", err)
+	}
+
 	gatewayIP := ""
 	if externalSubnet.Gateway != "" {
 		if ip, ipnet, err := net.ParseCIDR(externalSubnet.CIDR); err == nil {
@@ -441,17 +453,87 @@ func (d *OVNDriver) SetRouterSNAT(router string, enable bool, internalCIDR, exte
 	return nil
 }
 
-// ReplacePortACLs replaces ACLs for a given port (nbctl placeholder).
+// ReplacePortACLs replaces ACLs for a given port on its logical switch.
+// It first removes all existing ACLs tagged with this port's ID, then adds new ones.
 func (d *OVNDriver) ReplacePortACLs(networkID, portID string, rules []ACLRule) error {
-	// In the nbctl-backed driver, ACL/PG management is not yet implemented. Placeholder no-op.
-	d.logger.Debug("ReplacePortACLs (nbctl placeholder)", zap.String("network", networkID), zap.String("port", portID))
+	lsName := fmt.Sprintf("ls-%s", networkID)
+	lspName := fmt.Sprintf("lsp-%s", portID)
+
+	// 1. Remove existing ACLs for this port (tagged via external_ids:port_id).
+	existingUUIDs, err := d.nbctlOutput("--bare", "--columns=_uuid", "find", "acl",
+		fmt.Sprintf("external_ids:port_id=%s", portID))
+	if err == nil {
+		for _, uuid := range strings.Fields(strings.TrimSpace(existingUUIDs)) {
+			uuid = strings.TrimSpace(uuid)
+			if uuid != "" {
+				_ = d.nbctl("remove", "Logical_Switch", lsName, "acls", uuid)
+			}
+		}
+	}
+
+	// 2. Add new ACL rules.
+	for _, rule := range rules {
+		// Build match expression with port binding.
+		portMatch := ""
+		if rule.Direction == "to-lport" { // ingress
+			portMatch = fmt.Sprintf(`outport == "%s" && %s`, lspName, rule.Match)
+		} else { // egress (from-lport)
+			portMatch = fmt.Sprintf(`inport == "%s" && %s`, lspName, rule.Match)
+		}
+
+		if err := d.nbctl(
+			"--", "--id=@acl", "create", "acl",
+			fmt.Sprintf("direction=%s", rule.Direction),
+			fmt.Sprintf("priority=%d", rule.Priority),
+			fmt.Sprintf("match=%q", portMatch),
+			fmt.Sprintf("action=%s", rule.Action),
+			fmt.Sprintf("external_ids:port_id=%s", portID),
+			"--", "add", "Logical_Switch", lsName, "acls", "@acl",
+		); err != nil {
+			d.logger.Warn("failed to add ACL", zap.Error(err),
+				zap.String("port", portID), zap.String("match", portMatch))
+		}
+	}
+
+	d.logger.Info("port ACLs replaced",
+		zap.String("port", portID),
+		zap.String("network", networkID),
+		zap.Int("rule_count", len(rules)))
 	return nil
 }
 
-// EnsurePortSecurity ensures security groups are applied via Port Groups and ACLs (nbctl placeholder).
+// EnsurePortSecurity manages OVN Port Groups for security group membership.
+// Each security group maps to a Port Group; the port's LSP is added to each PG.
 func (d *OVNDriver) EnsurePortSecurity(portID string, groups []CompiledSecurityGroup) error {
-	// In the nbctl-backed driver, security groups via Port Groups are not yet implemented. Placeholder no-op.
-	d.logger.Debug("EnsurePortSecurity (nbctl placeholder)", zap.String("port", portID))
+	lspName := fmt.Sprintf("lsp-%s", portID)
+
+	for _, sg := range groups {
+		pgName := fmt.Sprintf("pg-%s", sg.ID)
+
+		// 1. Ensure Port Group exists.
+		if err := d.nbctl("--may-exist", "pg-add", pgName); err != nil {
+			d.logger.Warn("pg-add failed, falling back to LS-level ACLs",
+				zap.Error(err), zap.String("pg", pgName))
+			continue
+		}
+
+		// 2. Add LSP to Port Group if not already a member.
+		members, _ := d.nbctlOutput("pg-get-ports", pgName)
+		membersStr := strings.TrimSpace(members)
+		if !strings.Contains(membersStr, lspName) {
+			newMembers := lspName
+			if membersStr != "" {
+				newMembers = membersStr + " " + lspName
+			}
+			if err := d.nbctl("pg-set-ports", pgName, newMembers); err != nil {
+				d.logger.Warn("pg-set-ports failed", zap.Error(err))
+			}
+		}
+	}
+
+	d.logger.Info("port security groups ensured",
+		zap.String("port", portID),
+		zap.Int("sg_count", len(groups)))
 	return nil
 }
 

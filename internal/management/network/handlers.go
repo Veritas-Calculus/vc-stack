@@ -385,9 +385,61 @@ func (s *Service) autoCreateRouter(network *Network, subnet *Subnet) {
 		}
 	}
 
+	// Auto-connect to an external network (best-effort).
+	// This enables VMs on this network to reach the internet via SNAT.
+	s.autoSetExternalGateway(&router, network, subnet)
+
 	s.logger.Info("Auto-created router for network",
 		zap.String("router_id", router.ID),
 		zap.String("network_id", network.ID))
+}
+
+// autoSetExternalGateway finds an external network and sets it as the router's gateway.
+// It also configures SNAT for the internal subnet, enabling outbound internet access.
+func (s *Service) autoSetExternalGateway(router *Router, network *Network, subnet *Subnet) {
+	// Find a suitable external network.
+	var extNetwork Network
+	if err := s.db.Where("external = true AND status = 'active'").First(&extNetwork).Error; err != nil {
+		s.logger.Debug("no external network found, skipping auto-gateway setup")
+		return
+	}
+
+	var extSubnet Subnet
+	if err := s.db.Where("network_id = ?", extNetwork.ID).First(&extSubnet).Error; err != nil {
+		s.logger.Warn("external network has no subnet, skipping auto-gateway",
+			zap.String("ext_network", extNetwork.ID))
+		return
+	}
+
+	// Set router gateway.
+	lrName := router.ID
+	gatewayIP, err := s.driver.SetRouterGateway(lrName, &extNetwork, &extSubnet)
+	if err != nil {
+		s.logger.Warn("auto set router gateway failed",
+			zap.Error(err), zap.String("router", lrName))
+		return
+	}
+
+	// Update router record.
+	router.ExternalGatewayNetworkID = &extNetwork.ID
+	router.ExternalGatewayIP = &gatewayIP
+	router.EnableSNAT = true
+	_ = s.db.Save(router).Error
+
+	// Configure SNAT: internal CIDR → external gateway IP.
+	if err := s.driver.SetRouterSNAT(lrName, true, subnet.CIDR, gatewayIP); err != nil {
+		s.logger.Warn("auto SNAT setup failed",
+			zap.Error(err), zap.String("router", lrName))
+	} else {
+		s.logger.Info("auto SNAT configured",
+			zap.String("internal_cidr", subnet.CIDR),
+			zap.String("external_ip", gatewayIP))
+	}
+
+	s.logger.Info("auto-connected router to external network",
+		zap.String("router", router.ID),
+		zap.String("external_network", extNetwork.ID),
+		zap.String("gateway_ip", gatewayIP))
 }
 
 // getNetwork handles GET /api/v1/networks/:id.

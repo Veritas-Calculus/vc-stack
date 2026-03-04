@@ -21,15 +21,16 @@ type AuditLog = models.AuditLog
 
 // CreateInstanceRequest represents a request to create an instance.
 type CreateInstanceRequest struct {
-	Name       string            `json:"name" binding:"required"`
-	FlavorID   uint              `json:"flavor_id" binding:"required"`
-	ImageID    uint              `json:"image_id" binding:"required"`
-	UserData   string            `json:"user_data"`
-	SSHKey     string            `json:"ssh_key"`
-	EnableTPM  bool              `json:"enable_tpm"`
-	Metadata   map[string]string `json:"metadata"`
-	Networks   []NetworkRequest  `json:"networks"`
-	RootDiskGB int               `json:"root_disk_gb"`
+	Name           string            `json:"name" binding:"required"`
+	FlavorID       uint              `json:"flavor_id" binding:"required"`
+	ImageID        uint              `json:"image_id" binding:"required"`
+	UserData       string            `json:"user_data"`
+	SSHKey         string            `json:"ssh_key"`
+	EnableTPM      bool              `json:"enable_tpm"`
+	Metadata       map[string]string `json:"metadata"`
+	Networks       []NetworkRequest  `json:"networks"`
+	RootDiskGB     int               `json:"root_disk_gb"`
+	SecurityGroups []string          `json:"security_groups"` // SG IDs; empty = use default
 }
 
 // NetworkRequest represents network configuration for instance creation.

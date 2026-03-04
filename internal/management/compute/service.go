@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -30,13 +31,14 @@ type Config struct {
 
 // Service represents the controller compute service.
 type Service struct {
-	db           *gorm.DB
-	logger       *zap.Logger
-	scheduler    string
-	client       *http.Client
-	jwtSecret    string
-	imageStorage *ImageStorage
-	eventLogger  event.EventLogger
+	db            *gorm.DB
+	logger        *zap.Logger
+	scheduler     string
+	client        *http.Client
+	jwtSecret     string
+	imageStorage  *ImageStorage
+	eventLogger   event.EventLogger
+	portAllocator PortAllocator
 }
 
 // NewService creates a new compute service.
@@ -86,6 +88,12 @@ func NewService(cfg Config) (*Service, error) {
 	}
 
 	return s, nil
+}
+
+// SetPortAllocator injects the network port allocator into the compute service.
+// This must be called after both compute and network services are initialized.
+func (s *Service) SetPortAllocator(pa PortAllocator) {
+	s.portAllocator = pa
 }
 
 // emitEvent logs an event if the event logger is configured.
@@ -243,14 +251,21 @@ type ScheduleResponse struct {
 
 // CreateVMRequest represents VM creation request sent to the vm driver.
 type CreateVMRequest struct {
-	Name             string `json:"name"`
-	VCPUs            int    `json:"vcpus"`
-	MemoryMB         int    `json:"memory_mb"`
-	DiskGB           int    `json:"disk_gb"`
-	Image            string `json:"image"`
-	UserData         string `json:"user_data,omitempty"`
-	SSHAuthorizedKey string `json:"ssh_authorized_key,omitempty"`
-	TPM              bool   `json:"tpm"`
+	Name             string    `json:"name"`
+	VCPUs            int       `json:"vcpus"`
+	MemoryMB         int       `json:"memory_mb"`
+	DiskGB           int       `json:"disk_gb"`
+	Image            string    `json:"image"`
+	UserData         string    `json:"user_data,omitempty"`
+	SSHAuthorizedKey string    `json:"ssh_authorized_key,omitempty"`
+	TPM              bool      `json:"tpm"`
+	Nics             []NicSpec `json:"nics,omitempty"`
+}
+
+// NicSpec represents a NIC to attach to the VM.
+type NicSpec struct {
+	MAC    string `json:"mac"`
+	PortID string `json:"port_id"`
 }
 
 // CreateVMResponse represents vm driver response.
@@ -485,14 +500,62 @@ func (s *Service) createInstance(c *gin.Context) {
 		"name": instance.Name, "flavor_id": req.FlavorID, "image_id": req.ImageID,
 	}, "")
 
+	// Allocate network ports before dispatching.
+	var nics []NicSpec
+	if s.portAllocator != nil {
+		tenantID := fmt.Sprintf("%d", pid)
+		if len(req.Networks) > 0 {
+			// User specified networks.
+			for _, netReq := range req.Networks {
+				if netReq.Port != "" {
+					// User specified an existing port.
+					nics = append(nics, NicSpec{PortID: netReq.Port})
+					continue
+				}
+				mac, portID, allocatedIP, allocErr := s.portAllocator.AllocatePort(
+					netReq.UUID, instance.UUID, tenantID, netReq.FixedIP, req.SecurityGroups)
+				if allocErr != nil {
+					s.logger.Error("failed to allocate port",
+						zap.Error(allocErr),
+						zap.String("network", netReq.UUID),
+						zap.String("instance", instance.UUID))
+					s.updateInstanceStatus(instance.ID, "error", "shutdown", "")
+					c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to allocate network port: " + allocErr.Error()})
+					return
+				}
+				nics = append(nics, NicSpec{MAC: mac, PortID: portID})
+				// Set first allocated IP as instance IP.
+				if len(nics) == 1 && allocatedIP != "" {
+					_ = s.db.Model(instance).Update("ip_address", allocatedIP).Error
+				}
+			}
+		} else {
+			// Try to use tenant's default network.
+			defaultNetID, _ := s.portAllocator.DefaultNetworkID(tenantID)
+			if defaultNetID != "" {
+				mac, portID, allocatedIP, allocErr := s.portAllocator.AllocatePort(
+					defaultNetID, instance.UUID, tenantID, "", req.SecurityGroups)
+				if allocErr != nil {
+					s.logger.Warn("failed to allocate default network port, VM will have no network",
+						zap.Error(allocErr))
+				} else {
+					nics = append(nics, NicSpec{MAC: mac, PortID: portID})
+					if allocatedIP != "" {
+						_ = s.db.Model(instance).Update("ip_address", allocatedIP).Error
+					}
+				}
+			}
+		}
+	}
+
 	// Dispatch to scheduler asynchronously.
-	go s.dispatchInstance(context.Background(), instance, &flavor, &image)
+	go s.dispatchInstance(context.Background(), instance, &flavor, &image, nics)
 
 	c.JSON(http.StatusAccepted, gin.H{"instance": instance})
 }
 
 // dispatchInstance schedules instance to a node and launches it via vm driver.
-func (s *Service) dispatchInstance(ctx context.Context, inst *Instance, flavor *Flavor, image *Image) {
+func (s *Service) dispatchInstance(ctx context.Context, inst *Instance, flavor *Flavor, image *Image, nics []NicSpec) {
 	s.logger.Info("dispatching instance to scheduler", zap.String("name", inst.Name), zap.String("uuid", inst.UUID))
 
 	// Schedule the instance using the scheduler service.
@@ -514,7 +577,7 @@ func (s *Service) dispatchInstance(ctx context.Context, inst *Instance, flavor *
 	}
 
 	// Create VM on the selected node via vm driver.
-	vmID, err := s.createVMOnNode(ctx, nodeAddr, inst, flavor, image)
+	vmID, err := s.createVMOnNode(ctx, nodeAddr, inst, flavor, image, nics)
 	if err != nil {
 		s.logger.Error("failed to create vm on node", zap.String("node_addr", nodeAddr), zap.Error(err))
 		s.updateInstanceStatus(inst.ID, "error", "shutdown", "")
@@ -613,7 +676,7 @@ func (s *Service) lookupNodeAddress(ctx context.Context, nodeID string) (string,
 }
 
 // createVMOnNode creates a VM on the selected node via vm driver.
-func (s *Service) createVMOnNode(ctx context.Context, nodeAddr string, inst *Instance, flavor *Flavor, image *Image) (string, error) {
+func (s *Service) createVMOnNode(ctx context.Context, nodeAddr string, inst *Instance, flavor *Flavor, image *Image, nics []NicSpec) (string, error) {
 	vmReq := CreateVMRequest{
 		Name:             inst.Name,
 		VCPUs:            flavor.VCPUs,
@@ -623,6 +686,7 @@ func (s *Service) createVMOnNode(ctx context.Context, nodeAddr string, inst *Ins
 		UserData:         inst.UserData,
 		SSHAuthorizedKey: inst.SSHKey,
 		TPM:              inst.EnableTPM,
+		Nics:             nics,
 	}
 
 	if image.RBDImage != "" {
@@ -1115,6 +1179,10 @@ func (s *Service) registerImage(c *gin.Context) {
 
 	if err := s.db.Create(image).Error; err != nil {
 		s.logger.Error("failed to register image", zap.Error(err))
+		if strings.Contains(err.Error(), "duplicate key") || strings.Contains(err.Error(), "idx_images_name") {
+			c.JSON(http.StatusConflict, gin.H{"error": fmt.Sprintf("image with name %q already exists", image.Name)})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to register image"})
 		return
 	}
@@ -1142,19 +1210,62 @@ func (s *Service) uploadImage(c *gin.Context) {
 		name = header.Filename
 	}
 
+	// Auto-detect disk format from file extension if not provided
+	diskFormat := c.PostForm("disk_format")
+	if diskFormat == "" {
+		ext := strings.ToLower(name)
+		switch {
+		case strings.HasSuffix(ext, ".qcow2"):
+			diskFormat = "qcow2"
+		case strings.HasSuffix(ext, ".iso"):
+			diskFormat = "iso"
+		case strings.HasSuffix(ext, ".raw"):
+			diskFormat = "raw"
+		case strings.HasSuffix(ext, ".img"):
+			diskFormat = "raw"
+		case strings.HasSuffix(ext, ".vmdk"):
+			diskFormat = "vmdk"
+		default:
+			diskFormat = "qcow2"
+		}
+	}
+
 	image := &Image{
 		Name:       name,
 		UUID:       uuid.New().String(),
 		OwnerID:    uid,
 		Size:       header.Size,
 		Status:     "uploading",
-		DiskFormat: c.PostForm("disk_format"),
+		DiskFormat: diskFormat,
 	}
 
 	if err := s.db.Create(image).Error; err != nil {
-		s.logger.Error("failed to create image record for upload", zap.Error(err))
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create image"})
-		return
+		// If duplicate name, find the existing image and overwrite it
+		if strings.Contains(err.Error(), "duplicate key") || strings.Contains(err.Error(), "idx_images_name") {
+			var existing Image
+			if findErr := s.db.Where("name = ?", name).First(&existing).Error; findErr == nil {
+				// Update existing record for re-upload
+				existing.UUID = image.UUID
+				existing.Size = header.Size
+				existing.Status = "uploading"
+				existing.DiskFormat = diskFormat
+				existing.OwnerID = uid
+				if updateErr := s.db.Save(&existing).Error; updateErr != nil {
+					s.logger.Error("failed to update existing image for re-upload", zap.Error(updateErr))
+					c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update image"})
+					return
+				}
+				image = &existing
+				s.logger.Info("re-uploading over existing image", zap.String("name", name), zap.Uint("id", image.ID))
+			} else {
+				c.JSON(http.StatusConflict, gin.H{"error": fmt.Sprintf("image with name %q already exists", name)})
+				return
+			}
+		} else {
+			s.logger.Error("failed to create image record for upload", zap.Error(err))
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create image"})
+			return
+		}
 	}
 
 	// Store the uploaded file to the configured storage backend (local or RBD).
@@ -1427,15 +1538,61 @@ func (s *Service) getInstanceConsole(c *gin.Context) {
 		return
 	}
 
-	// Generate a short-lived console token.
-	token := uuid.New().String()
+	// Resolve the compute node address.
+	nodeAddr := instance.NodeAddress
+	if nodeAddr == "" {
+		// Fallback: try scheduler lookup.
+		if addr, err := s.lookupNodeAddress(c.Request.Context(), instance.HostID); err == nil {
+			nodeAddr = addr
+		} else {
+			s.logger.Error("cannot resolve node address for console", zap.String("host_id", instance.HostID), zap.Error(err))
+			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "cannot resolve node address"})
+			return
+		}
+	}
 
-	// Build WebSocket URL pointing to the gateway's console endpoint.
-	wsPath := fmt.Sprintf("/ws/console/%s?token=%s", instance.HostID, token)
+	// Determine the VM ID on the compute node.
+	vmID := instance.VMID
+	if vmID == "" {
+		vmID = instance.UUID
+	}
+
+	// Request a console ticket from the compute node.
+	consoleURL := strings.TrimRight(nodeAddr, "/") + "/api/v1/vms/" + vmID + "/console"
+	req, _ := http.NewRequestWithContext(c.Request.Context(), "POST", consoleURL, http.NoBody)
+	resp, err := http.DefaultClient.Do(req) // #nosec
+	if err != nil {
+		s.logger.Error("console request to compute node failed", zap.String("url", consoleURL), zap.Error(err))
+		c.JSON(http.StatusBadGateway, gin.H{"error": "console request failed"})
+		return
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	if resp.StatusCode != http.StatusOK {
+		s.logger.Error("compute node console returned error", zap.String("url", consoleURL), zap.Int("status", resp.StatusCode))
+		c.JSON(http.StatusBadGateway, gin.H{"error": fmt.Sprintf("console request failed: %s", resp.Status)})
+		return
+	}
+
+	var nodeResp struct {
+		WS             string `json:"ws"`
+		TokenExpiresIn int    `json:"token_expires_in"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&nodeResp); err != nil {
+		s.logger.Error("failed to decode console response", zap.Error(err))
+		c.JSON(http.StatusBadGateway, gin.H{"error": "invalid console response"})
+		return
+	}
+
+	// nodeResp.WS is like "/ws/console?token=xxx" — rewrite to include node_id for gateway routing.
+	wsPath := nodeResp.WS
+	if instance.HostID != "" {
+		wsPath = strings.Replace(wsPath, "/ws/console", "/ws/console/"+instance.HostID, 1)
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"ws":               wsPath,
-		"token_expires_in": 300,
+		"token_expires_in": nodeResp.TokenExpiresIn,
 	})
 }
 

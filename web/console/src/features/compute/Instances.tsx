@@ -22,7 +22,6 @@ import {
   destroyInstance,
   forceDeleteInstance,
   startConsole,
-  fetchPorts,
   fetchProjects as fetchIdentityProjects,
   fetchUsers,
   type BackendInstance,
@@ -54,7 +53,6 @@ export function Instances() {
   const [filter, setFilter] = useState<Filter>('all')
   const [q, setQ] = useState('')
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
-  const [ipMap, setIpMap] = useState<Record<string, string>>({})
   const [projNames, setProjNames] = useState<Record<string, string>>({})
   const [userNames, setUserNames] = useState<Record<string, string>>({})
   // Track newly created instances to show a provisioning state and poll for confirmation
@@ -170,34 +168,6 @@ export function Instances() {
     if (items.length > 0 && !hasBuilding && autoTries !== 0) setAutoTries(0)
   }, [items, autoTries, refresh])
 
-  // When items change, fetch IP addresses for each instance via ports API (device_id = instance.uuid)
-  useEffect(() => {
-    let abort = false
-    async function loadIPs() {
-      const pairs = await Promise.all(
-        items.map(async (it) => {
-          try {
-            const ports = await fetchPorts({ tenant_id: projectId, device_id: it.uuid })
-            const ip =
-              ports.find((p) => p.fixed_ips && p.fixed_ips.length > 0)?.fixed_ips?.[0]?.ip || ''
-            return [String(it.id), ip] as const
-          } catch {
-            return [String(it.id), ''] as const
-          }
-        })
-      )
-      if (!abort) {
-        const next: Record<string, string> = {}
-        for (const [id, ip] of pairs) next[id] = ip
-        setIpMap(next)
-      }
-    }
-    if (items.length > 0) loadIPs()
-    else setIpMap({})
-    return () => {
-      abort = true
-    }
-  }, [items, projectId])
 
   const filtered = useMemo(() => {
     const byState = items.filter((it) => {
@@ -296,7 +266,20 @@ export function Instances() {
       }
     },
     { key: 'vm_id', header: 'Internal name', render: (r) => r.vm_id || r.uuid },
-    { key: 'ip', header: 'ip address', render: (r) => ipMap[String(r.id)] || '' },
+    {
+      key: 'ip',
+      header: 'IP Address',
+      render: (r) => (
+        <span className="font-mono text-xs">
+          {r.ip_address || ''}
+          {r.floating_ip && (
+            <span className="ml-1 text-emerald-400" title="Floating IP">
+              ({r.floating_ip})
+            </span>
+          )}
+        </span>
+      )
+    },
     { key: 'host_id', header: 'Host' },
     {
       key: 'user_id',
@@ -360,31 +343,31 @@ export function Instances() {
       // Mark as pending and start short polling until confirmed running or error
       const cid = String(created.id)
       setPendingIds((prev) => new Set(prev).add(cid))
-      ;(async () => {
-        try {
-          const deadline = Date.now() + 20_000
-          while (Date.now() < deadline) {
-            // brief pause
-            await new Promise((res) => setTimeout(res, 1500))
-            const list = await fetchInstancesRaw(projectId)
-            setItems(list)
-            const it = list.find((x) => String(x.id) === cid)
-            if (it) {
-              const isRunning = it.status === 'active' && it.power_state === 'running'
-              const isError = it.status === 'error'
-              if (isRunning || isError) break
+        ; (async () => {
+          try {
+            const deadline = Date.now() + 20_000
+            while (Date.now() < deadline) {
+              // brief pause
+              await new Promise((res) => setTimeout(res, 1500))
+              const list = await fetchInstancesRaw(projectId)
+              setItems(list)
+              const it = list.find((x) => String(x.id) === cid)
+              if (it) {
+                const isRunning = it.status === 'active' && it.power_state === 'running'
+                const isError = it.status === 'error'
+                if (isRunning || isError) break
+              }
             }
+          } catch {
+            /* ignore */
+          } finally {
+            setPendingIds((prev) => {
+              const next = new Set(prev)
+              next.delete(cid)
+              return next
+            })
           }
-        } catch {
-          /* ignore */
-        } finally {
-          setPendingIds((prev) => {
-            const next = new Set(prev)
-            next.delete(cid)
-            return next
-          })
-        }
-      })()
+        })()
       setOpen(false)
       setNewName('')
       setFlavorId('')

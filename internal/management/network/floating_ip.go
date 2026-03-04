@@ -229,6 +229,22 @@ func (s *Service) updateFloatingIP(c *gin.Context) {
 		return
 	}
 
+	// Update the associated Instance's floating_ip field (best-effort).
+	if req.PortID != "" {
+		var port NetworkPort
+		if err := s.db.First(&port, "id = ?", req.PortID).Error; err == nil && port.DeviceID != "" {
+			// DeviceID is the instance UUID.
+			s.db.Table("instances").Where("uuid = ?", port.DeviceID).
+				Update("floating_ip", floatingIP.FloatingIP)
+		}
+	} else if floatingIP.Status == "available" {
+		// Disassociated — clear the instance's floating_ip.
+		if prevFixed != "" {
+			s.db.Table("instances").Where("ip_address = ?", prevFixed).
+				Update("floating_ip", "")
+		}
+	}
+
 	c.JSON(http.StatusOK, gin.H{"floating_ip": floatingIP})
 }
 

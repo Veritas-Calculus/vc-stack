@@ -66,6 +66,8 @@ type Instance struct {
 	ProjectID    uint           `gorm:"not null" json:"project_id"`
 	HostID       string         `json:"host_id"`      // Scheduler node ID
 	NodeAddress  string         `json:"node_address"` // vc-compute address
+	IPAddress    string         `json:"ip_address"`   // Primary fixed IP from port allocation
+	FloatingIP   string         `json:"floating_ip"`  // Associated floating IP for external access
 	UserData     string         `gorm:"type:text" json:"user_data,omitempty"`
 	SSHKey       string         `gorm:"type:text" json:"ssh_key,omitempty"`
 	EnableTPM    bool           `gorm:"default:false" json:"enable_tpm"`

@@ -78,7 +78,24 @@ func New(cfg Config) (*Service, error) {
 		return nil, err
 	}
 
-	netSvc, err := network.NewService(network.Config{DB: cfg.DB, Logger: cfg.Logger, SDN: network.SDNConfig{Provider: "ovn"}, IPAM: network.IPAMOptions{ReserveGateway: true}})
+	// Network service configuration: read SDN options from environment.
+	sdnProvider := os.Getenv("VC_SDN_PROVIDER")
+	if sdnProvider == "" {
+		sdnProvider = "ovn"
+	}
+	bridgeMappings := os.Getenv("VC_BRIDGE_MAPPINGS") // e.g. "provider:br-provider,external:br-ex"
+	ovnNBAddr := os.Getenv("OVN_NB_ADDRESS")          // e.g. "tcp:ovn-central:6641"
+
+	netSvc, err := network.NewService(network.Config{
+		DB:     cfg.DB,
+		Logger: cfg.Logger,
+		SDN: network.SDNConfig{
+			Provider:       sdnProvider,
+			BridgeMappings: bridgeMappings,
+			OVN:            network.OVNConfig{NBAddress: ovnNBAddr},
+		},
+		IPAM: network.IPAMOptions{ReserveGateway: true},
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -135,15 +152,26 @@ func New(cfg Config) (*Service, error) {
 		return nil, err
 	}
 
+	// Determine the management port for the in-process scheduler.
+	mgmtPort := os.Getenv("VC_MANAGEMENT_PORT")
+	if mgmtPort == "" {
+		mgmtPort = "8080"
+	}
+
 	compSvc, err := compute.NewService(compute.Config{
 		DB:          cfg.DB,
 		Logger:      cfg.Logger.Named("compute"),
 		JWTSecret:   jwtSecret,
 		EventLogger: eventSvc,
+		Scheduler:   "http://localhost:" + mgmtPort,
 	})
 	if err != nil {
 		return nil, err
 	}
+
+	// Inject network service as port allocator into compute service.
+	// This enables createInstance to allocate OVN ports (LSP + DHCP + SG).
+	compSvc.SetPortAllocator(netSvc)
 
 	domainSvc, err := domain.NewService(domain.Config{DB: cfg.DB, Logger: cfg.Logger.Named("domain")})
 	if err != nil {

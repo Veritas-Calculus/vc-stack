@@ -61,6 +61,53 @@ func (s *Service) createSecurityGroup(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"security_group": securityGroup})
 }
 
+// EnsureDefaultSecurityGroup creates or returns the default security group for a tenant.
+// It creates standard egress-allow and SSH/ICMP ingress rules if the group is newly created.
+func (s *Service) EnsureDefaultSecurityGroup(tenantID string) (*SecurityGroup, error) {
+	var sg SecurityGroup
+	err := s.db.Where("name = ? AND tenant_id = ?", "default", tenantID).First(&sg).Error
+	if err == nil {
+		return &sg, nil // Already exists.
+	}
+
+	sg = SecurityGroup{
+		ID:          generateUUID(),
+		Name:        "default",
+		Description: "Default security group",
+		TenantID:    tenantID,
+	}
+	if err := s.db.Create(&sg).Error; err != nil {
+		return nil, fmt.Errorf("failed to create default SG: %w", err)
+	}
+
+	// Default rules:
+	defaultRules := []SecurityGroupRule{
+		// Allow all egress.
+		{ID: generateUUID(), SecurityGroupID: sg.ID, Direction: "egress",
+			Protocol: "tcp", RemoteIPPrefix: "0.0.0.0/0"},
+		{ID: generateUUID(), SecurityGroupID: sg.ID, Direction: "egress",
+			Protocol: "udp", RemoteIPPrefix: "0.0.0.0/0"},
+		{ID: generateUUID(), SecurityGroupID: sg.ID, Direction: "egress",
+			Protocol: "icmp", RemoteIPPrefix: "0.0.0.0/0"},
+		// Allow ICMP ingress (ping).
+		{ID: generateUUID(), SecurityGroupID: sg.ID, Direction: "ingress",
+			Protocol: "icmp", RemoteIPPrefix: "0.0.0.0/0"},
+		// Allow SSH ingress.
+		{ID: generateUUID(), SecurityGroupID: sg.ID, Direction: "ingress",
+			Protocol: "tcp", PortRangeMin: 22, PortRangeMax: 22,
+			RemoteIPPrefix: "0.0.0.0/0"},
+	}
+	for _, rule := range defaultRules {
+		if err := s.db.Create(&rule).Error; err != nil {
+			s.logger.Warn("failed to create default SG rule", zap.Error(err))
+		}
+	}
+
+	s.logger.Info("default security group created",
+		zap.String("sg_id", sg.ID), zap.String("tenant_id", tenantID))
+	return &sg, nil
+}
+
 // getSecurityGroup handles GET /api/v1/security-groups/:id.
 func (s *Service) getSecurityGroup(c *gin.Context) {
 	id := c.Param("id")
@@ -323,10 +370,13 @@ func buildOVNMatch(r SecurityGroupRule) string {
 		match += "ip"
 	}
 	if r.RemoteIPPrefix != "" {
-		match += fmt.Sprintf(" && ip4.src == %s", r.RemoteIPPrefix)
+		if r.Direction == "ingress" {
+			match += fmt.Sprintf(" && ip4.src == %s", r.RemoteIPPrefix)
+		} else {
+			match += fmt.Sprintf(" && ip4.dst == %s", r.RemoteIPPrefix)
+		}
 	}
 	if r.PortRangeMin > 0 && r.PortRangeMax >= r.PortRangeMin && r.Protocol != "icmp" {
-		// apply to destination port for ingress; for egress，这里简单示例同用 dport.
 		match += fmt.Sprintf(" && %s.dst >= %d && %s.dst <= %d", r.Protocol, r.PortRangeMin, r.Protocol, r.PortRangeMax)
 	}
 	return match
