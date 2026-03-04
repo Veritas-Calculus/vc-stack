@@ -194,23 +194,21 @@ func (d *Driver) StopVM(ctx context.Context, id string, force bool) error {
 		}
 	}
 
-	// Wait for process to exit.
-	done := make(chan error, 1)
-	go func() {
-		_, err := process.Wait()
-		done <- err
-	}()
-
-	select {
-	case <-ctx.Done():
-		_ = process.Signal(syscall.SIGKILL)
-		return ctx.Err()
-	case err := <-done:
-		if err != nil {
-			d.logger.Warn("process wait error", zap.Error(err))
+	// Wait for process to exit using signal(0) polling
+	// (process.Wait() only works for Go's own children; QEMU is daemonized).
+	deadline := time.Now().Add(30 * time.Second)
+	for time.Now().Before(deadline) {
+		if err := process.Signal(syscall.Signal(0)); err != nil {
+			// Process exited.
+			break
 		}
-	case <-time.After(30 * time.Second):
+		time.Sleep(200 * time.Millisecond)
+	}
+	// If still alive after timeout, force kill.
+	if err := process.Signal(syscall.Signal(0)); err == nil && !force {
+		d.logger.Warn("graceful shutdown timed out, forcing kill", zap.String("id", id))
 		_ = process.Signal(syscall.SIGKILL)
+		time.Sleep(500 * time.Millisecond)
 	}
 
 	d.cleanupNetworking(cfg)
