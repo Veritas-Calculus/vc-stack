@@ -64,10 +64,14 @@ FROM debian:bookworm-slim AS vc-management
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates tzdata curl \
+    ovn-common \
     librados2 librbd1 libcephfs2 \
     && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd -r vcstack && useradd -r -g vcstack vcstack
+
+# Pre-create directories before switching to non-root user
+RUN mkdir -p /tmp/vcstack/images && chown -R vcstack:vcstack /tmp/vcstack
 
 COPY --from=builder /out/vc-management /usr/local/bin/vc-management
 COPY --from=builder /out/vcctl /usr/local/bin/vcctl
@@ -88,7 +92,9 @@ FROM debian:bookworm-slim AS vc-compute
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates tzdata curl iproute2 \
-    qemu-system-x86 qemu-utils \
+    qemu-system-x86 qemu-system-arm qemu-utils \
+    qemu-efi-aarch64 ovmf \
+    genisoimage swtpm \
     openvswitch-switch ovn-host \
     ceph-common librados2 librbd1 libcephfs2 \
     && rm -rf /var/lib/apt/lists/*

@@ -45,8 +45,13 @@ services:
       ADMIN_DEFAULT_PASSWORD: "ChangeMe123!"
       LOGGING_LEVEL: debug
       LOGGING_FORMAT: text
+      # SDN / OVN configuration
+      OVN_NB_ADDRESS: "tcp:ovn-central:6641"
+      VC_BRIDGE_MAPPINGS: "provider:br-provider,external:br-ex"
     networks:
       - vc-stack
+    volumes:
+      - vcstack_images:/tmp/vcstack/images
     restart: unless-stopped
 
   # ---- Nginx reverse proxy ----
@@ -118,12 +123,16 @@ services:
       LOGGING_LEVEL: debug
       LOGGING_FORMAT: text
     privileged: true
+    volumes:
+      - vcstack_images:/tmp/vcstack/images
     networks:
       - vc-stack
     restart: unless-stopped
 
 volumes:
   postgres_data:
+    driver: local
+  vcstack_images:
     driver: local
 
 networks:
