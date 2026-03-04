@@ -349,7 +349,7 @@ func (s *Service) listUsers(c *gin.Context) {
 func (s *Service) createUser(c *gin.Context) {
 	var req struct {
 		Username string `json:"username" binding:"required"`
-		Password string `json:"password" binding:"required"` //nolint:gosec // G117
+		Password string `json:"password" binding:"required"` // #nosec G117
 		TenantID string `json:"tenant_id"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {

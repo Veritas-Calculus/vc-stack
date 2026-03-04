@@ -77,8 +77,8 @@ func (d *PluginDriver) EnsureNetwork(n *Network, s *Subnet) error {
 						numHosts := (1 << hostBits) - 2
 						// Compute end IP using full 32-bit arithmetic to avoid byte overflow.
 						baseIP := uint32(ip[0])<<24 | uint32(ip[1])<<16 | uint32(ip[2])<<8 | uint32(ip[3])
-						endIPu32 := baseIP + uint32(numHosts) //nolint:gosec // G115: safe, subnet size bounded
-						endIP := net.IP{byte(endIPu32 >> 24), byte(endIPu32 >> 16), byte(endIPu32 >> 8), byte(endIPu32)} //nolint:gosec // G115: uint32 to byte is safe for IP octets
+						endIPu32 := baseIP + uint32(numHosts)                                                            // #nosec G115 -- safe, subnet size bounded
+						endIP := net.IP{byte(endIPu32 >> 24), byte(endIPu32 >> 16), byte(endIPu32 >> 8), byte(endIPu32)} // #nosec G115 -- uint32 to byte is safe for IP octets
 						s.AllocationEnd = endIP.String()
 					}
 				}

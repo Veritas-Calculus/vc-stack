@@ -22,7 +22,7 @@ ovsdb-server --remote=punix:/var/run/openvswitch/db.sock \
     /etc/openvswitch/conf.db 2>/dev/null || true
 
 # Wait for ovsdb socket
-for i in $(seq 1 10); do
+for _ in $(seq 1 10); do
     [ -S /var/run/openvswitch/db.sock ] && break
     sleep 0.5
 done

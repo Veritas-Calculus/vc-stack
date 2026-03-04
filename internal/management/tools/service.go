@@ -39,7 +39,7 @@ type Webhook struct {
 	ID          uint      `gorm:"primaryKey" json:"id"`
 	Name        string    `gorm:"not null" json:"name"`
 	URL         string    `gorm:"not null" json:"url"`
-	Secret      string    `json:"secret,omitempty"`        //nolint:gosec // G117: HMAC signing secret, not hardcoded
+	Secret      string    `json:"secret,omitempty"`        // #nosec G117
 	Events      string    `gorm:"type:text" json:"events"` // comma-separated: instance.create,instance.delete,...
 	ContentType string    `gorm:"default:'application/json'" json:"content_type"`
 	Enabled     bool      `gorm:"default:true" json:"enabled"`
@@ -172,7 +172,7 @@ func (s *Service) createWebhook(c *gin.Context) {
 	var req struct {
 		Name      string `json:"name" binding:"required"`
 		URL       string `json:"url" binding:"required"`
-		Secret    string `json:"secret"` //nolint:gosec // G117
+		Secret    string `json:"secret"` // #nosec G117
 		Events    string `json:"events"`
 		ProjectID uint   `json:"project_id"`
 	}
@@ -213,7 +213,7 @@ func (s *Service) updateWebhook(c *gin.Context) {
 		URL     *string `json:"url"`
 		Events  *string `json:"events"`
 		Enabled *bool   `json:"enabled"`
-		Secret  *string `json:"secret"` //nolint:gosec // G117
+		Secret  *string `json:"secret"` // #nosec G117
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

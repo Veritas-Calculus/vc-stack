@@ -21,7 +21,7 @@ type DeployRequest struct {
 	Host      string `json:"host" binding:"required"`
 	Port      int    `json:"port"`
 	User      string `json:"user"`
-	Password  string `json:"password" binding:"required"` //nolint:gosec // G117: required field, not a hardcoded secret
+	Password  string `json:"password" binding:"required"` // #nosec G117 -- required field, not a hardcoded secret
 	ZoneID    string `json:"zone_id"`
 	ClusterID string `json:"cluster_id"`
 	AgentPort string `json:"agent_port"`

@@ -941,18 +941,20 @@ function ACLPage() {
                       <td className="py-1.5 pr-3 text-gray-500">{rule.number}</td>
                       <td className="py-1.5 pr-3">
                         <span
-                          className={`px-1.5 py-0.5 rounded text-xs border ${rule.direction === 'ingress'
-                            ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
-                            : 'bg-purple-500/15 text-purple-400 border-purple-500/30'
-                            }`}
+                          className={`px-1.5 py-0.5 rounded text-xs border ${
+                            rule.direction === 'ingress'
+                              ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
+                              : 'bg-purple-500/15 text-purple-400 border-purple-500/30'
+                          }`}
                         >
                           {rule.direction}
                         </span>
                       </td>
                       <td className="py-1.5 pr-3">
                         <span
-                          className={`text-xs font-medium ${rule.action === 'allow' ? 'text-emerald-400' : 'text-red-400'
-                            }`}
+                          className={`text-xs font-medium ${
+                            rule.action === 'allow' ? 'text-emerald-400' : 'text-red-400'
+                          }`}
                         >
                           {rule.action.toUpperCase()}
                         </span>
