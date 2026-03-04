@@ -2371,7 +2371,8 @@ func genUUIDv4() string {
 
 // validateImportURL validates that rawURL is a safe HTTP(S) URL for image import.
 // It rejects non-HTTP schemes and URLs that resolve to private/loopback addresses
-// to prevent SSRF attacks. Returns the validated URL string or an error.
+// to prevent SSRF attacks. Returns a sanitized URL string constructed from parsed
+// components (breaking taint chain) or an error.
 func validateImportURL(rawURL string) (string, error) {
 	parsed, err := url.Parse(rawURL)
 	if err != nil {
@@ -2398,7 +2399,12 @@ func validateImportURL(rawURL string) (string, error) {
 			return "", fmt.Errorf("URL resolves to private/loopback address")
 		}
 	}
-	// Return a freshly constructed URL string (non-tainted).
-	validated := parsed.Scheme + "://" + parsed.Host + parsed.RequestURI()
-	return validated, nil
+	// Reconstruct URL from parsed components to produce a non-tainted string.
+	safeURL := &url.URL{
+		Scheme:   parsed.Scheme,
+		Host:     parsed.Host,
+		Path:     parsed.Path,
+		RawQuery: parsed.RawQuery,
+	}
+	return safeURL.String(), nil
 }

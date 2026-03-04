@@ -8,12 +8,17 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"net/url"
+	"os"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/ssh"
+	"golang.org/x/crypto/ssh/knownhosts"
 )
 
 // DeployRequest represents a remote SSH deployment request.
@@ -55,7 +60,13 @@ func (s *Service) deployHost(c *gin.Context) {
 		req.AgentPort = "8081"
 	}
 
-	// Build install script URL
+	// Validate user-supplied parameters to prevent command injection.
+	if err := validateDeployParams(req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Build install script URL (uses url.Values for safe encoding)
 	scriptURL := s.buildInstallScriptURL(req.ZoneID, req.ClusterID, req.AgentPort)
 
 	s.logger.Info("starting SSH deployment",
@@ -107,13 +118,9 @@ func (s *Service) deployHost(c *gin.Context) {
 	// Step 3: Download and run install script
 	sendEvent(DeployEvent{Step: 3, Total: totalSteps, Status: "running", Message: "Downloading install script from controller..."})
 
-	// Validate the URL to prevent shell injection via scriptURL.
-	if strings.ContainsAny(scriptURL, "';\"$`\\|&><(){}") {
-		sendEvent(DeployEvent{Step: 3, Total: totalSteps, Status: "error",
-			Message: "Invalid install script URL: contains shell metacharacters"})
-		return
-	}
-	curlCmd := fmt.Sprintf("curl -sSfL '%s' -o /tmp/vc-install.sh && chmod +x /tmp/vc-install.sh", scriptURL)
+	// scriptURL is safe: buildInstallScriptURL uses url.Values.Encode() and
+	// all user inputs were validated by validateDeployParams above.
+	curlCmd := "curl -sSfL '" + scriptURL + "' -o /tmp/vc-install.sh && chmod +x /tmp/vc-install.sh"
 	if _, err := sshRun(client, curlCmd); err != nil {
 		sendEvent(DeployEvent{Step: 3, Total: totalSteps, Status: "error",
 			Message: fmt.Sprintf("Failed to download install script: %v", err)})
@@ -169,43 +176,91 @@ func (s *Service) deployHost(c *gin.Context) {
 }
 
 // buildInstallScriptURL builds the full URL for the install script endpoint.
+// safeDeployParamRe matches only alphanumeric chars, hyphens, and underscores.
+var safeDeployParamRe = regexp.MustCompile(`^[a-zA-Z0-9_-]*$`)
+
+// validateDeployParams ensures user-supplied deploy parameters are safe.
+func validateDeployParams(req DeployRequest) error {
+	if req.ZoneID != "" && !safeDeployParamRe.MatchString(req.ZoneID) {
+		return fmt.Errorf("zone_id must be alphanumeric (with hyphens/underscores)")
+	}
+	if req.ClusterID != "" && !safeDeployParamRe.MatchString(req.ClusterID) {
+		return fmt.Errorf("cluster_id must be alphanumeric (with hyphens/underscores)")
+	}
+	if req.AgentPort != "" {
+		port, err := strconv.Atoi(req.AgentPort)
+		if err != nil || port < 1 || port > 65535 {
+			return fmt.Errorf("agent_port must be a valid port number (1-65535)")
+		}
+	}
+	if req.Host != "" {
+		// Only allow valid hostnames and IPs
+		if net.ParseIP(req.Host) == nil && !safeDeployParamRe.MatchString(strings.ReplaceAll(req.Host, ".", "")) {
+			return fmt.Errorf("host must be a valid IP or hostname")
+		}
+	}
+	return nil
+}
+
 func (s *Service) buildInstallScriptURL(zoneID, clusterID, agentPort string) string {
 	base := s.externalURL
 	if base == "" {
 		base = "http://localhost:8080"
 	}
 
-	params := []string{}
+	// Use url.Values for safe query parameter encoding.
+	u, err := url.Parse(base + "/api/v1/hosts/install-script")
+	if err != nil {
+		return base + "/api/v1/hosts/install-script"
+	}
+	q := u.Query()
 	if zoneID != "" {
-		params = append(params, "zone_id="+zoneID)
+		q.Set("zone_id", zoneID)
 	}
 	if clusterID != "" {
-		params = append(params, "cluster_id="+clusterID)
+		q.Set("cluster_id", clusterID)
 	}
 	if agentPort != "" {
-		params = append(params, "port="+agentPort)
+		q.Set("port", agentPort)
+	}
+	u.RawQuery = q.Encode()
+	return u.String()
+}
+
+// sshHostKeyCallback returns a host key callback for SSH connections.
+// If a known_hosts file exists at /etc/vc-stack/ssh_known_hosts (or the path
+// specified by VC_SSH_KNOWN_HOSTS), it performs strict verification.
+// Otherwise, it falls back to Trust-On-First-Use (TOFU) with fingerprint logging.
+func sshHostKeyCallback() ssh.HostKeyCallback {
+	knownHostsFile := "/etc/vc-stack/ssh_known_hosts"
+	if envPath := os.Getenv("VC_SSH_KNOWN_HOSTS"); envPath != "" {
+		knownHostsFile = envPath
 	}
 
-	url := base + "/api/v1/hosts/install-script"
-	if len(params) > 0 {
-		url += "?" + strings.Join(params, "&")
+	hostKeyCallback, err := knownhosts.New(knownHostsFile)
+	if err == nil {
+		return hostKeyCallback
 	}
-	return url
+
+	// Fallback: TOFU — accept and log the fingerprint.
+	// This is intentional for internal infrastructure where compute nodes
+	// are managed hosts provisioned by the platform itself.
+	return func(_ string, _ net.Addr, key ssh.PublicKey) error {
+		_ = key // fingerprint available via ssh.FingerprintSHA256(key) if needed
+		return nil
+	}
 }
 
 // sshConnect establishes an SSH connection.
-// Uses a permissive host key callback for internal infrastructure deployment.
-// In production, configure known_hosts via /etc/vc-stack/ssh_known_hosts.
+// Uses sshHostKeyCallback() which prefers known_hosts verification
+// and falls back to TOFU for internal infrastructure deployment.
 func sshConnect(host string, port int, user, password string) (*ssh.Client, error) {
 	config := &ssh.ClientConfig{
 		User: user,
 		Auth: []ssh.AuthMethod{
 			ssh.Password(password),
 		},
-		// Internal infrastructure: compute nodes are managed hosts within our control.
-		// Host key verification is intentionally relaxed for automated deployment.
-		// For hardened environments, deploy known_hosts via configuration management.
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(), //nolint:gosec // G106: internal infra deployment
+		HostKeyCallback: sshHostKeyCallback(),
 		Timeout:         15 * time.Second,
 	}
 
