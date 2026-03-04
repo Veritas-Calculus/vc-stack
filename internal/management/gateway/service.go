@@ -520,11 +520,12 @@ func (s *Service) topologyHandler(c *gin.Context) {
 	}
 
 	// Fetch resources in parallel (best-effort)
-	nets := doGET("network", "/v1/networks", q)
-	subs := doGET("network", "/v1/subnets", q)
-	rtrs := doGET("network", "/v1/routers", q)
-	ports := doGET("network", "/v1/ports", q)
-	insts := doGET("compute", "/v1/instances", q)
+	// Use /api/v1/ prefix to match monolithic mode route registration.
+	nets := doGET("network", "/api/v1/networks", q)
+	subs := doGET("network", "/api/v1/subnets", q)
+	rtrs := doGET("network", "/api/v1/routers", q)
+	ports := doGET("network", "/api/v1/ports", q)
+	insts := doGET("compute", "/api/v1/instances", q)
 
 	// Minimal shapes for marshaling.
 	var networks struct {
@@ -656,7 +657,7 @@ func (s *Service) topologyHandler(c *gin.Context) {
 	// Router interfaces: need to query per-router.
 	for _, r := range routers {
 		rid := get(r, "id")
-		path := fmt.Sprintf("/v1/routers/%s/interfaces", rid)
+		path := fmt.Sprintf("/api/v1/routers/%s/interfaces", rid)
 		ris := doGET("network", path, "")
 		if ris.status != http.StatusOK || len(ris.body) == 0 {
 			continue
