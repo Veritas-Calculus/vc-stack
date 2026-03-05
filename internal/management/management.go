@@ -13,11 +13,13 @@ import (
 	"github.com/Veritas-Calculus/vc-stack/internal/management/catalog"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/compute"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/config"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/configcenter"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/dns"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/domain"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/dr"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/encryption"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/event"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/eventbus"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/gateway"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/ha"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/host"
@@ -33,6 +35,7 @@ import (
 	"github.com/Veritas-Calculus/vc-stack/internal/management/orchestration"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/quota"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/ratelimit"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/registry"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/scheduler"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/selfheal"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/storage"
@@ -92,6 +95,9 @@ type Service struct {
 	BareMetal     *baremetal.Service
 	Catalog       *catalog.Service
 	SelfHeal      *selfheal.Service
+	Registry      *registry.Service
+	ConfigCenter  *configcenter.Service
+	EventBus      *eventbus.Service
 	logger        *zap.Logger
 }
 
@@ -442,6 +448,36 @@ func New(cfg Config) (*Service, error) {
 	}
 	svcObj.SelfHeal = shSvc
 
+	// Initialize Service Registry.
+	regSvc, err := registry.NewService(registry.Config{
+		DB:     cfg.DB,
+		Logger: cfg.Logger.Named("registry"),
+	})
+	if err != nil {
+		return nil, err
+	}
+	svcObj.Registry = regSvc
+
+	// Initialize Config Center.
+	ccSvc, err := configcenter.NewService(configcenter.Config{
+		DB:     cfg.DB,
+		Logger: cfg.Logger.Named("configcenter"),
+	})
+	if err != nil {
+		return nil, err
+	}
+	svcObj.ConfigCenter = ccSvc
+
+	// Initialize Event Bus.
+	ebSvc, err := eventbus.NewService(eventbus.Config{
+		DB:     cfg.DB,
+		Logger: cfg.Logger.Named("eventbus"),
+	})
+	if err != nil {
+		return nil, err
+	}
+	svcObj.EventBus = ebSvc
+
 	return svcObj, nil
 }
 
@@ -567,7 +603,18 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	if s.SelfHeal != nil {
 		s.SelfHeal.SetupRoutes(router)
 	}
-
+	// Service Registry.
+	if s.Registry != nil {
+		s.Registry.SetupRoutes(router)
+	}
+	// Config Center.
+	if s.ConfigCenter != nil {
+		s.ConfigCenter.SetupRoutes(router)
+	}
+	// Event Bus.
+	if s.EventBus != nil {
+		s.EventBus.SetupRoutes(router)
+	}
 	// Gateway proxy routes - only for external compute service (vc-compute)
 	// Use SetupComputeProxyRoutes to avoid conflicts with directly registered routes.
 	s.Gateway.SetupComputeProxyRoutes(router)

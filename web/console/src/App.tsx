@@ -51,6 +51,7 @@ import { DisasterRecovery } from '@/features/dr/DisasterRecovery'
 import { BareMetal } from '@/features/baremetal/BareMetal'
 import { ServiceCatalog } from '@/features/catalog/ServiceCatalog'
 import { SelfHealing } from '@/features/selfheal/SelfHealing'
+import { PlatformSettings } from '@/features/platform/PlatformSettings'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const token = useAuthStore((s) => s.token)
@@ -193,6 +194,7 @@ export default function App() {
                 <Route path="/bare-metal" element={<BareMetal />} />
                 <Route path="/service-catalog" element={<ServiceCatalog />} />
                 <Route path="/self-healing" element={<SelfHealing />} />
+                <Route path="/platform-settings" element={<PlatformSettings />} />
                 {/* Global Infrastructure */}
                 <Route path="/infrastructure/*" element={<Infrastructure />} />
                 {/* Project-scoped Security Groups */}

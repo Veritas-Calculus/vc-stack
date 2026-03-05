@@ -101,6 +101,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         { type: 'link', to: '/bare-metal', label: 'Bare Metal' },
         { type: 'link', to: '/service-catalog', label: 'Service Catalog' },
         { type: 'link', to: '/self-healing', label: 'Self-Healing' },
+        { type: 'link', to: '/platform-settings', label: 'Platform Settings' },
         { type: 'link', to: '/backups', label: 'Backups' },
         { type: 'link', to: '/autoscale', label: 'Auto Scale' },
         { type: 'link', to: '/utilization', label: 'Utilization' }
@@ -199,6 +200,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       { type: 'link', to: '/bare-metal', label: 'Bare Metal' },
       { type: 'link', to: '/service-catalog', label: 'Service Catalog' },
       { type: 'link', to: '/self-healing', label: 'Self-Healing' },
+      { type: 'link', to: '/platform-settings', label: 'Platform Settings' },
       { type: 'link', to: '/backups', label: 'Backups' },
       { type: 'link', to: '/autoscale', label: 'Auto Scale' },
       { type: 'link', to: '/notifications', label: 'Notifications' }
