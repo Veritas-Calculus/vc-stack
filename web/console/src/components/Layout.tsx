@@ -88,6 +88,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         { type: 'link', to: '/vpn', label: 'VPN' },
         { type: 'link', to: '/dns', label: 'DNS' },
         { type: 'link', to: '/object-storage', label: 'Object Storage' },
+        { type: 'link', to: '/orchestration', label: 'Orchestration' },
         { type: 'link', to: '/backups', label: 'Backups' },
         { type: 'link', to: '/autoscale', label: 'Auto Scale' },
         { type: 'link', to: '/utilization', label: 'Utilization' }
@@ -182,6 +183,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       { type: 'link', to: '/vpn', label: 'VPN' },
       { type: 'link', to: '/dns', label: 'DNS' },
       { type: 'link', to: '/object-storage', label: 'Object Storage' },
+      { type: 'link', to: '/orchestration', label: 'Orchestration' },
       { type: 'link', to: '/backups', label: 'Backups' },
       { type: 'link', to: '/autoscale', label: 'Auto Scale' },
       { type: 'link', to: '/notifications', label: 'Notifications' }
@@ -1110,6 +1112,24 @@ function NavIcon({ name, small }: { name: string; small?: boolean }) {
         <polyline points="14 2 14 8 20 8" />
         <circle cx="8" cy="14" r="3" />
         <path d="M5 14h6" />
+      </svg>
+    ),
+    Orchestration: (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="2" y="3" width="20" height="5" rx="1" />
+        <rect x="4" y="11" width="16" height="5" rx="1" />
+        <rect x="6" y="19" width="12" height="3" rx="1" />
+        <path d="M12 8v3" />
+        <path d="M12 16v3" />
       </svg>
     ),
     'Network ACL': (

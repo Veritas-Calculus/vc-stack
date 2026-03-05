@@ -22,6 +22,7 @@ import (
 	"github.com/Veritas-Calculus/vc-stack/internal/management/network"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/notification"
 	objectstorage "github.com/Veritas-Calculus/vc-stack/internal/management/objectstorage"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/orchestration"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/quota"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/scheduler"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/storage"
@@ -45,32 +46,33 @@ type Config struct {
 // Service composes all management plane services
 // and exposes a single SetupRoutes to register their routes on a router.
 type Service struct {
-	Compute      *compute.Service
-	Identity     *identity.Service
-	Network      *network.Service
-	Host         *host.Service
-	Scheduler    *scheduler.Service
-	Gateway      *gateway.Service
-	Metadata     *metadata.Service
-	Event        *event.Service
-	Quota        *quota.Service
-	Monitoring   *monitoring.Service
-	Config       *config.Service
-	Domain       *domain.Service
-	Tools        *tools.Service
-	Usage        *usage.Service
-	VPN          *vpn.Service
-	Backup       *backup.Service
-	AutoScale    *autoscale.Service
-	Storage      *storage.Service
-	Task         *task.Service
-	Tag          *tag.Service
-	Notification *notification.Service
-	Image        *image.Service
-	APIDocs      *apidocs.Service
-	DNS          *dns.Service
-	ObjStorage   *objectstorage.Service
-	logger       *zap.Logger
+	Compute       *compute.Service
+	Identity      *identity.Service
+	Network       *network.Service
+	Host          *host.Service
+	Scheduler     *scheduler.Service
+	Gateway       *gateway.Service
+	Metadata      *metadata.Service
+	Event         *event.Service
+	Quota         *quota.Service
+	Monitoring    *monitoring.Service
+	Config        *config.Service
+	Domain        *domain.Service
+	Tools         *tools.Service
+	Usage         *usage.Service
+	VPN           *vpn.Service
+	Backup        *backup.Service
+	AutoScale     *autoscale.Service
+	Storage       *storage.Service
+	Task          *task.Service
+	Tag           *tag.Service
+	Notification  *notification.Service
+	Image         *image.Service
+	APIDocs       *apidocs.Service
+	DNS           *dns.Service
+	ObjStorage    *objectstorage.Service
+	Orchestration *orchestration.Service
+	logger        *zap.Logger
 }
 
 // New composes the management plane services. It returns an error if any
@@ -308,6 +310,16 @@ func New(cfg Config) (*Service, error) {
 	}
 	svcObj.ObjStorage = objSvc
 
+	// Initialize orchestration engine.
+	orchSvc, err := orchestration.NewService(orchestration.Config{
+		DB:     cfg.DB,
+		Logger: cfg.Logger.Named("orchestration"),
+	})
+	if err != nil {
+		return nil, err
+	}
+	svcObj.Orchestration = orchSvc
+
 	return svcObj, nil
 }
 
@@ -385,6 +397,11 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	if s.ObjStorage != nil {
 		v1 := router.Group("/api/v1")
 		s.ObjStorage.SetupRoutes(v1)
+	}
+	// Orchestration Engine.
+	if s.Orchestration != nil {
+		v1 := router.Group("/api/v1")
+		s.Orchestration.SetupRoutes(v1)
 	}
 
 	// Gateway proxy routes - only for external compute service (vc-compute)
