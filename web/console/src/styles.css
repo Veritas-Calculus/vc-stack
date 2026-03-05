@@ -18,9 +18,11 @@ body {
 .btn {
   @apply inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50 disabled:pointer-events-none;
 }
+
 .btn-primary {
   @apply btn bg-oxide-600 hover:bg-oxide-500 text-white;
 }
+
 .btn-secondary {
   @apply btn bg-oxide-800 hover:bg-oxide-700 text-gray-100;
 }
@@ -39,4 +41,124 @@ body {
 
 .input-field {
   @apply w-full rounded-lg bg-oxide-900 border border-oxide-700 px-3 py-2 text-sm text-gray-200 placeholder:text-gray-500 focus:border-blue-500 focus:outline-none;
+}
+
+/* Light mode overrides */
+html.light body {
+  background-color: #f8fafc;
+  color: #1e293b;
+}
+
+html.light .bg-oxide-950,
+html.light .bg-oxide-900,
+html.light .bg-oxide-900\/70 {
+  background-color: #ffffff !important;
+}
+
+html.light .bg-oxide-800 {
+  background-color: #f1f5f9 !important;
+}
+
+html.light .bg-oxide-700 {
+  background-color: #e2e8f0 !important;
+}
+
+html.light .border-oxide-800,
+html.light .border-oxide-700 {
+  border-color: #e2e8f0 !important;
+}
+
+html.light .text-gray-100,
+html.light .text-gray-200 {
+  color: #1e293b !important;
+}
+
+html.light .text-gray-300 {
+  color: #475569 !important;
+}
+
+html.light .text-gray-400 {
+  color: #64748b !important;
+}
+
+html.light .text-gray-500 {
+  color: #94a3b8 !important;
+}
+
+html.light .text-white {
+  color: #0f172a !important;
+}
+
+html.light .bg-gray-800\/60,
+html.light .bg-gray-800\/40 {
+  background-color: #f8fafc !important;
+}
+
+html.light .border-gray-700\/40,
+html.light .border-gray-700\/30 {
+  border-color: #e2e8f0 !important;
+}
+
+html.light .bg-gray-700\/20,
+html.light .bg-gray-700\/30 {
+  background-color: #f1f5f9 !important;
+}
+
+html.light .bg-gray-700 {
+  background-color: #e2e8f0 !important;
+}
+
+html.light .shadow-card {
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1) !important;
+}
+
+/* Light mode - keep accent colors readable */
+html.light .text-cyan-400 {
+  color: #0891b2 !important;
+}
+
+html.light .text-emerald-400 {
+  color: #059669 !important;
+}
+
+html.light .text-amber-400 {
+  color: #d97706 !important;
+}
+
+html.light .text-red-400 {
+  color: #dc2626 !important;
+}
+
+html.light .text-blue-400 {
+  color: #2563eb !important;
+}
+
+html.light .text-purple-400 {
+  color: #7c3aed !important;
+}
+
+/* Light mode header */
+html.light header {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* Light mode sidebar */
+html.light nav,
+html.light aside {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* Light mode hover states */
+html.light .hover\:bg-oxide-800:hover {
+  background-color: #f1f5f9 !important;
+}
+
+/* Light mode inputs */
+html.light .input,
+html.light .input-field {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #1e293b !important;
 }
