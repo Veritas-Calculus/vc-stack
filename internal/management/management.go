@@ -9,6 +9,7 @@ import (
 	"github.com/Veritas-Calculus/vc-stack/internal/management/backup"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/compute"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/config"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/dns"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/domain"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/event"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/gateway"
@@ -66,6 +67,7 @@ type Service struct {
 	Notification *notification.Service
 	Image        *image.Service
 	APIDocs      *apidocs.Service
+	DNS          *dns.Service
 	logger       *zap.Logger
 }
 
@@ -284,6 +286,13 @@ func New(cfg Config) (*Service, error) {
 	// Initialize API docs service.
 	svcObj.APIDocs = apidocs.NewService(apidocs.Config{Logger: cfg.Logger.Named("apidocs")})
 
+	// Initialize DNS service.
+	dnsSvc, err := dns.NewService(dns.Config{DB: cfg.DB, Logger: cfg.Logger.Named("dns")})
+	if err != nil {
+		return nil, err
+	}
+	svcObj.DNS = dnsSvc
+
 	return svcObj, nil
 }
 
@@ -349,9 +358,13 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	if s.Notification != nil {
 		s.Notification.SetupRoutes(router)
 	}
-	// Image service handles metadata CRUD; compute keeps upload/import.
 	if s.Image != nil {
 		s.Image.SetupRoutes(router)
+	}
+	// DNS as a Service.
+	if s.DNS != nil {
+		v1 := router.Group("/api/v1")
+		s.DNS.SetupRoutes(v1)
 	}
 
 	// Gateway proxy routes - only for external compute service (vc-compute)
