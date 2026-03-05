@@ -156,7 +156,7 @@ func (d *qemuDriver) CreateVM(req CreateVMRequest) (*VM, error) {
 	if strings.TrimSpace(req.Image) != "" {
 		args = append(args, "-drive", fmt.Sprintf("file=%s,if=virtio,cache=none", req.Image))
 	} else if strings.TrimSpace(req.ISO) != "" {
-		args = append(args, "-cdrom", req.ISO)
+		args = append(args, "-drive", fmt.Sprintf("file=%s,if=virtio,media=cdrom,readonly=on", req.ISO))
 	}
 
 	// Seed ISO (cloud-init): always generate so cloud-init uses NoCloud
@@ -186,8 +186,7 @@ func (d *qemuDriver) CreateVM(req CreateVMRequest) (*VM, error) {
 		_ = os.Remove(md)
 		if _, err := os.Stat(seed); err == nil {
 			args = append(args,
-				"-drive", fmt.Sprintf("file=%s,if=none,media=cdrom,readonly=on", seed),
-				"-device", "virtio-scsi-pci",
+				"-drive", fmt.Sprintf("file=%s,if=virtio,readonly=on", seed),
 			)
 			seedFile = seed
 		}
@@ -360,19 +359,17 @@ func (d *qemuDriver) createVMNew(req CreateVMRequest) (*VM, error) {
 			Type:     "file",
 			Path:     req.ISO,
 			Format:   "raw",
-			Bus:      "ide",
+			Bus:      "virtio",
 			ReadOnly: true,
 		}
 		cfg.Disks = append(cfg.Disks, cdrom)
 	}
 
-	// Cloud-init.
-	if strings.TrimSpace(req.UserData) != "" || strings.TrimSpace(req.SSHAuthorizedKey) != "" {
-		cfg.CloudInit.Enabled = true
-		cfg.CloudInit.UserData = req.UserData
-		if req.SSHAuthorizedKey != "" {
-			cfg.CloudInit.SSHKeys = []string{req.SSHAuthorizedKey}
-		}
+	// Cloud-init: always enable so NoCloud datasource is available.
+	cfg.CloudInit.Enabled = true
+	cfg.CloudInit.UserData = req.UserData
+	if req.SSHAuthorizedKey != "" {
+		cfg.CloudInit.SSHKeys = []string{req.SSHAuthorizedKey}
 	}
 
 	// NICs.

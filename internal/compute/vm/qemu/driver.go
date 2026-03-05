@@ -96,7 +96,7 @@ func (d *Driver) CreateVM(ctx context.Context, cfg *VMConfig) error {
 				Type:     "file",
 				Path:     isoPath,
 				Format:   "raw",
-				Bus:      "ide",
+				Bus:      "virtio",
 				ReadOnly: true,
 			})
 		}

@@ -7,11 +7,13 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"syscall"
 	"time"
 
+	"github.com/Veritas-Calculus/vc-stack/internal/compute/vm/qemu"
 	"go.uber.org/zap"
 )
 
@@ -46,7 +48,7 @@ type QEMUManagerConfig struct {
 func NewQEMUManager(config QEMUManagerConfig, logger *zap.Logger) (*QEMUManager, error) {
 	// Set defaults.
 	if config.QEMUBinary == "" {
-		config.QEMUBinary = "qemu-system-x86_64"
+		config.QEMUBinary = qemu.DetectQEMUBinary()
 	}
 	if config.ConfigDir == "" {
 		config.ConfigDir = "/var/lib/vc-node/configs"
@@ -343,18 +345,21 @@ func (m *QEMUManager) GetVM(ctx context.Context, id string) (*QEMUConfig, error)
 func (m *QEMUManager) buildQEMUCommand(config *QEMUConfig, cloudInitISO, uefiVarsPath, tpmDir string) *exec.Cmd {
 	var args []string
 
-	// Set machine type based on boot mode.
-	machineType := "pc"
-	if config.BootMode == "uefi" {
-		machineType = "q35"
+	// Set machine type based on architecture.
+	machineType := "q35"
+	if runtime.GOARCH == "arm64" {
+		machineType = "virt"
 	}
 
 	// Select accelerator and CPU model.
 	accel := "tcg"
-	cpuModel := "max" // Best emulation fidelity for TCG.
+	cpuModel := "max"
+	if runtime.GOARCH == "arm64" && !m.config.EnableKVM {
+		cpuModel = "cortex-a57"
+	}
 	if m.config.EnableKVM {
 		accel = "kvm"
-		cpuModel = "host" // Pass-through host CPU features.
+		cpuModel = "host"
 	}
 
 	args = []string{
@@ -404,17 +409,21 @@ func (m *QEMUManager) buildQEMUCommand(config *QEMUConfig, cloudInitISO, uefiVar
 			)
 		} else {
 			args = append(args,
-				"-drive", fmt.Sprintf("file=%s,if=ide,media=cdrom,readonly=on", cloudInitISO),
+				"-drive", fmt.Sprintf("file=%s,if=virtio,readonly=on", cloudInitISO),
 			)
 		}
 	}
 
 	// Add TPM if enabled.
 	if config.EnableTPM && tpmDir != "" {
+		tpmDev := "tpm-tis"
+		if runtime.GOARCH == "arm64" {
+			tpmDev = "tpm-tis-device"
+		}
 		args = append(args,
 			"-chardev", fmt.Sprintf("socket,id=chrtpm,path=%s/swtpm-sock", tpmDir),
 			"-tpmdev", "emulator,id=tpm0,chardev=chrtpm",
-			"-device", "tpm-tis,tpmdev=tpm0",
+			"-device", tpmDev+",tpmdev=tpm0",
 		)
 	}
 

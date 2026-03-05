@@ -323,7 +323,12 @@ func (c *VMConfig) buildFirmwareArgs() []string {
 	if c.TPM && c.TPMPath != "" {
 		args = append(args, "-chardev", fmt.Sprintf("socket,id=chrtpm,path=%s", c.TPMPath))
 		args = append(args, "-tpmdev", "emulator,id=tpm0,chardev=chrtpm")
-		args = append(args, "-device", "tpm-tis,tpmdev=tpm0")
+		// tpm-tis is x86 only; aarch64/virt uses tpm-tis-device.
+		tpmDev := "tpm-tis"
+		if runtime.GOARCH == "arm64" {
+			tpmDev = "tpm-tis-device"
+		}
+		args = append(args, "-device", tpmDev+",tpmdev=tpm0")
 	}
 
 	return args
@@ -430,8 +435,9 @@ func (d *DiskConfig) BuildArgs() []string {
 		driveSpec += ",if=virtio"
 	case "scsi":
 		driveSpec += ",if=scsi"
-	case "ide":
-		driveSpec += ",if=ide"
+	default:
+		// No IDE — use virtio for max performance and arch compatibility.
+		driveSpec += ",if=virtio"
 	}
 
 	if d.Cache != "" {
