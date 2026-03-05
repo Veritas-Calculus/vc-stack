@@ -86,6 +86,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         { type: 'link', to: '/usage', label: 'Usage & Billing' },
         { type: 'link', to: '/webhooks', label: 'Webhooks' },
         { type: 'link', to: '/vpn', label: 'VPN' },
+        { type: 'link', to: '/dns', label: 'DNS' },
         { type: 'link', to: '/backups', label: 'Backups' },
         { type: 'link', to: '/autoscale', label: 'Auto Scale' },
         { type: 'link', to: '/utilization', label: 'Utilization' }
@@ -178,6 +179,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       { type: 'link', to: '/usage', label: 'Usage & Billing' },
       { type: 'link', to: '/webhooks', label: 'Webhooks' },
       { type: 'link', to: '/vpn', label: 'VPN' },
+      { type: 'link', to: '/dns', label: 'DNS' },
       { type: 'link', to: '/backups', label: 'Backups' },
       { type: 'link', to: '/autoscale', label: 'Auto Scale' },
       { type: 'link', to: '/notifications', label: 'Notifications' }
@@ -279,8 +281,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     }
                   }}
                   className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center px-2 py-2' : 'justify-between px-3 py-2 text-sm'} rounded-md hover:bg-oxide-800 ${location.pathname.startsWith(s.base)
-                      ? 'bg-oxide-800 text-white'
-                      : 'text-gray-300'
+                    ? 'bg-oxide-800 text-white'
+                    : 'text-gray-300'
                     }`}
                 >
                   <span className="flex items-center gap-2">
@@ -1073,6 +1075,22 @@ function NavIcon({ name, small }: { name: string; small?: boolean }) {
       >
         <rect x="3" y="11" width="18" height="10" rx="2" />
         <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+      </svg>
+    ),
+    DNS: (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <path d="M2 12h20" />
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
       </svg>
     ),
     'Network ACL': (

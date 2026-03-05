@@ -36,3 +36,7 @@ body {
 .icon-btn {
   @apply inline-flex items-center justify-center p-1.5 rounded hover:bg-oxide-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
 }
+
+.input-field {
+  @apply w-full rounded-lg bg-oxide-900 border border-oxide-700 px-3 py-2 text-sm text-gray-200 placeholder:text-gray-500 focus:border-blue-500 focus:outline-none;
+}

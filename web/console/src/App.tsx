@@ -36,6 +36,7 @@ import { Webhooks } from '@/features/tools/Webhooks'
 import { VPNManagement } from '@/features/vpn/VPNManagement'
 import { Backups } from '@/features/backup/Backups'
 import { AutoScale } from '@/features/autoscale/AutoScale'
+import { DNSManagement } from '@/features/dns/DNSManagement'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const token = useAuthStore((s) => s.token)
@@ -157,6 +158,8 @@ export default function App() {
                 <Route path="/backups" element={<Backups />} />
                 {/* Auto Scale */}
                 <Route path="/autoscale" element={<AutoScale />} />
+                {/* DNS */}
+                <Route path="/dns" element={<DNSManagement />} />
                 {/* Global Infrastructure */}
                 <Route path="/infrastructure/*" element={<Infrastructure />} />
                 {/* Project-scoped Security Groups */}

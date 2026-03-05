@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -60,7 +61,19 @@ func parseJSON(t *testing.T, w *httptest.ResponseRecorder) map[string]interface{
 	return result
 }
 
-// TestCreateZone verifies zone creation with SOA/NS auto-records.
+func createTestZone(t *testing.T, router *gin.Engine, name string) string {
+	t.Helper()
+	w := doRequest(t, router, http.MethodPost, "/api/v1/dns/zones", CreateZoneRequest{
+		Name:  name,
+		Email: "admin@" + name,
+	})
+	if w.Code != http.StatusCreated {
+		t.Fatalf("create zone %s: %d %s", name, w.Code, w.Body.String())
+	}
+	return parseJSON(t, w)["zone"].(map[string]interface{})["id"].(string)
+}
+
+// TestCreateZone verifies Designate-compatible zone creation.
 func TestCreateZone(t *testing.T) {
 	_, router := setupTestService(t)
 
@@ -75,20 +88,35 @@ func TestCreateZone(t *testing.T) {
 
 	resp := parseJSON(t, w)
 	zone := resp["zone"].(map[string]interface{})
+
+	// FQDN with trailing dot.
 	if zone["name"] != "example.com." {
 		t.Errorf("expected FQDN with trailing dot, got %s", zone["name"])
+	}
+	// Designate status.
+	if zone["status"] != StatusActive {
+		t.Errorf("expected ACTIVE status, got %s", zone["status"])
+	}
+	if zone["type"] != ZoneTypePrimary {
+		t.Errorf("expected PRIMARY type, got %s", zone["type"])
+	}
+	// Serial should be YYYYMMDDNN format.
+	serial := int64(zone["serial"].(float64))
+	if serial < 2020000000 {
+		t.Errorf("expected YYYYMMDDNN serial, got %d", serial)
+	}
+	// Links present.
+	if resp["links"] == nil {
+		t.Error("expected links in response")
 	}
 
 	// Should have SOA and NS auto-created.
 	zoneID := zone["id"].(string)
 	w = doRequest(t, router, http.MethodGet, "/api/v1/dns/zones/"+zoneID+"/recordsets", nil)
-	if w.Code != http.StatusOK {
-		t.Fatalf("list records: %d", w.Code)
-	}
 	result := parseJSON(t, w)
-	total := result["total"].(float64)
-	if total < 2 {
-		t.Errorf("expected at least 2 records (SOA+NS), got %v", total)
+	meta := result["metadata"].(map[string]interface{})
+	if meta["total_count"].(float64) < 2 {
+		t.Errorf("expected at least 2 records (SOA+NS), got %v", meta["total_count"])
 	}
 }
 
@@ -116,87 +144,101 @@ func TestInvalidZoneName(t *testing.T) {
 // TestGetZone verifies fetching a zone with record count.
 func TestGetZone(t *testing.T) {
 	_, router := setupTestService(t)
+	zoneID := createTestZone(t, router, "get.test")
 
-	w := doRequest(t, router, http.MethodPost, "/api/v1/dns/zones", CreateZoneRequest{Name: "get.test"})
-	zone := parseJSON(t, w)["zone"].(map[string]interface{})
-	zoneID := zone["id"].(string)
-
-	w = doRequest(t, router, http.MethodGet, "/api/v1/dns/zones/"+zoneID, nil)
+	w := doRequest(t, router, http.MethodGet, "/api/v1/dns/zones/"+zoneID, nil)
 	if w.Code != http.StatusOK {
 		t.Fatalf("expected 200, got %d", w.Code)
 	}
 	resp := parseJSON(t, w)
-	if resp["record_count"].(float64) < 2 {
+	if resp["recordset_count"].(float64) < 2 {
 		t.Error("expect at least 2 (SOA+NS)")
+	}
+	if resp["links"] == nil {
+		t.Error("expected links")
 	}
 }
 
 // TestUpdateZone verifies zone update and serial increment.
 func TestUpdateZone(t *testing.T) {
 	_, router := setupTestService(t)
+	zoneID := createTestZone(t, router, "upd.test")
 
-	w := doRequest(t, router, http.MethodPost, "/api/v1/dns/zones", CreateZoneRequest{Name: "upd.test"})
-	zone := parseJSON(t, w)["zone"].(map[string]interface{})
-	zoneID := zone["id"].(string)
-	origSerial := zone["serial"].(float64)
+	// Get original serial.
+	w := doRequest(t, router, http.MethodGet, "/api/v1/dns/zones/"+zoneID, nil)
+	origSerial := parseJSON(t, w)["zone"].(map[string]interface{})["serial"].(float64)
 
-	w = doRequest(t, router, http.MethodPut, "/api/v1/dns/zones/"+zoneID, UpdateZoneRequest{
-		Description: "Updated", TTL: 7200,
+	// PATCH update (Designate-style).
+	w = doRequest(t, router, http.MethodPatch, "/api/v1/dns/zones/"+zoneID, UpdateZoneRequest{
+		Description: "Updated via PATCH", TTL: 7200,
 	})
 	if w.Code != http.StatusOK {
 		t.Fatalf("expected 200, got %d: %s", w.Code, w.Body.String())
 	}
-
 	updated := parseJSON(t, w)["zone"].(map[string]interface{})
 	if updated["serial"].(float64) <= origSerial {
 		t.Error("serial should have incremented")
 	}
 }
 
-// TestDeleteZone verifies zone deletion cascading to records.
+// TestDeleteZone verifies soft-delete (Designate pattern).
 func TestDeleteZone(t *testing.T) {
 	svc, router := setupTestService(t)
+	zoneID := createTestZone(t, router, "del.test")
 
-	w := doRequest(t, router, http.MethodPost, "/api/v1/dns/zones", CreateZoneRequest{Name: "del.test"})
-	zone := parseJSON(t, w)["zone"].(map[string]interface{})
-	zoneID := zone["id"].(string)
-
-	w = doRequest(t, router, http.MethodDelete, "/api/v1/dns/zones/"+zoneID, nil)
-	if w.Code != http.StatusOK {
-		t.Fatalf("expected 200, got %d", w.Code)
+	// Delete returns 202 Accepted (async pattern).
+	w := doRequest(t, router, http.MethodDelete, "/api/v1/dns/zones/"+zoneID, nil)
+	if w.Code != http.StatusAccepted {
+		t.Fatalf("expected 202, got %d", w.Code)
 	}
 
-	// Records should also be deleted.
-	var count int64
-	svc.db.Model(&RecordSet{}).Where("zone_id = ?", zoneID).Count(&count)
-	if count != 0 {
-		t.Errorf("records should be deleted with zone, got %d", count)
+	// Zone should be soft-deleted (status=DELETED, not physically removed).
+	var zone Zone
+	svc.db.First(&zone, "id = ?", zoneID)
+	if zone.Status != StatusDeleted {
+		t.Errorf("expected DELETED status, got %s", zone.Status)
+	}
+
+	// GET should now 404.
+	w = doRequest(t, router, http.MethodGet, "/api/v1/dns/zones/"+zoneID, nil)
+	if w.Code != http.StatusNotFound {
+		t.Errorf("expected 404 after delete, got %d", w.Code)
 	}
 }
 
-// TestCreateRecordSet verifies record creation with validation.
+// TestCreateRecordSet verifies record creation with FQDN and validation.
 func TestCreateRecordSet(t *testing.T) {
 	_, router := setupTestService(t)
-
-	w := doRequest(t, router, http.MethodPost, "/api/v1/dns/zones", CreateZoneRequest{Name: "records.test"})
-	zoneID := parseJSON(t, w)["zone"].(map[string]interface{})["id"].(string)
+	zoneID := createTestZone(t, router, "records.test")
 	base := "/api/v1/dns/zones/" + zoneID + "/recordsets"
 
-	t.Run("valid A record", func(t *testing.T) {
+	t.Run("valid A record with FQDN", func(t *testing.T) {
 		w := doRequest(t, router, http.MethodPost, base, CreateRecordSetRequest{
 			Name: "www", Type: "A", Records: "192.168.1.10",
 		})
 		if w.Code != http.StatusCreated {
 			t.Errorf("expected 201, got %d: %s", w.Code, w.Body.String())
 		}
+		rs := parseJSON(t, w)["recordset"].(map[string]interface{})
+		// Name should be FQDN.
+		if rs["name"] != "www.records.test." {
+			t.Errorf("expected FQDN www.records.test., got %s", rs["name"])
+		}
+		if rs["status"] != StatusActive {
+			t.Errorf("expected ACTIVE status, got %s", rs["status"])
+		}
 	})
 
-	t.Run("valid CNAME", func(t *testing.T) {
+	t.Run("@ resolves to zone apex", func(t *testing.T) {
 		w := doRequest(t, router, http.MethodPost, base, CreateRecordSetRequest{
-			Name: "alias", Type: "CNAME", Records: "www.records.test.",
+			Name: "@", Type: "MX", Records: "mail.records.test.", Priority: 10,
 		})
 		if w.Code != http.StatusCreated {
-			t.Errorf("expected 201, got %d: %s", w.Code, w.Body.String())
+			t.Fatalf("expected 201, got %d: %s", w.Code, w.Body.String())
+		}
+		rs := parseJSON(t, w)["recordset"].(map[string]interface{})
+		if rs["name"] != "records.test." {
+			t.Errorf("@ should resolve to zone name, got %s", rs["name"])
 		}
 	})
 
@@ -231,15 +273,12 @@ func TestCreateRecordSet(t *testing.T) {
 // TestDeleteRecordSet_ProtectedSOA verifies SOA/NS cannot be deleted.
 func TestDeleteRecordSet_ProtectedSOA(t *testing.T) {
 	svc, router := setupTestService(t)
+	zoneID := createTestZone(t, router, "prot.test")
 
-	w := doRequest(t, router, http.MethodPost, "/api/v1/dns/zones", CreateZoneRequest{Name: "prot.test"})
-	zoneID := parseJSON(t, w)["zone"].(map[string]interface{})["id"].(string)
-
-	// Find SOA record.
 	var soa RecordSet
 	svc.db.Where("zone_id = ? AND type = 'SOA'", zoneID).First(&soa)
 
-	w = doRequest(t, router, http.MethodDelete,
+	w := doRequest(t, router, http.MethodDelete,
 		"/api/v1/dns/zones/"+zoneID+"/recordsets/"+soa.ID, nil)
 	if w.Code != http.StatusForbidden {
 		t.Errorf("expected 403 for SOA deletion, got %d: %s", w.Code, w.Body.String())
@@ -249,22 +288,19 @@ func TestDeleteRecordSet_ProtectedSOA(t *testing.T) {
 // TestBulkImport verifies batch record import.
 func TestBulkImport(t *testing.T) {
 	_, router := setupTestService(t)
+	zoneID := createTestZone(t, router, "bulk.test")
 
-	w := doRequest(t, router, http.MethodPost, "/api/v1/dns/zones", CreateZoneRequest{Name: "bulk.test"})
-	zoneID := parseJSON(t, w)["zone"].(map[string]interface{})["id"].(string)
-
-	w = doRequest(t, router, http.MethodPost, "/api/v1/dns/zones/"+zoneID+"/import", BulkImportRequest{
+	w := doRequest(t, router, http.MethodPost, "/api/v1/dns/zones/"+zoneID+"/import", BulkImportRequest{
 		Records: []CreateRecordSetRequest{
 			{Name: "web1", Type: "A", Records: "10.0.0.1"},
 			{Name: "web2", Type: "A", Records: "10.0.0.2"},
-			{Name: "mail", Type: "MX", Records: "mail.bulk.test.", Priority: 10},
-			{Name: "bad", Type: "INVALID", Records: "x"}, // should skip
+			{Name: "@", Type: "MX", Records: "mail.bulk.test.", Priority: 10},
+			{Name: "bad", Type: "INVALID", Records: "x"},
 		},
 	})
 	if w.Code != http.StatusOK {
 		t.Fatalf("expected 200, got %d: %s", w.Code, w.Body.String())
 	}
-
 	resp := parseJSON(t, w)
 	if resp["created"].(float64) != 3 {
 		t.Errorf("expected 3 created, got %v", resp["created"])
@@ -274,31 +310,91 @@ func TestBulkImport(t *testing.T) {
 	}
 }
 
-// TestListZones verifies zone listing with search filter.
+// TestExportZone verifies BIND-format zone export.
+func TestExportZone(t *testing.T) {
+	_, router := setupTestService(t)
+	zoneID := createTestZone(t, router, "export.test")
+
+	// Add a record.
+	doRequest(t, router, http.MethodPost, "/api/v1/dns/zones/"+zoneID+"/recordsets",
+		CreateRecordSetRequest{Name: "www", Type: "A", Records: "10.0.0.1"})
+
+	w := doRequest(t, router, http.MethodGet, "/api/v1/dns/zones/"+zoneID+"/export", nil)
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", w.Code)
+	}
+
+	body := w.Body.String()
+	if !strings.Contains(body, "$ORIGIN export.test.") {
+		t.Error("expected $ORIGIN in export")
+	}
+	if !strings.Contains(body, "IN A") {
+		t.Error("expected A record in export")
+	}
+	if !strings.Contains(body, "IN SOA") {
+		t.Error("expected SOA record in export")
+	}
+}
+
+// TestCrossZoneSearch verifies cross-zone record search.
+func TestCrossZoneSearch(t *testing.T) {
+	_, router := setupTestService(t)
+
+	z1 := createTestZone(t, router, "alpha.test")
+	z2 := createTestZone(t, router, "beta.test")
+
+	doRequest(t, router, http.MethodPost, "/api/v1/dns/zones/"+z1+"/recordsets",
+		CreateRecordSetRequest{Name: "www", Type: "A", Records: "10.0.0.1"})
+	doRequest(t, router, http.MethodPost, "/api/v1/dns/zones/"+z2+"/recordsets",
+		CreateRecordSetRequest{Name: "www", Type: "A", Records: "10.0.0.2"})
+
+	// Search by type.
+	w := doRequest(t, router, http.MethodGet, "/api/v1/dns/recordsets?type=A", nil)
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", w.Code)
+	}
+	resp := parseJSON(t, w)
+	records := resp["recordsets"].([]interface{})
+	if len(records) < 2 {
+		t.Errorf("expected at least 2 A records across zones, got %d", len(records))
+	}
+
+	// Search by data.
+	w = doRequest(t, router, http.MethodGet, "/api/v1/dns/recordsets?data=10.0.0.1", nil)
+	resp = parseJSON(t, w)
+	records = resp["recordsets"].([]interface{})
+	if len(records) != 1 {
+		t.Errorf("expected 1 record matching 10.0.0.1, got %d", len(records))
+	}
+}
+
+// TestListZones verifies zone listing with metadata.
 func TestListZones(t *testing.T) {
 	_, router := setupTestService(t)
 
-	doRequest(t, router, http.MethodPost, "/api/v1/dns/zones", CreateZoneRequest{Name: "alpha.test"})
-	doRequest(t, router, http.MethodPost, "/api/v1/dns/zones", CreateZoneRequest{Name: "beta.test"})
+	createTestZone(t, router, "alpha.test")
+	createTestZone(t, router, "beta.test")
 
-	t.Run("list all", func(t *testing.T) {
-		w := doRequest(t, router, http.MethodGet, "/api/v1/dns/zones", nil)
-		if w.Code != http.StatusOK {
-			t.Fatalf("expected 200, got %d", w.Code)
-		}
-		resp := parseJSON(t, w)
-		if resp["total"].(float64) != 2 {
-			t.Errorf("expected 2 zones, got %v", resp["total"])
-		}
-	})
+	w := doRequest(t, router, http.MethodGet, "/api/v1/dns/zones", nil)
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", w.Code)
+	}
+	resp := parseJSON(t, w)
 
-	t.Run("search filter", func(t *testing.T) {
-		w := doRequest(t, router, http.MethodGet, "/api/v1/dns/zones?search=alpha", nil)
-		resp := parseJSON(t, w)
-		if resp["total"].(float64) != 1 {
-			t.Errorf("expected 1 zone matching alpha, got %v", resp["total"])
+	// Designate response has metadata.total_count.
+	meta := resp["metadata"].(map[string]interface{})
+	if meta["total_count"].(float64) != 2 {
+		t.Errorf("expected 2 zones, got %v", meta["total_count"])
+	}
+
+	// Each zone should have recordset_count.
+	zones := resp["zones"].([]interface{})
+	for _, z := range zones {
+		zm := z.(map[string]interface{})
+		if zm["recordset_count"].(float64) < 2 {
+			t.Errorf("each zone should have at least 2 recordsets (SOA+NS)")
 		}
-	})
+	}
 }
 
 // TestDomainValidation tests the domain name validator.
