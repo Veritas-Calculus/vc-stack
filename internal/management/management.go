@@ -10,6 +10,7 @@ import (
 	"github.com/Veritas-Calculus/vc-stack/internal/management/backup"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/baremetal"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/caas"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/catalog"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/compute"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/config"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/dns"
@@ -33,6 +34,7 @@ import (
 	"github.com/Veritas-Calculus/vc-stack/internal/management/quota"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/ratelimit"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/scheduler"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/selfheal"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/storage"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/tag"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/task"
@@ -88,6 +90,8 @@ type Service struct {
 	Audit         *audit.Service
 	DR            *dr.Service
 	BareMetal     *baremetal.Service
+	Catalog       *catalog.Service
+	SelfHeal      *selfheal.Service
 	logger        *zap.Logger
 }
 
@@ -418,6 +422,26 @@ func New(cfg Config) (*Service, error) {
 	}
 	svcObj.BareMetal = bmSvc
 
+	// Initialize Service Catalog.
+	catalogSvc, err := catalog.NewService(catalog.Config{
+		DB:     cfg.DB,
+		Logger: cfg.Logger.Named("catalog"),
+	})
+	if err != nil {
+		return nil, err
+	}
+	svcObj.Catalog = catalogSvc
+
+	// Initialize Self-Healing engine.
+	shSvc, err := selfheal.NewService(selfheal.Config{
+		DB:     cfg.DB,
+		Logger: cfg.Logger.Named("selfheal"),
+	})
+	if err != nil {
+		return nil, err
+	}
+	svcObj.SelfHeal = shSvc
+
 	return svcObj, nil
 }
 
@@ -534,6 +558,14 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	// Bare Metal as a Service.
 	if s.BareMetal != nil {
 		s.BareMetal.SetupRoutes(router)
+	}
+	// Service Catalog.
+	if s.Catalog != nil {
+		s.Catalog.SetupRoutes(router)
+	}
+	// Self-Healing Engine.
+	if s.SelfHeal != nil {
+		s.SelfHeal.SetupRoutes(router)
 	}
 
 	// Gateway proxy routes - only for external compute service (vc-compute)
