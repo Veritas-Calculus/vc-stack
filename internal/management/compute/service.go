@@ -99,6 +99,11 @@ func NewService(cfg Config) (*Service, error) {
 		s.logger.Warn("failed to migrate affinity groups", zap.Error(err))
 	}
 
+	// Migrate migration table.
+	if err := s.migrateMigrationTable(); err != nil {
+		s.logger.Warn("failed to migrate migration table", zap.Error(err))
+	}
+
 	return s, nil
 }
 
@@ -246,6 +251,9 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		api.DELETE("/affinity-groups/:id", s.deleteAffinityGroup)
 		api.POST("/affinity-groups/:id/members", s.addAffinityGroupMember)
 		api.DELETE("/affinity-groups/:id/members/:memberId", s.removeAffinityGroupMember)
+
+		// Migration routes.
+		s.setupMigrationRoutes(api)
 	}
 }
 
