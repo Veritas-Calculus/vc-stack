@@ -8,6 +8,7 @@ import (
 	"github.com/Veritas-Calculus/vc-stack/internal/management/audit"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/autoscale"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/backup"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/baremetal"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/caas"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/compute"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/config"
@@ -86,6 +87,7 @@ type Service struct {
 	CaaS          *caas.Service
 	Audit         *audit.Service
 	DR            *dr.Service
+	BareMetal     *baremetal.Service
 	logger        *zap.Logger
 }
 
@@ -406,6 +408,16 @@ func New(cfg Config) (*Service, error) {
 	}
 	svcObj.DR = drSvc
 
+	// Initialize Bare Metal service.
+	bmSvc, err := baremetal.NewService(baremetal.Config{
+		DB:     cfg.DB,
+		Logger: cfg.Logger.Named("baremetal"),
+	})
+	if err != nil {
+		return nil, err
+	}
+	svcObj.BareMetal = bmSvc
+
 	return svcObj, nil
 }
 
@@ -518,6 +530,10 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	// Disaster Recovery.
 	if s.DR != nil {
 		s.DR.SetupRoutes(router)
+	}
+	// Bare Metal as a Service.
+	if s.BareMetal != nil {
+		s.BareMetal.SetupRoutes(router)
 	}
 
 	// Gateway proxy routes - only for external compute service (vc-compute)

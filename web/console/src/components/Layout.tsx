@@ -98,6 +98,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         { type: 'link', to: '/kubernetes', label: 'Kubernetes' },
         { type: 'link', to: '/compliance-audit', label: 'Compliance' },
         { type: 'link', to: '/disaster-recovery', label: 'Disaster Recovery' },
+        { type: 'link', to: '/bare-metal', label: 'Bare Metal' },
         { type: 'link', to: '/backups', label: 'Backups' },
         { type: 'link', to: '/autoscale', label: 'Auto Scale' },
         { type: 'link', to: '/utilization', label: 'Utilization' }
@@ -193,6 +194,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       { type: 'link', to: '/kubernetes', label: 'Kubernetes' },
       { type: 'link', to: '/compliance-audit', label: 'Compliance' },
       { type: 'link', to: '/disaster-recovery', label: 'Disaster Recovery' },
+      { type: 'link', to: '/bare-metal', label: 'Bare Metal' },
       { type: 'link', to: '/backups', label: 'Backups' },
       { type: 'link', to: '/autoscale', label: 'Auto Scale' },
       { type: 'link', to: '/notifications', label: 'Notifications' }
