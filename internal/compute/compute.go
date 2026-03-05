@@ -6,6 +6,7 @@ package compute
 import (
 	"os"
 
+	"github.com/Veritas-Calculus/vc-stack/internal/compute/metadata"
 	"github.com/Veritas-Calculus/vc-stack/internal/compute/network"
 	"github.com/Veritas-Calculus/vc-stack/internal/compute/vm"
 	"github.com/gin-gonic/gin"
@@ -24,10 +25,11 @@ type NodeConfig struct {
 // Node composes all compute node services: VM driver, orchestration, and network.
 // This is the top-level aggregator that replaces the old node.Service.
 type Node struct {
-	Orchestrator *Service         // VM orchestration and lifecycle management
-	VMDriver     *vm.Service      // Low-level VM driver (QEMU/KVM)
-	Network      *network.Service // OVN/OVS network agent
-	logger       *zap.Logger
+	Orchestrator  *Service         // VM orchestration and lifecycle management
+	VMDriver      *vm.Service      // Low-level VM driver (QEMU/KVM)
+	Network       *network.Service // OVN/OVS network agent
+	MetadataProxy *metadata.Proxy  // Cloud-init metadata proxy
+	logger        *zap.Logger
 }
 
 // NewNode composes all compute node services with direct integration.
@@ -138,15 +140,37 @@ func NewNode(cfg NodeConfig) (*Node, error) {
 		return nil, err
 	}
 
+	// Initialize metadata proxy for cloud-init support.
+	// Requires DB to resolve VM identity by source IP.
+	var metaProxy *metadata.Proxy
+	if cfg.DB != nil {
+		metaProxy, err = metadata.NewProxy(metadata.ProxyConfig{
+			DB:     cfg.DB,
+			Logger: cfg.Logger.Named("metadata"),
+			Port:   getEnvOrDefault("VC_METADATA_PORT", "8082"),
+		})
+		if err != nil {
+			cfg.Logger.Warn("metadata proxy init failed, cloud-init metadata unavailable", zap.Error(err))
+		} else {
+			go func() {
+				if err := metaProxy.ListenAndServe(); err != nil {
+					cfg.Logger.Error("metadata proxy stopped", zap.Error(err))
+				}
+			}()
+		}
+	}
+
 	cfg.Logger.Info("compute node services initialized",
 		zap.Bool("qemu_enabled", true),
-		zap.Bool("ceph_enabled", getEnvBool("CEPH_ENABLED", false)))
+		zap.Bool("ceph_enabled", getEnvBool("CEPH_ENABLED", false)),
+		zap.Bool("metadata_enabled", metaProxy != nil))
 
 	return &Node{
-		Orchestrator: compSvc,
-		VMDriver:     vmSvc,
-		Network:      netSvc,
-		logger:       cfg.Logger,
+		Orchestrator:  compSvc,
+		VMDriver:      vmSvc,
+		Network:       netSvc,
+		MetadataProxy: metaProxy,
+		logger:        cfg.Logger,
 	}, nil
 }
 

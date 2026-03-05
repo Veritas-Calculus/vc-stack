@@ -597,6 +597,54 @@ func (s *Service) dispatchInstance(ctx context.Context, inst *Instance, flavor *
 	}).Error; err != nil {
 		s.logger.Error("failed to update instance status to active", zap.Error(err))
 	}
+
+	// Populate metadata for cloud-init support.
+	s.populateInstanceMetadata(inst, flavor, image)
+}
+
+// populateInstanceMetadata creates or updates the metadata record for an instance,
+// enabling the compute node's metadata proxy to serve cloud-init data.
+func (s *Service) populateInstanceMetadata(inst *Instance, flavor *Flavor, image *Image) {
+	metaMap := JSONMap{
+		"instance-id":    inst.UUID,
+		"local-hostname": inst.Name,
+	}
+	if flavor != nil {
+		metaMap["instance-type"] = flavor.Name
+	}
+	if image != nil {
+		metaMap["ami-id"] = image.UUID
+	}
+
+	meta := struct {
+		InstanceID string  `gorm:"column:instance_id;uniqueIndex;not null"`
+		Hostname   string  `gorm:"column:hostname"`
+		UserData   string  `gorm:"column:user_data;type:text"`
+		MetaData   JSONMap `gorm:"column:meta_data;type:jsonb"`
+	}{
+		InstanceID: inst.UUID,
+		Hostname:   inst.Name,
+		UserData:   inst.UserData,
+		MetaData:   metaMap,
+	}
+
+	// Upsert: create or update if already exists.
+	result := s.db.Table("instance_metadata").
+		Where("instance_id = ?", inst.UUID).
+		Updates(map[string]interface{}{
+			"hostname":  meta.Hostname,
+			"user_data": meta.UserData,
+			"meta_data": meta.MetaData,
+		})
+	if result.RowsAffected == 0 {
+		if err := s.db.Table("instance_metadata").Create(&meta).Error; err != nil {
+			s.logger.Warn("failed to populate instance metadata",
+				zap.String("instance_uuid", inst.UUID), zap.Error(err))
+		} else {
+			s.logger.Info("instance metadata populated",
+				zap.String("instance_uuid", inst.UUID), zap.String("hostname", inst.Name))
+		}
+	}
 }
 
 // scheduleInstance calls the scheduler to find a suitable node.

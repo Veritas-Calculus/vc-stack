@@ -124,6 +124,7 @@ services:
       VC_BRIDGE_MAPPINGS: "provider:br-provider"
       LOGGING_LEVEL: debug
       LOGGING_FORMAT: text
+      VC_METADATA_PORT: "8082"
     privileged: true
     volumes:
       - vcstack_images:/tmp/vcstack/images

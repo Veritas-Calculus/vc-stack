@@ -159,14 +159,17 @@ func (d *qemuDriver) CreateVM(req CreateVMRequest) (*VM, error) {
 		args = append(args, "-cdrom", req.ISO)
 	}
 
-	// Seed ISO (cloud-init) if provided.
+	// Seed ISO (cloud-init): always generate so cloud-init uses NoCloud
+	// datasource immediately instead of waiting 30s for EC2 metadata.
 	var seedFile string
-	if strings.TrimSpace(req.SSHAuthorizedKey) != "" || strings.TrimSpace(req.UserData) != "" {
-		// write minimal seed ISO.
+	{
 		seed := d.seedPath(id)
 		user := req.UserData
 		if strings.TrimSpace(user) == "" && strings.TrimSpace(req.SSHAuthorizedKey) != "" {
 			user = fmt.Sprintf("#cloud-config\nssh_authorized_keys:\n  - %s\n", req.SSHAuthorizedKey)
+		}
+		if strings.TrimSpace(user) == "" {
+			user = "#cloud-config\n{}\n"
 		}
 		meta := fmt.Sprintf("instance-id: %s\nlocal-hostname: %s\n", id, id)
 		tmpDir := os.TempDir()
@@ -186,7 +189,6 @@ func (d *qemuDriver) CreateVM(req CreateVMRequest) (*VM, error) {
 				"-drive", fmt.Sprintf("file=%s,if=none,media=cdrom,readonly=on", seed),
 				"-device", "virtio-scsi-pci",
 			)
-			// record seed for cleanup.
 			seedFile = seed
 		}
 	} // Network: attach tap.
