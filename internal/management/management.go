@@ -159,11 +159,12 @@ func New(cfg Config) (*Service, error) {
 	}
 
 	compSvc, err := compute.NewService(compute.Config{
-		DB:          cfg.DB,
-		Logger:      cfg.Logger.Named("compute"),
-		JWTSecret:   jwtSecret,
-		EventLogger: eventSvc,
-		Scheduler:   "http://localhost:" + mgmtPort,
+		DB:           cfg.DB,
+		Logger:       cfg.Logger.Named("compute"),
+		JWTSecret:    jwtSecret,
+		EventLogger:  eventSvc,
+		Scheduler:    "http://localhost:" + mgmtPort,
+		QuotaService: quotaSvc,
 	})
 	if err != nil {
 		return nil, err

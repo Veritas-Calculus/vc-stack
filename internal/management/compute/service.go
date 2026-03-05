@@ -17,8 +17,16 @@ import (
 
 	"github.com/Veritas-Calculus/vc-stack/internal/management/event"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/quota"
 	"github.com/Veritas-Calculus/vc-stack/pkg/models"
 )
+
+// QuotaChecker is the interface for quota enforcement.
+// It is implemented by quota.Service and injected into the compute service.
+type QuotaChecker interface {
+	CheckQuota(tenantID, resourceType string, delta int) error
+	UpdateUsage(tenantID, resourceType string, delta int) error
+}
 
 // Config represents the compute service configuration.
 type Config struct {
@@ -28,6 +36,7 @@ type Config struct {
 	JWTSecret    string // #nosec // This is a configuration field, not a hardcoded secret
 	ImageStorage ImageStorageConfig
 	EventLogger  event.EventLogger
+	QuotaService QuotaChecker
 }
 
 // Service represents the controller compute service.
@@ -40,6 +49,7 @@ type Service struct {
 	imageStorage  *ImageStorage
 	eventLogger   event.EventLogger
 	portAllocator PortAllocator
+	quotaService  QuotaChecker
 }
 
 // NewService creates a new compute service.
@@ -61,6 +71,7 @@ func NewService(cfg Config) (*Service, error) {
 		jwtSecret:    cfg.JWTSecret,
 		imageStorage: NewImageStorage(cfg.Logger, cfg.ImageStorage),
 		eventLogger:  cfg.EventLogger,
+		quotaService: cfg.QuotaService,
 	}
 
 	// Auto-migrate database schema.
@@ -490,6 +501,20 @@ func (s *Service) createInstance(c *gin.Context) {
 		instance.Metadata = m
 	}
 
+	// Enforce resource quota before creating the instance.
+	tenantIDStr := fmt.Sprintf("%d", pid)
+	if s.quotaService != nil {
+		if err := s.quotaService.CheckQuota(tenantIDStr, "instances", 1); err != nil {
+			if _, ok := err.(*quota.QuotaExceededError); ok {
+				c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+				return
+			}
+			// Non-quota error (e.g. DB failure) — log but fail open so we
+			// don't block all instance creation if the quota service is down.
+			s.logger.Warn("quota check failed, proceeding anyway", zap.Error(err))
+		}
+	}
+
 	// Create instance, root volume, and attachment within a single transaction
 	// to prevent orphaned records if any step fails.
 	if err := s.db.Transaction(func(tx *gorm.DB) error {
@@ -528,6 +553,22 @@ func (s *Service) createInstance(c *gin.Context) {
 	}
 
 	s.logger.Info("instance created", zap.String("name", instance.Name), zap.String("uuid", instance.UUID), zap.Uint("id", instance.ID))
+
+	// Update quota usage after successful creation (best-effort).
+	if s.quotaService != nil {
+		if err := s.quotaService.UpdateUsage(tenantIDStr, "instances", 1); err != nil {
+			s.logger.Warn("failed to update quota usage", zap.Error(err))
+		}
+		if err := s.quotaService.UpdateUsage(tenantIDStr, "vcpus", flavor.VCPUs); err != nil {
+			s.logger.Warn("failed to update vcpu usage", zap.Error(err))
+		}
+		if err := s.quotaService.UpdateUsage(tenantIDStr, "ram_mb", flavor.RAM); err != nil {
+			s.logger.Warn("failed to update ram usage", zap.Error(err))
+		}
+		if err := s.quotaService.UpdateUsage(tenantIDStr, "disk_gb", instance.RootDiskGB); err != nil {
+			s.logger.Warn("failed to update disk usage", zap.Error(err))
+		}
+	}
 
 	s.emitEvent("create", instance.UUID, "create", "success", fmt.Sprintf("%d", uid), map[string]interface{}{
 		"name": instance.Name, "flavor_id": req.FlavorID, "image_id": req.ImageID,
@@ -933,6 +974,27 @@ func (s *Service) deleteInstanceOnNode(ctx context.Context, inst *Instance) {
 		s.logger.Error("failed to clean up instance (transaction rolled back)",
 			zap.String("uuid", inst.UUID), zap.Error(err))
 		return
+	}
+
+	// Release quota usage after successful deletion (best-effort).
+	if s.quotaService != nil {
+		tenantIDStr := fmt.Sprintf("%d", inst.ProjectID)
+		if err := s.quotaService.UpdateUsage(tenantIDStr, "instances", -1); err != nil {
+			s.logger.Warn("failed to release instance quota", zap.Error(err))
+		}
+		// Look up flavor to determine vCPU/RAM to release.
+		var flavor Flavor
+		if err := s.db.First(&flavor, inst.FlavorID).Error; err == nil {
+			if err := s.quotaService.UpdateUsage(tenantIDStr, "vcpus", -flavor.VCPUs); err != nil {
+				s.logger.Warn("failed to release vcpu quota", zap.Error(err))
+			}
+			if err := s.quotaService.UpdateUsage(tenantIDStr, "ram_mb", -flavor.RAM); err != nil {
+				s.logger.Warn("failed to release ram quota", zap.Error(err))
+			}
+		}
+		if err := s.quotaService.UpdateUsage(tenantIDStr, "disk_gb", -inst.RootDiskGB); err != nil {
+			s.logger.Warn("failed to release disk quota", zap.Error(err))
+		}
 	}
 
 	s.logger.Info("instance deleted", zap.String("uuid", inst.UUID))
