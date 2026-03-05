@@ -14,8 +14,10 @@ import (
 	"github.com/Veritas-Calculus/vc-stack/internal/management/host"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/identity"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/metadata"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/monitoring"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/network"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/notification"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/quota"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/scheduler"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/storage"
@@ -39,26 +41,28 @@ type Config struct {
 // Service composes all management plane services
 // and exposes a single SetupRoutes to register their routes on a router.
 type Service struct {
-	Compute    *compute.Service
-	Identity   *identity.Service
-	Network    *network.Service
-	Host       *host.Service
-	Scheduler  *scheduler.Service
-	Gateway    *gateway.Service
-	Metadata   *metadata.Service
-	Event      *event.Service
-	Quota      *quota.Service
-	Monitoring *monitoring.Service
-	Config     *config.Service
-	Domain     *domain.Service
-	Tools      *tools.Service
-	Usage      *usage.Service
-	VPN        *vpn.Service
-	Backup     *backup.Service
-	AutoScale  *autoscale.Service
-	Storage    *storage.Service
-	Task       *task.Service
-	Tag        *tag.Service
+	Compute      *compute.Service
+	Identity     *identity.Service
+	Network      *network.Service
+	Host         *host.Service
+	Scheduler    *scheduler.Service
+	Gateway      *gateway.Service
+	Metadata     *metadata.Service
+	Event        *event.Service
+	Quota        *quota.Service
+	Monitoring   *monitoring.Service
+	Config       *config.Service
+	Domain       *domain.Service
+	Tools        *tools.Service
+	Usage        *usage.Service
+	VPN          *vpn.Service
+	Backup       *backup.Service
+	AutoScale    *autoscale.Service
+	Storage      *storage.Service
+	Task         *task.Service
+	Tag          *tag.Service
+	Notification *notification.Service
+	logger       *zap.Logger
 }
 
 // New composes the management plane services. It returns an error if any
@@ -254,14 +258,23 @@ func New(cfg Config) (*Service, error) {
 	}
 	svcObj.Tag = tagSvc
 
+	// Initialize notification service.
+	notifSvc, err := notification.NewService(notification.Config{DB: cfg.DB, Logger: cfg.Logger.Named("notification")})
+	if err != nil {
+		return nil, err
+	}
+	svcObj.Notification = notifSvc
+	svcObj.logger = cfg.Logger
+
 	return svcObj, nil
 }
 
 // SetupRoutes registers all management plane routes onto the provided Gin router.
 func (s *Service) SetupRoutes(router *gin.Engine) {
-	// Apply gateway middleware (CORS, rate limiting, logging) first.
-	// In monolithic mode, services register handlers directly (no proxy),
-	// but middleware is still needed for browser CORS and observability.
+	// Apply request tracing middleware first for full coverage.
+	router.Use(middleware.RequestTracing(s.logger))
+
+	// Apply gateway middleware (CORS, rate limiting, logging).
 	s.Gateway.SetupMiddleware(router)
 
 	// Register monitoring first for health checks and metrics.
@@ -306,6 +319,9 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	}
 	if s.Tag != nil {
 		s.Tag.SetupRoutes(router)
+	}
+	if s.Notification != nil {
+		s.Notification.SetupRoutes(router)
 	}
 
 	// Gateway proxy routes - only for external compute service (vc-compute)
