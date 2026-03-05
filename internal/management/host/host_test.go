@@ -27,6 +27,18 @@ func setupTestDB(t *testing.T) *gorm.DB {
 	if err := db.AutoMigrate(&models.Host{}); err != nil {
 		t.Fatalf("failed to auto-migrate: %v", err)
 	}
+	// Create instances table for evacuation tests.
+	db.Exec(`CREATE TABLE IF NOT EXISTS instances (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		name TEXT NOT NULL, uuid TEXT, vm_id TEXT,
+		root_disk_gb INTEGER DEFAULT 0,
+		flavor_id INTEGER NOT NULL DEFAULT 0, image_id INTEGER NOT NULL DEFAULT 0,
+		status TEXT NOT NULL DEFAULT 'building',
+		power_state TEXT NOT NULL DEFAULT 'shutdown',
+		user_id INTEGER NOT NULL DEFAULT 0, project_id INTEGER NOT NULL DEFAULT 0,
+		host_id TEXT, node_address TEXT, ip_address TEXT,
+		created_at DATETIME, updated_at DATETIME, deleted_at DATETIME
+	)`)
 	return db
 }
 
@@ -224,5 +236,121 @@ func TestGetAvailableHosts(t *testing.T) {
 	}
 	if hosts[0].Name != "available" {
 		t.Errorf("expected host 'available', got '%s'", hosts[0].Name)
+	}
+}
+
+// TestEvacuateHost verifies instance marking on host evacuation.
+func TestEvacuateHost_MarksInstances(t *testing.T) {
+	db := setupTestDB(t)
+	svc := &Service{db: db, logger: zap.NewNop(), heartbeatTimeout: 2 * time.Minute}
+
+	// Create a host and some instances on it.
+	db.Create(&models.Host{Name: "evac-host", UUID: "evac-uuid-1", IPAddress: "10.0.0.10", Status: "down"})
+	db.Exec(`INSERT INTO instances (name, host_id, status, power_state) VALUES (?, ?, ?, ?)`, "vm-1", "evac-uuid-1", "active", "running")
+	db.Exec(`INSERT INTO instances (name, host_id, status, power_state) VALUES (?, ?, ?, ?)`, "vm-2", "evac-uuid-1", "building", "shutdown")
+	db.Exec(`INSERT INTO instances (name, host_id, status, power_state) VALUES (?, ?, ?, ?)`, "vm-other", "other-host", "active", "running")
+
+	// Trigger evacuation.
+	svc.evacuateHost("evac-uuid-1", "evac-host")
+
+	// Check that vm-1 and vm-2 are marked as error/host_down.
+	var status1, power1, status2, power2 string
+	db.Raw(`SELECT status FROM instances WHERE name = ?`, "vm-1").Scan(&status1)
+	db.Raw(`SELECT power_state FROM instances WHERE name = ?`, "vm-1").Scan(&power1)
+	db.Raw(`SELECT status FROM instances WHERE name = ?`, "vm-2").Scan(&status2)
+	db.Raw(`SELECT power_state FROM instances WHERE name = ?`, "vm-2").Scan(&power2)
+
+	if status1 != "error" {
+		t.Errorf("vm-1: expected status 'error', got '%s'", status1)
+	}
+	if power1 != "host_down" {
+		t.Errorf("vm-1: expected power_state 'host_down', got '%s'", power1)
+	}
+	if status2 != "error" {
+		t.Errorf("vm-2: expected status 'error', got '%s'", status2)
+	}
+
+	// vm-other should NOT be affected.
+	var statusOther string
+	db.Raw(`SELECT status FROM instances WHERE name = ?`, "vm-other").Scan(&statusOther)
+	if statusOther != "active" {
+		t.Errorf("vm-other should still be 'active', got '%s'", statusOther)
+	}
+}
+
+// TestEvacuateHost_CallbackInvoked verifies the callback is called.
+func TestEvacuateHost_CallbackInvoked(t *testing.T) {
+	db := setupTestDB(t)
+
+	var callbackHostUUID string
+	var callbackIDs []uint
+
+	svc := &Service{
+		db:               db,
+		logger:           zap.NewNop(),
+		heartbeatTimeout: 2 * time.Minute,
+		evacuateCallback: func(hostUUID string, instanceIDs []uint) {
+			callbackHostUUID = hostUUID
+			callbackIDs = instanceIDs
+		},
+	}
+
+	db.Create(&models.Host{Name: "cb-host", UUID: "cb-uuid", IPAddress: "10.0.0.20", Status: "down"})
+	db.Exec(`INSERT INTO instances (name, host_id, status, power_state) VALUES (?, ?, ?, ?)`, "cb-vm", "cb-uuid", "active", "running")
+
+	svc.evacuateHost("cb-uuid", "cb-host")
+
+	if callbackHostUUID != "cb-uuid" {
+		t.Errorf("callback should receive host UUID 'cb-uuid', got '%s'", callbackHostUUID)
+	}
+	if len(callbackIDs) != 1 {
+		t.Fatalf("callback should receive 1 instance ID, got %d", len(callbackIDs))
+	}
+}
+
+// TestEvacuateHostHTTP verifies the evacuate endpoint.
+func TestEvacuateHostHTTP(t *testing.T) {
+	db := setupTestDB(t)
+	svc := &Service{db: db, logger: zap.NewNop(), heartbeatTimeout: 2 * time.Minute}
+
+	db.Create(&models.Host{Name: "http-evac", UUID: "http-evac-uuid", IPAddress: "10.0.0.30", Status: "down"})
+	db.Exec(`INSERT INTO instances (name, host_id, status, power_state) VALUES (?, ?, ?, ?)`, "evac-vm", "http-evac-uuid", "active", "running")
+
+	gin.SetMode(gin.TestMode)
+	router := gin.New()
+	svc.SetupRoutes(router)
+
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/hosts/1/evacuate", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusAccepted {
+		t.Fatalf("expected 202, got %d: %s", w.Code, w.Body.String())
+	}
+	if !strings.Contains(w.Body.String(), "evacuating") {
+		t.Error("response should describe evacuation")
+	}
+}
+
+// TestEvacuateHostHTTP_NoInstances verifies evacuate with no instances.
+func TestEvacuateHostHTTP_NoInstances(t *testing.T) {
+	db := setupTestDB(t)
+	svc := &Service{db: db, logger: zap.NewNop(), heartbeatTimeout: 2 * time.Minute}
+
+	db.Create(&models.Host{Name: "empty-host", UUID: "empty-uuid", IPAddress: "10.0.0.40", Status: "down"})
+
+	gin.SetMode(gin.TestMode)
+	router := gin.New()
+	svc.SetupRoutes(router)
+
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/hosts/1/evacuate", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d: %s", w.Code, w.Body.String())
+	}
+	if !strings.Contains(w.Body.String(), "no instances") {
+		t.Error("response should indicate no instances")
 	}
 }

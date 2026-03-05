@@ -1,9 +1,12 @@
 package compute
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
+	"sync/atomic"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -12,10 +15,16 @@ import (
 	"gorm.io/gorm"
 )
 
+var testDBCounter uint64
+
 func setupTestDB(t *testing.T) *gorm.DB {
 	t.Helper()
-	dsn := "file:" + t.Name() + "?mode=memory&cache=shared"
-	db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{
+	n := atomic.AddUint64(&testDBCounter, 1)
+	path := fmt.Sprintf("/tmp/vc_compute_test_%d.db", n)
+	t.Cleanup(func() {
+		_ = os.Remove(path)
+	})
+	db, err := gorm.Open(sqlite.Open(path), &gorm.Config{
 		// Disable FK constraints so PostgreSQL-specific defaults
 		// (uuid_generate_v4) don't cause SQLite syntax errors.
 		DisableForeignKeyConstraintWhenMigrating: true,

@@ -29,6 +29,10 @@ type Config struct {
 	// ExternalURL is the publicly reachable URL of the management server.
 	// Used to generate install scripts for compute nodes.
 	ExternalURL string
+
+	// EvacuateCallback is called when instances need to be rescheduled
+	// after a host goes down. If nil, instances are only marked as error.
+	EvacuateCallback func(hostUUID string, instanceIDs []uint)
 }
 
 // Service provides host management operations.
@@ -37,6 +41,7 @@ type Service struct {
 	logger           *zap.Logger
 	heartbeatTimeout time.Duration
 	externalURL      string
+	evacuateCallback func(hostUUID string, instanceIDs []uint)
 }
 
 // NewService creates a new host management service.
@@ -56,6 +61,7 @@ func NewService(cfg Config) (*Service, error) {
 		logger:           cfg.Logger,
 		heartbeatTimeout: cfg.HeartbeatTimeout,
 		externalURL:      cfg.ExternalURL,
+		evacuateCallback: cfg.EvacuateCallback,
 	}
 
 	// Start background tasks
@@ -80,6 +86,7 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		api.POST("/hosts/:id/enable", s.enableHost)
 		api.POST("/hosts/:id/disable", s.disableHost)
 		api.POST("/hosts/:id/maintenance", s.maintenanceMode)
+		api.POST("/hosts/:id/evacuate", s.evacuateHostHTTP)
 	}
 }
 
@@ -522,6 +529,9 @@ func (s *Service) checkHostHealth() {
 			zap.String("uuid", host.UUID),
 			zap.String("name", host.Name),
 			zap.Time("last_heartbeat", *host.LastHeartbeat))
+
+		// Trigger automatic evacuation for downed host.
+		go s.evacuateHost(host.UUID, host.Name)
 	}
 }
 
@@ -566,6 +576,92 @@ func (s *Service) GetAvailableHosts() ([]models.Host, error) {
 		Order("cpu_allocated ASC, ram_allocated_mb ASC").
 		Find(&hosts).Error
 	return hosts, err
+}
+
+// evacuateHost marks all active/building instances on a downed host as needing recovery.
+// If an EvacuateCallback is configured, it triggers rescheduling.
+func (s *Service) evacuateHost(hostUUID, hostName string) {
+	var instanceIDs []uint
+	if err := s.db.Table("instances").
+		Select("id").
+		Where("host_id = ? AND status IN (?, ?) AND deleted_at IS NULL", hostUUID, "active", "building").
+		Pluck("id", &instanceIDs).Error; err != nil {
+		s.logger.Error("failed to query instances for evacuation",
+			zap.String("host_uuid", hostUUID), zap.Error(err))
+		return
+	}
+
+	if len(instanceIDs) == 0 {
+		s.logger.Info("no instances to evacuate on downed host",
+			zap.String("host_uuid", hostUUID),
+			zap.String("host_name", hostName))
+		return
+	}
+
+	s.logger.Warn("evacuating instances from downed host",
+		zap.String("host_uuid", hostUUID),
+		zap.String("host_name", hostName),
+		zap.Int("instance_count", len(instanceIDs)))
+
+	// Mark all affected instances as error/host_down so they are
+	// visible in the UI and eligible for rescheduling.
+	result := s.db.Table("instances").
+		Where("id IN ? AND status IN (?, ?)", instanceIDs, "active", "building").
+		Updates(map[string]interface{}{
+			"status":      "error",
+			"power_state": "host_down",
+		})
+	if result.Error != nil {
+		s.logger.Error("failed to mark instances for evacuation", zap.Error(result.Error))
+		return
+	}
+
+	s.logger.Info("instances marked for evacuation",
+		zap.Int64("affected", result.RowsAffected),
+		zap.String("host_uuid", hostUUID))
+
+	// Log an evacuation event for audit.
+	s.db.Exec(`INSERT INTO system_events (resource_type, resource_id, action, status, message, created_at)
+		VALUES (?, ?, ?, ?, ?, NOW())`,
+		"host", hostUUID, "evacuate", "success",
+		fmt.Sprintf("Host %s marked down. %d instance(s) marked for evacuation.", hostName, result.RowsAffected))
+
+	// If a callback is configured (e.g. compute service rescheduling), invoke it.
+	if s.evacuateCallback != nil {
+		s.evacuateCallback(hostUUID, instanceIDs)
+	}
+}
+
+// evacuateHostHTTP handles POST /api/v1/hosts/:id/evacuate.
+// Allows operators to manually trigger host evacuation.
+func (s *Service) evacuateHostHTTP(c *gin.Context) {
+	id := c.Param("id")
+
+	host, err := s.findHostByID(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "host not found"})
+		return
+	}
+
+	// Count affected instances.
+	var count int64
+	s.db.Table("instances").
+		Where("host_id = ? AND status IN (?, ?) AND deleted_at IS NULL", host.UUID, "active", "building").
+		Count(&count)
+
+	if count == 0 {
+		c.JSON(http.StatusOK, gin.H{"ok": true, "message": "no instances to evacuate", "affected": 0})
+		return
+	}
+
+	// Trigger evacuation asynchronously.
+	go s.evacuateHost(host.UUID, host.Name)
+
+	c.JSON(http.StatusAccepted, gin.H{
+		"ok":       true,
+		"message":  fmt.Sprintf("evacuating %d instance(s) from host %s", count, host.Name),
+		"affected": count,
+	})
 }
 
 // testConnection checks TCP connectivity to a host:port.
