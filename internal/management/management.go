@@ -7,6 +7,7 @@ import (
 	"github.com/Veritas-Calculus/vc-stack/internal/management/apidocs"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/autoscale"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/backup"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/caas"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/compute"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/config"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/dns"
@@ -80,6 +81,7 @@ type Service struct {
 	KMS           *kms.Service
 	RateLimit     *ratelimit.Service
 	Encryption    *encryption.Service
+	CaaS          *caas.Service
 	logger        *zap.Logger
 }
 
@@ -370,6 +372,16 @@ func New(cfg Config) (*Service, error) {
 	}
 	svcObj.Encryption = encSvc
 
+	// Initialize CaaS (Container as a Service).
+	caasSvc, err := caas.NewService(caas.Config{
+		DB:     cfg.DB,
+		Logger: cfg.Logger.Named("caas"),
+	})
+	if err != nil {
+		return nil, err
+	}
+	svcObj.CaaS = caasSvc
+
 	return svcObj, nil
 }
 
@@ -470,6 +482,10 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	// Data Encryption Management.
 	if s.Encryption != nil {
 		s.Encryption.SetupRoutes(router)
+	}
+	// Container as a Service (Kubernetes).
+	if s.CaaS != nil {
+		s.CaaS.SetupRoutes(router)
 	}
 
 	// Gateway proxy routes - only for external compute service (vc-compute)
