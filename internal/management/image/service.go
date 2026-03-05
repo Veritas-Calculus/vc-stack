@@ -1,11 +1,11 @@
-// Package image provides image/template management for the management plane.
+// Package image provides complete image/template management for the management plane.
 // Follows CloudStack's template model with categories, OS types, and visibility controls.
-// Image storage operations (upload, import) remain in the compute package
-// since they depend on the image storage backend (local/RBD).
+// Includes all image operations: CRUD, upload, import, and storage backends.
 package image
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 
@@ -41,16 +41,27 @@ type CreateImageRequest struct {
 	ZoneID          string `json:"zone_id"`
 }
 
+// ImportImageRequest represents a request to import an image from an external source.
+type ImportImageRequest struct {
+	FilePath  string `json:"file_path"`
+	RBDPool   string `json:"rbd_pool"`
+	RBDImage  string `json:"rbd_image"`
+	RBDSnap   string `json:"rbd_snap"`
+	SourceURL string `json:"source_url"`
+}
+
 // Config contains the image service configuration.
 type Config struct {
-	DB     *gorm.DB
-	Logger *zap.Logger
+	DB           *gorm.DB
+	Logger       *zap.Logger
+	ImageStorage ImageStorageConfig
 }
 
 // Service provides image management operations.
 type Service struct {
-	db     *gorm.DB
-	logger *zap.Logger
+	db           *gorm.DB
+	logger       *zap.Logger
+	imageStorage *ImageStorage
 }
 
 // NewService creates a new image service.
@@ -62,7 +73,11 @@ func NewService(cfg Config) (*Service, error) {
 		cfg.Logger = zap.NewNop()
 	}
 
-	svc := &Service{db: cfg.DB, logger: cfg.Logger}
+	svc := &Service{
+		db:           cfg.DB,
+		logger:       cfg.Logger,
+		imageStorage: NewImageStorage(cfg.Logger, cfg.ImageStorage),
+	}
 
 	// Auto-migrate image table with new fields.
 	if err := cfg.DB.AutoMigrate(&Image{}); err != nil {
@@ -72,8 +87,7 @@ func NewService(cfg Config) (*Service, error) {
 	return svc, nil
 }
 
-// SetupRoutes registers HTTP routes for image management.
-// Image storage operations (upload, import) are registered by compute service.
+// SetupRoutes registers all HTTP routes for image management.
 func (s *Service) SetupRoutes(router *gin.Engine) {
 	api := router.Group("/api/v1")
 	{
@@ -83,6 +97,8 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		api.PUT("/images/:id", s.updateImage)
 		api.DELETE("/images/:id", s.deleteImage)
 		api.POST("/images/register", s.registerImage)
+		api.POST("/images/upload", s.uploadImage)
+		api.POST("/images/:id/import", s.importImage)
 	}
 }
 
@@ -421,6 +437,207 @@ func (s *Service) registerImage(c *gin.Context) {
 
 	s.logger.Info("image registered", zap.String("name", image.Name), zap.Uint("id", image.ID))
 	c.JSON(http.StatusCreated, gin.H{"image": image})
+}
+
+// --- Upload/Import Handlers ---
+
+// uploadImage handles POST /api/v1/images/upload (multipart file upload).
+func (s *Service) uploadImage(c *gin.Context) {
+	file, header, err := c.Request.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "file is required"})
+		return
+	}
+	defer func() { _ = file.Close() }()
+
+	uid := extractUserID(c)
+
+	name := c.PostForm("name")
+	if name == "" {
+		name = header.Filename
+	}
+
+	// Auto-detect disk format from file extension if not provided.
+	diskFormat := c.PostForm("disk_format")
+	if diskFormat == "" {
+		ext := strings.ToLower(name)
+		switch {
+		case strings.HasSuffix(ext, ".qcow2"):
+			diskFormat = "qcow2"
+		case strings.HasSuffix(ext, ".iso"):
+			diskFormat = "iso"
+		case strings.HasSuffix(ext, ".raw"):
+			diskFormat = "raw"
+		case strings.HasSuffix(ext, ".img"):
+			diskFormat = "raw"
+		case strings.HasSuffix(ext, ".vmdk"):
+			diskFormat = "vmdk"
+		default:
+			diskFormat = "qcow2"
+		}
+	}
+
+	image := &Image{
+		Name:           name,
+		UUID:           uuid.New().String(),
+		OwnerID:        uid,
+		Size:           header.Size,
+		Status:         "uploading",
+		DiskFormat:     diskFormat,
+		Category:       "user",
+		Architecture:   "x86_64",
+		HypervisorType: "kvm",
+		Bootable:       true,
+	}
+
+	if err := s.db.Create(image).Error; err != nil {
+		// If duplicate name, find the existing image and overwrite it.
+		if strings.Contains(err.Error(), "duplicate key") || strings.Contains(err.Error(), "UNIQUE constraint") {
+			var existing Image
+			if findErr := s.db.Where("name = ?", name).First(&existing).Error; findErr == nil {
+				existing.UUID = image.UUID
+				existing.Size = header.Size
+				existing.Status = "uploading"
+				existing.DiskFormat = diskFormat
+				existing.OwnerID = uid
+				if updateErr := s.db.Save(&existing).Error; updateErr != nil {
+					s.logger.Error("failed to update existing image for re-upload", zap.Error(updateErr))
+					c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update image"})
+					return
+				}
+				image = &existing
+				s.logger.Info("re-uploading over existing image", zap.String("name", name), zap.Uint("id", image.ID))
+			} else {
+				c.JSON(http.StatusConflict, gin.H{"error": fmt.Sprintf("image with name %q already exists", name)})
+				return
+			}
+		} else {
+			s.logger.Error("failed to create image record for upload", zap.Error(err))
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create image"})
+			return
+		}
+	}
+
+	// Store the uploaded file to the configured storage backend (local or RBD).
+	go s.storeUploadedImage(image.ID, name, file, header.Size)
+
+	s.logger.Info("image upload accepted", zap.String("name", image.Name), zap.Uint("id", image.ID), zap.Int64("size", header.Size))
+	c.JSON(http.StatusAccepted, gin.H{"image": image})
+}
+
+// storeUploadedImage performs the actual storage write asynchronously.
+func (s *Service) storeUploadedImage(imageID uint, name string, reader io.Reader, sizeHint int64) {
+	result, err := s.imageStorage.StoreFromReader(name, reader, sizeHint)
+	if err != nil {
+		s.logger.Error("failed to store image", zap.Uint("image_id", imageID), zap.Error(err))
+		_ = s.db.Model(&Image{}).Where("id = ?", imageID).Updates(map[string]interface{}{
+			"status": "error",
+		}).Error
+		return
+	}
+
+	updates := map[string]interface{}{
+		"status": "active",
+		"size":   result.Size,
+	}
+	if result.Checksum != "" {
+		updates["checksum"] = result.Checksum
+	}
+	if result.FilePath != "" {
+		updates["file_path"] = result.FilePath
+	}
+	if result.RBDPool != "" {
+		updates["rbd_pool"] = result.RBDPool
+	}
+	if result.RBDImage != "" {
+		updates["rbd_image"] = result.RBDImage
+	}
+
+	if err := s.db.Model(&Image{}).Where("id = ?", imageID).Updates(updates).Error; err != nil {
+		s.logger.Error("failed to update image after storage", zap.Uint("image_id", imageID), zap.Error(err))
+		return
+	}
+
+	s.logger.Info("image stored successfully",
+		zap.Uint("image_id", imageID),
+		zap.String("file_path", result.FilePath),
+		zap.String("rbd_image", result.RBDImage),
+		zap.Int64("size", result.Size))
+}
+
+// importImage handles POST /api/v1/images/:id/import.
+func (s *Service) importImage(c *gin.Context) {
+	id := c.Param("id")
+	var image Image
+	if err := s.db.First(&image, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "image not found"})
+		return
+	}
+
+	var req ImportImageRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	_ = s.db.Model(&image).Update("status", "importing").Error
+
+	go s.doImageImport(image.ID, image.Name, req)
+
+	s.logger.Info("image import initiated", zap.String("name", image.Name), zap.Uint("id", image.ID))
+	_ = s.db.First(&image, id).Error
+	c.JSON(http.StatusAccepted, gin.H{"image": image})
+}
+
+// doImageImport performs the actual image import asynchronously.
+func (s *Service) doImageImport(imageID uint, imageName string, req ImportImageRequest) {
+	var updates map[string]interface{}
+
+	switch {
+	case req.RBDPool != "" && req.RBDImage != "":
+		dstImage := fmt.Sprintf("img-%s", imageName)
+		if err := s.imageStorage.CloneRBDImage(req.RBDPool, req.RBDImage, req.RBDSnap, "", dstImage); err != nil {
+			s.logger.Error("failed to clone RBD image", zap.Uint("image_id", imageID), zap.Error(err))
+			_ = s.db.Model(&Image{}).Where("id = ?", imageID).Update("status", "error").Error
+			return
+		}
+		updates = map[string]interface{}{
+			"status":    "active",
+			"rbd_pool":  s.imageStorage.config.RBDPool,
+			"rbd_image": dstImage,
+			"rbd_snap":  req.RBDSnap,
+		}
+	case req.SourceURL != "":
+		result, err := s.imageStorage.ImportFromURL(imageName, req.SourceURL)
+		if err != nil {
+			s.logger.Error("failed to import image from URL", zap.Uint("image_id", imageID), zap.Error(err))
+			_ = s.db.Model(&Image{}).Where("id = ?", imageID).Update("status", "error").Error
+			return
+		}
+		updates = map[string]interface{}{
+			"status":    "active",
+			"size":      result.Size,
+			"file_path": result.FilePath,
+			"rbd_pool":  result.RBDPool,
+			"rbd_image": result.RBDImage,
+			"rgw_url":   req.SourceURL,
+		}
+	case req.FilePath != "":
+		updates = map[string]interface{}{
+			"status":    "active",
+			"file_path": req.FilePath,
+		}
+	default:
+		s.logger.Warn("import request has no source", zap.Uint("image_id", imageID))
+		_ = s.db.Model(&Image{}).Where("id = ?", imageID).Update("status", "error").Error
+		return
+	}
+
+	if err := s.db.Model(&Image{}).Where("id = ?", imageID).Updates(updates).Error; err != nil {
+		s.logger.Error("failed to update image after import", zap.Uint("image_id", imageID), zap.Error(err))
+	} else {
+		s.logger.Info("image import completed", zap.Uint("image_id", imageID))
+	}
 }
 
 // extractUserID extracts the user ID from the gin context.

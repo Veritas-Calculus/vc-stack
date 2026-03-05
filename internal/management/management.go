@@ -269,7 +269,11 @@ func New(cfg Config) (*Service, error) {
 	svcObj.logger = cfg.Logger
 
 	// Initialize image service.
-	imageSvc, err := image.NewService(image.Config{DB: cfg.DB, Logger: cfg.Logger.Named("image")})
+	imageSvc, err := image.NewService(image.Config{
+		DB:           cfg.DB,
+		Logger:       cfg.Logger.Named("image"),
+		ImageStorage: image.ImageStorageConfig{},
+	})
 	if err != nil {
 		return nil, err
 	}

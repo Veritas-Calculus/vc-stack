@@ -1,7 +1,7 @@
 // Package compute provides image storage operations for the management plane.
 // Supports both local filesystem and Ceph RBD backends.
 // Uses the `rbd` CLI tool for RBD operations (no cgo dependency).
-package compute
+package image
 
 import (
 	"crypto/sha256"
