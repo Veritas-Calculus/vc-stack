@@ -13,6 +13,7 @@ import (
 	"github.com/Veritas-Calculus/vc-stack/internal/management/config"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/dns"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/domain"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/dr"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/encryption"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/event"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/gateway"
@@ -84,6 +85,7 @@ type Service struct {
 	Encryption    *encryption.Service
 	CaaS          *caas.Service
 	Audit         *audit.Service
+	DR            *dr.Service
 	logger        *zap.Logger
 }
 
@@ -394,6 +396,16 @@ func New(cfg Config) (*Service, error) {
 	}
 	svcObj.Audit = auditSvc
 
+	// Initialize Disaster Recovery service.
+	drSvc, err := dr.NewService(dr.Config{
+		DB:     cfg.DB,
+		Logger: cfg.Logger.Named("dr"),
+	})
+	if err != nil {
+		return nil, err
+	}
+	svcObj.DR = drSvc
+
 	return svcObj, nil
 }
 
@@ -502,6 +514,10 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	// Compliance Audit.
 	if s.Audit != nil {
 		s.Audit.SetupRoutes(router)
+	}
+	// Disaster Recovery.
+	if s.DR != nil {
+		s.DR.SetupRoutes(router)
 	}
 
 	// Gateway proxy routes - only for external compute service (vc-compute)
