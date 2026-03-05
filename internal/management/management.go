@@ -4,6 +4,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/Veritas-Calculus/vc-stack/internal/management/apidocs"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/autoscale"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/backup"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/compute"
@@ -64,6 +65,7 @@ type Service struct {
 	Tag          *tag.Service
 	Notification *notification.Service
 	Image        *image.Service
+	APIDocs      *apidocs.Service
 	logger       *zap.Logger
 }
 
@@ -279,13 +281,24 @@ func New(cfg Config) (*Service, error) {
 	}
 	svcObj.Image = imageSvc
 
+	// Initialize API docs service.
+	svcObj.APIDocs = apidocs.NewService(apidocs.Config{Logger: cfg.Logger.Named("apidocs")})
+
 	return svcObj, nil
 }
 
 // SetupRoutes registers all management plane routes onto the provided Gin router.
 func (s *Service) SetupRoutes(router *gin.Engine) {
-	// Apply request tracing middleware first for full coverage.
+	// Apply API version headers to all responses.
+	router.Use(apidocs.VersionMiddleware())
+
+	// Apply request tracing middleware for full coverage.
 	router.Use(middleware.RequestTracing(s.logger))
+
+	// Register API docs/Swagger UI routes first (public, no auth).
+	if s.APIDocs != nil {
+		s.APIDocs.SetupRoutes(router)
+	}
 
 	// Apply gateway middleware (CORS, rate limiting, logging).
 	s.Gateway.SetupMiddleware(router)
