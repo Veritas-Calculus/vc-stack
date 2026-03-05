@@ -250,48 +250,53 @@ func (s *Service) getDefaultQuota() QuotaSet {
 }
 
 // CheckQuota checks if creating a resource would exceed quota.
+// It uses row-level locking (FOR UPDATE) to prevent concurrent requests
+// from both passing the check and then exceeding the quota.
 func (s *Service) CheckQuota(tenantID, resourceType string, delta int) error {
-	// Get quota.
-	var quota QuotaSet
-	if err := s.db.Where("tenant_id = ?", tenantID).First(&quota).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			quota = s.getDefaultQuota()
-		} else {
-			return err
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		// Get quota.
+		var quota QuotaSet
+		if err := tx.Where("tenant_id = ?", tenantID).First(&quota).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				quota = s.getDefaultQuota()
+			} else {
+				return err
+			}
 		}
-	}
 
-	// Get current usage.
-	var usage QuotaUsage
-	if err := s.db.Where("tenant_id = ?", tenantID).First(&usage).Error; err != nil {
-		if err != gorm.ErrRecordNotFound {
-			return err
+		// Get current usage with row-level lock to prevent concurrent races.
+		var usage QuotaUsage
+		if err := tx.Set("gorm:query_option", "FOR UPDATE").
+			Where("tenant_id = ?", tenantID).First(&usage).Error; err != nil {
+			if err != gorm.ErrRecordNotFound {
+				return err
+			}
+			// No usage record yet — zero usage, no lock contention.
+			usage = QuotaUsage{TenantID: tenantID}
 		}
-		// No usage record yet, create one.
-		usage = QuotaUsage{TenantID: tenantID}
-	}
 
-	// Check quota based on resource type.
-	switch resourceType {
-	case "instances":
-		if quota.Instances >= 0 && usage.Instances+delta > quota.Instances {
-			return &QuotaExceededError{Resource: "instances", Limit: quota.Instances, Current: usage.Instances}
+		// Check quota based on resource type.
+		switch resourceType {
+		case "instances":
+			if quota.Instances >= 0 && usage.Instances+delta > quota.Instances {
+				return &QuotaExceededError{Resource: "instances", Limit: quota.Instances, Current: usage.Instances}
+			}
+		case "vcpus":
+			if quota.VCPUs >= 0 && usage.VCPUs+delta > quota.VCPUs {
+				return &QuotaExceededError{Resource: "vcpus", Limit: quota.VCPUs, Current: usage.VCPUs}
+			}
+		case "ram_mb":
+			if quota.RAMMB >= 0 && usage.RAMMB+delta > quota.RAMMB {
+				return &QuotaExceededError{Resource: "ram_mb", Limit: quota.RAMMB, Current: usage.RAMMB}
+			}
+		case "disk_gb":
+			if quota.DiskGB >= 0 && usage.DiskGB+delta > quota.DiskGB {
+				return &QuotaExceededError{Resource: "disk_gb", Limit: quota.DiskGB, Current: usage.DiskGB}
+			}
 		}
-	case "vcpus":
-		if quota.VCPUs >= 0 && usage.VCPUs+delta > quota.VCPUs {
-			return &QuotaExceededError{Resource: "vcpus", Limit: quota.VCPUs, Current: usage.VCPUs}
-		}
-	case "ram_mb":
-		if quota.RAMMB >= 0 && usage.RAMMB+delta > quota.RAMMB {
-			return &QuotaExceededError{Resource: "ram_mb", Limit: quota.RAMMB, Current: usage.RAMMB}
-		}
-	case "disk_gb":
-		if quota.DiskGB >= 0 && usage.DiskGB+delta > quota.DiskGB {
-			return &QuotaExceededError{Resource: "disk_gb", Limit: quota.DiskGB, Current: usage.DiskGB}
-		}
-	}
 
-	return nil
+		return nil
+	})
 }
 
 // UpdateUsage updates resource usage for a tenant.

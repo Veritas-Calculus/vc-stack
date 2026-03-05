@@ -490,8 +490,39 @@ func (s *Service) createInstance(c *gin.Context) {
 		instance.Metadata = m
 	}
 
-	if err := s.db.Create(instance).Error; err != nil {
-		s.logger.Error("failed to create instance", zap.Error(err))
+	// Create instance, root volume, and attachment within a single transaction
+	// to prevent orphaned records if any step fails.
+	if err := s.db.Transaction(func(tx *gorm.DB) error {
+		// 1. Create the instance record.
+		if err := tx.Create(instance).Error; err != nil {
+			return fmt.Errorf("create instance: %w", err)
+		}
+
+		// 2. Create root disk volume.
+		rootVolume := &Volume{
+			Name:      fmt.Sprintf("%s-root", instance.Name),
+			SizeGB:    instance.RootDiskGB,
+			Status:    "in-use",
+			UserID:    uid,
+			ProjectID: pid,
+		}
+		if err := tx.Create(rootVolume).Error; err != nil {
+			return fmt.Errorf("create root volume: %w", err)
+		}
+
+		// 3. Create the attachment record linking volume to instance.
+		attachment := &VolumeAttachment{
+			VolumeID:   rootVolume.ID,
+			InstanceID: instance.ID,
+			Device:     "/dev/vda",
+		}
+		if err := tx.Create(attachment).Error; err != nil {
+			return fmt.Errorf("create volume attachment: %w", err)
+		}
+
+		return nil
+	}); err != nil {
+		s.logger.Error("failed to create instance (transaction rolled back)", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create instance"})
 		return
 	}
@@ -503,6 +534,8 @@ func (s *Service) createInstance(c *gin.Context) {
 	}, "")
 
 	// Allocate network ports before dispatching.
+	// NOTE: Port allocation involves external OVN calls and cannot be part of the
+	// DB transaction. If port allocation fails, we mark the instance as "error".
 	var nics []NicSpec
 	if s.portAllocator != nil {
 		tenantID := fmt.Sprintf("%d", pid)
@@ -841,15 +874,9 @@ func (s *Service) deleteInstanceOnNode(ctx context.Context, inst *Instance) {
 		}
 	}
 
-	// Mark as deleted.
-	now := time.Now()
-	_ = s.db.Model(inst).Updates(map[string]interface{}{
-		"status":        "deleted",
-		"terminated_at": now,
-	}).Error
-
 	// Deallocate network ports associated with this instance (best-effort).
 	// Ports are identified by device_id = instance UUID.
+	// This must happen outside the DB transaction since it involves external OVN calls.
 	if s.portAllocator != nil {
 		type portRow struct{ ID string }
 		var ports []portRow
@@ -863,9 +890,49 @@ func (s *Service) deleteInstanceOnNode(ctx context.Context, inst *Instance) {
 		}
 	}
 
-	// Soft delete the record so it doesn't show up in normal lists
-	if err := s.db.Delete(inst).Error; err != nil {
-		s.logger.Error("failed to soft delete instance", zap.Error(err))
+	// Wrap all DB cleanup operations in a single transaction.
+	if err := s.db.Transaction(func(tx *gorm.DB) error {
+		// 1. Mark as deleted.
+		now := time.Now()
+		if err := tx.Model(inst).Updates(map[string]interface{}{
+			"status":        "deleted",
+			"terminated_at": now,
+		}).Error; err != nil {
+			return fmt.Errorf("mark instance deleted: %w", err)
+		}
+
+		// 2. Clean up volume attachments and auto-created root volumes.
+		var attachments []VolumeAttachment
+		if err := tx.Where("instance_id = ?", inst.ID).Find(&attachments).Error; err != nil {
+			return fmt.Errorf("find attachments: %w", err)
+		}
+		for _, a := range attachments {
+			if err := tx.Delete(&a).Error; err != nil {
+				return fmt.Errorf("delete attachment %d: %w", a.ID, err)
+			}
+			if a.Device == "/dev/vda" {
+				// Auto-created root volume — delete it together with the instance.
+				if err := tx.Delete(&Volume{}, a.VolumeID).Error; err != nil {
+					return fmt.Errorf("delete root volume %d: %w", a.VolumeID, err)
+				}
+			} else {
+				// Data volume — mark available so it can be reattached.
+				if err := tx.Model(&Volume{}).Where("id = ?", a.VolumeID).Update("status", "available").Error; err != nil {
+					return fmt.Errorf("release volume %d: %w", a.VolumeID, err)
+				}
+			}
+		}
+
+		// 3. Soft delete the record so it doesn't show up in normal lists.
+		if err := tx.Delete(inst).Error; err != nil {
+			return fmt.Errorf("soft delete instance: %w", err)
+		}
+
+		return nil
+	}); err != nil {
+		s.logger.Error("failed to clean up instance (transaction rolled back)",
+			zap.String("uuid", inst.UUID), zap.Error(err))
+		return
 	}
 
 	s.logger.Info("instance deleted", zap.String("uuid", inst.UUID))
@@ -1251,7 +1318,14 @@ func (s *Service) createVolume(c *gin.Context) {
 
 func (s *Service) listVolumes(c *gin.Context) {
 	var volumes []Volume
-	if err := s.db.Find(&volumes).Error; err != nil {
+	query := s.db.Order("id")
+	projectID, _ := c.Get("project_id")
+	if pid, ok := projectID.(float64); ok && uint(pid) != 0 {
+		query = query.Where("project_id = ?", uint(pid))
+	} else if pid, ok := projectID.(uint); ok && pid != 0 {
+		query = query.Where("project_id = ?", pid)
+	}
+	if err := query.Find(&volumes).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list volumes"})
 		return
 	}
@@ -1270,7 +1344,19 @@ func (s *Service) getVolume(c *gin.Context) {
 
 func (s *Service) deleteVolume(c *gin.Context) {
 	id := c.Param("id")
-	if err := s.db.Delete(&Volume{}, id).Error; err != nil {
+	var volume Volume
+	if err := s.db.First(&volume, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "volume not found"})
+		return
+	}
+	// Prevent deletion of volumes that are still attached to an instance.
+	var attachCount int64
+	s.db.Model(&VolumeAttachment{}).Where("volume_id = ?", volume.ID).Count(&attachCount)
+	if attachCount > 0 {
+		c.JSON(http.StatusConflict, gin.H{"error": "volume is attached to an instance; detach or delete the instance first"})
+		return
+	}
+	if err := s.db.Delete(&volume).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete volume"})
 		return
 	}
