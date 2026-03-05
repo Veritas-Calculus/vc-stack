@@ -3,6 +3,7 @@
 package quota
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -71,6 +72,12 @@ func NewService(cfg Config) (*Service, error) {
 	if cfg.Logger == nil {
 		cfg.Logger = zap.NewNop()
 	}
+
+	// Auto-migrate quota tables.
+	if err := cfg.DB.AutoMigrate(&QuotaSet{}, &QuotaUsage{}); err != nil {
+		return nil, fmt.Errorf("failed to migrate quota tables: %w", err)
+	}
+
 	return &Service{db: cfg.DB, logger: cfg.Logger}, nil
 }
 
