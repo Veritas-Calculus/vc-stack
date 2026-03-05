@@ -40,6 +40,7 @@ import { DNSManagement } from '@/features/dns/DNSManagement'
 import { ObjectStorage } from '@/features/objectstorage/ObjectStorage'
 import { Orchestration } from '@/features/orchestration/Orchestration'
 import { RBAC } from '@/features/rbac/RBAC'
+import { Federation } from '@/features/federation/Federation'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const token = useAuthStore((s) => s.token)
@@ -169,6 +170,8 @@ export default function App() {
                 <Route path="/orchestration" element={<Orchestration />} />
                 {/* RBAC */}
                 <Route path="/rbac" element={<RBAC />} />
+                {/* Federation */}
+                <Route path="/federation" element={<Federation />} />
                 {/* Global Infrastructure */}
                 <Route path="/infrastructure/*" element={<Infrastructure />} />
                 {/* Project-scoped Security Groups */}

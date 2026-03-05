@@ -95,13 +95,8 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 				permissions.DELETE("/:id", s.deletePermissionHandler)
 			}
 
-			// Identity Providers (IDP)
-			idps := protected.Group("/idps")
-			{
-				idps.GET("", s.listIDPsHandler)
-				idps.POST("", s.createIDPHandler)
-				idps.DELETE("/:id", s.deleteIDPHandler)
-			}
+			// Identity Providers are now managed via federation.go
+			// (routes registered via SetupFederationRoutes below)
 
 			// Profile.
 			profile := protected.Group("/profile")
@@ -122,6 +117,9 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 			}
 		}
 	}
+
+	// Federation / SSO / IDP management routes.
+	s.SetupFederationRoutes(router)
 }
 
 // healthCheck returns the service health status.
@@ -1120,48 +1118,7 @@ func (s *Service) updateProjectQuotaHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"quota": q})
 }
 
-// IDP Handlers.
-func (s *Service) listIDPsHandler(c *gin.Context) {
-	var idps []IdentityProvider
-	if err := s.db.Find(&idps).Error; err != nil {
-		s.logger.Error("Failed to list IDPs", zap.Error(err))
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list IDPs"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"idps": idps})
-}
-
-func (s *Service) createIDPHandler(c *gin.Context) {
-	var req IdentityProvider
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-		return
-	}
-	if req.Type == "" || req.Name == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Name and type are required"})
-		return
-	}
-	if err := s.db.Create(&req).Error; err != nil {
-		s.logger.Error("Failed to create IDP", zap.Error(err))
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create IDP"})
-		return
-	}
-	c.JSON(http.StatusCreated, gin.H{"idp": req})
-}
-
-func (s *Service) deleteIDPHandler(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
-		return
-	}
-	if err := s.db.Delete(&IdentityProvider{}, id).Error; err != nil {
-		s.logger.Error("Failed to delete IDP", zap.Error(err))
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete IDP"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "IDP deleted"})
-}
+// Old IDP handlers removed — see federation.go for full implementation.
 
 // Profile Handlers.
 func (s *Service) getProfileHandler(c *gin.Context) {

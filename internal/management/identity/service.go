@@ -162,17 +162,25 @@ type Quota struct {
 
 // IdentityProvider represents an external IdP configuration (OIDC/SAML).
 type IdentityProvider struct {
-	ID            uint      `gorm:"primaryKey" json:"id"`
-	Name          string    `gorm:"uniqueIndex;not null" json:"name"`
-	Type          string    `gorm:"not null" json:"type"` // oidc, saml
-	Issuer        string    `json:"issuer"`
-	ClientID      string    `json:"client_id"`
-	ClientSecret  string    `gorm:"not null" json:"client_secret"` // #nosec // This is a configuration field
-	AuthEndpoint  string    `json:"authorization_endpoint"`
-	TokenEndpoint string    `json:"token_endpoint"`
-	JWKSURI       string    `json:"jwks_uri"`
-	CreatedAt     time.Time `json:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at"`
+	ID               uint      `gorm:"primaryKey" json:"id"`
+	Name             string    `gorm:"uniqueIndex;not null" json:"name"`
+	Type             string    `gorm:"not null" json:"type"` // oidc, saml
+	Issuer           string    `json:"issuer"`
+	ClientID         string    `json:"client_id"`
+	ClientSecret     string    `json:"-"` // #nosec // Hidden from JSON responses
+	AuthEndpoint     string    `json:"authorization_endpoint"`
+	TokenEndpoint    string    `json:"token_endpoint"`
+	UserInfoEndpoint string    `json:"userinfo_endpoint"`
+	JWKSURI          string    `json:"jwks_uri"`
+	Scopes           string    `json:"scopes"`                              // space-separated OIDC scopes
+	GroupClaim       string    `json:"group_claim"`                         // custom claim for groups
+	RedirectURI      string    `json:"redirect_uri"`                        // override callback URL
+	AutoProvision    bool      `gorm:"default:false" json:"auto_provision"` // auto-create users on SSO
+	AutoLink         bool      `gorm:"default:false" json:"auto_link"`      // auto-link by email
+	DefaultRoleID    *uint     `json:"default_role_id"`                     // role assigned on auto-provision
+	IsEnabled        bool      `gorm:"default:true" json:"is_enabled"`      // enable/disable
+	CreatedAt        time.Time `json:"created_at"`
+	UpdatedAt        time.Time `json:"updated_at"`
 }
 
 // RefreshToken represents a refresh token.
@@ -233,6 +241,11 @@ func NewService(config Config) (*Service, error) {
 
 	// Seed default RBAC permissions and roles.
 	service.SeedRBAC()
+
+	// Migrate federation tables (federated_users, idp_role_mappings).
+	if err := service.migrateFederation(); err != nil {
+		config.Logger.Warn("Failed to migrate federation tables", zap.Error(err))
+	}
 
 	return service, nil
 }
