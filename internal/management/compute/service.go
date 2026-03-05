@@ -17,6 +17,7 @@ import (
 
 	"github.com/Veritas-Calculus/vc-stack/internal/management/event"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
+	"github.com/Veritas-Calculus/vc-stack/pkg/models"
 )
 
 // Config represents the compute service configuration.
@@ -888,11 +889,67 @@ func (s *Service) getInstanceDeletionStatus(c *gin.Context) {
 // proxyPowerOp sends a power operation to the compute node synchronously,
 // using instance.Name as the VM ID (matches CreateVM request).
 // Returns true if the operation succeeded (or node was unreachable but we should still update DB).
-func (s *Service) proxyPowerOp(instance *Instance, op string) error {
-	if instance.NodeAddress == "" {
-		return nil // no node assigned, just update DB
+// resolveNodeAddress returns a reachable node URL for the given instance.
+// It tries: 1) instance.NodeAddress, 2) fresh host DB lookup, 3) any active host.
+// If resolved from the DB, it also updates instance.NodeAddress and HostID in the DB.
+func (s *Service) resolveNodeAddress(instance *Instance) string {
+	// 1. Try the stored node address first (fast path).
+	if instance.NodeAddress != "" {
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+		req, _ := http.NewRequestWithContext(ctx, "GET", instance.NodeAddress+"/health", http.NoBody)
+		if resp, err := http.DefaultClient.Do(req); err == nil { // #nosec
+			_ = resp.Body.Close()
+			if resp.StatusCode == http.StatusOK {
+				return instance.NodeAddress
+			}
+		}
+		s.logger.Warn("stored node address unreachable, trying host DB lookup",
+			zap.String("node_address", instance.NodeAddress),
+			zap.String("host_id", instance.HostID))
 	}
-	url := instance.NodeAddress + "/api/v1/vms/" + instance.Name + "/" + op
+
+	// 2. Look up the host by HostID (may have a new IP after restart).
+	if instance.HostID != "" {
+		var host models.Host
+		if err := s.db.Where("uuid = ? AND status = ?", instance.HostID, models.HostStatusUp).First(&host).Error; err == nil {
+			addr := host.GetManagementURL()
+			s.logger.Info("resolved node address from host DB",
+				zap.String("host_uuid", host.UUID), zap.String("addr", addr))
+			// Update instance with fresh address.
+			_ = s.db.Model(instance).Updates(map[string]interface{}{
+				"node_address": addr,
+			}).Error
+			instance.NodeAddress = addr
+			return addr
+		}
+	}
+
+	// 3. Fallback: find any active host (single-node dev setups).
+	var host models.Host
+	if err := s.db.Where("status = ?", models.HostStatusUp).First(&host).Error; err == nil {
+		addr := host.GetManagementURL()
+		s.logger.Info("resolved node address from active host fallback",
+			zap.String("host_uuid", host.UUID), zap.String("addr", addr))
+		// Update instance with fresh host and address.
+		_ = s.db.Model(instance).Updates(map[string]interface{}{
+			"host_id":      host.UUID,
+			"node_address": addr,
+		}).Error
+		instance.HostID = host.UUID
+		instance.NodeAddress = addr
+		return addr
+	}
+
+	return ""
+}
+
+func (s *Service) proxyPowerOp(instance *Instance, op string) error {
+	nodeAddr := s.resolveNodeAddress(instance)
+	if nodeAddr == "" {
+		return nil // no reachable node, just update DB
+	}
+	url := nodeAddr + "/api/v1/vms/" + instance.Name + "/" + op
 	req, err := http.NewRequest("POST", url, http.NoBody)
 	if err != nil {
 		return fmt.Errorf("create request: %w", err)
@@ -1594,22 +1651,11 @@ func (s *Service) getInstanceConsole(c *gin.Context) {
 		return
 	}
 
-	if instance.HostID == "" {
-		c.JSON(http.StatusConflict, gin.H{"error": "instance is not assigned to any node"})
-		return
-	}
-
-	// Resolve the compute node address.
-	nodeAddr := instance.NodeAddress
+	// Resolve the compute node address (handles stale IPs after container restarts).
+	nodeAddr := s.resolveNodeAddress(&instance)
 	if nodeAddr == "" {
-		// Fallback: try scheduler lookup.
-		if addr, err := s.lookupNodeAddress(c.Request.Context(), instance.HostID); err == nil {
-			nodeAddr = addr
-		} else {
-			s.logger.Error("cannot resolve node address for console", zap.String("host_id", instance.HostID), zap.Error(err))
-			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "cannot resolve node address"})
-			return
-		}
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "cannot resolve node address — no reachable compute node"})
+		return
 	}
 
 	// Determine the VM ID on the compute node.

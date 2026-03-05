@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"net"
+	"os"
 	"os/exec"
 	"strings"
 
@@ -394,6 +395,17 @@ func (d *OVNDriver) SetRouterGateway(router string, externalNetwork *Network, ex
 		return "", fmt.Errorf("failed to ensure external network switch: %w", err)
 	}
 
+	// Ensure the external network has a localnet port for provider connectivity.
+	// This maps the OVN logical switch to the physical provider bridge.
+	physNet := externalNetwork.PhysicalNetwork
+	if physNet == "" {
+		physNet = "provider" // Default physical network name
+	}
+	if err := d.createLocalnetPort(lsName, physNet, 0); err != nil {
+		d.logger.Warn("failed to create localnet port for external network (non-fatal)",
+			zap.Error(err), zap.String("network", externalNetwork.ID))
+	}
+
 	gatewayIP := ""
 	if externalSubnet.Gateway != "" {
 		if ip, ipnet, err := net.ParseCIDR(externalSubnet.CIDR); err == nil {
@@ -411,6 +423,56 @@ func (d *OVNDriver) SetRouterGateway(router string, externalNetwork *Network, ex
 				}
 				if externalSubnet.Gateway != "" {
 					_ = d.nbctl("--", "--may-exist", "lr-route-add", router, "0.0.0.0/0", externalSubnet.Gateway)
+				}
+
+				// Bind gateway chassis so OVN creates the chassisredirect
+				// port binding required for centralized SNAT.
+				// Try multiple methods to discover a chassis name:
+				// 1. NODE_NAME env var (explicit configuration)
+				// 2. Existing Gateway_Chassis entries in NB
+				// 3. ovn-sbctl (if available and SB address is known)
+				chassisID := os.Getenv("NODE_NAME")
+				if chassisID == "" {
+					// Check if any existing gateway chassis is configured.
+					chassisOut, err := d.nbctlOutput("--bare", "--columns=chassis_name", "find",
+						"Gateway_Chassis", "chassis_name!=''")
+					if err == nil {
+						for _, line := range strings.Fields(strings.TrimSpace(chassisOut)) {
+							if line != "" && line != "ovn-sbctl:" {
+								chassisID = line
+								break
+							}
+						}
+					}
+				}
+				if chassisID == "" {
+					// Try ovn-sbctl with explicit SB address.
+					sbAddr := os.Getenv("OVN_SB_ADDRESS")
+					if sbAddr == "" {
+						sbAddr = os.Getenv("NETWORK_OVN_SB_ADDRESS")
+					}
+					args := []string{"--bare", "--columns=name", "list", "Chassis"}
+					if sbAddr != "" {
+						args = append([]string{"--db", sbAddr}, args...)
+					}
+					sbOut, _ := exec.Command("ovn-sbctl", args...).CombinedOutput() // #nosec
+					for _, line := range strings.Fields(strings.TrimSpace(string(sbOut))) {
+						if line != "" {
+							chassisID = line
+							break
+						}
+					}
+				}
+				if chassisID != "" {
+					if err := d.nbctl("lrp-set-gateway-chassis", lrpName, chassisID, "20"); err != nil {
+						d.logger.Warn("failed to set gateway chassis (SNAT may not work)",
+							zap.Error(err), zap.String("lrp", lrpName), zap.String("chassis", chassisID))
+					} else {
+						d.logger.Info("gateway chassis set",
+							zap.String("lrp", lrpName), zap.String("chassis", chassisID))
+					}
+				} else {
+					d.logger.Warn("no chassis found for gateway binding; SNAT will not work until a chassis registers")
 				}
 			}
 		}

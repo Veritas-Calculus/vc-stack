@@ -149,7 +149,7 @@ func DefaultConfig(name string) *VMConfig {
 		VNC: VNCConfig{
 			Enabled: true,
 			Display: 0,
-			Listen:  "0.0.0.0",
+			Listen:  "127.0.0.1",
 		},
 		QMP: QMPConfig{
 			Enabled: true,

@@ -28,6 +28,7 @@ type qemuDriver struct {
 	runDir    string // runtime directory for pid and artifacts
 	qemuDrv   *qemu.Driver
 	useNewDrv bool // use new qemu driver
+	vncPorts  *VNCPortAllocator
 }
 
 func newDriver(cfg Config) (Driver, error) {
@@ -42,7 +43,7 @@ func newDriver(cfg Config) (Driver, error) {
 		return nil, fmt.Errorf("create run dir: %w", err)
 	}
 
-	d := &qemuDriver{cfg: cfg, runDir: rd}
+	d := &qemuDriver{cfg: cfg, runDir: rd, vncPorts: NewVNCPortAllocator(cfg.Logger)}
 
 	// Use new QEMU driver if enabled.
 	if cfg.UseQEMU {
@@ -197,8 +198,15 @@ func (d *qemuDriver) CreateVM(req CreateVMRequest) (*VM, error) {
 		args = append(args, "-device", "virtio-net-pci,netdev=net0")
 	}
 
-	// Console: use vnc on random port.
-	args = append(args, "-vnc", "0.0.0.0:0")
+	// Console: allocate unique VNC port bound to localhost only (security).
+	vncPort, vncErr := d.vncPorts.Allocate(id)
+	if vncErr != nil {
+		log.Printf("Warning: VNC port allocation failed: %v, falling back to auto", vncErr)
+		args = append(args, "-vnc", "127.0.0.1:0")
+	} else {
+		vncDisplay := vncPort - 5900
+		args = append(args, "-vnc", fmt.Sprintf("127.0.0.1:%d", vncDisplay))
+	}
 
 	// QMP socket (unix) for runtime queries (monitor)
 	qmp := filepath.Join(d.runDir, id+".qmp")
@@ -225,6 +233,9 @@ func (d *qemuDriver) CreateVM(req CreateVMRequest) (*VM, error) {
 	_ = os.WriteFile(d.pidPath(id), []byte(strconv.Itoa(pid)), 0o600)
 
 	meta := vmMeta{PID: pid, QMP: qmp, Seed: seedFile, Tap: tap, Image: req.Image, Created: now.Unix()}
+	if vncErr == nil {
+		meta.VNC = fmt.Sprintf("127.0.0.1:%d", vncPort)
+	}
 	if b, err := json.Marshal(meta); err == nil {
 		_ = os.WriteFile(d.metaPath(id), b, 0o600)
 	}
@@ -465,6 +476,9 @@ func (d *qemuDriver) DeleteVM(id string, force bool) error {
 	} else {
 		_ = os.Remove(d.seedPath(id))
 	}
+
+	// Release VNC port.
+	d.vncPorts.Release(id)
 
 	// Remove metadata file.
 	_ = os.Remove(d.metaPath(id))

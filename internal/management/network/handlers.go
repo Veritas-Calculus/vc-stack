@@ -332,8 +332,11 @@ func (s *Service) createNetwork(c *gin.Context) {
 // autoCreateRouter creates a default router and connects a subnet to it.
 // This is best-effort; failures are logged but do not cause the network creation to fail.
 func (s *Service) autoCreateRouter(network *Network, subnet *Subnet) {
+	// Use a fresh UUID for the DB record (must fit varchar(36)).
+	// The OVN logical router uses "lr-{network_id}" as its name.
+	routerID := generateUUID()
 	router := Router{
-		ID:       "lr-" + network.ID,
+		ID:       routerID,
 		Name:     network.Name + "-router",
 		TenantID: network.TenantID,
 		Status:   "active",
@@ -343,15 +346,15 @@ func (s *Service) autoCreateRouter(network *Network, subnet *Subnet) {
 		return
 	}
 
-	// Ensure router in SDN.
-	lrName := router.ID
+	// Ensure router in SDN — OVN router name uses "lr-{network_id}" convention.
+	lrName := "lr-" + network.ID
 	if err := s.driver.EnsureRouter(lrName); err != nil {
 		s.logger.Warn("Failed to ensure router in SDN", zap.Error(err), zap.String("name", lrName))
 	}
 
 	// Connect subnet to router.
 	routerIface := RouterInterface{
-		ID:        "rif-" + subnet.ID,
+		ID:        generateUUID(),
 		RouterID:  router.ID,
 		SubnetID:  subnet.ID,
 		IPAddress: subnet.Gateway,
@@ -387,7 +390,7 @@ func (s *Service) autoCreateRouter(network *Network, subnet *Subnet) {
 
 	// Auto-connect to an external network (best-effort).
 	// This enables VMs on this network to reach the internet via SNAT.
-	s.autoSetExternalGateway(&router, network, subnet)
+	s.autoSetExternalGateway(&router, lrName, network, subnet)
 
 	s.logger.Info("Auto-created router for network",
 		zap.String("router_id", router.ID),
@@ -396,7 +399,8 @@ func (s *Service) autoCreateRouter(network *Network, subnet *Subnet) {
 
 // autoSetExternalGateway finds an external network and sets it as the router's gateway.
 // It also configures SNAT for the internal subnet, enabling outbound internet access.
-func (s *Service) autoSetExternalGateway(router *Router, network *Network, subnet *Subnet) {
+// lrName is the OVN logical router name (lr-{network_id}).
+func (s *Service) autoSetExternalGateway(router *Router, lrName string, network *Network, subnet *Subnet) {
 	// Find a suitable external network.
 	var extNetwork Network
 	if err := s.db.Where("external = true AND status = 'active'").First(&extNetwork).Error; err != nil {
@@ -411,8 +415,7 @@ func (s *Service) autoSetExternalGateway(router *Router, network *Network, subne
 		return
 	}
 
-	// Set router gateway.
-	lrName := router.ID
+	// Set router gateway using the OVN logical router name.
 	gatewayIP, err := s.driver.SetRouterGateway(lrName, &extNetwork, &extSubnet)
 	if err != nil {
 		s.logger.Warn("auto set router gateway failed",

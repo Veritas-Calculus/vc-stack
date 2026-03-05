@@ -107,7 +107,7 @@ func DefaultTemplates() []*Template {
 				NICs: []NICConfig{
 					{Type: "tap", Model: "virtio-net-pci"},
 				},
-				VNC: VNCConfig{Enabled: true, Listen: "0.0.0.0"},
+				VNC: VNCConfig{Enabled: true, Listen: "127.0.0.1"},
 				QMP: QMPConfig{Enabled: true, Type: "unix"},
 			},
 		},
@@ -128,7 +128,7 @@ func DefaultTemplates() []*Template {
 				NICs: []NICConfig{
 					{Type: "tap", Model: "virtio-net-pci"},
 				},
-				VNC: VNCConfig{Enabled: true, Listen: "0.0.0.0"},
+				VNC: VNCConfig{Enabled: true, Listen: "127.0.0.1"},
 				QMP: QMPConfig{Enabled: true, Type: "unix"},
 			},
 		},
@@ -150,7 +150,7 @@ func DefaultTemplates() []*Template {
 				NICs: []NICConfig{
 					{Type: "tap", Model: "virtio-net-pci"},
 				},
-				VNC: VNCConfig{Enabled: true, Listen: "0.0.0.0"},
+				VNC: VNCConfig{Enabled: true, Listen: "127.0.0.1"},
 				QMP: QMPConfig{Enabled: true, Type: "unix"},
 			},
 		},

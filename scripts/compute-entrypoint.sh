@@ -89,7 +89,56 @@ else
 fi
 
 # ------------------------------------------------------------------
-# 5. Show OVS/OVN status
+# 5. Provider bridge for external/SNAT connectivity
+# ------------------------------------------------------------------
+# The provider bridge connects OVN's localnet ports to the physical
+# network. In a Docker dev environment, we NAT provider traffic to
+# the container's eth0 interface.
+PROVIDER_BRIDGE="${OVS_PROVIDER_BRIDGE:-br-provider}"
+PROVIDER_GW_IP="${PROVIDER_GW_IP:-10.0.0.1/24}"
+PROVIDER_NET_CIDR="${PROVIDER_NET_CIDR:-10.0.0.0/24}"
+
+# Create provider bridge.
+ovs-vsctl --may-exist add-br "$PROVIDER_BRIDGE" 2>/dev/null && \
+    echo "[entrypoint] Bridge '$PROVIDER_BRIDGE' ready" || \
+    echo "[entrypoint] WARNING: Failed to create bridge '$PROVIDER_BRIDGE'"
+ip link set "$PROVIDER_BRIDGE" up 2>/dev/null || true
+
+# Patch ports: connect br-int <-> br-provider so OVN localnet traffic
+# reaches the provider bridge and ultimately exits via NAT.
+ovs-vsctl --may-exist add-port "$INTEGRATION_BRIDGE" patch-provider-to \
+    -- set Interface patch-provider-to type=patch options:peer=patch-provider-from 2>/dev/null || true
+ovs-vsctl --may-exist add-port "$PROVIDER_BRIDGE" patch-provider-from \
+    -- set Interface patch-provider-from type=patch options:peer=patch-provider-to 2>/dev/null || true
+echo "[entrypoint] Patch ports (br-int <-> $PROVIDER_BRIDGE) ready"
+
+# Configure OVS bridge mappings so OVN controller maps the "provider"
+# physnet to br-provider. Merge with any existing VC_BRIDGE_MAPPINGS.
+BRIDGE_MAPPINGS="${VC_BRIDGE_MAPPINGS:-provider:$PROVIDER_BRIDGE}"
+ovs-vsctl set open_vswitch . external_ids:ovn-bridge-mappings="$BRIDGE_MAPPINGS" 2>/dev/null || true
+echo "[entrypoint] OVN bridge mappings: $BRIDGE_MAPPINGS"
+
+# Assign gateway IP to provider bridge (makes it the gateway for VMs
+# that have been SNAT'd by OVN to the provider subnet).
+ip addr add "$PROVIDER_GW_IP" dev "$PROVIDER_BRIDGE" 2>/dev/null || true
+echo "[entrypoint] $PROVIDER_BRIDGE IP: $PROVIDER_GW_IP"
+
+# Enable IP forwarding.
+sysctl -w net.ipv4.ip_forward=1 >/dev/null 2>&1 || true
+
+# NAT: MASQUERADE provider traffic leaving via the container's default
+# interface (eth0 in Docker). This lets SNAT'd VM traffic reach the
+# internet through Docker's networking stack.
+if command -v iptables >/dev/null 2>&1; then
+    iptables -t nat -C POSTROUTING -s "$PROVIDER_NET_CIDR" -o eth0 -j MASQUERADE 2>/dev/null || \
+    iptables -t nat -A POSTROUTING -s "$PROVIDER_NET_CIDR" -o eth0 -j MASQUERADE 2>/dev/null
+    echo "[entrypoint] iptables MASQUERADE configured for $PROVIDER_NET_CIDR -> eth0"
+else
+    echo "[entrypoint] WARNING: iptables not available, external NAT will not work"
+fi
+
+# ------------------------------------------------------------------
+# 6. Show OVS/OVN status
 # ------------------------------------------------------------------
 echo "[entrypoint] OVS status:"
 ovs-vsctl show 2>/dev/null | head -25
@@ -104,6 +153,6 @@ fi
 echo "[entrypoint] Starting vc-compute..."
 
 # ------------------------------------------------------------------
-# 6. Run vc-compute
+# 7. Run vc-compute
 # ------------------------------------------------------------------
 exec "$@"

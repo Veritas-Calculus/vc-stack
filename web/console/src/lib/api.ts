@@ -181,6 +181,12 @@ export async function fetchInstancesRaw(projectId?: string): Promise<BackendInst
   return res.data.instances ?? []
 }
 
+// Fetch a single instance by ID (for ConsoleViewer state check)
+export async function fetchInstanceById(instanceId: string): Promise<BackendInstance> {
+  const res = await api.get<{ instance: BackendInstance }>(`/v1/instances/${instanceId}`)
+  return res.data.instance
+}
+
 export async function fetchFlavors(): Promise<UIFlavor[]> {
   const res = await api.get<ListFlavorsResponse>('/v1/flavors')
   return (res.data.flavors ?? []).map(mapFlavor)

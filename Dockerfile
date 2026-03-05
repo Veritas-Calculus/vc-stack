@@ -91,7 +91,7 @@ ENTRYPOINT ["vc-management"]
 FROM debian:bookworm-slim AS vc-compute
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates tzdata curl iproute2 \
+    ca-certificates tzdata curl iproute2 iptables \
     qemu-system-x86 qemu-system-arm qemu-utils \
     qemu-efi-aarch64 ovmf \
     genisoimage swtpm \

@@ -119,7 +119,9 @@ services:
       VOLUMES_LOCAL_PATH: /var/lib/vcstack/volumes
       # OVN networking
       NETWORK_OVN_SB_ADDRESS: "tcp:ovn-central:6642"
+      OVN_NB_ADDRESS: "tcp:ovn-central:6641"
       NETWORK_ENCAP_TYPE: geneve
+      VC_BRIDGE_MAPPINGS: "provider:br-provider"
       LOGGING_LEVEL: debug
       LOGGING_FORMAT: text
     privileged: true
