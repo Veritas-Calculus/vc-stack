@@ -14,6 +14,7 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 
+	apierrors "github.com/Veritas-Calculus/vc-stack/pkg/errors"
 	. "github.com/Veritas-Calculus/vc-stack/pkg/models"
 )
 
@@ -108,7 +109,7 @@ func (s *Service) createImage(c *gin.Context) {
 	var req CreateImageRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		s.logger.Warn("invalid create image request", zap.Error(err))
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		apierrors.Respond(c, apierrors.ErrValidation(err.Error()))
 		return
 	}
 
@@ -161,10 +162,10 @@ func (s *Service) createImage(c *gin.Context) {
 	if err := s.db.Create(image).Error; err != nil {
 		s.logger.Error("failed to create image", zap.Error(err))
 		if strings.Contains(err.Error(), "duplicate key") || strings.Contains(err.Error(), "UNIQUE constraint") {
-			c.JSON(http.StatusConflict, gin.H{"error": fmt.Sprintf("image with name %q already exists", image.Name)})
+			apierrors.Respond(c, apierrors.ErrAlreadyExists("image", image.Name))
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create image"})
+		apierrors.Respond(c, apierrors.ErrDatabase("create image"))
 		return
 	}
 
@@ -209,7 +210,7 @@ func (s *Service) listImages(c *gin.Context) {
 
 	if err := query.Find(&images).Error; err != nil {
 		s.logger.Error("failed to list images", zap.Error(err))
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list images"})
+		apierrors.Respond(c, apierrors.ErrDatabase("list images"))
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"images": images, "total": len(images)})
@@ -223,7 +224,7 @@ func (s *Service) getImage(c *gin.Context) {
 		err = s.db.First(&image, id).Error
 	}
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "image not found"})
+		apierrors.Respond(c, apierrors.ErrNotFound("image", id))
 		return
 	}
 
@@ -243,7 +244,7 @@ func (s *Service) updateImage(c *gin.Context) {
 		err = s.db.First(&image, id).Error
 	}
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "image not found"})
+		apierrors.Respond(c, apierrors.ErrNotFound("image", id))
 		return
 	}
 
@@ -262,7 +263,7 @@ func (s *Service) updateImage(c *gin.Context) {
 		HypervisorType string `json:"hypervisor_type"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		apierrors.Respond(c, apierrors.ErrValidation(err.Error()))
 		return
 	}
 
@@ -305,13 +306,13 @@ func (s *Service) updateImage(c *gin.Context) {
 	}
 
 	if len(updates) == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "no fields to update"})
+		apierrors.Respond(c, apierrors.ErrValidation("no fields to update"))
 		return
 	}
 
 	if err := s.db.Model(&image).Updates(updates).Error; err != nil {
 		s.logger.Error("failed to update image", zap.Error(err))
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update image"})
+		apierrors.Respond(c, apierrors.ErrDatabase("update image"))
 		return
 	}
 
@@ -327,13 +328,13 @@ func (s *Service) deleteImage(c *gin.Context) {
 		err = s.db.First(&image, id).Error
 	}
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "image not found"})
+		apierrors.Respond(c, apierrors.ErrNotFound("image", id))
 		return
 	}
 
 	// CloudStack-style protection.
 	if image.Protected {
-		c.JSON(http.StatusForbidden, gin.H{"error": "image is protected and cannot be deleted"})
+		apierrors.Respond(c, apierrors.ErrResourceProtected("image"))
 		return
 	}
 
@@ -341,8 +342,7 @@ func (s *Service) deleteImage(c *gin.Context) {
 	var count int64
 	s.db.Model(&Instance{}).Where("image_id = ? AND status NOT IN (?, ?)", image.ID, "deleted", "error").Count(&count)
 	if count > 0 {
-		c.JSON(http.StatusConflict, gin.H{
-			"error":          "image is in use by active instances",
+		apierrors.RespondWithData(c, apierrors.ErrResourceInUse("image", count), map[string]interface{}{
 			"instance_count": count,
 		})
 		return
@@ -350,7 +350,7 @@ func (s *Service) deleteImage(c *gin.Context) {
 
 	if err := s.db.Delete(&image).Error; err != nil {
 		s.logger.Error("failed to delete image", zap.Error(err))
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete image"})
+		apierrors.Respond(c, apierrors.ErrDatabase("delete image"))
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"ok": true})
@@ -380,7 +380,7 @@ func (s *Service) registerImage(c *gin.Context) {
 		ZoneID         string `json:"zone_id"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		apierrors.Respond(c, apierrors.ErrValidation(err.Error()))
 		return
 	}
 
@@ -428,10 +428,10 @@ func (s *Service) registerImage(c *gin.Context) {
 	if err := s.db.Create(image).Error; err != nil {
 		s.logger.Error("failed to register image", zap.Error(err))
 		if strings.Contains(err.Error(), "duplicate key") || strings.Contains(err.Error(), "UNIQUE constraint") {
-			c.JSON(http.StatusConflict, gin.H{"error": fmt.Sprintf("image with name %q already exists", image.Name)})
+			apierrors.Respond(c, apierrors.ErrAlreadyExists("image", image.Name))
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to register image"})
+		apierrors.Respond(c, apierrors.ErrDatabase("register image"))
 		return
 	}
 
@@ -445,7 +445,7 @@ func (s *Service) registerImage(c *gin.Context) {
 func (s *Service) uploadImage(c *gin.Context) {
 	file, header, err := c.Request.FormFile("file")
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "file is required"})
+		apierrors.Respond(c, apierrors.ErrMissingParam("file"))
 		return
 	}
 	defer func() { _ = file.Close() }()
@@ -508,12 +508,12 @@ func (s *Service) uploadImage(c *gin.Context) {
 				image = &existing
 				s.logger.Info("re-uploading over existing image", zap.String("name", name), zap.Uint("id", image.ID))
 			} else {
-				c.JSON(http.StatusConflict, gin.H{"error": fmt.Sprintf("image with name %q already exists", name)})
+				apierrors.Respond(c, apierrors.ErrAlreadyExists("image", name))
 				return
 			}
 		} else {
 			s.logger.Error("failed to create image record for upload", zap.Error(err))
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create image"})
+			apierrors.Respond(c, apierrors.ErrDatabase("create image for upload"))
 			return
 		}
 	}
@@ -570,13 +570,13 @@ func (s *Service) importImage(c *gin.Context) {
 	id := c.Param("id")
 	var image Image
 	if err := s.db.First(&image, id).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "image not found"})
+		apierrors.Respond(c, apierrors.ErrNotFound("image", id))
 		return
 	}
 
 	var req ImportImageRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		apierrors.Respond(c, apierrors.ErrValidation(err.Error()))
 		return
 	}
 

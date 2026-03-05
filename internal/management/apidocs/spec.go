@@ -762,35 +762,58 @@ const openAPISpecJSON = `{
           "rbd_pool": {"type": "string"}
         }
       },
-      "Error": {
+      "APIError": {
         "type": "object",
+        "description": "Standardized error response. All errors include a machine-readable code, human-readable message, and backward-compatible error field.",
+        "required": ["code", "message", "error"],
         "properties": {
-          "error": {"type": "string"}
+          "code": {"type": "string", "description": "Machine-readable error code (e.g., ResourceNotFound, QuotaExceeded)", "example": "ResourceNotFound"},
+          "message": {"type": "string", "description": "Human-readable error message", "example": "instance not found"},
+          "error": {"type": "string", "description": "Same as message (backward compatibility)", "example": "instance not found"},
+          "detail": {"type": "string", "description": "Additional context about the error", "example": "id: 42"},
+          "field": {"type": "string", "description": "Field that caused the error (validation errors)"},
+          "request_id": {"type": "string", "description": "Request ID for tracing", "example": "20260305-abc123"}
         }
+      },
+      "ErrorCodes": {
+        "type": "string",
+        "description": "All available error codes",
+        "enum": [
+          "AuthenticationRequired", "InvalidCredentials", "TokenExpired", "TokenInvalid",
+          "AccessDenied", "RateLimitExceeded",
+          "ValidationFailed", "InvalidParameter", "MissingRequired", "InvalidFormat",
+          "ResourceNotFound", "ResourceAlreadyExists", "ResourceInUse", "ResourceProtected", "StateConflict",
+          "QuotaExceeded", "LimitExceeded",
+          "InternalError", "ServiceUnavailable", "OperationFailed", "DatabaseError", "StorageError",
+          "InstanceNotFound", "InvalidInstanceState", "FlavorNotFound", "ImageNotFound", "ImageProtected", "ImageInUse",
+          "NetworkNotFound", "SubnetNotFound", "CIDRConflict", "IPAddressExhausted",
+          "VolumeNotFound", "VolumeInUse", "SnapshotNotFound",
+          "HostNotFound", "NoHostAvailable", "MigrationFailed"
+        ]
       }
     },
     "responses": {
       "BadRequest": {
-        "description": "Invalid request",
+        "description": "Invalid request (ValidationFailed, InvalidParameter, MissingRequired)",
         "content": {
           "application/json": {
-            "schema": {"$ref": "#/components/schemas/Error"}
+            "schema": {"$ref": "#/components/schemas/APIError"}
           }
         }
       },
       "Unauthorized": {
-        "description": "Authentication required",
+        "description": "Authentication required (AuthenticationRequired, TokenInvalid, TokenExpired)",
         "content": {
           "application/json": {
-            "schema": {"$ref": "#/components/schemas/Error"}
+            "schema": {"$ref": "#/components/schemas/APIError"}
           }
         }
       },
       "NotFound": {
-        "description": "Resource not found",
+        "description": "Resource not found (ResourceNotFound, InstanceNotFound, ImageNotFound, etc.)",
         "content": {
           "application/json": {
-            "schema": {"$ref": "#/components/schemas/Error"}
+            "schema": {"$ref": "#/components/schemas/APIError"}
           }
         }
       }

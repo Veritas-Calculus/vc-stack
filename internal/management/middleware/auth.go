@@ -12,6 +12,8 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"go.uber.org/zap"
 	"golang.org/x/time/rate"
+
+	apierrors "github.com/Veritas-Calculus/vc-stack/pkg/errors"
 )
 
 // AuthMiddleware provides JWT authentication middleware.
@@ -19,15 +21,13 @@ func AuthMiddleware(jwtSecret string, logger *zap.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "missing authorization header"})
-			c.Abort()
+			apierrors.Respond(c, apierrors.ErrAuthRequired("missing authorization header"))
 			return
 		}
 
 		parts := strings.SplitN(authHeader, " ", 2)
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid authorization format"})
-			c.Abort()
+			apierrors.Respond(c, apierrors.ErrAuthRequired("invalid authorization format, use: Bearer <token>"))
 			return
 		}
 
@@ -41,8 +41,7 @@ func AuthMiddleware(jwtSecret string, logger *zap.Logger) gin.HandlerFunc {
 
 		if err != nil || !token.Valid {
 			logger.Warn("invalid token", zap.Error(err))
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
-			c.Abort()
+			apierrors.Respond(c, apierrors.ErrTokenInvalid())
 			return
 		}
 
@@ -99,8 +98,7 @@ func RateLimitMiddleware(requestsPerSecond float64, burst int) gin.HandlerFunc {
 		mu.Unlock()
 
 		if !limiter.Allow() {
-			c.JSON(http.StatusTooManyRequests, gin.H{"error": "rate limit exceeded"})
-			c.Abort()
+			apierrors.Respond(c, apierrors.ErrRateLimited())
 			return
 		}
 
@@ -221,8 +219,7 @@ func TenantIsolationMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tenantID, exists := c.Get("tenant_id")
 		if !exists {
-			c.JSON(http.StatusForbidden, gin.H{"error": "tenant isolation required"})
-			c.Abort()
+			apierrors.Respond(c, apierrors.ErrAccessDenied("tenant isolation required"))
 			return
 		}
 
@@ -238,8 +235,7 @@ func AdminOnlyMiddleware() gin.HandlerFunc {
 		isAdmin, exists := c.Get("is_admin")
 		isAdminBool, ok := isAdmin.(bool)
 		if !exists || !ok || !isAdminBool {
-			c.JSON(http.StatusForbidden, gin.H{"error": "admin access required"})
-			c.Abort()
+			apierrors.Respond(c, apierrors.ErrAccessDenied("admin access required"))
 			return
 		}
 		c.Next()
