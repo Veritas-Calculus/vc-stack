@@ -87,6 +87,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         { type: 'link', to: '/webhooks', label: 'Webhooks' },
         { type: 'link', to: '/vpn', label: 'VPN' },
         { type: 'link', to: '/dns', label: 'DNS' },
+        { type: 'link', to: '/object-storage', label: 'Object Storage' },
         { type: 'link', to: '/backups', label: 'Backups' },
         { type: 'link', to: '/autoscale', label: 'Auto Scale' },
         { type: 'link', to: '/utilization', label: 'Utilization' }
@@ -180,6 +181,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       { type: 'link', to: '/webhooks', label: 'Webhooks' },
       { type: 'link', to: '/vpn', label: 'VPN' },
       { type: 'link', to: '/dns', label: 'DNS' },
+      { type: 'link', to: '/object-storage', label: 'Object Storage' },
       { type: 'link', to: '/backups', label: 'Backups' },
       { type: 'link', to: '/autoscale', label: 'Auto Scale' },
       { type: 'link', to: '/notifications', label: 'Notifications' }
@@ -1091,6 +1093,23 @@ function NavIcon({ name, small }: { name: string; small?: boolean }) {
         <circle cx="12" cy="12" r="10" />
         <path d="M2 12h20" />
         <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+      </svg>
+    ),
+    'Object Storage': (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M4 7V4a2 2 0 0 1 2-2h8.5L20 7.5V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-3" />
+        <polyline points="14 2 14 8 20 8" />
+        <circle cx="8" cy="14" r="3" />
+        <path d="M5 14h6" />
       </svg>
     ),
     'Network ACL': (

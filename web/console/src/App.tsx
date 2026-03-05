@@ -37,6 +37,7 @@ import { VPNManagement } from '@/features/vpn/VPNManagement'
 import { Backups } from '@/features/backup/Backups'
 import { AutoScale } from '@/features/autoscale/AutoScale'
 import { DNSManagement } from '@/features/dns/DNSManagement'
+import { ObjectStorage } from '@/features/objectstorage/ObjectStorage'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const token = useAuthStore((s) => s.token)
@@ -160,6 +161,8 @@ export default function App() {
                 <Route path="/autoscale" element={<AutoScale />} />
                 {/* DNS */}
                 <Route path="/dns" element={<DNSManagement />} />
+                {/* Object Storage */}
+                <Route path="/object-storage" element={<ObjectStorage />} />
                 {/* Global Infrastructure */}
                 <Route path="/infrastructure/*" element={<Infrastructure />} />
                 {/* Project-scoped Security Groups */}

@@ -21,6 +21,7 @@ import (
 	"github.com/Veritas-Calculus/vc-stack/internal/management/monitoring"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/network"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/notification"
+	objectstorage "github.com/Veritas-Calculus/vc-stack/internal/management/objectstorage"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/quota"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/scheduler"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/storage"
@@ -68,6 +69,7 @@ type Service struct {
 	Image        *image.Service
 	APIDocs      *apidocs.Service
 	DNS          *dns.Service
+	ObjStorage   *objectstorage.Service
 	logger       *zap.Logger
 }
 
@@ -293,6 +295,19 @@ func New(cfg Config) (*Service, error) {
 	}
 	svcObj.DNS = dnsSvc
 
+	// Initialize object storage service.
+	objSvc, err := objectstorage.NewService(objectstorage.Config{
+		DB:          cfg.DB,
+		Logger:      cfg.Logger.Named("objectstorage"),
+		RGWEndpoint: os.Getenv("CEPH_RGW_ENDPOINT"),
+		RGWAccess:   os.Getenv("CEPH_RGW_ACCESS_KEY"),
+		RGWSecret:   os.Getenv("CEPH_RGW_SECRET_KEY"),
+	})
+	if err != nil {
+		return nil, err
+	}
+	svcObj.ObjStorage = objSvc
+
 	return svcObj, nil
 }
 
@@ -365,6 +380,11 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	if s.DNS != nil {
 		v1 := router.Group("/api/v1")
 		s.DNS.SetupRoutes(v1)
+	}
+	// Object Storage (Ceph RGW).
+	if s.ObjStorage != nil {
+		v1 := router.Group("/api/v1")
+		s.ObjStorage.SetupRoutes(v1)
 	}
 
 	// Gateway proxy routes - only for external compute service (vc-compute)
