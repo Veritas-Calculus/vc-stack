@@ -60,10 +60,19 @@ type CreateImageRequest struct {
 	MinDisk         int    `json:"min_disk"`
 	MinRAM          int    `json:"min_ram"`
 	Visibility      string `json:"visibility"`
+	Category        string `json:"category"` // user, system, featured, community
 	Protected       bool   `json:"protected"`
+	Bootable        bool   `json:"bootable"`
+	Extractable     bool   `json:"extractable"`
+	OSType          string `json:"os_type"`         // linux, windows, freebsd, other
+	OSVersion       string `json:"os_version"`      // ubuntu-22.04, centos-9, win-2022
+	Architecture    string `json:"architecture"`    // x86_64, aarch64
+	HypervisorType  string `json:"hypervisor_type"` // kvm, vmware, xen
+	SourceURL       string `json:"source_url"`
 	FilePath        string `json:"file_path"`
 	RBDPool         string `json:"rbd_pool"`
 	RBDImage        string `json:"rbd_image"`
+	ZoneID          string `json:"zone_id"`
 }
 
 // RegisterImageRequest represents a request to register an image (metadata only, no upload).

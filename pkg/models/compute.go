@@ -22,28 +22,40 @@ type Flavor struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// Image represents a VM image.
+// Image represents a VM image/template.
+// Follows CloudStack's template model: images have categories (user/system/featured),
+// OS type association, architecture, and visibility controls.
 type Image struct {
 	ID              uint      `gorm:"primaryKey" json:"id"`
 	Name            string    `gorm:"not null;uniqueIndex" json:"name"`
 	UUID            string    `gorm:"uniqueIndex;not null" json:"uuid"`
 	Description     string    `json:"description"`
-	Status          string    `gorm:"not null;default:'queued'" json:"status"`
-	Visibility      string    `gorm:"not null;default:'private'" json:"visibility"`
+	Status          string    `gorm:"not null;default:'queued'" json:"status"`      // queued, uploading, importing, active, error, deleted
+	Visibility      string    `gorm:"not null;default:'private'" json:"visibility"` // public, private, shared, community
+	Category        string    `gorm:"not null;default:'user'" json:"category"`      // user, system, featured, community (CloudStack-style)
 	Protected       bool      `gorm:"default:false" json:"protected"`
-	MinDisk         int       `gorm:"default:0" json:"min_disk"`     // GB
-	MinRAM          int       `gorm:"default:0" json:"min_ram"`      // MB
-	Size            int64     `gorm:"default:0" json:"size"`         // bytes
-	VirtualSize     int64     `gorm:"default:0" json:"virtual_size"` // bytes
-	DiskFormat      string    `json:"disk_format"`                   // qcow2, raw, etc.
-	ContainerFormat string    `json:"container_format"`              // bare, ovf, etc.
+	Bootable        bool      `gorm:"default:true" json:"bootable"`     // true for OS templates, false for data disks
+	Extractable     bool      `gorm:"default:false" json:"extractable"` // allow users to download
+	MinDisk         int       `gorm:"default:0" json:"min_disk"`        // GB
+	MinRAM          int       `gorm:"default:0" json:"min_ram"`         // MB
+	Size            int64     `gorm:"default:0" json:"size"`            // bytes
+	VirtualSize     int64     `gorm:"default:0" json:"virtual_size"`    // bytes
+	DiskFormat      string    `json:"disk_format"`                      // qcow2, raw, iso, vmdk, vhd
+	ContainerFormat string    `json:"container_format"`                 // bare, ovf, docker
 	Checksum        string    `json:"checksum"`
-	FilePath        string    `json:"file_path"` // e.g., /cephfs/images/foo.qcow2
+	OSType          string    `gorm:"type:varchar(64);index" json:"os_type"`                 // linux, windows, freebsd, other
+	OSVersion       string    `gorm:"type:varchar(64)" json:"os_version"`                    // e.g., ubuntu-22.04, centos-9, win-2022
+	Architecture    string    `gorm:"type:varchar(16);default:'x86_64'" json:"architecture"` // x86_64, aarch64
+	HypervisorType  string    `gorm:"type:varchar(32);default:'kvm'" json:"hypervisor_type"` // kvm, vmware, xen
+	SourceURL       string    `json:"source_url,omitempty"`                                  // original download URL for re-import
+	FilePath        string    `json:"file_path"`                                             // e.g., /cephfs/images/foo.qcow2
 	RBDPool         string    `json:"rbd_pool"`
 	RBDImage        string    `json:"rbd_image"`
-	RBDSnap         string    `json:"rbd_snap"` // optional base snapshot
-	RGWURL          string    `json:"rgw_url"`  // source URL if using RGW upload
+	RBDSnap         string    `json:"rbd_snap"`                              // optional base snapshot
+	RGWURL          string    `json:"rgw_url"`                               // source URL if using RGW upload
+	ZoneID          string    `gorm:"type:varchar(36);index" json:"zone_id"` // zone availability
 	OwnerID         uint      `gorm:"not null" json:"owner_id"`
+	DownloadCount   int64     `gorm:"default:0" json:"download_count"`
 	CreatedAt       time.Time `json:"created_at"`
 	UpdatedAt       time.Time `json:"updated_at"`
 }
