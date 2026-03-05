@@ -974,12 +974,35 @@ func (s *Service) proxyPowerOp(instance *Instance, op string) error {
 func (s *Service) startInstance(c *gin.Context) {
 	id := c.Param("id")
 	var instance Instance
-	if err := s.db.First(&instance, id).Error; err != nil {
+	if err := s.db.Preload("Flavor").Preload("Image").First(&instance, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "instance not found"})
 		return
 	}
 
-	if err := s.proxyPowerOp(&instance, "start"); err != nil {
+	err := s.proxyPowerOp(&instance, "start")
+	if err != nil {
+		// If the compute node lost the VM config (container rebuild, volume wipe),
+		// reconstruct the VM from DB data and start it fresh.
+		if isConfigMissingError(err) {
+			s.logger.Info("VM config missing on node, reconstructing from DB",
+				zap.String("name", instance.Name), zap.Uint("id", instance.ID))
+			if rerr := s.reconstructAndStartVM(c.Request.Context(), &instance); rerr != nil {
+				c.JSON(http.StatusBadGateway, gin.H{
+					"error": "failed to reconstruct VM: " + rerr.Error(),
+				})
+				return
+			}
+			// Success — update state.
+			_ = s.db.Model(&instance).Updates(map[string]interface{}{
+				"status":      "active",
+				"power_state": "running",
+			}).Error
+			s.emitEvent("action", instance.UUID, "start", "success", "", map[string]interface{}{
+				"name": instance.Name, "reconstructed": true,
+			}, "")
+			c.JSON(http.StatusAccepted, gin.H{"ok": true, "reconstructed": true})
+			return
+		}
 		c.JSON(http.StatusBadGateway, gin.H{"error": "failed to start vm on node: " + err.Error()})
 		return
 	}
@@ -990,6 +1013,72 @@ func (s *Service) startInstance(c *gin.Context) {
 	}
 	s.emitEvent("action", instance.UUID, "start", "success", "", map[string]interface{}{"name": instance.Name}, "")
 	c.JSON(http.StatusAccepted, gin.H{"ok": true})
+}
+
+// isConfigMissingError checks if a power-op error indicates the VM config
+// file is missing on the compute node (e.g., after container rebuild).
+func isConfigMissingError(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := err.Error()
+	return strings.Contains(msg, "no such file or directory") ||
+		strings.Contains(msg, "load config") ||
+		strings.Contains(msg, "not supported by qemu driver") ||
+		strings.Contains(msg, "vm not found")
+}
+
+// reconstructAndStartVM re-creates a VM on the compute node using data
+// stored in the management database.  This is a fallback for when the
+// compute container has been rebuilt and has lost its local config files.
+func (s *Service) reconstructAndStartVM(ctx context.Context, inst *Instance) error {
+	nodeAddr := s.resolveNodeAddress(inst)
+	if nodeAddr == "" {
+		return fmt.Errorf("no reachable compute node")
+	}
+
+	// Re-fetch flavor & image if not preloaded.
+	var flavor Flavor
+	if err := s.db.First(&flavor, inst.FlavorID).Error; err != nil {
+		return fmt.Errorf("flavor %d not found: %w", inst.FlavorID, err)
+	}
+	var image Image
+	if err := s.db.First(&image, inst.ImageID).Error; err != nil {
+		return fmt.Errorf("image %d not found: %w", inst.ImageID, err)
+	}
+
+	// Recover NIC info from allocated ports.
+	nics := s.reconstructNics(inst)
+
+	s.logger.Info("reconstructing VM on node",
+		zap.String("name", inst.Name),
+		zap.String("node", nodeAddr),
+		zap.Int("nics", len(nics)))
+
+	_, err := s.createVMOnNode(ctx, nodeAddr, inst, &flavor, &image, nics)
+	return err
+}
+
+// reconstructNics recovers NIC specs from the ports table for an instance.
+func (s *Service) reconstructNics(inst *Instance) []NicSpec {
+	type portRow struct {
+		ID         string `gorm:"column:id"`
+		MACAddress string `gorm:"column:mac_address"`
+	}
+	var rows []portRow
+	if err := s.db.Table("ports").
+		Select("id, mac_address").
+		Where("device_id = ?", inst.UUID).
+		Find(&rows).Error; err != nil {
+		s.logger.Warn("failed to query ports for reconstruction",
+			zap.String("instance_uuid", inst.UUID), zap.Error(err))
+		return nil
+	}
+	nics := make([]NicSpec, 0, len(rows))
+	for _, r := range rows {
+		nics = append(nics, NicSpec{MAC: r.MACAddress, PortID: r.ID})
+	}
+	return nics
 }
 
 func (s *Service) stopInstance(c *gin.Context) {

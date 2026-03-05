@@ -127,6 +127,9 @@ services:
     privileged: true
     volumes:
       - vcstack_images:/tmp/vcstack/images
+      - vcstack_vm_config:/etc/vc-compute/vms
+      - vcstack_vm_run:/var/run/vc-compute
+      - vcstack_volumes:/var/lib/vcstack/volumes
     networks:
       - vc-stack
     restart: unless-stopped
@@ -135,6 +138,12 @@ volumes:
   postgres_data:
     driver: local
   vcstack_images:
+    driver: local
+  vcstack_vm_config:
+    driver: local
+  vcstack_vm_run:
+    driver: local
+  vcstack_volumes:
     driver: local
 
 networks:
