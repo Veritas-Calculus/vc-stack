@@ -19,6 +19,8 @@ import (
 	"github.com/Veritas-Calculus/vc-stack/internal/management/quota"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/scheduler"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/storage"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/tag"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/task"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/tools"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/usage"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/vpn"
@@ -55,6 +57,8 @@ type Service struct {
 	Backup     *backup.Service
 	AutoScale  *autoscale.Service
 	Storage    *storage.Service
+	Task       *task.Service
+	Tag        *tag.Service
 }
 
 // New composes the management plane services. It returns an error if any
@@ -215,7 +219,7 @@ func New(cfg Config) (*Service, error) {
 		return nil, err
 	}
 
-	return &Service{
+	svcObj := &Service{
 		Compute:    compSvc,
 		Identity:   idSvc,
 		Network:    netSvc,
@@ -234,7 +238,23 @@ func New(cfg Config) (*Service, error) {
 		Backup:     backupSvc,
 		AutoScale:  asSvc,
 		Storage:    storageSvc,
-	}, nil
+	}
+
+	// Initialize task service.
+	taskSvc, err := task.NewService(task.Config{DB: cfg.DB, Logger: cfg.Logger.Named("task")})
+	if err != nil {
+		return nil, err
+	}
+	svcObj.Task = taskSvc
+
+	// Initialize tag service.
+	tagSvc, err := tag.NewService(tag.Config{DB: cfg.DB, Logger: cfg.Logger.Named("tag")})
+	if err != nil {
+		return nil, err
+	}
+	svcObj.Tag = tagSvc
+
+	return svcObj, nil
 }
 
 // SetupRoutes registers all management plane routes onto the provided Gin router.
@@ -280,6 +300,12 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	}
 	if s.Storage != nil {
 		s.Storage.SetupRoutes(router)
+	}
+	if s.Task != nil {
+		s.Task.SetupRoutes(router)
+	}
+	if s.Tag != nil {
+		s.Tag.SetupRoutes(router)
 	}
 
 	// Gateway proxy routes - only for external compute service (vc-compute)
