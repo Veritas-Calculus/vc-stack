@@ -29,7 +29,7 @@ type QuotaSet struct {
 	ID             uint      `gorm:"primaryKey" json:"id"`
 	TenantID       string    `gorm:"uniqueIndex;not null" json:"tenant_id"`
 	Instances      int       `json:"instances" gorm:"default:-1"` // -1 = unlimited
-	VCPUs          int       `json:"vcpus" gorm:"default:-1"`
+	VCPUs          int       `json:"vcpus" gorm:"column:vcpus;default:-1"`
 	RAMMB          int       `json:"ram_mb" gorm:"default:-1"`
 	DiskGB         int       `json:"disk_gb" gorm:"default:-1"`
 	Volumes        int       `json:"volumes" gorm:"default:-1"`
@@ -51,7 +51,7 @@ type QuotaUsage struct {
 	ID             uint      `gorm:"primaryKey" json:"id"`
 	TenantID       string    `gorm:"uniqueIndex;not null" json:"tenant_id"`
 	Instances      int       `json:"instances" gorm:"default:0"`
-	VCPUs          int       `json:"vcpus" gorm:"default:0"`
+	VCPUs          int       `json:"vcpus" gorm:"column:vcpus;default:0"`
 	RAMMB          int       `json:"ram_mb" gorm:"default:0"`
 	DiskGB         int       `json:"disk_gb" gorm:"default:0"`
 	Volumes        int       `json:"volumes" gorm:"default:0"`
