@@ -13,6 +13,7 @@ import (
 	"github.com/Veritas-Calculus/vc-stack/internal/management/gateway"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/host"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/identity"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/image"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/metadata"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/monitoring"
@@ -62,6 +63,7 @@ type Service struct {
 	Task         *task.Service
 	Tag          *tag.Service
 	Notification *notification.Service
+	Image        *image.Service
 	logger       *zap.Logger
 }
 
@@ -266,6 +268,13 @@ func New(cfg Config) (*Service, error) {
 	svcObj.Notification = notifSvc
 	svcObj.logger = cfg.Logger
 
+	// Initialize image service.
+	imageSvc, err := image.NewService(image.Config{DB: cfg.DB, Logger: cfg.Logger.Named("image")})
+	if err != nil {
+		return nil, err
+	}
+	svcObj.Image = imageSvc
+
 	return svcObj, nil
 }
 
@@ -322,6 +331,10 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	}
 	if s.Notification != nil {
 		s.Notification.SetupRoutes(router)
+	}
+	// Image service handles metadata CRUD; compute keeps upload/import.
+	if s.Image != nil {
+		s.Image.SetupRoutes(router)
 	}
 
 	// Gateway proxy routes - only for external compute service (vc-compute)

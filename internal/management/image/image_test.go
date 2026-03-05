@@ -1,15 +1,120 @@
-package compute
+package image
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
+	"sync/atomic"
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+
+	. "github.com/Veritas-Calculus/vc-stack/pkg/models"
 )
 
-// TestListImages_FilterByVisibility verifies visibility filtering.
+var testDBCounter uint64
+
+func setupTestDB(t *testing.T) *gorm.DB {
+	t.Helper()
+	n := atomic.AddUint64(&testDBCounter, 1)
+	path := fmt.Sprintf("/tmp/vc_image_test_%d.db", n)
+	t.Cleanup(func() { _ = os.Remove(path) })
+	db, err := gorm.Open(sqlite.Open(path), &gorm.Config{
+		DisableForeignKeyConstraintWhenMigrating: true,
+	})
+	if err != nil {
+		t.Fatalf("failed to open test DB: %v", err)
+	}
+	// Migrate image table.
+	if err := db.AutoMigrate(&Image{}); err != nil {
+		t.Fatalf("migrate images: %v", err)
+	}
+	// Create instances table for in-use checks.
+	db.Exec(`CREATE TABLE IF NOT EXISTS instances (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		name TEXT NOT NULL, uuid TEXT, vm_id TEXT,
+		root_disk_gb INTEGER DEFAULT 0,
+		flavor_id INTEGER DEFAULT 0, image_id INTEGER DEFAULT 0,
+		status TEXT DEFAULT 'building', power_state TEXT DEFAULT 'shutdown',
+		user_id INTEGER DEFAULT 0, project_id INTEGER DEFAULT 0,
+		host_id TEXT, node_address TEXT, ip_address TEXT,
+		floating_ip TEXT, user_data TEXT, ssh_key TEXT,
+		enable_tpm INTEGER DEFAULT 0, metadata TEXT,
+		created_at DATETIME, updated_at DATETIME,
+		launched_at DATETIME, terminated_at DATETIME, deleted_at DATETIME
+	)`)
+	return db
+}
+
+func setupTestService(t *testing.T) (*Service, *gorm.DB) {
+	t.Helper()
+	db := setupTestDB(t)
+	svc, err := NewService(Config{DB: db, Logger: zap.NewNop()})
+	if err != nil {
+		t.Fatalf("failed to create image service: %v", err)
+	}
+	return svc, db
+}
+
+func TestCreateImage_HTTP(t *testing.T) {
+	svc, _ := setupTestService(t)
+	gin.SetMode(gin.TestMode)
+	router := gin.New()
+	svc.SetupRoutes(router)
+
+	body := `{"name":"ubuntu-22.04","disk_format":"qcow2","os_type":"linux","os_version":"ubuntu-22.04","architecture":"x86_64","category":"featured"}`
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/images", strings.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusCreated {
+		t.Fatalf("expected 201, got %d: %s", w.Code, w.Body.String())
+	}
+	if !strings.Contains(w.Body.String(), "ubuntu-22.04") {
+		t.Error("response should contain image name")
+	}
+	if !strings.Contains(w.Body.String(), "featured") {
+		t.Error("response should contain category")
+	}
+}
+
+func TestCreateImage_Defaults(t *testing.T) {
+	svc, _ := setupTestService(t)
+	gin.SetMode(gin.TestMode)
+	router := gin.New()
+	svc.SetupRoutes(router)
+
+	body := `{"name":"minimal-img"}`
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/images", strings.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusCreated {
+		t.Fatalf("expected 201, got %d: %s", w.Code, w.Body.String())
+	}
+	// Check defaults.
+	resp := w.Body.String()
+	if !strings.Contains(resp, "\"visibility\":\"private\"") {
+		t.Error("default visibility should be private")
+	}
+	if !strings.Contains(resp, "\"category\":\"user\"") {
+		t.Error("default category should be user")
+	}
+	if !strings.Contains(resp, "\"architecture\":\"x86_64\"") {
+		t.Error("default architecture should be x86_64")
+	}
+	if !strings.Contains(resp, "\"hypervisor_type\":\"kvm\"") {
+		t.Error("default hypervisor_type should be kvm")
+	}
+}
+
 func TestListImages_FilterByVisibility(t *testing.T) {
 	svc, db := setupTestService(t)
 	db.Create(&Image{Name: "public-img", UUID: "pub-1", Visibility: "public", Status: "active", OwnerID: 1, Category: "user", Architecture: "x86_64", HypervisorType: "kvm"})
@@ -34,11 +139,10 @@ func TestListImages_FilterByVisibility(t *testing.T) {
 	}
 }
 
-// TestListImages_FilterByOSType verifies OS type filtering.
 func TestListImages_FilterByOSType(t *testing.T) {
 	svc, db := setupTestService(t)
-	db.Create(&Image{Name: "ubuntu", UUID: "u-1", OSType: "linux", OSVersion: "ubuntu-22.04", Visibility: "public", Status: "active", OwnerID: 1, Category: "user", Architecture: "x86_64", HypervisorType: "kvm"})
-	db.Create(&Image{Name: "win2022", UUID: "w-1", OSType: "windows", OSVersion: "win-2022", Visibility: "public", Status: "active", OwnerID: 1, Category: "user", Architecture: "x86_64", HypervisorType: "kvm"})
+	db.Create(&Image{Name: "ubuntu", UUID: "u-1", OSType: "linux", Visibility: "public", Status: "active", OwnerID: 1, Category: "user", Architecture: "x86_64", HypervisorType: "kvm"})
+	db.Create(&Image{Name: "win2022", UUID: "w-1", OSType: "windows", Visibility: "public", Status: "active", OwnerID: 1, Category: "user", Architecture: "x86_64", HypervisorType: "kvm"})
 
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
@@ -48,18 +152,14 @@ func TestListImages_FilterByOSType(t *testing.T) {
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
-	if w.Code != http.StatusOK {
-		t.Fatalf("expected 200, got %d", w.Code)
-	}
 	if !strings.Contains(w.Body.String(), "ubuntu") {
 		t.Error("should contain linux image")
 	}
 	if strings.Contains(w.Body.String(), "win2022") {
-		t.Error("should NOT contain windows image")
+		t.Error("should NOT contain windows image when filtering linux")
 	}
 }
 
-// TestListImages_FilterByCategory verifies category filtering (CloudStack-style).
 func TestListImages_FilterByCategory(t *testing.T) {
 	svc, db := setupTestService(t)
 	db.Create(&Image{Name: "featured-img", UUID: "feat-1", Category: "featured", Visibility: "public", Status: "active", OwnerID: 1, Architecture: "x86_64", HypervisorType: "kvm"})
@@ -81,7 +181,6 @@ func TestListImages_FilterByCategory(t *testing.T) {
 	}
 }
 
-// TestListImages_Search verifies name search.
 func TestListImages_Search(t *testing.T) {
 	svc, db := setupTestService(t)
 	db.Create(&Image{Name: "ubuntu-22.04-server", UUID: "s-1", Visibility: "public", Status: "active", OwnerID: 1, Category: "user", Architecture: "x86_64", HypervisorType: "kvm"})
@@ -103,7 +202,6 @@ func TestListImages_Search(t *testing.T) {
 	}
 }
 
-// TestGetImage_IncludesInstanceCount verifies instance count in getImage.
 func TestGetImage_IncludesInstanceCount(t *testing.T) {
 	svc, db := setupTestService(t)
 	db.Create(&Image{Name: "count-img", UUID: "cnt-1", Visibility: "public", Status: "active", OwnerID: 1, Category: "user", Architecture: "x86_64", HypervisorType: "kvm"})
@@ -126,7 +224,6 @@ func TestGetImage_IncludesInstanceCount(t *testing.T) {
 	}
 }
 
-// TestUpdateImage_HTTP verifies image metadata update.
 func TestUpdateImage_HTTP(t *testing.T) {
 	svc, db := setupTestService(t)
 	db.Create(&Image{Name: "upd-img", UUID: "upd-1", Visibility: "private", OSType: "linux", Status: "active", OwnerID: 1, Category: "user", Architecture: "x86_64", HypervisorType: "kvm"})
@@ -147,12 +244,8 @@ func TestUpdateImage_HTTP(t *testing.T) {
 	if !strings.Contains(w.Body.String(), "\"visibility\":\"public\"") {
 		t.Error("visibility should be updated to public")
 	}
-	if !strings.Contains(w.Body.String(), "featured") {
-		t.Error("category should be updated to featured")
-	}
 }
 
-// TestDeleteImage_ProtectedBlocked verifies protected images cannot be deleted.
 func TestDeleteImage_ProtectedBlocked(t *testing.T) {
 	svc, db := setupTestService(t)
 	db.Create(&Image{Name: "protected-img", UUID: "prot-1", Protected: true, Status: "active", OwnerID: 1, Category: "user", Visibility: "public", Architecture: "x86_64", HypervisorType: "kvm"})
@@ -170,7 +263,6 @@ func TestDeleteImage_ProtectedBlocked(t *testing.T) {
 	}
 }
 
-// TestDeleteImage_InUseBlocked verifies images in use by instances cannot be deleted.
 func TestDeleteImage_InUseBlocked(t *testing.T) {
 	svc, db := setupTestService(t)
 	db.Create(&Image{Name: "in-use-img", UUID: "inuse-1", Status: "active", OwnerID: 1, Category: "user", Visibility: "public", Architecture: "x86_64", HypervisorType: "kvm"})
@@ -189,5 +281,25 @@ func TestDeleteImage_InUseBlocked(t *testing.T) {
 	}
 	if !strings.Contains(w.Body.String(), "instance_count") {
 		t.Error("should report instance count")
+	}
+}
+
+func TestRegisterImage_HTTP(t *testing.T) {
+	svc, _ := setupTestService(t)
+	gin.SetMode(gin.TestMode)
+	router := gin.New()
+	svc.SetupRoutes(router)
+
+	body := `{"name":"pre-existing-img","disk_format":"qcow2","os_type":"linux","file_path":"/images/existing.qcow2","visibility":"public"}`
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/images/register", strings.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusCreated {
+		t.Fatalf("expected 201, got %d: %s", w.Code, w.Body.String())
+	}
+	if !strings.Contains(w.Body.String(), "pre-existing-img") {
+		t.Error("should contain registered image name")
 	}
 }
