@@ -41,6 +41,10 @@ import { ObjectStorage } from '@/features/objectstorage/ObjectStorage'
 import { Orchestration } from '@/features/orchestration/Orchestration'
 import { RBAC } from '@/features/rbac/RBAC'
 import { Federation } from '@/features/federation/Federation'
+import { HighAvailability } from '@/features/ha/HighAvailability'
+import { KeyManagement } from '@/features/kms/KeyManagement'
+import { RateLimiting } from '@/features/ratelimit/RateLimiting'
+import { DataEncryption } from '@/features/encryption/DataEncryption'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const token = useAuthStore((s) => s.token)
@@ -172,6 +176,11 @@ export default function App() {
                 <Route path="/rbac" element={<RBAC />} />
                 {/* Federation */}
                 <Route path="/federation" element={<Federation />} />
+                {/* High Availability */}
+                <Route path="/ha" element={<HighAvailability />} />
+                <Route path="/kms" element={<KeyManagement />} />
+                <Route path="/rate-limits" element={<RateLimiting />} />
+                <Route path="/encryption" element={<DataEncryption />} />
                 {/* Global Infrastructure */}
                 <Route path="/infrastructure/*" element={<Infrastructure />} />
                 {/* Project-scoped Security Groups */}

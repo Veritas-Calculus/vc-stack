@@ -11,11 +11,14 @@ import (
 	"github.com/Veritas-Calculus/vc-stack/internal/management/config"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/dns"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/domain"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/encryption"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/event"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/gateway"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/ha"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/host"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/identity"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/image"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/kms"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/metadata"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/monitoring"
@@ -24,6 +27,7 @@ import (
 	objectstorage "github.com/Veritas-Calculus/vc-stack/internal/management/objectstorage"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/orchestration"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/quota"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/ratelimit"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/scheduler"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/storage"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/tag"
@@ -72,6 +76,10 @@ type Service struct {
 	DNS           *dns.Service
 	ObjStorage    *objectstorage.Service
 	Orchestration *orchestration.Service
+	HA            *ha.Service
+	KMS           *kms.Service
+	RateLimit     *ratelimit.Service
+	Encryption    *encryption.Service
 	logger        *zap.Logger
 }
 
@@ -320,6 +328,48 @@ func New(cfg Config) (*Service, error) {
 	}
 	svcObj.Orchestration = orchSvc
 
+	// Initialize HA service.
+	haSvc, err := ha.NewService(ha.Config{
+		DB:           cfg.DB,
+		Logger:       cfg.Logger.Named("ha"),
+		AutoEvacuate: true,
+		AutoFence:    true,
+	})
+	if err != nil {
+		return nil, err
+	}
+	svcObj.HA = haSvc
+
+	// Initialize KMS service.
+	kmsSvc, err := kms.NewService(kms.Config{
+		DB:     cfg.DB,
+		Logger: cfg.Logger.Named("kms"),
+	})
+	if err != nil {
+		return nil, err
+	}
+	svcObj.KMS = kmsSvc
+
+	// Initialize enhanced rate limiting service.
+	rateSvc, err := ratelimit.NewService(ratelimit.Config{
+		DB:     cfg.DB,
+		Logger: cfg.Logger.Named("ratelimit"),
+	})
+	if err != nil {
+		return nil, err
+	}
+	svcObj.RateLimit = rateSvc
+
+	// Initialize encryption service.
+	encSvc, err := encryption.NewService(encryption.Config{
+		DB:     cfg.DB,
+		Logger: cfg.Logger.Named("encryption"),
+	})
+	if err != nil {
+		return nil, err
+	}
+	svcObj.Encryption = encSvc
+
 	return svcObj, nil
 }
 
@@ -402,6 +452,24 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	if s.Orchestration != nil {
 		v1 := router.Group("/api/v1")
 		s.Orchestration.SetupRoutes(v1)
+	}
+	// High Availability.
+	if s.HA != nil {
+		s.HA.SetupRoutes(router)
+	}
+	// Key Management Service.
+	if s.KMS != nil {
+		s.KMS.SetupRoutes(router)
+	}
+	// Enhanced Rate Limiting.
+	if s.RateLimit != nil {
+		s.RateLimit.SetupRoutes(router)
+		// Apply rate limit middleware to all routes.
+		router.Use(s.RateLimit.Middleware())
+	}
+	// Data Encryption Management.
+	if s.Encryption != nil {
+		s.Encryption.SetupRoutes(router)
 	}
 
 	// Gateway proxy routes - only for external compute service (vc-compute)
