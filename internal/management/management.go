@@ -18,6 +18,7 @@ import (
 	"github.com/Veritas-Calculus/vc-stack/internal/management/network"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/quota"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/scheduler"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/storage"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/tools"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/usage"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/vpn"
@@ -53,6 +54,7 @@ type Service struct {
 	VPN        *vpn.Service
 	Backup     *backup.Service
 	AutoScale  *autoscale.Service
+	Storage    *storage.Service
 }
 
 // New composes the management plane services. It returns an error if any
@@ -204,6 +206,15 @@ func New(cfg Config) (*Service, error) {
 		return nil, err
 	}
 
+	storageSvc, err := storage.NewService(storage.Config{
+		DB:           cfg.DB,
+		Logger:       cfg.Logger.Named("storage"),
+		QuotaService: quotaSvc,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	return &Service{
 		Compute:    compSvc,
 		Identity:   idSvc,
@@ -222,6 +233,7 @@ func New(cfg Config) (*Service, error) {
 		VPN:        vpnSvc,
 		Backup:     backupSvc,
 		AutoScale:  asSvc,
+		Storage:    storageSvc,
 	}, nil
 }
 
@@ -265,6 +277,9 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	}
 	if s.AutoScale != nil {
 		s.AutoScale.SetupRoutes(router)
+	}
+	if s.Storage != nil {
+		s.Storage.SetupRoutes(router)
 	}
 
 	// Gateway proxy routes - only for external compute service (vc-compute)
