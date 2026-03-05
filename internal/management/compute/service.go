@@ -1375,6 +1375,17 @@ func (s *Service) createVolume(c *gin.Context) {
 		return
 	}
 
+	// Update volume quota usage (best-effort).
+	if s.quotaService != nil {
+		tenantIDStr := fmt.Sprintf("%d", pid)
+		if err := s.quotaService.UpdateUsage(tenantIDStr, "volumes", 1); err != nil {
+			s.logger.Warn("failed to update volume quota", zap.Error(err))
+		}
+		if err := s.quotaService.UpdateUsage(tenantIDStr, "disk_gb", req.SizeGB); err != nil {
+			s.logger.Warn("failed to update disk quota", zap.Error(err))
+		}
+	}
+
 	c.JSON(http.StatusOK, gin.H{"volume": volume})
 }
 
@@ -1422,6 +1433,18 @@ func (s *Service) deleteVolume(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete volume"})
 		return
 	}
+
+	// Release volume quota usage (best-effort).
+	if s.quotaService != nil {
+		tenantIDStr := fmt.Sprintf("%d", volume.ProjectID)
+		if err := s.quotaService.UpdateUsage(tenantIDStr, "volumes", -1); err != nil {
+			s.logger.Warn("failed to release volume quota", zap.Error(err))
+		}
+		if err := s.quotaService.UpdateUsage(tenantIDStr, "disk_gb", -volume.SizeGB); err != nil {
+			s.logger.Warn("failed to release disk quota", zap.Error(err))
+		}
+	}
+
 	c.JSON(http.StatusOK, gin.H{"ok": true})
 }
 
@@ -1893,14 +1916,20 @@ func (s *Service) attachVolume(c *gin.Context) {
 		Device:     req.Device,
 	}
 
-	if err := s.db.Create(attachment).Error; err != nil {
+	// Create attachment and update volume status atomically.
+	if err := s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(attachment).Error; err != nil {
+			return fmt.Errorf("create attachment: %w", err)
+		}
+		if err := tx.Model(&volume).Update("status", "in-use").Error; err != nil {
+			return fmt.Errorf("update volume status: %w", err)
+		}
+		return nil
+	}); err != nil {
 		s.logger.Error("failed to attach volume", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to attach volume"})
 		return
 	}
-
-	// Update volume status.
-	_ = s.db.Model(&volume).Update("status", "in-use").Error
 
 	c.JSON(http.StatusOK, gin.H{"ok": true, "attachment": attachment})
 }
@@ -1915,13 +1944,20 @@ func (s *Service) detachVolume(c *gin.Context) {
 		return
 	}
 
-	if err := s.db.Delete(&attachment).Error; err != nil {
+	// Delete attachment and update volume status atomically.
+	if err := s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Delete(&attachment).Error; err != nil {
+			return fmt.Errorf("delete attachment: %w", err)
+		}
+		if err := tx.Model(&Volume{}).Where("id = ?", volumeID).Update("status", "available").Error; err != nil {
+			return fmt.Errorf("update volume status: %w", err)
+		}
+		return nil
+	}); err != nil {
+		s.logger.Error("failed to detach volume", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to detach volume"})
 		return
 	}
-
-	// Update volume status back to available.
-	_ = s.db.Model(&Volume{}).Where("id = ?", volumeID).Update("status", "available").Error
 
 	c.JSON(http.StatusOK, gin.H{"ok": true})
 }
