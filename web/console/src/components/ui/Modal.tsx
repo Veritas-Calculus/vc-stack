@@ -24,7 +24,9 @@ export function Modal({ title, open, onClose, children, footer }: ModalProps) {
         </div>
         <div className="p-4 space-y-3 overflow-y-auto">{children}</div>
         {footer && (
-          <div className="px-4 py-3 border-t border-oxide-800 flex justify-end gap-2 shrink-0">{footer}</div>
+          <div className="px-4 py-3 border-t border-oxide-800 flex justify-end gap-2 shrink-0">
+            {footer}
+          </div>
         )}
       </div>
     </div>

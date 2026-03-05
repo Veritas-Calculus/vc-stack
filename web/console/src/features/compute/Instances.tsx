@@ -168,7 +168,6 @@ export function Instances() {
     if (items.length > 0 && !hasBuilding && autoTries !== 0) setAutoTries(0)
   }, [items, autoTries, refresh])
 
-
   const filtered = useMemo(() => {
     const byState = items.filter((it) => {
       if (filter === 'all') return true
@@ -343,31 +342,31 @@ export function Instances() {
       // Mark as pending and start short polling until confirmed running or error
       const cid = String(created.id)
       setPendingIds((prev) => new Set(prev).add(cid))
-        ; (async () => {
-          try {
-            const deadline = Date.now() + 20_000
-            while (Date.now() < deadline) {
-              // brief pause
-              await new Promise((res) => setTimeout(res, 1500))
-              const list = await fetchInstancesRaw(projectId)
-              setItems(list)
-              const it = list.find((x) => String(x.id) === cid)
-              if (it) {
-                const isRunning = it.status === 'active' && it.power_state === 'running'
-                const isError = it.status === 'error'
-                if (isRunning || isError) break
-              }
+      ;(async () => {
+        try {
+          const deadline = Date.now() + 20_000
+          while (Date.now() < deadline) {
+            // brief pause
+            await new Promise((res) => setTimeout(res, 1500))
+            const list = await fetchInstancesRaw(projectId)
+            setItems(list)
+            const it = list.find((x) => String(x.id) === cid)
+            if (it) {
+              const isRunning = it.status === 'active' && it.power_state === 'running'
+              const isError = it.status === 'error'
+              if (isRunning || isError) break
             }
-          } catch {
-            /* ignore */
-          } finally {
-            setPendingIds((prev) => {
-              const next = new Set(prev)
-              next.delete(cid)
-              return next
-            })
           }
-        })()
+        } catch {
+          /* ignore */
+        } finally {
+          setPendingIds((prev) => {
+            const next = new Set(prev)
+            next.delete(cid)
+            return next
+          })
+        }
+      })()
       setOpen(false)
       setNewName('')
       setFlavorId('')

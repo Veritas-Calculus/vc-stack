@@ -231,6 +231,9 @@ func NewService(config Config) (*Service, error) {
 		return nil, fmt.Errorf("failed to create default admin: %w", err)
 	}
 
+	// Seed default RBAC permissions and roles.
+	service.SeedRBAC()
+
 	return service, nil
 }
 

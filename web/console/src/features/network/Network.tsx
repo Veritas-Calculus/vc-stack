@@ -89,7 +89,11 @@ function NetworksPage() {
       fetchNetworks(projectId),
       fetchZones(),
       fetchSubnets(projectId),
-      fetchNetworkConfig().catch(() => ({ sdn_provider: '', bridge_mappings: [], supported_network_types: [] }))
+      fetchNetworkConfig().catch(() => ({
+        sdn_provider: '',
+        bridge_mappings: [],
+        supported_network_types: []
+      }))
     ])
       .then(([nets, zs, subs, cfg]) => {
         if (!alive) return
@@ -152,22 +156,19 @@ function NetworksPage() {
   }, [cidr, rows, existingCidrs])
 
   // Load CIDR suggestions — verify conflict before filling
-  const loadCIDRSuggestion = useCallback(
-    async (prefix = '10', mask = '24') => {
-      try {
-        const suggestion = await suggestCIDR(prefix, mask)
-        setExistingCidrs(suggestion.existing_cidrs ?? [])
-        // Verify suggested CIDR is not already in use
-        const used = (suggestion.existing_cidrs ?? []).includes(suggestion.suggested_cidr)
-        if (!used) {
-          setCidr(suggestion.suggested_cidr)
-        }
-      } catch {
-        /* ignore */
+  const loadCIDRSuggestion = useCallback(async (prefix = '10', mask = '24') => {
+    try {
+      const suggestion = await suggestCIDR(prefix, mask)
+      setExistingCidrs(suggestion.existing_cidrs ?? [])
+      // Verify suggested CIDR is not already in use
+      const used = (suggestion.existing_cidrs ?? []).includes(suggestion.suggested_cidr)
+      if (!used) {
+        setCidr(suggestion.suggested_cidr)
       }
-    },
-    []
-  )
+    } catch {
+      /* ignore */
+    }
+  }, [])
 
   const cidrInfo = useMemo(() => parseCIDRInfo(cidr), [cidr, parseCIDRInfo])
 
@@ -484,16 +485,18 @@ function NetworksPage() {
                 onClick={() => {
                   if (s.n < step) setStep(s.n)
                 }}
-                className={`flex items-center gap-1.5 text-xs font-medium ${step === s.n
-                  ? 'text-blue-400'
-                  : step > s.n
-                    ? 'text-gray-300 cursor-pointer hover:text-blue-300'
-                    : 'text-gray-500 cursor-default'
-                  }`}
+                className={`flex items-center gap-1.5 text-xs font-medium ${
+                  step === s.n
+                    ? 'text-blue-400'
+                    : step > s.n
+                      ? 'text-gray-300 cursor-pointer hover:text-blue-300'
+                      : 'text-gray-500 cursor-default'
+                }`}
               >
                 <span
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold ${step >= s.n ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400'
-                    }`}
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold ${
+                    step >= s.n ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400'
+                  }`}
                 >
                   {s.n}
                 </span>
@@ -662,9 +665,7 @@ function NetworksPage() {
                   value={mtu}
                   onChange={(e) => setMtu(e.target.value)}
                 />
-                <p className="text-xs text-gray-400 mt-1">
-                  1450 for overlay, 1500 for provider
-                </p>
+                <p className="text-xs text-gray-400 mt-1">1450 for overlay, 1500 for provider</p>
               </div>
             </div>
           </div>
@@ -701,9 +702,7 @@ function NetworksPage() {
                     Auto
                   </button>
                 </div>
-                {cidrConflict && (
-                  <p className="text-xs text-red-400 mt-1">{cidrConflict}</p>
-                )}
+                {cidrConflict && <p className="text-xs text-red-400 mt-1">{cidrConflict}</p>}
                 {!cidrConflict && cidrInfo && (
                   <p className="text-xs text-gray-400 mt-1">
                     ~{cidrInfo.numHosts} hosts | GW: {cidrInfo.gateway}
@@ -718,10 +717,11 @@ function NetworksPage() {
                     <button
                       key={tpl.cidr}
                       type="button"
-                      className={`text-xs px-2 py-0.5 rounded border transition-colors ${cidr === tpl.cidr
-                        ? 'border-blue-500 bg-blue-500/20 text-blue-300'
-                        : 'border-gray-600 text-gray-400 hover:border-gray-500 hover:text-gray-300'
-                        }`}
+                      className={`text-xs px-2 py-0.5 rounded border transition-colors ${
+                        cidr === tpl.cidr
+                          ? 'border-blue-500 bg-blue-500/20 text-blue-300'
+                          : 'border-gray-600 text-gray-400 hover:border-gray-500 hover:text-gray-300'
+                      }`}
                       onClick={() => setCidr(tpl.cidr)}
                     >
                       {tpl.label}
@@ -900,9 +900,7 @@ function NetworksPage() {
                 {(dns1 || dns2) && (
                   <>
                     <div className="text-gray-400">DNS</div>
-                    <div className="text-gray-200">
-                      {[dns1, dns2].filter(Boolean).join(', ')}
-                    </div>
+                    <div className="text-gray-200">{[dns1, dns2].filter(Boolean).join(', ')}</div>
                   </>
                 )}
                 {(networkType === 'vlan' || networkType === 'flat') && physicalNetwork && (
@@ -918,11 +916,7 @@ function NetworksPage() {
             </div>
 
             <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={start}
-                onChange={(e) => setStart(e.target.checked)}
-              />
+              <input type="checkbox" checked={start} onChange={(e) => setStart(e.target.checked)} />
               <label className="label m-0">Activate Network Immediately</label>
               <span className="text-xs text-gray-400">(create in SDN backend)</span>
             </div>
@@ -1239,18 +1233,20 @@ function ACLPage() {
                       <td className="py-1.5 pr-3 text-gray-500">{rule.number}</td>
                       <td className="py-1.5 pr-3">
                         <span
-                          className={`px-1.5 py-0.5 rounded text-xs border ${rule.direction === 'ingress'
-                            ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
-                            : 'bg-purple-500/15 text-purple-400 border-purple-500/30'
-                            }`}
+                          className={`px-1.5 py-0.5 rounded text-xs border ${
+                            rule.direction === 'ingress'
+                              ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
+                              : 'bg-purple-500/15 text-purple-400 border-purple-500/30'
+                          }`}
                         >
                           {rule.direction}
                         </span>
                       </td>
                       <td className="py-1.5 pr-3">
                         <span
-                          className={`text-xs font-medium ${rule.action === 'allow' ? 'text-emerald-400' : 'text-red-400'
-                            }`}
+                          className={`text-xs font-medium ${
+                            rule.action === 'allow' ? 'text-emerald-400' : 'text-red-400'
+                          }`}
                         >
                           {rule.action.toUpperCase()}
                         </span>

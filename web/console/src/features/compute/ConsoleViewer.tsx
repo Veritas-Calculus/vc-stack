@@ -7,17 +7,17 @@ import {
   stopInstance,
   rebootInstance,
   fetchInstanceById,
-  type BackendInstance,
+  type BackendInstance
 } from '@/lib/api'
 
 type Phase =
-  | 'loading'       // checking instance state
-  | 'stopped'       // VM is stopped, show start button
-  | 'starting'      // start was clicked, waiting for VM
-  | 'connecting'    // VM running, requesting console ticket
-  | 'connected'     // noVNC iframe loaded
-  | 'error'         // something went wrong
-  | 'disconnected'  // was connected but lost connection
+  | 'loading' // checking instance state
+  | 'stopped' // VM is stopped, show start button
+  | 'starting' // start was clicked, waiting for VM
+  | 'connecting' // VM running, requesting console ticket
+  | 'connected' // noVNC iframe loaded
+  | 'error' // something went wrong
+  | 'disconnected' // was connected but lost connection
 
 export default function ConsoleViewer() {
   const { id } = useParams()
@@ -46,9 +46,7 @@ export default function ConsoleViewer() {
         if (!alive) return
         setInstance(inst)
         const isRunning =
-          inst.power_state === 'running' ||
-          inst.status === 'active' ||
-          inst.status === 'running'
+          inst.power_state === 'running' || inst.status === 'active' || inst.status === 'running'
         if (isRunning) {
           // VM is running, go directly to console
           connectConsole(id)
@@ -61,25 +59,24 @@ export default function ConsoleViewer() {
         setPhase('error')
         setErrMsg('Failed to load instance info')
       })
-    return () => { alive = false }
+    return () => {
+      alive = false
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
-  const connectConsole = useCallback(
-    async (instanceId: string) => {
-      setPhase('connecting')
-      setErrMsg(null)
-      try {
-        const ws = await startConsole(instanceId)
-        setWsUrl(ws)
-        setPhase('connected')
-      } catch {
-        setPhase('error')
-        setErrMsg('Failed to connect console — VM may not be ready yet')
-      }
-    },
-    []
-  )
+  const connectConsole = useCallback(async (instanceId: string) => {
+    setPhase('connecting')
+    setErrMsg(null)
+    try {
+      const ws = await startConsole(instanceId)
+      setWsUrl(ws)
+      setPhase('connected')
+    } catch {
+      setPhase('error')
+      setErrMsg('Failed to connect console — VM may not be ready yet')
+    }
+  }, [])
 
   const handleStart = useCallback(async () => {
     if (!id) return
@@ -101,9 +98,7 @@ export default function ConsoleViewer() {
         const inst = await fetchInstanceById(id)
         setInstance(inst)
         const isRunning =
-          inst.power_state === 'running' ||
-          inst.status === 'active' ||
-          inst.status === 'running'
+          inst.power_state === 'running' || inst.status === 'active' || inst.status === 'running'
         if (isRunning) {
           if (pollRef.current) clearInterval(pollRef.current)
           pollRef.current = null
@@ -182,10 +177,7 @@ export default function ConsoleViewer() {
       {instance && (
         <div className="flex items-center gap-2 flex-wrap">
           {!isRunning && phase !== 'starting' && (
-            <button
-              className="btn-primary flex items-center gap-1.5"
-              onClick={handleStart}
-            >
+            <button className="btn-primary flex items-center gap-1.5" onClick={handleStart}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M8 5v14l11-7z" />
               </svg>
@@ -194,19 +186,13 @@ export default function ConsoleViewer() {
           )}
           {isRunning && (
             <>
-              <button
-                className="btn-secondary flex items-center gap-1.5"
-                onClick={handleReconnect}
-              >
+              <button className="btn-secondary flex items-center gap-1.5" onClick={handleReconnect}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 6V3L8 7l4 4V8a4 4 0 1 1-4 4H6a6 6 0 1 0 6-6z" />
                 </svg>
                 Reconnect
               </button>
-              <button
-                className="btn-secondary flex items-center gap-1.5"
-                onClick={handleReboot}
-              >
+              <button className="btn-secondary flex items-center gap-1.5" onClick={handleReboot}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 6V3L8 7l4 4V8a4 4 0 1 1-4 4H6a6 6 0 1 0 6-6z" />
                 </svg>
@@ -227,9 +213,10 @@ export default function ConsoleViewer() {
       )}
 
       {/* Main console area */}
-      <div className="border border-oxide-800 rounded-lg overflow-hidden relative bg-black"
-        style={{ minHeight: '70vh' }}>
-
+      <div
+        className="border border-oxide-800 rounded-lg overflow-hidden relative bg-black"
+        style={{ minHeight: '70vh' }}
+      >
         {/* Loading state */}
         {phase === 'loading' && (
           <div className="absolute inset-0 flex items-center justify-center">
@@ -246,16 +233,25 @@ export default function ConsoleViewer() {
             <div className="text-center space-y-6">
               {/* Power icon */}
               <div className="mx-auto w-20 h-20 rounded-full border-2 border-gray-600 flex items-center justify-center">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" strokeWidth="2" strokeLinecap="round"
-                  className="text-gray-500">
+                <svg
+                  width="40"
+                  height="40"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  className="text-gray-500"
+                >
                   <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
                   <line x1="12" y1="2" x2="12" y2="12" />
                 </svg>
               </div>
               <div>
                 <p className="text-gray-300 text-lg font-medium">Instance is Stopped</p>
-                <p className="text-gray-500 text-sm mt-1">Start the instance to access the console</p>
+                <p className="text-gray-500 text-sm mt-1">
+                  Start the instance to access the console
+                </p>
               </div>
               <button
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-white font-medium transition-all
@@ -286,7 +282,13 @@ export default function ConsoleViewer() {
             <div className="text-center space-y-4">
               <div className="mx-auto w-16 h-16 rounded-full border-2 border-emerald-500/30 flex items-center justify-center relative">
                 <div className="absolute inset-0 rounded-full border-2 border-emerald-400 border-t-transparent animate-spin" />
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="text-emerald-400">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="text-emerald-400"
+                >
                   <path d="M8 5v14l11-7z" />
                 </svg>
               </div>
@@ -295,9 +297,18 @@ export default function ConsoleViewer() {
                 <p className="text-gray-500 text-sm mt-1">Waiting for the VM to boot up</p>
               </div>
               <div className="flex items-center justify-center gap-1">
-                <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <span
+                  className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce"
+                  style={{ animationDelay: '0ms' }}
+                />
+                <span
+                  className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce"
+                  style={{ animationDelay: '150ms' }}
+                />
+                <span
+                  className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce"
+                  style={{ animationDelay: '300ms' }}
+                />
               </div>
             </div>
           </div>
@@ -318,9 +329,16 @@ export default function ConsoleViewer() {
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center space-y-4 max-w-sm">
               <div className="mx-auto w-16 h-16 rounded-full border-2 border-rose-500/30 flex items-center justify-center">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" strokeWidth="2" strokeLinecap="round"
-                  className="text-rose-400">
+                <svg
+                  width="28"
+                  height="28"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  className="text-rose-400"
+                >
                   <circle cx="12" cy="12" r="10" />
                   <line x1="15" y1="9" x2="9" y2="15" />
                   <line x1="9" y1="9" x2="15" y2="15" />

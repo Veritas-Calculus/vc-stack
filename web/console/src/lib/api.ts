@@ -128,18 +128,18 @@ type ListSnapshotsResponse = {
 // Mappers to UI types
 const mapInstance =
   (p: string | undefined) =>
-    (x: ListInstancesResponse['instances'][number]): UIInstance => ({
-      id: String(x.id),
-      projectId: p ?? String(x.project_id ?? ''),
-      name: x.name,
-      ip: x.ip_address || '',
-      // Check both status and power_state for running state
-      // Backend may return status='running' or 'active', and power_state='running'
-      state:
-        x.power_state === 'running' || x.status === 'active' || x.status === 'running'
-          ? 'running'
-          : 'stopped'
-    })
+  (x: ListInstancesResponse['instances'][number]): UIInstance => ({
+    id: String(x.id),
+    projectId: p ?? String(x.project_id ?? ''),
+    name: x.name,
+    ip: x.ip_address || '',
+    // Check both status and power_state for running state
+    // Backend may return status='running' or 'active', and power_state='running'
+    state:
+      x.power_state === 'running' || x.status === 'active' || x.status === 'running'
+        ? 'running'
+        : 'stopped'
+  })
 
 const mapFlavor = (x: ListFlavorsResponse['flavors'][number]): UIFlavor => ({
   id: String(x.id),
@@ -288,7 +288,10 @@ export async function importImage(
 }
 
 // Upload image (multipart)
-export async function uploadImage(file: File, opts?: { name?: string; disk_format?: string }): Promise<{ id: string }> {
+export async function uploadImage(
+  file: File,
+  opts?: { name?: string; disk_format?: string }
+): Promise<{ id: string }> {
   const form = new FormData()
   form.append('file', file)
   if (opts?.name) form.append('name', opts.name)
