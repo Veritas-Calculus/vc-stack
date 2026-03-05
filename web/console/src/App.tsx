@@ -46,6 +46,7 @@ import { KeyManagement } from '@/features/kms/KeyManagement'
 import { RateLimiting } from '@/features/ratelimit/RateLimiting'
 import { DataEncryption } from '@/features/encryption/DataEncryption'
 import { Kubernetes } from '@/features/kubernetes/Kubernetes'
+import { ComplianceAudit } from '@/features/audit/ComplianceAudit'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const token = useAuthStore((s) => s.token)
@@ -183,6 +184,7 @@ export default function App() {
                 <Route path="/rate-limits" element={<RateLimiting />} />
                 <Route path="/encryption" element={<DataEncryption />} />
                 <Route path="/kubernetes" element={<Kubernetes />} />
+                <Route path="/compliance-audit" element={<ComplianceAudit />} />
                 {/* Global Infrastructure */}
                 <Route path="/infrastructure/*" element={<Infrastructure />} />
                 {/* Project-scoped Security Groups */}

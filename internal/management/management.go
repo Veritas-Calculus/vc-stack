@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/Veritas-Calculus/vc-stack/internal/management/apidocs"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/audit"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/autoscale"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/backup"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/caas"
@@ -82,6 +83,7 @@ type Service struct {
 	RateLimit     *ratelimit.Service
 	Encryption    *encryption.Service
 	CaaS          *caas.Service
+	Audit         *audit.Service
 	logger        *zap.Logger
 }
 
@@ -382,6 +384,16 @@ func New(cfg Config) (*Service, error) {
 	}
 	svcObj.CaaS = caasSvc
 
+	// Initialize Compliance Audit service.
+	auditSvc, err := audit.NewService(audit.Config{
+		DB:     cfg.DB,
+		Logger: cfg.Logger.Named("audit"),
+	})
+	if err != nil {
+		return nil, err
+	}
+	svcObj.Audit = auditSvc
+
 	return svcObj, nil
 }
 
@@ -486,6 +498,10 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	// Container as a Service (Kubernetes).
 	if s.CaaS != nil {
 		s.CaaS.SetupRoutes(router)
+	}
+	// Compliance Audit.
+	if s.Audit != nil {
+		s.Audit.SetupRoutes(router)
 	}
 
 	// Gateway proxy routes - only for external compute service (vc-compute)
