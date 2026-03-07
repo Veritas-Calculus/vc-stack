@@ -128,18 +128,18 @@ type ListSnapshotsResponse = {
 // Mappers to UI types
 const mapInstance =
   (p: string | undefined) =>
-    (x: ListInstancesResponse['instances'][number]): UIInstance => ({
-      id: String(x.id),
-      projectId: p ?? String(x.project_id ?? ''),
-      name: x.name,
-      ip: x.ip_address || '',
-      // Check both status and power_state for running state
-      // Backend may return status='running' or 'active', and power_state='running'
-      state:
-        x.power_state === 'running' || x.status === 'active' || x.status === 'running'
-          ? 'running'
-          : 'stopped'
-    })
+  (x: ListInstancesResponse['instances'][number]): UIInstance => ({
+    id: String(x.id),
+    projectId: p ?? String(x.project_id ?? ''),
+    name: x.name,
+    ip: x.ip_address || '',
+    // Check both status and power_state for running state
+    // Backend may return status='running' or 'active', and power_state='running'
+    state:
+      x.power_state === 'running' || x.status === 'active' || x.status === 'running'
+        ? 'running'
+        : 'stopped'
+  })
 
 const mapFlavor = (x: ListFlavorsResponse['flavors'][number]): UIFlavor => ({
   id: String(x.id),
@@ -1485,10 +1485,7 @@ export async function updateLoadBalancerBackends(
   await api.put(`/v1/loadbalancers/${nameOrId}/backends`, { backends })
 }
 
-export async function setLoadBalancerAlgorithm(
-  nameOrId: string,
-  algorithm: string
-): Promise<void> {
+export async function setLoadBalancerAlgorithm(nameOrId: string, algorithm: string): Promise<void> {
   await api.put(`/v1/loadbalancers/${nameOrId}/algorithm`, { algorithm })
 }
 
@@ -1612,31 +1609,41 @@ export async function deleteQoSPolicy(id: string): Promise<void> {
 
 // ── Instance Lifecycle Extensions ───────────────────────────
 
-export async function rebuildInstance(id: string, body: {
-  image_id: number
-  name?: string
-  user_data?: string
-  ssh_key?: string
-}): Promise<UIInstance> {
+export async function rebuildInstance(
+  id: string,
+  body: {
+    image_id: number
+    name?: string
+    user_data?: string
+    ssh_key?: string
+  }
+): Promise<UIInstance> {
   const res = await api.post<{ instance: UIInstance }>(`/v1/instances/${id}/rebuild`, body)
   return res.data.instance
 }
 
-export async function updateInstance(id: string, body: {
-  name?: string
-  description?: string
-  metadata?: Record<string, string>
-}): Promise<UIInstance> {
+export async function updateInstance(
+  id: string,
+  body: {
+    name?: string
+    description?: string
+    metadata?: Record<string, string>
+  }
+): Promise<UIInstance> {
   const res = await api.put<{ instance: UIInstance }>(`/v1/instances/${id}`, body)
   return res.data.instance
 }
 
-export async function createImageFromInstance(instanceId: string, body: {
-  name: string
-  description?: string
-}): Promise<{ id: number; name: string; uuid: string; status: string }> {
+export async function createImageFromInstance(
+  instanceId: string,
+  body: {
+    name: string
+    description?: string
+  }
+): Promise<{ id: number; name: string; uuid: string; status: string }> {
   const res = await api.post<{ image: { id: number; name: string; uuid: string; status: string } }>(
-    `/v1/instances/${instanceId}/create-image`, body
+    `/v1/instances/${instanceId}/create-image`,
+    body
   )
   return res.data.image
 }
@@ -1658,7 +1665,10 @@ export async function unpauseInstance(id: string): Promise<void> {
 }
 
 export async function rescueInstance(id: string, rescueImageId?: number): Promise<void> {
-  await api.post(`/v1/instances/${id}/rescue`, rescueImageId ? { rescue_image_id: rescueImageId } : {})
+  await api.post(
+    `/v1/instances/${id}/rescue`,
+    rescueImageId ? { rescue_image_id: rescueImageId } : {}
+  )
 }
 
 export async function unrescueInstance(id: string): Promise<void> {
@@ -1683,11 +1693,17 @@ export async function fetchInstanceActions(instanceId: string): Promise<Instance
   return res.data.actions ?? []
 }
 
-export async function createVolumeFromSnapshot(snapshotId: string, body?: {
-  name?: string
-  size_gb?: number
-}): Promise<UIVolume> {
-  const res = await api.post<{ volume: UIVolume }>(`/v1/snapshots/${snapshotId}/create-volume`, body ?? {})
+export async function createVolumeFromSnapshot(
+  snapshotId: string,
+  body?: {
+    name?: string
+    size_gb?: number
+  }
+): Promise<UIVolume> {
+  const res = await api.post<{ volume: UIVolume }>(
+    `/v1/snapshots/${snapshotId}/create-volume`,
+    body ?? {}
+  )
   return res.data.volume
 }
 
@@ -1701,16 +1717,24 @@ export type InstanceInterface = {
 }
 
 export async function fetchInstanceInterfaces(instanceId: string): Promise<InstanceInterface[]> {
-  const res = await api.get<{ interfaces: InstanceInterface[] }>(`/v1/instances/${instanceId}/interfaces`)
+  const res = await api.get<{ interfaces: InstanceInterface[] }>(
+    `/v1/instances/${instanceId}/interfaces`
+  )
   return res.data.interfaces ?? []
 }
 
-export async function attachInstanceInterface(instanceId: string, body: {
-  network_id?: string
-  fixed_ip?: string
-  security_group_ids?: string[]
-}): Promise<InstanceInterface> {
-  const res = await api.post<{ interface: InstanceInterface }>(`/v1/instances/${instanceId}/interfaces`, body)
+export async function attachInstanceInterface(
+  instanceId: string,
+  body: {
+    network_id?: string
+    fixed_ip?: string
+    security_group_ids?: string[]
+  }
+): Promise<InstanceInterface> {
+  const res = await api.post<{ interface: InstanceInterface }>(
+    `/v1/instances/${instanceId}/interfaces`,
+    body
+  )
   return res.data.interface
 }
 
@@ -1758,7 +1782,9 @@ export async function fetchInstanceMetrics(instanceId: string): Promise<Instance
 }
 
 export async function fetchInstanceDiagnostics(instanceId: string): Promise<InstanceDiagnostics> {
-  const res = await api.get<{ diagnostics: InstanceDiagnostics }>(`/v1/instances/${instanceId}/diagnostics`)
+  const res = await api.get<{ diagnostics: InstanceDiagnostics }>(
+    `/v1/instances/${instanceId}/diagnostics`
+  )
   return res.data.diagnostics
 }
 

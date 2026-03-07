@@ -6,22 +6,22 @@ import en from './locales/en.json'
 import zh from './locales/zh.json'
 
 i18n
-    .use(LanguageDetector)
-    .use(initReactI18next)
-    .init({
-        resources: {
-            en: { translation: en },
-            zh: { translation: zh },
-        },
-        fallbackLng: 'en',
-        interpolation: {
-            escapeValue: false,
-        },
-        detection: {
-            order: ['localStorage', 'navigator'],
-            caches: ['localStorage'],
-            lookupLocalStorage: 'vc-language',
-        },
-    })
+  .use(LanguageDetector)
+  .use(initReactI18next)
+  .init({
+    resources: {
+      en: { translation: en },
+      zh: { translation: zh }
+    },
+    fallbackLng: 'en',
+    interpolation: {
+      escapeValue: false
+    },
+    detection: {
+      order: ['localStorage', 'navigator'],
+      caches: ['localStorage'],
+      lookupLocalStorage: 'vc-language'
+    }
+  })
 
 export default i18n

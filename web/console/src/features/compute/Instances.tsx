@@ -23,7 +23,6 @@ import {
   rebootInstance,
   destroyInstance,
   forceDeleteInstance,
-
   fetchProjects as fetchIdentityProjects,
   fetchUsers,
   type BackendInstance,
@@ -253,7 +252,8 @@ export function Instances() {
         if (pendingIds.has(pid))
           return (
             <Badge variant="info">
-              provisioning<span className="ml-1 inline-block w-3 h-3 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></span>
+              provisioning
+              <span className="ml-1 inline-block w-3 h-3 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></span>
             </Badge>
           )
         if (r.status === 'building' || r.status === 'spawning')
@@ -343,31 +343,31 @@ export function Instances() {
       // Mark as pending and start short polling until confirmed running or error
       const cid = String(created.id)
       setPendingIds((prev) => new Set(prev).add(cid))
-        ; (async () => {
-          try {
-            const deadline = Date.now() + 20_000
-            while (Date.now() < deadline) {
-              // brief pause
-              await new Promise((res) => setTimeout(res, 1500))
-              const list = await fetchInstancesRaw(projectId)
-              setItems(list)
-              const it = list.find((x) => String(x.id) === cid)
-              if (it) {
-                const isRunning = it.status === 'active' && it.power_state === 'running'
-                const isError = it.status === 'error'
-                if (isRunning || isError) break
-              }
+      ;(async () => {
+        try {
+          const deadline = Date.now() + 20_000
+          while (Date.now() < deadline) {
+            // brief pause
+            await new Promise((res) => setTimeout(res, 1500))
+            const list = await fetchInstancesRaw(projectId)
+            setItems(list)
+            const it = list.find((x) => String(x.id) === cid)
+            if (it) {
+              const isRunning = it.status === 'active' && it.power_state === 'running'
+              const isError = it.status === 'error'
+              if (isRunning || isError) break
             }
-          } catch {
-            /* ignore */
-          } finally {
-            setPendingIds((prev) => {
-              const next = new Set(prev)
-              next.delete(cid)
-              return next
-            })
           }
-        })()
+        } catch {
+          /* ignore */
+        } finally {
+          setPendingIds((prev) => {
+            const next = new Set(prev)
+            next.delete(cid)
+            return next
+          })
+        }
+      })()
       setOpen(false)
       setNewName('')
       setFlavorId('')
@@ -487,7 +487,7 @@ export function Instances() {
                     title: `Destroy ${selectedIds.size} Instance(s)`,
                     message: `This will permanently delete ${selectedIds.size} instance(s) and all associated data. This action cannot be undone.`,
                     confirmLabel: 'Destroy',
-                    variant: 'danger',
+                    variant: 'danger'
                   })
                   if (!ok) return
                   try {
@@ -527,7 +527,7 @@ export function Instances() {
                     message: `This will remove database records for ${deletingItems.length} instance(s) stuck in "deleting" state. This will NOT delete VMs from the hypervisor.`,
                     confirmText: 'force-delete',
                     confirmLabel: 'Force Delete',
-                    variant: 'danger',
+                    variant: 'danger'
                   })
                   if (!ok) return
 

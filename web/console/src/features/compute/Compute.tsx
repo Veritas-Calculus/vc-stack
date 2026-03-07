@@ -396,7 +396,7 @@ function InstanceVolumes() {
     if (id) setRows(await fetchInstanceVolumes(id))
   }
   useEffect(() => {
-    ; (async () => {
+    ;(async () => {
       if (id) setRows(await fetchInstanceVolumes(id))
     })()
   }, [id])

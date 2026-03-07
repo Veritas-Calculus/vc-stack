@@ -104,14 +104,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
       {/* ── Sidebar ──────────────────────────────────────────── */}
       <aside className="row-span-2 glass-sidebar overflow-y-auto overflow-x-hidden">
         {/* Logo */}
-        <div className="h-[52px] flex items-center px-4 gap-2.5 border-b" style={{ borderColor: 'var(--color-border)' }}>
+        <div
+          className="h-[52px] flex items-center px-4 gap-2.5 border-b"
+          style={{ borderColor: 'var(--color-border)' }}
+        >
           {logo ? (
             <img src={logo} alt="logo" className="h-6 w-6 rounded-md object-contain" />
           ) : (
             <img src="/logo-42.svg" alt="logo" className="h-6 w-6 rounded-md object-contain" />
           )}
           {!sidebarCollapsed && (
-            <Link to="/" className="font-semibold text-[15px] tracking-tight transition-colors" style={{ color: 'var(--color-text-primary)' }}>
+            <Link
+              to="/"
+              className="font-semibold text-[15px] tracking-tight transition-colors"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
               VC Console
             </Link>
           )}
@@ -204,7 +211,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
                       )
                     }}
                   >
-                    <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-white/25">{s.label}</div>
+                    <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-white/25">
+                      {s.label}
+                    </div>
                     {s.children.map((c) => (
                       <NavLink
                         key={c.to}
@@ -245,26 +254,53 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* ── Header ───────────────────────────────────────────── */}
-      <header className="h-[52px] flex items-center justify-between px-4 glass border-b" style={{ borderColor: 'var(--color-border)' }}>
+      <header
+        className="h-[52px] flex items-center justify-between px-4 glass border-b"
+        style={{ borderColor: 'var(--color-border)' }}
+      >
         <div className="flex items-center gap-2">
           {/* Sidebar toggle */}
           <button
             type="button"
             className="h-8 w-8 grid place-items-center rounded-lg transition-all duration-150"
             style={{ color: 'var(--color-icon-muted)' }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-icon-hover)'; e.currentTarget.style.background = 'var(--color-bg-hover)' }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-icon-muted)'; e.currentTarget.style.background = 'transparent' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = 'var(--color-icon-hover)'
+              e.currentTarget.style.background = 'var(--color-bg-hover)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = 'var(--color-icon-muted)'
+              e.currentTarget.style.background = 'transparent'
+            }}
             aria-label="Toggle sidebar"
             onClick={toggleSidebar}
             title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             {sidebarCollapsed ? (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M6 4l6 8-6 8" />
                 <path d="M12 4l6 8-6 8" />
               </svg>
             ) : (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M18 4l-6 8 6 8" />
                 <path d="M12 4l-6 8 6 8" />
               </svg>
@@ -276,7 +312,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <div className="relative" ref={projMenuRef}>
               <button
                 className="h-8 px-3 rounded-lg text-[13px] font-medium transition-all duration-150"
-                style={{ background: 'var(--color-bg-tertiary)', border: '1px solid var(--color-border)', color: 'var(--color-text-secondary)' }}
+                style={{
+                  background: 'var(--color-bg-tertiary)',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text-secondary)'
+                }}
                 onClick={() => setProjMenuOpen((v) => !v)}
               >
                 {projectId}
@@ -325,7 +365,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
               aria-haspopup="menu"
               aria-expanded={createOpen}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+              >
+                <path d="M12 5v14M5 12h14" />
+              </svg>
               Create
             </button>
             {createOpen && (
@@ -339,10 +389,54 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   setCreateOpen(true)
                 }}
               >
-                <button className="dropdown-item" onClick={() => navigate(projectContext && projectId ? `/project/${projectId}/compute/instances` : '/projects')}>Instance</button>
-                <button className="dropdown-item" onClick={() => navigate(projectContext && projectId ? `/project/${projectId}/compute/k8s` : '/projects')}>Kubernetes</button>
-                <button className="dropdown-item" onClick={() => navigate(projectContext && projectId ? `/project/${projectId}/storage/volumes` : '/projects')}>Volume</button>
-                <button className="dropdown-item" onClick={() => navigate(projectContext && projectId ? `/project/${projectId}/network/vpc` : '/projects')}>VPC</button>
+                <button
+                  className="dropdown-item"
+                  onClick={() =>
+                    navigate(
+                      projectContext && projectId
+                        ? `/project/${projectId}/compute/instances`
+                        : '/projects'
+                    )
+                  }
+                >
+                  Instance
+                </button>
+                <button
+                  className="dropdown-item"
+                  onClick={() =>
+                    navigate(
+                      projectContext && projectId
+                        ? `/project/${projectId}/compute/k8s`
+                        : '/projects'
+                    )
+                  }
+                >
+                  Kubernetes
+                </button>
+                <button
+                  className="dropdown-item"
+                  onClick={() =>
+                    navigate(
+                      projectContext && projectId
+                        ? `/project/${projectId}/storage/volumes`
+                        : '/projects'
+                    )
+                  }
+                >
+                  Volume
+                </button>
+                <button
+                  className="dropdown-item"
+                  onClick={() =>
+                    navigate(
+                      projectContext && projectId
+                        ? `/project/${projectId}/network/vpc`
+                        : '/projects'
+                    )
+                  }
+                >
+                  VPC
+                </button>
               </div>
             )}
           </div>
@@ -351,13 +445,28 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <button
             className="h-8 w-8 grid place-items-center rounded-lg transition-all duration-150"
             style={{ color: 'var(--color-icon-muted)' }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-icon-hover)'; e.currentTarget.style.background = 'var(--color-bg-hover)' }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-icon-muted)'; e.currentTarget.style.background = 'transparent' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = 'var(--color-icon-hover)'
+              e.currentTarget.style.background = 'var(--color-bg-hover)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = 'var(--color-icon-muted)'
+              e.currentTarget.style.background = 'transparent'
+            }}
             aria-label="WebShell"
             onClick={() => navigate('/webshell')}
             title="WebShell"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M4 4h16v16H4z" />
               <path d="M7 9l3 3-3 3" />
               <path d="M12 16h5" />
@@ -368,20 +477,33 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <button
             className="relative h-8 w-8 grid place-items-center rounded-lg transition-all duration-150"
             style={{ color: 'var(--color-icon-muted)' }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-icon-hover)'; e.currentTarget.style.background = 'var(--color-bg-hover)' }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-icon-muted)'; e.currentTarget.style.background = 'transparent' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = 'var(--color-icon-hover)'
+              e.currentTarget.style.background = 'var(--color-bg-hover)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = 'var(--color-icon-muted)'
+              e.currentTarget.style.background = 'transparent'
+            }}
             aria-label="Notifications"
             title="Notifications"
             onClick={() => navigate('/notifications')}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M18 8a6 6 0 10-12 0c0 7-3 8-3 8h18s-3-1-3-8" />
               <path d="M13.73 21a2 2 0 01-3.46 0" />
             </svg>
             {unreadNotices > 0 && (
-              <span className="badge-count">
-                {unreadNotices > 9 ? '9+' : unreadNotices}
-              </span>
+              <span className="badge-count">{unreadNotices > 9 ? '9+' : unreadNotices}</span>
             )}
           </button>
 
@@ -389,8 +511,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <button
             className="h-8 px-2 rounded-lg text-[12px] font-semibold transition-all duration-150"
             style={{ color: 'var(--color-icon-muted)' }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-icon-hover)'; e.currentTarget.style.background = 'var(--color-bg-hover)' }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-icon-muted)'; e.currentTarget.style.background = 'transparent' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = 'var(--color-icon-hover)'
+              e.currentTarget.style.background = 'var(--color-bg-hover)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = 'var(--color-icon-muted)'
+              e.currentTarget.style.background = 'transparent'
+            }}
             onClick={() => {
               const next = i18n.language === 'en' ? 'zh' : 'en'
               i18n.changeLanguage(next)
@@ -404,8 +532,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <button
             className="h-8 w-8 grid place-items-center rounded-lg transition-all duration-150"
             style={{ color: 'var(--color-icon-muted)' }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-icon-hover)'; e.currentTarget.style.background = 'var(--color-bg-hover)' }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-icon-muted)'; e.currentTarget.style.background = 'transparent' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = 'var(--color-icon-hover)'
+              e.currentTarget.style.background = 'var(--color-bg-hover)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = 'var(--color-icon-muted)'
+              e.currentTarget.style.background = 'transparent'
+            }}
             onClick={() => {
               const nextTheme = resolvedTheme === 'dark' ? 'light' : 'dark'
               setTheme(nextTheme)
@@ -413,7 +547,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
             title={t('theme.switchTheme')}
           >
             {resolvedTheme === 'dark' ? (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <circle cx="12" cy="12" r="5" />
                 <line x1="12" y1="1" x2="12" y2="3" />
                 <line x1="12" y1="21" x2="12" y2="23" />
@@ -425,7 +568,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
               </svg>
             ) : (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
               </svg>
             )}
@@ -469,7 +621,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* ── Main content ─────────────────────────────────────── */}
-      <main className="p-6 space-y-6 overflow-y-auto" style={{ background: 'var(--color-bg-primary)' }}>{children}</main>
+      <main
+        className="p-6 space-y-6 overflow-y-auto"
+        style={{ background: 'var(--color-bg-primary)' }}
+      >
+        {children}
+      </main>
       <ToastContainer />
       <CommandPalette />
       <KeyboardShortcuts />
@@ -1256,14 +1413,32 @@ function NavIcon({ name, small }: { name: string; small?: boolean }) {
     ),
     // ── New icons for reorganized sidebar ────────────────────
     Security: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
         <rect x="10" y="10" width="4" height="5" rx="1" />
         <path d="M12 10V8a2 2 0 1 1 4 0" />
       </svg>
     ),
     'Service Offerings': (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
         <path d="M7.5 4.21l4.5 2.6 4.5-2.6" />
         <path d="M7.5 19.79V14.6L3 12" />
@@ -1273,13 +1448,31 @@ function NavIcon({ name, small }: { name: string; small?: boolean }) {
       </svg>
     ),
     Administration: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <circle cx="12" cy="12" r="3" />
         <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
       </svg>
     ),
     'High Availability': (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <rect x="2" y="3" width="8" height="6" rx="1" />
         <rect x="14" y="3" width="8" height="6" rx="1" />
         <rect x="8" y="15" width="8" height="6" rx="1" />
@@ -1287,32 +1480,77 @@ function NavIcon({ name, small }: { name: string; small?: boolean }) {
       </svg>
     ),
     'Disaster Recovery': (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
         <path d="M9 12l2 2 4-4" />
         <path d="M17 1l2 2-2 2" />
       </svg>
     ),
     'Self-Healing': (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path d="M19.5 12.572l-7.5 7.428-7.5-7.428A5 5 0 1 1 12 6.006a5 5 0 1 1 7.5 6.566z" />
         <path d="M12 10v4M10 12h4" />
       </svg>
     ),
     'Bare Metal': (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <rect x="4" y="4" width="16" height="16" rx="2" />
         <rect x="8" y="8" width="8" height="8" />
         <path d="M8 2v2M16 2v2M8 20v2M16 20v2M2 8h2M2 16h2M20 8h2M20 16h2" />
       </svg>
     ),
     'Auto Scale': (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
       </svg>
     ),
     'Affinity Groups': (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <circle cx="7" cy="6" r="3" />
         <circle cx="17" cy="6" r="3" />
         <circle cx="12" cy="16" r="3" />
@@ -1320,28 +1558,64 @@ function NavIcon({ name, small }: { name: string; small?: boolean }) {
       </svg>
     ),
     Compliance: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
         <rect x="9" y="3" width="6" height="4" rx="1" />
         <path d="M9 14l2 2 4-4" />
       </svg>
     ),
     'Rate Limiting': (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <circle cx="12" cy="12" r="9" />
         <path d="M12 7v5l3 3" />
         <path d="M5 3L2 6M22 6l-3-3" />
       </svg>
     ),
     'Data Encryption': (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <rect x="3" y="11" width="18" height="10" rx="2" />
         <path d="M7 11V7a5 5 0 0 1 10 0v4" />
         <circle cx="12" cy="16" r="1" />
       </svg>
     ),
     'Key Management': (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <circle cx="7.5" cy="15.5" r="5.5" />
         <path d="M11.5 11.5L21 2" />
         <path d="M17 6h4v4" />
@@ -1349,7 +1623,16 @@ function NavIcon({ name, small }: { name: string; small?: boolean }) {
       </svg>
     ),
     'Platform Services': (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <rect x="4" y="2" width="16" height="6" rx="1" />
         <rect x="4" y="10" width="16" height="6" rx="1" />
         <rect x="4" y="18" width="16" height="4" rx="1" />
@@ -1358,21 +1641,48 @@ function NavIcon({ name, small }: { name: string; small?: boolean }) {
       </svg>
     ),
     Webhooks: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path d="M18 16.98h-5.99c-1.1 0-1.95.94-2.48 1.9A4 4 0 0 1 2 17c.01-.7.2-1.4.57-2" />
         <path d="M6 17a4 4 0 0 1 3.33-5.95 4 4 0 0 1 7.17-1.37" />
         <path d="M14.18 8.01A4 4 0 0 1 22 11c0 .7-.19 1.4-.56 2l-3 5.17" />
       </svg>
     ),
     'Usage & Billing': (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <rect x="3" y="4" width="18" height="16" rx="2" />
         <path d="M3 10h18" />
         <path d="M7 15h2M13 15h4" />
       </svg>
     ),
     'Service Catalog': (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <rect x="3" y="3" width="7" height="7" rx="1" />
         <rect x="14" y="3" width="7" height="7" rx="1" />
         <rect x="3" y="14" width="7" height="7" rx="1" />
@@ -1381,19 +1691,46 @@ function NavIcon({ name, small }: { name: string; small?: boolean }) {
       </svg>
     ),
     Schedules: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <rect x="3" y="4" width="18" height="18" rx="2" />
         <path d="M16 2v4M8 2v4M3 10h18" />
         <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01" />
       </svg>
     ),
     Firecracker: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
       </svg>
     ),
     Networks: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <circle cx="6" cy="12" r="3" />
         <circle cx="18" cy="6" r="3" />
         <circle cx="18" cy="18" r="3" />
@@ -1402,7 +1739,16 @@ function NavIcon({ name, small }: { name: string; small?: boolean }) {
       </svg>
     ),
     Routers: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <rect x="2" y="10" width="20" height="8" rx="2" />
         <path d="M6 10V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4" />
         <circle cx="8" cy="14" r="1" />
@@ -1410,19 +1756,46 @@ function NavIcon({ name, small }: { name: string; small?: boolean }) {
       </svg>
     ),
     ISOs: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <circle cx="12" cy="12" r="8" />
         <circle cx="12" cy="12" r="2" />
       </svg>
     ),
     'Kubernetes ISO': (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <polygon points="12 2 19 7 19 17 12 22 5 17 5 7" />
         <circle cx="12" cy="12" r="2" />
       </svg>
     ),
     Projects: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path d="M3 7h5l2 2h11v11H3z" />
       </svg>
     )

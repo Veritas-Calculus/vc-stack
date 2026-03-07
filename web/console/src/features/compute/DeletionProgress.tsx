@@ -171,7 +171,7 @@ export function DeletionProgress({ instanceIds, onComplete, onClose }: DeletionP
   const progress = ((completedCount + failedCount) / instanceIds.length) * 100
 
   return (
-    <Modal open={true} onClose={polling ? () => { } : onClose} title="Deleting Instances">
+    <Modal open={true} onClose={polling ? () => {} : onClose} title="Deleting Instances">
       <div className="space-y-4">
         {/* Progress bar */}
         <div className="space-y-2">

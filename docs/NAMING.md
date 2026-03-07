@@ -94,22 +94,25 @@ valid := naming.IsValidID("i-7fa3b2c4d5e6")  // true
 All resource names are validated using three modes:
 
 ### General Mode (`ModeGeneral`)
+
 - **Use for**: VM names, network names, volume names, descriptions
 - **Rules**: 1-255 characters, starts with letter/digit, allows UTF-8, spaces, `_.@#&()-`
 - **XSS/injection check**: Rejects `<script`, `javascript:`
 - **Example**: `"Web Server 01"`, `"生产环境-DB"`
 
 ### DNS-Safe Mode (`ModeDNSSafe`)
+
 - **Use for**: Hostnames, slugs, DNS record names
 - **Rules**: 1-63 characters, lowercase alphanumeric + hyphens, no leading/trailing hyphens
 - **Example**: `"web-server-01"`, `"db-primary"`
 
 ### Identifier Mode (`ModeIdentifier`)
+
 - **Use for**: Flavor names, zone names, offering names
 - **Rules**: 1-63 characters, starts with letter, `[a-zA-Z0-9_.-]`
 - **Example**: `"m1.xlarge"`, `"zone-core"`, `"MyFlavor_v2"`
 
-### Usage
+### Validation Usage
 
 ```go
 import "github.com/Veritas-Calculus/vc-stack/pkg/naming"
@@ -153,6 +156,7 @@ When creating a resource, the `name` field is generated automatically if empty:
 ### Supported Resources
 
 Auto-name is currently integrated for:
+
 - **Network** — prefix `net`
 - **Router** — prefix `rtr`
 

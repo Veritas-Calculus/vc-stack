@@ -94,7 +94,10 @@ function Volumes() {
           <a
             href={`volumes/${r.id}`}
             className="text-blue-400 hover:text-blue-300 hover:underline"
-            onClick={(e) => { e.preventDefault(); window.location.hash = `volumes/${r.id}` }}
+            onClick={(e) => {
+              e.preventDefault()
+              window.location.hash = `volumes/${r.id}`
+            }}
           >
             {r.name}
           </a>
@@ -315,7 +318,7 @@ function Snapshots() {
   const { projectId } = useParams()
   const [rows, setRows] = useState<UIVolumeSnapshot[]>([])
   useEffect(() => {
-    ; (async () => setRows(await fetchVolumeSnapshots(projectId)))()
+    ;(async () => setRows(await fetchVolumeSnapshots(projectId)))()
   }, [projectId])
   const cols: Column<(typeof rows)[number]>[] = [
     { key: 'name', header: 'Name' },
@@ -408,7 +411,7 @@ function Backups() {
   const { projectId } = useParams()
   const [rows, setRows] = useState<UIAudit[]>([])
   useEffect(() => {
-    ; (async () => setRows(await fetchAudit(projectId, { resource: 'snapshot' })))()
+    ;(async () => setRows(await fetchAudit(projectId, { resource: 'snapshot' })))()
   }, [projectId])
   const cols: Column<UIAudit>[] = [
     { key: 'id', header: 'ID' },

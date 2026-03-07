@@ -276,8 +276,6 @@ export function getProjectSections(projectId: string): SidebarSection[] {
 export function shouldExpandGroup(group: GroupItem, pathname: string): boolean {
   return (
     pathname.startsWith(group.base) ||
-    group.children.some(
-      (c) => pathname === c.to || pathname.startsWith(c.to + '/')
-    )
+    group.children.some((c) => pathname === c.to || pathname.startsWith(c.to + '/'))
   )
 }

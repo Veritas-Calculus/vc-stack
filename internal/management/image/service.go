@@ -15,7 +15,7 @@ import (
 	"gorm.io/gorm"
 
 	apierrors "github.com/Veritas-Calculus/vc-stack/pkg/errors"
-	. "github.com/Veritas-Calculus/vc-stack/pkg/models" 
+	. "github.com/Veritas-Calculus/vc-stack/pkg/models"
 )
 
 // CreateImageRequest represents the request body for creating an image.

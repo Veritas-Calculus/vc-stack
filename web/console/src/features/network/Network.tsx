@@ -301,12 +301,19 @@ function NetworksPage() {
                     <div className="flex items-center gap-1.5 mt-0.5">
                       <div className="flex-1 h-1.5 bg-gray-700 rounded-full overflow-hidden max-w-[80px]">
                         <div
-                          className={`h-full rounded-full transition-all ${stat.percent > 90 ? 'bg-red-500' : stat.percent > 70 ? 'bg-yellow-500' : 'bg-emerald-500'
-                            }`}
+                          className={`h-full rounded-full transition-all ${
+                            stat.percent > 90
+                              ? 'bg-red-500'
+                              : stat.percent > 70
+                                ? 'bg-yellow-500'
+                                : 'bg-emerald-500'
+                          }`}
                           style={{ width: `${Math.min(stat.percent, 100)}%` }}
                         />
                       </div>
-                      <span className="text-gray-500">{stat.allocated}/{stat.total}</span>
+                      <span className="text-gray-500">
+                        {stat.allocated}/{stat.total}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -535,16 +542,18 @@ function NetworksPage() {
                 onClick={() => {
                   if (s.n < step) setStep(s.n)
                 }}
-                className={`flex items-center gap-1.5 text-xs font-medium ${step === s.n
-                  ? 'text-blue-400'
-                  : step > s.n
-                    ? 'text-gray-300 cursor-pointer hover:text-blue-300'
-                    : 'text-gray-500 cursor-default'
-                  }`}
+                className={`flex items-center gap-1.5 text-xs font-medium ${
+                  step === s.n
+                    ? 'text-blue-400'
+                    : step > s.n
+                      ? 'text-gray-300 cursor-pointer hover:text-blue-300'
+                      : 'text-gray-500 cursor-default'
+                }`}
               >
                 <span
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold ${step >= s.n ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400'
-                    }`}
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold ${
+                    step >= s.n ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400'
+                  }`}
                 >
                   {s.n}
                 </span>
@@ -765,10 +774,11 @@ function NetworksPage() {
                     <button
                       key={tpl.cidr}
                       type="button"
-                      className={`text-xs px-2 py-0.5 rounded border transition-colors ${cidr === tpl.cidr
-                        ? 'border-blue-500 bg-blue-500/20 text-blue-300'
-                        : 'border-gray-600 text-gray-400 hover:border-gray-500 hover:text-gray-300'
-                        }`}
+                      className={`text-xs px-2 py-0.5 rounded border transition-colors ${
+                        cidr === tpl.cidr
+                          ? 'border-blue-500 bg-blue-500/20 text-blue-300'
+                          : 'border-gray-600 text-gray-400 hover:border-gray-500 hover:text-gray-300'
+                      }`}
                       onClick={() => setCidr(tpl.cidr)}
                     >
                       {tpl.label}
@@ -996,7 +1006,9 @@ function NetworksPage() {
                 {/* Network DB Info */}
                 {diagnoseData.network && (
                   <div>
-                    <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Network</h4>
+                    <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
+                      Network
+                    </h4>
                     <div className="p-2 bg-gray-800/50 rounded text-xs font-mono text-gray-300 overflow-x-auto">
                       <div>ID: {diagnoseData.network.id}</div>
                       <div>Status: {diagnoseData.network.status}</div>
@@ -1008,7 +1020,9 @@ function NetworksPage() {
                 {/* OVN State */}
                 {diagnoseData.ovn && (
                   <div>
-                    <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">OVN State</h4>
+                    <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
+                      OVN State
+                    </h4>
                     <pre className="p-2 bg-gray-800/50 rounded text-xs font-mono text-gray-300 overflow-x-auto whitespace-pre-wrap">
                       {JSON.stringify(diagnoseData.ovn, null, 2)}
                     </pre>
@@ -1028,7 +1042,9 @@ function NetworksPage() {
                 {/* Expected OVN Names */}
                 {diagnoseData.expected && (
                   <div>
-                    <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Expected OVN Objects</h4>
+                    <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
+                      Expected OVN Objects
+                    </h4>
                     <pre className="p-2 bg-gray-800/50 rounded text-xs font-mono text-gray-300 overflow-x-auto whitespace-pre-wrap">
                       {JSON.stringify(diagnoseData.expected, null, 2)}
                     </pre>
@@ -1359,18 +1375,20 @@ function ACLPage() {
                       <td className="py-1.5 pr-3 text-gray-500">{rule.number}</td>
                       <td className="py-1.5 pr-3">
                         <span
-                          className={`px-1.5 py-0.5 rounded text-xs border ${rule.direction === 'ingress'
-                            ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
-                            : 'bg-purple-500/15 text-purple-400 border-purple-500/30'
-                            }`}
+                          className={`px-1.5 py-0.5 rounded text-xs border ${
+                            rule.direction === 'ingress'
+                              ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
+                              : 'bg-purple-500/15 text-purple-400 border-purple-500/30'
+                          }`}
                         >
                           {rule.direction}
                         </span>
                       </td>
                       <td className="py-1.5 pr-3">
                         <span
-                          className={`text-xs font-medium ${rule.action === 'allow' ? 'text-emerald-400' : 'text-red-400'
-                            }`}
+                          className={`text-xs font-medium ${
+                            rule.action === 'allow' ? 'text-emerald-400' : 'text-red-400'
+                          }`}
                         >
                           {rule.action.toUpperCase()}
                         </span>

@@ -228,19 +228,103 @@ export default function App() {
                 {/* Global Infrastructure */}
                 <Route path="/infrastructure/*" element={<Infrastructure />} />
                 {/* ── Project-scoped routes (all wrapped in ProjectContextSetter) ── */}
-                <Route path="/project/:projectId/dashboard" element={<ProjectContextSetter><Dashboard /></ProjectContextSetter>} />
-                <Route path="/project/:projectId/network/sg" element={<ProjectContextSetter><SecurityGroups /></ProjectContextSetter>} />
-                <Route path="/project/:projectId/infrastructure/*" element={<ProjectContextSetter><Infrastructure /></ProjectContextSetter>} />
+                <Route
+                  path="/project/:projectId/dashboard"
+                  element={
+                    <ProjectContextSetter>
+                      <Dashboard />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/network/sg"
+                  element={
+                    <ProjectContextSetter>
+                      <SecurityGroups />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/infrastructure/*"
+                  element={
+                    <ProjectContextSetter>
+                      <Infrastructure />
+                    </ProjectContextSetter>
+                  }
+                />
                 <Route path="/projects/*" element={<Projects />} />
-                <Route path="/project/:projectId" element={<ProjectContextSetter><Project /></ProjectContextSetter>} />
-                <Route path="/project/:projectId/images" element={<ProjectContextSetter><Images /></ProjectContextSetter>} />
-                <Route path="/project/:projectId/utilization" element={<ProjectContextSetter><Utilization /></ProjectContextSetter>} />
-                <Route path="/project/:projectId/images/templates" element={<ProjectContextSetter><Templates /></ProjectContextSetter>} />
-                <Route path="/project/:projectId/images/iso" element={<ProjectContextSetter><Isos /></ProjectContextSetter>} />
-                <Route path="/project/:projectId/images/k8s-iso" element={<ProjectContextSetter><K8sIsos /></ProjectContextSetter>} />
-                <Route path="/project/:projectId/compute/*" element={<ProjectContextSetter><Compute /></ProjectContextSetter>} />
-                <Route path="/project/:projectId/network/*" element={<ProjectContextSetter><Network /></ProjectContextSetter>} />
-                <Route path="/project/:projectId/storage/*" element={<ProjectContextSetter><Storage /></ProjectContextSetter>} />
+                <Route
+                  path="/project/:projectId"
+                  element={
+                    <ProjectContextSetter>
+                      <Project />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/images"
+                  element={
+                    <ProjectContextSetter>
+                      <Images />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/utilization"
+                  element={
+                    <ProjectContextSetter>
+                      <Utilization />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/images/templates"
+                  element={
+                    <ProjectContextSetter>
+                      <Templates />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/images/iso"
+                  element={
+                    <ProjectContextSetter>
+                      <Isos />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/images/k8s-iso"
+                  element={
+                    <ProjectContextSetter>
+                      <K8sIsos />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/compute/*"
+                  element={
+                    <ProjectContextSetter>
+                      <Compute />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/network/*"
+                  element={
+                    <ProjectContextSetter>
+                      <Network />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/storage/*"
+                  element={
+                    <ProjectContextSetter>
+                      <Storage />
+                    </ProjectContextSetter>
+                  }
+                />
                 <Route path="/settings/*" element={<SettingsIndex />} />
                 <Route path="/notifications" element={<Notifications />} />
               </Routes>
