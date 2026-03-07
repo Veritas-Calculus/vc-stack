@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { useState, useEffect, useCallback } from 'react'
 import api from '@/lib/api'
+import { Icons } from '@/components/ui/Icons'
 
 interface EncryptionProfile {
     id: number
@@ -165,10 +166,10 @@ export function DataEncryption() {
                 <div className="space-y-6">
                     <div className="grid grid-cols-4 gap-4">
                         {[
-                            { label: 'Encrypted Volumes', value: `${status.encrypted_volumes}/${status.total_volumes}`, color: 'text-emerald-400', icon: '🔒' },
-                            { label: 'Encryption %', value: `${Number(status.encryption_pct || 0).toFixed(0)}%`, color: Number(status.encryption_pct || 0) > 80 ? 'text-emerald-400' : 'text-amber-400', icon: '📊' },
-                            { label: 'mTLS Certs', value: String(status.mtls_certificates), color: 'text-blue-400', icon: '📜' },
-                            { label: 'Profiles', value: String(status.encryption_profiles), color: 'text-purple-400', icon: '🛡️' },
+                            { label: 'Encrypted Volumes', value: `${status.encrypted_volumes}/${status.total_volumes}`, color: 'text-emerald-400', icon: Icons.lock('w-5 h-5') },
+                            { label: 'Encryption %', value: `${Number(status.encryption_pct || 0).toFixed(0)}%`, color: Number(status.encryption_pct || 0) > 80 ? 'text-emerald-400' : 'text-amber-400', icon: Icons.chart('w-5 h-5') },
+                            { label: 'mTLS Certs', value: String(status.mtls_certificates), color: 'text-blue-400', icon: Icons.shield('w-5 h-5') },
+                            { label: 'Profiles', value: String(status.encryption_profiles), color: 'text-purple-400', icon: Icons.shieldCheck('w-5 h-5') },
                         ].map(s => (
                             <div key={s.label} className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5">
                                 <div className="flex items-center gap-2 text-gray-400 text-sm mb-2"><span>{s.icon}</span> {s.label}</div>
@@ -226,19 +227,19 @@ export function DataEncryption() {
                         <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-3">Envelope Encryption Architecture</h3>
                         <div className="flex items-center gap-4 text-sm text-gray-400 justify-center py-4">
                             <div className="text-center p-3 border border-gray-600 rounded-lg">
-                                <div className="text-xl mb-1">🔑</div>
+                                <div className="mb-1 text-blue-400">{Icons.key('w-5 h-5')}</div>
                                 <div className="text-white font-medium">Master Key (KEK)</div>
                                 <div className="text-xs">KMS-managed</div>
                             </div>
                             <span className="text-gray-500 text-xl">→</span>
                             <div className="text-center p-3 border border-gray-600 rounded-lg">
-                                <div className="text-xl mb-1">🗝️</div>
+                                <div className="mb-1 text-purple-400">{Icons.lock('w-5 h-5')}</div>
                                 <div className="text-white font-medium">Data Encryption Key</div>
                                 <div className="text-xs">Per-volume DEK</div>
                             </div>
                             <span className="text-gray-500 text-xl">→</span>
                             <div className="text-center p-3 border border-gray-600 rounded-lg">
-                                <div className="text-xl mb-1">💾</div>
+                                <div className="mb-1 text-emerald-400">{Icons.drive('w-5 h-5')}</div>
                                 <div className="text-white font-medium">LUKS2 Volume</div>
                                 <div className="text-xs">AES-XTS encrypted</div>
                             </div>
@@ -281,7 +282,7 @@ export function DataEncryption() {
                     <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl overflow-hidden">
                         {encVolumes.length === 0 ? (
                             <div className="text-center py-12">
-                                <div className="text-4xl mb-3">🔓</div>
+                                <div className="mb-3 text-gray-500">{Icons.unlock('w-10 h-10')}</div>
                                 <p className="text-gray-400">No encrypted volumes</p>
                                 <p className="text-gray-500 text-sm mt-1">Enable encryption on volumes through the Storage page or API</p>
                             </div>
@@ -357,7 +358,7 @@ export function DataEncryption() {
                         {compliance.checks.map((ch, i) => (
                             <div key={i} className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5 flex items-center gap-4">
                                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg ${ch.status === 'pass' ? 'bg-emerald-500/20' : ch.status === 'fail' ? 'bg-red-500/20' : 'bg-amber-500/20'}`}>
-                                    {ch.status === 'pass' ? '✅' : ch.status === 'fail' ? '❌' : '⚠️'}
+                                    {ch.status === 'pass' ? Icons.checkCircle('w-4 h-4 text-emerald-400') : ch.status === 'fail' ? Icons.xCircle('w-4 h-4 text-red-400') : Icons.warning('w-4 h-4 text-amber-400')}
                                 </div>
                                 <div className="flex-1">
                                     <div className="text-white font-medium">{ch.name}</div>

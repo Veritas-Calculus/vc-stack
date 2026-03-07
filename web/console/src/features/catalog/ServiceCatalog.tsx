@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import api from '@/lib/api'
+import { Icons } from '@/components/ui/Icons'
 
 interface Category { id: string; name: string; icon: string; description: string; item_count: number }
 interface CatalogItem { id: string; category_id: string; name: string; display_name: string; description: string; icon: string; price_unit: string; price_amount: number; specs: string; tags: string; provision_type: string; status: string; featured: boolean; popular: boolean; deployments: number }
@@ -104,7 +105,7 @@ export function ServiceCatalog() {
                                     <div className="flex-1">
                                         <div className="flex items-center gap-2">
                                             <h3 className="text-white font-bold">{item.display_name}</h3>
-                                            {item.featured && <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-400">★</span>}
+                                            {item.featured && <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-400">Featured</span>}
                                         </div>
                                         <p className="text-gray-400 text-xs mt-1 line-clamp-2">{item.description}</p>
                                     </div>
@@ -114,7 +115,7 @@ export function ServiceCatalog() {
                                     <div className="flex items-center gap-2 text-xs">
                                         <span className="text-gray-500">{item.deployments} deployed</span>
                                         <span className={`px-2 py-0.5 rounded ${provisionBadge(item.provision_type)}`}>
-                                            {item.provision_type === 'instant' ? '⚡ Instant' : '📋 Approval'}
+                                            {item.provision_type === 'instant' ? <span className="inline-flex items-center gap-1">{Icons.bolt('w-3 h-3')} Instant</span> : <span className="inline-flex items-center gap-1">{Icons.pencil('w-3 h-3')} Approval</span>}
                                         </span>
                                     </div>
                                 </div>
@@ -138,7 +139,7 @@ export function ServiceCatalog() {
                                 </div>
                             </div>
                             <button onClick={() => doRequest(selectedItem)} className="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-500 transition">
-                                {selectedItem.provision_type === 'instant' ? '⚡ Deploy Now' : '📋 Request'}
+                                {selectedItem.provision_type === 'instant' ? <span className="inline-flex items-center gap-1">{Icons.bolt('w-3 h-3')} Deploy Now</span> : <span className="inline-flex items-center gap-1">{Icons.pencil('w-3 h-3')} Request</span>}
                             </button>
                         </div>
                         <div className="grid grid-cols-3 gap-4">
@@ -190,7 +191,7 @@ export function ServiceCatalog() {
                 <div>
                     {requests.length === 0 ? (
                         <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl text-center py-16">
-                            <div className="text-5xl mb-4">📋</div>
+                            <div className="mb-4 text-gray-500">{Icons.pencil('w-12 h-12')}</div>
                             <p className="text-gray-400 text-lg">No service requests</p>
                             <p className="text-gray-500 text-sm mt-1">Browse the catalog and request services</p>
                         </div>

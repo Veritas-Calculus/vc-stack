@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import api from '@/lib/api'
+import { Icons } from '@/components/ui/Icons'
 
 type Tab = 'registry' | 'config' | 'eventbus'
 
@@ -74,10 +75,15 @@ export function PlatformSettings() {
         return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-gray-400'}`
     }
 
-    const tabs: { key: Tab; label: string; icon: string }[] = [
-        { key: 'registry', label: 'Service Registry', icon: '🔍' },
-        { key: 'config', label: 'Config Center', icon: '⚙️' },
-        { key: 'eventbus', label: 'Event Bus', icon: '📡' },
+    const tabIcons: Record<Tab, JSX.Element> = {
+        registry: Icons.search('w-4 h-4'),
+        config: Icons.gear('w-4 h-4'),
+        eventbus: Icons.antenna('w-4 h-4'),
+    }
+    const tabs: { key: Tab; label: string }[] = [
+        { key: 'registry', label: 'Service Registry' },
+        { key: 'config', label: 'Config Center' },
+        { key: 'eventbus', label: 'Event Bus' },
     ]
 
     return (
@@ -92,7 +98,7 @@ export function PlatformSettings() {
             <div className="flex gap-1 mb-6 bg-gray-800/40 p-1 rounded-lg w-fit">
                 {tabs.map(t => (
                     <button key={t.key} onClick={() => setTab(t.key)} className={`px-4 py-2 rounded-md text-sm font-medium transition flex items-center gap-2 ${tab === t.key ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200'}`}>
-                        <span>{t.icon}</span>{t.label}
+                        {tabIcons[t.key]}{t.label}
                     </button>
                 ))}
             </div>
@@ -143,10 +149,10 @@ export function PlatformSettings() {
                             <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Topology</h3>
                             {topology.map(region => (
                                 <div key={String((region as Record<string, unknown>).region)} className="mb-4">
-                                    <div className="text-cyan-400 font-medium text-sm mb-2">🌐 {String((region as Record<string, unknown>).region)}</div>
+                                    <div className="text-cyan-400 font-medium text-sm mb-2 flex items-center gap-1.5">{Icons.globe('w-4 h-4')} {String((region as Record<string, unknown>).region)}</div>
                                     {((region as Record<string, unknown>).zones as Record<string, unknown>[])?.map(zone => (
                                         <div key={String(zone.zone)} className="ml-4 mb-2">
-                                            <div className="text-amber-400 text-xs mb-1">📍 {String(zone.zone)}</div>
+                                            <div className="text-amber-400 text-xs mb-1 flex items-center gap-1">{Icons.mapPin('w-3 h-3')} {String(zone.zone)}</div>
                                             {(zone.instances as Record<string, unknown>[])?.map(inst => (
                                                 <div key={String(inst.id)} className="ml-4 flex items-center gap-2 text-xs text-gray-400 py-0.5">
                                                     <span className={badge(String(inst.status))}>{String(inst.status)}</span>
@@ -169,10 +175,10 @@ export function PlatformSettings() {
                     {cfgStatus && (
                         <div className="grid grid-cols-4 gap-4">
                             {[
-                                { label: 'Namespaces', value: String(cfgStatus.namespaces), icon: '📁' },
-                                { label: 'Config Items', value: String(cfgStatus.items), icon: '⚙️' },
-                                { label: 'Secrets', value: String(cfgStatus.secrets), icon: '🔑' },
-                                { label: 'Changes', value: String(cfgStatus.changes), icon: '📝' },
+                                { label: 'Namespaces', value: String(cfgStatus.namespaces), icon: Icons.folder('w-4 h-4') },
+                                { label: 'Config Items', value: String(cfgStatus.items), icon: Icons.gear('w-4 h-4') },
+                                { label: 'Secrets', value: String(cfgStatus.secrets), icon: Icons.key('w-4 h-4') },
+                                { label: 'Changes', value: String(cfgStatus.changes), icon: Icons.pencil('w-4 h-4') },
                             ].map(s => (
                                 <div key={s.label} className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-4">
                                     <div className="flex items-center gap-2 text-gray-400 text-xs mb-2"><span>{s.icon}</span> {s.label}</div>
@@ -216,13 +222,13 @@ export function PlatformSettings() {
                                                     {Boolean(item.required) && <span className="ml-1 text-red-400 text-xs">*</span>}
                                                 </td>
                                                 <td className="py-2 pr-4 text-white font-mono text-xs">
-                                                    {Boolean(item.encrypted) ? <span className="text-amber-400">🔒 ****</span> : String(item.value)}
+                                                    {Boolean(item.encrypted) ? <span className="text-amber-400 inline-flex items-center gap-1">{Icons.lock('w-3 h-3')} ****</span> : String(item.value)}
                                                 </td>
                                                 <td className="py-2 pr-4">
                                                     <span className={`px-2 py-0.5 rounded text-xs ${String(item.value_type) === 'secret' ? 'bg-red-500/20 text-red-400' :
-                                                            String(item.value_type) === 'bool' ? 'bg-purple-500/20 text-purple-400' :
-                                                                String(item.value_type) === 'int' ? 'bg-blue-500/20 text-blue-400' :
-                                                                    'bg-gray-500/20 text-gray-400'
+                                                        String(item.value_type) === 'bool' ? 'bg-purple-500/20 text-purple-400' :
+                                                            String(item.value_type) === 'int' ? 'bg-blue-500/20 text-blue-400' :
+                                                                'bg-gray-500/20 text-gray-400'
                                                         }`}>{String(item.value_type)}</span>
                                                 </td>
                                                 <td className="py-2 text-gray-500">v{String(item.version)}</td>
@@ -244,11 +250,11 @@ export function PlatformSettings() {
                     {ebStatus && (
                         <div className="grid grid-cols-5 gap-4">
                             {[
-                                { label: 'Topics', value: String(ebStatus.topics), icon: '📢' },
-                                { label: 'Subscriptions', value: String(ebStatus.active_subscriptions), icon: '🔗' },
-                                { label: 'Total Events', value: String(ebStatus.total_events), icon: '📨' },
-                                { label: 'Pending', value: String(ebStatus.pending_events), icon: '⏳' },
-                                { label: 'Delivered', value: String(ebStatus.total_delivered), icon: '✅' },
+                                { label: 'Topics', value: String(ebStatus.topics), icon: Icons.megaphone('w-4 h-4') },
+                                { label: 'Subscriptions', value: String(ebStatus.active_subscriptions), icon: Icons.link('w-4 h-4') },
+                                { label: 'Total Events', value: String(ebStatus.total_events), icon: Icons.envelope('w-4 h-4') },
+                                { label: 'Pending', value: String(ebStatus.pending_events), icon: Icons.clock('w-4 h-4') },
+                                { label: 'Delivered', value: String(ebStatus.total_delivered), icon: Icons.checkCircle('w-4 h-4') },
                             ].map(s => (
                                 <div key={s.label} className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-4">
                                     <div className="flex items-center gap-2 text-gray-400 text-xs mb-2"><span>{s.icon}</span> {s.label}</div>
@@ -260,7 +266,7 @@ export function PlatformSettings() {
 
                     <div className="grid grid-cols-2 gap-6">
                         <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-6">
-                            <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">📢 Topics</h3>
+                            <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4 flex items-center gap-2">{Icons.megaphone('w-4 h-4')} Topics</h3>
                             <div className="space-y-3">
                                 {topics.map(t => (
                                     <div key={String(t.id)} className="bg-gray-700/20 rounded-lg p-3">
@@ -270,8 +276,8 @@ export function PlatformSettings() {
                                         </div>
                                         <div className="text-gray-500 text-xs">{String(t.description)}</div>
                                         <div className="flex gap-3 mt-1 text-xs text-gray-600">
-                                            <span>⏱ {String(t.retention_hours)}h retention</span>
-                                            <span>🔀 {String(t.partitions)} partitions</span>
+                                            <span className="inline-flex items-center gap-1">{Icons.clock('w-3 h-3')} {String(t.retention_hours)}h retention</span>
+                                            <span className="inline-flex items-center gap-1">{Icons.arrowsRightLeft('w-3 h-3')} {String(t.partitions)} partitions</span>
                                         </div>
                                     </div>
                                 ))}
@@ -279,7 +285,7 @@ export function PlatformSettings() {
                         </div>
 
                         <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-6">
-                            <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">🔗 Subscriptions</h3>
+                            <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4 flex items-center gap-2">{Icons.link('w-4 h-4')} Subscriptions</h3>
                             <div className="space-y-3">
                                 {subs.map(s => (
                                     <div key={String(s.id)} className="bg-gray-700/20 rounded-lg p-3">

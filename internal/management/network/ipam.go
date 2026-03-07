@@ -89,6 +89,36 @@ func (i *IPAM) Release(subnetID, ip, portID string) error {
 	return q.Delete(&IPAllocation{}).Error
 }
 
+// PoolSize returns the total number of allocatable IPs in a subnet's pool.
+func (i *IPAM) PoolSize(subnet *Subnet) int {
+	_, ipnet, err := net.ParseCIDR(subnet.CIDR)
+	if err != nil {
+		return 0
+	}
+	begin := firstUsableIP(ipnet, subnet.AllocationStart)
+	for k := 0; k < i.opt.ReservedFirst; k++ {
+		begin = nextIP(begin)
+	}
+	cutoff := lastUsableIP(ipnet, subnet.AllocationEnd)
+	for k := 0; k < i.opt.ReservedLast; k++ {
+		cutoff = prevIP(cutoff)
+	}
+	count := 0
+	for ip := begin; ipnet.Contains(ip) && compareIP(ip, cutoff) <= 0; ip = nextIP(ip) {
+		if subnet.AllocationEnd != "" && compareIP(ip, net.ParseIP(subnet.AllocationEnd)) > 0 {
+			break
+		}
+		if isNetworkOrBroadcast(ip, ipnet) {
+			continue
+		}
+		if i.opt.ReserveGateway && subnet.Gateway != "" && ip.Equal(net.ParseIP(subnet.Gateway)) {
+			continue
+		}
+		count++
+	}
+	return count
+}
+
 // Helpers.
 func firstUsableIP(n *net.IPNet, start string) net.IP {
 	if start != "" {

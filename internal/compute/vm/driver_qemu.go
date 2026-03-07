@@ -554,6 +554,102 @@ func (d *qemuDriver) RebootVM(id string, force bool) error {
 	return nil
 }
 
+// ResizeVM adjusts vCPUs and/or memory for a VM.
+// For the new QEMU driver this updates the config (requires restart for full effect).
+// For the legacy driver, it uses QMP commands for live hot-plug when possible,
+// and falls back to a stop-reconfigure-start cycle for cold resize.
+func (d *qemuDriver) ResizeVM(id string, vcpus, memoryMB int) error {
+	var err error
+	id, err = validateVMID(id)
+	if err != nil {
+		return err
+	}
+
+	if vcpus <= 0 && memoryMB <= 0 {
+		return fmt.Errorf("at least one of vcpus or memory_mb must be specified")
+	}
+
+	// New QEMU driver: update stored config.
+	// The VM must be restarted for changes to fully take effect.
+	if d.useNewDrv {
+		cfg, err := d.qemuDrv.GetConfig(id)
+		if err != nil {
+			return fmt.Errorf("get vm config: %w", err)
+		}
+		if vcpus > 0 {
+			cfg.VCPUs = vcpus
+		}
+		if memoryMB > 0 {
+			cfg.MemoryMB = memoryMB
+		}
+		if err := d.qemuDrv.UpdateConfig(id, cfg); err != nil {
+			return fmt.Errorf("update vm config: %w", err)
+		}
+
+		// If VM is running, stop and restart with new config.
+		isRunning, _ := d.qemuDrv.IsRunning(id)
+		if isRunning {
+			ctx := context.Background()
+			if err := d.qemuDrv.StopVM(ctx, id, false); err != nil {
+				return fmt.Errorf("stop vm for resize: %w", err)
+			}
+			// Short wait for clean shutdown.
+			time.Sleep(2 * time.Second)
+			if err := d.qemuDrv.StartVM(ctx, id); err != nil {
+				return fmt.Errorf("restart vm after resize: %w", err)
+			}
+		}
+		return nil
+	}
+
+	// Legacy driver: try QMP live-resize, fallback to cold resize.
+	qmpPath := filepath.Join(d.runDir, id+".qmp")
+	if _, statErr := os.Stat(qmpPath); statErr != nil {
+		// Try from metadata.
+		if mb, err := os.ReadFile(d.metaPath(id)); err == nil {
+			var m vmMeta
+			if json.Unmarshal(mb, &m) == nil && m.QMP != "" {
+				qmpPath = m.QMP
+			}
+		}
+	}
+
+	// Check if VM is running.
+	_, running := d.VMStatus(id)
+	if !running {
+		// VM is stopped — cold resize not supported in legacy driver.
+		return fmt.Errorf("VM is not running; cold resize not supported in legacy driver (recreate VM with new specs)")
+	}
+
+	// Live resize via QMP.
+	var resizeErrors []string
+
+	if vcpus > 0 {
+		// Use cpu_set to enable/disable CPUs.
+		// QEMU must have been started with -smp N,maxcpus=M for this to work.
+		cmd := fmt.Sprintf("cpu_set %d online", vcpus-1) // 0-indexed
+		if _, err := queryQMP(qmpPath, cmd); err != nil {
+			resizeErrors = append(resizeErrors, fmt.Sprintf("cpu resize: %v", err))
+		}
+	}
+
+	if memoryMB > 0 {
+		// Use balloon to adjust memory. Requires virtio-balloon device in guest.
+		// Balloon sets the target size in bytes.
+		targetBytes := int64(memoryMB) * 1024 * 1024
+		cmd := fmt.Sprintf("balloon %d", targetBytes)
+		if _, err := queryQMP(qmpPath, cmd); err != nil {
+			resizeErrors = append(resizeErrors, fmt.Sprintf("memory resize: %v", err))
+		}
+	}
+
+	if len(resizeErrors) > 0 {
+		return fmt.Errorf("resize partially failed: %s", strings.Join(resizeErrors, "; "))
+	}
+
+	return nil
+}
+
 func (d *qemuDriver) VMStatus(id string) (exists, running bool) {
 	// Sanitize id to prevent path traversal.
 	var err error

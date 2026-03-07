@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/Badge'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { TableToolbar } from '@/components/ui/TableToolbar'
 import { Modal } from '@/components/ui/Modal'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { useConfirmDialog } from '@/hooks/useConfirmDialog'
 import { DeletionProgress } from './DeletionProgress'
 import {
   fetchFlavors,
@@ -21,7 +23,7 @@ import {
   rebootInstance,
   destroyInstance,
   forceDeleteInstance,
-  startConsole,
+
   fetchProjects as fetchIdentityProjects,
   fetchUsers,
   type BackendInstance,
@@ -60,6 +62,7 @@ export function Instances() {
   // Deletion progress modal
   const [deletingIds, setDeletingIds] = useState<string[]>([])
   const [showDeletionProgress, setShowDeletionProgress] = useState(false)
+  const { confirm, dialogProps } = useConfirmDialog()
 
   // Create modal state
   const { flavors, setFlavors } = useDataStore()
@@ -233,11 +236,9 @@ export function Instances() {
       render: (r) => (
         <button
           className="text-primary-400 hover:underline"
-          onClick={async (e) => {
+          onClick={(e) => {
             e.stopPropagation()
-            await startConsole(String(r.id))
-            // Navigate to console viewer route (same as existing console page)
-            window.location.href = `/project/${projectId}/compute/instances/${r.id}/console`
+            window.location.href = `/project/${projectId}/compute/instances/${r.id}`
           }}
         >
           {r.name}
@@ -252,7 +253,7 @@ export function Instances() {
         if (pendingIds.has(pid))
           return (
             <Badge variant="info">
-              provisioning<span className="ml-1 inline-block animate-spin">⏳</span>
+              provisioning<span className="ml-1 inline-block w-3 h-3 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></span>
             </Badge>
           )
         if (r.status === 'building' || r.status === 'spawning')
@@ -342,31 +343,31 @@ export function Instances() {
       // Mark as pending and start short polling until confirmed running or error
       const cid = String(created.id)
       setPendingIds((prev) => new Set(prev).add(cid))
-      ;(async () => {
-        try {
-          const deadline = Date.now() + 20_000
-          while (Date.now() < deadline) {
-            // brief pause
-            await new Promise((res) => setTimeout(res, 1500))
-            const list = await fetchInstancesRaw(projectId)
-            setItems(list)
-            const it = list.find((x) => String(x.id) === cid)
-            if (it) {
-              const isRunning = it.status === 'active' && it.power_state === 'running'
-              const isError = it.status === 'error'
-              if (isRunning || isError) break
+        ; (async () => {
+          try {
+            const deadline = Date.now() + 20_000
+            while (Date.now() < deadline) {
+              // brief pause
+              await new Promise((res) => setTimeout(res, 1500))
+              const list = await fetchInstancesRaw(projectId)
+              setItems(list)
+              const it = list.find((x) => String(x.id) === cid)
+              if (it) {
+                const isRunning = it.status === 'active' && it.power_state === 'running'
+                const isError = it.status === 'error'
+                if (isRunning || isError) break
+              }
             }
+          } catch {
+            /* ignore */
+          } finally {
+            setPendingIds((prev) => {
+              const next = new Set(prev)
+              next.delete(cid)
+              return next
+            })
           }
-        } catch {
-          /* ignore */
-        } finally {
-          setPendingIds((prev) => {
-            const next = new Set(prev)
-            next.delete(cid)
-            return next
-          })
-        }
-      })()
+        })()
       setOpen(false)
       setNewName('')
       setFlavorId('')
@@ -482,13 +483,17 @@ export function Instances() {
                 aria-label="Destroy instance"
                 title="Destroy instance"
                 onClick={async () => {
-                  if (!confirm(`Destroy ${selectedIds.size} instance(s)?`)) return
+                  const ok = await confirm({
+                    title: `Destroy ${selectedIds.size} Instance(s)`,
+                    message: `This will permanently delete ${selectedIds.size} instance(s) and all associated data. This action cannot be undone.`,
+                    confirmLabel: 'Destroy',
+                    variant: 'danger',
+                  })
+                  if (!ok) return
                   try {
-                    // Start deletion for all selected instances
                     const idsArray = Array.from(selectedIds)
                     await Promise.all(idsArray.map((id) => destroyInstance(id)))
 
-                    // Show progress modal
                     setDeletingIds(idsArray)
                     setShowDeletionProgress(true)
                     setSelectedIds(new Set())
@@ -517,12 +522,14 @@ export function Instances() {
                     return
                   }
 
-                  if (
-                    !confirm(
-                      `Force delete ${deletingItems.length} instance(s) stuck in deleting state?\n\nThis will remove database records but NOT delete VMs from hypervisor.`
-                    )
-                  )
-                    return
+                  const ok = await confirm({
+                    title: `Force Delete ${deletingItems.length} Instance(s)`,
+                    message: `This will remove database records for ${deletingItems.length} instance(s) stuck in "deleting" state. This will NOT delete VMs from the hypervisor.`,
+                    confirmText: 'force-delete',
+                    confirmLabel: 'Force Delete',
+                    variant: 'danger',
+                  })
+                  if (!ok) return
 
                   try {
                     await Promise.all(deletingItems.map((i) => forceDeleteInstance(String(i.id))))
@@ -809,6 +816,9 @@ export function Instances() {
           }}
         />
       )}
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog {...dialogProps} />
     </div>
   )
 }

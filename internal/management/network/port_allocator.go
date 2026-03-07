@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/Veritas-Calculus/vc-stack/pkg/naming"
 	"go.uber.org/zap"
 )
 
@@ -53,7 +54,7 @@ func (s *Service) AllocatePort(networkID, deviceID, tenantID, requestedIP string
 
 	// 6. Create port record.
 	port := NetworkPort{
-		ID:             generateUUID(),
+		ID:             naming.GenerateID(naming.PrefixPort),
 		NetworkID:      network.ID,
 		SubnetID:       subnet.ID,
 		MACAddress:     macAddr,

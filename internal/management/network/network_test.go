@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/glebarez/sqlite"
 	"go.uber.org/zap"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
@@ -26,6 +26,17 @@ func setupTestDB(t *testing.T) *gorm.DB {
 		&FloatingIP{}, &NetworkPort{}, &ASN{}, &Zone{}, &Cluster{},
 		&Router{}, &RouterInterface{}, &VPC{}, &VPCTier{},
 		&NetworkACL{}, &NetworkACLRule{},
+		&FirewallPolicy{}, &FirewallRule{}, &NetworkAuditLog{},
+		&TrunkPort{}, &TrunkSubPort{}, &AllowedAddressPair{},
+		&StaticRoute{}, &NetworkRBACPolicy{}, &PortMirror{},
+		&LoadBalancer{}, &LoadBalancerMember{},
+		&IPAllocation{}, &PortForwarding{}, &QoSPolicy{},
+		// N-BGP models.
+		&ASNRange{}, &ASNAllocation{},
+		&BGPPeer{}, &AdvertisedRoute{}, &RoutePolicy{},
+		&NetworkOffering{},
+		// DNS models.
+		&DNSRecord{}, &DNSZoneConfig{},
 	); err != nil {
 		t.Fatalf("failed to auto-migrate: %v", err)
 	}

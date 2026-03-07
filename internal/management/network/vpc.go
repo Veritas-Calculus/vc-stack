@@ -1,12 +1,11 @@
 package network
 
 import (
-	"crypto/rand"
-	"fmt"
 	"net"
 	"net/http"
 	"time"
 
+	"github.com/Veritas-Calculus/vc-stack/pkg/naming"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -14,19 +13,19 @@ import (
 // VPC represents a Virtual Private Cloud — an isolated network environment.
 type VPC struct {
 	ID          string    `json:"id" gorm:"primaryKey;type:varchar(36)"`
-	Name        string    `json:"name" gorm:"not null"`
+	Name        string    `json:"name" gorm:"not null;uniqueIndex:uniq_vpcs_tenant_name"`
 	DisplayText string    `json:"display_text"`
 	CIDR        string    `json:"cidr" gorm:"column:cidr;not null"` // e.g. 10.0.0.0/16
 	State       string    `json:"state" gorm:"not null;default:'enabled'"`
 	OfferingID  uint      `json:"offering_id"` // link to NetworkOffering
-	TenantID    string    `json:"tenant_id" gorm:"index"`
+	TenantID    string    `json:"tenant_id" gorm:"index;uniqueIndex:uniq_vpcs_tenant_name"`
 	DomainID    uint      `json:"domain_id"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 // TableName for VPC model.
-func (VPC) TableName() string { return "vpcs" }
+func (VPC) TableName() string { return "net_vpcs" }
 
 // VPCTier represents a subnet within a VPC (a.k.a. network tier).
 type VPCTier struct {
@@ -43,7 +42,7 @@ type VPCTier struct {
 }
 
 // TableName for VPCTier model.
-func (VPCTier) TableName() string { return "vpc_tiers" }
+func (VPCTier) TableName() string { return "net_vpc_tiers" }
 
 // NetworkACL represents a stateless access control list for a VPC tier.
 type NetworkACL struct {
@@ -58,7 +57,7 @@ type NetworkACL struct {
 }
 
 // TableName for NetworkACL model.
-func (NetworkACL) TableName() string { return "network_acls" }
+func (NetworkACL) TableName() string { return "net_acls" }
 
 // NetworkACLRule represents a single rule within an ACL.
 type NetworkACLRule struct {
@@ -76,13 +75,12 @@ type NetworkACLRule struct {
 }
 
 // TableName for NetworkACLRule model.
-func (NetworkACLRule) TableName() string { return "network_acl_rules" }
+func (NetworkACLRule) TableName() string { return "net_acl_rules" }
 
-// generateID creates a random UUID-like ID.
+// generateVPCID creates a prefixed VPC resource ID.
+// Deprecated: kept for backward compat; new code uses naming.GenerateID directly.
 func generateVPCID() string {
-	b := make([]byte, 16)
-	_, _ = rand.Read(b)
-	return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:16])
+	return naming.GenerateID(naming.PrefixVPC)
 }
 
 // migrateVPC auto-migrates VPC and related tables.
@@ -135,6 +133,12 @@ func (s *Service) createVPC(c *gin.Context) {
 	// Validate CIDR format
 	if _, _, err := net.ParseCIDR(req.CIDR); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid CIDR format: " + err.Error()})
+		return
+	}
+
+	// Validate name.
+	if err := naming.ValidateName(req.Name, naming.ModeGeneral); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid name: " + err.Error()})
 		return
 	}
 
@@ -212,7 +216,7 @@ func (s *Service) createVPCTier(c *gin.Context) {
 	}
 
 	tier := VPCTier{
-		ID:      generateVPCID(),
+		ID:      naming.GenerateID(naming.PrefixSubnet),
 		Name:    req.Name,
 		CIDR:    req.CIDR,
 		VPCID:   vpcID,
@@ -263,7 +267,7 @@ func (s *Service) createNetworkACL(c *gin.Context) {
 	}
 
 	acl := NetworkACL{
-		ID:          generateVPCID(),
+		ID:          naming.GenerateID(naming.PrefixACL),
 		Name:        req.Name,
 		Description: req.Description,
 		VPCID:       req.VPCID,
@@ -305,7 +309,7 @@ func (s *Service) addACLRule(c *gin.Context) {
 	}
 
 	rule := NetworkACLRule{
-		ID:        generateVPCID(),
+		ID:        naming.GenerateID(naming.PrefixACL),
 		ACLID:     aclID,
 		Number:    req.Number,
 		Action:    req.Action,

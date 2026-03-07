@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback } from 'react'
+import { useEffect, useMemo, useState, useCallback, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { DataTable, type Column } from '@/components/ui/DataTable'
 import { Badge } from '@/components/ui/Badge'
@@ -39,6 +39,8 @@ interface Image {
   id: number
   name: string
   format: string
+  disk_format: string
+  hypervisor_type: string
   size_gb: number
   os_type: string
   status: string
@@ -54,6 +56,15 @@ export function Firecracker() {
   const [filter, setFilter] = useState<Filter>('all')
   const [q, setQ] = useState('')
 
+  // Console log modal state
+  const [consoleOpen, setConsoleOpen] = useState(false)
+  const [consoleLog, setConsoleLog] = useState('')
+  const [consoleLoading, setConsoleLoading] = useState(false)
+  const [consoleInstanceName, setConsoleInstanceName] = useState('')
+
+  // WebSocket for real-time status
+  const wsRef = useRef<WebSocket | null>(null)
+
   // Create modal state
   const [open, setOpen] = useState(false)
   const [newName, setNewName] = useState('')
@@ -62,6 +73,8 @@ export function Firecracker() {
   const [diskGB, setDiskGB] = useState('10')
   const [imageId, setImageId] = useState('')
   const [kernelPath, setKernelPath] = useState('')
+  const [sshPublicKey, setSshPublicKey] = useState('')
+  const [userData, setUserData] = useState('')
   const [vmType, setVmType] = useState<'microvm' | 'function'>('microvm')
   const [submitting, setSubmitting] = useState(false)
 
@@ -95,6 +108,42 @@ export function Firecracker() {
     refresh()
     fetchImages()
   }, [refresh, fetchImages])
+
+  // WebSocket connection for real-time status updates.
+  useEffect(() => {
+    const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+    const wsUrl = `${proto}//${window.location.host}/ws/firecracker/status`
+
+    function connect() {
+      const ws = new WebSocket(wsUrl)
+      wsRef.current = ws
+
+      ws.onmessage = (ev) => {
+        try {
+          const evt = JSON.parse(ev.data)
+          if (evt.type === 'status_change' || evt.type === 'initial') {
+            setItems((prev) =>
+              prev.map((item) =>
+                item.id === evt.instance_id
+                  ? { ...item, status: evt.status, power_state: evt.power_state, pid: evt.pid || item.pid }
+                  : item
+              )
+            )
+          }
+        } catch { /* ignore parse errors */ }
+      }
+
+      ws.onclose = () => {
+        // Auto-reconnect after 3s.
+        setTimeout(connect, 3000)
+      }
+    }
+
+    connect()
+    return () => {
+      if (wsRef.current) wsRef.current.close()
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const filtered = useMemo(() => {
     let res = items
@@ -135,6 +184,8 @@ export function Firecracker() {
           disk_gb: parseInt(diskGB) || 10,
           image_id: parseInt(imageId),
           kernel_path: kernelPath || undefined,
+          ssh_public_key: sshPublicKey || undefined,
+          user_data: userData || undefined,
           type: vmType
         },
         config
@@ -147,6 +198,8 @@ export function Firecracker() {
       setDiskGB('10')
       setImageId('')
       setKernelPath('')
+      setSshPublicKey('')
+      setUserData('')
       setVmType('microvm')
       refresh()
     } catch (err) {
@@ -198,6 +251,23 @@ export function Firecracker() {
       }
     },
     [refresh]
+  )
+
+  const handleConsole = useCallback(
+    async (id: number, name: string) => {
+      setConsoleInstanceName(name)
+      setConsoleLoading(true)
+      setConsoleOpen(true)
+      try {
+        const { data } = await api.get<{ log: string }>(`/v1/firecracker/${id}/console?lines=200`)
+        setConsoleLog(data.log || '(no output)')
+      } catch {
+        setConsoleLog('Failed to load console log')
+      } finally {
+        setConsoleLoading(false)
+      }
+    },
+    []
   )
 
   const columns: Column<FirecrackerInstance>[] = useMemo(
@@ -281,6 +351,19 @@ export function Firecracker() {
             <button
               onClick={(e) => {
                 e.stopPropagation()
+                handleConsole(r.id, r.name)
+              }}
+              className="icon-btn text-cyan-400"
+              title="Console Log"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="4 17 10 11 4 5" />
+                <line x1="12" y1="19" x2="20" y2="19" />
+              </svg>
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
                 handleDelete(r.id)
               }}
               className="icon-btn text-rose-400"
@@ -294,7 +377,7 @@ export function Firecracker() {
         )
       }
     ],
-    [handleStart, handleStop, handleDelete]
+    [handleStart, handleStop, handleDelete, handleConsole]
   )
 
   return (
@@ -397,13 +480,24 @@ export function Firecracker() {
               onChange={(e) => setImageId(e.target.value)}
             >
               <option value="">Select an image...</option>
-              {images.map((img) => (
-                <option key={img.id} value={img.id}>
-                  {img.name} ({img.os_type}, {img.size_gb}GB)
-                </option>
-              ))}
+              {images
+                .filter((img) => {
+                  // Filter to FC-compatible images: raw/ext4 format, or FC/microvm hypervisor type
+                  const fmt = (img.disk_format || '').toLowerCase()
+                  const hv = (img.hypervisor_type || '').toLowerCase()
+                  const formatOk = !fmt || fmt === 'raw' || fmt === 'ext4'
+                  const hvOk = !hv || hv === 'kvm' || hv === 'firecracker' || hv === 'microvm'
+                  return formatOk && hvOk
+                })
+                .map((img) => (
+                  <option key={img.id} value={img.id}>
+                    {img.name} ({img.os_type || 'linux'}, {img.disk_format || 'raw'})
+                  </option>
+                ))}
             </select>
-            <p className="text-xs text-muted mt-1">Boot image from Ceph storage</p>
+            <p className="text-xs text-muted mt-1">
+              Only raw/ext4 rootfs images are shown. Firecracker does not support qcow2.
+            </p>
           </div>
 
           <div>
@@ -428,6 +522,52 @@ export function Firecracker() {
               placeholder="Leave empty to use default kernel"
             />
           </div>
+
+          <div>
+            <label className="label">SSH Public Key (optional)</label>
+            <textarea
+              className="input w-full font-mono text-xs"
+              rows={2}
+              value={sshPublicKey}
+              onChange={(e) => setSshPublicKey(e.target.value)}
+              placeholder="ssh-rsa AAAA... user@host"
+            />
+            <p className="text-xs text-muted mt-1">Injected via MMDS for cloud-init</p>
+          </div>
+
+          <div>
+            <label className="label">User Data (optional)</label>
+            <textarea
+              className="input w-full font-mono text-xs"
+              rows={3}
+              value={userData}
+              onChange={(e) => setUserData(e.target.value)}
+              placeholder={'#cloud-config\npackages:\n  - nginx'}
+            />
+            <p className="text-xs text-muted mt-1">Cloud-init config or shell script</p>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Console Log Modal */}
+      <Modal
+        open={consoleOpen}
+        onClose={() => setConsoleOpen(false)}
+        title={`Console — ${consoleInstanceName}`}
+        footer={
+          <button className="btn-secondary" onClick={() => setConsoleOpen(false)}>
+            Close
+          </button>
+        }
+      >
+        <div className="bg-neutral-950 rounded-md p-3 min-h-[300px] max-h-[500px] overflow-auto">
+          {consoleLoading ? (
+            <div className="text-muted text-sm animate-pulse">Loading console output...</div>
+          ) : (
+            <pre className="font-mono text-xs text-green-400 whitespace-pre-wrap break-all leading-relaxed">
+              {consoleLog}
+            </pre>
+          )}
         </div>
       </Modal>
     </div>

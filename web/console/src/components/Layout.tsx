@@ -7,14 +7,16 @@ import { useDataStore } from '@/lib/dataStore'
 import { useThemeStore } from '@/stores/themeStore'
 import { useTranslation } from 'react-i18next'
 import { ToastContainer } from '@/components/ToastContainer'
+import { CommandPalette } from '@/components/ui/CommandPalette'
+import { KeyboardShortcuts } from '@/components/ui/KeyboardShortcuts'
+import {
+  type SidebarSection,
+  getGlobalSections,
+  getProjectSections,
+  shouldExpandGroup
+} from '@/components/sidebarSections'
 
-type LinkItem = { type: 'link'; to: string; label: string }
-type GroupItem = {
-  type: 'group'
-  label: string
-  base: string
-  children: Array<{ to: string; label: string }>
-}
+// LinkItem / GroupItem types are now in sidebarSections.ts
 
 function getProjectId(pathname: string): string | null {
   const m = pathname.match(/^\/project\/([^/]+)/)
@@ -61,161 +63,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
     setProjectContext(true)
   }, [urlProjectId, activeProjectId, setActiveProjectId, setProjectContext])
 
-  const sections: Array<LinkItem | GroupItem> = useMemo(() => {
-    // show minimal menu until a project is selected in this session or URL carries it
-    if (!projectId || !projectContext) {
-      // pre-project sidebar
-      return [
-        { type: 'link', to: '/dashboard', label: 'Dashboard' },
-        { type: 'link', to: '/docs', label: 'Docs' },
-        { type: 'link', to: '/projects', label: 'Project' },
-        { type: 'link', to: '/images', label: 'Images' },
-        { type: 'link', to: '/events', label: 'Events' },
-        { type: 'link', to: '/offerings', label: 'Offerings' },
-        { type: 'link', to: '/accounts', label: 'Accounts' },
-        { type: 'link', to: '/rbac', label: 'Access Control' },
-        { type: 'link', to: '/federation', label: 'Federation' },
-        { type: 'link', to: '/domains', label: 'Domains' },
-        {
-          type: 'group',
-          label: 'Infrastructure',
-          base: '/infrastructure',
-          children: [
-            { to: '/infrastructure/overview', label: 'Overview' },
-            { to: '/infrastructure/zones', label: 'Zones' },
-            { to: '/infrastructure/clusters', label: 'Clusters' },
-            { to: '/infrastructure/hosts', label: 'Hosts' }
-          ]
-        },
-        { type: 'link', to: '/settings/global', label: 'Global Settings' },
-        { type: 'link', to: '/affinity-groups', label: 'Affinity Groups' },
-        { type: 'link', to: '/usage', label: 'Usage & Billing' },
-        { type: 'link', to: '/webhooks', label: 'Webhooks' },
-        { type: 'link', to: '/vpn', label: 'VPN' },
-        { type: 'link', to: '/dns', label: 'DNS' },
-        { type: 'link', to: '/object-storage', label: 'Object Storage' },
-        { type: 'link', to: '/orchestration', label: 'Orchestration' },
-        { type: 'link', to: '/ha', label: 'High Availability' },
-        { type: 'link', to: '/kms', label: 'Key Management' },
-        { type: 'link', to: '/rate-limits', label: 'Rate Limiting' },
-        { type: 'link', to: '/encryption', label: 'Data Encryption' },
-        { type: 'link', to: '/kubernetes', label: 'Kubernetes' },
-        { type: 'link', to: '/compliance-audit', label: 'Compliance' },
-        { type: 'link', to: '/disaster-recovery', label: 'Disaster Recovery' },
-        { type: 'link', to: '/bare-metal', label: 'Bare Metal' },
-        { type: 'link', to: '/service-catalog', label: 'Service Catalog' },
-        { type: 'link', to: '/self-healing', label: 'Self-Healing' },
-        { type: 'link', to: '/platform-settings', label: 'Platform Settings' },
-        { type: 'link', to: '/backups', label: 'Backups' },
-        { type: 'link', to: '/autoscale', label: 'Auto Scale' },
-        { type: 'link', to: '/utilization', label: 'Utilization' }
-      ]
-    }
-    const prefix = `/project/${encodeURIComponent(projectId)}`
-    return [
-      { type: 'link', to: '/dashboard', label: 'Dashboard' },
-      { type: 'link', to: '/docs', label: 'Docs' },
-      { type: 'link', to: `${prefix}/utilization`, label: 'Utilization' },
-      {
-        type: 'group',
-        label: 'Compute',
-        base: `${prefix}/compute`,
-        children: [
-          { to: `${prefix}/compute/instances`, label: 'Instances' },
-          { to: `${prefix}/compute/firecracker`, label: 'Firecracker' },
-          { to: `${prefix}/compute/flavors`, label: 'Flavors' },
-          { to: `${prefix}/compute/vm-snapshots`, label: 'VM Snapshots' },
-          { to: `${prefix}/compute/k8s`, label: 'Kubernetes' },
-          { to: `${prefix}/compute/kms`, label: 'SSH Keypairs' }
-        ]
-      },
-      {
-        type: 'group',
-        label: 'Storage',
-        base: `${prefix}/storage`,
-        children: [
-          { to: `${prefix}/storage/volumes`, label: 'Volumes' },
-          { to: `${prefix}/storage/snapshots`, label: 'Snapshots' },
-          { to: '/snapshot-schedules', label: 'Schedules' },
-          { to: `${prefix}/storage/backups`, label: 'Backups' }
-        ]
-      },
-      {
-        type: 'group',
-        label: 'Network',
-        base: `${prefix}/network`,
-        children: [
-          { to: `${prefix}/network/vpc`, label: 'Networks' },
-          { to: `${prefix}/network/routers`, label: 'Routers' },
-          { to: `${prefix}/network/sg`, label: 'Security Groups' },
-          { to: `${prefix}/network/public-ips`, label: 'Public IPs' },
-          { to: `${prefix}/network/asns`, label: 'ASNs' },
-          { to: `${prefix}/network/vpn`, label: 'VPN' },
-          { to: `${prefix}/network/acl`, label: 'Network ACL' }
-        ]
-      },
-      // Global modules (visible when a project is selected)
-      {
-        type: 'group',
-        label: 'Images',
-        base: `${prefix}/images`,
-        children: [
-          { to: `${prefix}/images/templates`, label: 'Templates' },
-          { to: `${prefix}/images/iso`, label: 'ISOs' },
-          { to: `${prefix}/images/k8s-iso`, label: 'Kubernetes ISO' }
-        ]
-      },
-      { type: 'link', to: '/rbac', label: 'Access Control' },
-      { type: 'link', to: '/federation', label: 'Federation' },
-      { type: 'link', to: '/accounts', label: 'Accounts' },
-      { type: 'link', to: '/events', label: 'Events' },
-      { type: 'link', to: '/offerings', label: 'Offerings' },
-      { type: 'link', to: '/domains', label: 'Domains' },
-      {
-        type: 'group',
-        label: 'Infrastructure',
-        base: `${prefix}/infrastructure`,
-        children: [
-          { to: `${prefix}/infrastructure/overview`, label: 'Overview' },
-          { to: `${prefix}/infrastructure/zones`, label: 'Zones' },
-          { to: `${prefix}/infrastructure/clusters`, label: 'Clusters' },
-          { to: `${prefix}/infrastructure/hosts`, label: 'Hosts' },
-          { to: `${prefix}/infrastructure/primary-storage`, label: 'Primary Storage' },
-          { to: `${prefix}/infrastructure/secondary-storage`, label: 'Secondary Storage' },
-          { to: `${prefix}/infrastructure/db-usage`, label: 'DB / Usage' },
-          { to: `${prefix}/infrastructure/alarms`, label: 'Alarms' }
-        ]
-      },
-      { type: 'link', to: '/settings/global', label: 'Global Settings' },
-      { type: 'link', to: '/affinity-groups', label: 'Affinity Groups' },
-      { type: 'link', to: '/usage', label: 'Usage & Billing' },
-      { type: 'link', to: '/webhooks', label: 'Webhooks' },
-      { type: 'link', to: '/vpn', label: 'VPN' },
-      { type: 'link', to: '/dns', label: 'DNS' },
-      { type: 'link', to: '/object-storage', label: 'Object Storage' },
-      { type: 'link', to: '/orchestration', label: 'Orchestration' },
-      { type: 'link', to: '/ha', label: 'High Availability' },
-      { type: 'link', to: '/kms', label: 'Key Management' },
-      { type: 'link', to: '/rate-limits', label: 'Rate Limiting' },
-      { type: 'link', to: '/encryption', label: 'Data Encryption' },
-      { type: 'link', to: '/kubernetes', label: 'Kubernetes' },
-      { type: 'link', to: '/compliance-audit', label: 'Compliance' },
-      { type: 'link', to: '/disaster-recovery', label: 'Disaster Recovery' },
-      { type: 'link', to: '/bare-metal', label: 'Bare Metal' },
-      { type: 'link', to: '/service-catalog', label: 'Service Catalog' },
-      { type: 'link', to: '/self-healing', label: 'Self-Healing' },
-      { type: 'link', to: '/platform-settings', label: 'Platform Settings' },
-      { type: 'link', to: '/backups', label: 'Backups' },
-      { type: 'link', to: '/autoscale', label: 'Auto Scale' },
-      { type: 'link', to: '/notifications', label: 'Notifications' }
-    ]
+  const sections: SidebarSection[] = useMemo(() => {
+    if (!projectId || !projectContext) return getGlobalSections()
+    return getProjectSections(projectId)
   }, [projectId, projectContext])
 
   // auto-expand the group that matches current route
   useMemo(() => {
     const next: Record<string, boolean> = { ...open }
     sections.forEach((s) => {
-      if (s.type === 'group') next[s.base] = location.pathname.startsWith(s.base)
+      if (s.type === 'group') next[s.base] = shouldExpandGroup(s, location.pathname)
     })
     setOpen(next)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -242,23 +99,26 @@ export function Layout({ children }: { children: React.ReactNode }) {
   }, [location.pathname, setProjectContext])
   return (
     <div
-      className={`min-h-screen grid ${sidebarCollapsed ? 'grid-cols-[64px_1fr]' : 'grid-cols-[248px_1fr]'} grid-rows-[56px_1fr]`}
+      className={`min-h-screen grid ${sidebarCollapsed ? 'grid-cols-[64px_1fr]' : 'grid-cols-[248px_1fr]'} grid-rows-[52px_1fr] transition-all duration-300`}
     >
-      <aside className="row-span-2 bg-oxide-900 border-r border-oxide-800">
-        <div className="h-14 flex items-center px-4 gap-2 border-b border-oxide-800">
+      {/* ── Sidebar ──────────────────────────────────────────── */}
+      <aside className="row-span-2 glass-sidebar overflow-y-auto overflow-x-hidden">
+        {/* Logo */}
+        <div className="h-[52px] flex items-center px-4 gap-2.5 border-b" style={{ borderColor: 'var(--color-border)' }}>
           {logo ? (
-            <img src={logo} alt="logo" className="h-6 w-6 rounded object-contain" />
+            <img src={logo} alt="logo" className="h-6 w-6 rounded-md object-contain" />
           ) : (
-            <img src="/logo-42.svg" alt="logo" className="h-6 w-6 rounded object-contain" />
+            <img src="/logo-42.svg" alt="logo" className="h-6 w-6 rounded-md object-contain" />
           )}
           {!sidebarCollapsed && (
-            <Link to="/" className="font-semibold">
+            <Link to="/" className="font-semibold text-[15px] tracking-tight transition-colors" style={{ color: 'var(--color-text-primary)' }}>
               VC Console
             </Link>
           )}
         </div>
-        <nav className={`p-2 space-y-1 ${sidebarCollapsed ? 'px-1' : ''}`}>
-          {/* Icons for all items */}
+
+        {/* Navigation */}
+        <nav className={`py-2 space-y-0.5 ${sidebarCollapsed ? 'px-1.5' : 'px-2'}`}>
           {sections.map((s, idx) => {
             if (s.type === 'link') {
               return (
@@ -266,7 +126,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   key={idx}
                   to={s.to}
                   className={({ isActive }) =>
-                    `flex items-center gap-2 rounded-md ${sidebarCollapsed ? 'px-2 py-2 justify-center' : 'px-3 py-2 text-sm'} hover:bg-oxide-800 ${isActive ? 'bg-oxide-800 text-white' : 'text-gray-300'}`
+                    `nav-item ${sidebarCollapsed ? 'justify-center px-2' : 'px-2.5'} ${isActive ? 'active' : ''}`
                   }
                 >
                   <NavIcon name={s.label} />
@@ -305,21 +165,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
                       setOpen((o) => ({ ...o, [s.base]: !o[s.base] }))
                     }
                   }}
-                  className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center px-2 py-2' : 'justify-between px-3 py-2 text-sm'} rounded-md hover:bg-oxide-800 ${location.pathname.startsWith(s.base)
-                    ? 'bg-oxide-800 text-white'
-                    : 'text-gray-300'
-                    }`}
+                  className={`nav-item w-full ${sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-2.5'} ${location.pathname.startsWith(s.base) ? 'active' : ''}`}
                 >
-                  <span className="flex items-center gap-2">
+                  <span className="flex items-center gap-2.5">
                     <NavIcon name={s.label} />
                     {!sidebarCollapsed && <span>{s.label}</span>}
                   </span>
                   {!sidebarCollapsed && (
                     <svg
-                      width="14"
-                      height="14"
+                      width="12"
+                      height="12"
                       viewBox="0 0 24 24"
-                      className={`transition-transform ${isOpen ? 'rotate-90' : ''}`}
+                      className={`transition-transform duration-200 opacity-40 ${isOpen ? 'rotate-90' : ''}`}
                       aria-hidden="true"
                       fill="currentColor"
                     >
@@ -327,10 +184,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     </svg>
                   )}
                 </button>
-                {/* Expanded submenu when sidebar collapsed: show flyout */}
+
+                {/* Collapsed flyout */}
                 {sidebarCollapsed && collapsedFlyout === s.base && (
                   <div
-                    className="absolute left-full top-0 z-50 ml-2 min-w-44 rounded-md border border-oxide-700 bg-oxide-900 shadow-card py-1"
+                    className="dropdown-menu left-full top-0 ml-2 min-w-44"
                     onMouseEnter={() => {
                       if (flyoutTimer.current) {
                         window.clearTimeout(flyoutTimer.current)
@@ -346,12 +204,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
                       )
                     }}
                   >
+                    <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-white/25">{s.label}</div>
                     {s.children.map((c) => (
                       <NavLink
                         key={c.to}
                         to={c.to}
                         className={({ isActive }) =>
-                          `flex items-center gap-2 rounded-md px-3 py-1.5 text-sm hover:bg-oxide-800 ${isActive ? 'bg-oxide-800 text-white' : 'text-gray-200'}`
+                          `dropdown-item flex items-center gap-2 ${isActive ? 'text-apple-blue' : ''}`
                         }
                         onClick={() => setCollapsedFlyout(null)}
                       >
@@ -361,15 +220,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     ))}
                   </div>
                 )}
-                {/* Regular inline submenu when expanded sidebar */}
+
+                {/* Expanded submenu */}
                 {!sidebarCollapsed && isOpen && (
-                  <div className="mt-1 space-y-1">
+                  <div className="mt-0.5 space-y-0.5 animate-fade-in">
                     {s.children.map((c) => (
                       <NavLink
                         key={c.to}
                         to={c.to}
                         className={({ isActive }) =>
-                          `flex items-center gap-2 rounded-md ml-4 px-3 py-1.5 text-sm hover:bg-oxide-800 ${isActive ? 'bg-oxide-800 text-white' : 'text-gray-300'}`
+                          `nav-item ml-5 pl-2.5 text-[12.5px] ${isActive ? 'active' : ''}`
                         }
                       >
                         <NavIcon name={c.label} small />
@@ -384,63 +244,49 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </nav>
       </aside>
 
-      <header className="h-14 flex items-center justify-between px-4 border-b border-oxide-800 bg-oxide-900/80 backdrop-blur">
+      {/* ── Header ───────────────────────────────────────────── */}
+      <header className="h-[52px] flex items-center justify-between px-4 glass border-b" style={{ borderColor: 'var(--color-border)' }}>
         <div className="flex items-center gap-2">
-          {/* Sidebar toggle in header (before Project) */}
+          {/* Sidebar toggle */}
           <button
             type="button"
-            className="h-8 w-8 grid place-items-center rounded-md border border-oxide-700 bg-oxide-900 hover:bg-oxide-800 text-gray-200"
+            className="h-8 w-8 grid place-items-center rounded-lg transition-all duration-150"
+            style={{ color: 'var(--color-icon-muted)' }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-icon-hover)'; e.currentTarget.style.background = 'var(--color-bg-hover)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-icon-muted)'; e.currentTarget.style.background = 'transparent' }}
             aria-label="Toggle sidebar"
             onClick={toggleSidebar}
             title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             {sidebarCollapsed ? (
-              // expand icon (chevrons right)
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M6 4l6 8-6 8" />
                 <path d="M12 4l6 8-6 8" />
               </svg>
             ) : (
-              // collapse icon (chevrons left)
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M18 4l-6 8 6 8" />
                 <path d="M12 4l-6 8 6 8" />
               </svg>
             )}
           </button>
+
           {/* Project switcher */}
           {projectId && (
             <div className="relative" ref={projMenuRef}>
               <button
-                className="h-8 px-3 rounded-md border border-oxide-700 bg-oxide-900 hover:bg-oxide-800 text-gray-200 text-sm"
+                className="h-8 px-3 rounded-lg text-[13px] font-medium transition-all duration-150"
+                style={{ background: 'var(--color-bg-tertiary)', border: '1px solid var(--color-border)', color: 'var(--color-text-secondary)' }}
                 onClick={() => setProjMenuOpen((v) => !v)}
               >
-                Project: {projectId}
+                {projectId}
               </button>
               {projMenuOpen && (
-                <div className="absolute z-40 mt-2 w-56 rounded-md border border-oxide-700 bg-oxide-900 shadow-card py-1">
+                <div className="dropdown-menu mt-2 w-56">
                   {projects.map((p) => (
                     <button
                       key={p.id}
-                      className="w-full text-left px-3 py-1.5 text-sm text-gray-200 hover:bg-oxide-800"
+                      className="dropdown-item"
                       onClick={() => {
                         setProjMenuOpen(false)
                         setActiveProjectId(p.id)
@@ -456,8 +302,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </div>
           )}
         </div>
-        <div className="flex items-center gap-3">
-          {/* Create menu before webshell (controlled hover with hysteresis) */}
+
+        <div className="flex items-center gap-1.5">
+          {/* Create menu */}
           <div
             className="relative"
             onMouseEnter={() => {
@@ -473,16 +320,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
             }}
           >
             <button
-              className="h-8 px-3 rounded-md border border-oxide-700 bg-oxide-900 hover:bg-oxide-800 text-gray-200 text-sm"
+              className="btn-primary h-8 px-3 py-0 text-[13px]"
               onClick={() => setCreateOpen((v) => !v)}
               aria-haspopup="menu"
               aria-expanded={createOpen}
             >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
               Create
             </button>
             {createOpen && (
               <div
-                className="absolute right-0 top-full z-40 w-44 rounded-md border border-oxide-700 bg-oxide-900 shadow-card py-1"
+                className="dropdown-menu right-0 top-full mt-1 w-48"
                 onMouseEnter={() => {
                   if (createHoverTimer.current) {
                     window.clearTimeout(createHoverTimer.current)
@@ -491,108 +339,58 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   setCreateOpen(true)
                 }}
               >
-                <button
-                  className="w-full text-left px-3 py-1.5 text-sm text-gray-200 hover:bg-oxide-800"
-                  onClick={() =>
-                    navigate(
-                      projectContext && projectId
-                        ? `/project/${projectId}/compute/instances`
-                        : '/projects'
-                    )
-                  }
-                >
-                  Instance
-                </button>
-                <button
-                  className="w-full text-left px-3 py-1.5 text-sm text-gray-200 hover:bg-oxide-800"
-                  onClick={() =>
-                    navigate(
-                      projectContext && projectId
-                        ? `/project/${projectId}/compute/k8s`
-                        : '/projects'
-                    )
-                  }
-                >
-                  Kubernetes
-                </button>
-                <button
-                  className="w-full text-left px-3 py-1.5 text-sm text-gray-200 hover:bg-oxide-800"
-                  onClick={() =>
-                    navigate(
-                      projectContext && projectId
-                        ? `/project/${projectId}/storage/volumes`
-                        : '/projects'
-                    )
-                  }
-                >
-                  Volume
-                </button>
-                <button
-                  className="w-full text-left px-3 py-1.5 text-sm text-gray-200 hover:bg-oxide-800"
-                  onClick={() =>
-                    navigate(
-                      projectContext && projectId
-                        ? `/project/${projectId}/network/vpc`
-                        : '/projects'
-                    )
-                  }
-                >
-                  VPC
-                </button>
+                <button className="dropdown-item" onClick={() => navigate(projectContext && projectId ? `/project/${projectId}/compute/instances` : '/projects')}>Instance</button>
+                <button className="dropdown-item" onClick={() => navigate(projectContext && projectId ? `/project/${projectId}/compute/k8s` : '/projects')}>Kubernetes</button>
+                <button className="dropdown-item" onClick={() => navigate(projectContext && projectId ? `/project/${projectId}/storage/volumes` : '/projects')}>Volume</button>
+                <button className="dropdown-item" onClick={() => navigate(projectContext && projectId ? `/project/${projectId}/network/vpc` : '/projects')}>VPC</button>
               </div>
             )}
           </div>
-          {/* webshell icon/button */}
+
+          {/* WebShell */}
           <button
-            className="h-8 w-8 rounded-md border border-oxide-700 bg-oxide-900 hover:bg-oxide-800 text-gray-200 grid place-items-center"
+            className="h-8 w-8 grid place-items-center rounded-lg transition-all duration-150"
+            style={{ color: 'var(--color-icon-muted)' }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-icon-hover)'; e.currentTarget.style.background = 'var(--color-bg-hover)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-icon-muted)'; e.currentTarget.style.background = 'transparent' }}
             aria-label="WebShell"
             onClick={() => navigate('/webshell')}
             title="WebShell"
           >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 4h16v16H4z" />
               <path d="M7 9l3 3-3 3" />
               <path d="M12 16h5" />
             </svg>
           </button>
-          {/* bell icon for notifications */}
+
+          {/* Notifications */}
           <button
-            className="relative h-8 w-8 rounded-md border border-oxide-700 bg-oxide-900 hover:bg-oxide-800 text-gray-200 grid place-items-center"
+            className="relative h-8 w-8 grid place-items-center rounded-lg transition-all duration-150"
+            style={{ color: 'var(--color-icon-muted)' }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-icon-hover)'; e.currentTarget.style.background = 'var(--color-bg-hover)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-icon-muted)'; e.currentTarget.style.background = 'transparent' }}
             aria-label="Notifications"
             title="Notifications"
             onClick={() => navigate('/notifications')}
           >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 8a6 6 0 10-12 0c0 7-3 8-3 8h18s-3-1-3-8" />
               <path d="M13.73 21a2 2 0 01-3.46 0" />
             </svg>
             {unreadNotices > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-red-600 text-[10px] leading-4 text-white grid place-items-center">
+              <span className="badge-count">
                 {unreadNotices > 9 ? '9+' : unreadNotices}
               </span>
             )}
           </button>
+
           {/* Language toggle */}
           <button
-            className="h-8 px-2 rounded-md border border-oxide-700 bg-oxide-900 hover:bg-oxide-800 text-gray-200 text-xs font-medium"
+            className="h-8 px-2 rounded-lg text-[12px] font-semibold transition-all duration-150"
+            style={{ color: 'var(--color-icon-muted)' }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-icon-hover)'; e.currentTarget.style.background = 'var(--color-bg-hover)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-icon-muted)'; e.currentTarget.style.background = 'transparent' }}
             onClick={() => {
               const next = i18n.language === 'en' ? 'zh' : 'en'
               i18n.changeLanguage(next)
@@ -601,9 +399,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
           >
             {i18n.language === 'zh' ? 'EN' : '中'}
           </button>
+
           {/* Theme toggle */}
           <button
-            className="h-8 w-8 rounded-md border border-oxide-700 bg-oxide-900 hover:bg-oxide-800 text-gray-200 grid place-items-center"
+            className="h-8 w-8 grid place-items-center rounded-lg transition-all duration-150"
+            style={{ color: 'var(--color-icon-muted)' }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-icon-hover)'; e.currentTarget.style.background = 'var(--color-bg-hover)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-icon-muted)'; e.currentTarget.style.background = 'transparent' }}
             onClick={() => {
               const nextTheme = resolvedTheme === 'dark' ? 'light' : 'dark'
               setTheme(nextTheme)
@@ -628,24 +430,28 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </svg>
             )}
           </button>
-          <div className="relative">
+
+          {/* User avatar */}
+          <div className="relative ml-1">
             <button
               type="button"
               aria-label="User menu"
-              className="h-8 w-8 rounded-full bg-oxide-700"
+              className="h-8 w-8 rounded-full bg-gradient-to-br from-apple-blue to-apple-purple grid place-items-center text-white text-[11px] font-bold"
               onClick={() => setUserMenuOpen((v) => !v)}
-            />
+            >
+              U
+            </button>
             {userMenuOpen && (
-              <div className="absolute right-0 z-40 mt-2 w-44 rounded-md border border-oxide-700 bg-oxide-900 shadow-card py-1">
+              <div className="dropdown-menu right-0 mt-2 w-44">
                 <Link
                   to="/settings"
-                  className="block px-3 py-1.5 text-sm text-gray-200 hover:bg-oxide-800"
+                  className="dropdown-item"
                   onClick={() => setUserMenuOpen(false)}
                 >
                   Settings
                 </Link>
                 <button
-                  className="w-full text-left px-3 py-1.5 text-sm text-gray-200 hover:bg-oxide-800"
+                  className="dropdown-item"
                   onClick={() => {
                     setUserMenuOpen(false)
                     logout()
@@ -662,8 +468,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <main className="p-6 space-y-6 bg-oxide-950">{children}</main>
+      {/* ── Main content ─────────────────────────────────────── */}
+      <main className="p-6 space-y-6 overflow-y-auto" style={{ background: 'var(--color-bg-primary)' }}>{children}</main>
       <ToastContainer />
+      <CommandPalette />
+      <KeyboardShortcuts />
     </div>
   )
 }
@@ -1139,6 +948,59 @@ function NavIcon({ name, small }: { name: string; small?: boolean }) {
         <path d="M12 2a15.3 15.3 0 0 1 0 20" />
       </svg>
     ),
+    'Load Balancers': (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M12 3v18" />
+        <path d="M18 9l-6-6-6 6" />
+        <circle cx="6" cy="18" r="2" />
+        <circle cx="12" cy="18" r="2" />
+        <circle cx="18" cy="18" r="2" />
+      </svg>
+    ),
+    'Port Forwarding': (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M8 3l4 4-4 4" />
+        <path d="M4 7h12" />
+        <path d="M16 21l-4-4 4-4" />
+        <path d="M20 17H8" />
+      </svg>
+    ),
+    'QoS Policies': (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0-18 0" />
+        <path d="M12 12l4-3" />
+        <path d="M12 7v1" />
+        <path d="M7 12h1" />
+        <path d="M17 12h-1" />
+      </svg>
+    ),
     ASNs: (
       <svg
         width={size}
@@ -1390,6 +1252,178 @@ function NavIcon({ name, small }: { name: string; small?: boolean }) {
         <path d="M2 5l5-3" />
         <circle cx="12" cy="13" r="7" />
         <path d="M12 10v4l2 2" />
+      </svg>
+    ),
+    // ── New icons for reorganized sidebar ────────────────────
+    Security: (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        <rect x="10" y="10" width="4" height="5" rx="1" />
+        <path d="M12 10V8a2 2 0 1 1 4 0" />
+      </svg>
+    ),
+    'Service Offerings': (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+        <path d="M7.5 4.21l4.5 2.6 4.5-2.6" />
+        <path d="M7.5 19.79V14.6L3 12" />
+        <path d="M21 12l-4.5 2.6v5.19" />
+        <path d="M3.27 6.96L12 12.01l8.73-5.05" />
+        <path d="M12 22.08V12" />
+      </svg>
+    ),
+    Administration: (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="3" />
+        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+      </svg>
+    ),
+    'High Availability': (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="3" width="8" height="6" rx="1" />
+        <rect x="14" y="3" width="8" height="6" rx="1" />
+        <rect x="8" y="15" width="8" height="6" rx="1" />
+        <path d="M6 9v2l6 4M18 9v2l-6 4" />
+      </svg>
+    ),
+    'Disaster Recovery': (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        <path d="M9 12l2 2 4-4" />
+        <path d="M17 1l2 2-2 2" />
+      </svg>
+    ),
+    'Self-Healing': (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M19.5 12.572l-7.5 7.428-7.5-7.428A5 5 0 1 1 12 6.006a5 5 0 1 1 7.5 6.566z" />
+        <path d="M12 10v4M10 12h4" />
+      </svg>
+    ),
+    'Bare Metal': (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="4" y="4" width="16" height="16" rx="2" />
+        <rect x="8" y="8" width="8" height="8" />
+        <path d="M8 2v2M16 2v2M8 20v2M16 20v2M2 8h2M2 16h2M20 8h2M20 16h2" />
+      </svg>
+    ),
+    'Auto Scale': (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+      </svg>
+    ),
+    'Affinity Groups': (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="7" cy="6" r="3" />
+        <circle cx="17" cy="6" r="3" />
+        <circle cx="12" cy="16" r="3" />
+        <path d="M7 9v2l5 2M17 9v2l-5 2" />
+      </svg>
+    ),
+    Compliance: (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
+        <rect x="9" y="3" width="6" height="4" rx="1" />
+        <path d="M9 14l2 2 4-4" />
+      </svg>
+    ),
+    'Rate Limiting': (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 7v5l3 3" />
+        <path d="M5 3L2 6M22 6l-3-3" />
+      </svg>
+    ),
+    'Data Encryption': (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="11" width="18" height="10" rx="2" />
+        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        <circle cx="12" cy="16" r="1" />
+      </svg>
+    ),
+    'Key Management': (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="7.5" cy="15.5" r="5.5" />
+        <path d="M11.5 11.5L21 2" />
+        <path d="M17 6h4v4" />
+        <path d="M15 8l2 2" />
+      </svg>
+    ),
+    'Platform Services': (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="4" y="2" width="16" height="6" rx="1" />
+        <rect x="4" y="10" width="16" height="6" rx="1" />
+        <rect x="4" y="18" width="16" height="4" rx="1" />
+        <circle cx="8" cy="5" r="1" />
+        <circle cx="8" cy="13" r="1" />
+      </svg>
+    ),
+    Webhooks: (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M18 16.98h-5.99c-1.1 0-1.95.94-2.48 1.9A4 4 0 0 1 2 17c.01-.7.2-1.4.57-2" />
+        <path d="M6 17a4 4 0 0 1 3.33-5.95 4 4 0 0 1 7.17-1.37" />
+        <path d="M14.18 8.01A4 4 0 0 1 22 11c0 .7-.19 1.4-.56 2l-3 5.17" />
+      </svg>
+    ),
+    'Usage & Billing': (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="4" width="18" height="16" rx="2" />
+        <path d="M3 10h18" />
+        <path d="M7 15h2M13 15h4" />
+      </svg>
+    ),
+    'Service Catalog': (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="7" height="7" rx="1" />
+        <rect x="14" y="3" width="7" height="7" rx="1" />
+        <rect x="3" y="14" width="7" height="7" rx="1" />
+        <rect x="14" y="14" width="7" height="7" rx="1" />
+        <path d="M6.5 5.5v2M17.5 5.5v2M6.5 16.5v2M17.5 16.5v2" />
+      </svg>
+    ),
+    Schedules: (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" />
+        <path d="M16 2v4M8 2v4M3 10h18" />
+        <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01" />
+      </svg>
+    ),
+    Firecracker: (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+      </svg>
+    ),
+    Networks: (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="6" cy="12" r="3" />
+        <circle cx="18" cy="6" r="3" />
+        <circle cx="18" cy="18" r="3" />
+        <path d="M8.7 10.7 15.3 8.3" />
+        <path d="M8.7 13.3 15.3 15.7" />
+      </svg>
+    ),
+    Routers: (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="10" width="20" height="8" rx="2" />
+        <path d="M6 10V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4" />
+        <circle cx="8" cy="14" r="1" />
+        <circle cx="12" cy="14" r="1" />
+      </svg>
+    ),
+    ISOs: (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="8" />
+        <circle cx="12" cy="12" r="2" />
+      </svg>
+    ),
+    'Kubernetes ISO': (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="12 2 19 7 19 17 12 22 5 17 5 7" />
+        <circle cx="12" cy="12" r="2" />
+      </svg>
+    ),
+    Projects: (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 7h5l2 2h11v11H3z" />
       </svg>
     )
   }

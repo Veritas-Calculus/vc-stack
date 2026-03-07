@@ -346,7 +346,7 @@ export function Events() {
                 onClick={() => setSelectedEvent(null)}
                 className="h-8 w-8 rounded-lg border border-oxide-700 hover:bg-oxide-800 grid place-items-center text-gray-300"
               >
-                ✕
+                &times;
               </button>
             </div>
             <div className="px-6 py-5 space-y-5">

@@ -23,7 +23,7 @@ type Tag struct {
 }
 
 // TableName overrides the default table name.
-func (Tag) TableName() string { return "tags" }
+func (Tag) TableName() string { return "sys_tags" }
 
 // Config contains the tag service configuration.
 type Config struct {

@@ -42,7 +42,7 @@ type Metadata struct {
 type JSONMap = models.JSONMap
 
 // TableName sets a custom table name for the Metadata model.
-func (Metadata) TableName() string { return "instance_metadata" }
+func (Metadata) TableName() string { return "sys_metadata" }
 
 // NewService creates a new metadata service.
 func NewService(cfg Config) (*Service, error) {

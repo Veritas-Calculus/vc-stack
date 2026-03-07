@@ -44,6 +44,13 @@ func NewService(cfg Config) (*Service, error) {
 		cfg.Logger = zap.NewNop()
 	}
 
+	// Auto-migrate S2/S5 models.
+	_ = cfg.DB.AutoMigrate(
+		&VolumeTransfer{}, &SharedFilesystem{}, &SharedFSExport{},
+		&StoragePool{},
+		&ConsistencyGroup{}, &ConsistencyGroupVolume{}, &CGSnapshot{}, &CGSnapshotMember{},
+	)
+
 	svc := &Service{
 		db:           cfg.DB,
 		logger:       cfg.Logger,
@@ -61,12 +68,22 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	api := router.Group("/api/v1/storage")
 	{
 		// Volume routes.
-		api.POST("/volumes", s.createVolume)
+		api.POST("/volumes", s.createVolumeEnhanced) // S1: enhanced create
 		api.GET("/volumes", s.listVolumes)
 		api.GET("/volumes/:id", s.getVolume)
 		api.DELETE("/volumes/:id", s.deleteVolume)
 		api.POST("/volumes/:id/resize", s.resizeVolume)
 		api.POST("/volumes/:id/extend", s.resizeVolume) // alias for resize
+
+		// S1.4: Attach / Detach.
+		api.POST("/volumes/:id/attach", s.attachVolume)
+		api.POST("/volumes/:id/detach", s.detachVolume)
+
+		// S1.2/S2.3: Revert to snapshot.
+		api.POST("/volumes/:id/revert", s.revertToSnapshot)
+
+		// S2.2: Clone.
+		api.POST("/volumes/:id/clone", s.cloneVolume)
 
 		// Snapshot routes.
 		api.POST("/snapshots", s.createSnapshot)
@@ -77,6 +94,40 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		// Storage pool info.
 		api.GET("/pools", s.listPools)
 		api.GET("/summary", s.getSummary)
+
+		// S1.1: Disk Offering management.
+		api.GET("/disk-offerings", s.listDiskOfferings)
+		api.POST("/disk-offerings", s.createDiskOffering)
+		api.DELETE("/disk-offerings/:id", s.deleteDiskOffering)
+
+		// S2.1: Volume Transfer.
+		api.GET("/transfers", s.listTransfers)
+		api.POST("/transfers", s.createTransfer)
+		api.POST("/transfers/:id/accept", s.acceptTransfer)
+		api.DELETE("/transfers/:id", s.cancelTransfer)
+
+		// S5.1: Shared Filesystems.
+		api.GET("/shared-fs", s.listSharedFS)
+		api.POST("/shared-fs", s.createSharedFS)
+		api.GET("/shared-fs/:id", s.getSharedFS)
+		api.DELETE("/shared-fs/:id", s.deleteSharedFS)
+		api.POST("/shared-fs/:id/exports", s.createExport)
+		api.DELETE("/shared-fs/:id/exports/:export_id", s.deleteExport)
+
+		// S5.2: Storage Pool CRUD.
+		api.GET("/storage-pools", s.listStoragePools)
+		api.POST("/storage-pools", s.createStoragePool)
+		api.GET("/storage-pools/:id", s.getStoragePool)
+		api.PUT("/storage-pools/:id", s.updateStoragePool)
+		api.DELETE("/storage-pools/:id", s.deleteStoragePool)
+
+		// S5.3: Consistency Groups.
+		api.GET("/consistency-groups", s.listConsistencyGroups)
+		api.POST("/consistency-groups", s.createConsistencyGroup)
+		api.GET("/consistency-groups/:id", s.getConsistencyGroup)
+		api.DELETE("/consistency-groups/:id", s.deleteConsistencyGroup)
+		api.POST("/consistency-groups/:id/volumes", s.addVolumeToCG)
+		api.POST("/consistency-groups/:id/snapshot", s.createCGSnapshot)
 	}
 }
 

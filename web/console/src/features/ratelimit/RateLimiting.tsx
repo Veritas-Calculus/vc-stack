@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { useState, useEffect, useCallback } from 'react'
 import api from '@/lib/api'
+import { Icons } from '@/components/ui/Icons'
 
 interface RateLimitPolicy {
     id: number
@@ -142,10 +143,10 @@ export function RateLimiting() {
                 <div className="space-y-6">
                     <div className="grid grid-cols-4 gap-4">
                         {[
-                            { label: 'Total Requests', value: status.total_requests.toLocaleString(), color: 'text-blue-400', icon: '📊' },
-                            { label: 'Blocked', value: status.blocked_requests.toLocaleString(), color: 'text-red-400', icon: '🚫' },
-                            { label: 'Block Rate', value: `${status.block_rate}%`, color: status.block_rate > 5 ? 'text-red-400' : 'text-emerald-400', icon: '📈' },
-                            { label: 'Active Limiters', value: status.active_limiters.toLocaleString(), color: 'text-amber-400', icon: '⚡' },
+                            { label: 'Total Requests', value: status.total_requests.toLocaleString(), color: 'text-blue-400', icon: Icons.chart('w-5 h-5') },
+                            { label: 'Blocked', value: status.blocked_requests.toLocaleString(), color: 'text-red-400', icon: Icons.xCircle('w-5 h-5') },
+                            { label: 'Block Rate', value: `${status.block_rate}%`, color: status.block_rate > 5 ? 'text-red-400' : 'text-emerald-400', icon: Icons.chart('w-5 h-5') },
+                            { label: 'Active Limiters', value: status.active_limiters.toLocaleString(), color: 'text-amber-400', icon: Icons.bolt('w-5 h-5') },
                         ].map(s => (
                             <div key={s.label} className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5">
                                 <div className="flex items-center gap-2 text-gray-400 text-sm mb-2"><span>{s.icon}</span> {s.label}</div>
@@ -284,7 +285,7 @@ export function RateLimiting() {
                     <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl overflow-hidden">
                         {events.length === 0 ? (
                             <div className="text-center py-12">
-                                <div className="text-4xl mb-3">✅</div>
+                                <div className="mb-3 text-emerald-400">{Icons.checkCircle('w-10 h-10')}</div>
                                 <p className="text-gray-400">No rate limit violations</p>
                                 <p className="text-gray-500 text-sm mt-1">All API requests are within configured limits</p>
                             </div>

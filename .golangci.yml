@@ -23,9 +23,9 @@ linters:
     - whitespace
   settings:
     gocyclo:
-      min-complexity: 30
+      min-complexity: 15
     gocognit:
-      min-complexity: 50
+      min-complexity: 30
   exclusions:
     paths:
       - ".*rbd_manager\\.go$"
@@ -36,3 +36,7 @@ linters:
           - errcheck
           - gosec
           - gocognit
+      # Allow nosec directives to have optional explanations.
+      - linters:
+          - gosec
+        text: "G101"

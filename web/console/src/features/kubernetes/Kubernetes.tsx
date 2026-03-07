@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { useState, useEffect, useCallback } from 'react'
 import api from '@/lib/api'
+import { Icons } from '@/components/ui/Icons'
 
 interface K8sCluster {
     id: string; name: string; description: string; kubernetes_version: string
@@ -141,10 +142,10 @@ export function Kubernetes() {
             {status && tab === 'clusters' && (
                 <div className="grid grid-cols-4 gap-4 mb-6">
                     {[
-                        { label: 'Clusters', value: String(status.clusters), icon: '☸️', color: 'text-blue-400' },
-                        { label: 'Total Nodes', value: String(status.total_nodes), icon: '🖥️', color: 'text-cyan-400' },
-                        { label: 'Active Nodes', value: String(status.active_nodes), icon: '✅', color: 'text-emerald-400' },
-                        { label: 'LoadBalancers', value: String(status.loadbalancers), icon: '⚖️', color: 'text-purple-400' },
+                        { label: 'Clusters', value: String(status.clusters), icon: Icons.kubernetes('w-5 h-5'), color: 'text-blue-400' },
+                        { label: 'Total Nodes', value: String(status.total_nodes), icon: Icons.desktopComputer('w-5 h-5'), color: 'text-cyan-400' },
+                        { label: 'Active Nodes', value: String(status.active_nodes), icon: Icons.checkCircle('w-5 h-5'), color: 'text-emerald-400' },
+                        { label: 'LoadBalancers', value: String(status.loadbalancers), icon: Icons.scaleBalance('w-5 h-5'), color: 'text-purple-400' },
                     ].map(s => (
                         <div key={s.label} className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5">
                             <div className="flex items-center gap-2 text-gray-400 text-sm mb-2"><span>{s.icon}</span> {s.label}</div>
@@ -170,7 +171,7 @@ export function Kubernetes() {
                     </div>
                     {clusters.length === 0 ? (
                         <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl text-center py-16">
-                            <div className="text-5xl mb-4">☸️</div>
+                            <div className="mb-4 text-blue-400">{Icons.kubernetes('w-12 h-12')}</div>
                             <p className="text-gray-400 text-lg">No Kubernetes clusters</p>
                             <p className="text-gray-500 text-sm mt-1">Create a managed cluster with Calico networking</p>
                         </div>
@@ -180,7 +181,7 @@ export function Kubernetes() {
                                 <div key={c.id} onClick={() => openCluster(c)} className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5 cursor-pointer hover:border-blue-500/40 transition group">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center text-2xl">☸️</div>
+                                            <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">{Icons.kubernetes('w-7 h-7')}</div>
                                             <div>
                                                 <div className="text-white font-semibold text-lg group-hover:text-blue-400 transition">{c.name}</div>
                                                 <div className="text-gray-500 text-xs mt-0.5">Kubernetes {c.kubernetes_version} • {c.cni_provider} {c.cni_version} • {c.calico_mode} mode</div>
@@ -189,7 +190,7 @@ export function Kubernetes() {
                                         <div className="flex items-center gap-4">
                                             <div className="text-right text-xs text-gray-400">
                                                 <div>{c.control_plane_count} CP + {c.worker_count} Workers</div>
-                                                <div className="mt-0.5">{c.ha_enabled ? '🟢 HA' : '⚪ Single'} • {c.bgp_enabled ? 'BGP' : 'Overlay'}</div>
+                                                <div className="mt-0.5 flex items-center gap-1">{c.ha_enabled ? <><span className="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span> HA</> : <><span className="w-2 h-2 rounded-full bg-gray-400 inline-block"></span> Single</>} <span className="mx-1">-</span> {c.bgp_enabled ? 'BGP' : 'Overlay'}</div>
                                             </div>
                                             <span className={badge(c.status)}>{c.status}</span>
                                             <button onClick={(e) => { e.stopPropagation(); deleteCluster(c.id) }} className="text-red-400 text-xs hover:text-red-300 opacity-0 group-hover:opacity-100 transition">Delete</button>
@@ -197,10 +198,10 @@ export function Kubernetes() {
                                     </div>
                                     {c.api_endpoint && (
                                         <div className="mt-3 pt-3 border-t border-gray-700/30 flex items-center gap-6 text-xs text-gray-400">
-                                            <span>📡 {c.api_endpoint}</span>
-                                            <span>🌐 Pod: {c.pod_cidr}</span>
-                                            <span>🔌 Svc: {c.service_cidr}</span>
-                                            <span>🏷️ DNS: {c.dns_domain}</span>
+                                            <span className="inline-flex items-center gap-1">{Icons.antenna('w-3 h-3')} {c.api_endpoint}</span>
+                                            <span className="inline-flex items-center gap-1">{Icons.globe('w-3 h-3')} Pod: {c.pod_cidr}</span>
+                                            <span className="inline-flex items-center gap-1">{Icons.plug('w-3 h-3')} Svc: {c.service_cidr}</span>
+                                            <span className="inline-flex items-center gap-1">{Icons.tag('w-3 h-3')} DNS: {c.dns_domain}</span>
                                         </div>
                                     )}
                                 </div>
@@ -216,10 +217,10 @@ export function Kubernetes() {
                     <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-6">
                         <div className="flex items-center justify-between mb-4">
                             <div>
-                                <h2 className="text-xl font-bold text-white flex items-center gap-2">☸️ {selectedCluster.name} <span className={badge(selectedCluster.status)}>{selectedCluster.status}</span></h2>
+                                <h2 className="text-xl font-bold text-white flex items-center gap-2">{Icons.kubernetes('w-6 h-6 text-blue-400')} {selectedCluster.name} <span className={badge(selectedCluster.status)}>{selectedCluster.status}</span></h2>
                                 <p className="text-gray-400 text-sm mt-1">K8s {selectedCluster.kubernetes_version} • {selectedCluster.cni_provider} {selectedCluster.cni_version} ({selectedCluster.calico_mode})</p>
                             </div>
-                            <button onClick={() => { setTab('networking'); fetchClusterDetail(selectedCluster.id) }} className="px-3 py-1.5 bg-gray-700 text-gray-300 rounded-lg text-sm hover:bg-gray-600 transition">🌐 Networking</button>
+                            <button onClick={() => { setTab('networking'); fetchClusterDetail(selectedCluster.id) }} className="px-3 py-1.5 bg-gray-700 text-gray-300 rounded-lg text-sm hover:bg-gray-600 transition flex items-center gap-1.5">{Icons.globe('w-4 h-4')} Networking</button>
                         </div>
                         <div className="grid grid-cols-4 gap-4 text-sm">
                             {[
@@ -296,38 +297,38 @@ export function Kubernetes() {
                     <div className="flex items-center gap-3 mb-2">
                         <button onClick={() => setTab('detail')} className="text-sm text-gray-400 hover:text-white transition">← Back to {selectedCluster.name}</button>
                     </div>
-                    <h2 className="text-xl font-bold text-white">🌐 Networking — {selectedCluster.name}</h2>
+                    <h2 className="text-xl font-bold text-white flex items-center gap-2">{Icons.globe('w-5 h-5')} Networking — {selectedCluster.name}</h2>
 
                     {/* Network Architecture Diagram */}
                     <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-6">
                         <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Network Architecture</h3>
                         <div className="flex items-center justify-center gap-3 py-4 text-sm">
                             <div className="text-center p-3 border border-blue-500/30 rounded-lg bg-blue-500/5 w-32">
-                                <div className="text-lg mb-1">🌍</div>
+                                <div className="text-lg mb-1 text-blue-400">{Icons.globe('w-5 h-5')}</div>
                                 <div className="text-white font-medium text-xs">External</div>
                                 <div className="text-gray-500 text-xs">Floating IP</div>
                             </div>
                             <span className="text-gray-500">→</span>
                             <div className="text-center p-3 border border-purple-500/30 rounded-lg bg-purple-500/5 w-32">
-                                <div className="text-lg mb-1">⚖️</div>
+                                <div className="text-lg mb-1 text-purple-400">{Icons.scaleBalance('w-5 h-5')}</div>
                                 <div className="text-white font-medium text-xs">OVN LB</div>
                                 <div className="text-gray-500 text-xs">L4 Load Balancer</div>
                             </div>
                             <span className="text-gray-500">→</span>
                             <div className="text-center p-3 border border-cyan-500/30 rounded-lg bg-cyan-500/5 w-32">
-                                <div className="text-lg mb-1">🖥️</div>
+                                <div className="text-lg mb-1 text-cyan-400">{Icons.desktopComputer('w-5 h-5')}</div>
                                 <div className="text-white font-medium text-xs">NodePort</div>
                                 <div className="text-gray-500 text-xs">kube-proxy</div>
                             </div>
                             <span className="text-gray-500">→</span>
                             <div className="text-center p-3 border border-emerald-500/30 rounded-lg bg-emerald-500/5 w-32">
-                                <div className="text-lg mb-1">🐾</div>
+                                <div className="text-lg mb-1 text-emerald-400">{Icons.network('w-5 h-5')}</div>
                                 <div className="text-white font-medium text-xs">Calico CNI</div>
                                 <div className="text-gray-500 text-xs">{selectedCluster.calico_mode}</div>
                             </div>
                             <span className="text-gray-500">→</span>
                             <div className="text-center p-3 border border-amber-500/30 rounded-lg bg-amber-500/5 w-32">
-                                <div className="text-lg mb-1">📦</div>
+                                <div className="text-lg mb-1 text-amber-400">{Icons.cube('w-5 h-5')}</div>
                                 <div className="text-white font-medium text-xs">Pod</div>
                                 <div className="text-gray-500 text-xs">{selectedCluster.pod_cidr}</div>
                             </div>

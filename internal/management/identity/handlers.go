@@ -27,6 +27,7 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 			auth.POST("/login", s.loginHandler)
 			auth.POST("/refresh", s.refreshHandler)
 			auth.POST("/logout", s.logoutHandler)
+			auth.POST("/mfa/challenge", s.mfaChallengeHandler) // Step 2 of MFA login
 		}
 
 		// Protected routes.
@@ -104,6 +105,16 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 				profile.GET("", s.getProfileHandler)
 				profile.PUT("", s.updateProfileHandler)
 				profile.POST("/change-password", s.changePasswordHandler)
+			}
+
+			// MFA management (requires authentication).
+			mfa := protected.Group("/auth/mfa")
+			{
+				mfa.POST("/setup", s.mfaSetupHandler)
+				mfa.POST("/verify", s.mfaVerifyHandler)
+				mfa.POST("/disable", s.mfaDisableHandler)
+				mfa.GET("/status", s.mfaStatusHandler)
+				mfa.POST("/recovery-codes", s.mfaRegenerateCodesHandler)
 			}
 
 			// Policy management.

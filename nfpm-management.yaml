@@ -1,0 +1,102 @@
+# nFPM configuration for VC Stack Management Plane
+# Generates .deb and .rpm packages
+# Usage: nfpm pkg --config nfpm-management.yaml --packager deb --target dist/
+#        nfpm pkg --config nfpm-management.yaml --packager rpm --target dist/
+
+name: vc-management
+arch: "${GOARCH}"
+platform: linux
+version: "${VERSION}"
+release: "1"
+section: admin
+priority: optional
+maintainer: "VC Stack Team <team@vcstack.org>"
+description: |
+  VC Stack Management Plane - Centralized cloud infrastructure management.
+  Provides identity (IAM), compute scheduling, network (OVN) orchestration,
+  and the web console for managing virtual infrastructure.
+vendor: "Veritas Calculus"
+homepage: "https://github.com/Veritas-Calculus/vc-stack"
+license: "Apache-2.0"
+
+depends:
+  - postgresql-client
+
+recommends:
+  - postgresql
+  - nginx
+
+contents:
+  # Binary
+  - src: bin/vc-management
+    dst: /opt/vc-stack/bin/vc-management
+    file_info:
+      mode: 0755
+
+  # CLI tool
+  - src: bin/vcctl
+    dst: /usr/local/bin/vcctl
+    file_info:
+      mode: 0755
+
+  # Systemd service
+  - src: configs/systemd/vc-management.service
+    dst: /etc/systemd/system/vc-management.service
+    type: config
+    file_info:
+      mode: 0644
+
+  # Default config
+  - src: configs/management.yaml.example
+    dst: /etc/vc-stack/management.yaml.example
+    type: config|noreplace
+    file_info:
+      mode: 0640
+
+  # Nginx config
+  - src: configs/nginx/vc-stack.conf
+    dst: /etc/nginx/sites-available/vc-stack.conf
+    type: config|noreplace
+    file_info:
+      mode: 0644
+
+  # Web console assets
+  - src: web/console/dist/
+    dst: /opt/vc-stack/web/
+    file_info:
+      mode: 0644
+
+  # Database migrations
+  - src: migrations/
+    dst: /opt/vc-stack/migrations/
+    file_info:
+      mode: 0644
+
+  # Log directory
+  - dst: /var/log/vc-stack
+    type: dir
+    file_info:
+      mode: 0755
+      owner: vcstack
+      group: vcstack
+
+  # Data directory
+  - dst: /var/lib/vc-stack
+    type: dir
+    file_info:
+      mode: 0750
+      owner: vcstack
+      group: vcstack
+
+  # Config directory
+  - dst: /etc/vc-stack
+    type: dir
+    file_info:
+      mode: 0750
+      owner: vcstack
+      group: vcstack
+
+scripts:
+  preinstall: scripts/pkg/preinstall.sh
+  postinstall: scripts/pkg/postinstall-management.sh
+  preremove: scripts/pkg/preremove-management.sh

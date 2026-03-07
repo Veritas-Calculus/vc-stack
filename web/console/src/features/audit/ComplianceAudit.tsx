@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import api from '@/lib/api'
+import { Icons } from '@/components/ui/Icons'
 
 interface AuditLogEntry { id: string; timestamp: string; event_type: string; category: string; severity: string; actor_name: string; actor_type: string; actor_ip: string; resource_type: string; resource_name: string; action: string; result: string; detail: string; hash: string; sequence: number }
 interface AuditPolicyItem { id: string; name: string; event_pattern: string; category: string; severity: string; enabled: boolean; retention_days: number; alert_enabled: boolean }
@@ -104,10 +105,10 @@ export function ComplianceAudit() {
                 <div className="space-y-6">
                     <div className="grid grid-cols-4 gap-4">
                         {[
-                            { label: 'Audit Logs', value: String(status.total_logs), icon: '📋', color: 'text-blue-400' },
-                            { label: 'Policies', value: String(status.policies), icon: '📜', color: 'text-cyan-400' },
-                            { label: 'Frameworks', value: String(status.frameworks), icon: '🏛️', color: 'text-purple-400' },
-                            { label: 'Reports', value: String(status.reports), icon: '📊', color: 'text-amber-400' },
+                            { label: 'Audit Logs', value: String(status.total_logs), icon: Icons.pencil('w-4 h-4'), color: 'text-blue-400' },
+                            { label: 'Policies', value: String(status.policies), icon: Icons.shield('w-4 h-4'), color: 'text-cyan-400' },
+                            { label: 'Frameworks', value: String(status.frameworks), icon: Icons.building('w-4 h-4'), color: 'text-purple-400' },
+                            { label: 'Reports', value: String(status.reports), icon: Icons.chart('w-4 h-4'), color: 'text-amber-400' },
                         ].map(s => (
                             <div key={s.label} className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5">
                                 <div className="flex items-center gap-2 text-gray-400 text-sm mb-2"><span>{s.icon}</span> {s.label}</div>
@@ -118,13 +119,13 @@ export function ComplianceAudit() {
 
                     {/* Chain integrity */}
                     <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-6">
-                        <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">🔗 Audit Chain Integrity</h3>
+                        <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4 flex items-center gap-2">{Icons.link('w-4 h-4')} Audit Chain Integrity</h3>
                         {(() => {
                             const ci = (status.chain_integrity || {}) as Record<string, unknown>
                             if (!ci.intact && ci.intact !== false) return null
                             return (
                                 <div className="flex items-center gap-6">
-                                    <div className={`text-4xl font-bold ${ci.intact ? 'text-emerald-400' : 'text-red-400'}`}>{ci.intact ? '✅ VERIFIED' : '⚠️ COMPROMISED'}</div>
+                                    <div className={`text-4xl font-bold flex items-center gap-2 ${ci.intact ? 'text-emerald-400' : 'text-red-400'}`}>{ci.intact ? <>{Icons.checkCircle('w-8 h-8')} VERIFIED</> : <>{Icons.warning('w-8 h-8')} COMPROMISED</>}</div>
                                     <div className="text-sm text-gray-400">
                                         <div>{String(ci.verified)} entries verified</div>
                                         <div className="text-xs mt-1 text-gray-500">{String(ci.message)}</div>
@@ -150,7 +151,7 @@ export function ComplianceAudit() {
                                     <td className="px-4 py-3 text-gray-300 text-xs">{p.category}</td>
                                     <td className="px-4 py-3"><span className={badge(p.severity)}>{p.severity}</span></td>
                                     <td className="px-4 py-3 text-gray-300 text-xs">{p.retention_days}d ({Math.round(p.retention_days / 365)}y)</td>
-                                    <td className="px-4 py-3">{p.alert_enabled ? <span className="text-amber-400 text-xs">🔔 on</span> : <span className="text-gray-500 text-xs">off</span>}</td>
+                                    <td className="px-4 py-3">{p.alert_enabled ? <span className="text-amber-400 text-xs inline-flex items-center gap-1">{Icons.bell('w-3 h-3')} on</span> : <span className="text-gray-500 text-xs">off</span>}</td>
                                     <td className="px-4 py-3">{p.enabled ? <span className="text-emerald-400 text-xs">●</span> : <span className="text-gray-500 text-xs">○</span>}</td>
                                 </tr>
                             ))}</tbody>
@@ -200,7 +201,7 @@ export function ComplianceAudit() {
             {tab === 'compliance' && (
                 <div className="space-y-6">
                     <div className="flex justify-end gap-3">
-                        <button onClick={runAssessment} className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-500 transition">🔍 Run Assessment</button>
+                        <button onClick={runAssessment} className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-500 transition flex items-center gap-1.5">{Icons.search('w-4 h-4')} Run Assessment</button>
                     </div>
 
                     {selectedFW ? (
@@ -239,7 +240,7 @@ export function ComplianceAudit() {
                                 <div key={fw.id} onClick={() => loadControls(fw)} className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5 cursor-pointer hover:border-purple-500/40 transition group">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center text-xl">🏛️</div>
+                                            <div className="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400">{Icons.building('w-7 h-7')}</div>
                                             <div>
                                                 <div className="text-white font-semibold group-hover:text-purple-400 transition">{fw.name} <span className="text-gray-500 text-sm font-normal">v{fw.version}</span></div>
                                                 <div className="text-gray-500 text-xs mt-0.5">{fw.description}</div>
@@ -265,11 +266,11 @@ export function ComplianceAudit() {
             {tab === 'reports' && (
                 <div className="space-y-4">
                     <div className="flex justify-end">
-                        <button onClick={generateReport} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-500 transition">📊 Generate Report</button>
+                        <button onClick={generateReport} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-500 transition flex items-center gap-1.5">{Icons.chart('w-4 h-4')} Generate Report</button>
                     </div>
                     {reports.length === 0 ? (
                         <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl text-center py-16">
-                            <div className="text-5xl mb-4">📊</div>
+                            <div className="mb-4 text-gray-500">{Icons.chart('w-12 h-12')}</div>
                             <p className="text-gray-400 text-lg">No compliance reports generated</p>
                             <p className="text-gray-500 text-sm mt-1">Generate a report to assess your compliance posture</p>
                         </div>

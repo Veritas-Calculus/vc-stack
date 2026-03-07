@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Veritas-Calculus/vc-stack/pkg/naming"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -42,7 +43,8 @@ func (s *Service) listRouters(c *gin.Context) {
 // createRouter creates a new router.
 func (s *Service) createRouter(c *gin.Context) {
 	var req struct {
-		Name        string `json:"name" binding:"required"`
+		Name        string `json:"name"`
+		DisplayName string `json:"display_name"`
 		Description string `json:"description"`
 		TenantID    string `json:"tenant_id" binding:"required"`
 		AdminUp     *bool  `json:"admin_up"`
@@ -51,6 +53,17 @@ func (s *Service) createRouter(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Auto-generate name if empty.
+	if req.Name == "" && req.DisplayName != "" {
+		req.Name = naming.GenerateSlug(req.DisplayName)
+	} else if req.Name == "" {
+		req.Name = naming.GenerateAutoName("rtr")
+	}
+	if err := naming.ValidateName(req.Name, naming.ModeGeneral); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid name: " + err.Error()})
 		return
 	}
 
@@ -66,8 +79,9 @@ func (s *Service) createRouter(c *gin.Context) {
 	}
 
 	router := Router{
-		ID:          generateID(),
+		ID:          naming.GenerateID(naming.PrefixRouter),
 		Name:        req.Name,
+		DisplayName: req.DisplayName,
 		Description: req.Description,
 		TenantID:    req.TenantID,
 		AdminUp:     adminUp,
@@ -253,7 +267,7 @@ func (s *Service) addRouterInterface(c *gin.Context) {
 
 	// Create router interface record.
 	routerInterface := RouterInterface{
-		ID:        generateID(),
+		ID:        naming.GenerateID(naming.PrefixPort),
 		RouterID:  routerID,
 		SubnetID:  req.SubnetID,
 		IPAddress: subnet.Gateway, // Use subnet gateway as router interface IP

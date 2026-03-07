@@ -320,7 +320,7 @@ function TreeItem({
             }}
             className="text-gray-500 hover:text-gray-300 text-xs w-4"
           >
-            {expanded ? '▼' : '▶'}
+            {expanded ? <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" /></svg> : <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" /></svg>}
           </button>
         )}
         {!hasChildren && <span className="w-4" />}

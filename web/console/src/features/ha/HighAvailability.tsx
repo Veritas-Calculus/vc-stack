@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { useState, useEffect, useCallback } from 'react'
 import api from '@/lib/api'
+import { Icons } from '@/components/ui/Icons'
 
 interface HAPolicy {
     id: number
@@ -233,10 +234,10 @@ export function HighAvailability() {
                     {/* Stats Grid */}
                     <div className="grid grid-cols-4 gap-4">
                         {[
-                            { label: 'Hosts Up', value: status.hosts?.up || 0, color: 'text-emerald-400', icon: '🟢' },
-                            { label: 'Hosts Down', value: status.hosts?.down || 0, color: (status.hosts?.down || 0) > 0 ? 'text-red-400' : 'text-gray-400', icon: '🔴' },
-                            { label: 'Protected VMs', value: status.protected_instances, color: 'text-blue-400', icon: '🛡️' },
-                            { label: 'Total Active VMs', value: status.total_instances, color: 'text-purple-400', icon: '💻' },
+                            { label: 'Hosts Up', value: status.hosts?.up || 0, color: 'text-emerald-400', icon: Icons.checkCircle('w-5 h-5') },
+                            { label: 'Hosts Down', value: status.hosts?.down || 0, color: (status.hosts?.down || 0) > 0 ? 'text-red-400' : 'text-gray-400', icon: Icons.xCircle('w-5 h-5') },
+                            { label: 'Protected VMs', value: status.protected_instances, color: 'text-blue-400', icon: Icons.shieldCheck('w-5 h-5') },
+                            { label: 'Total Active VMs', value: status.total_instances, color: 'text-purple-400', icon: Icons.desktopComputer('w-5 h-5') },
                         ].map(s => (
                             <div key={s.label} className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5">
                                 <div className="flex items-center gap-2 text-gray-400 text-sm mb-2">
@@ -259,7 +260,7 @@ export function HighAvailability() {
                     {/* Active Fencing Alerts */}
                     {status.active_fencing && status.active_fencing.length > 0 && (
                         <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-5">
-                            <h3 className="text-sm font-semibold text-red-400 uppercase tracking-wider mb-3">⚠️ Active Fencing ({status.active_fencing.length})</h3>
+                            <h3 className="text-sm font-semibold text-red-400 uppercase tracking-wider mb-3 flex items-center gap-2">{Icons.warning('w-4 h-4')} Active Fencing ({status.active_fencing.length})</h3>
                             <div className="space-y-2">
                                 {status.active_fencing.map(f => (
                                     <div key={f.host_id} className="flex items-center justify-between py-2 px-3 bg-red-500/5 rounded-lg">
@@ -291,8 +292,8 @@ export function HighAvailability() {
                                             <span className="text-gray-500 text-xs">{e.trigger}</span>
                                         </div>
                                         <div className="flex items-center gap-4 text-xs text-gray-400">
-                                            <span className="text-emerald-400">{e.evacuated} ✓</span>
-                                            {e.failed > 0 && <span className="text-red-400">{e.failed} ✗</span>}
+                                            <span className="text-emerald-400">{e.evacuated} done</span>
+                                            {e.failed > 0 && <span className="text-red-400">{e.failed} fail</span>}
                                             {e.skipped > 0 && <span className="text-gray-400">{e.skipped} ⊘</span>}
                                             <span>{formatTime(e.started_at)}</span>
                                         </div>
@@ -349,7 +350,7 @@ export function HighAvailability() {
                 <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl overflow-hidden">
                     {instances.length === 0 ? (
                         <div className="text-center py-12">
-                            <div className="text-4xl mb-3">🛡️</div>
+                            <div className="mb-3 text-gray-500">{Icons.shieldCheck('w-10 h-10')}</div>
                             <p className="text-gray-400">No HA-configured instances</p>
                             <p className="text-gray-500 text-sm mt-1">Enable HA on instances to protect them from host failures</p>
                         </div>
@@ -401,7 +402,7 @@ export function HighAvailability() {
                 <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl overflow-hidden">
                     {evacuations.length === 0 ? (
                         <div className="text-center py-12">
-                            <div className="text-4xl mb-3">📦</div>
+                            <div className="mb-3 text-gray-500">{Icons.cube('w-10 h-10')}</div>
                             <p className="text-gray-400">No evacuation events</p>
                         </div>
                     ) : (
@@ -429,7 +430,7 @@ export function HighAvailability() {
                                         <td className="px-4 py-3"><span className={statusBadge(e.status)}>{e.status}</span></td>
                                         <td className="px-4 py-3 text-gray-300">
                                             <span className="text-emerald-400">{e.evacuated}</span>
-                                            {e.failed > 0 && <span className="text-red-400 ml-1">/ {e.failed}✗</span>}
+                                            {e.failed > 0 && <span className="text-red-400 ml-1">/ {e.failed} fail</span>}
                                             {e.skipped > 0 && <span className="text-gray-500 ml-1">/ {e.skipped}⊘</span>}
                                             <span className="text-gray-500"> of {e.total_instances}</span>
                                         </td>
@@ -514,7 +515,7 @@ export function HighAvailability() {
                 <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl overflow-hidden">
                     {fencingEvents.length === 0 ? (
                         <div className="text-center py-12">
-                            <div className="text-4xl mb-3">🔒</div>
+                            <div className="mb-3 text-gray-500">{Icons.lock('w-10 h-10')}</div>
                             <p className="text-gray-400">No fencing events</p>
                         </div>
                     ) : (

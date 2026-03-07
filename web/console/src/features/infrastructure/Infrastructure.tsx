@@ -297,17 +297,17 @@ function Zones() {
     header: string
     render?: (row: ZoneRow) => React.ReactNode
   }[] = [
-    { key: 'name', header: 'Name' },
-    {
-      key: 'allocation',
-      header: 'Allocation state',
-      render: (r) => (
-        <Badge variant={r.allocation === 'enabled' ? 'success' : 'warning'}>{r.allocation}</Badge>
-      )
-    },
-    { key: 'type', header: 'Type', render: (r) => <span className="uppercase">{r.type}</span> },
-    { key: 'networkType', header: 'Network Type' }
-  ]
+      { key: 'name', header: 'Name' },
+      {
+        key: 'allocation',
+        header: 'Allocation state',
+        render: (r) => (
+          <Badge variant={r.allocation === 'enabled' ? 'success' : 'warning'}>{r.allocation}</Badge>
+        )
+      },
+      { key: 'type', header: 'Type', render: (r) => <span className="uppercase">{r.type}</span> },
+      { key: 'networkType', header: 'Network Type' }
+    ]
 
   return (
     <div className="space-y-3">
@@ -467,43 +467,43 @@ function Clusters() {
     header: string
     render?: (row: ClusterRow) => React.ReactNode
   }[] = [
-    { key: 'name', header: 'Name' },
-    {
-      key: 'zone_id',
-      header: 'Zone',
-      render: (r) => r.zone_id || '—'
-    },
-    { key: 'hypervisor_type', header: 'Hypervisor' },
-    {
-      key: 'allocation',
-      header: 'Allocation',
-      render: (r) => (
-        <Badge variant={r.allocation === 'enabled' ? 'success' : 'warning'}>{r.allocation}</Badge>
-      )
-    },
-    { key: 'description', header: 'Description' },
-    {
-      key: 'id',
-      header: 'Actions',
-      render: (r) => (
-        <button
-          className="btn btn-sm text-red-400 hover:text-red-300"
-          onClick={async () => {
-            if (!confirm(`Delete cluster "${r.name}"?`)) return
-            try {
-              await deleteCluster(r.id)
-              setRows((prev) => prev.filter((c) => c.id !== r.id))
-              toast.success('Cluster deleted')
-            } catch {
-              toast.error('Failed to delete cluster')
-            }
-          }}
-        >
-          Delete
-        </button>
-      )
-    }
-  ]
+      { key: 'name', header: 'Name' },
+      {
+        key: 'zone_id',
+        header: 'Zone',
+        render: (r) => r.zone_id || '—'
+      },
+      { key: 'hypervisor_type', header: 'Hypervisor' },
+      {
+        key: 'allocation',
+        header: 'Allocation',
+        render: (r) => (
+          <Badge variant={r.allocation === 'enabled' ? 'success' : 'warning'}>{r.allocation}</Badge>
+        )
+      },
+      { key: 'description', header: 'Description' },
+      {
+        key: 'id',
+        header: 'Actions',
+        render: (r) => (
+          <button
+            className="btn btn-sm text-red-400 hover:text-red-300"
+            onClick={async () => {
+              if (!confirm(`Delete cluster "${r.name}"?`)) return
+              try {
+                await deleteCluster(r.id)
+                setRows((prev) => prev.filter((c) => c.id !== r.id))
+                toast.success('Cluster deleted')
+              } catch {
+                toast.error('Failed to delete cluster')
+              }
+            }}
+          >
+            Delete
+          </button>
+        )
+      }
+    ]
 
   return (
     <div className="card p-4">
@@ -654,7 +654,7 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     fetchZones()
       .then((z) => setZones(z.map((x) => ({ id: x.id, name: x.name }))))
-      .catch(() => {})
+      .catch(() => { })
   }, [])
 
   const scriptURL = useMemo(
@@ -801,9 +801,8 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
         {(['script', 'ssh', 'manual'] as const).map((t) => (
           <button
             key={t}
-            className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-              tab === t ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-gray-200'
-            }`}
+            className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${tab === t ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-gray-200'
+              }`}
             onClick={() => setTab(t)}
           >
             {t === 'script' ? 'Install Script' : t === 'ssh' ? 'SSH Deploy' : 'Manual'}
@@ -860,7 +859,7 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
               className="absolute top-2 right-2 px-3 py-1 text-xs rounded bg-oxide-700 hover:bg-oxide-600 text-gray-300 transition-colors"
               onClick={handleCopy}
             >
-              {copied ? '✓ Copied' : 'Copy'}
+              {copied ? 'Copied!' : 'Copy'}
             </button>
           </div>
           <div className="text-xs text-gray-500 space-y-1">
@@ -944,9 +943,9 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
                         className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${color}`}
                       >
                         {latest?.status === 'success' || latest?.status === 'done'
-                          ? '✓'
-                          : latest?.status === 'error'
-                            ? '✗'
+                          ? 'OK'
+                          : (latest as Record<string, unknown>).status === 'error'
+                            ? 'ERR'
                             : stepNum}
                       </div>
                       <span className="text-[10px] text-gray-500 text-center leading-tight w-16">
@@ -962,13 +961,12 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
                 {deploySteps.map((evt, i) => (
                   <div
                     key={i}
-                    className={`text-xs font-mono py-0.5 ${
-                      evt.status === 'error'
+                    className={`text-xs font-mono py-0.5 ${evt.status === 'error'
                         ? 'text-red-400'
                         : evt.status === 'success' || evt.status === 'done'
                           ? 'text-emerald-400'
                           : 'text-gray-400'
-                    }`}
+                      }`}
                   >
                     <span className="text-gray-600 mr-2">
                       [{evt.step}/{evt.total}]
@@ -1092,7 +1090,7 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
               }}
               disabled={testing || !manualIP}
             >
-              {testing ? 'Testing...' : connectionOk ? '✓ Connected' : 'Test Connection'}
+              {testing ? 'Testing...' : connectionOk ? 'Connected' : 'Test Connection'}
             </button>
             <button
               className="btn btn-primary flex-1"
@@ -1107,7 +1105,7 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
           )}
           {connectionTested && connectionOk && (
             <p className="text-xs text-green-400 mt-1">
-              ✓ Host is reachable. You can now register it.
+              Host is reachable. You can now register it.
             </p>
           )}
         </div>
@@ -1217,65 +1215,65 @@ function Hosts() {
     headerRender?: React.ReactNode
     className?: string
   }[] = [
-    {
-      key: '__sel__',
-      header: '',
-      headerRender: (
-        <input
-          type="checkbox"
-          aria-label="Select all"
-          checked={rows.length > 0 && rows.every((r) => selectedIds.has(r.id))}
-          onChange={(e) => {
-            if (e.target.checked) setSelectedIds(new Set(rows.map((r) => r.id)))
-            else setSelectedIds(new Set())
-          }}
-        />
-      ),
-      render: (r) => (
-        <input
-          type="checkbox"
-          aria-label={`Select ${r.name}`}
-          checked={selectedIds.has(r.id)}
-          onChange={(e) => {
-            e.stopPropagation()
-            setSelectedIds((prev) => {
-              const next = new Set(prev)
-              if (e.target.checked) next.add(r.id)
-              else next.delete(r.id)
-              return next
-            })
-          }}
-          onClick={(e) => e.stopPropagation()}
-        />
-      ),
-      className: 'w-8'
-    },
-    { key: 'name', header: 'Name' },
-    {
-      key: 'state',
-      header: 'State',
-      render: (r: HostRow) => (
-        <Badge
-          variant={r.state === 'up' ? 'success' : r.state === 'connecting' ? 'warning' : 'danger'}
-        >
-          {r.state}
-        </Badge>
-      )
-    },
-    {
-      key: 'resourceState',
-      header: 'Resource State',
-      render: (r: HostRow) => (
-        <Badge variant={r.resourceState === 'enabled' ? 'success' : 'warning'}>
-          {r.resourceState}
-        </Badge>
-      )
-    },
-    { key: 'ip', header: 'IP' },
-    { key: 'arch', header: 'Arch' },
-    { key: 'hypervisor', header: 'Hypervisor' },
-    { key: 'version', header: 'Version' }
-  ]
+      {
+        key: '__sel__',
+        header: '',
+        headerRender: (
+          <input
+            type="checkbox"
+            aria-label="Select all"
+            checked={rows.length > 0 && rows.every((r) => selectedIds.has(r.id))}
+            onChange={(e) => {
+              if (e.target.checked) setSelectedIds(new Set(rows.map((r) => r.id)))
+              else setSelectedIds(new Set())
+            }}
+          />
+        ),
+        render: (r) => (
+          <input
+            type="checkbox"
+            aria-label={`Select ${r.name}`}
+            checked={selectedIds.has(r.id)}
+            onChange={(e) => {
+              e.stopPropagation()
+              setSelectedIds((prev) => {
+                const next = new Set(prev)
+                if (e.target.checked) next.add(r.id)
+                else next.delete(r.id)
+                return next
+              })
+            }}
+            onClick={(e) => e.stopPropagation()}
+          />
+        ),
+        className: 'w-8'
+      },
+      { key: 'name', header: 'Name' },
+      {
+        key: 'state',
+        header: 'State',
+        render: (r: HostRow) => (
+          <Badge
+            variant={r.state === 'up' ? 'success' : r.state === 'connecting' ? 'warning' : 'danger'}
+          >
+            {r.state}
+          </Badge>
+        )
+      },
+      {
+        key: 'resourceState',
+        header: 'Resource State',
+        render: (r: HostRow) => (
+          <Badge variant={r.resourceState === 'enabled' ? 'success' : 'warning'}>
+            {r.resourceState}
+          </Badge>
+        )
+      },
+      { key: 'ip', header: 'IP' },
+      { key: 'arch', header: 'Arch' },
+      { key: 'hypervisor', header: 'Hypervisor' },
+      { key: 'version', header: 'Version' }
+    ]
 
   return (
     <div className="space-y-3">
@@ -1433,13 +1431,13 @@ function DBUsage() {
         timestamp: data.timestamp,
         db: dbComp
           ? {
-              status: dbComp.status,
-              message: dbComp.message,
-              latency_ms: Number(dbComp.details?.latency_ms ?? 0),
-              open: Number(dbComp.details?.open_connections ?? 0),
-              inUse: Number(dbComp.details?.in_use ?? 0),
-              idle: Number(dbComp.details?.idle ?? 0)
-            }
+            status: dbComp.status,
+            message: dbComp.message,
+            latency_ms: Number(dbComp.details?.latency_ms ?? 0),
+            open: Number(dbComp.details?.open_connections ?? 0),
+            inUse: Number(dbComp.details?.in_use ?? 0),
+            idle: Number(dbComp.details?.idle ?? 0)
+          }
           : undefined
       })
     } catch {

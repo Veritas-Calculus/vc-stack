@@ -1,0 +1,75 @@
+# nFPM configuration for VC Stack Compute Node
+# Generates .deb and .rpm packages
+# Usage: nfpm pkg --config nfpm-compute.yaml --packager deb --target dist/
+#        nfpm pkg --config nfpm-compute.yaml --packager rpm --target dist/
+
+name: vc-compute
+arch: "${GOARCH}"
+platform: linux
+version: "${VERSION}"
+release: "1"
+section: admin
+priority: optional
+maintainer: "VC Stack Team <team@vcstack.org>"
+description: |
+  VC Stack Compute Node Agent - Manages local VMs via QEMU/KVM,
+  configures networking via OVN/OVS, and handles storage (Ceph/RBD).
+vendor: "Veritas Calculus"
+homepage: "https://github.com/Veritas-Calculus/vc-stack"
+license: "Apache-2.0"
+
+depends:
+  - qemu-system-x86 | qemu-system-aarch64
+  - qemu-utils
+  - openvswitch-switch
+
+recommends:
+  - ovn-host
+  - ceph-common
+  - swtpm
+
+contents:
+  # Binary
+  - src: bin/vc-compute
+    dst: /opt/vc-stack/bin/vc-compute
+    file_info:
+      mode: 0755
+
+  # Systemd service
+  - src: configs/systemd/vc-compute.service
+    dst: /etc/systemd/system/vc-compute.service
+    type: config
+    file_info:
+      mode: 0644
+
+  # Default config
+  - src: configs/compute.yaml.example
+    dst: /etc/vc-stack/compute.yaml.example
+    type: config|noreplace
+    file_info:
+      mode: 0640
+
+  # Log directory
+  - dst: /var/log/vc-stack
+    type: dir
+    file_info:
+      mode: 0755
+
+  # VM runtime directory
+  - dst: /var/lib/vc-stack/vms
+    type: dir
+    file_info:
+      mode: 0750
+      owner: root
+      group: root
+
+  # Config directory
+  - dst: /etc/vc-stack
+    type: dir
+    file_info:
+      mode: 0750
+
+scripts:
+  preinstall: scripts/pkg/preinstall.sh
+  postinstall: scripts/pkg/postinstall-compute.sh
+  preremove: scripts/pkg/preremove-compute.sh

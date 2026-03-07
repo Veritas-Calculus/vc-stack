@@ -41,7 +41,7 @@ type Task struct {
 }
 
 // TableName overrides the default table name.
-func (Task) TableName() string { return "tasks" }
+func (Task) TableName() string { return "sys_tasks" }
 
 // Config contains the task service configuration.
 type Config struct {

@@ -128,18 +128,18 @@ type ListSnapshotsResponse = {
 // Mappers to UI types
 const mapInstance =
   (p: string | undefined) =>
-  (x: ListInstancesResponse['instances'][number]): UIInstance => ({
-    id: String(x.id),
-    projectId: p ?? String(x.project_id ?? ''),
-    name: x.name,
-    ip: x.ip_address || '',
-    // Check both status and power_state for running state
-    // Backend may return status='running' or 'active', and power_state='running'
-    state:
-      x.power_state === 'running' || x.status === 'active' || x.status === 'running'
-        ? 'running'
-        : 'stopped'
-  })
+    (x: ListInstancesResponse['instances'][number]): UIInstance => ({
+      id: String(x.id),
+      projectId: p ?? String(x.project_id ?? ''),
+      name: x.name,
+      ip: x.ip_address || '',
+      // Check both status and power_state for running state
+      // Backend may return status='running' or 'active', and power_state='running'
+      state:
+        x.power_state === 'running' || x.status === 'active' || x.status === 'running'
+          ? 'running'
+          : 'stopped'
+    })
 
 const mapFlavor = (x: ListFlavorsResponse['flavors'][number]): UIFlavor => ({
   id: String(x.id),
@@ -1419,4 +1419,457 @@ export async function fetchInstallScript(opts?: {
   const url = getInstallScriptURL(opts)
   const res = await axios.get<string>(url, { responseType: 'text' as const })
   return res.data
+}
+
+// ── Load Balancers ──────────────────────────────────────────
+export type UILoadBalancer = {
+  id: string
+  name: string
+  vip: string
+  protocol: string
+  algorithm: string
+  ovn_uuid?: string
+  network_id?: string
+  subnet_id?: string
+  health_check?: boolean
+  status: string
+  tenant_id?: string
+  backends: string[]
+  created_at?: string
+  updated_at?: string
+}
+
+export async function fetchLoadBalancers(projectId?: string): Promise<UILoadBalancer[]> {
+  const res = await api.get<{ loadbalancers: UILoadBalancer[] }>('/v1/loadbalancers', {
+    params: projectId ? { tenant_id: projectId } : undefined
+  })
+  return (res.data.loadbalancers ?? []).map((lb) => ({
+    id: lb.id,
+    name: lb.name,
+    vip: lb.vip,
+    protocol: lb.protocol ?? 'tcp',
+    algorithm: lb.algorithm ?? 'dp_hash',
+    ovn_uuid: lb.ovn_uuid,
+    network_id: lb.network_id,
+    subnet_id: lb.subnet_id,
+    health_check: lb.health_check,
+    status: lb.status ?? 'active',
+    tenant_id: lb.tenant_id,
+    backends: lb.backends ?? [],
+    created_at: lb.created_at,
+    updated_at: lb.updated_at
+  }))
+}
+
+export async function createLoadBalancer(body: {
+  name: string
+  vip: string
+  protocol?: string
+  backends?: string[]
+  tenant_id?: string
+  network_id?: string
+  subnet_id?: string
+}): Promise<UILoadBalancer> {
+  const res = await api.post<{ loadbalancer: UILoadBalancer }>('/v1/loadbalancers', body)
+  return res.data.loadbalancer
+}
+
+export async function deleteLoadBalancer(nameOrId: string): Promise<void> {
+  await api.delete(`/v1/loadbalancers/${nameOrId}`)
+}
+
+export async function updateLoadBalancerBackends(
+  nameOrId: string,
+  backends: string[]
+): Promise<void> {
+  await api.put(`/v1/loadbalancers/${nameOrId}/backends`, { backends })
+}
+
+export async function setLoadBalancerAlgorithm(
+  nameOrId: string,
+  algorithm: string
+): Promise<void> {
+  await api.put(`/v1/loadbalancers/${nameOrId}/algorithm`, { algorithm })
+}
+
+// ── Subnet Stats (IP Utilization) ───────────────────────────
+export type UISubnetStat = {
+  subnet_id: string
+  name: string
+  cidr: string
+  total: number
+  allocated: number
+  available: number
+  percent: number
+}
+
+export async function fetchSubnetStats(filters?: {
+  tenant_id?: string
+  network_id?: string
+}): Promise<UISubnetStat[]> {
+  const res = await api.get<{ stats: UISubnetStat[] }>('/v1/subnets/stats', { params: filters })
+  return res.data.stats ?? []
+}
+
+// ── Network Diagnostics ─────────────────────────────────────
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function fetchNetworkDiagnose(networkId: string): Promise<Record<string, any>> {
+  const res = await api.get(`/v1/networks/${networkId}/diagnose`)
+  return res.data
+}
+
+// ── Port Forwarding ─────────────────────────────────────────
+export type UIPortForwarding = {
+  id: string
+  floating_ip_id: string
+  protocol: string
+  external_port: number
+  internal_ip: string
+  internal_port: number
+  description: string
+  tenant_id?: string
+  floating_ip?: UIFloatingIP
+  created_at?: string
+}
+
+export async function fetchPortForwardings(filters?: {
+  tenant_id?: string
+  floating_ip_id?: string
+}): Promise<UIPortForwarding[]> {
+  const res = await api.get<{ port_forwardings: UIPortForwarding[] }>('/v1/port-forwardings', {
+    params: filters
+  })
+  return res.data.port_forwardings ?? []
+}
+
+export async function createPortForwarding(body: {
+  floating_ip_id: string
+  protocol?: string
+  external_port: number
+  internal_ip: string
+  internal_port: number
+  description?: string
+  tenant_id?: string
+}): Promise<UIPortForwarding> {
+  const res = await api.post<{ port_forwarding: UIPortForwarding }>('/v1/port-forwardings', body)
+  return res.data.port_forwarding
+}
+
+export async function deletePortForwarding(id: string): Promise<void> {
+  await api.delete(`/v1/port-forwardings/${id}`)
+}
+
+// ── QoS Policies ────────────────────────────────────────────
+export type UIQoSPolicy = {
+  id: string
+  name: string
+  description: string
+  direction: string
+  max_kbps: number
+  max_burst_kb: number
+  network_id?: string
+  port_id?: string
+  tenant_id?: string
+  status: string
+  created_at?: string
+}
+
+export async function fetchQoSPolicies(filters?: {
+  tenant_id?: string
+  network_id?: string
+}): Promise<UIQoSPolicy[]> {
+  const res = await api.get<{ qos_policies: UIQoSPolicy[] }>('/v1/qos-policies', {
+    params: filters
+  })
+  return res.data.qos_policies ?? []
+}
+
+export async function createQoSPolicy(body: {
+  name: string
+  description?: string
+  direction?: string
+  max_kbps: number
+  max_burst_kb?: number
+  network_id?: string
+  port_id?: string
+  tenant_id?: string
+}): Promise<UIQoSPolicy> {
+  const res = await api.post<{ qos_policy: UIQoSPolicy }>('/v1/qos-policies', body)
+  return res.data.qos_policy
+}
+
+export async function updateQoSPolicy(
+  id: string,
+  body: { name?: string; description?: string; max_kbps?: number; max_burst_kb?: number }
+): Promise<UIQoSPolicy> {
+  const res = await api.put<{ qos_policy: UIQoSPolicy }>(`/v1/qos-policies/${id}`, body)
+  return res.data.qos_policy
+}
+
+export async function deleteQoSPolicy(id: string): Promise<void> {
+  await api.delete(`/v1/qos-policies/${id}`)
+}
+
+// ── Instance Lifecycle Extensions ───────────────────────────
+
+export async function rebuildInstance(id: string, body: {
+  image_id: number
+  name?: string
+  user_data?: string
+  ssh_key?: string
+}): Promise<UIInstance> {
+  const res = await api.post<{ instance: UIInstance }>(`/v1/instances/${id}/rebuild`, body)
+  return res.data.instance
+}
+
+export async function updateInstance(id: string, body: {
+  name?: string
+  description?: string
+  metadata?: Record<string, string>
+}): Promise<UIInstance> {
+  const res = await api.put<{ instance: UIInstance }>(`/v1/instances/${id}`, body)
+  return res.data.instance
+}
+
+export async function createImageFromInstance(instanceId: string, body: {
+  name: string
+  description?: string
+}): Promise<{ id: number; name: string; uuid: string; status: string }> {
+  const res = await api.post<{ image: { id: number; name: string; uuid: string; status: string } }>(
+    `/v1/instances/${instanceId}/create-image`, body
+  )
+  return res.data.image
+}
+
+export async function lockInstance(id: string): Promise<void> {
+  await api.post(`/v1/instances/${id}/lock`)
+}
+
+export async function unlockInstance(id: string): Promise<void> {
+  await api.post(`/v1/instances/${id}/unlock`)
+}
+
+export async function pauseInstance(id: string): Promise<void> {
+  await api.post(`/v1/instances/${id}/pause`)
+}
+
+export async function unpauseInstance(id: string): Promise<void> {
+  await api.post(`/v1/instances/${id}/unpause`)
+}
+
+export async function rescueInstance(id: string, rescueImageId?: number): Promise<void> {
+  await api.post(`/v1/instances/${id}/rescue`, rescueImageId ? { rescue_image_id: rescueImageId } : {})
+}
+
+export async function unrescueInstance(id: string): Promise<void> {
+  await api.post(`/v1/instances/${id}/unrescue`)
+}
+
+export type InstanceAction = {
+  id: number
+  event_type?: string
+  action: string
+  status: string
+  user_id?: string
+  details?: Record<string, unknown>
+  error_message?: string
+  message?: string
+  created_at: string
+  resource?: string
+}
+
+export async function fetchInstanceActions(instanceId: string): Promise<InstanceAction[]> {
+  const res = await api.get<{ actions: InstanceAction[] }>(`/v1/instances/${instanceId}/actions`)
+  return res.data.actions ?? []
+}
+
+export async function createVolumeFromSnapshot(snapshotId: string, body?: {
+  name?: string
+  size_gb?: number
+}): Promise<UIVolume> {
+  const res = await api.post<{ volume: UIVolume }>(`/v1/snapshots/${snapshotId}/create-volume`, body ?? {})
+  return res.data.volume
+}
+
+// ── NIC Interface Management ────────────────────────────────
+
+export type InstanceInterface = {
+  port_id: string
+  mac_address: string
+  ip_address: string
+  network_id: string
+}
+
+export async function fetchInstanceInterfaces(instanceId: string): Promise<InstanceInterface[]> {
+  const res = await api.get<{ interfaces: InstanceInterface[] }>(`/v1/instances/${instanceId}/interfaces`)
+  return res.data.interfaces ?? []
+}
+
+export async function attachInstanceInterface(instanceId: string, body: {
+  network_id?: string
+  fixed_ip?: string
+  security_group_ids?: string[]
+}): Promise<InstanceInterface> {
+  const res = await api.post<{ interface: InstanceInterface }>(`/v1/instances/${instanceId}/interfaces`, body)
+  return res.data.interface
+}
+
+export async function detachInstanceInterface(instanceId: string, portId: string): Promise<void> {
+  await api.delete(`/v1/instances/${instanceId}/interfaces/${portId}`)
+}
+
+// ── Instance Metrics & Diagnostics ──────────────────────────
+
+export type InstanceMetrics = {
+  instance_id: number
+  instance_name: string
+  cpu_percent: number
+  memory_used_mb: number
+  memory_total_mb: number
+  disk_read_mb: number
+  disk_write_mb: number
+  net_rx_mb: number
+  net_tx_mb: number
+  uptime_seconds: number
+  collected_at: string
+}
+
+export type InstanceDiagnostics = {
+  instance_id: number
+  instance_name: string
+  node_reachable: boolean
+  node_address: string
+  node_latency_ms: number
+  vm_found: boolean
+  vm_state: string
+  qmp_status: string
+  ports_allocated: number
+  ovn_port_status: string
+  root_disk_status: string
+  attached_volumes: number
+  health_score: number
+  issues: string[]
+  checked_at: string
+}
+
+export async function fetchInstanceMetrics(instanceId: string): Promise<InstanceMetrics> {
+  const res = await api.get<{ metrics: InstanceMetrics }>(`/v1/instances/${instanceId}/metrics`)
+  return res.data.metrics
+}
+
+export async function fetchInstanceDiagnostics(instanceId: string): Promise<InstanceDiagnostics> {
+  const res = await api.get<{ diagnostics: InstanceDiagnostics }>(`/v1/instances/${instanceId}/diagnostics`)
+  return res.data.diagnostics
+}
+
+// ── Advanced Lifecycle (C4) ─────────────────────────────────
+
+export async function suspendInstance(instanceId: string): Promise<void> {
+  await api.post(`/v1/instances/${instanceId}/suspend`)
+}
+
+export async function resumeInstance(instanceId: string): Promise<void> {
+  await api.post(`/v1/instances/${instanceId}/resume`)
+}
+
+export async function shelveInstance(instanceId: string): Promise<void> {
+  await api.post(`/v1/instances/${instanceId}/shelve`)
+}
+
+export async function unshelveInstance(instanceId: string): Promise<void> {
+  await api.post(`/v1/instances/${instanceId}/unshelve`)
+}
+
+export async function attachISO(instanceId: string, imageId: number): Promise<void> {
+  await api.post(`/v1/instances/${instanceId}/iso`, { image_id: imageId })
+}
+
+export async function detachISO(instanceId: string): Promise<void> {
+  await api.delete(`/v1/instances/${instanceId}/iso`)
+}
+
+export async function resetInstancePassword(instanceId: string, adminPass: string): Promise<void> {
+  await api.post(`/v1/instances/${instanceId}/reset-password`, { admin_pass: adminPass })
+}
+
+// ── BGP / ASN API ─────────────────────────────────────────
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function fetchBGPPeers(): Promise<any[]> {
+  const res = await api.get('/v1/bgp-peers')
+  return res.data.bgp_peers ?? []
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function createBGPPeer(body: Record<string, unknown>): Promise<any> {
+  const res = await api.post('/v1/bgp-peers', body)
+  return res.data.bgp_peer
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function fetchASNRanges(): Promise<any[]> {
+  const res = await api.get('/v1/asn-ranges')
+  return res.data.asn_ranges ?? []
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function createASNRange(body: Record<string, unknown>): Promise<any> {
+  const res = await api.post('/v1/asn-ranges', body)
+  return res.data.asn_range
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function fetchASNAllocations(): Promise<any[]> {
+  const res = await api.get('/v1/asn-allocations')
+  return res.data.allocations ?? []
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function fetchAdvertisedRoutes(): Promise<any[]> {
+  const res = await api.get('/v1/advertised-routes')
+  return res.data.routes ?? []
+}
+
+// ── Storage Extended API ──────────────────────────────────
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function fetchStorageSummary(): Promise<any> {
+  const res = await api.get('/v1/storage/summary')
+  return res.data
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function fetchDiskOfferings(): Promise<any[]> {
+  const res = await api.get('/v1/storage/disk-offerings')
+  return res.data.disk_offerings ?? []
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function createDiskOffering(body: Record<string, unknown>): Promise<any> {
+  const res = await api.post('/v1/storage/disk-offerings', body)
+  return res.data.disk_offering
+}
+
+export async function deleteDiskOffering(id: string): Promise<void> {
+  await api.delete(`/v1/storage/disk-offerings/${id}`)
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function fetchVolumeById(volumeId: string): Promise<any> {
+  const res = await api.get(`/v1/storage/volumes/${volumeId}`)
+  return res.data.volume ?? res.data
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function fetchVolumeSnapshotsByVolume(volumeId: string): Promise<any[]> {
+  const res = await api.get(`/v1/storage/snapshots?volume_id=${volumeId}`)
+  return res.data.snapshots ?? []
+}
+
+export async function cloneVolume(volumeId: string, name: string): Promise<void> {
+  await api.post(`/v1/storage/volumes/${volumeId}/clone`, { name })
+}
+
+export async function detachVolumeFromVM(volumeId: string, instanceId: string): Promise<void> {
+  await api.post(`/v1/storage/volumes/${volumeId}/detach`, { instance_id: instanceId })
 }

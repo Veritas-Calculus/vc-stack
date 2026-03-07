@@ -57,6 +57,25 @@ func (s *Service) RebootVMDirect(id string, force bool) error {
 	return s.drv.RebootVM(id, force)
 }
 
+// ResizeVMDirect resizes a VM's vCPUs and/or memory without going through HTTP.
+func (s *Service) ResizeVMDirect(id string, vcpus, memoryMB int) error {
+	if err := s.drv.ResizeVM(id, vcpus, memoryMB); err != nil {
+		return err
+	}
+	// Update in-memory VM metadata if present.
+	s.mu.Lock()
+	if vm, ok := s.vms[id]; ok {
+		if vcpus > 0 {
+			vm.VCPUs = vcpus
+		}
+		if memoryMB > 0 {
+			vm.MemoryMB = memoryMB
+		}
+	}
+	s.mu.Unlock()
+	return nil
+}
+
 // VMStatusDirect returns the existence and running state of a VM.
 func (s *Service) VMStatusDirect(id string) (exists bool, running bool) {
 	return s.drv.VMStatus(id)

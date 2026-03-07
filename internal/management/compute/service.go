@@ -192,10 +192,34 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		api.POST("/instances/:id/stop", s.stopInstance)
 		api.POST("/instances/:id/force-stop", s.forceStopInstance)
 		api.POST("/instances/:id/reboot", s.rebootInstance)
+		api.POST("/instances/:id/resize", s.resizeInstance)
+		api.PUT("/instances/:id", s.updateInstance)
+		api.POST("/instances/:id/rebuild", s.rebuildInstance)
+		api.POST("/instances/:id/create-image", s.createImageFromInstance)
+		api.POST("/instances/:id/lock", s.lockInstance)
+		api.POST("/instances/:id/unlock", s.unlockInstance)
+		api.POST("/instances/:id/pause", s.pauseInstance)
+		api.POST("/instances/:id/unpause", s.unpauseInstance)
+		api.POST("/instances/:id/rescue", s.rescueInstance)
+		api.POST("/instances/:id/unrescue", s.unrescueInstance)
+		api.GET("/instances/:id/actions", s.listInstanceActions)
 		api.POST("/instances/:id/console", s.getInstanceConsole)
 		api.GET("/instances/:id/volumes", s.listInstanceVolumes)
 		api.POST("/instances/:id/volumes", s.attachVolume)
 		api.DELETE("/instances/:id/volumes/:volumeId", s.detachVolume)
+		api.GET("/instances/:id/interfaces", s.listInterfaces)
+		api.POST("/instances/:id/interfaces", s.attachInterface)
+		api.DELETE("/instances/:id/interfaces/:portId", s.detachInterface)
+		api.GET("/instances/:id/metrics", s.getInstanceMetrics)
+		api.GET("/instances/:id/metrics/history", s.getInstanceMetricsHistory)
+		api.GET("/instances/:id/diagnostics", s.getInstanceDiagnostics)
+
+		// GPU passthrough routes.
+		api.GET("/gpu-devices", s.listGPUDevices)
+		api.GET("/gpu-devices/:id", s.getGPUDevice)
+		api.GET("/instances/:id/gpus", s.listInstanceGPUs)
+		api.POST("/instances/:id/gpus", s.attachGPU)
+		api.DELETE("/instances/:id/gpus/:gpuId", s.detachGPU)
 
 		// Volume routes.
 		api.POST("/volumes", s.createVolume)
@@ -209,11 +233,21 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		api.GET("/snapshots", s.listSnapshots)
 		api.GET("/snapshots/:id", s.getSnapshot)
 		api.DELETE("/snapshots/:id", s.deleteSnapshot)
+		api.POST("/snapshots/:id/create-volume", s.createVolumeFromSnapshot)
 
 		// SSH key routes.
 		api.POST("/ssh-keys", s.createSSHKey)
 		api.GET("/ssh-keys", s.listSSHKeys)
 		api.DELETE("/ssh-keys/:id", s.deleteSSHKey)
+
+		// Advanced lifecycle routes (C4).
+		api.POST("/instances/:id/suspend", s.suspendInstance)
+		api.POST("/instances/:id/resume", s.resumeInstance)
+		api.POST("/instances/:id/shelve", s.shelveInstance)
+		api.POST("/instances/:id/unshelve", s.unshelveInstance)
+		api.POST("/instances/:id/iso", s.attachISO)
+		api.DELETE("/instances/:id/iso", s.detachISO)
+		api.POST("/instances/:id/reset-password", s.resetInstancePassword)
 
 		// Audit routes.
 		api.GET("/audit", s.listAudit)
@@ -1249,6 +1283,107 @@ func (s *Service) rebootInstance(c *gin.Context) {
 	}
 	s.emitEvent("action", instance.UUID, "reboot", "success", "", map[string]interface{}{"name": instance.Name}, "")
 	c.JSON(http.StatusAccepted, gin.H{"ok": true})
+}
+
+// resizeInstance handles POST /api/v1/instances/:id/resize.
+// Accepts either a flavor_id to change the instance's flavor, or explicit vcpus/memory_mb.
+func (s *Service) resizeInstance(c *gin.Context) {
+	id := c.Param("id")
+	var instance Instance
+	if err := s.db.Preload("Flavor").First(&instance, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "instance not found"})
+		return
+	}
+
+	var req struct {
+		FlavorID *uint `json:"flavor_id"` // Optional: resize to a different flavor
+		VCPUs    int   `json:"vcpus"`     // Optional: explicit vCPUs (overrides flavor)
+		MemoryMB int   `json:"memory_mb"` // Optional: explicit memory (overrides flavor)
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	targetVCPUs := req.VCPUs
+	targetMemMB := req.MemoryMB
+
+	// If flavor_id is specified, use that flavor's specs.
+	if req.FlavorID != nil {
+		var newFlavor Flavor
+		if err := s.db.First(&newFlavor, *req.FlavorID).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "flavor not found"})
+			return
+		}
+		if targetVCPUs == 0 {
+			targetVCPUs = newFlavor.VCPUs
+		}
+		if targetMemMB == 0 {
+			targetMemMB = newFlavor.RAM
+		}
+	}
+
+	if targetVCPUs <= 0 && targetMemMB <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "must specify flavor_id, vcpus, or memory_mb"})
+		return
+	}
+
+	// Proxy the resize to the compute node.
+	nodeAddr := s.resolveNodeAddress(&instance)
+	if nodeAddr != "" {
+		body, _ := json.Marshal(map[string]int{"vcpus": targetVCPUs, "memory_mb": targetMemMB})
+		url := nodeAddr + "/api/v1/vms/" + instance.Name + "/resize"
+		httpReq, err := http.NewRequest("POST", url, bytes.NewReader(body))
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create request"})
+			return
+		}
+		httpReq.Header.Set("Content-Type", "application/json")
+
+		// Resize may involve stop+start cycle, so use a longer timeout.
+		resizeClient := &http.Client{Timeout: 120 * time.Second} // #nosec
+		resp, err := resizeClient.Do(httpReq)
+		if err != nil {
+			s.logger.Error("resize: node unreachable",
+				zap.String("url", url), zap.Error(err))
+			c.JSON(http.StatusBadGateway, gin.H{"error": "compute node unreachable: " + err.Error()})
+			return
+		}
+		defer func() { _ = resp.Body.Close() }()
+		if resp.StatusCode >= 400 {
+			respBody, _ := io.ReadAll(resp.Body)
+			s.logger.Error("resize: node returned error",
+				zap.Int("status", resp.StatusCode),
+				zap.String("body", string(respBody)))
+			c.JSON(resp.StatusCode, gin.H{"error": string(respBody)})
+			return
+		}
+	}
+
+	// Update DB: change flavor association and record new specs.
+	updates := map[string]interface{}{}
+	if req.FlavorID != nil {
+		updates["flavor_id"] = *req.FlavorID
+	}
+	if len(updates) > 0 {
+		if err := s.db.Model(&instance).Updates(updates).Error; err != nil {
+			s.logger.Error("failed to update instance after resize", zap.Error(err))
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update instance"})
+			return
+		}
+	}
+
+	s.emitEvent("action", instance.UUID, "resize", "success", "", map[string]interface{}{
+		"name":      instance.Name,
+		"vcpus":     targetVCPUs,
+		"memory_mb": targetMemMB,
+	}, "")
+
+	c.JSON(http.StatusAccepted, gin.H{
+		"ok":        true,
+		"vcpus":     targetVCPUs,
+		"memory_mb": targetMemMB,
+	})
 }
 
 // Volume handlers.

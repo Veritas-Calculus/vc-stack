@@ -44,6 +44,9 @@ type VMConfig struct {
 	// Network interfaces.
 	NICs []NICConfig `json:"nics"`
 
+	// GPU / PCI passthrough devices.
+	GPUDevices []PCIDeviceConfig `json:"gpu_devices"`
+
 	// Graphics and console.
 	VNC    VNCConfig      `json:"vnc"`
 	Spice  SpiceConfig    `json:"spice"`
@@ -60,6 +63,18 @@ type VMConfig struct {
 	PIDFile    string `json:"pid_file"`
 	ConfigFile string `json:"config_file"`
 	LogFile    string `json:"log_file"`
+}
+
+// PCIDeviceConfig represents a PCI device for VFIO passthrough (e.g., GPU).
+type PCIDeviceConfig struct {
+	Address string `json:"address"`  // PCI address, e.g., "0000:41:00.0"
+	Vendor  string `json:"vendor"`   // e.g., "10de" (NVIDIA), "1002" (AMD)
+	Device  string `json:"device"`   // PCI device ID
+	Name    string `json:"name"`     // Human-readable name, e.g., "NVIDIA A100"
+	Type    string `json:"type"`     // gpu, vgpu, generic
+	ROMFile string `json:"rom_file"` // Optional: path to GPU ROM for UEFI boot
+	Multifn bool   `json:"multifn"`  // Enable multi-function PCI
+	Display string `json:"display"`  // on/off — expose display for GPU
 }
 
 // DiskConfig represents a disk configuration.
@@ -204,6 +219,11 @@ func (c *VMConfig) BuildArgs() []string {
 		args = append(args, "-pidfile", c.PIDFile)
 	}
 	args = append(args, "-daemonize")
+
+	// GPU / PCI passthrough devices.
+	for _, gpu := range c.GPUDevices {
+		args = append(args, gpu.BuildArgs()...)
+	}
 
 	// Extra args.
 	args = append(args, c.ExtraArgs...)
@@ -516,6 +536,26 @@ func (s *SerialConfig) BuildArgs() []string {
 		args = append(args, "-serial", "stdio")
 	}
 
+	return args
+}
+
+// BuildArgs generates VFIO PCI passthrough arguments for GPU/PCI devices.
+func (p *PCIDeviceConfig) BuildArgs() []string {
+	if p.Address == "" {
+		return nil
+	}
+	args := []string{}
+	deviceSpec := fmt.Sprintf("vfio-pci,host=%s", p.Address)
+	if p.ROMFile != "" {
+		deviceSpec += fmt.Sprintf(",romfile=%s", p.ROMFile)
+	}
+	if p.Multifn {
+		deviceSpec += ",multifunction=on"
+	}
+	if p.Display == "on" {
+		deviceSpec += ",display=on"
+	}
+	args = append(args, "-device", deviceSpec)
 	return args
 }
 

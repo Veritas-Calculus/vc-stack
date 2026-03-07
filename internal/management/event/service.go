@@ -59,7 +59,7 @@ type Event struct {
 type JSONMap = models.JSONMap
 
 // TableName sets a custom table name for the Event model.
-func (Event) TableName() string { return "system_events" }
+func (Event) TableName() string { return "sys_events" }
 
 // NewService creates a new event service.
 func NewService(cfg Config) (*Service, error) {

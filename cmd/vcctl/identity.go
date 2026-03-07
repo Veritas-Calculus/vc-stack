@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/spf13/cobra"
 )
 
@@ -113,39 +116,117 @@ func newIdentityRolesCommand() *cobra.Command {
 	return cmd
 }
 
-// Placeholder implementations.
-func runIdentityUsersList(cmd *cobra.Command, args []string) {
-	println("TODO: Implement users list")
+// --- User implementations ---
+
+func runIdentityUsersList(_ *cobra.Command, _ []string) {
+	c := newAPIClient()
+	resp, err := c.get("/v1/users")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	users, ok := resp["users"].([]interface{})
+	if !ok || len(users) == 0 {
+		fmt.Println("No users found.")
+		return
+	}
+	w := newTabWriter()
+	fmt.Fprintln(w, "ID\tUSERNAME\tEMAIL\tADMIN\tACTIVE")
+	for _, item := range users {
+		u, _ := item.(map[string]interface{})
+		fmt.Fprintf(w, "%s\t%s\t%s\t%v\t%v\n",
+			getString(u, "id"), getString(u, "username"),
+			getString(u, "email"), u["is_admin"], u["is_active"])
+	}
+	_ = w.Flush()
 }
 
-func runIdentityUserCreate(cmd *cobra.Command, args []string) {
-	println("TODO: Implement user create")
+func runIdentityUserCreate(_ *cobra.Command, _ []string) {
+	fmt.Fprintln(os.Stderr, "Usage: vcctl identity users create --username <name> --email <email> --password <pass>")
+	fmt.Fprintln(os.Stderr, "Note: Use the web console or API (POST /api/v1/users) for user creation.")
 }
 
-func runIdentityUserDelete(cmd *cobra.Command, args []string) {
-	println("TODO: Implement user delete")
+func runIdentityUserDelete(_ *cobra.Command, args []string) {
+	c := newAPIClient()
+	if err := c.delete("/v1/users/" + args[0]); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("User %s deleted.\n", args[0])
 }
 
-func runIdentityProjectsList(cmd *cobra.Command, args []string) {
-	println("TODO: Implement projects list")
+// --- Project implementations ---
+
+func runIdentityProjectsList(_ *cobra.Command, _ []string) {
+	c := newAPIClient()
+	resp, err := c.get("/v1/projects")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	projects, ok := resp["projects"].([]interface{})
+	if !ok || len(projects) == 0 {
+		fmt.Println("No projects found.")
+		return
+	}
+	w := newTabWriter()
+	fmt.Fprintln(w, "ID\tNAME\tDESCRIPTION")
+	for _, item := range projects {
+		p, _ := item.(map[string]interface{})
+		fmt.Fprintf(w, "%s\t%s\t%s\n",
+			getString(p, "id"), getString(p, "name"), getString(p, "description"))
+	}
+	_ = w.Flush()
 }
 
-func runIdentityProjectCreate(cmd *cobra.Command, args []string) {
-	println("TODO: Implement project create")
+func runIdentityProjectCreate(_ *cobra.Command, _ []string) {
+	fmt.Fprintln(os.Stderr, "Usage: vcctl identity projects create --name <name>")
+	fmt.Fprintln(os.Stderr, "Note: Use the web console or API (POST /api/v1/projects) for project creation.")
 }
 
-func runIdentityProjectDelete(cmd *cobra.Command, args []string) {
-	println("TODO: Implement project delete")
+func runIdentityProjectDelete(_ *cobra.Command, args []string) {
+	c := newAPIClient()
+	if err := c.delete("/v1/projects/" + args[0]); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("Project %s deleted.\n", args[0])
 }
 
-func runIdentityRolesList(cmd *cobra.Command, args []string) {
-	println("TODO: Implement roles list")
+// --- Role implementations ---
+
+func runIdentityRolesList(_ *cobra.Command, _ []string) {
+	c := newAPIClient()
+	resp, err := c.get("/v1/roles")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	roles, ok := resp["roles"].([]interface{})
+	if !ok || len(roles) == 0 {
+		fmt.Println("No roles found.")
+		return
+	}
+	w := newTabWriter()
+	fmt.Fprintln(w, "ID\tNAME\tDESCRIPTION")
+	for _, item := range roles {
+		r, _ := item.(map[string]interface{})
+		fmt.Fprintf(w, "%s\t%s\t%s\n",
+			getString(r, "id"), getString(r, "name"), getString(r, "description"))
+	}
+	_ = w.Flush()
 }
 
-func runIdentityRoleCreate(cmd *cobra.Command, args []string) {
-	println("TODO: Implement role create")
+func runIdentityRoleCreate(_ *cobra.Command, _ []string) {
+	fmt.Fprintln(os.Stderr, "Usage: vcctl identity roles create --name <name>")
+	fmt.Fprintln(os.Stderr, "Note: Use the web console or API (POST /api/v1/roles) for role creation.")
 }
 
-func runIdentityRoleDelete(cmd *cobra.Command, args []string) {
-	println("TODO: Implement role delete")
+func runIdentityRoleDelete(_ *cobra.Command, args []string) {
+	c := newAPIClient()
+	if err := c.delete("/v1/roles/" + args[0]); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("Role %s deleted.\n", args[0])
 }

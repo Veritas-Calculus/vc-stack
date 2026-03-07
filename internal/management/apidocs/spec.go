@@ -52,11 +52,26 @@ const openAPISpecJSON = `{
     {"name": "Tags", "description": "Resource tagging system"},
     {"name": "Events", "description": "Audit event logging"},
     {"name": "Quotas", "description": "Resource quota management"},
-    {"name": "Notifications", "description": "Webhook/Slack notification system"},
+    {"name": "Notifications", "description": "Webhook/Slack notification system with retries and dead letter queue"},
     {"name": "Storage", "description": "Storage pool and volume type management"},
     {"name": "Migrations", "description": "VM live migration"},
     {"name": "SSH Keys", "description": "SSH key management"},
     {"name": "Monitoring", "description": "System metrics and health"},
+    {"name": "MFA", "description": "Multi-factor authentication (TOTP)"},
+    {"name": "Ports", "description": "Network port management"},
+    {"name": "KMS", "description": "Key Management Service for envelope encryption"},
+    {"name": "Encryption", "description": "Volume encryption and mTLS management"},
+    {"name": "Compliance", "description": "Compliance audit and framework assessment"},
+    {"name": "HA", "description": "High availability and fencing"},
+    {"name": "DR", "description": "Disaster recovery and replication"},
+    {"name": "Self-Heal", "description": "Proactive self-healing policies"},
+    {"name": "CaaS", "description": "Container as a Service (Kubernetes clusters)"},
+    {"name": "Bare Metal", "description": "Bare Metal as a Service (IPMI/PXE)"},
+    {"name": "Object Storage", "description": "S3-compatible object storage"},
+    {"name": "DNS", "description": "DNS zone and record management"},
+    {"name": "Catalog", "description": "Service catalog and marketplace"},
+    {"name": "Firecracker", "description": "Firecracker MicroVM management"},
+    {"name": "ASNs", "description": "BGP autonomous system number management"},
     {"name": "API Discovery", "description": "API version and documentation discovery"}
   ],
   "paths": {
@@ -646,9 +661,27 @@ const openAPISpecJSON = `{
       "get": {"tags": ["Notifications"], "summary": "List notification channels", "responses": {"200": {"description": "Channel list"}}},
       "post": {"tags": ["Notifications"], "summary": "Create notification channel", "responses": {"201": {"description": "Channel created"}}}
     },
+    "/notifications/channels/{id}": {
+      "get": {"tags": ["Notifications"], "summary": "Get channel", "parameters": [{"$ref": "#/components/parameters/IdParam"}], "responses": {"200": {"description": "Channel details with subscriptions"}}},
+      "put": {"tags": ["Notifications"], "summary": "Update channel", "parameters": [{"$ref": "#/components/parameters/IdParam"}], "responses": {"200": {"description": "Channel updated"}}},
+      "delete": {"tags": ["Notifications"], "summary": "Delete channel", "parameters": [{"$ref": "#/components/parameters/IdParam"}], "responses": {"200": {"description": "Channel deleted"}}}
+    },
+    "/notifications/channels/{id}/test": {
+      "post": {"tags": ["Notifications"], "summary": "Send test notification", "parameters": [{"$ref": "#/components/parameters/IdParam"}], "responses": {"200": {"description": "Test notification sent"}}}
+    },
     "/notifications/subscriptions": {
       "get": {"tags": ["Notifications"], "summary": "List subscriptions", "responses": {"200": {"description": "Subscription list"}}},
       "post": {"tags": ["Notifications"], "summary": "Create subscription", "responses": {"201": {"description": "Subscription created"}}}
+    },
+    "/notifications/logs": {
+      "get": {"tags": ["Notifications"], "summary": "List notification logs", "description": "Query delivery logs with status filter (sent, failed, dead_letter).", "parameters": [{"name": "status", "in": "query", "schema": {"type": "string", "enum": ["sent", "failed", "dead_letter"]}}, {"name": "channel_id", "in": "query", "schema": {"type": "integer"}}], "responses": {"200": {"description": "Notification log list"}}}
+    },
+    "/notifications/dead-letters": {
+      "get": {"tags": ["Notifications"], "summary": "List dead letter entries", "description": "Notifications that failed after all retry attempts.", "responses": {"200": {"description": "Dead letter list"}}},
+      "delete": {"tags": ["Notifications"], "summary": "Purge all dead letters", "responses": {"200": {"description": "All entries purged"}}}
+    },
+    "/notifications/dead-letters/{id}/retry": {
+      "post": {"tags": ["Notifications"], "summary": "Retry dead letter", "description": "Re-queue a failed notification for delivery.", "parameters": [{"$ref": "#/components/parameters/IdParam"}], "responses": {"200": {"description": "Re-queued for delivery"}}}
     },
     "/migrations": {
       "get": {"tags": ["Migrations"], "summary": "List migrations", "responses": {"200": {"description": "Migration list"}}}
@@ -680,6 +713,150 @@ const openAPISpecJSON = `{
         "summary": "Component status",
         "responses": {"200": {"description": "Component status overview"}}
       }
+    },
+    "/auth/mfa/setup": {
+      "post": {"tags": ["MFA"], "summary": "Begin MFA setup", "description": "Generate TOTP secret and QR code for authenticator app.", "responses": {"200": {"description": "TOTP secret, QR URI, and recovery codes"}}}
+    },
+    "/auth/mfa/verify": {
+      "post": {"tags": ["MFA"], "summary": "Verify MFA code", "description": "Verify TOTP code to complete MFA setup or login challenge.", "responses": {"200": {"description": "MFA verified"}, "401": {"description": "Invalid code"}}}
+    },
+    "/auth/mfa/disable": {
+      "post": {"tags": ["MFA"], "summary": "Disable MFA", "responses": {"200": {"description": "MFA disabled"}}}
+    },
+    "/auth/mfa/status": {
+      "get": {"tags": ["MFA"], "summary": "Get MFA status", "responses": {"200": {"description": "MFA enabled/disabled status"}}}
+    },
+    "/auth/mfa/recovery-codes": {
+      "post": {"tags": ["MFA"], "summary": "Regenerate recovery codes", "responses": {"200": {"description": "New recovery codes"}}}
+    },
+    "/ports": {
+      "get": {"tags": ["Ports"], "summary": "List network ports", "responses": {"200": {"description": "Port list"}}},
+      "post": {"tags": ["Ports"], "summary": "Create port", "responses": {"201": {"description": "Port created"}}}
+    },
+    "/ports/{id}": {
+      "get": {"tags": ["Ports"], "summary": "Get port", "parameters": [{"$ref": "#/components/parameters/IdParam"}], "responses": {"200": {"description": "Port details"}}},
+      "delete": {"tags": ["Ports"], "summary": "Delete port", "parameters": [{"$ref": "#/components/parameters/IdParam"}], "responses": {"200": {"description": "Port deleted"}}}
+    },
+    "/kms/keys": {
+      "get": {"tags": ["KMS"], "summary": "List encryption keys", "responses": {"200": {"description": "Key list"}}},
+      "post": {"tags": ["KMS"], "summary": "Create encryption key", "responses": {"201": {"description": "Key created"}}}
+    },
+    "/kms/keys/{id}": {
+      "get": {"tags": ["KMS"], "summary": "Get key", "parameters": [{"$ref": "#/components/parameters/IdParam"}], "responses": {"200": {"description": "Key details"}}},
+      "delete": {"tags": ["KMS"], "summary": "Delete key", "parameters": [{"$ref": "#/components/parameters/IdParam"}], "responses": {"200": {"description": "Key deleted"}}}
+    },
+    "/kms/keys/{id}/rotate": {
+      "post": {"tags": ["KMS"], "summary": "Rotate key", "parameters": [{"$ref": "#/components/parameters/IdParam"}], "responses": {"200": {"description": "Key rotated"}}}
+    },
+    "/encryption/volumes/{id}/encrypt": {
+      "post": {"tags": ["Encryption"], "summary": "Encrypt volume", "parameters": [{"$ref": "#/components/parameters/IdParam"}], "responses": {"202": {"description": "Encryption initiated"}}}
+    },
+    "/encryption/mtls/certificates": {
+      "get": {"tags": ["Encryption"], "summary": "List mTLS certificates", "responses": {"200": {"description": "Certificate list"}}},
+      "post": {"tags": ["Encryption"], "summary": "Issue mTLS certificate", "responses": {"201": {"description": "Certificate issued"}}}
+    },
+    "/compliance/assessments": {
+      "get": {"tags": ["Compliance"], "summary": "List compliance assessments", "responses": {"200": {"description": "Assessment list"}}},
+      "post": {"tags": ["Compliance"], "summary": "Run compliance assessment", "description": "Assess against SOC 2, ISO 27001, PCI DSS, GDPR, or HIPAA.", "responses": {"201": {"description": "Assessment started"}}}
+    },
+    "/compliance/reports": {
+      "get": {"tags": ["Compliance"], "summary": "List compliance reports", "responses": {"200": {"description": "Report list"}}}
+    },
+    "/ha/groups": {
+      "get": {"tags": ["HA"], "summary": "List HA groups", "responses": {"200": {"description": "HA group list"}}},
+      "post": {"tags": ["HA"], "summary": "Create HA group", "responses": {"201": {"description": "HA group created"}}}
+    },
+    "/ha/groups/{id}/failover": {
+      "post": {"tags": ["HA"], "summary": "Trigger failover", "parameters": [{"$ref": "#/components/parameters/IdParam"}], "responses": {"202": {"description": "Failover initiated"}}}
+    },
+    "/dr/plans": {
+      "get": {"tags": ["DR"], "summary": "List DR plans", "responses": {"200": {"description": "DR plan list"}}},
+      "post": {"tags": ["DR"], "summary": "Create DR plan", "responses": {"201": {"description": "DR plan created"}}}
+    },
+    "/dr/plans/{id}/drill": {
+      "post": {"tags": ["DR"], "summary": "Execute DR drill", "parameters": [{"$ref": "#/components/parameters/IdParam"}], "responses": {"202": {"description": "DR drill initiated"}}}
+    },
+    "/self-heal/policies": {
+      "get": {"tags": ["Self-Heal"], "summary": "List self-heal policies", "responses": {"200": {"description": "Policy list"}}},
+      "post": {"tags": ["Self-Heal"], "summary": "Create self-heal policy", "responses": {"201": {"description": "Policy created"}}}
+    },
+    "/self-heal/incidents": {
+      "get": {"tags": ["Self-Heal"], "summary": "List self-heal incidents", "responses": {"200": {"description": "Incident list"}}}
+    },
+    "/caas/clusters": {
+      "get": {"tags": ["CaaS"], "summary": "List Kubernetes clusters", "responses": {"200": {"description": "Cluster list"}}},
+      "post": {"tags": ["CaaS"], "summary": "Create Kubernetes cluster", "responses": {"201": {"description": "Cluster creation initiated"}}}
+    },
+    "/caas/clusters/{id}": {
+      "get": {"tags": ["CaaS"], "summary": "Get K8s cluster", "parameters": [{"$ref": "#/components/parameters/IdParam"}], "responses": {"200": {"description": "Cluster details with node pools"}}},
+      "delete": {"tags": ["CaaS"], "summary": "Delete K8s cluster", "parameters": [{"$ref": "#/components/parameters/IdParam"}], "responses": {"202": {"description": "Deletion initiated"}}}
+    },
+    "/caas/clusters/{id}/kubeconfig": {
+      "get": {"tags": ["CaaS"], "summary": "Download kubeconfig", "parameters": [{"$ref": "#/components/parameters/IdParam"}], "responses": {"200": {"description": "Kubeconfig YAML"}}}
+    },
+    "/baremetal/nodes": {
+      "get": {"tags": ["Bare Metal"], "summary": "List bare metal nodes", "responses": {"200": {"description": "Node list"}}},
+      "post": {"tags": ["Bare Metal"], "summary": "Register bare metal node", "responses": {"201": {"description": "Node registered"}}}
+    },
+    "/baremetal/nodes/{id}": {
+      "get": {"tags": ["Bare Metal"], "summary": "Get bare metal node", "parameters": [{"$ref": "#/components/parameters/IdParam"}], "responses": {"200": {"description": "Node details with hardware inventory"}}},
+      "delete": {"tags": ["Bare Metal"], "summary": "Decommission node", "parameters": [{"$ref": "#/components/parameters/IdParam"}], "responses": {"200": {"description": "Node decommissioned"}}}
+    },
+    "/baremetal/nodes/{id}/power": {
+      "post": {"tags": ["Bare Metal"], "summary": "IPMI power action", "description": "Power on/off/reset via IPMI.", "parameters": [{"$ref": "#/components/parameters/IdParam"}], "responses": {"200": {"description": "Power action executed"}}}
+    },
+    "/baremetal/nodes/{id}/provision": {
+      "post": {"tags": ["Bare Metal"], "summary": "Provision OS via PXE", "parameters": [{"$ref": "#/components/parameters/IdParam"}], "responses": {"202": {"description": "Provisioning initiated"}}}
+    },
+    "/object-storage/buckets": {
+      "get": {"tags": ["Object Storage"], "summary": "List S3 buckets", "responses": {"200": {"description": "Bucket list"}}},
+      "post": {"tags": ["Object Storage"], "summary": "Create bucket", "responses": {"201": {"description": "Bucket created"}}}
+    },
+    "/object-storage/buckets/{name}": {
+      "get": {"tags": ["Object Storage"], "summary": "Get bucket details", "responses": {"200": {"description": "Bucket details"}}},
+      "delete": {"tags": ["Object Storage"], "summary": "Delete bucket", "responses": {"200": {"description": "Bucket deleted"}}}
+    },
+    "/dns/zones": {
+      "get": {"tags": ["DNS"], "summary": "List DNS zones", "responses": {"200": {"description": "Zone list"}}},
+      "post": {"tags": ["DNS"], "summary": "Create DNS zone", "responses": {"201": {"description": "Zone created"}}}
+    },
+    "/dns/zones/{id}/records": {
+      "get": {"tags": ["DNS"], "summary": "List DNS records", "parameters": [{"$ref": "#/components/parameters/IdParam"}], "responses": {"200": {"description": "Record list"}}},
+      "post": {"tags": ["DNS"], "summary": "Create DNS record", "parameters": [{"$ref": "#/components/parameters/IdParam"}], "responses": {"201": {"description": "Record created"}}}
+    },
+    "/catalog/services": {
+      "get": {"tags": ["Catalog"], "summary": "List catalog services", "responses": {"200": {"description": "Service list"}}},
+      "post": {"tags": ["Catalog"], "summary": "Create catalog service", "responses": {"201": {"description": "Service created"}}}
+    },
+    "/catalog/requests": {
+      "get": {"tags": ["Catalog"], "summary": "List provisioning requests", "responses": {"200": {"description": "Request list"}}},
+      "post": {"tags": ["Catalog"], "summary": "Submit provisioning request", "responses": {"201": {"description": "Request submitted"}}}
+    },
+    "/firecracker/vms": {
+      "get": {"tags": ["Firecracker"], "summary": "List Firecracker MicroVMs", "responses": {"200": {"description": "MicroVM list"}}},
+      "post": {"tags": ["Firecracker"], "summary": "Create MicroVM", "description": "Launch a Firecracker microVM with kernel and rootfs.", "responses": {"201": {"description": "MicroVM created"}}}
+    },
+    "/firecracker/vms/{id}": {
+      "get": {"tags": ["Firecracker"], "summary": "Get MicroVM", "parameters": [{"$ref": "#/components/parameters/IdParam"}], "responses": {"200": {"description": "MicroVM details"}}},
+      "delete": {"tags": ["Firecracker"], "summary": "Delete MicroVM", "parameters": [{"$ref": "#/components/parameters/IdParam"}], "responses": {"200": {"description": "MicroVM deleted"}}}
+    },
+    "/firecracker/vms/{id}/snapshot": {
+      "post": {"tags": ["Firecracker"], "summary": "Create snapshot", "parameters": [{"$ref": "#/components/parameters/IdParam"}], "responses": {"201": {"description": "Snapshot created"}}}
+    },
+    "/firecracker/pool/stats": {
+      "get": {"tags": ["Firecracker"], "summary": "Get pool stats", "description": "Pre-warmed MicroVM pool statistics.", "responses": {"200": {"description": "Pool stats"}}}
+    },
+    "/firecracker/functions": {
+      "post": {"tags": ["Firecracker"], "summary": "Invoke function", "description": "FaaS: invoke a function using a pre-warmed MicroVM from the pool.", "responses": {"200": {"description": "Function result"}}}
+    },
+    "/asns": {
+      "get": {"tags": ["ASNs"], "summary": "List ASNs", "responses": {"200": {"description": "ASN list"}}},
+      "post": {"tags": ["ASNs"], "summary": "Create ASN", "responses": {"201": {"description": "ASN created"}}}
+    },
+    "/asns/{id}": {
+      "get": {"tags": ["ASNs"], "summary": "Get ASN", "parameters": [{"$ref": "#/components/parameters/IdParam"}], "responses": {"200": {"description": "ASN details"}}},
+      "put": {"tags": ["ASNs"], "summary": "Update ASN", "parameters": [{"$ref": "#/components/parameters/IdParam"}], "responses": {"200": {"description": "ASN updated"}}},
+      "delete": {"tags": ["ASNs"], "summary": "Delete ASN", "parameters": [{"$ref": "#/components/parameters/IdParam"}], "responses": {"200": {"description": "ASN deleted"}}}
     }
   },
   "components": {

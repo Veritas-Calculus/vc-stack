@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/spf13/cobra"
 )
 
@@ -95,35 +98,98 @@ func newStorageSnapshotsCommand() *cobra.Command {
 	return cmd
 }
 
-// Placeholder implementations.
-func runStorageVolumesList(cmd *cobra.Command, args []string) {
-	println("TODO: Implement volumes list")
+// --- Volume implementations ---
+
+func runStorageVolumesList(_ *cobra.Command, _ []string) {
+	c := newAPIClient()
+	resp, err := c.get("/v1/volumes")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	volumes, ok := resp["volumes"].([]interface{})
+	if !ok || len(volumes) == 0 {
+		fmt.Println("No volumes found.")
+		return
+	}
+	w := newTabWriter()
+	fmt.Fprintln(w, "ID\tNAME\tSIZE_GB\tSTATUS\tPOOL")
+	for _, item := range volumes {
+		v, _ := item.(map[string]interface{})
+		fmt.Fprintf(w, "%s\t%s\t%.0f\t%s\t%s\n",
+			getString(v, "id"), getString(v, "name"),
+			getFloat(v, "size_gb"), getString(v, "status"),
+			getString(v, "rbd_pool"))
+	}
+	_ = w.Flush()
 }
 
-func runStorageVolumeCreate(cmd *cobra.Command, args []string) {
-	println("TODO: Implement volume create")
+func runStorageVolumeCreate(_ *cobra.Command, _ []string) {
+	fmt.Fprintln(os.Stderr, "Usage: vcctl storage volumes create --name <name> --size-gb <size>")
+	fmt.Fprintln(os.Stderr, "Note: Use the web console or API directly for volume creation with full options.")
 }
 
-func runStorageVolumeDelete(cmd *cobra.Command, args []string) {
-	println("TODO: Implement volume delete")
+func runStorageVolumeDelete(_ *cobra.Command, args []string) {
+	c := newAPIClient()
+	if err := c.delete("/v1/volumes/" + args[0]); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("Volume %s deleted.\n", args[0])
 }
 
-func runStorageVolumeAttach(cmd *cobra.Command, args []string) {
-	println("TODO: Implement volume attach")
+func runStorageVolumeAttach(_ *cobra.Command, args []string) {
+	c := newAPIClient()
+	body := map[string]interface{}{"volume_id": args[0]}
+	_, err := c.post("/v1/instances/"+args[1]+"/volumes", body)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("Volume %s attached to instance %s.\n", args[0], args[1])
 }
 
-func runStorageVolumeDetach(cmd *cobra.Command, args []string) {
-	println("TODO: Implement volume detach")
+func runStorageVolumeDetach(_ *cobra.Command, args []string) {
+	fmt.Fprintln(os.Stderr, "Usage: vcctl storage volumes detach <volume-id>")
+	fmt.Fprintln(os.Stderr, "Note: Detach requires the instance ID. Use the API: DELETE /api/v1/instances/<instance-id>/volumes/<volume-id>")
 }
 
-func runStorageSnapshotsList(cmd *cobra.Command, args []string) {
-	println("TODO: Implement snapshots list")
+// --- Snapshot implementations ---
+
+func runStorageSnapshotsList(_ *cobra.Command, _ []string) {
+	c := newAPIClient()
+	resp, err := c.get("/v1/snapshots")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	snapshots, ok := resp["snapshots"].([]interface{})
+	if !ok || len(snapshots) == 0 {
+		fmt.Println("No snapshots found.")
+		return
+	}
+	w := newTabWriter()
+	fmt.Fprintln(w, "ID\tNAME\tSIZE_GB\tSTATUS\tCREATED")
+	for _, item := range snapshots {
+		s, _ := item.(map[string]interface{})
+		fmt.Fprintf(w, "%s\t%s\t%.0f\t%s\t%s\n",
+			getString(s, "id"), getString(s, "name"),
+			getFloat(s, "size_gb"), getString(s, "status"),
+			getString(s, "created_at"))
+	}
+	_ = w.Flush()
 }
 
-func runStorageSnapshotCreate(cmd *cobra.Command, args []string) {
-	println("TODO: Implement snapshot create")
+func runStorageSnapshotCreate(_ *cobra.Command, _ []string) {
+	fmt.Fprintln(os.Stderr, "Usage: vcctl storage snapshots create --volume-id <id> --name <name>")
+	fmt.Fprintln(os.Stderr, "Note: Use the web console or API directly for snapshot creation.")
 }
 
-func runStorageSnapshotDelete(cmd *cobra.Command, args []string) {
-	println("TODO: Implement snapshot delete")
+func runStorageSnapshotDelete(_ *cobra.Command, args []string) {
+	c := newAPIClient()
+	if err := c.delete("/v1/snapshots/" + args[0]); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("Snapshot %s deleted.\n", args[0])
 }

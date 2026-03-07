@@ -1,0 +1,94 @@
+# VC Stack Alert Rules for Prometheus
+groups:
+  - name: vc_stack_service_health
+    interval: 30s
+    rules:
+      - alert: VCGatewayDown
+        expr: vc_gateway_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "VC Gateway is down"
+          description: "vc_gateway_up has been 0 for more than 1 minute."
+
+      - alert: VCServiceUnhealthy
+        expr: vc_gateway_service_healthy == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "VC service {{ $labels.service }} is unhealthy"
+          description: "The {{ $labels.service }} service has been reporting unhealthy for 2 minutes."
+
+  - name: vc_stack_database
+    interval: 30s
+    rules:
+      - alert: VCDatabaseConnectionPoolExhausted
+        expr: vc_db_in_use_connections / vc_db_open_connections > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "DB connection pool is > 90% utilized"
+          description: "{{ $value | humanizePercentage }} of DB connections are in use."
+
+      - alert: VCDatabaseHighWaitCount
+        expr: rate(vc_db_wait_count_total[5m]) > 5
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High DB connection wait rate"
+          description: "Connections are waiting for pool availability at {{ $value }} waits/sec."
+
+  - name: vc_stack_runtime
+    interval: 30s
+    rules:
+      - alert: VCHighGoroutineCount
+        expr: go_goroutines{job=~"vc-.*"} > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High goroutine count on {{ $labels.job }}"
+          description: "{{ $value }} goroutines detected. Possible goroutine leak."
+
+      - alert: VCHighMemoryUsage
+        expr: go_memstats_alloc_bytes{job=~"vc-.*"} > 1073741824
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory allocation on {{ $labels.job }}"
+          description: "{{ $value | humanize1024 }}B heap allocated. May need investigation."
+
+  - name: vc_stack_host
+    interval: 30s
+    rules:
+      - alert: HostHighCPU
+        expr: 1 - avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) > 0.85
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU on {{ $labels.instance }}"
+          description: "CPU utilization is {{ $value | humanizePercentage }}."
+
+      - alert: HostHighMemory
+        expr: 1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) > 0.90
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High memory on {{ $labels.instance }}"
+          description: "Memory utilization is {{ $value | humanizePercentage }}."
+
+      - alert: HostDiskSpaceLow
+        expr: 1 - (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) > 0.85
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+          description: "Root filesystem is {{ $value | humanizePercentage }} full."

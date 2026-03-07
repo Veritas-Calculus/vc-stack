@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Veritas-Calculus/vc-stack/pkg/naming"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -45,7 +46,7 @@ func (s *Service) createSecurityGroup(c *gin.Context) {
 	}
 
 	securityGroup := SecurityGroup{
-		ID:          generateUUID(),
+		ID:          naming.GenerateID(naming.PrefixSecurityGroup),
 		Name:        req.Name,
 		Description: req.Description,
 		TenantID:    req.TenantID,
@@ -71,7 +72,7 @@ func (s *Service) EnsureDefaultSecurityGroup(tenantID string) (*SecurityGroup, e
 	}
 
 	sg = SecurityGroup{
-		ID:          generateUUID(),
+		ID:          naming.GenerateID(naming.PrefixSecurityGroup),
 		Name:        "default",
 		Description: "Default security group",
 		TenantID:    tenantID,
@@ -83,17 +84,17 @@ func (s *Service) EnsureDefaultSecurityGroup(tenantID string) (*SecurityGroup, e
 	// Default rules:
 	defaultRules := []SecurityGroupRule{
 		// Allow all egress.
-		{ID: generateUUID(), SecurityGroupID: sg.ID, Direction: "egress",
+		{ID: naming.GenerateID(naming.PrefixSecurityGroup), SecurityGroupID: sg.ID, Direction: "egress",
 			Protocol: "tcp", RemoteIPPrefix: "0.0.0.0/0"},
-		{ID: generateUUID(), SecurityGroupID: sg.ID, Direction: "egress",
+		{ID: naming.GenerateID(naming.PrefixSecurityGroup), SecurityGroupID: sg.ID, Direction: "egress",
 			Protocol: "udp", RemoteIPPrefix: "0.0.0.0/0"},
-		{ID: generateUUID(), SecurityGroupID: sg.ID, Direction: "egress",
+		{ID: naming.GenerateID(naming.PrefixSecurityGroup), SecurityGroupID: sg.ID, Direction: "egress",
 			Protocol: "icmp", RemoteIPPrefix: "0.0.0.0/0"},
 		// Allow ICMP ingress (ping).
-		{ID: generateUUID(), SecurityGroupID: sg.ID, Direction: "ingress",
+		{ID: naming.GenerateID(naming.PrefixSecurityGroup), SecurityGroupID: sg.ID, Direction: "ingress",
 			Protocol: "icmp", RemoteIPPrefix: "0.0.0.0/0"},
 		// Allow SSH ingress.
-		{ID: generateUUID(), SecurityGroupID: sg.ID, Direction: "ingress",
+		{ID: naming.GenerateID(naming.PrefixSecurityGroup), SecurityGroupID: sg.ID, Direction: "ingress",
 			Protocol: "tcp", PortRangeMin: 22, PortRangeMax: 22,
 			RemoteIPPrefix: "0.0.0.0/0"},
 	}
@@ -237,7 +238,7 @@ func (s *Service) createSecurityGroupRule(c *gin.Context) {
 	}
 
 	rule := SecurityGroupRule{
-		ID:              generateUUID(),
+		ID:              naming.GenerateID(naming.PrefixSecurityGroup),
 		SecurityGroupID: req.SecurityGroupID,
 		Direction:       req.Direction,
 		Protocol:        req.Protocol,

@@ -416,7 +416,7 @@ export function Dashboard() {
             {d.recent_alerts.length === 0 ? (
               <div className="px-4 py-6 text-center text-gray-500 text-sm">
                 <span className="inline-block w-6 h-6 rounded-full bg-emerald-500/15 text-emerald-400 leading-6 text-xs font-bold">
-                  ✓
+                  OK
                 </span>
                 <p className="mt-1">No active alerts</p>
               </div>

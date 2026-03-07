@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { useState, useEffect, useCallback } from 'react'
 import api from '@/lib/api'
+import { Icons } from '@/components/ui/Icons'
 
 interface KMSSecret {
     id: number
@@ -215,10 +216,10 @@ export function KeyManagement() {
                 <div className="space-y-6">
                     <div className="grid grid-cols-4 gap-4">
                         {[
-                            { label: 'Secrets', value: status.secrets_total, active: status.secrets_active, color: 'text-purple-400', icon: '🔐' },
-                            { label: 'Active Secrets', value: status.secrets_active, active: undefined, color: 'text-emerald-400', icon: '✅' },
-                            { label: 'Encryption Keys', value: status.encryption_keys_total, active: status.encryption_keys_active, color: 'text-blue-400', icon: '🔑' },
-                            { label: 'Active Keys', value: status.encryption_keys_active, active: undefined, color: 'text-amber-400', icon: '⚡' },
+                            { label: 'Secrets', value: status.secrets_total, active: status.secrets_active, color: 'text-purple-400', icon: Icons.lock('w-5 h-5') },
+                            { label: 'Active Secrets', value: status.secrets_active, active: undefined, color: 'text-emerald-400', icon: Icons.checkCircle('w-5 h-5') },
+                            { label: 'Encryption Keys', value: status.encryption_keys_total, active: status.encryption_keys_active, color: 'text-blue-400', icon: Icons.key('w-5 h-5') },
+                            { label: 'Active Keys', value: status.encryption_keys_active, active: undefined, color: 'text-amber-400', icon: Icons.bolt('w-5 h-5') },
                         ].map(s => (
                             <div key={s.label} className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5">
                                 <div className="flex items-center gap-2 text-gray-400 text-sm mb-2">
@@ -265,7 +266,7 @@ export function KeyManagement() {
                     <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl overflow-hidden">
                         {secrets.length === 0 ? (
                             <div className="text-center py-12">
-                                <div className="text-4xl mb-3">🔐</div>
+                                <div className="mb-3 text-purple-400">{Icons.lock('w-10 h-10')}</div>
                                 <p className="text-gray-400">No secrets stored</p>
                                 <p className="text-gray-500 text-sm mt-1">Store passwords, certificates, API keys, and other sensitive data</p>
                             </div>
@@ -320,7 +321,7 @@ export function KeyManagement() {
                     <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl overflow-hidden">
                         {keys.length === 0 ? (
                             <div className="text-center py-12">
-                                <div className="text-4xl mb-3">🔑</div>
+                                <div className="mb-3 text-blue-400">{Icons.key('w-10 h-10')}</div>
                                 <p className="text-gray-400">No encryption keys</p>
                                 <p className="text-gray-500 text-sm mt-1">Create keys for envelope encryption and data protection</p>
                             </div>
@@ -381,7 +382,7 @@ export function KeyManagement() {
                                     onClick={() => { setCryptoMode(m); setCryptoResult('') }}
                                     className={`px-4 py-2 rounded-lg text-sm transition ${cryptoMode === m ? 'bg-blue-600 text-white' : 'bg-gray-700/50 text-gray-400 hover:text-white'}`}
                                 >
-                                    {m === 'encrypt' ? '🔒 Encrypt' : m === 'decrypt' ? '🔓 Decrypt' : '🗝️ Generate DEK'}
+                                    {m === 'encrypt' ? <><span className="inline-flex items-center gap-1">{Icons.lock('w-3 h-3')} Encrypt</span></> : m === 'decrypt' ? <><span className="inline-flex items-center gap-1">{Icons.unlock('w-3 h-3')} Decrypt</span></> : <><span className="inline-flex items-center gap-1">{Icons.key('w-3 h-3')} Generate DEK</span></>}
                                 </button>
                             ))}
                         </div>

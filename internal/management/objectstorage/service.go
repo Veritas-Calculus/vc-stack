@@ -278,7 +278,7 @@ func NewService(cfg Config) (*Service, error) {
 	if cfg.Logger == nil {
 		cfg.Logger = zap.NewNop()
 	}
-	if err := cfg.DB.AutoMigrate(&Bucket{}, &S3Credential{}, &BucketPolicy{}, &UsageRecord{}); err != nil {
+	if err := cfg.DB.AutoMigrate(&Bucket{}, &S3Credential{}, &BucketPolicy{}, &UsageRecord{}, &ObjectLockConfig{}); err != nil {
 		cfg.Logger.Error("failed to migrate object storage tables", zap.Error(err))
 		return nil, fmt.Errorf("object storage migration: %w", err)
 	}
@@ -310,6 +310,15 @@ func (s *Service) SetupRoutes(rg *gin.RouterGroup) {
 		os.PUT("/buckets/:bucket_id/policy", s.setBucketPolicy)
 		os.DELETE("/buckets/:bucket_id/policy", s.deleteBucketPolicy)
 
+		// S3.1: Bucket lifecycle.
+		os.GET("/buckets/:bucket_id/lifecycle", s.getBucketLifecycle)
+		os.PUT("/buckets/:bucket_id/lifecycle", s.setBucketLifecycle)
+		os.DELETE("/buckets/:bucket_id/lifecycle", s.deleteBucketLifecycle)
+
+		// S3.3: Object Lock / WORM.
+		os.GET("/buckets/:bucket_id/object-lock", s.getBucketObjectLock)
+		os.PUT("/buckets/:bucket_id/object-lock", s.setBucketObjectLock)
+
 		// S3 credentials management.
 		os.GET("/credentials", s.listCredentials)
 		os.POST("/credentials", s.createCredential)
@@ -318,6 +327,7 @@ func (s *Service) SetupRoutes(rg *gin.RouterGroup) {
 		// Usage / statistics.
 		os.GET("/usage", s.getUsage)
 		os.GET("/stats", s.getStats)
+		os.GET("/stats/top-buckets", s.getBucketTopN) // S3.2
 	}
 }
 

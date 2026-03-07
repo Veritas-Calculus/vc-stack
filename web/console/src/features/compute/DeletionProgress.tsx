@@ -171,7 +171,7 @@ export function DeletionProgress({ instanceIds, onComplete, onClose }: DeletionP
   const progress = ((completedCount + failedCount) / instanceIds.length) * 100
 
   return (
-    <Modal open={true} onClose={polling ? () => {} : onClose} title="Deleting Instances">
+    <Modal open={true} onClose={polling ? () => { } : onClose} title="Deleting Instances">
       <div className="space-y-4">
         {/* Progress bar */}
         <div className="space-y-2">
@@ -221,8 +221,8 @@ export function DeletionProgress({ instanceIds, onComplete, onClose }: DeletionP
         {!polling && (
           <div className="pt-4 border-t border-gray-700">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-green-400">✓ Completed: {completedCount}</span>
-              {failedCount > 0 && <span className="text-red-400">✗ Failed: {failedCount}</span>}
+              <span className="text-green-400">Completed: {completedCount}</span>
+              {failedCount > 0 && <span className="text-red-400">Failed: {failedCount}</span>}
             </div>
           </div>
         )}

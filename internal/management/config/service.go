@@ -38,7 +38,7 @@ type Setting struct {
 }
 
 // TableName sets the table name.
-func (Setting) TableName() string { return "global_settings" }
+func (Setting) TableName() string { return "config_settings" }
 
 // NewService creates a new config service.
 func NewService(cfg Config) (*Service, error) {

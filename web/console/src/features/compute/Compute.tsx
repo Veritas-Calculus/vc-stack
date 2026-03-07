@@ -14,8 +14,10 @@ import {
   detachVolumeFromInstance
 } from '@/lib/api'
 import ConsoleViewer from './ConsoleViewer'
+import InstanceDetail from './InstanceDetail'
 import { VMSnapshots } from './VMSnapshots'
 import { Firecracker } from './Firecracker'
+import Migrations from './Migrations'
 import {
   fetchFlavors,
   fetchSSHKeys,
@@ -369,6 +371,7 @@ export function Compute() {
     <div className="space-y-4">
       <Routes>
         <Route path="instances" element={<Instances />} />
+        <Route path="instances/:instanceId" element={<InstanceDetail />} />
         <Route path="instances/:id/console" element={<ConsoleViewer />} />
         <Route path="instances/:id/volumes" element={<InstanceVolumes />} />
         <Route path="firecracker" element={<Firecracker />} />
@@ -376,6 +379,7 @@ export function Compute() {
         <Route path="vm-snapshots" element={<VMSnapshots />} />
         <Route path="k8s" element={<K8SPage />} />
         <Route path="kms" element={<KMSPage />} />
+        <Route path="migrations" element={<Migrations />} />
         <Route path="*" element={<Instances />} />
       </Routes>
     </div>
@@ -392,7 +396,7 @@ function InstanceVolumes() {
     if (id) setRows(await fetchInstanceVolumes(id))
   }
   useEffect(() => {
-    ;(async () => {
+    ; (async () => {
       if (id) setRows(await fetchInstanceVolumes(id))
     })()
   }, [id])

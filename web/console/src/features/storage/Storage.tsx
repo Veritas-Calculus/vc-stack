@@ -1,12 +1,15 @@
 import { Route, Routes, useParams } from 'react-router-dom'
-import axios from 'axios'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { TableToolbar } from '@/components/ui/TableToolbar'
 import { DataTable, type Column } from '@/components/ui/DataTable'
 import { Badge } from '@/components/ui/Badge'
 import { useEffect, useState } from 'react'
 import { Modal } from '@/components/ui/Modal'
+import StorageDashboard from './StorageDashboard'
+import VolumeDetail from './VolumeDetail'
+import StorageClasses from './StorageClasses'
 import {
+  cloneVolume,
   createVolume,
   createVolumeSnapshot,
   deleteVolume,
@@ -23,9 +26,12 @@ export function Storage() {
   return (
     <div className="space-y-4">
       <Routes>
+        <Route path="dashboard" element={<StorageDashboard />} />
         <Route path="volumes" element={<Volumes />} />
+        <Route path="volumes/:volumeId" element={<VolumeDetail />} />
         <Route path="snapshots" element={<Snapshots />} />
         <Route path="backups" element={<Backups />} />
+        <Route path="storage-classes" element={<StorageClasses />} />
         <Route path="*" element={<Volumes />} />
       </Routes>
     </div>
@@ -61,13 +67,37 @@ function Volumes() {
     }
   }, [projectId])
 
+  const statusVariant = (s: string): 'success' | 'warning' | 'danger' | 'default' => {
+    if (s === 'available' || s === 'in-use') return 'success'
+    if (s === 'creating' || s === 'attaching' || s === 'detaching') return 'warning'
+    if (s === 'error') return 'danger'
+    return 'default'
+  }
+
+  const handleClone = async (row: UIVolume) => {
+    const cloneName = prompt(`Clone name for "${row.name}":`)
+    if (!cloneName) return
+    try {
+      await cloneVolume(row.id, cloneName)
+      await load()
+    } catch (err) {
+      alert('Clone failed: ' + (err as Error).message)
+    }
+  }
+
   const cols: Column<(typeof rows)[number]>[] = [
     {
       key: 'name',
       header: 'Name',
       render: (r) => (
         <div className="flex items-center gap-2">
-          <span>{r.name}</span>
+          <a
+            href={`volumes/${r.id}`}
+            className="text-blue-400 hover:text-blue-300 hover:underline"
+            onClick={(e) => { e.preventDefault(); window.location.hash = `volumes/${r.id}` }}
+          >
+            {r.name}
+          </a>
           {r.id === '0' && <Badge>Root Disk</Badge>}
         </div>
       )
@@ -76,8 +106,7 @@ function Volumes() {
     {
       key: 'status',
       header: 'Status',
-      render: (r) =>
-        r.status === 'in-use' ? <Badge variant="success">in-use</Badge> : <Badge>{r.status}</Badge>
+      render: (r) => <Badge variant={statusVariant(r.status)}>{r.status}</Badge>
     },
     { key: 'rbd', header: 'RBD', render: (r) => r.rbd ?? '-' },
     {
@@ -86,6 +115,12 @@ function Volumes() {
       sortable: false,
       render: (row) => (
         <div className="flex gap-2">
+          <button
+            className="text-blue-400 hover:text-blue-300 text-sm"
+            onClick={() => handleClone(row)}
+          >
+            Clone
+          </button>
           <button
             className="text-blue-400 hover:text-blue-300 text-sm"
             onClick={() => {
@@ -111,8 +146,9 @@ function Volumes() {
                 try {
                   await deleteVolume(row.id)
                   await load()
-                } catch (err) {
-                  if (axios.isAxiosError(err) && err.response?.status === 409) {
+                } catch (err: unknown) {
+                  const status = (err as { response?: { status?: number } })?.response?.status
+                  if (status === 409) {
                     alert(
                       'Volume is in use by an instance; please detach or delete the instance first.'
                     )
@@ -279,7 +315,7 @@ function Snapshots() {
   const { projectId } = useParams()
   const [rows, setRows] = useState<UIVolumeSnapshot[]>([])
   useEffect(() => {
-    ;(async () => setRows(await fetchVolumeSnapshots(projectId)))()
+    ; (async () => setRows(await fetchVolumeSnapshots(projectId)))()
   }, [projectId])
   const cols: Column<(typeof rows)[number]>[] = [
     { key: 'name', header: 'Name' },
@@ -372,7 +408,7 @@ function Backups() {
   const { projectId } = useParams()
   const [rows, setRows] = useState<UIAudit[]>([])
   useEffect(() => {
-    ;(async () => setRows(await fetchAudit(projectId, { resource: 'snapshot' })))()
+    ; (async () => setRows(await fetchAudit(projectId, { resource: 'snapshot' })))()
   }, [projectId])
   const cols: Column<UIAudit>[] = [
     { key: 'id', header: 'ID' },

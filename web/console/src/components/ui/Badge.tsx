@@ -1,4 +1,4 @@
-type Variant = 'default' | 'success' | 'warning' | 'danger' | 'info'
+export type Variant = 'default' | 'success' | 'warning' | 'danger' | 'info'
 
 const map: Record<Variant, string> = {
   default: 'bg-oxide-800 text-gray-200 border-oxide-700',

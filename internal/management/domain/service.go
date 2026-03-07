@@ -44,7 +44,7 @@ type Domain struct {
 }
 
 // TableName specifies the table name.
-func (Domain) TableName() string { return "domains" }
+func (Domain) TableName() string { return "iam_domains" }
 
 // NewService creates a new domain service.
 func NewService(cfg Config) (*Service, error) {

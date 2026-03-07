@@ -2,6 +2,7 @@
 package monitoring
 
 import (
+	"fmt"
 	"net/http"
 	"runtime"
 	"sync"
@@ -32,6 +33,8 @@ type Service struct {
 	metricsCollector *MetricsCollector
 	flameGraph       *FlameGraphGenerator
 	handlers         *MonitoringHandlers
+	mu               sync.RWMutex
+	requestCounts    map[string]uint64
 }
 
 // HealthStatus represents the health status of a component.
@@ -60,9 +63,10 @@ func NewService(cfg Config) (*Service, error) {
 	}
 
 	s := &Service{
-		db:        cfg.DB,
-		logger:    cfg.Logger,
-		startTime: time.Now(),
+		db:            cfg.DB,
+		logger:        cfg.Logger,
+		startTime:     time.Now(),
+		requestCounts: make(map[string]uint64),
 	}
 
 	// Initialize InfluxDB metrics collector.
@@ -121,11 +125,9 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		health.GET("/details", s.healthDetails)
 	}
 
-	metrics := router.Group("/metrics")
-	{
-		metrics.GET("", s.systemMetrics)
-		metrics.GET("/system", s.systemMetrics)
-	}
+	// Prometheus-compatible metrics endpoint.
+	router.GET("/metrics", s.prometheusMetrics)
+	router.GET("/metrics/system", s.systemMetricsJSON)
 
 	api := router.Group("/api/v1/monitoring")
 	{
@@ -139,6 +141,111 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	if s.handlers != nil {
 		s.handlers.SetupRoutes(router)
 	}
+}
+
+// prometheusMetrics returns Prometheus text format metrics.
+func (s *Service) prometheusMetrics(c *gin.Context) {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+
+	uptime := time.Since(s.startTime).Seconds()
+	out := ""
+
+	// ── Process / Go runtime ──────────────────────────────────────
+	out += "# HELP vc_management_uptime_seconds Time since process start in seconds.\n"
+	out += "# TYPE vc_management_uptime_seconds gauge\n"
+	out += fmt.Sprintf("vc_management_uptime_seconds %.0f\n", uptime)
+
+	out += "# HELP vc_management_info Static build info.\n"
+	out += "# TYPE vc_management_info gauge\n"
+	out += fmt.Sprintf("vc_management_info{version=\"1.0.0-dev\",go_version=\"%s\"} 1\n", runtime.Version())
+
+	out += "# HELP go_goroutines Number of goroutines.\n"
+	out += "# TYPE go_goroutines gauge\n"
+	out += fmt.Sprintf("go_goroutines %d\n", runtime.NumGoroutine())
+
+	out += "# HELP go_threads Number of OS threads created.\n"
+	out += "# TYPE go_threads gauge\n"
+	out += fmt.Sprintf("go_threads %d\n", runtime.GOMAXPROCS(0))
+
+	out += "# HELP go_memstats_alloc_bytes Number of bytes allocated and still in use.\n"
+	out += "# TYPE go_memstats_alloc_bytes gauge\n"
+	out += fmt.Sprintf("go_memstats_alloc_bytes %d\n", m.Alloc)
+
+	out += "# HELP go_memstats_sys_bytes Number of bytes obtained from system.\n"
+	out += "# TYPE go_memstats_sys_bytes gauge\n"
+	out += fmt.Sprintf("go_memstats_sys_bytes %d\n", m.Sys)
+
+	out += "# HELP go_memstats_heap_alloc_bytes Heap bytes allocated and still in use.\n"
+	out += "# TYPE go_memstats_heap_alloc_bytes gauge\n"
+	out += fmt.Sprintf("go_memstats_heap_alloc_bytes %d\n", m.HeapAlloc)
+
+	out += "# HELP go_memstats_heap_inuse_bytes Heap bytes in use by the application.\n"
+	out += "# TYPE go_memstats_heap_inuse_bytes gauge\n"
+	out += fmt.Sprintf("go_memstats_heap_inuse_bytes %d\n", m.HeapInuse)
+
+	out += "# HELP go_memstats_stack_inuse_bytes Stack bytes in use.\n"
+	out += "# TYPE go_memstats_stack_inuse_bytes gauge\n"
+	out += fmt.Sprintf("go_memstats_stack_inuse_bytes %d\n", m.StackInuse)
+
+	out += "# HELP go_gc_duration_seconds_total Total time spent in GC.\n"
+	out += "# TYPE go_gc_duration_seconds_total counter\n"
+	out += fmt.Sprintf("go_gc_duration_seconds_total %.6f\n", float64(m.PauseTotalNs)/1e9)
+
+	out += "# HELP go_memstats_gc_completed_total Number of completed GC cycles.\n"
+	out += "# TYPE go_memstats_gc_completed_total counter\n"
+	out += fmt.Sprintf("go_memstats_gc_completed_total %d\n", m.NumGC)
+
+	// ── Database connection pool ──────────────────────────────────
+	if s.db != nil {
+		sqlDB, err := s.db.DB()
+		if err == nil {
+			stats := sqlDB.Stats()
+			out += "# HELP vc_db_open_connections Number of open database connections.\n"
+			out += "# TYPE vc_db_open_connections gauge\n"
+			out += fmt.Sprintf("vc_db_open_connections %d\n", stats.OpenConnections)
+
+			out += "# HELP vc_db_in_use_connections Number of in-use database connections.\n"
+			out += "# TYPE vc_db_in_use_connections gauge\n"
+			out += fmt.Sprintf("vc_db_in_use_connections %d\n", stats.InUse)
+
+			out += "# HELP vc_db_idle_connections Number of idle database connections.\n"
+			out += "# TYPE vc_db_idle_connections gauge\n"
+			out += fmt.Sprintf("vc_db_idle_connections %d\n", stats.Idle)
+
+			out += "# HELP vc_db_max_open_connections Maximum number of open connections.\n"
+			out += "# TYPE vc_db_max_open_connections gauge\n"
+			out += fmt.Sprintf("vc_db_max_open_connections %d\n", stats.MaxOpenConnections)
+
+			out += "# HELP vc_db_wait_count_total Number of connections waited for.\n"
+			out += "# TYPE vc_db_wait_count_total counter\n"
+			out += fmt.Sprintf("vc_db_wait_count_total %d\n", stats.WaitCount)
+
+			out += "# HELP vc_db_wait_duration_seconds_total Total time waited for connections.\n"
+			out += "# TYPE vc_db_wait_duration_seconds_total counter\n"
+			out += fmt.Sprintf("vc_db_wait_duration_seconds_total %.6f\n", stats.WaitDuration.Seconds())
+		}
+	}
+
+	// ── HTTP request metrics (from request counter maps) ──────────
+	s.mu.RLock()
+	if len(s.requestCounts) > 0 {
+		out += "# HELP vc_http_requests_total Total HTTP requests per path.\n"
+		out += "# TYPE vc_http_requests_total counter\n"
+		for path, count := range s.requestCounts {
+			out += fmt.Sprintf("vc_http_requests_total{path=\"%s\"} %d\n", path, count)
+		}
+	}
+	s.mu.RUnlock()
+
+	c.Data(http.StatusOK, "text/plain; version=0.0.4; charset=utf-8", []byte(out))
+}
+
+// RecordRequest increments the request counter for a path (called from middleware).
+func (s *Service) RecordRequest(path string) {
+	s.mu.Lock()
+	s.requestCounts[path]++
+	s.mu.Unlock()
 }
 
 // healthCheck returns overall health status.
@@ -232,8 +339,8 @@ func (s *Service) healthDetails(c *gin.Context) {
 	})
 }
 
-// systemMetrics returns system metrics.
-func (s *Service) systemMetrics(c *gin.Context) {
+// systemMetricsJSON returns system metrics as JSON (legacy endpoint).
+func (s *Service) systemMetricsJSON(c *gin.Context) {
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
 

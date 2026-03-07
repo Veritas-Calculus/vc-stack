@@ -68,6 +68,7 @@ func (ASN) TableName() string { return "net_asns" }
 type Network struct {
 	ID          string `json:"id" gorm:"primaryKey;type:varchar(36)"`
 	Name        string `json:"name" gorm:"not null;uniqueIndex:uniq_net_networks_tenant_name"`
+	DisplayName string `json:"display_name,omitempty" gorm:"type:varchar(255)"` // Optional human-friendly label
 	Description string `json:"description"`
 	CIDR        string `json:"cidr" gorm:"column:cidr;not null"`
 	// Network type: flat, vlan, vxlan, gre, geneve, local.
@@ -122,9 +123,9 @@ func (Subnet) TableName() string { return "net_subnets" }
 // SecurityGroup represents a security group.
 type SecurityGroup struct {
 	ID          string              `json:"id" gorm:"primaryKey;type:varchar(36)"`
-	Name        string              `json:"name" gorm:"not null;uniqueIndex"`
+	Name        string              `json:"name" gorm:"not null;uniqueIndex:uniq_sg_tenant_name"`
 	Description string              `json:"description"`
-	TenantID    string              `json:"tenant_id" gorm:"index"`
+	TenantID    string              `json:"tenant_id" gorm:"index;uniqueIndex:uniq_sg_tenant_name"`
 	Rules       []SecurityGroupRule `json:"rules" gorm:"foreignKey:SecurityGroupID"`
 	CreatedAt   time.Time           `json:"created_at"`
 	UpdatedAt   time.Time           `json:"updated_at"`
@@ -156,6 +157,7 @@ func (SecurityGroupRule) TableName() string { return "net_security_group_rules" 
 type Router struct {
 	ID          string `json:"id" gorm:"primaryKey;type:varchar(36)"`
 	Name        string `json:"name" gorm:"not null;uniqueIndex:uniq_net_routers_tenant_name"`
+	DisplayName string `json:"display_name,omitempty" gorm:"type:varchar(255)"` // Optional human-friendly label
 	Description string `json:"description"`
 	// External gateway network ID (must be an external network)
 	ExternalGatewayNetworkID *string `json:"external_gateway_network_id,omitempty" gorm:"index"`
@@ -261,6 +263,43 @@ type NetworkPort struct {
 // TableName sets a custom table name for the NetworkPort model.
 func (NetworkPort) TableName() string { return "net_ports" }
 
+// LoadBalancer represents a load balancer persisted in the database.
+type LoadBalancer struct {
+	ID          string               `json:"id" gorm:"primaryKey;type:varchar(36)"`
+	Name        string               `json:"name" gorm:"not null;uniqueIndex:uniq_net_lb_tenant_name"`
+	VIP         string               `json:"vip" gorm:"not null"`
+	Protocol    string               `json:"protocol" gorm:"not null;default:'tcp'"`
+	Algorithm   string               `json:"algorithm" gorm:"default:'dp_hash'"`
+	OVNUUID     string               `json:"ovn_uuid" gorm:"type:varchar(64)"` // OVN load_balancer UUID
+	NetworkID   string               `json:"network_id" gorm:"index"`
+	SubnetID    string               `json:"subnet_id" gorm:"index"`
+	HealthCheck bool                 `json:"health_check" gorm:"default:false"`
+	HCInterval  int                  `json:"hc_interval" gorm:"default:5"` // health check interval (seconds)
+	HCTimeout   int                  `json:"hc_timeout" gorm:"default:3"`  // health check timeout (seconds)
+	Status      string               `json:"status" gorm:"default:'active'"`
+	TenantID    string               `json:"tenant_id" gorm:"index;uniqueIndex:uniq_net_lb_tenant_name"`
+	CreatedAt   time.Time            `json:"created_at"`
+	UpdatedAt   time.Time            `json:"updated_at"`
+	Members     []LoadBalancerMember `json:"members,omitempty" gorm:"foreignKey:LoadBalancerID"`
+}
+
+// TableName sets a custom table name for the LoadBalancer model.
+func (LoadBalancer) TableName() string { return "net_load_balancers" }
+
+// LoadBalancerMember represents a backend member of a load balancer.
+type LoadBalancerMember struct {
+	ID             string    `json:"id" gorm:"primaryKey;type:varchar(36)"`
+	LoadBalancerID string    `json:"load_balancer_id" gorm:"not null;index"`
+	Address        string    `json:"address" gorm:"not null"` // e.g. 10.0.0.2:80
+	Weight         int       `json:"weight" gorm:"default:1"`
+	Status         string    `json:"status" gorm:"default:'active'"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+}
+
+// TableName sets a custom table name for the LoadBalancerMember model.
+func (LoadBalancerMember) TableName() string { return "net_lb_members" }
+
 // NewService creates a new network service instance.
 func NewService(config Config) (*Service, error) {
 	service := &Service{
@@ -328,6 +367,29 @@ func (s *Service) migrateDatabase() error {
 		&Zone{},
 		&Router{},
 		&RouterInterface{},
+		&LoadBalancer{},
+		&LoadBalancerMember{},
+		&PortForwarding{},
+		&QoSPolicy{},
+		&FirewallPolicy{},
+		&FirewallRule{},
+		&NetworkAuditLog{},
+		&TrunkPort{},
+		&TrunkSubPort{},
+		&AllowedAddressPair{},
+		&StaticRoute{},
+		&NetworkRBACPolicy{},
+		&PortMirror{},
+		// N-BGP models.
+		&ASNRange{},
+		&ASNAllocation{},
+		&BGPPeer{},
+		&AdvertisedRoute{},
+		&RoutePolicy{},
+		&NetworkOffering{},
+		// DNS models.
+		&DNSRecord{},
+		&DNSZoneConfig{},
 	); err != nil {
 		return err
 	}
@@ -441,6 +503,7 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		subnets := api.Group("/subnets")
 		{
 			subnets.GET("", s.listSubnets)
+			subnets.GET("/stats", s.subnetStats) // IP utilization stats
 			subnets.POST("", s.createSubnet)
 			subnets.GET("/:id", s.getSubnet)
 			subnets.PUT("/:id", s.updateSubnet)
@@ -532,6 +595,160 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 			routers.POST("/:id/set-gateway", s.setRouterGateway)
 			routers.POST("/:id/clear-gateway", s.clearRouterGateway)
 		}
+
+		// Load Balancer routes.
+		lbs := api.Group("/loadbalancers")
+		{
+			lbs.GET("", s.listLoadBalancers)
+			lbs.POST("", s.createLoadBalancer)
+			lbs.GET("/:name", s.getLoadBalancer)
+			lbs.DELETE("/:name", s.deleteLoadBalancer)
+			lbs.PUT("/:name/backends", s.updateLoadBalancerBackends)
+			lbs.PUT("/:name/algorithm", s.setLoadBalancerAlgorithm)
+			lbs.POST("/:name/healthcheck", s.enableLoadBalancerHealthCheck)
+			lbs.POST("/:name/attach-router", s.attachLoadBalancerToRouter)
+			lbs.POST("/:name/detach-router", s.detachLoadBalancerFromRouter)
+			lbs.POST("/:name/attach-switch", s.attachLoadBalancerToSwitch)
+			lbs.POST("/:name/detach-switch", s.detachLoadBalancerFromSwitch)
+			lbs.POST("/sync", s.syncLoadBalancers)
+		}
+
+		// Port Forwarding routes.
+		pfs := api.Group("/port-forwardings")
+		{
+			pfs.GET("", s.listPortForwardings)
+			pfs.POST("", s.createPortForwarding)
+			pfs.GET("/:id", s.getPortForwarding)
+			pfs.DELETE("/:id", s.deletePortForwarding)
+		}
+
+		// QoS Policy routes.
+		qos := api.Group("/qos-policies")
+		{
+			qos.GET("", s.listQoSPolicies)
+			qos.POST("", s.createQoSPolicy)
+			qos.GET("/:id", s.getQoSPolicy)
+			qos.PUT("/:id", s.updateQoSPolicy)
+			qos.DELETE("/:id", s.deleteQoSPolicy)
+		}
+
+		// Network Topology.
+		networks.GET("/topology", s.getNetworkTopology)
+
+		// Firewall-as-a-Service (FWaaS) routes.
+		fw := api.Group("/firewall-policies")
+		{
+			fw.GET("", s.listFirewallPolicies)
+			fw.POST("", s.createFirewallPolicy)
+			fw.GET("/:id", s.getFirewallPolicy)
+			fw.PUT("/:id", s.updateFirewallPolicy)
+			fw.DELETE("/:id", s.deleteFirewallPolicy)
+			fw.GET("/:id/rules", s.listFirewallRules)
+			fw.POST("/:id/rules", s.createFirewallRule)
+			fw.DELETE("/:id/rules/:ruleId", s.deleteFirewallRule)
+		}
+
+		// Network Audit.
+		api.GET("/network-audit", s.listNetworkAudit)
+
+		// Trunk Port routes (N6.1).
+		trunks := api.Group("/trunk-ports")
+		{
+			trunks.GET("", s.listTrunkPorts)
+			trunks.POST("", s.createTrunkPort)
+			trunks.DELETE("/:id", s.deleteTrunkPort)
+			trunks.POST("/:id/sub-ports", s.addTrunkSubPort)
+			trunks.DELETE("/:id/sub-ports/:subId", s.removeTrunkSubPort)
+		}
+
+		// Allowed Address Pairs (N6.2) — on existing ports.
+		ports.GET("/:id/allowed-address-pairs", s.listAllowedAddressPairs)
+		ports.POST("/:id/allowed-address-pairs", s.addAllowedAddressPair)
+		ports.DELETE("/:id/allowed-address-pairs/:pairId", s.removeAllowedAddressPair)
+
+		// Router Static Routes (N6.4).
+		routers.GET("/:id/routes", s.listStaticRoutes)
+		routers.POST("/:id/routes", s.addStaticRoute)
+		routers.DELETE("/:id/routes/:routeId", s.deleteStaticRoute)
+
+		// Network RBAC (N6.3).
+		rbac := api.Group("/network-rbac")
+		{
+			rbac.GET("", s.listNetworkRBACPolicies)
+			rbac.POST("", s.createNetworkRBACPolicy)
+			rbac.DELETE("/:id", s.deleteNetworkRBACPolicy)
+		}
+
+		// Network Usage Stats (N6.6).
+		networks.GET("/stats", s.networkStats)
+
+		// Port Mirroring (N8.3).
+		mirrors := api.Group("/port-mirrors")
+		{
+			mirrors.GET("", s.listPortMirrors)
+			mirrors.POST("", s.createPortMirror)
+			mirrors.DELETE("/:id", s.deletePortMirror)
+		}
+
+		// N-BGP1: ASN Range management.
+		asnRanges := api.Group("/asn-ranges")
+		{
+			asnRanges.GET("", s.listASNRanges)
+			asnRanges.POST("", s.createASNRange)
+			asnRanges.DELETE("/:id", s.deleteASNRange)
+		}
+		// ASN Allocation.
+		api.POST("/asn-allocations", s.allocateASN)
+		api.GET("/asn-allocations", s.listASNAllocations)
+		api.DELETE("/asn-allocations/:id", s.releaseASN)
+
+		// N-BGP2: BGP Peer management.
+		bgpPeers := api.Group("/bgp-peers")
+		{
+			bgpPeers.GET("", s.listBGPPeers)
+			bgpPeers.POST("", s.createBGPPeer)
+			bgpPeers.GET("/:id", s.getBGPPeer)
+			bgpPeers.PUT("/:id", s.updateBGPPeer)
+			bgpPeers.DELETE("/:id", s.deleteBGPPeer)
+		}
+
+		// N-BGP3: Route Advertisement.
+		advRoutes := api.Group("/advertised-routes")
+		{
+			advRoutes.GET("", s.listAdvertisedRoutes)
+			advRoutes.POST("", s.advertiseRoute)
+			advRoutes.POST("/:id/withdraw", s.withdrawRoute)
+			advRoutes.DELETE("/:id", s.deleteAdvertisedRoute)
+		}
+		// Route Policy.
+		routePolicies := api.Group("/route-policies")
+		{
+			routePolicies.GET("", s.listRoutePolicies)
+			routePolicies.POST("", s.createRoutePolicy)
+			routePolicies.DELETE("/:id", s.deleteRoutePolicy)
+		}
+
+		// N-BGP4: Network Offering.
+		offerings := api.Group("/network-offerings")
+		{
+			offerings.GET("", s.listNetworkOfferings)
+			offerings.POST("", s.createNetworkOffering)
+			offerings.GET("/:id", s.getNetworkOffering)
+			offerings.DELETE("/:id", s.deleteNetworkOffering)
+		}
+
+		// N-BGP6.2: Internal DNS.
+		dns := api.Group("/dns-records")
+		{
+			dns.GET("", s.listDNSRecords)
+			dns.POST("", s.createDNSRecord)
+			dns.GET("/:id", s.getDNSRecord)
+			dns.PUT("/:id", s.updateDNSRecord)
+			dns.DELETE("/:id", s.deleteDNSRecord)
+		}
+		// DNS zone config per network.
+		networks.GET("/:id/dns-zone", s.getDNSZoneConfig)
+		networks.PUT("/:id/dns-zone", s.upsertDNSZoneConfig)
 	}
 
 	// Health check under network prefix to avoid conflicts.

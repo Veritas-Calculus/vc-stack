@@ -15,15 +15,26 @@ import {
   fetchSubnets,
   fetchNetworkConfig,
   suggestCIDR,
+  fetchSubnetStats,
+  fetchNetworkDiagnose,
   type UINetwork,
   type UIZone,
   type UISubnet,
+  type UISubnetStat,
   type BridgeMapping
 } from '@/lib/api'
 import { useDataStore, type ASN } from '@/lib/dataStore'
 import { PublicIPs } from './PublicIPs'
 import { SecurityGroups } from './SecurityGroups'
 import RouterManagement from '../router/Router'
+import LoadBalancers from './LoadBalancers'
+import PortForwardingPage from './PortForwarding'
+import QoSManagement from './QoS'
+import FirewallManagement from './Firewall'
+import NetworkTopology from './Topology'
+import PortManagement from './Ports'
+import NetworkDashboard from './NetworkDashboard'
+import BGPManagement from './BGP'
 
 function NetworksPage() {
   const { projectId } = useParams()
@@ -44,6 +55,13 @@ function NetworksPage() {
   const [start, setStart] = useState(true)
   const [q, setQ] = useState('')
   const [selected, setSelected] = useState<string[]>([])
+  const [subnetStats, setSubnetStats] = useState<UISubnetStat[]>([])
+
+  // Diagnose modal
+  const [showDiagnose, setShowDiagnose] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [diagnoseData, setDiagnoseData] = useState<Record<string, any> | null>(null)
+  const [diagnoseNetworkName, setDiagnoseNetworkName] = useState('')
 
   // DHCP configuration
   const [enableDhcp, setEnableDhcp] = useState(true)
@@ -69,14 +87,16 @@ function NetworksPage() {
   const load = async () => {
     setLoading(true)
     try {
-      const [nets, zs, subs] = await Promise.all([
+      const [nets, zs, subs, stats] = await Promise.all([
         fetchNetworks(projectId),
         fetchZones(),
-        fetchSubnets(projectId)
+        fetchSubnets(projectId),
+        fetchSubnetStats({ tenant_id: projectId }).catch(() => [])
       ])
       setRows(nets)
       setZones(zs)
       setSubnets(subs)
+      setSubnetStats(stats)
     } finally {
       setLoading(false)
     }
@@ -267,14 +287,31 @@ function NetworksPage() {
         const netSubnets = subnets.filter((s) => s.network_id === r.id)
         if (netSubnets.length === 0) return <span className="text-xs text-gray-500">-</span>
         return (
-          <div className="space-y-0.5">
-            {netSubnets.map((s) => (
-              <div key={s.id} className="text-xs">
-                <span className="text-gray-300">{s.name}</span>
-                <span className="text-gray-500 ml-1">({s.cidr})</span>
-                {s.enable_dhcp && <span className="text-emerald-500 ml-1">DHCP</span>}
-              </div>
-            ))}
+          <div className="space-y-1">
+            {netSubnets.map((s) => {
+              const stat = subnetStats.find((st) => st.subnet_id === s.id)
+              return (
+                <div key={s.id} className="text-xs">
+                  <div className="flex items-center gap-1">
+                    <span className="text-gray-300">{s.name}</span>
+                    <span className="text-gray-500">({s.cidr})</span>
+                    {s.enable_dhcp && <span className="text-emerald-500">DHCP</span>}
+                  </div>
+                  {stat && stat.total > 0 && (
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <div className="flex-1 h-1.5 bg-gray-700 rounded-full overflow-hidden max-w-[80px]">
+                        <div
+                          className={`h-full rounded-full transition-all ${stat.percent > 90 ? 'bg-red-500' : stat.percent > 70 ? 'bg-yellow-500' : 'bg-emerald-500'
+                            }`}
+                          style={{ width: `${Math.min(stat.percent, 100)}%` }}
+                        />
+                      </div>
+                      <span className="text-gray-500">{stat.allocated}/{stat.total}</span>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </div>
         )
       }
@@ -315,6 +352,19 @@ function NetworksPage() {
         <div className="flex justify-end">
           <ActionMenu
             actions={[
+              {
+                label: 'Diagnose',
+                onClick: async () => {
+                  setDiagnoseNetworkName(row.name)
+                  try {
+                    const data = await fetchNetworkDiagnose(row.id)
+                    setDiagnoseData(data)
+                  } catch {
+                    setDiagnoseData({ error: 'Failed to fetch diagnostics' })
+                  }
+                  setShowDiagnose(true)
+                }
+              },
               {
                 label: 'Delete',
                 danger: true,
@@ -485,18 +535,16 @@ function NetworksPage() {
                 onClick={() => {
                   if (s.n < step) setStep(s.n)
                 }}
-                className={`flex items-center gap-1.5 text-xs font-medium ${
-                  step === s.n
-                    ? 'text-blue-400'
-                    : step > s.n
-                      ? 'text-gray-300 cursor-pointer hover:text-blue-300'
-                      : 'text-gray-500 cursor-default'
-                }`}
+                className={`flex items-center gap-1.5 text-xs font-medium ${step === s.n
+                  ? 'text-blue-400'
+                  : step > s.n
+                    ? 'text-gray-300 cursor-pointer hover:text-blue-300'
+                    : 'text-gray-500 cursor-default'
+                  }`}
               >
                 <span
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold ${
-                    step >= s.n ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400'
-                  }`}
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold ${step >= s.n ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400'
+                    }`}
                 >
                   {s.n}
                 </span>
@@ -717,11 +765,10 @@ function NetworksPage() {
                     <button
                       key={tpl.cidr}
                       type="button"
-                      className={`text-xs px-2 py-0.5 rounded border transition-colors ${
-                        cidr === tpl.cidr
-                          ? 'border-blue-500 bg-blue-500/20 text-blue-300'
-                          : 'border-gray-600 text-gray-400 hover:border-gray-500 hover:text-gray-300'
-                      }`}
+                      className={`text-xs px-2 py-0.5 rounded border transition-colors ${cidr === tpl.cidr
+                        ? 'border-blue-500 bg-blue-500/20 text-blue-300'
+                        : 'border-gray-600 text-gray-400 hover:border-gray-500 hover:text-gray-300'
+                        }`}
                       onClick={() => setCidr(tpl.cidr)}
                     >
                       {tpl.label}
@@ -923,6 +970,77 @@ function NetworksPage() {
           </div>
         )}
       </Modal>
+
+      {/* Diagnose Modal */}
+      <Modal
+        title={`Network Diagnostics - ${diagnoseNetworkName}`}
+        open={showDiagnose}
+        onClose={() => {
+          setShowDiagnose(false)
+          setDiagnoseData(null)
+        }}
+        footer={
+          <button className="btn-secondary" onClick={() => setShowDiagnose(false)}>
+            Close
+          </button>
+        }
+      >
+        {diagnoseData ? (
+          <div className="space-y-3 max-h-[60vh] overflow-y-auto">
+            {diagnoseData.error ? (
+              <div className="p-3 bg-red-900/30 text-red-400 rounded text-sm">
+                {diagnoseData.error}
+              </div>
+            ) : (
+              <>
+                {/* Network DB Info */}
+                {diagnoseData.network && (
+                  <div>
+                    <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Network</h4>
+                    <div className="p-2 bg-gray-800/50 rounded text-xs font-mono text-gray-300 overflow-x-auto">
+                      <div>ID: {diagnoseData.network.id}</div>
+                      <div>Status: {diagnoseData.network.status}</div>
+                      <div>CIDR: {diagnoseData.network.cidr}</div>
+                      <div>Type: {diagnoseData.network.network_type || 'vxlan'}</div>
+                    </div>
+                  </div>
+                )}
+                {/* OVN State */}
+                {diagnoseData.ovn && (
+                  <div>
+                    <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">OVN State</h4>
+                    <pre className="p-2 bg-gray-800/50 rounded text-xs font-mono text-gray-300 overflow-x-auto whitespace-pre-wrap">
+                      {JSON.stringify(diagnoseData.ovn, null, 2)}
+                    </pre>
+                  </div>
+                )}
+                {/* Subnets */}
+                {diagnoseData.subnets && (
+                  <div>
+                    <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
+                      Subnets ({(diagnoseData.subnets as unknown[]).length})
+                    </h4>
+                    <pre className="p-2 bg-gray-800/50 rounded text-xs font-mono text-gray-300 overflow-x-auto whitespace-pre-wrap">
+                      {JSON.stringify(diagnoseData.subnets, null, 2)}
+                    </pre>
+                  </div>
+                )}
+                {/* Expected OVN Names */}
+                {diagnoseData.expected && (
+                  <div>
+                    <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Expected OVN Objects</h4>
+                    <pre className="p-2 bg-gray-800/50 rounded text-xs font-mono text-gray-300 overflow-x-auto whitespace-pre-wrap">
+                      {JSON.stringify(diagnoseData.expected, null, 2)}
+                    </pre>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-gray-500">Loading diagnostics...</div>
+        )}
+      </Modal>
     </div>
   )
 }
@@ -947,9 +1065,17 @@ export function Network() {
         <Route path="routers" element={<RouterManagement />} />
         <Route path="sg" element={<SecurityGroups />} />
         <Route path="public-ips" element={<PublicIPs />} />
+        <Route path="load-balancers" element={<LoadBalancers />} />
+        <Route path="port-forwarding" element={<PortForwardingPage />} />
+        <Route path="qos" element={<QoSManagement />} />
         <Route path="asns" element={<ASNPage />} />
         <Route path="vpn" element={<VPNPage />} />
         <Route path="acl" element={<ACLPage />} />
+        <Route path="firewall" element={<FirewallManagement />} />
+        <Route path="topology" element={<NetworkTopology />} />
+        <Route path="ports" element={<PortManagement />} />
+        <Route path="dashboard" element={<NetworkDashboard />} />
+        <Route path="bgp" element={<BGPManagement />} />
         <Route path="*" element={<NetworksPage />} />
       </Routes>
     </div>
@@ -1233,20 +1359,18 @@ function ACLPage() {
                       <td className="py-1.5 pr-3 text-gray-500">{rule.number}</td>
                       <td className="py-1.5 pr-3">
                         <span
-                          className={`px-1.5 py-0.5 rounded text-xs border ${
-                            rule.direction === 'ingress'
-                              ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
-                              : 'bg-purple-500/15 text-purple-400 border-purple-500/30'
-                          }`}
+                          className={`px-1.5 py-0.5 rounded text-xs border ${rule.direction === 'ingress'
+                            ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
+                            : 'bg-purple-500/15 text-purple-400 border-purple-500/30'
+                            }`}
                         >
                           {rule.direction}
                         </span>
                       </td>
                       <td className="py-1.5 pr-3">
                         <span
-                          className={`text-xs font-medium ${
-                            rule.action === 'allow' ? 'text-emerald-400' : 'text-red-400'
-                          }`}
+                          className={`text-xs font-medium ${rule.action === 'allow' ? 'text-emerald-400' : 'text-red-400'
+                            }`}
                         >
                           {rule.action.toUpperCase()}
                         </span>

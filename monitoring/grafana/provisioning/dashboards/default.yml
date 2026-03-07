@@ -1,0 +1,16 @@
+# Grafana Dashboard Provisioning
+# Auto-loads all JSON dashboards from /var/lib/grafana/dashboards on startup.
+apiVersion: 1
+
+providers:
+  - name: "VC Stack"
+    orgId: 1
+    folder: "VC Stack"
+    type: file
+    disableDeletion: false
+    editable: true
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: false

@@ -314,7 +314,7 @@ export function WebShell() {
             terminal.writeln(
               '\r\n\x1b[1;31m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m'
             )
-            terminal.writeln('\x1b[1;31m✗ Connection Failed\x1b[0m')
+            terminal.writeln('\x1b[1;31mx Connection Failed\x1b[0m')
             terminal.writeln('\x1b[1;31m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m')
             terminal.writeln('\x1b[33m' + errorMsg + '\x1b[0m')
             terminal.writeln('')

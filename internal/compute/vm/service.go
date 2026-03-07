@@ -108,6 +108,9 @@ func (s *Service) SetupRoutes(r *gin.Engine) {
 			vms.POST("/:id/reboot", s.rebootVM)
 			vms.POST("/:id/force-stop", s.forceStopVM)
 			vms.POST("/:id/force-reboot", s.forceRebootVM)
+			vms.POST("/:id/resize", s.resizeVM)
+			vms.POST("/:id/gpu/attach", s.attachGPUToVM)
+			vms.POST("/:id/gpu/detach", s.detachGPUFromVM)
 		}
 
 		// Console ticket endpoint (returns ws path and token)
@@ -210,6 +213,48 @@ func (s *Service) stopVM(c *gin.Context)        { s.powerOp(c, "stop") }
 func (s *Service) rebootVM(c *gin.Context)      { s.powerOp(c, "reboot") }
 func (s *Service) forceStopVM(c *gin.Context)   { s.powerOp(c, "force-stop") }
 func (s *Service) forceRebootVM(c *gin.Context) { s.powerOp(c, "force-reboot") }
+
+// resizeVM handles POST /api/v1/vms/:id/resize.
+func (s *Service) resizeVM(c *gin.Context) {
+	id := c.Param("id")
+	var req struct {
+		VCPUs    int `json:"vcpus"`
+		MemoryMB int `json:"memory_mb"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request: " + err.Error()})
+		return
+	}
+	if req.VCPUs <= 0 && req.MemoryMB <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "at least one of vcpus or memory_mb must be specified"})
+		return
+	}
+
+	s.logger.Info("resizeVM request",
+		zap.String("id", id),
+		zap.Int("vcpus", req.VCPUs),
+		zap.Int("memory_mb", req.MemoryMB))
+
+	if err := s.drv.ResizeVM(id, req.VCPUs, req.MemoryMB); err != nil {
+		s.logger.Error("resizeVM failed", zap.String("id", id), zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Update in-memory VM metadata.
+	s.mu.Lock()
+	if vm, ok := s.vms[id]; ok {
+		if req.VCPUs > 0 {
+			vm.VCPUs = req.VCPUs
+		}
+		if req.MemoryMB > 0 {
+			vm.MemoryMB = req.MemoryMB
+		}
+	}
+	s.mu.Unlock()
+
+	c.JSON(http.StatusOK, gin.H{"ok": true, "id": id, "vcpus": req.VCPUs, "memory_mb": req.MemoryMB})
+}
 
 // getVM returns VM metadata by ID if present in memory and optionally checks libvirt state.
 func (s *Service) getVM(c *gin.Context) {

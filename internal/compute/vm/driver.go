@@ -9,6 +9,7 @@ type Driver interface {
 	StartVM(id string) error
 	StopVM(id string, force bool) error
 	RebootVM(id string, force bool) error
+	ResizeVM(id string, vcpus, memoryMB int) error
 	ConsoleURL(id string, ttl time.Duration) (string, error)
 	VMStatus(id string) (exists bool, running bool)
 	Status() NodeStatus

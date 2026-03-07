@@ -10,8 +10,8 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/glebarez/sqlite"
 	"go.uber.org/zap"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
@@ -81,7 +81,8 @@ func seedFlavor(t *testing.T, db *gorm.DB) *Flavor {
 
 func seedImage(t *testing.T, db *gorm.DB) *Image {
 	t.Helper()
-	img := &Image{Name: "test-image", Status: "active", DiskFormat: "qcow2", FilePath: "/tmp/test.qcow2"}
+	n := atomic.AddUint64(&testDBCounter, 1)
+	img := &Image{Name: fmt.Sprintf("test-image-%d", n), UUID: fmt.Sprintf("uuid-test-img-%d", n), Status: "active", DiskFormat: "qcow2", FilePath: "/tmp/test.qcow2"}
 	if err := db.Create(img).Error; err != nil {
 		t.Fatalf("failed to seed image: %v", err)
 	}

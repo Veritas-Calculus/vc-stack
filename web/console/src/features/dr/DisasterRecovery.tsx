@@ -1,5 +1,7 @@
+/* eslint-disable no-console */
 import { useState, useEffect, useCallback } from 'react'
 import api from '@/lib/api'
+import { Icons } from '@/components/ui/Icons'
 
 interface DRSite { id: string; name: string; type: string; location: string; endpoint: string; status: string; healthy: boolean; storage_used_gb: number; storage_total_gb: number; replicated_vms: number }
 interface DRPlan { id: string; name: string; description: string; priority: string; status: string; rpo_minutes: number; rto_minutes: number; source_site_id: string; target_site_id: string; replication_type: string; schedule: string; retention_days: number; last_replication: string; replication_lag_seconds: number; protected_count: number }
@@ -88,7 +90,7 @@ export function DisasterRecovery() {
                     <p className="text-gray-400 text-sm mt-1">Cross-site replication, RPO/RTO management, failover orchestration</p>
                 </div>
                 <div className="flex gap-2">
-                    <button onClick={doFailover} className="px-3 py-1.5 bg-red-600 text-white rounded-lg text-sm hover:bg-red-500 transition">⚡ Failover</button>
+                    <button onClick={doFailover} className="px-3 py-1.5 bg-red-600 text-white rounded-lg text-sm hover:bg-red-500 transition flex items-center gap-1">{Icons.bolt('w-4 h-4')} Failover</button>
                     <button onClick={doFailback} className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-500 transition">↩ Failback</button>
                 </div>
             </div>
@@ -104,10 +106,10 @@ export function DisasterRecovery() {
                 <div className="space-y-6">
                     <div className="grid grid-cols-4 gap-4">
                         {[
-                            { label: 'DR Sites', value: `${status.healthy_sites}/${status.sites}`, icon: '🏢', color: 'text-blue-400', sub: 'healthy' },
-                            { label: 'Active Plans', value: String(status.active_plans), icon: '📋', color: 'text-cyan-400', sub: 'RPO/RTO monitored' },
-                            { label: 'Protected Resources', value: String(status.protected_resources), icon: '🛡️', color: 'text-emerald-400', sub: 'replicated' },
-                            { label: 'Failover Events', value: String(status.failover_events), icon: '⚡', color: 'text-amber-400', sub: 'total' },
+                            { label: 'DR Sites', value: `${status.healthy_sites}/${status.sites}`, icon: Icons.building('w-5 h-5'), color: 'text-blue-400', sub: 'healthy' },
+                            { label: 'Active Plans', value: String(status.active_plans), icon: Icons.pencil('w-5 h-5'), color: 'text-cyan-400', sub: 'RPO/RTO monitored' },
+                            { label: 'Protected Resources', value: String(status.protected_resources), icon: Icons.shieldCheck('w-5 h-5'), color: 'text-emerald-400', sub: 'replicated' },
+                            { label: 'Failover Events', value: String(status.failover_events), icon: Icons.bolt('w-5 h-5'), color: 'text-amber-400', sub: 'total' },
                         ].map(s => (
                             <div key={s.label} className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5">
                                 <div className="flex items-center gap-2 text-gray-400 text-sm mb-2"><span>{s.icon}</span> {s.label}</div>
@@ -119,11 +121,11 @@ export function DisasterRecovery() {
 
                     {/* Site topology */}
                     <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-6">
-                        <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">🌐 Site Topology</h3>
+                        <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4 flex items-center gap-2">{Icons.globe('w-4 h-4')} Site Topology</h3>
                         <div className="flex items-center justify-center gap-8 flex-wrap">
                             {sites.map(site => (
                                 <div key={site.id} className={`bg-gray-700/30 border rounded-xl p-5 min-w-[200px] text-center ${site.status === 'active' ? 'border-emerald-500/40' : site.status === 'failover_active' ? 'border-purple-500/40' : 'border-red-500/40'}`}>
-                                    <div className="text-3xl mb-2">{site.type === 'primary' ? '🏛️' : site.type === 'warm_standby' ? '🔥' : '❄️'}</div>
+                                    <div className="mb-2">{site.type === 'primary' ? Icons.building('w-8 h-8') : site.type === 'warm_standby' ? Icons.flame('w-8 h-8') : Icons.snowflake('w-8 h-8')}</div>
                                     <div className="text-white font-semibold text-lg">{site.name}</div>
                                     <div className="text-gray-400 text-xs mb-2">{site.location}</div>
                                     <span className={badge(site.status)}>{site.status}</span>
@@ -179,7 +181,7 @@ export function DisasterRecovery() {
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-4">
                                     <div className={`w-14 h-14 rounded-lg flex items-center justify-center text-2xl ${site.type === 'primary' ? 'bg-blue-500/20' : site.type === 'warm_standby' ? 'bg-amber-500/20' : 'bg-gray-500/20'}`}>
-                                        {site.type === 'primary' ? '🏛️' : site.type === 'warm_standby' ? '🔥' : '❄️'}
+                                        {site.type === 'primary' ? Icons.building('w-4 h-4') : site.type === 'warm_standby' ? Icons.flame('w-4 h-4') : Icons.snowflake('w-4 h-4')}
                                     </div>
                                     <div>
                                         <div className="text-white font-bold text-lg">{site.name}</div>
@@ -252,11 +254,11 @@ export function DisasterRecovery() {
             {tab === 'drills' && (
                 <div className="space-y-4">
                     <div className="flex justify-end">
-                        <button onClick={runDrill} className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-500 transition">🧪 Run DR Drill</button>
+                        <button onClick={runDrill} className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-500 transition flex items-center gap-1.5">{Icons.beaker('w-4 h-4')} Run DR Drill</button>
                     </div>
                     {drills.length === 0 ? (
                         <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl text-center py-16">
-                            <div className="text-5xl mb-4">🧪</div>
+                            <div className="mb-4 text-gray-500">{Icons.beaker('w-12 h-12')}</div>
                             <p className="text-gray-400 text-lg">No DR drills conducted</p>
                             <p className="text-gray-500 text-sm mt-1">Run a drill to validate disaster recovery readiness</p>
                         </div>
@@ -274,11 +276,11 @@ export function DisasterRecovery() {
                                     <div className="grid grid-cols-4 gap-4 mb-3">
                                         <div className="bg-gray-700/30 rounded-lg p-3 text-center">
                                             <div className="text-gray-500 text-xs mb-1">RPO Achieved</div>
-                                            <div className={`font-bold ${d.rpo_met ? 'text-emerald-400' : 'text-red-400'}`}>{d.rpo_achieved_minutes}m {d.rpo_met ? '✅' : '❌'}</div>
+                                            <div className={`font-bold flex items-center gap-1 ${d.rpo_met ? 'text-emerald-400' : 'text-red-400'}`}>{d.rpo_achieved_minutes}m {d.rpo_met ? Icons.checkCircle('w-4 h-4') : Icons.xCircle('w-4 h-4')}</div>
                                         </div>
                                         <div className="bg-gray-700/30 rounded-lg p-3 text-center">
                                             <div className="text-gray-500 text-xs mb-1">RTO Achieved</div>
-                                            <div className={`font-bold ${d.rto_met ? 'text-emerald-400' : 'text-red-400'}`}>{d.rto_achieved_minutes}m {d.rto_met ? '✅' : '❌'}</div>
+                                            <div className={`font-bold flex items-center gap-1 ${d.rto_met ? 'text-emerald-400' : 'text-red-400'}`}>{d.rto_achieved_minutes}m {d.rto_met ? Icons.checkCircle('w-4 h-4') : Icons.xCircle('w-4 h-4')}</div>
                                         </div>
                                         <div className="bg-gray-700/30 rounded-lg p-3 text-center">
                                             <div className="text-gray-500 text-xs mb-1">VMs Recovered</div>
@@ -302,7 +304,7 @@ export function DisasterRecovery() {
                 <div className="space-y-4">
                     {events.length === 0 ? (
                         <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl text-center py-16">
-                            <div className="text-5xl mb-4">⚡</div>
+                            <div className="mb-4 text-gray-500">{Icons.bolt('w-12 h-12')}</div>
                             <p className="text-gray-400 text-lg">No failover events</p>
                             <p className="text-gray-500 text-sm mt-1">Failover and failback events will appear here</p>
                         </div>

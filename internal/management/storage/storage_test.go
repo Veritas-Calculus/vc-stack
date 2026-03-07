@@ -10,8 +10,8 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/glebarez/sqlite"
 	"go.uber.org/zap"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
 	"github.com/Veritas-Calculus/vc-stack/pkg/models"
@@ -31,9 +31,27 @@ func setupTestDB(t *testing.T) *gorm.DB {
 	if err != nil {
 		t.Fatalf("failed to open test DB: %v", err)
 	}
-	if err := db.AutoMigrate(&models.Volume{}, &models.Snapshot{}, &models.VolumeAttachment{}); err != nil {
+	if err := db.AutoMigrate(
+		&models.Volume{}, &models.Snapshot{}, &models.VolumeAttachment{},
+		&models.DiskOffering{}, &models.SnapshotSchedule{}, &models.Image{},
+	); err != nil {
 		t.Fatalf("failed to auto-migrate: %v", err)
 	}
+	// Create a minimal instances table (the real model uses PostgreSQL uuid_generate_v4 which SQLite can't handle).
+	db.Exec(`CREATE TABLE IF NOT EXISTS instances (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		name TEXT NOT NULL,
+		uuid TEXT,
+		status TEXT DEFAULT 'active',
+		flavor_id INTEGER DEFAULT 0,
+		image_id INTEGER DEFAULT 0,
+		user_id INTEGER DEFAULT 0,
+		project_id INTEGER DEFAULT 0,
+		power_state TEXT DEFAULT 'running',
+		created_at DATETIME,
+		updated_at DATETIME,
+		deleted_at DATETIME
+	)`)
 	return db
 }
 

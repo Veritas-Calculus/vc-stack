@@ -55,7 +55,7 @@ type Backup struct {
 	UpdatedAt  time.Time  `json:"updated_at"`
 }
 
-func (Backup) TableName() string { return "backups" }
+func (Backup) TableName() string { return "backup_records" }
 
 // BackupSchedule represents an automated backup policy.
 type BackupSchedule struct {

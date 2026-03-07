@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Veritas-Calculus/vc-stack/pkg/naming"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -91,7 +92,7 @@ func (s *Service) createFloatingIP(c *gin.Context) {
 	floatingIPAddr := ip
 
 	floatingIP := FloatingIP{
-		ID:         generateUUID(),
+		ID:         naming.GenerateID(naming.PrefixFloatingIP),
 		FloatingIP: floatingIPAddr,
 		FixedIP:    req.FixedIP,
 		PortID:     req.PortID,
@@ -366,7 +367,7 @@ func (s *Service) createPort(c *gin.Context) {
 	}
 
 	port := NetworkPort{
-		ID:             generateUUID(),
+		ID:             naming.GenerateID(naming.PrefixPort),
 		Name:           req.Name,
 		NetworkID:      req.NetworkID,
 		SubnetID:       req.SubnetID,

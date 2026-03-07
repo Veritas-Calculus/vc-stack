@@ -90,18 +90,22 @@ type RolePermission struct {
 
 // User represents a user in the system.
 type User struct {
-	ID        uint      `gorm:"primaryKey" json:"id"`
-	Username  string    `json:"username"`
-	Email     string    `json:"email"`
-	Password  string    `gorm:"not null" json:"-"`
-	FirstName string    `json:"first_name"`
-	LastName  string    `json:"last_name"`
-	IsActive  bool      `gorm:"default:true" json:"is_active"`
-	IsAdmin   bool      `gorm:"default:false" json:"is_admin"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Roles     []Role    `gorm:"many2many:user_roles;" json:"roles"`
-	Policies  []Policy  `gorm:"many2many:user_policies;" json:"policies"`
+	ID            uint       `gorm:"primaryKey" json:"id"`
+	Username      string     `json:"username"`
+	Email         string     `json:"email"`
+	Password      string     `gorm:"not null" json:"-"`
+	FirstName     string     `json:"first_name"`
+	LastName      string     `json:"last_name"`
+	IsActive      bool       `gorm:"default:true" json:"is_active"`
+	IsAdmin       bool       `gorm:"default:false" json:"is_admin"`
+	MFAEnabled    bool       `gorm:"default:false" json:"mfa_enabled"`
+	MFASecret     string     `json:"-"`                         // TOTP secret key (base32-encoded)
+	RecoveryCodes string     `json:"-"`                         // JSON array of hashed recovery codes
+	MFAVerifiedAt *time.Time `json:"mfa_verified_at,omitempty"` // When MFA was first verified
+	CreatedAt     time.Time  `json:"created_at"`
+	UpdatedAt     time.Time  `json:"updated_at"`
+	Roles         []Role     `gorm:"many2many:user_roles;" json:"roles"`
+	Policies      []Policy   `gorm:"many2many:user_policies;" json:"policies"`
 }
 
 // Role represents a role in the RBAC system.
@@ -198,15 +202,18 @@ type RefreshToken struct {
 type LoginRequest struct {
 	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"` // #nosec // This is a password field in a request struct
+	TOTPCode string `json:"totp_code"`                   // Optional: TOTP code for MFA
 }
 
 // LoginResponse represents a login response.
 type LoginResponse struct {
-	AccessToken  string `json:"access_token"`  // #nosec // This is a token, not a hardcoded secret
-	RefreshToken string `json:"refresh_token"` // #nosec // This is a token, not a hardcoded secret
-	ExpiresIn    int64  `json:"expires_in"`
-	TokenType    string `json:"token_type"`
-	User         *User  `json:"user"`
+	AccessToken  string `json:"access_token,omitempty"`  // #nosec G101 -- response field, not a hardcoded credential
+	RefreshToken string `json:"refresh_token,omitempty"` // #nosec G101 -- response field, not a hardcoded credential
+	ExpiresIn    int64  `json:"expires_in,omitempty"`
+	TokenType    string `json:"token_type,omitempty"`
+	User         *User  `json:"user,omitempty"`
+	MFARequired  bool   `json:"mfa_required,omitempty"` // True if MFA code is needed
+	MFAToken     string `json:"mfa_token,omitempty"`    // Temporary token for MFA step
 }
 
 // Claims represents JWT claims.
@@ -344,6 +351,8 @@ func (s *Service) createDefaultAdmin() error {
 }
 
 // Login authenticates a user and returns tokens.
+// If the user has MFA enabled and no TOTP code is provided, it returns
+// a partial response with mfa_required=true and a temporary MFA token.
 func (s *Service) Login(ctx context.Context, req *LoginRequest) (*LoginResponse, error) {
 	user, err := s.authenticateUser(req.Username, req.Password)
 	if err != nil {
@@ -351,6 +360,29 @@ func (s *Service) Login(ctx context.Context, req *LoginRequest) (*LoginResponse,
 			zap.String("username", req.Username),
 			zap.Error(err))
 		return nil, fmt.Errorf("invalid credentials")
+	}
+
+	// Check if MFA is enabled.
+	if user.MFAEnabled {
+		if req.TOTPCode == "" {
+			// MFA required but no code provided — issue temporary MFA token.
+			mfaToken, err := s.generateMFAToken(user)
+			if err != nil {
+				return nil, fmt.Errorf("failed to generate MFA token: %w", err)
+			}
+			return &LoginResponse{
+				MFARequired: true,
+				MFAToken:    mfaToken,
+			}, nil
+		}
+
+		// Validate TOTP code.
+		if !s.validateTOTP(user, req.TOTPCode) {
+			// Try recovery code.
+			if !s.validateRecoveryCode(user, req.TOTPCode) {
+				return nil, fmt.Errorf("invalid MFA code")
+			}
+		}
 	}
 
 	accessToken, err := s.generateAccessToken(user)

@@ -42,7 +42,7 @@ type Migration struct {
 }
 
 // TableName overrides the default table name.
-func (Migration) TableName() string { return "migrations" }
+func (Migration) TableName() string { return "compute_migrations" }
 
 // MigrateRequest represents a live migration API request.
 type MigrateRequest struct {

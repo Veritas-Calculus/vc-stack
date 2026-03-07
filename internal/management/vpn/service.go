@@ -23,6 +23,7 @@ type Config struct {
 type Service struct {
 	db     *gorm.DB
 	logger *zap.Logger
+	ipsec  *IPSecTunnel
 }
 
 // VPNGateway represents a VPN gateway attached to a VPC/network.
@@ -98,7 +99,7 @@ func NewService(cfg Config) (*Service, error) {
 	if cfg.Logger == nil {
 		cfg.Logger = zap.NewNop()
 	}
-	s := &Service{db: cfg.DB, logger: cfg.Logger}
+	s := &Service{db: cfg.DB, logger: cfg.Logger, ipsec: NewIPSecTunnel(cfg.Logger)}
 	if err := cfg.DB.AutoMigrate(&VPNGateway{}, &VPNCustomerGateway{}, &VPNConnection{}, &VPNUser{}); err != nil {
 		return nil, err
 	}
@@ -309,6 +310,29 @@ func (s *Service) createConnection(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create connection"})
 		return
 	}
+
+	// Establish IPSec tunnel (best-effort).
+	go func() {
+		var gw VPNGateway
+		var cg VPNCustomerGateway
+		if s.db.First(&gw, "id = ?", conn.VPNGatewayID).Error != nil {
+			return
+		}
+		if s.db.First(&cg, "id = ?", conn.CustomerGatewayID).Error != nil {
+			return
+		}
+		psk := conn.PSK
+		if psk == "" {
+			psk = "vcstack-default-psk"
+		}
+		if err := s.ipsec.CreateTunnel(conn.ID, gw.PublicIP, cg.GatewayIP, psk, cg.CIDR); err != nil {
+			s.logger.Warn("IPSec tunnel creation failed", zap.Error(err))
+			s.db.Model(&conn).Update("state", "error")
+			return
+		}
+		s.db.Model(&conn).Update("state", "connected")
+	}()
+
 	c.JSON(http.StatusCreated, gin.H{"connection": conn})
 }
 
@@ -319,6 +343,8 @@ func (s *Service) resetConnection(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "connection not found"})
 		return
 	}
+	// Tear down and recreate the tunnel.
+	_ = s.ipsec.DestroyTunnel(id)
 	if err := s.db.Model(&conn).Update("state", "disconnected").Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to reset connection"})
 		return
@@ -328,6 +354,8 @@ func (s *Service) resetConnection(c *gin.Context) {
 
 func (s *Service) deleteConnection(c *gin.Context) {
 	id := c.Param("id")
+	// Tear down the IPSec tunnel first.
+	_ = s.ipsec.DestroyTunnel(id)
 	if err := s.db.Delete(&VPNConnection{}, "id = ?", id).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete connection"})
 		return

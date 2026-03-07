@@ -92,6 +92,9 @@ type Host struct {
 	// Version.
 	AgentVersion string `json:"agent_version,omitempty"`
 
+	// TLS configuration.
+	TLSEnabled bool `gorm:"default:false" json:"tls_enabled"` // Use HTTPS for management communication
+
 	// Timestamps.
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
@@ -132,6 +135,11 @@ func (h *Host) GetUsagePercent() (cpu, ram, disk float64) {
 }
 
 // GetManagementURL returns the management URL for this host.
+// Uses HTTPS when TLSEnabled is true for the host.
 func (h *Host) GetManagementURL() string {
-	return "http://" + h.IPAddress + ":" + fmt.Sprintf("%d", h.ManagementPort)
+	scheme := "http"
+	if h.TLSEnabled {
+		scheme = "https"
+	}
+	return scheme + "://" + h.IPAddress + ":" + fmt.Sprintf("%d", h.ManagementPort)
 }

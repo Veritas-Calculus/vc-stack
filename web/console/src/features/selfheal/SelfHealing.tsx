@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import api from '@/lib/api'
+import { Icons } from '@/components/ui/Icons'
 
 type Tab = 'dashboard' | 'checks' | 'policies' | 'events'
 
@@ -80,10 +81,10 @@ export function SelfHealing() {
                 <div className="space-y-6">
                     <div className="grid grid-cols-4 gap-4">
                         {[
-                            { label: 'Health Checks', value: String(status.total_checks), icon: '🔍', color: 'text-white' },
-                            { label: 'Healthy', value: String(status.healthy), icon: '✅', color: 'text-emerald-400' },
-                            { label: 'Warning', value: String(status.warning), icon: '⚠️', color: 'text-amber-400' },
-                            { label: 'Critical', value: String(status.critical), icon: '🔴', color: 'text-red-400' },
+                            { label: 'Health Checks', value: String(status.total_checks), icon: Icons.search('w-4 h-4'), color: 'text-white' },
+                            { label: 'Healthy', value: String(status.healthy), icon: Icons.checkCircle('w-4 h-4'), color: 'text-emerald-400' },
+                            { label: 'Warning', value: String(status.warning), icon: Icons.warning('w-4 h-4'), color: 'text-amber-400' },
+                            { label: 'Critical', value: String(status.critical), icon: Icons.circleFilled('w-4 h-4 text-red-400'), color: 'text-red-400' },
                         ].map(s => (
                             <div key={s.label} className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-4">
                                 <div className="flex items-center gap-2 text-gray-400 text-xs mb-2"><span>{s.icon}</span> {s.label}</div>
@@ -94,17 +95,17 @@ export function SelfHealing() {
 
                     {/* Simulate incident panel */}
                     <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-6">
-                        <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">🧪 Simulate Incident</h3>
+                        <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4 flex items-center gap-2">{Icons.beaker('w-4 h-4')} Simulate Incident</h3>
                         <p className="text-gray-400 text-xs mb-4">Trigger a simulated infrastructure incident to test auto-healing policies</p>
                         <div className="grid grid-cols-4 gap-3">
                             {[
-                                { type: 'vm_crash', label: 'VM Crash', icon: '💥', desc: 'Simulates an unresponsive VM' },
-                                { type: 'disk_full', label: 'Disk Full', icon: '💾', desc: 'Simulates disk reaching 90%' },
-                                { type: 'host_overload', label: 'Host Overload', icon: '🔥', desc: 'Simulates CPU >95%' },
-                                { type: 'service_down', label: 'Service Down', icon: '⬇️', desc: 'Simulates service process stop' },
+                                { type: 'vm_crash', label: 'VM Crash', icon: Icons.explosion('w-6 h-6'), desc: 'Simulates an unresponsive VM' },
+                                { type: 'disk_full', label: 'Disk Full', icon: Icons.disk('w-6 h-6'), desc: 'Simulates disk reaching 90%' },
+                                { type: 'host_overload', label: 'Host Overload', icon: Icons.flame('w-6 h-6'), desc: 'Simulates CPU >95%' },
+                                { type: 'service_down', label: 'Service Down', icon: Icons.xCircle('w-6 h-6'), desc: 'Simulates service process stop' },
                             ].map(inc => (
                                 <button key={inc.type} onClick={() => simulate(inc.type)} className="bg-gray-700/30 border border-gray-700/30 rounded-lg p-4 text-left hover:border-red-500/40 transition group">
-                                    <div className="text-2xl mb-2">{inc.icon}</div>
+                                    <div className="mb-2">{inc.icon}</div>
                                     <div className="text-white font-medium text-sm">{inc.label}</div>
                                     <div className="text-gray-500 text-xs mt-1">{inc.desc}</div>
                                 </button>
@@ -114,7 +115,7 @@ export function SelfHealing() {
 
                     {/* Active policies summary */}
                     <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-6">
-                        <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">🛡️ Active Healing Policies</h3>
+                        <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4 flex items-center gap-2">{Icons.shieldCheck('w-4 h-4')} Active Healing Policies</h3>
                         <div className="grid grid-cols-5 gap-3">
                             {policies.map(p => (
                                 <div key={p.id as string} className="bg-gray-700/20 rounded-lg p-3">
@@ -147,7 +148,7 @@ export function SelfHealing() {
                                         <div>Warning: {String(c.warning_threshold)} / Critical: {String(c.critical_threshold)}</div>
                                     </div>
                                     <span className={badge(c.status as string)}>{c.status as string}</span>
-                                    <button onClick={() => runCheck(c.id as string)} className="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-500">▶ Run</button>
+                                    <button onClick={() => runCheck(c.id as string)} className="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-500">Run</button>
                                 </div>
                             </div>
                         </div>
@@ -191,7 +192,7 @@ export function SelfHealing() {
                 <div>
                     {events.length === 0 ? (
                         <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl text-center py-16">
-                            <div className="text-5xl mb-4">🛡️</div>
+                            <div className="mb-4 text-gray-500">{Icons.shieldCheck('w-12 h-12')}</div>
                             <p className="text-gray-400 text-lg">No healing events</p>
                             <p className="text-gray-500 text-sm mt-1">Events will appear when auto-remediation is triggered</p>
                         </div>
@@ -201,7 +202,7 @@ export function SelfHealing() {
                                 <div key={e.id as string} className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-4">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
-                                            <span className="text-xl">{(e.status as string) === 'success' ? '✅' : '❌'}</span>
+                                            <span className="text-xl">{(e.status as string) === 'success' ? Icons.checkCircle('w-5 h-5 text-emerald-400') : Icons.xCircle('w-5 h-5 text-red-400')}</span>
                                             <div>
                                                 <div className="text-white font-medium">{e.policy_name as string}</div>
                                                 <div className="text-gray-400 text-xs">{e.details as string}</div>

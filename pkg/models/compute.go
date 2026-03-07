@@ -97,17 +97,31 @@ func (Instance) TableName() string {
 }
 
 // Volume represents a block storage volume.
+// Status lifecycle: creating → available → attaching → in-use → detaching → available
+//
+//	creating → error
+//	available → deleting → deleted
 type Volume struct {
-	ID        uint      `gorm:"primaryKey" json:"id"`
-	Name      string    `gorm:"not null" json:"name"`
-	SizeGB    int       `gorm:"not null" json:"size_gb"`
-	Status    string    `gorm:"not null;default:'available'" json:"status"`
-	UserID    uint      `json:"user_id"`
-	ProjectID uint      `json:"project_id"`
-	RBDPool   string    `json:"rbd_pool"`
-	RBDImage  string    `json:"rbd_image"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID               uint          `gorm:"primaryKey" json:"id"`
+	Name             string        `gorm:"not null" json:"name"`
+	Description      string        `json:"description"`
+	SizeGB           int           `gorm:"not null" json:"size_gb"`
+	Status           string        `gorm:"not null;default:'creating'" json:"status"` // creating, available, attaching, in-use, detaching, deleting, error
+	UserID           uint          `json:"user_id"`
+	ProjectID        uint          `json:"project_id"`
+	RBDPool          string        `json:"rbd_pool"`
+	RBDImage         string        `json:"rbd_image"`
+	DiskOfferingID   *uint         `gorm:"index" json:"disk_offering_id"` // S1.1: storage class association
+	DiskOffering     *DiskOffering `gorm:"foreignKey:DiskOfferingID" json:"disk_offering,omitempty"`
+	SourceSnapshotID *uint         `gorm:"index" json:"source_snapshot_id"` // S1.2: created from snapshot
+	SourceImageID    *uint         `gorm:"index" json:"source_image_id"`    // S1.3: created from image
+	SourceVolumeID   *uint         `gorm:"index" json:"source_volume_id"`   // S2.2: cloned from volume
+	Bootable         bool          `gorm:"default:false" json:"bootable"`
+	MultiAttach      bool          `gorm:"default:false" json:"multi_attach"` // S2.4
+	Encrypted        bool          `gorm:"default:false" json:"encrypted"`
+	Metadata         JSONMap       `gorm:"type:jsonb" json:"metadata,omitempty"` // S2.5
+	CreatedAt        time.Time     `json:"created_at"`
+	UpdatedAt        time.Time     `json:"updated_at"`
 }
 
 // Snapshot represents a snapshot of a volume.

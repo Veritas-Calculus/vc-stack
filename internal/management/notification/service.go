@@ -54,15 +54,42 @@ type NotificationLog struct {
 	ResourceType string    `json:"resource_type"`
 	ResourceID   string    `json:"resource_id"`
 	Action       string    `json:"action"`
-	Status       string    `gorm:"default:'sent'" json:"status"` // sent, failed
+	Status       string    `gorm:"default:'sent'" json:"status"` // sent, failed, retrying
 	StatusCode   int       `json:"status_code,omitempty"`
 	ErrorMessage string    `json:"error_message,omitempty"`
 	Payload      string    `gorm:"type:text" json:"payload,omitempty"`
+	Attempts     int       `json:"attempts"`
 	CreatedAt    time.Time `json:"created_at"`
 }
 
 // TableName overrides the default table name.
 func (NotificationLog) TableName() string { return "notification_logs" }
+
+// DeadLetterEntry stores notifications that failed after all retry attempts.
+type DeadLetterEntry struct {
+	ID           uint      `gorm:"primaryKey" json:"id"`
+	ChannelID    uint      `gorm:"index" json:"channel_id"`
+	ChannelName  string    `json:"channel_name"`
+	ChannelType  string    `json:"channel_type"`
+	ResourceType string    `json:"resource_type"`
+	ResourceID   string    `json:"resource_id"`
+	Action       string    `json:"action"`
+	Payload      string    `gorm:"type:text" json:"payload"`
+	LastError    string    `gorm:"type:text" json:"last_error"`
+	LastStatus   int       `json:"last_status_code"`
+	Attempts     int       `json:"attempts"`
+	CreatedAt    time.Time `json:"created_at"`
+}
+
+// TableName overrides the default table name.
+func (DeadLetterEntry) TableName() string { return "notification_dead_letters" }
+
+const (
+	// maxRetries is the number of delivery attempts before dead-lettering.
+	maxRetries = 3
+	// baseRetryDelay is the initial wait before the first retry.
+	baseRetryDelay = 1 * time.Second
+)
 
 // Config contains the notification service configuration.
 type Config struct {
@@ -93,7 +120,7 @@ func NewService(cfg Config) (*Service, error) {
 	}
 
 	// Auto-migrate tables.
-	if err := cfg.DB.AutoMigrate(&Channel{}, &Subscription{}, &NotificationLog{}); err != nil {
+	if err := cfg.DB.AutoMigrate(&Channel{}, &Subscription{}, &NotificationLog{}, &DeadLetterEntry{}); err != nil {
 		return nil, fmt.Errorf("failed to migrate notification tables: %w", err)
 	}
 
@@ -119,6 +146,12 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 
 		// Log.
 		api.GET("/logs", s.listLogs)
+
+		// Dead letter queue.
+		api.GET("/dead-letters", s.listDeadLetters)
+		api.POST("/dead-letters/:id/retry", s.retryDeadLetter)
+		api.DELETE("/dead-letters/:id", s.deleteDeadLetter)
+		api.DELETE("/dead-letters", s.purgeDeadLetters)
 	}
 }
 
@@ -164,32 +197,74 @@ func (s *Service) NotifyEvent(resourceType, resourceID, action, message string, 
 	}
 }
 
-// sendNotification dispatches a notification to a specific channel.
+// sendNotification dispatches a notification to a specific channel with exponential backoff retry.
 func (s *Service) sendNotification(ch *Channel, payload map[string]interface{}) {
 	payloadJSON, _ := json.Marshal(payload)
 
-	var statusCode int
-	var errMsg string
-	status := "sent"
-
-	switch ch.Type {
-	case "webhook":
-		statusCode, errMsg = s.sendWebhook(ch, payloadJSON)
-	case "slack":
-		statusCode, errMsg = s.sendSlack(ch, payload)
-	default:
-		statusCode = 0
-		errMsg = "unsupported channel type: " + ch.Type
-	}
-
-	if errMsg != "" {
-		status = "failed"
-	}
-
-	// Log notification.
 	resourceType, _ := payload["resource_type"].(string)
 	resourceID, _ := payload["resource_id"].(string)
 	action, _ := payload["event"].(string)
+
+	var statusCode int
+	var errMsg string
+	attempts := 0
+
+	for attempt := 1; attempt <= maxRetries; attempt++ {
+		attempts = attempt
+
+		switch ch.Type {
+		case "webhook":
+			statusCode, errMsg = s.sendWebhook(ch, payloadJSON)
+		case "slack":
+			statusCode, errMsg = s.sendSlack(ch, payload)
+		default:
+			errMsg = "unsupported channel type: " + ch.Type
+			// Non-retryable error.
+			break
+		}
+
+		if errMsg == "" {
+			// Success.
+			s.db.Create(&NotificationLog{
+				ChannelID:    ch.ID,
+				ChannelName:  ch.Name,
+				ResourceType: resourceType,
+				ResourceID:   resourceID,
+				Action:       action,
+				Status:       "sent",
+				StatusCode:   statusCode,
+				Attempts:     attempts,
+				Payload:      string(payloadJSON),
+			})
+			if attempts > 1 {
+				s.logger.Info("Notification delivered after retry",
+					zap.String("channel", ch.Name),
+					zap.Int("attempts", attempts))
+			}
+			return
+		}
+
+		// Don't retry non-retryable errors (config issues, unsupported type).
+		if !isRetryable(statusCode, errMsg) {
+			break
+		}
+
+		if attempt < maxRetries {
+			delay := backoffDelay(attempt)
+			s.logger.Warn("Notification delivery failed, retrying",
+				zap.String("channel", ch.Name),
+				zap.Int("attempt", attempt),
+				zap.Duration("backoff", delay),
+				zap.String("error", errMsg))
+			time.Sleep(delay)
+		}
+	}
+
+	// All retries exhausted — log failure and send to dead letter queue.
+	s.logger.Error("Notification delivery failed after all retries, dead-lettering",
+		zap.String("channel", ch.Name),
+		zap.Int("attempts", attempts),
+		zap.String("error", errMsg))
 
 	s.db.Create(&NotificationLog{
 		ChannelID:    ch.ID,
@@ -197,11 +272,55 @@ func (s *Service) sendNotification(ch *Channel, payload map[string]interface{}) 
 		ResourceType: resourceType,
 		ResourceID:   resourceID,
 		Action:       action,
-		Status:       status,
+		Status:       "dead_letter",
 		StatusCode:   statusCode,
 		ErrorMessage: errMsg,
+		Attempts:     attempts,
 		Payload:      string(payloadJSON),
 	})
+
+	s.db.Create(&DeadLetterEntry{
+		ChannelID:    ch.ID,
+		ChannelName:  ch.Name,
+		ChannelType:  ch.Type,
+		ResourceType: resourceType,
+		ResourceID:   resourceID,
+		Action:       action,
+		Payload:      string(payloadJSON),
+		LastError:    errMsg,
+		LastStatus:   statusCode,
+		Attempts:     attempts,
+	})
+}
+
+// backoffDelay calculates exponential backoff with jitter: base * 2^(attempt-1) ± 25%.
+func backoffDelay(attempt int) time.Duration {
+	base := baseRetryDelay
+	for i := 1; i < attempt; i++ {
+		base *= 2
+	}
+	// Add simple jitter: use nanosecond clock as poor-man's randomness.
+	jitter := time.Duration(time.Now().UnixNano()%int64(base/4)) - base/8
+	return base + jitter
+}
+
+// isRetryable determines whether a delivery failure should be retried.
+func isRetryable(statusCode int, errMsg string) bool {
+	// Network errors are always retryable.
+	if statusCode == 0 {
+		return true
+	}
+	// 5xx server errors are retryable.
+	if statusCode >= 500 {
+		return true
+	}
+	// 429 Too Many Requests is retryable.
+	if statusCode == 429 {
+		return true
+	}
+	// 4xx client errors (except 429) are NOT retryable — the request itself is bad.
+	_ = errMsg
+	return false
 }
 
 // sendWebhook sends a webhook HTTP POST.
@@ -529,4 +648,75 @@ func (s *Service) listLogs(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"logs": logs, "total": len(logs)})
+}
+
+// --- Dead Letter Queue Handlers ---
+
+func (s *Service) listDeadLetters(c *gin.Context) {
+	var entries []DeadLetterEntry
+	query := s.db.Order("id DESC")
+
+	if chType := c.Query("channel_type"); chType != "" {
+		query = query.Where("channel_type = ?", chType)
+	}
+
+	limit := 50
+	if l := c.Query("limit"); l != "" {
+		if parsed, err := strconv.Atoi(l); err == nil && parsed > 0 && parsed <= 200 {
+			limit = parsed
+		}
+	}
+
+	if err := query.Limit(limit).Find(&entries).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list dead letters"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"dead_letters": entries, "total": len(entries)})
+}
+
+func (s *Service) retryDeadLetter(c *gin.Context) {
+	id := c.Param("id")
+	var entry DeadLetterEntry
+	if err := s.db.First(&entry, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "dead letter entry not found"})
+		return
+	}
+
+	// Find the channel.
+	var ch Channel
+	if err := s.db.First(&ch, entry.ChannelID).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "channel no longer exists"})
+		return
+	}
+
+	// Reconstruct payload.
+	var payload map[string]interface{}
+	if err := json.Unmarshal([]byte(entry.Payload), &payload); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "invalid stored payload"})
+		return
+	}
+
+	// Delete from dead letter queue before retry.
+	s.db.Delete(&entry)
+
+	// Retry delivery asynchronously.
+	go s.sendNotification(&ch, payload)
+
+	c.JSON(http.StatusOK, gin.H{"ok": true, "message": "dead letter entry re-queued for delivery"})
+}
+
+func (s *Service) deleteDeadLetter(c *gin.Context) {
+	id := c.Param("id")
+	result := s.db.Delete(&DeadLetterEntry{}, id)
+	if result.RowsAffected == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "dead letter entry not found"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"ok": true})
+}
+
+func (s *Service) purgeDeadLetters(c *gin.Context) {
+	result := s.db.Where("1 = 1").Delete(&DeadLetterEntry{})
+	c.JSON(http.StatusOK, gin.H{"ok": true, "purged": result.RowsAffected})
 }

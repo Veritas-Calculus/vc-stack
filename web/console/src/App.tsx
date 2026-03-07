@@ -1,5 +1,5 @@
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
+import { useEffect, useState, type ReactNode } from 'react'
 import { Layout } from '@/components/Layout'
 import { SettingsIndex } from '@/features/settings/SettingsIndex'
 import { Network } from '@/features/network/Network'
@@ -16,6 +16,7 @@ import { WebShell } from '@/features/webshell/WebShell'
 import { SessionList } from '@/features/webshell/SessionList'
 import { SessionReplay } from '@/features/webshell/SessionReplay'
 import { useAuthStore } from '@/lib/auth'
+import { useAppStore } from '@/lib/appStore'
 import { Project } from '@/features/project/Project'
 import { Templates } from '@/features/templates/Templates'
 import { Isos, K8sIsos } from '@/features/templates/Isos'
@@ -117,6 +118,35 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
+/**
+ * Auto-set activeProjectId when navigating to /project/:projectId/* URLs.
+ * This ensures project context is always correctly set from the URL,
+ * whether the user arrives from login, a bookmark, or a direct link.
+ */
+function ProjectContextSetter({ children }: { children: ReactNode }) {
+  const { projectId } = useParams<{ projectId: string }>()
+  const setActiveProjectId = useAppStore((s) => s.setActiveProjectId)
+  const setProjectContext = useAppStore((s) => s.setProjectContext)
+
+  useEffect(() => {
+    if (projectId) {
+      setActiveProjectId(projectId)
+      setProjectContext(true)
+    }
+  }, [projectId, setActiveProjectId, setProjectContext])
+
+  return <>{children}</>
+}
+
+/** Smart redirect: if a project is active, go to its dashboard; otherwise global dashboard. */
+function SmartRedirect() {
+  const activeProjectId = useAppStore((s) => s.activeProjectId)
+  if (activeProjectId) {
+    return <Navigate to={`/project/${encodeURIComponent(activeProjectId)}/dashboard`} replace />
+  }
+  return <Navigate to="/dashboard" replace />
+}
+
 export default function App() {
   // Version marker to confirm new code is loaded
   useEffect(() => {
@@ -134,7 +164,7 @@ export default function App() {
           <RequireAuth>
             <Layout>
               <Routes>
-                <Route path="/" element={<Navigate to="/projects" replace />} />
+                <Route path="/" element={<SmartRedirect />} />
                 {/* Global/top-level */}
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/events" element={<Events />} />
@@ -197,21 +227,20 @@ export default function App() {
                 <Route path="/platform-settings" element={<PlatformSettings />} />
                 {/* Global Infrastructure */}
                 <Route path="/infrastructure/*" element={<Infrastructure />} />
-                {/* Project-scoped Security Groups */}
-                <Route path="/project/:projectId/network/sg" element={<SecurityGroups />} />
-                {/* Project-scoped Infrastructure */}
-                <Route path="/project/:projectId/infrastructure/*" element={<Infrastructure />} />
+                {/* ── Project-scoped routes (all wrapped in ProjectContextSetter) ── */}
+                <Route path="/project/:projectId/dashboard" element={<ProjectContextSetter><Dashboard /></ProjectContextSetter>} />
+                <Route path="/project/:projectId/network/sg" element={<ProjectContextSetter><SecurityGroups /></ProjectContextSetter>} />
+                <Route path="/project/:projectId/infrastructure/*" element={<ProjectContextSetter><Infrastructure /></ProjectContextSetter>} />
                 <Route path="/projects/*" element={<Projects />} />
-                {/* Project-scoped */}
-                <Route path="/project/:projectId" element={<Project />} />
-                <Route path="/project/:projectId/images" element={<Images />} />
-                <Route path="/project/:projectId/utilization" element={<Utilization />} />
-                <Route path="/project/:projectId/images/templates" element={<Templates />} />
-                <Route path="/project/:projectId/images/iso" element={<Isos />} />
-                <Route path="/project/:projectId/images/k8s-iso" element={<K8sIsos />} />
-                <Route path="/project/:projectId/compute/*" element={<Compute />} />
-                <Route path="/project/:projectId/network/*" element={<Network />} />
-                <Route path="/project/:projectId/storage/*" element={<Storage />} />
+                <Route path="/project/:projectId" element={<ProjectContextSetter><Project /></ProjectContextSetter>} />
+                <Route path="/project/:projectId/images" element={<ProjectContextSetter><Images /></ProjectContextSetter>} />
+                <Route path="/project/:projectId/utilization" element={<ProjectContextSetter><Utilization /></ProjectContextSetter>} />
+                <Route path="/project/:projectId/images/templates" element={<ProjectContextSetter><Templates /></ProjectContextSetter>} />
+                <Route path="/project/:projectId/images/iso" element={<ProjectContextSetter><Isos /></ProjectContextSetter>} />
+                <Route path="/project/:projectId/images/k8s-iso" element={<ProjectContextSetter><K8sIsos /></ProjectContextSetter>} />
+                <Route path="/project/:projectId/compute/*" element={<ProjectContextSetter><Compute /></ProjectContextSetter>} />
+                <Route path="/project/:projectId/network/*" element={<ProjectContextSetter><Network /></ProjectContextSetter>} />
+                <Route path="/project/:projectId/storage/*" element={<ProjectContextSetter><Storage /></ProjectContextSetter>} />
                 <Route path="/settings/*" element={<SettingsIndex />} />
                 <Route path="/notifications" element={<Notifications />} />
               </Routes>
