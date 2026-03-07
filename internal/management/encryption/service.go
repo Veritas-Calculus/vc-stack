@@ -589,7 +589,7 @@ func (s *Service) encryptVolume(c *gin.Context) {
 	}
 
 	record := VolumeEncryption{
-		VolumeID:         uint(volumeID),
+		VolumeID:         uint(volumeID), // #nosec G115 -- volumeID validated above
 		ProfileID:        profile.ID,
 		KMSKeyID:         req.KMSKeyID,
 		EncryptionStatus: "encrypted",
@@ -606,7 +606,7 @@ func (s *Service) encryptVolume(c *gin.Context) {
 	s.db.Preload("Profile").First(&record, record.ID)
 
 	s.logger.Info("volume encrypted",
-		zap.Uint("volume_id", uint(volumeID)),
+		zap.Int("volume_id", volumeID),
 		zap.String("profile", profile.Name),
 		zap.String("cipher", profile.Cipher))
 

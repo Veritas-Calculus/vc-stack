@@ -529,6 +529,7 @@ func (s *Service) deleteASN(c *gin.Context) {
 }
 
 // generateID is a simple unique ID generator placeholder; replace with UUID in production.
+//nolint:unused // generateID may be used by dynamic handlers
 func generateID() string {
 	return fmt.Sprintf("n-%d", time.Now().UnixNano())
 }

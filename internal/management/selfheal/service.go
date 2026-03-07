@@ -4,8 +4,9 @@
 package selfheal
 
 import (
+	"crypto/rand"
+	"encoding/binary"
 	"fmt"
-	"math/rand"
 	"net/http"
 	"time"
 
@@ -265,7 +266,7 @@ func (s *Service) runCheck(c *gin.Context) {
 	// Simulate check execution
 	now := time.Now()
 	check.LastCheck = &now
-	check.LastResult = fmt.Sprintf("manual check at %s: OK (latency: %dms)", now.Format(time.RFC3339), rand.Intn(50)+5)
+	check.LastResult = fmt.Sprintf("manual check at %s: OK (latency: %dms)", now.Format(time.RFC3339), secureRandInt(50)+5)
 	check.Status = "healthy"
 	check.ConsecutiveFails = 0
 	s.db.Save(&check)
@@ -367,7 +368,7 @@ func (s *Service) simulateIncident(c *gin.Context) {
 		ID: uuid.New().String(), PolicyID: policy.ID, PolicyName: policy.Name,
 		ResourceType: incident.resourceType, ResourceID: req.CheckID,
 		Action: incident.action, Status: "success",
-		Details: incident.detail, Duration: rand.Intn(5000) + 1000,
+		Details: incident.detail, Duration: secureRandInt(5000) + 1000,
 	}
 	s.db.Create(&event)
 
@@ -384,4 +385,11 @@ func (s *Service) simulateIncident(c *gin.Context) {
 		"event":   event,
 		"message": fmt.Sprintf("Incident simulated and auto-healed via %s policy", policy.Name),
 	})
+}
+
+// secureRandInt returns a non-negative pseudo-random int in [0, max) using crypto/rand.
+func secureRandInt(max int) int {
+	var b [8]byte
+	_, _ = rand.Read(b[:])
+	return int(binary.LittleEndian.Uint64(b[:]) % uint64(max)) // #nosec G115
 }

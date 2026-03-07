@@ -94,7 +94,10 @@ func (s *Service) attachVolume(c *gin.Context) {
 	if device == "" {
 		var count int64
 		s.db.Model(&models.VolumeAttachment{}).Where("instance_id = ?", req.InstanceID).Count(&count)
-		device = fmt.Sprintf("/dev/vd%c", 'b'+byte(count))
+		if count > 24 {
+			count = 24 // cap at /dev/vdz
+		}
+		device = fmt.Sprintf("/dev/vd%c", rune('b'+int(count)))
 	}
 
 	attachment := models.VolumeAttachment{

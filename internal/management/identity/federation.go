@@ -967,13 +967,16 @@ func (s *Service) testIDPHandler(c *gin.Context) {
 			body, _ := io.ReadAll(resp.Body)
 			if resp.StatusCode == 200 {
 				var disc map[string]interface{}
-				json.Unmarshal(body, &disc)
-				results["discovery"] = gin.H{
-					"status":                 "ok",
-					"authorization_endpoint": disc["authorization_endpoint"],
-					"token_endpoint":         disc["token_endpoint"],
-					"userinfo_endpoint":      disc["userinfo_endpoint"],
-					"jwks_uri":               disc["jwks_uri"],
+				if err := json.Unmarshal(body, &disc); err != nil {
+					results["discovery"] = gin.H{"status": "error", "error": "invalid JSON in discovery response"}
+				} else {
+					results["discovery"] = gin.H{
+						"status":                 "ok",
+						"authorization_endpoint": disc["authorization_endpoint"],
+						"token_endpoint":         disc["token_endpoint"],
+						"userinfo_endpoint":      disc["userinfo_endpoint"],
+						"jwks_uri":               disc["jwks_uri"],
+					}
 				}
 			} else {
 				results["discovery"] = gin.H{"status": "error", "http_status": resp.StatusCode}

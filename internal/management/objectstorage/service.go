@@ -729,8 +729,10 @@ func (s *Service) getStats(c *gin.Context) {
 	if projectID != "" {
 		row = row.Where("project_id = ?", projectID)
 	}
-	row.Select("COALESCE(SUM(size_bytes),0) as total_size, COALESCE(SUM(object_count),0) as total_objects").
-		Row().Scan(&totalSize, &totalObjects)
+	if err := row.Select("COALESCE(SUM(size_bytes),0) as total_size, COALESCE(SUM(object_count),0) as total_objects").
+		Row().Scan(&totalSize, &totalObjects); err != nil {
+		s.logger.Warn("failed to scan aggregate stats", zap.Error(err))
+	}
 
 	var totalCredentials int64
 	cq := s.db.Model(&S3Credential{}).Where("status = ?", StatusActive)

@@ -4,8 +4,9 @@
 package dr
 
 import (
+	"crypto/rand"
+	"encoding/binary"
 	"fmt"
-	"math/rand"
 	"net/http"
 	"time"
 
@@ -419,11 +420,11 @@ func (s *Service) createDrill(c *gin.Context) {
 	}
 
 	// Simulate drill execution
-	rpoAchieved := plan.RPOMinutes - rand.Intn(plan.RPOMinutes/2+1)
+	rpoAchieved := plan.RPOMinutes - drSecureRand(plan.RPOMinutes/2+1)
 	if rpoAchieved < 0 {
 		rpoAchieved = 1
 	}
-	rtoAchieved := plan.RTOMinutes - rand.Intn(plan.RTOMinutes/3+1)
+	rtoAchieved := plan.RTOMinutes - drSecureRand(plan.RTOMinutes/3+1)
 	if rtoAchieved < 0 {
 		rtoAchieved = 5
 	}
@@ -549,4 +550,14 @@ func (s *Service) initiateFailback(c *gin.Context) {
 	s.db.Model(&DRSite{}).Where("id = ?", plan.TargetSiteID).Update("status", "active")
 
 	c.JSON(http.StatusCreated, gin.H{"event": event})
+}
+
+// drSecureRand returns a non-negative pseudo-random int in [0, max) using crypto/rand.
+func drSecureRand(max int) int {
+	if max <= 0 {
+		return 0
+	}
+	var b [8]byte
+	_, _ = rand.Read(b[:])
+	return int(binary.LittleEndian.Uint64(b[:]) % uint64(max)) // #nosec G115
 }

@@ -189,7 +189,16 @@ The system has only **two binaries** plus a CLI:
 - [x] InfluxDB metrics collection
 - [x] Prometheus metrics endpoint
 - [x] Sentry error tracking integration
-- [x] API documentation (Swagger/OpenAPI)
+- [x] API documentation (Swagger/OpenAPI at `/swagger/`)
+- [x] Runtime feature flags (lock-free atomic toggle)
+- [x] Interface-based module registry (dynamic route registration)
+- [x] pprof debug server (non-release mode)
+- [x] Request tracing (X-Request-ID propagation)
+- [x] Database migration tooling (`vcctl db migrate`)
+- [x] Integration testing framework (testcontainers-go)
+- [x] Helm chart with health probes, PDB, and ConfigMap
+- [x] Deb/RPM packaging via nFPM
+- [x] Multi-arch Docker images (amd64/arm64) via GHCR
 
 ### Web Console
 
@@ -279,9 +288,13 @@ npm run dev
 | `make lint` | Run golangci-lint |
 | `make fmt` | Format Go code |
 | `make proto` | Regenerate Protobuf code |
+| `make docs` | Generate OpenAPI/Swagger spec |
 | `make dev-start` | Start dev PostgreSQL |
 | `make dev-stop` | Stop dev infrastructure |
 | `make install-tools` | Install dev tools |
+| `make security-scan` | Run gosec security scan |
+| `make pkg-deb` | Build .deb packages |
+| `make pkg-rpm` | Build .rpm packages |
 
 ### Frontend (`web/console/`)
 
@@ -298,9 +311,11 @@ npm run dev
 
 | Layer | Tests | Framework |
 | :--- | :--- | :--- |
-| Backend | 42 packages, 55 files | Go testing |
+| Backend | 44 packages, 60+ files | Go testing + testcontainers |
 | Frontend Unit | 13 files, 69 tests | Vitest + Testing Library |
 | Frontend E2E | 3 files, 18 tests | Playwright |
+| Security | 201 files scanned | gosec (3 known accepts) |
+| Linting | Full codebase | golangci-lint |
 
 ## Project Structure
 
@@ -373,6 +388,8 @@ web/console/           React dashboard (40+ feature modules)
   e2e/                   Playwright E2E tests
 migrations/            PostgreSQL schema migrations
 api/proto/             Protobuf definitions
+charts/vc-stack/       Helm chart (deployment, service, PDB, ingress)
+monitoring/            Grafana dashboards and Prometheus rules
 scripts/               Deploy, rollback, DB init/migration
 ```
 
@@ -380,11 +397,13 @@ scripts/               Deploy, rollback, DB init/migration
 
 - [Architecture Overview](docs/ARCHITECTURE.md)
 - [Deployment Guide](docs/DEPLOYMENT.md)
+- [Naming Conventions](docs/NAMING.md)
 - [Security Best Practices](docs/SECURITY.md)
 - [IAM API Reference](docs/iam-api.md)
 - [Sentry Integration](docs/sentry-integration.md)
 - [SonarQube Integration](docs/sonarqube-integration.md)
 - [Pre-commit Hooks](docs/pre-commit.md)
+- [Swagger UI](http://localhost:8080/swagger/index.html) (live, when running)
 
 ## License
 

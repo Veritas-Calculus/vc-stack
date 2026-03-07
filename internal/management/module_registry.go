@@ -70,6 +70,7 @@ func isEnabled(flag *bool) bool {
 }
 
 // boolPtr returns a pointer to a bool value.
+// boolPtr returns a pointer to a bool value.
 func boolPtr(v bool) *bool {
 	return &v
 }

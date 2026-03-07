@@ -36,6 +36,7 @@ func (s *Service) getOVNDriver() *OVNDriver {
 
 // generateUUID generates a simple UUID-like string.
 // Deprecated: Use naming.GenerateID(prefix) for new code.
+//nolint:unused // generateUUID may be used by dynamic handlers
 func generateUUID() string {
 	b := make([]byte, 16)
 	if _, err := rand.Read(b); err != nil {

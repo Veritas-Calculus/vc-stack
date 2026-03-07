@@ -26,7 +26,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	_ "net/http/pprof" // Register pprof handlers on DefaultServeMux
+	_ "net/http/pprof" // #nosec G108 -- pprof bound to localhost:6060, not exposed externally
 	"os"
 	"os/signal"
 	"path/filepath"
