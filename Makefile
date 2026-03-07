@@ -209,9 +209,12 @@ generate: ## Generate code
 	@echo "Generating code..."
 	@go generate ./...
 
-docs: ## Generate documentation
-	@echo "Generating API documentation..."
-	@swag init -g cmd/vc-gateway/main.go -o $(DOCS_DIR)/api
+docs: ## Generate OpenAPI/Swagger documentation
+	@echo "Generating OpenAPI documentation..."
+	@swag init -g cmd/vc-management/main.go -o $(DOCS_DIR)/swagger --parseDependency --parseInternal
+	@echo "OpenAPI spec generated at $(DOCS_DIR)/swagger/"
+
+swagger: docs ## Alias for docs target
 
 ##@ Database
 
@@ -288,6 +291,26 @@ vulnerability-check: ## Check for vulnerabilities
 
 release: clean test lint build docker ## Build release artifacts
 	@echo "Release $(VERSION) built successfully"
+
+##@ Packaging
+
+pkg-deb: build-linux ## Build .deb packages for management and compute
+	@echo "Building .deb packages..."
+	@mkdir -p dist
+	@VERSION=$(VERSION) GOARCH=amd64 nfpm pkg --config nfpm-management.yaml --packager deb --target dist/
+	@VERSION=$(VERSION) GOARCH=amd64 nfpm pkg --config nfpm-compute.yaml --packager deb --target dist/
+	@echo "Packages:"
+	@ls -la dist/*.deb
+
+pkg-rpm: build-linux ## Build .rpm packages for management and compute
+	@echo "Building .rpm packages..."
+	@mkdir -p dist
+	@VERSION=$(VERSION) GOARCH=amd64 nfpm pkg --config nfpm-management.yaml --packager rpm --target dist/
+	@VERSION=$(VERSION) GOARCH=amd64 nfpm pkg --config nfpm-compute.yaml --packager rpm --target dist/
+	@echo "Packages:"
+	@ls -la dist/*.rpm
+
+pkg-all: pkg-deb pkg-rpm ## Build all packages (.deb and .rpm)
 
 ##@ Git Hooks
 

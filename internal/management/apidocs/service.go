@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/zap"
 )
 
@@ -54,9 +56,17 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	router.GET("/api/v1/openapi.json", s.serveOpenAPIJSON)
 	router.GET("/api/v1/openapi.yaml", s.serveOpenAPIYAML)
 
-	// Swagger UI.
+	// Legacy Swagger UI (static HTML).
 	router.GET("/api/docs", s.serveSwaggerUI)
 	router.GET("/api/docs/*any", s.serveSwaggerUI)
+
+	// gin-swagger interactive Swagger UI.
+	// After running `swag init -g cmd/vc-management/main.go`, this serves
+	// the auto-generated spec with full interactivity.
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler,
+		ginSwagger.URL("/api/v1/openapi.json"),
+		ginSwagger.DefaultModelsExpandDepth(-1),
+	))
 }
 
 // VersionMiddleware adds API version headers to all responses.
@@ -100,11 +110,15 @@ func (s *Service) versionDetail(c *gin.Context) {
 		"resources": []string{
 			"auth", "users", "roles", "permissions", "policies", "projects",
 			"instances", "flavors", "images", "volumes", "snapshots",
-			"networks", "subnets", "security-groups", "floating-ips", "routers", "vpcs",
+			"networks", "subnets", "security-groups", "floating-ips", "routers", "vpcs", "ports", "asns",
 			"hosts", "zones", "clusters",
 			"tasks", "tags", "events", "quotas",
 			"notifications", "storage", "ssh-keys",
 			"migrations", "backup", "autoscale",
+			"mfa", "kms", "encryption", "compliance",
+			"ha", "dr", "self-heal",
+			"caas", "baremetal", "object-storage", "dns",
+			"catalog", "firecracker",
 		},
 		"links": gin.H{
 			"spec": "/api/v1/openapi.json",
