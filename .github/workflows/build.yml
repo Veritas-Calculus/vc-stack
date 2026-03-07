@@ -31,7 +31,6 @@ jobs:
         with:
           go-version: '1.24'
 
-
       - name: Download dependencies
         run: |
           go mod download
@@ -41,7 +40,6 @@ jobs:
         run: make build-all
         env:
           CGO_ENABLED: 0
-
 
       - name: Run tests
         run: make test
@@ -61,14 +59,109 @@ jobs:
           name: vc-stack-binaries
           path: release/*
 
+      - name: Generate Changelog
+        if: startsWith(github.ref, 'refs/tags/')
+        id: changelog
+        uses: requarks/changelog-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref_name }}
+          writeToFile: false
+
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: release/*
+          body: ${{ steps.changelog.outputs.changes }}
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  # ── Docker Images ──────────────────────────────────────────────────
+  docker:
+    name: Build & Push Docker Images
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      matrix:
+        target: [vc-management, vc-compute]
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set up QEMU (multi-arch)
+        uses: docker/setup-qemu-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/${{ matrix.target }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: ${{ matrix.target }}
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ── Helm Chart ─────────────────────────────────────────────────────
+  helm:
+    name: Publish Helm Chart
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Log in to GHCR (OCI)
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io --username ${{ github.actor }} --password-stdin
+
+      - name: Package Helm chart
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          helm package charts/vc-stack --version "${VERSION}" --app-version "${VERSION}"
+
+      - name: Push Helm chart to GHCR
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          helm push vc-stack-${VERSION}.tgz oci://ghcr.io/${{ github.repository }}/charts
+
+  # ── Multi-Arch Binaries ────────────────────────────────────────────
   build-multiarch:
     name: Build Multi-Architecture
     runs-on: ubuntu-latest
