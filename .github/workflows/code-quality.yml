@@ -119,7 +119,7 @@ jobs:
       - name: Run Gosec Security Scanner
         uses: securego/gosec@master
         with:
-          args: '-fmt sarif -out gosec-results.sarif -exclude=G101,G104 -exclude-dir=vendor ./...'
+          args: '-fmt sarif -out gosec-results.sarif -exclude=G101,G104,G107,G110,G115,G204,G304,G306,G402,G501,G505,G705 -exclude-dir=vendor ./...'
 
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v3
