@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "vc-stack.fullname" . }}-config
+  labels:
+    {{- include "vc-stack.labels" . | nindent 4 }}
+data:
+  vc-management.yaml: |
+    server:
+      port: {{ .Values.management.service.port }}
+      gin_mode: release
+      read_timeout: 15m
+      write_timeout: 60m
+      idle_timeout: 60m
+    database:
+      host: {{ .Release.Name }}-postgresql
+      port: 5432
+      name: {{ .Values.postgresql.auth.database }}
+      username: {{ .Values.postgresql.auth.username }}
+      sslmode: prefer
+      max_idle_conns: 10
+      max_open_conns: 100
+      conn_max_lifetime: 1h
+    logging:
+      level: {{ .Values.management.env.LOGGING_LEVEL | default "info" }}
+      format: {{ .Values.management.env.LOGGING_FORMAT | default "json" }}

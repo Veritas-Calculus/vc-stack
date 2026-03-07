@@ -24,6 +24,22 @@ type Config struct {
 	MaxIdleConns    int
 	MaxOpenConns    int
 	ConnMaxLifetime time.Duration
+	ConnMaxIdleTime time.Duration
+	LogLevel        string // "silent", "error", "warn", "info" (default: "warn")
+}
+
+// gormLogLevel maps a string log level to GORM's logger.LogLevel.
+func gormLogLevel(level string) logger.LogLevel {
+	switch strings.ToLower(level) {
+	case "silent":
+		return logger.Silent
+	case "error":
+		return logger.Error
+	case "info":
+		return logger.Info
+	default: // "warn" or anything else
+		return logger.Warn
+	}
 }
 
 // New creates a new database connection using the provided configuration.
@@ -53,7 +69,7 @@ func New(config Config) (*gorm.DB, error) {
 		config.Host, config.Port, username, password, config.Name, config.SSLMode)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
+		Logger: logger.Default.LogMode(gormLogLevel(config.LogLevel)),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
@@ -68,6 +84,9 @@ func New(config Config) (*gorm.DB, error) {
 	sqlDB.SetMaxIdleConns(config.MaxIdleConns)
 	sqlDB.SetMaxOpenConns(config.MaxOpenConns)
 	sqlDB.SetConnMaxLifetime(config.ConnMaxLifetime)
+	if config.ConnMaxIdleTime > 0 {
+		sqlDB.SetConnMaxIdleTime(config.ConnMaxIdleTime)
+	}
 
 	// Test the connection.
 	if err := sqlDB.Ping(); err != nil {

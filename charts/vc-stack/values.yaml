@@ -1,0 +1,103 @@
+# VC Stack Helm Chart - Default Values
+# Override these in your own values.yaml or via --set flags.
+
+# VC Management Plane
+management:
+  replicaCount: 1
+  image:
+    repository: vcstack/vc-management
+    tag: ""  # defaults to Chart.appVersion
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8080
+    metricsPort: 9090
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 512Mi
+  env:
+    DB_HOST: "{{ .Release.Name }}-postgresql"
+    DB_PORT: "5432"
+    DB_NAME: vcstack
+    DB_USER: vcstack
+    VC_MANAGEMENT_PORT: "8080"
+    LOGGING_LEVEL: info
+    LOGGING_FORMAT: json
+  # JWT secret — override in production!
+  jwtSecret: ""  # Will be auto-generated if empty
+  # Extra environment variables
+  extraEnv: []
+
+# VC Compute Node
+compute:
+  enabled: true
+  # DaemonSet: runs on every node with the "vc-compute" label
+  nodeSelector:
+    node-role.vcstack.io/compute: ""
+  tolerations: []
+  image:
+    repository: vcstack/vc-compute
+    tag: ""
+    pullPolicy: IfNotPresent
+  service:
+    port: 8081
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: "4"
+      memory: 2Gi
+  env:
+    VC_COMPUTE_PORT: "8081"
+  # Host paths for KVM/OVS access
+  hostPaths:
+    dev: /dev
+    run: /run
+    varLibVcStack: /var/lib/vc-stack
+  # Privileged mode required for QEMU/KVM
+  privileged: true
+  extraEnv: []
+
+# Ingress configuration
+ingress:
+  enabled: false
+  className: nginx
+  annotations: {}
+  hosts:
+    - host: vcstack.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+# PostgreSQL subchart configuration
+postgresql:
+  enabled: true
+  auth:
+    username: vcstack
+    password: ""  # Will be auto-generated
+    database: vcstack
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+
+# Monitoring
+monitoring:
+  enabled: false
+  prometheus:
+    serviceMonitor:
+      enabled: false
+      interval: 30s
+  grafana:
+    enabled: false
+
+# Global settings
+global:
+  imagePullSecrets: []
+  storageClass: ""

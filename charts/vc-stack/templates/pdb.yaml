@@ -1,0 +1,15 @@
+{{- if gt (int .Values.management.replicaCount) 1 }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "vc-stack.fullname" . }}-management
+  labels:
+    {{- include "vc-stack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: management
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      {{- include "vc-stack.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: management
+{{- end }}

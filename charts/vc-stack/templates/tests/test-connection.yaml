@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "vc-stack.fullname" . }}-test
+  labels:
+    {{- include "vc-stack.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  containers:
+    - name: test
+      image: curlimages/curl:latest
+      command: ["sh", "-c"]
+      args:
+        - |
+          echo "Testing VC Stack Management API..."
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+            http://{{ include "vc-stack.fullname" . }}-management:{{ .Values.management.service.port }}/api/identity/health)
+          if [ "$RESPONSE" = "200" ]; then
+            echo "✅ Health check passed (HTTP $RESPONSE)"
+            exit 0
+          else
+            echo "❌ Health check failed (HTTP $RESPONSE)"
+            exit 1
+          fi
+  restartPolicy: Never

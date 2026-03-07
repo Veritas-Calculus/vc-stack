@@ -1,0 +1,23 @@
+apiVersion: v2
+name: vc-stack
+description: VC Stack - Modern, Lightweight IaaS Platform
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+home: https://github.com/Veritas-Calculus/vc-stack
+sources:
+  - https://github.com/Veritas-Calculus/vc-stack
+maintainers:
+  - name: VC Stack Team
+    email: team@vcstack.org
+keywords:
+  - iaas
+  - cloud
+  - virtualization
+  - kvm
+  - ovn
+dependencies:
+  - name: postgresql
+    version: "~15"
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled

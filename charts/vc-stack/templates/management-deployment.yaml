@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "vc-stack.fullname" . }}-management
+  labels:
+    {{- include "vc-stack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: management
+spec:
+  replicas: {{ .Values.management.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "vc-stack.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: management
+  template:
+    metadata:
+      labels:
+        {{- include "vc-stack.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: management
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: management
+          image: "{{ .Values.management.image.repository }}:{{ .Values.management.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.management.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+          env:
+            - name: DB_HOST
+              value: "{{ .Release.Name }}-postgresql"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              value: {{ .Values.postgresql.auth.database | quote }}
+            - name: DB_USER
+              value: {{ .Values.postgresql.auth.username | quote }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "vc-stack.fullname" . }}-secrets
+                  key: db-password
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "vc-stack.fullname" . }}-secrets
+                  key: jwt-secret
+            - name: VC_MANAGEMENT_PORT
+              value: "8080"
+            {{- range .Values.management.extraEnv }}
+            - name: {{ .name }}
+              value: {{ .value | quote }}
+            {{- end }}
+          startupProbe:
+            httpGet:
+              path: /health/liveness
+              port: http
+            failureThreshold: 30
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health/liveness
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health/readiness
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            {{- toYaml .Values.management.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/vc-stack
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "vc-stack.fullname" . }}-config

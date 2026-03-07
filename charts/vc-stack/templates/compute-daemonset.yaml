@@ -1,0 +1,100 @@
+{{- if .Values.compute.enabled }}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "vc-stack.fullname" . }}-compute
+  labels:
+    {{- include "vc-stack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: compute
+spec:
+  selector:
+    matchLabels:
+      {{- include "vc-stack.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: compute
+  template:
+    metadata:
+      labels:
+        {{- include "vc-stack.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: compute
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      hostNetwork: true
+      hostPID: true
+      {{- with .Values.compute.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.compute.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: compute
+          image: "{{ .Values.compute.image.repository }}:{{ .Values.compute.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.compute.image.pullPolicy }}
+          securityContext:
+            privileged: {{ .Values.compute.privileged }}
+          ports:
+            - name: http
+              containerPort: 8081
+              protocol: TCP
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: VC_COMPUTE_PORT
+              value: "8081"
+            - name: DB_HOST
+              value: "{{ .Release.Name }}-postgresql"
+            - name: DB_NAME
+              value: {{ .Values.postgresql.auth.database | quote }}
+            - name: DB_USER
+              value: {{ .Values.postgresql.auth.username | quote }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "vc-stack.fullname" . }}-secrets
+                  key: db-password
+            {{- range .Values.compute.extraEnv }}
+            - name: {{ .name }}
+              value: {{ .value | quote }}
+            {{- end }}
+          volumeMounts:
+            - name: dev
+              mountPath: /dev
+            - name: run
+              mountPath: /run
+            - name: vc-data
+              mountPath: /var/lib/vc-stack
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            {{- toYaml .Values.compute.resources | nindent 12 }}
+      volumes:
+        - name: dev
+          hostPath:
+            path: {{ .Values.compute.hostPaths.dev }}
+        - name: run
+          hostPath:
+            path: {{ .Values.compute.hostPaths.run }}
+        - name: vc-data
+          hostPath:
+            path: {{ .Values.compute.hostPaths.varLibVcStack }}
+            type: DirectoryOrCreate
+{{- end }}

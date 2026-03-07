@@ -1,6 +1,7 @@
 package management
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -12,7 +13,7 @@ import (
 	"github.com/Veritas-Calculus/vc-stack/internal/management/caas"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/catalog"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/compute"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/config"
+	cfgpkg "github.com/Veritas-Calculus/vc-stack/internal/management/config"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/configcenter"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/dns"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/domain"
@@ -27,11 +28,10 @@ import (
 	"github.com/Veritas-Calculus/vc-stack/internal/management/image"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/kms"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/metadata"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/monitoring"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/network"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/notification"
-	objectstorage "github.com/Veritas-Calculus/vc-stack/internal/management/objectstorage"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/objectstorage"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/orchestration"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/quota"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/ratelimit"
@@ -44,7 +44,7 @@ import (
 	"github.com/Veritas-Calculus/vc-stack/internal/management/tools"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/usage"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/vpn"
-	"github.com/gin-gonic/gin"
+
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -53,12 +53,20 @@ import (
 type Config struct {
 	DB        *gorm.DB
 	Logger    *zap.Logger
-	JWTSecret string // #nosec // This is a configuration field, not a hardcoded secret
+	JWTSecret string // #nosec G101 -- configuration field, not a hardcoded secret
+
+	// Modules controls which optional modules are enabled.
+	// If nil, all modules are enabled (backward compatible).
+	Modules *ModulesConfig
 }
 
 // Service composes all management plane services
 // and exposes a single SetupRoutes to register their routes on a router.
+//
+// Legacy concrete fields are retained for cross-module references (e.g.,
+// Compute depends on Quota). Use RegisterModule/GetModule for new modules.
 type Service struct {
+	// ── Concrete fields (legacy, kept for cross-module references) ────
 	Compute       *compute.Service
 	Identity      *identity.Service
 	Network       *network.Service
@@ -69,7 +77,7 @@ type Service struct {
 	Event         *event.Service
 	Quota         *quota.Service
 	Monitoring    *monitoring.Service
-	Config        *config.Service
+	Config        *cfgpkg.Service
 	Domain        *domain.Service
 	Tools         *tools.Service
 	Usage         *usage.Service
@@ -98,524 +106,84 @@ type Service struct {
 	Registry      *registry.Service
 	ConfigCenter  *configcenter.Service
 	EventBus      *eventbus.Service
-	logger        *zap.Logger
+
+	// ── Module registry (new: interface-based) ────────────────────────
+	modules map[string]Module
+	// ── Runtime feature flags ─────────────────────────────────────────
+	Features *FeatureFlags
+	logger   *zap.Logger
 }
 
-// New composes the management plane services. It returns an error if any
-// underlying service initialization fails.
+// RegisterModule registers a module by its Name(). Called by module factories
+// during initialization. Modules registered here will have their SetupRoutes
+// called automatically — no need to modify routes.go.
+func (s *Service) RegisterModule(m Module) {
+	if s.modules == nil {
+		s.modules = make(map[string]Module)
+	}
+	s.modules[m.Name()] = m
+}
+
+// GetModule retrieves a registered module by name. Returns nil if not found.
+// Use type assertion to access module-specific methods:
+//
+//	if kms, ok := svc.GetModule("kms").(*kms.Service); ok { ... }
+func (s *Service) GetModule(name string) Module {
+	if s.modules == nil {
+		return nil
+	}
+	return s.modules[name]
+}
+
+// Modules returns all registered modules. The caller should not modify the map.
+func (s *Service) Modules() map[string]Module {
+	return s.modules
+}
+
+// New composes the management plane services using the module registry.
+// It returns an error if any core service initialization fails.
+// Optional modules that fail to initialize are logged but do not block startup.
 func New(cfg Config) (*Service, error) {
-	// Use provided secret or fallback to default for dev
+	// Validate JWT secret.
 	jwtSecret := cfg.JWTSecret
 	if jwtSecret == "" {
-		// #nosec // Hardcoded secret is for development only, should be overridden in production
-		jwtSecret = "vc-stack-jwt-secret-change-me-in-production"
+		ginMode := os.Getenv("GIN_MODE")
+		if ginMode == "release" {
+			return nil, fmt.Errorf("JWT_SECRET is required in production (GIN_MODE=release)")
+		}
+		cfg.Logger.Warn("JWT_SECRET not set, using insecure default for development")
+		jwtSecret = "vc-stack-jwt-secret-change-me-in-production" // #nosec G101
+	} else if len(jwtSecret) < 32 {
+		ginMode := os.Getenv("GIN_MODE")
+		if ginMode == "release" {
+			return nil, fmt.Errorf("JWT_SECRET is too short (%d chars); minimum 32 characters required for production", len(jwtSecret))
+		}
+		cfg.Logger.Warn("JWT_SECRET is shorter than recommended minimum of 32 characters",
+			zap.Int("length", len(jwtSecret)))
+	}
+	cfg.JWTSecret = jwtSecret
+
+	svc := &Service{
+		logger:   cfg.Logger,
+		modules:  make(map[string]Module),
+		Features: NewFeatureFlags(cfg.Logger.Named("feature-flags"), 30*time.Second),
 	}
 
-	idSvc, err := identity.NewService(identity.Config{
-		DB:     cfg.DB,
-		Logger: cfg.Logger,
-		JWT: identity.JWTConfig{
-			Secret:           jwtSecret,
-			ExpiresIn:        24 * time.Hour,     // 24 hours
-			RefreshExpiresIn: 7 * 24 * time.Hour, // 7 days
-		},
-	})
-	if err != nil {
+	// Build the module registry.
+	reg := NewModuleRegistry(cfg.Logger)
+	RegisterCoreModules(reg)
+	RegisterOptionalModules(reg)
+
+	// Resolve module config (nil means all enabled).
+	mc := ModulesConfig{}
+	if cfg.Modules != nil {
+		mc = *cfg.Modules
+	}
+
+	// Initialize all modules in dependency order.
+	if err := reg.InitializeAll(svc, cfg, mc); err != nil {
 		return nil, err
 	}
 
-	// Network service configuration: read SDN options from environment.
-	sdnProvider := os.Getenv("VC_SDN_PROVIDER")
-	if sdnProvider == "" {
-		sdnProvider = "ovn"
-	}
-	bridgeMappings := os.Getenv("VC_BRIDGE_MAPPINGS") // e.g. "provider:br-provider,external:br-ex"
-	ovnNBAddr := os.Getenv("OVN_NB_ADDRESS")          // e.g. "tcp:ovn-central:6641"
-
-	netSvc, err := network.NewService(network.Config{
-		DB:     cfg.DB,
-		Logger: cfg.Logger,
-		SDN: network.SDNConfig{
-			Provider:       sdnProvider,
-			BridgeMappings: bridgeMappings,
-			OVN:            network.OVNConfig{NBAddress: ovnNBAddr},
-		},
-		IPAM: network.IPAMOptions{ReserveGateway: true},
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	externalURL := os.Getenv("EXTERNAL_URL")
-
-	hostSvc, err := host.NewService(host.Config{DB: cfg.DB, Logger: cfg.Logger.Named("host"), ExternalURL: externalURL})
-	if err != nil {
-		return nil, err
-	}
-
-	schedSvc, err := scheduler.NewService(scheduler.Config{DB: cfg.DB, Logger: cfg.Logger})
-	if err != nil {
-		return nil, err
-	}
-
-	// Gateway needs endpoints; use defaults (localhost) — mains may reconfigure if needed.
-	gwCfg := gateway.Config{
-		Logger: cfg.Logger,
-		DB:     cfg.DB,
-	}
-	// In monolithic mode, all services run on the same port (default 8080).
-	gwCfg.Services.Identity = gateway.ServiceEndpoint{Host: "localhost", Port: 8080}
-	gwCfg.Services.Network = gateway.ServiceEndpoint{Host: "localhost", Port: 8080}
-	gwCfg.Services.Scheduler = gateway.ServiceEndpoint{Host: "localhost", Port: 8080}
-	gwCfg.Services.Compute = gateway.ServiceEndpoint{Host: "localhost", Port: 8080}
-	gwSvc, err := gateway.NewService(&gwCfg)
-	if err != nil {
-		return nil, err
-	}
-
-	metaSvc, err := metadata.NewService(metadata.Config{DB: cfg.DB, Logger: cfg.Logger.Named("metadata")})
-	if err != nil {
-		return nil, err
-	}
-
-	eventSvc, err := event.NewService(event.Config{DB: cfg.DB, Logger: cfg.Logger.Named("event"), RetentionDays: 90})
-	if err != nil {
-		return nil, err
-	}
-
-	quotaSvc, err := quota.NewService(quota.Config{DB: cfg.DB, Logger: cfg.Logger.Named("quota")})
-	if err != nil {
-		return nil, err
-	}
-
-	monSvc, err := monitoring.NewService(monitoring.Config{DB: cfg.DB, Logger: cfg.Logger.Named("monitoring")})
-	if err != nil {
-		return nil, err
-	}
-
-	cfgSvc, err := config.NewService(config.Config{DB: cfg.DB, Logger: cfg.Logger.Named("config")})
-	if err != nil {
-		return nil, err
-	}
-
-	// Determine the management port for the in-process scheduler.
-	mgmtPort := os.Getenv("VC_MANAGEMENT_PORT")
-	if mgmtPort == "" {
-		mgmtPort = "8080"
-	}
-
-	compSvc, err := compute.NewService(compute.Config{
-		DB:           cfg.DB,
-		Logger:       cfg.Logger.Named("compute"),
-		JWTSecret:    jwtSecret,
-		EventLogger:  eventSvc,
-		Scheduler:    "http://localhost:" + mgmtPort,
-		QuotaService: quotaSvc,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	// Inject network service as port allocator into compute service.
-	// This enables createInstance to allocate OVN ports (LSP + DHCP + SG).
-	compSvc.SetPortAllocator(netSvc)
-
-	domainSvc, err := domain.NewService(domain.Config{DB: cfg.DB, Logger: cfg.Logger.Named("domain")})
-	if err != nil {
-		return nil, err
-	}
-
-	toolsSvc, err := tools.NewService(tools.Config{DB: cfg.DB, Logger: cfg.Logger.Named("tools")})
-	if err != nil {
-		return nil, err
-	}
-
-	usageSvc, err := usage.NewService(usage.Config{DB: cfg.DB, Logger: cfg.Logger.Named("usage")})
-	if err != nil {
-		return nil, err
-	}
-
-	vpnSvc, err := vpn.NewService(vpn.Config{DB: cfg.DB, Logger: cfg.Logger.Named("vpn")})
-	if err != nil {
-		return nil, err
-	}
-
-	backupSvc, err := backup.NewService(backup.Config{DB: cfg.DB, Logger: cfg.Logger.Named("backup")})
-	if err != nil {
-		return nil, err
-	}
-
-	asSvc, err := autoscale.NewService(autoscale.Config{DB: cfg.DB, Logger: cfg.Logger.Named("autoscale")})
-	if err != nil {
-		return nil, err
-	}
-
-	storageSvc, err := storage.NewService(storage.Config{
-		DB:           cfg.DB,
-		Logger:       cfg.Logger.Named("storage"),
-		QuotaService: quotaSvc,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	svcObj := &Service{
-		Compute:    compSvc,
-		Identity:   idSvc,
-		Network:    netSvc,
-		Host:       hostSvc,
-		Scheduler:  schedSvc,
-		Gateway:    gwSvc,
-		Metadata:   metaSvc,
-		Event:      eventSvc,
-		Quota:      quotaSvc,
-		Monitoring: monSvc,
-		Config:     cfgSvc,
-		Domain:     domainSvc,
-		Tools:      toolsSvc,
-		Usage:      usageSvc,
-		VPN:        vpnSvc,
-		Backup:     backupSvc,
-		AutoScale:  asSvc,
-		Storage:    storageSvc,
-	}
-
-	// Initialize task service.
-	taskSvc, err := task.NewService(task.Config{DB: cfg.DB, Logger: cfg.Logger.Named("task")})
-	if err != nil {
-		return nil, err
-	}
-	svcObj.Task = taskSvc
-
-	// Initialize tag service.
-	tagSvc, err := tag.NewService(tag.Config{DB: cfg.DB, Logger: cfg.Logger.Named("tag")})
-	if err != nil {
-		return nil, err
-	}
-	svcObj.Tag = tagSvc
-
-	// Initialize notification service.
-	notifSvc, err := notification.NewService(notification.Config{DB: cfg.DB, Logger: cfg.Logger.Named("notification")})
-	if err != nil {
-		return nil, err
-	}
-	svcObj.Notification = notifSvc
-	svcObj.logger = cfg.Logger
-
-	// Initialize image service.
-	imageSvc, err := image.NewService(image.Config{
-		DB:           cfg.DB,
-		Logger:       cfg.Logger.Named("image"),
-		ImageStorage: image.ImageStorageConfig{},
-	})
-	if err != nil {
-		return nil, err
-	}
-	svcObj.Image = imageSvc
-
-	// Initialize API docs service.
-	svcObj.APIDocs = apidocs.NewService(apidocs.Config{Logger: cfg.Logger.Named("apidocs")})
-
-	// Initialize DNS service.
-	dnsSvc, err := dns.NewService(dns.Config{DB: cfg.DB, Logger: cfg.Logger.Named("dns")})
-	if err != nil {
-		return nil, err
-	}
-	svcObj.DNS = dnsSvc
-
-	// Initialize object storage service.
-	objSvc, err := objectstorage.NewService(objectstorage.Config{
-		DB:          cfg.DB,
-		Logger:      cfg.Logger.Named("objectstorage"),
-		RGWEndpoint: os.Getenv("CEPH_RGW_ENDPOINT"),
-		RGWAccess:   os.Getenv("CEPH_RGW_ACCESS_KEY"),
-		RGWSecret:   os.Getenv("CEPH_RGW_SECRET_KEY"),
-	})
-	if err != nil {
-		return nil, err
-	}
-	svcObj.ObjStorage = objSvc
-
-	// Initialize orchestration engine.
-	orchSvc, err := orchestration.NewService(orchestration.Config{
-		DB:     cfg.DB,
-		Logger: cfg.Logger.Named("orchestration"),
-	})
-	if err != nil {
-		return nil, err
-	}
-	svcObj.Orchestration = orchSvc
-
-	// Initialize HA service.
-	haSvc, err := ha.NewService(ha.Config{
-		DB:           cfg.DB,
-		Logger:       cfg.Logger.Named("ha"),
-		AutoEvacuate: true,
-		AutoFence:    true,
-	})
-	if err != nil {
-		return nil, err
-	}
-	svcObj.HA = haSvc
-
-	// Initialize KMS service.
-	kmsSvc, err := kms.NewService(kms.Config{
-		DB:     cfg.DB,
-		Logger: cfg.Logger.Named("kms"),
-	})
-	if err != nil {
-		return nil, err
-	}
-	svcObj.KMS = kmsSvc
-
-	// Initialize enhanced rate limiting service.
-	rateSvc, err := ratelimit.NewService(ratelimit.Config{
-		DB:     cfg.DB,
-		Logger: cfg.Logger.Named("ratelimit"),
-	})
-	if err != nil {
-		return nil, err
-	}
-	svcObj.RateLimit = rateSvc
-
-	// Initialize encryption service.
-	encSvc, err := encryption.NewService(encryption.Config{
-		DB:     cfg.DB,
-		Logger: cfg.Logger.Named("encryption"),
-	})
-	if err != nil {
-		return nil, err
-	}
-	svcObj.Encryption = encSvc
-
-	// Initialize CaaS (Container as a Service).
-	caasSvc, err := caas.NewService(caas.Config{
-		DB:     cfg.DB,
-		Logger: cfg.Logger.Named("caas"),
-	})
-	if err != nil {
-		return nil, err
-	}
-	svcObj.CaaS = caasSvc
-
-	// Initialize Compliance Audit service.
-	auditSvc, err := audit.NewService(audit.Config{
-		DB:     cfg.DB,
-		Logger: cfg.Logger.Named("audit"),
-	})
-	if err != nil {
-		return nil, err
-	}
-	svcObj.Audit = auditSvc
-
-	// Initialize Disaster Recovery service.
-	drSvc, err := dr.NewService(dr.Config{
-		DB:     cfg.DB,
-		Logger: cfg.Logger.Named("dr"),
-	})
-	if err != nil {
-		return nil, err
-	}
-	svcObj.DR = drSvc
-
-	// Initialize Bare Metal service.
-	bmSvc, err := baremetal.NewService(baremetal.Config{
-		DB:     cfg.DB,
-		Logger: cfg.Logger.Named("baremetal"),
-	})
-	if err != nil {
-		return nil, err
-	}
-	svcObj.BareMetal = bmSvc
-
-	// Initialize Service Catalog.
-	catalogSvc, err := catalog.NewService(catalog.Config{
-		DB:     cfg.DB,
-		Logger: cfg.Logger.Named("catalog"),
-	})
-	if err != nil {
-		return nil, err
-	}
-	svcObj.Catalog = catalogSvc
-
-	// Initialize Self-Healing engine.
-	shSvc, err := selfheal.NewService(selfheal.Config{
-		DB:     cfg.DB,
-		Logger: cfg.Logger.Named("selfheal"),
-	})
-	if err != nil {
-		return nil, err
-	}
-	svcObj.SelfHeal = shSvc
-
-	// Initialize Service Registry.
-	regSvc, err := registry.NewService(registry.Config{
-		DB:     cfg.DB,
-		Logger: cfg.Logger.Named("registry"),
-	})
-	if err != nil {
-		return nil, err
-	}
-	svcObj.Registry = regSvc
-
-	// Initialize Config Center.
-	ccSvc, err := configcenter.NewService(configcenter.Config{
-		DB:     cfg.DB,
-		Logger: cfg.Logger.Named("configcenter"),
-	})
-	if err != nil {
-		return nil, err
-	}
-	svcObj.ConfigCenter = ccSvc
-
-	// Initialize Event Bus.
-	ebSvc, err := eventbus.NewService(eventbus.Config{
-		DB:     cfg.DB,
-		Logger: cfg.Logger.Named("eventbus"),
-	})
-	if err != nil {
-		return nil, err
-	}
-	svcObj.EventBus = ebSvc
-
-	return svcObj, nil
-}
-
-// SetupRoutes registers all management plane routes onto the provided Gin router.
-func (s *Service) SetupRoutes(router *gin.Engine) {
-	// Apply API version headers to all responses.
-	router.Use(apidocs.VersionMiddleware())
-
-	// Apply request tracing middleware for full coverage.
-	router.Use(middleware.RequestTracing(s.logger))
-
-	// Register API docs/Swagger UI routes first (public, no auth).
-	if s.APIDocs != nil {
-		s.APIDocs.SetupRoutes(router)
-	}
-
-	// Apply gateway middleware (CORS, rate limiting, logging).
-	s.Gateway.SetupMiddleware(router)
-
-	// Register monitoring first for health checks and metrics.
-	s.Monitoring.SetupRoutes(router)
-
-	// Register specific service routes before gateway's wildcard routes.
-	// This ensures specific routes take precedence.
-	s.Compute.SetupRoutes(router)
-	s.Identity.SetupRoutes(router)
-	s.Network.SetupRoutes(router)
-	s.Host.SetupRoutes(router)
-	s.Scheduler.SetupRoutes(router)
-	s.Metadata.SetupRoutes(router)
-	s.Event.SetupRoutes(router)
-	s.Quota.SetupRoutes(router)
-	if s.Config != nil {
-		s.Config.SetupRoutes(router)
-	}
-	if s.Domain != nil {
-		s.Domain.SetupRoutes(router)
-	}
-	if s.Tools != nil {
-		s.Tools.SetupRoutes(router)
-	}
-	if s.Usage != nil {
-		s.Usage.SetupRoutes(router)
-	}
-	if s.VPN != nil {
-		s.VPN.SetupRoutes(router)
-	}
-	if s.Backup != nil {
-		s.Backup.SetupRoutes(router)
-	}
-	if s.AutoScale != nil {
-		s.AutoScale.SetupRoutes(router)
-	}
-	if s.Storage != nil {
-		s.Storage.SetupRoutes(router)
-	}
-	if s.Task != nil {
-		s.Task.SetupRoutes(router)
-	}
-	if s.Tag != nil {
-		s.Tag.SetupRoutes(router)
-	}
-	if s.Notification != nil {
-		s.Notification.SetupRoutes(router)
-	}
-	if s.Image != nil {
-		s.Image.SetupRoutes(router)
-	}
-	// DNS as a Service.
-	if s.DNS != nil {
-		v1 := router.Group("/api/v1")
-		s.DNS.SetupRoutes(v1)
-	}
-	// Object Storage (Ceph RGW).
-	if s.ObjStorage != nil {
-		v1 := router.Group("/api/v1")
-		s.ObjStorage.SetupRoutes(v1)
-	}
-	// Orchestration Engine.
-	if s.Orchestration != nil {
-		v1 := router.Group("/api/v1")
-		s.Orchestration.SetupRoutes(v1)
-	}
-	// High Availability.
-	if s.HA != nil {
-		s.HA.SetupRoutes(router)
-	}
-	// Key Management Service.
-	if s.KMS != nil {
-		s.KMS.SetupRoutes(router)
-	}
-	// Enhanced Rate Limiting.
-	if s.RateLimit != nil {
-		s.RateLimit.SetupRoutes(router)
-		// Apply rate limit middleware to all routes.
-		router.Use(s.RateLimit.Middleware())
-	}
-	// Data Encryption Management.
-	if s.Encryption != nil {
-		s.Encryption.SetupRoutes(router)
-	}
-	// Container as a Service (Kubernetes).
-	if s.CaaS != nil {
-		s.CaaS.SetupRoutes(router)
-	}
-	// Compliance Audit.
-	if s.Audit != nil {
-		s.Audit.SetupRoutes(router)
-	}
-	// Disaster Recovery.
-	if s.DR != nil {
-		s.DR.SetupRoutes(router)
-	}
-	// Bare Metal as a Service.
-	if s.BareMetal != nil {
-		s.BareMetal.SetupRoutes(router)
-	}
-	// Service Catalog.
-	if s.Catalog != nil {
-		s.Catalog.SetupRoutes(router)
-	}
-	// Self-Healing Engine.
-	if s.SelfHeal != nil {
-		s.SelfHeal.SetupRoutes(router)
-	}
-	// Service Registry.
-	if s.Registry != nil {
-		s.Registry.SetupRoutes(router)
-	}
-	// Config Center.
-	if s.ConfigCenter != nil {
-		s.ConfigCenter.SetupRoutes(router)
-	}
-	// Event Bus.
-	if s.EventBus != nil {
-		s.EventBus.SetupRoutes(router)
-	}
-	// Gateway proxy routes - only for external compute service (vc-compute)
-	// Use SetupComputeProxyRoutes to avoid conflicts with directly registered routes.
-	s.Gateway.SetupComputeProxyRoutes(router)
+	return svc, nil
 }
