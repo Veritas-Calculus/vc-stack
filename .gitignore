@@ -111,3 +111,7 @@ temp/
 
 # Gemini AI context
 .gemini/
+
+# Playwright
+web/console/playwright-report/
+web/console/test-results/

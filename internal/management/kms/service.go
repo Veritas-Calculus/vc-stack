@@ -113,6 +113,11 @@ func NewService(cfg Config) (*Service, error) {
 		cfg.Logger = zap.NewNop()
 	}
 
+	// Verify crypto/rand is available before proceeding.
+	if err := verifyCryptoRand(); err != nil {
+		return nil, err
+	}
+
 	masterKey := cfg.MasterKey
 	if len(masterKey) == 0 {
 		// Generate an ephemeral master key for dev/testing — NOT for production.
@@ -1031,12 +1036,14 @@ func GenerateSecret(bits int) (string, error) {
 	return base64.StdEncoding.EncodeToString(b), nil
 }
 
-func init() {
-	// Verify we can use crypto/rand.
+// verifyCryptoRand checks that crypto/rand is available for secure key generation.
+// This should be called during service initialization rather than using init()+panic.
+func verifyCryptoRand() error {
 	buf := make([]byte, 1)
 	if _, err := rand.Read(buf); err != nil {
-		panic("kms: crypto/rand not available: " + err.Error())
+		return fmt.Errorf("kms: crypto/rand not available: %w", err)
 	}
+	return nil
 }
 
 // Ensure Service implements http.Handler for testability.

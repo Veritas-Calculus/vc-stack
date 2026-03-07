@@ -1,4 +1,23 @@
 // vc-management: combined management plane binary.
+//
+// @title           VC Stack Management API
+// @version         1.0.0
+// @description     VC Stack Management Plane — IaaS API for compute, network, storage, and identity management.
+// @termsOfService  https://github.com/Veritas-Calculus/vc-stack
+//
+// @contact.name   VC Stack Team
+// @contact.url    https://github.com/Veritas-Calculus/vc-stack/issues
+//
+// @license.name  Apache 2.0
+// @license.url   https://www.apache.org/licenses/LICENSE-2.0.html
+//
+// @host      localhost:8080
+// @BasePath  /api/v1
+//
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description JWT Bearer token. Format: "Bearer {token}"
 package main
 
 import (
@@ -7,6 +26,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	_ "net/http/pprof" // Register pprof handlers on DefaultServeMux
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -19,9 +39,11 @@ import (
 
 	"github.com/Veritas-Calculus/vc-stack/internal/management"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/compute"
+	"github.com/Veritas-Calculus/vc-stack/pkg/appconfig"
 	"github.com/Veritas-Calculus/vc-stack/pkg/database"
 	"github.com/Veritas-Calculus/vc-stack/pkg/logger"
 	pkgsentry "github.com/Veritas-Calculus/vc-stack/pkg/sentry"
+	"github.com/Veritas-Calculus/vc-stack/pkg/telemetry"
 )
 
 var (
@@ -33,23 +55,36 @@ var (
 func main() {
 	flag.Parse()
 
+	// --- Load centralized configuration ---
+	appCfg, err := appconfig.Load("vc-management")
+	if err != nil {
+		log.Fatalf("failed to load config: %v", err)
+	}
+
 	// Initialize logger.
-	zapLogger, err := logger.New(logger.Config{Level: "info", Format: "json", Output: "stdout"})
+	zapLogger, err := logger.New(logger.Config{
+		Level:  appCfg.Logging.Level,
+		Format: appCfg.Logging.Format,
+		Output: "stdout",
+	})
 	if err != nil {
 		log.Fatalf("failed to init logger: %v", err)
 	}
 	defer func() { _ = zapLogger.Sync() }()
 
+	zapLogger.Info("configuration loaded",
+		zap.Int("server.port", appCfg.Server.Port),
+		zap.String("database.host", appCfg.Database.Host),
+		zap.String("logging.level", appCfg.Logging.Level))
+
 	// Initialize Sentry for error tracking.
-	sentryDSN := os.Getenv("SENTRY_DSN")
-	if sentryDSN != "" {
-		sentryEnv := os.Getenv("SENTRY_ENVIRONMENT")
+	if appCfg.SentryDSN != "" {
+		sentryEnv := appCfg.SentryEnvironment
 		if sentryEnv == "" {
 			sentryEnv = "production"
 		}
-
 		err := pkgsentry.Init(pkgsentry.Config{
-			DSN:              sentryDSN,
+			DSN:              appCfg.SentryDSN,
 			Environment:      sentryEnv,
 			Release:          fmt.Sprintf("vc-management@%s", Version),
 			SampleRate:       1.0,
@@ -59,56 +94,53 @@ func main() {
 		if err != nil {
 			zapLogger.Warn("failed to initialize sentry", zap.Error(err))
 		} else {
-			zapLogger.Info("sentry initialized successfully",
-				zap.String("environment", sentryEnv),
-				zap.String("release", Version))
+			zapLogger.Info("sentry initialized", zap.String("environment", sentryEnv))
 			defer pkgsentry.Close()
 		}
 	} else {
 		zapLogger.Info("sentry DSN not configured, error tracking disabled")
 	}
 
-	// Initialize database (best-effort). Uses env with sensible defaults.
-	dbHost := os.Getenv("DB_HOST")
-	if dbHost == "" {
-		dbHost = "localhost"
-	}
-	dbPort := 5432
-	dbName := os.Getenv("DB_NAME")
-	if dbName == "" {
-		dbName = "vcstack"
-	}
-	dbUser := os.Getenv("DB_USER")
-	if dbUser == "" {
-		dbUser = "vcstack"
-	}
-	dbPass := os.Getenv("DB_PASS")
-	db, dErr := database.New(database.Config{Host: dbHost, Port: dbPort, Name: dbName, Username: dbUser, Password: dbPass, SSLMode: "disable", MaxIdleConns: 2, MaxOpenConns: 4, ConnMaxLifetime: time.Minute * 5})
+	// Initialize database.
+	db, dErr := database.New(database.Config{
+		Host:            appCfg.Database.Host,
+		Port:            appCfg.Database.Port,
+		Name:            appCfg.Database.Name,
+		Username:        appCfg.Database.Username,
+		Password:        appCfg.Database.Password,
+		SSLMode:         appCfg.Database.SSLMode,
+		MaxIdleConns:    appCfg.Database.MaxIdleConns,
+		MaxOpenConns:    appCfg.Database.MaxOpenConns,
+		ConnMaxLifetime: appCfg.Database.ConnMaxLifetime,
+	})
 	if dErr != nil {
 		zapLogger.Warn("database connect failed, continuing with limited functionality", zap.Error(dErr))
 		db = nil
 	}
 
-	// Run database migrations if database is available.
+	// Run database migrations if available.
 	if db != nil {
 		zapLogger.Info("running database migrations")
 		if err := database.AutoMigrate(db); err != nil {
 			zapLogger.Fatal("database migration failed", zap.Error(err))
 		}
-		// Ensure Instance table has all required columns (e.g. deleted_at)
 		if !db.Migrator().HasColumn(&compute.Instance{}, "DeletedAt") {
 			if err := db.Migrator().AddColumn(&compute.Instance{}, "DeletedAt"); err != nil {
 				zapLogger.Fatal("failed to add deleted_at to instances", zap.Error(err))
 			}
 		}
-		zapLogger.Info("database migrations completed successfully")
+		zapLogger.Info("database migrations completed")
 	}
 
-	// Compose management plane services via aggregator.
-	jwtSecret := os.Getenv("JWT_SECRET")
+	// --- Compose management plane services ---
+	jwtSecret := appCfg.Identity.JWTSecret
 	if jwtSecret == "" {
-		// #nosec // Hardcoded secret is for development only, should be overridden in production
-		jwtSecret = "vc-stack-jwt-secret-change-me-in-production"
+		if appCfg.Server.GinMode == "release" {
+			zapLogger.Fatal("JWT_SECRET is required in production (GIN_MODE=release). " +
+				"Generate a strong secret with: openssl rand -base64 64")
+		}
+		zapLogger.Warn("JWT_SECRET not set — using insecure default. DO NOT use in production!")
+		jwtSecret = "vc-stack-jwt-secret-change-me-in-production" // #nosec G101 -- dev-only fallback
 	}
 
 	mgmtSvc, err := management.New(management.Config{
@@ -120,20 +152,35 @@ func main() {
 		zapLogger.Fatal("failed to initialize management services", zap.Error(err))
 	}
 
-	// Shared router: register all management plane routes on one HTTP server.
+	// --- Initialize OpenTelemetry ---
+	otelEndpoint := os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
+	otelShutdown, otelErr := telemetry.Init(telemetry.Config{
+		ServiceName:    "vc-management",
+		ServiceVersion: Version,
+		Enabled:        otelEndpoint != "",
+		Endpoint:       otelEndpoint,
+		SampleRate:     0.1, // 10% sampling in production
+		Insecure:       true,
+	})
+	if otelErr != nil {
+		zapLogger.Warn("OpenTelemetry init failed", zap.Error(otelErr))
+	} else if otelEndpoint != "" {
+		zapLogger.Info("OpenTelemetry tracing enabled", zap.String("endpoint", otelEndpoint))
+		defer func() { _ = otelShutdown(context.Background()) }()
+	}
+
+	// Setup HTTP router.
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.Use(gin.Recovery())
-
-	// Register all management plane routes via aggregator.
+	if otelEndpoint != "" {
+		router.Use(telemetry.GinMiddleware("vc-management"))
+	}
 	mgmtSvc.SetupRoutes(router)
 
-	// Serve frontend Web Console (SPA).
-	// Default paths: Docker = /opt/vc-stack/web/console/dist
-	//                Local  = ./web/console/dist
-	webDir := os.Getenv("WEB_CONSOLE_DIR")
+	// Serve frontend Web Console.
+	webDir := appCfg.WebConsoleDir
 	if webDir == "" {
-		// Try Docker path first, fall back to local dev path
 		if fi, err := os.Stat("/opt/vc-stack/web/console/dist/index.html"); err == nil && !fi.IsDir() {
 			webDir = "/opt/vc-stack/web/console/dist"
 		} else {
@@ -147,15 +194,12 @@ func main() {
 		router.Static("/config", filepath.Join(webDir, "config"))
 		router.StaticFile("/favicon.ico", filepath.Join(webDir, "favicon.ico"))
 		router.StaticFile("/logo-42.svg", filepath.Join(webDir, "logo-42.svg"))
-		// SPA fallback: any non-API, non-asset path → index.html
 		router.NoRoute(func(c *gin.Context) {
 			p := c.Request.URL.Path
 			if strings.HasPrefix(p, "/api/") || strings.HasPrefix(p, "/ws/") {
 				c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
 				return
 			}
-			// Try to serve the file directly if it exists in webDir.
-			// Validate that resolved path stays within webDir to prevent path traversal.
 			cleaned := filepath.Clean(p)
 			filePath := filepath.Join(webDir, cleaned)
 			absFile, err := filepath.Abs(filePath)
@@ -168,39 +212,49 @@ func main() {
 				c.File(indexHTML)
 				return
 			}
-			if fi, err := os.Stat(absFile); err == nil && !fi.IsDir() { // #nosec G703 — path validated
+			if fi, err := os.Stat(absFile); err == nil && !fi.IsDir() { // #nosec G703
 				c.File(absFile)
 				return
 			}
 			c.File(indexHTML)
 		})
 	} else {
-		zapLogger.Warn("web console dist not found, frontend will not be served",
-			zap.String("expected", indexHTML))
+		zapLogger.Warn("web console dist not found", zap.String("expected", indexHTML))
 	}
 
-	port := 8080
-	if v := os.Getenv("VC_MANAGEMENT_PORT"); v != "" {
-		if _, err := fmt.Sscanf(v, "%d", &port); err != nil {
-			zapLogger.Warn("invalid port number, using default", zap.String("value", v), zap.Error(err))
-			port = 8080
-		}
-	}
-
+	port := appCfg.Server.Port
 	srv := &http.Server{
 		Addr:              fmt.Sprintf(":%d", port),
 		Handler:           router,
 		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       appCfg.Server.ReadTimeout,
+		WriteTimeout:      appCfg.Server.WriteTimeout,
+		IdleTimeout:       appCfg.Server.IdleTimeout,
+	}
+
+	// Start pprof debug server on a separate port (non-production only).
+	if appCfg.Server.GinMode != "release" || os.Getenv("VC_ENABLE_PPROF") == "true" {
+		go func() {
+			pprofAddr := ":6060"
+			zapLogger.Info("starting pprof debug server", zap.String("addr", pprofAddr))
+			pprofSrv := &http.Server{
+				Addr:              pprofAddr,
+				Handler:           http.DefaultServeMux,
+				ReadHeaderTimeout: 10 * time.Second,
+			}
+			if err := pprofSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+				zapLogger.Warn("pprof server failed", zap.Error(err))
+			}
+		}()
 	}
 
 	go func() {
-		zapLogger.Info("starting vc-management", zap.Int("port", port))
+		zapLogger.Info("starting vc-management", zap.Int("port", port), zap.String("version", Version))
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			zapLogger.Error("server failed", zap.Error(err))
 		}
 	}()
 
-	// Wait for termination.
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit

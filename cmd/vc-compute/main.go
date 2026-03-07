@@ -17,6 +17,7 @@ import (
 	"go.uber.org/zap"
 
 	computenode "github.com/Veritas-Calculus/vc-stack/internal/compute"
+	"github.com/Veritas-Calculus/vc-stack/pkg/appconfig"
 	"github.com/Veritas-Calculus/vc-stack/pkg/database"
 	"github.com/Veritas-Calculus/vc-stack/pkg/logger"
 	pkgsentry "github.com/Veritas-Calculus/vc-stack/pkg/sentry"
@@ -74,27 +75,32 @@ func main() {
 func runServer(_ *cobra.Command, args []string) {
 	flag.Parse()
 
+	// --- Load centralized configuration ---
+	appCfg, cfgErr := appconfig.Load("vc-compute")
+	if cfgErr != nil {
+		log.Fatalf("failed to load config: %v", cfgErr)
+	}
+
 	// Initialize logger.
-	zapLogger, err := logger.New(logger.Config{Level: "info", Format: "json", Output: "stdout"})
+	zapLogger, err := logger.New(logger.Config{
+		Level:  appCfg.Logging.Level,
+		Format: appCfg.Logging.Format,
+		Output: "stdout",
+	})
 	if err != nil {
 		log.Fatalf("failed to init logger: %v", err)
 	}
-	defer func() {
-		if err := zapLogger.Sync(); err != nil {
-			log.Printf("failed to sync logger: %v", err)
-		}
-	}()
+	defer func() { _ = zapLogger.Sync() }()
 
 	// Initialize Sentry for error tracking.
-	sentryDSN := os.Getenv("SENTRY_DSN")
-	if sentryDSN != "" {
-		sentryEnv := os.Getenv("SENTRY_ENVIRONMENT")
+	if appCfg.SentryDSN != "" {
+		sentryEnv := appCfg.SentryEnvironment
 		if sentryEnv == "" {
 			sentryEnv = "production"
 		}
 
 		err := pkgsentry.Init(pkgsentry.Config{
-			DSN:              sentryDSN,
+			DSN:              appCfg.SentryDSN,
 			Environment:      sentryEnv,
 			Release:          fmt.Sprintf("vc-compute@%s", Version),
 			SampleRate:       1.0,
@@ -114,21 +120,18 @@ func runServer(_ *cobra.Command, args []string) {
 	}
 
 	// Initialize database (optional for compute node features).
-	dbHost := os.Getenv("DB_HOST")
-	if dbHost == "" {
-		dbHost = "localhost"
-	}
-	dbPort := 5432
-	dbName := os.Getenv("DB_NAME")
-	if dbName == "" {
-		dbName = "vcstack"
-	}
-	dbUser := os.Getenv("DB_USER")
-	if dbUser == "" {
-		dbUser = "vcstack"
-	}
-	dbPass := os.Getenv("DB_PASS")
-	db, dErr := database.New(database.Config{Host: dbHost, Port: dbPort, Name: dbName, Username: dbUser, Password: dbPass, SSLMode: "disable", MaxIdleConns: 1, MaxOpenConns: 2, ConnMaxLifetime: time.Minute * 5})
+	db, dErr := database.New(database.Config{
+		Host:            appCfg.Database.Host,
+		Port:            appCfg.Database.Port,
+		Name:            appCfg.Database.Name,
+		Username:        appCfg.Database.Username,
+		Password:        appCfg.Database.Password,
+		SSLMode:         appCfg.Database.SSLMode,
+		MaxIdleConns:    1,
+		MaxOpenConns:    2,
+		ConnMaxLifetime: 5 * time.Minute,
+		LogLevel:        "warn",
+	})
 	if dErr != nil {
 		zapLogger.Warn("database connect failed, compute features limited", zap.Error(dErr))
 		db = nil
@@ -160,6 +163,9 @@ func runServer(_ *cobra.Command, args []string) {
 		Addr:              fmt.Sprintf(":%d", port),
 		Handler:           router,
 		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       60 * time.Second,
+		WriteTimeout:      5 * time.Minute, // Large file transfers need longer write timeout
+		IdleTimeout:       2 * time.Minute,
 	}
 	go func() {
 		zapLogger.Info("starting vc-compute", zap.Int("port", port))
@@ -180,14 +186,30 @@ func runServer(_ *cobra.Command, args []string) {
 			zoneID := os.Getenv("ZONE_ID")
 			clusterID := os.Getenv("CLUSTER_ID")
 
-			regCtx, regCancel := context.WithTimeout(context.Background(), 30*time.Second)
-			defer regCancel()
+			// Retry registration with exponential backoff.
+			backoff := 2 * time.Second
+			const maxBackoff = 60 * time.Second
+			const maxAttempts = 0 // 0 = infinite retries
 
-			uuid, regErr := client.RegisterNode(regCtx, nodeInfo, port, zoneID, clusterID)
-			if regErr != nil {
-				zapLogger.Warn("auto-registration failed, will retry on next heartbeat",
-					zap.Error(regErr))
-			} else {
+			for attempt := 1; maxAttempts == 0 || attempt <= maxAttempts; attempt++ {
+				regCtx, regCancel := context.WithTimeout(context.Background(), 30*time.Second)
+				uuid, regErr := client.RegisterNode(regCtx, nodeInfo, port, zoneID, clusterID)
+				regCancel()
+
+				if regErr != nil {
+					zapLogger.Warn("auto-registration failed, will retry",
+						zap.Error(regErr),
+						zap.Int("attempt", attempt),
+						zap.Duration("next_retry", backoff))
+
+					time.Sleep(backoff)
+					backoff *= 2
+					if backoff > maxBackoff {
+						backoff = maxBackoff
+					}
+					continue
+				}
+
 				zapLogger.Info("auto-registration successful",
 					zap.String("uuid", uuid),
 					zap.String("ip", nodeInfo.IPAddress),
@@ -195,13 +217,14 @@ func runServer(_ *cobra.Command, args []string) {
 					zap.Int64("ram_mb", nodeInfo.RAMMB),
 					zap.Int64("disk_gb", nodeInfo.DiskGB))
 
-				// Update client's nodeID to the returned UUID for heartbeats
+				// Update client's nodeID to the returned UUID for heartbeats.
 				client.SetNodeID(uuid)
 
-				// Start heartbeat sync agent (30s interval)
+				// Start heartbeat sync agent (30s interval).
 				syncAgent := computenode.NewSyncAgent(client, nil, zapLogger, 30*time.Second)
 				syncAgent.Start()
 				zapLogger.Info("heartbeat sync agent started", zap.Duration("interval", 30*time.Second))
+				return // Registration succeeded, exit retry loop.
 			}
 		}()
 	} else {
