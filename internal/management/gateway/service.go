@@ -4,19 +4,15 @@ package gateway
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"strings"
 	"sync"
 	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
 	"golang.org/x/time/rate"
 	"gorm.io/gorm"
@@ -53,8 +49,18 @@ type ServicesConfig struct {
 
 // ServiceEndpoint represents a backend service endpoint.
 type ServiceEndpoint struct {
-	Host string
-	Port int
+	Host       string
+	Port       int
+	TLSEnabled bool // Use HTTPS when connecting to this service
+}
+
+// URL returns the full base URL for this endpoint (http or https).
+func (e ServiceEndpoint) URL() string {
+	scheme := "http"
+	if e.TLSEnabled {
+		scheme = "https"
+	}
+	return fmt.Sprintf("%s://%s:%d", scheme, e.Host, e.Port)
 }
 
 // SecurityConfig contains security-related configuration.
@@ -110,8 +116,7 @@ func NewService(config *Config) (*Service, error) {
 // initializeProxies initializes reverse proxies for backend services.
 func (s *Service) initializeProxies() error {
 	// Identity service.
-	identityURL, err := url.Parse(fmt.Sprintf("http://%s:%d",
-		s.config.Services.Identity.Host, s.config.Services.Identity.Port))
+	identityURL, err := url.Parse(s.config.Services.Identity.URL())
 	if err != nil {
 		return fmt.Errorf("invalid identity service URL: %w", err)
 	}
@@ -130,8 +135,7 @@ func (s *Service) initializeProxies() error {
 	}
 
 	// Network service.
-	networkURL, err := url.Parse(fmt.Sprintf("http://%s:%d",
-		s.config.Services.Network.Host, s.config.Services.Network.Port))
+	networkURL, err := url.Parse(s.config.Services.Network.URL())
 	if err != nil {
 		return fmt.Errorf("invalid network service URL: %w", err)
 	}
@@ -160,7 +164,8 @@ func (s *Service) initializeProxies() error {
 		computePort = 8080
 	}
 
-	computeURL, err := url.Parse(fmt.Sprintf("http://%s:%d", computeHost, computePort))
+	computeEndpoint := ServiceEndpoint{Host: computeHost, Port: computePort, TLSEnabled: s.config.Services.Compute.TLSEnabled}
+	computeURL, err := url.Parse(computeEndpoint.URL())
 	if err != nil {
 		return fmt.Errorf("invalid compute service URL: %w", err)
 	}
@@ -180,8 +185,7 @@ func (s *Service) initializeProxies() error {
 
 	// Lite (node agent) service - optional, only if configured.
 	if s.config.Services.Lite.Host != "" && s.config.Services.Lite.Port > 0 {
-		liteURL, err := url.Parse(fmt.Sprintf("http://%s:%d",
-			s.config.Services.Lite.Host, s.config.Services.Lite.Port))
+		liteURL, err := url.Parse(s.config.Services.Lite.URL())
 		if err != nil {
 			return fmt.Errorf("invalid lite service URL: %w", err)
 		}
@@ -200,8 +204,7 @@ func (s *Service) initializeProxies() error {
 	}
 
 	// Scheduler service.
-	schedURL, err := url.Parse(fmt.Sprintf("http://%s:%d",
-		s.config.Services.Scheduler.Host, s.config.Services.Scheduler.Port))
+	schedURL, err := url.Parse(s.config.Services.Scheduler.URL())
 	if err != nil {
 		return fmt.Errorf("invalid scheduler service URL: %w", err)
 	}
@@ -248,7 +251,7 @@ func (s *Service) checkServicesHealth() {
 			continue
 		}
 
-		resp, err := http.DefaultClient.Do(req) // #nosec
+		resp, err := http.DefaultClient.Do(req) // #nosec G107 -- internal service URL, not user-controlled
 		if err != nil || resp.StatusCode != http.StatusOK {
 			if proxy.HealthOK {
 				s.logger.Warn("Service health check failed",
@@ -284,7 +287,14 @@ func (s *Service) SetupMiddleware(router *gin.Engine) {
 		MaxAge:           12 * time.Hour,
 	}
 	if len(corsConfig.AllowOrigins) == 0 {
-		corsConfig.AllowAllOrigins = true
+		// In release mode, require explicit CORS origin configuration.
+		if gin.Mode() == gin.ReleaseMode {
+			s.logger.Warn("CORS: no allowed origins configured in release mode; cross-origin requests will be rejected. " +
+				"Set SECURITY_CORS_ALLOWED_ORIGINS to configure allowed origins.")
+			corsConfig.AllowOrigins = []string{"https://localhost"} // Reject all real origins
+		} else {
+			corsConfig.AllowAllOrigins = true
+		}
 	}
 	if len(corsConfig.AllowMethods) == 0 {
 		corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}
@@ -412,6 +422,113 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	api.Any("/v1/nodes", s.proxyHandler("scheduler"))
 	api.Any("/v1/nodes/*path", s.proxyHandler("scheduler"))
 
+	// ---- Management service routes (proxy to management in microservice mode) ----
+	// In monolithic mode these are registered directly; here they proxy through.
+	mgmt := "identity" // management plane shares identity service in standalone mode
+
+	// Storage management.
+	api.Any("/v1/storage/*path", s.proxyHandler(mgmt))
+
+	// Task management.
+	api.Any("/v1/tasks", s.proxyHandler(mgmt))
+	api.Any("/v1/tasks/*path", s.proxyHandler(mgmt))
+
+	// Tag management.
+	api.Any("/v1/tags/*path", s.proxyHandler(mgmt))
+
+	// Notification system.
+	api.Any("/v1/notifications/*path", s.proxyHandler(mgmt))
+
+	// Note: /v1/images/*path is already registered under compute routes above.
+	// Management-plane image endpoints (register, etc.) share the same path prefix.
+	// DNS as a Service.
+	api.Any("/v1/dns/*path", s.proxyHandler(mgmt))
+
+	// Object Storage (S3-compatible).
+	api.Any("/v1/object-storage/*path", s.proxyHandler(mgmt))
+
+	// Orchestration Engine (stacks).
+	api.Any("/v1/stacks", s.proxyHandler(mgmt))
+	api.Any("/v1/stacks/*path", s.proxyHandler(mgmt))
+
+	// VPN Gateway.
+	api.Any("/v1/vpn-gateways", s.proxyHandler(mgmt))
+	api.Any("/v1/vpn-gateways/*path", s.proxyHandler(mgmt))
+	api.Any("/v1/vpn-customer-gateways", s.proxyHandler(mgmt))
+	api.Any("/v1/vpn-customer-gateways/*path", s.proxyHandler(mgmt))
+	api.Any("/v1/vpn-connections", s.proxyHandler(mgmt))
+	api.Any("/v1/vpn-connections/*path", s.proxyHandler(mgmt))
+
+	// Backup management.
+	api.Any("/v1/backup-offerings", s.proxyHandler(mgmt))
+	api.Any("/v1/backup-offerings/*path", s.proxyHandler(mgmt))
+	api.Any("/v1/backups", s.proxyHandler(mgmt))
+	api.Any("/v1/backups/*path", s.proxyHandler(mgmt))
+	api.Any("/v1/backup-schedules", s.proxyHandler(mgmt))
+	api.Any("/v1/backup-schedules/*path", s.proxyHandler(mgmt))
+
+	// AutoScale.
+	api.Any("/v1/autoscale-groups", s.proxyHandler(mgmt))
+	api.Any("/v1/autoscale-groups/*path", s.proxyHandler(mgmt))
+
+	// Usage & Billing.
+	api.Any("/v1/usage/*path", s.proxyHandler(mgmt))
+	api.Any("/v1/tariffs", s.proxyHandler(mgmt))
+	api.Any("/v1/tariffs/*path", s.proxyHandler(mgmt))
+
+	// Domain management.
+	api.Any("/v1/domains", s.proxyHandler(mgmt))
+	api.Any("/v1/domains/*path", s.proxyHandler(mgmt))
+
+	// High Availability.
+	api.Any("/v1/ha/*path", s.proxyHandler(mgmt))
+
+	// Key Management Service.
+	api.Any("/v1/kms/*path", s.proxyHandler(mgmt))
+
+	// Rate Limiting.
+	api.Any("/v1/rate-limits/*path", s.proxyHandler(mgmt))
+
+	// Data Encryption.
+	api.Any("/v1/encryption/*path", s.proxyHandler(mgmt))
+
+	// Container as a Service (Kubernetes clusters).
+	api.Any("/v1/caas/*path", s.proxyHandler(mgmt))
+
+	// Compliance Audit.
+	api.Any("/v1/audit/*path", s.proxyHandler(mgmt))
+
+	// Disaster Recovery.
+	api.Any("/v1/dr/*path", s.proxyHandler(mgmt))
+
+	// Bare Metal.
+	api.Any("/v1/baremetal/*path", s.proxyHandler(mgmt))
+
+	// Service Catalog.
+	api.Any("/v1/catalog/*path", s.proxyHandler(mgmt))
+
+	// Self-Healing.
+	api.Any("/v1/self-heal/*path", s.proxyHandler(mgmt))
+	api.Any("/v1/selfheal/*path", s.proxyHandler(mgmt))
+
+	// Service Registry.
+	api.Any("/v1/registry/*path", s.proxyHandler(mgmt))
+
+	// Config Center.
+	api.Any("/v1/config/*path", s.proxyHandler(mgmt))
+
+	// Event Bus.
+	api.Any("/v1/eventbus/*path", s.proxyHandler(mgmt))
+
+	// Migrations (live migration).
+	api.Any("/v1/migrations", s.proxyHandler(mgmt))
+	api.Any("/v1/migrations/*path", s.proxyHandler(mgmt))
+
+	// Firecracker MicroVM.
+	api.Any("/v1/firecracker/*path", s.proxyHandler(mgmt))
+
+	// Note: MFA routes (/v1/auth/mfa/*) are covered by the /v1/auth/*path wildcard above.
+
 	// WebShell session management API.
 	api.GET("/v1/webshell/sessions", s.listWebShellSessions)
 	api.GET("/v1/webshell/sessions/:id", s.getWebShellSession)
@@ -458,605 +575,4 @@ func (s *Service) SetupComputeProxyRoutes(router *gin.Engine) {
 
 	// WebShell WebSocket endpoint.
 	router.GET("/ws/webshell", s.webShellHandler)
-}
-
-// topologyHandler aggregates network and compute resources into a single topology graph.
-// It calls underlying services with the same Authorization and X-Project-ID headers.
-//
-//nolint:gocyclo,gocognit // Complex topology aggregation logic
-func (s *Service) topologyHandler(c *gin.Context) {
-	tenantID := c.Query("tenant_id")
-	// Forward headers.
-	auth := c.GetHeader("Authorization")
-	projectHeader := c.GetHeader("X-Project-ID")
-
-	type httpGetResult struct {
-		body   []byte
-		status int
-		err    error
-	}
-
-	doGET := func(service string, path string, q string) httpGetResult {
-		s.mu.RLock()
-		proxy, ok := s.services[service]
-		s.mu.RUnlock()
-		if !ok {
-			return httpGetResult{nil, http.StatusBadGateway, fmt.Errorf("service %s not found", service)}
-		}
-		url := fmt.Sprintf("%s%s", proxy.Target.String(), path)
-		if q != "" {
-			url = url + "?" + q
-		}
-		req, err := http.NewRequest("GET", url, http.NoBody)
-		if err != nil {
-			return httpGetResult{nil, http.StatusInternalServerError, err}
-		}
-		if auth != "" {
-			req.Header.Set("Authorization", auth)
-		}
-		if projectHeader != "" {
-			req.Header.Set("X-Project-ID", projectHeader)
-		}
-		// Also pass tenant_id as header to services that rely on it.
-		if tenantID != "" {
-			req.Header.Set("X-Project-ID", tenantID)
-		}
-		resp, err := http.DefaultClient.Do(req) // #nosec
-		if err != nil {
-			return httpGetResult{nil, http.StatusBadGateway, err}
-		}
-		defer func() { _ = resp.Body.Close() }()
-		b, err := io.ReadAll(resp.Body)
-		if err != nil {
-			s.logger.Warn("failed to read response body", zap.Error(err))
-		}
-		return httpGetResult{b, resp.StatusCode, nil}
-	}
-
-	// Build query.
-	q := ""
-	if tenantID != "" {
-		q = "tenant_id=" + tenantID
-	}
-
-	// Fetch resources in parallel (best-effort)
-	// Use /api/v1/ prefix to match monolithic mode route registration.
-	nets := doGET("network", "/api/v1/networks", q)
-	subs := doGET("network", "/api/v1/subnets", q)
-	rtrs := doGET("network", "/api/v1/routers", q)
-	ports := doGET("network", "/api/v1/ports", q)
-	insts := doGET("compute", "/api/v1/instances", q)
-
-	// Minimal shapes for marshaling.
-	var networks struct {
-		Networks []map[string]interface{} `json:"networks"`
-	}
-	var subnets struct {
-		Subnets []map[string]interface{} `json:"subnets"`
-	}
-	var routers []map[string]interface{}
-	var routerWrap struct {
-		Routers []map[string]interface{} `json:"routers"`
-	}
-	var portsObj struct {
-		Ports []map[string]interface{} `json:"ports"`
-	}
-	var instancesObj struct {
-		Instances []map[string]interface{} `json:"instances"`
-	}
-
-	// Decode forgivingly.
-	if nets.status == http.StatusOK {
-		if err := json.Unmarshal(nets.body, &networks); err != nil {
-			s.logger.Warn("failed to unmarshal networks", zap.Error(err))
-		}
-	}
-	if subs.status == http.StatusOK {
-		// handle both array and object.
-		if err := json.Unmarshal(subs.body, &subnets); err != nil {
-			var arr []map[string]interface{}
-			if err := json.Unmarshal(subs.body, &arr); err == nil {
-				subnets.Subnets = arr
-			}
-		}
-	}
-	if rtrs.status == http.StatusOK {
-		if err := json.Unmarshal(rtrs.body, &routerWrap); err == nil {
-			routers = routerWrap.Routers
-		} else {
-			if err := json.Unmarshal(rtrs.body, &routers); err != nil {
-				s.logger.Warn("failed to unmarshal routers", zap.Error(err))
-			}
-		}
-	}
-	if ports.status == http.StatusOK {
-		if err := json.Unmarshal(ports.body, &portsObj); err != nil {
-			s.logger.Warn("failed to unmarshal ports", zap.Error(err))
-		}
-	}
-	if insts.status == http.StatusOK {
-		if err := json.Unmarshal(insts.body, &instancesObj); err != nil {
-			s.logger.Warn("failed to unmarshal instances", zap.Error(err))
-		}
-	}
-
-	// Index helpers.
-	get := func(m map[string]interface{}, k string) string {
-		if v, ok := m[k]; ok && v != nil {
-			return fmt.Sprintf("%v", v)
-		}
-		return ""
-	}
-
-	// Build nodes.
-	nodes := make([]map[string]interface{}, 0, 64)
-	edges := make([]map[string]string, 0, 128)
-
-	// Networks.
-	for _, n := range networks.Networks {
-		nodes = append(nodes, map[string]interface{}{
-			"id":               "net-" + get(n, "id"),
-			"resource_id":      get(n, "id"),
-			"type":             "network",
-			"name":             get(n, "name"),
-			"cidr":             get(n, "cidr"),
-			"external":         n["external"],
-			"network_type":     n["network_type"],
-			"segmentation_id":  n["segmentation_id"],
-			"shared":           n["shared"],
-			"physical_network": n["physical_network"],
-			"mtu":              n["mtu"],
-		})
-	}
-
-	// Subnets + edges to networks.
-	for _, sObj := range subnets.Subnets {
-		sid := get(sObj, "id")
-		nid := get(sObj, "network_id")
-		nodes = append(nodes, map[string]interface{}{
-			"id":          "subnet-" + sid,
-			"resource_id": sid,
-			"type":        "subnet",
-			"name":        get(sObj, "name"),
-			"cidr":        get(sObj, "cidr"),
-			"gateway":     get(sObj, "gateway"),
-			"network_id":  nid,
-		})
-		if nid != "" {
-			edges = append(edges, map[string]string{
-				"source": "subnet-" + sid,
-				"target": "net-" + nid,
-				"type":   "l2",
-			})
-		}
-	}
-
-	// Routers.
-	for _, r := range routers {
-		rid := get(r, "id")
-		nodes = append(nodes, map[string]interface{}{
-			"id":                          "router-" + rid,
-			"resource_id":                 rid,
-			"type":                        "router",
-			"name":                        get(r, "name"),
-			"enable_snat":                 r["enable_snat"],
-			"external_gateway_network_id": r["external_gateway_network_id"],
-			"external_gateway_ip":         r["external_gateway_ip"],
-		})
-		// Router gateway to external network.
-		extNet := get(r, "external_gateway_network_id")
-		if extNet != "" {
-			edges = append(edges, map[string]string{
-				"source": "router-" + rid,
-				"target": "net-" + extNet,
-				"type":   "l3-gateway",
-			})
-		}
-	}
-
-	// Router interfaces: need to query per-router.
-	for _, r := range routers {
-		rid := get(r, "id")
-		path := fmt.Sprintf("/api/v1/routers/%s/interfaces", rid)
-		ris := doGET("network", path, "")
-		if ris.status != http.StatusOK || len(ris.body) == 0 {
-			continue
-		}
-		var ifaces []map[string]interface{}
-		if err := json.Unmarshal(ris.body, &ifaces); err == nil {
-			connected := make([]string, 0, len(ifaces))
-			for _, iface := range ifaces {
-				subID := get(iface, "subnet_id")
-				if subID != "" {
-					edges = append(edges, map[string]string{
-						"source": "router-" + rid,
-						"target": "subnet-" + subID,
-						"type":   "l3",
-					})
-					connected = append(connected, subID)
-				}
-			}
-			// annotate router node with interface subnet ids.
-			for i := range nodes {
-				if nodes[i]["id"] == "router-"+rid {
-					nodes[i]["interfaces"] = connected
-					break
-				}
-			}
-		}
-	}
-
-	// Instances.
-	for _, inst := range instancesObj.Instances {
-		iid := get(inst, "id")
-		// derive primary IP from ports (first fixed_ips entry)
-		var primaryIP string
-		for _, p := range portsObj.Ports {
-			if get(p, "device_id") == iid {
-				if v, ok := p["fixed_ips"]; ok && v != nil {
-					if arr, ok2 := v.([]interface{}); ok2 && len(arr) > 0 {
-						if ipm, ok3 := arr[0].(map[string]interface{}); ok3 {
-							if ipStr, ok4 := ipm["ip"].(string); ok4 {
-								primaryIP = ipStr
-							}
-						}
-					}
-				}
-				if primaryIP != "" {
-					break
-				}
-			}
-		}
-		nodes = append(nodes, map[string]interface{}{
-			"id":          "instance-" + iid,
-			"resource_id": iid,
-			"type":        "instance",
-			"name":        get(inst, "name"),
-			"state":       get(inst, "status"),
-			"ip":          primaryIP,
-		})
-	}
-
-	// Ports: connect instances to subnets (or networks)
-	for _, p := range portsObj.Ports {
-		devID := get(p, "device_id")
-		if devID == "" {
-			continue
-		}
-		// prefer subnet_id from port; if missing, connect to network.
-		sid := get(p, "subnet_id")
-		if sid != "" {
-			edges = append(edges, map[string]string{
-				"source": "instance-" + devID,
-				"target": "subnet-" + sid,
-				"type":   "attachment",
-			})
-			continue
-		}
-		nid := get(p, "network_id")
-		if nid != "" {
-			edges = append(edges, map[string]string{
-				"source": "instance-" + devID,
-				"target": "net-" + nid,
-				"type":   "attachment",
-			})
-		}
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"nodes": nodes,
-		"edges": edges,
-		"meta":  gin.H{"generated_at": time.Now()},
-	})
-}
-
-// rateLimitMiddleware implements rate limiting.
-func (s *Service) rateLimitMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		clientIP := c.ClientIP()
-
-		s.mu.Lock()
-		limiter, exists := s.limiters[clientIP]
-		if !exists {
-			limiter = rate.NewLimiter(
-				rate.Limit(s.config.Security.RateLimit.RequestsPerMinute)/60,
-				s.config.Security.RateLimit.RequestsPerMinute)
-			s.limiters[clientIP] = limiter
-		}
-		s.mu.Unlock()
-
-		if !limiter.Allow() {
-			s.logger.Warn("Rate limit exceeded",
-				zap.String("client_ip", clientIP))
-			c.JSON(http.StatusTooManyRequests, gin.H{
-				"error": "Rate limit exceeded",
-			})
-			c.Abort()
-			return
-		}
-
-		c.Next()
-	}
-}
-
-// loggingMiddleware logs requests.
-func (s *Service) loggingMiddleware() gin.HandlerFunc {
-	return gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
-		s.logger.Info("HTTP Request",
-			zap.String("method", param.Method),
-			zap.String("path", param.Path),
-			zap.Int("status", param.StatusCode),
-			zap.Duration("latency", param.Latency),
-			zap.String("client_ip", param.ClientIP),
-			zap.String("user_agent", param.Request.UserAgent()),
-		)
-		return ""
-	})
-}
-
-// healthHandler returns the gateway health status.
-func (s *Service) healthHandler(c *gin.Context) {
-	s.mu.RLock()
-	services := make(map[string]bool)
-	for name, proxy := range s.services {
-		services[name] = proxy.HealthOK
-	}
-	s.mu.RUnlock()
-
-	allHealthy := true
-	for _, healthy := range services {
-		if !healthy {
-			allHealthy = false
-			break
-		}
-	}
-
-	status := "healthy"
-	httpStatus := http.StatusOK
-	if !allHealthy {
-		status = "degraded"
-		httpStatus = http.StatusServiceUnavailable
-	}
-
-	c.JSON(httpStatus, gin.H{
-		"status":   status,
-		"gateway":  "healthy",
-		"services": services,
-	})
-}
-
-// statusHandler returns detailed gateway status.
-func (s *Service) statusHandler(c *gin.Context) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-
-	services := make(map[string]interface{})
-	for name, proxy := range s.services {
-		services[name] = map[string]interface{}{
-			"healthy": proxy.HealthOK,
-			"target":  proxy.Target.String(),
-		}
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"gateway": map[string]interface{}{
-			"version":    "v1.0.0",
-			"uptime":     time.Since(s.startTime).String(),
-			"rate_limit": s.config.Security.RateLimit.Enabled,
-		},
-		"services": services,
-	})
-}
-
-// proxyHandler creates a proxy handler for a specific service.
-func (s *Service) proxyHandler(serviceName string) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		s.mu.RLock()
-		proxy, exists := s.services[serviceName]
-		s.mu.RUnlock()
-
-		if !exists {
-			c.JSON(http.StatusServiceUnavailable, gin.H{
-				"error": fmt.Sprintf("Service %s not available", serviceName),
-			})
-			return
-		}
-
-		if !proxy.HealthOK {
-			c.JSON(http.StatusServiceUnavailable, gin.H{
-				"error": fmt.Sprintf("Service %s is unhealthy", serviceName),
-			})
-			return
-		}
-
-		// Note: c.Request.URL.Path contains the full path including router group prefix.
-		// Gateway routes are under /api group, so path will be /api/v1/...
-		// Compute and lite services also expect /api/v1/..., so no path rewriting needed.
-
-		c.Request.URL.Host = proxy.Target.Host
-		c.Request.URL.Scheme = proxy.Target.Scheme
-		c.Request.Header.Set("X-Forwarded-For", c.ClientIP())
-		c.Request.Header.Set("X-Forwarded-Proto", "http")
-
-		proxy.Proxy.ServeHTTP(c.Writer, c.Request) // #nosec
-	}
-}
-
-// metricsHandler returns Prometheus metrics.
-func (s *Service) metricsHandler(c *gin.Context) {
-	// This would integrate with Prometheus metrics.
-	c.String(http.StatusOK, "# Metrics\n")
-}
-
-// consoleWebSocketHandler handles WebSocket console requests with dynamic node routing.
-// URL format: /ws/console/{node_id}?token=xxx.
-func (s *Service) consoleWebSocketHandler(c *gin.Context) {
-	nodeID := c.Param("node_id")
-	token := c.Query("token")
-
-	if nodeID == "" || token == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "missing node_id or token"})
-		return
-	}
-
-	// Try to lookup node address from scheduler.
-	nodeAddr, err := s.lookupNodeAddress(c.Request.Context(), nodeID)
-	if err != nil {
-		// Fallback: if scheduler lookup fails, use lite service directly.
-		s.logger.Warn("Scheduler lookup failed, using lite service fallback",
-			zap.String("node_id", nodeID),
-			zap.Error(err))
-
-		// Use lite service proxy if available.
-		s.mu.RLock()
-		liteProxy, hasLite := s.services["lite"]
-		s.mu.RUnlock()
-
-		if hasLite && liteProxy.Target != nil {
-			nodeAddr = liteProxy.Target.String()
-		} else {
-			s.logger.Error("No lite service configured and scheduler lookup failed",
-				zap.String("node_id", nodeID))
-			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "cannot route to node: scheduler unavailable and no lite service configured"})
-			return
-		}
-	}
-
-	// Parse node address.
-	targetURL, err := url.Parse(nodeAddr)
-	if err != nil {
-		s.logger.Error("Invalid node address",
-			zap.String("node_id", nodeID),
-			zap.String("address", nodeAddr),
-			zap.Error(err))
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "invalid node address"})
-		return
-	}
-
-	// Build WebSocket URL to node's VM driver.
-	wsURL := url.URL{
-		Scheme:   "ws",
-		Host:     targetURL.Host,
-		Path:     "/ws/console",
-		RawQuery: "token=" + token,
-	}
-	if targetURL.Scheme == "https" {
-		wsURL.Scheme = "wss"
-	}
-
-	s.logger.Info("Proxying console WebSocket",
-		zap.String("node_id", nodeID),
-		zap.String("target", wsURL.String()))
-
-	// Upgrade client connection.
-	upgrader := websocket.Upgrader{
-		CheckOrigin: func(r *http.Request) bool { return true },
-	}
-	clientConn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
-	if err != nil {
-		s.logger.Error("Failed to upgrade client connection", zap.Error(err))
-		return
-	}
-	defer func() { _ = clientConn.Close() }()
-
-	// Dial backend WebSocket.
-	backendConn, resp, err := websocket.DefaultDialer.Dial(wsURL.String(), nil)
-	if err != nil {
-		s.logger.Error("Failed to dial backend WebSocket",
-			zap.String("url", wsURL.String()),
-			zap.Error(err))
-		if err := clientConn.WriteMessage(websocket.CloseMessage,
-			websocket.FormatCloseMessage(websocket.CloseInternalServerErr, "backend connection failed")); err != nil {
-			s.logger.Warn("failed to send close message", zap.Error(err))
-		}
-		return
-	}
-	if resp != nil && resp.Body != nil {
-		defer func() { _ = resp.Body.Close() }()
-	}
-	defer func() { _ = backendConn.Close() }()
-
-	// Bidirectional proxy.
-	errChan := make(chan error, 2)
-
-	// Client -> Backend.
-	go func() {
-		for {
-			msgType, data, err := clientConn.ReadMessage()
-			if err != nil {
-				errChan <- err
-				return
-			}
-			if err := backendConn.WriteMessage(msgType, data); err != nil {
-				errChan <- err
-				return
-			}
-		}
-	}()
-
-	// Backend -> Client.
-	go func() {
-		for {
-			msgType, data, err := backendConn.ReadMessage()
-			if err != nil {
-				errChan <- err
-				return
-			}
-			if err := clientConn.WriteMessage(msgType, data); err != nil {
-				errChan <- err
-				return
-			}
-		}
-	}()
-
-	// Wait for error or completion.
-	err = <-errChan
-	if err != nil && err != io.EOF {
-		s.logger.Debug("Console WebSocket proxy closed", zap.Error(err))
-	}
-}
-
-// lookupNodeAddress queries the scheduler for a node's address.
-func (s *Service) lookupNodeAddress(ctx context.Context, nodeID string) (string, error) {
-	schedProxy, ok := s.services["scheduler"]
-	if !ok {
-		return "", fmt.Errorf("scheduler service not configured")
-	}
-
-	// Call scheduler API: GET /api/v1/nodes/{nodeID}.
-	reqURL := fmt.Sprintf("%s/api/v1/nodes/%s", schedProxy.Target.String(), nodeID)
-	req, err := http.NewRequestWithContext(ctx, "GET", reqURL, http.NoBody)
-	if err != nil {
-		return "", err
-	}
-
-	resp, err := http.DefaultClient.Do(req) // #nosec
-	if err != nil {
-		return "", fmt.Errorf("scheduler request failed: %w", err)
-	}
-	defer func() { _ = resp.Body.Close() }()
-
-	if resp.StatusCode != http.StatusOK {
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return "", fmt.Errorf("scheduler returned %d and failed to read body: %w", resp.StatusCode, err)
-		}
-		return "", fmt.Errorf("scheduler returned %d: %s", resp.StatusCode, string(body))
-	}
-
-	var result struct {
-		Node struct {
-			ID      string `json:"id"`
-			Address string `json:"address"`
-		} `json:"node"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return "", fmt.Errorf("failed to decode scheduler response: %w", err)
-	}
-
-	if result.Node.Address == "" {
-		return "", fmt.Errorf("node has no address")
-	}
-
-	return strings.TrimSpace(result.Node.Address), nil
 }

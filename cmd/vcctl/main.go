@@ -72,6 +72,7 @@ For more information, visit: https://github.com/Veritas-Calculus/vc-stack`,
 	cmd.AddCommand(newSecretsCommand())
 	cmd.AddCommand(newVersionCommand())
 	cmd.AddCommand(newConfigCommand())
+	cmd.AddCommand(newDBCommand())
 
 	return cmd
 }
