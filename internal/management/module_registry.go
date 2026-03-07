@@ -69,12 +69,6 @@ func isEnabled(flag *bool) bool {
 	return *flag
 }
 
-// boolPtr returns a pointer to a bool value.
-// boolPtr returns a pointer to a bool value.
-func boolPtr(v bool) *bool {
-	return &v
-}
-
 // ModuleFactory is a function that creates and registers a service module.
 // It receives the partially built Service and the shared Config, and should
 // set the appropriate field on svc. It may return an error.

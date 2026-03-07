@@ -15,7 +15,7 @@ import (
 // --- Phase 4: Snapshot/Restore ---
 
 // createSnapshotFirecrackerHandler creates a snapshot of a running Firecracker microVM.
-// POST /v1/firecracker/:id/snapshot
+// POST /v1/firecracker/:id/snapshot.
 func (s *Service) createSnapshotFirecrackerHandler(c *gin.Context) {
 	userID := s.getUserIDFromContext(c)
 	if userID == 0 {

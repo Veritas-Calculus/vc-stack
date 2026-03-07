@@ -127,7 +127,7 @@ func generateRecoveryCodes() ([]string, []string, error) {
 // ======================== MFA HTTP Handlers ========================
 
 // mfaSetupHandler initiates MFA enrollment for the current user.
-// POST /api/v1/auth/mfa/setup
+// POST /api/v1/auth/mfa/setup.
 func (s *Service) mfaSetupHandler(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -192,7 +192,7 @@ func (s *Service) mfaSetupHandler(c *gin.Context) {
 }
 
 // mfaVerifyHandler confirms MFA enrollment by validating a TOTP code.
-// POST /api/v1/auth/mfa/verify
+// POST /api/v1/auth/mfa/verify.
 func (s *Service) mfaVerifyHandler(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -246,7 +246,7 @@ func (s *Service) mfaVerifyHandler(c *gin.Context) {
 }
 
 // mfaDisableHandler disables MFA for the current user.
-// POST /api/v1/auth/mfa/disable
+// POST /api/v1/auth/mfa/disable.
 func (s *Service) mfaDisableHandler(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -295,7 +295,7 @@ func (s *Service) mfaDisableHandler(c *gin.Context) {
 }
 
 // mfaRegenerateCodesHandler regenerates recovery codes.
-// POST /api/v1/auth/mfa/recovery-codes
+// POST /api/v1/auth/mfa/recovery-codes.
 func (s *Service) mfaRegenerateCodesHandler(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -351,7 +351,7 @@ func (s *Service) mfaRegenerateCodesHandler(c *gin.Context) {
 }
 
 // mfaStatusHandler returns the MFA status for the current user.
-// GET /api/v1/auth/mfa/status
+// GET /api/v1/auth/mfa/status.
 func (s *Service) mfaStatusHandler(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -389,7 +389,7 @@ func (s *Service) mfaStatusHandler(c *gin.Context) {
 
 // mfaChallengeHandler handles the second step of MFA login.
 // The client sends the mfa_token from step 1 + the TOTP code.
-// POST /api/v1/auth/mfa/challenge
+// POST /api/v1/auth/mfa/challenge.
 func (s *Service) mfaChallengeHandler(c *gin.Context) {
 	var req struct {
 		MFAToken string `json:"mfa_token" binding:"required"` // #nosec

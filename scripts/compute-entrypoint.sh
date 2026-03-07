@@ -162,9 +162,9 @@ if command -v iptables >/dev/null 2>&1; then
 
     # DNAT: redirect metadata traffic from VMs to local proxy.
     iptables -t nat -C PREROUTING -d 169.254.169.254/32 -p tcp --dport 80 \
-        -j DNAT --to-destination 127.0.0.1:${METADATA_PORT} 2>/dev/null || \
+        -j DNAT --to-destination 127.0.0.1:"${METADATA_PORT}" 2>/dev/null || \
     iptables -t nat -A PREROUTING -d 169.254.169.254/32 -p tcp --dport 80 \
-        -j DNAT --to-destination 127.0.0.1:${METADATA_PORT} 2>/dev/null
+        -j DNAT --to-destination 127.0.0.1:"${METADATA_PORT}" 2>/dev/null
 
     # Allow hairpin traffic (so DNAT to localhost works from external sources).
     sysctl -w net.ipv4.conf.all.route_localnet=1 >/dev/null 2>&1 || true

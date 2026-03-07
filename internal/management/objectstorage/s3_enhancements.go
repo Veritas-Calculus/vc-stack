@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -143,7 +144,7 @@ func (s *Service) applyLifecycleToRGW(bucketName string, config LifecycleConfig)
 
 	// PUT to bucket lifecycle endpoint.
 	url := fmt.Sprintf("%s/%s?lifecycle", s.rgw.Endpoint, bucketName)
-	req, _ := http.NewRequest(http.MethodPut, url, nil)
+	req, _ := http.NewRequest(http.MethodPut, url, strings.NewReader(xml))
 	s.rgw.signRequest(req)
 	resp, err := s.rgw.client.Do(req)
 	if err != nil {

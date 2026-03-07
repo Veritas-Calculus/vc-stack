@@ -433,10 +433,6 @@ func (s *Service) provisionServer(c *gin.Context) {
 	s.db.Create(&provision)
 
 	// Update server
-	hostname := req.Hostname
-	if hostname == "" {
-		hostname = server.Name
-	}
 	s.db.Model(&server).Updates(map[string]interface{}{
 		"status": "active", "os_profile": profile.Name, "power_status": "on",
 		"provisioned_at": now, "primary_ip": fmt.Sprintf("10.0.1.%d", 100+server.RackUnit),

@@ -219,8 +219,7 @@ func (s *Service) sendNotification(ch *Channel, payload map[string]interface{}) 
 			statusCode, errMsg = s.sendSlack(ch, payload)
 		default:
 			errMsg = "unsupported channel type: " + ch.Type
-			// Non-retryable error.
-			break
+			// Non-retryable error — will exit loop via retry check below.
 		}
 
 		if errMsg == "" {

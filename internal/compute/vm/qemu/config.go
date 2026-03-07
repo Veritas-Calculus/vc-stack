@@ -306,7 +306,7 @@ func (c *VMConfig) buildFirmwareArgs() []string {
 		uefiPath := c.UEFIPath
 		if uefiPath == "" {
 			// Auto-detect UEFI firmware path.
-			candidates := []string{}
+			var candidates []string
 			if runtime.GOARCH == "arm64" {
 				candidates = []string{
 					"/usr/share/AAVMF/AAVMF_CODE.fd",
@@ -415,7 +415,6 @@ func (c *VMConfig) buildQMPArgs() []string {
 func (c *VMConfig) buildMonitorArgs() []string {
 	args := []string{}
 	if c.Monitor.Enabled {
-		//nolint:gocritic
 		if c.Monitor.Type == "unix" && c.Monitor.Path != "" {
 			args = append(args, "-monitor", fmt.Sprintf("unix:%s,server,nowait", c.Monitor.Path))
 		} else if c.Monitor.Type == "tcp" {
@@ -523,7 +522,6 @@ func (n *NICConfig) BuildArgs(index int) []string {
 func (s *SerialConfig) BuildArgs() []string {
 	args := []string{}
 
-	//nolint:gocritic
 	if s.Type == "pty" {
 		args = append(args, "-serial", "pty")
 	} else if s.Type == "unix" && s.Path != "" {

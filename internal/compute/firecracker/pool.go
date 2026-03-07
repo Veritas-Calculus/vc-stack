@@ -139,7 +139,7 @@ func (p *Pool) Size() int {
 
 // StartMaintenance begins the background maintenance loop that:
 // - Removes expired idle VMs
-// - Ensures minimum idle count
+// - Ensures minimum idle count.
 func (p *Pool) StartMaintenance(ctx context.Context) {
 	go func() {
 		ticker := time.NewTicker(30 * time.Second)

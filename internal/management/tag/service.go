@@ -165,7 +165,7 @@ func (s *Service) getResourceTags(c *gin.Context) {
 }
 
 // setTags handles POST /api/v1/tags/:resourceType/:resourceId.
-// Body: {"tags": {"key1": "value1", "key2": "value2"}}
+// Body: {"tags": {"key1": "value1", "key2": "value2"}}.
 func (s *Service) setTags(c *gin.Context) {
 	resourceType := c.Param("resourceType")
 	resourceID := c.Param("resourceId")

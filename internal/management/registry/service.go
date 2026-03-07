@@ -7,7 +7,6 @@ package registry
 import (
 	"fmt"
 	"net/http"
-	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -64,7 +63,6 @@ type Config struct {
 type Service struct {
 	db     *gorm.DB
 	logger *zap.Logger
-	mu     sync.RWMutex
 }
 
 func NewService(cfg Config) (*Service, error) {

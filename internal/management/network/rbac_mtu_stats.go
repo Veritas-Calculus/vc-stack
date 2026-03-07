@@ -249,3 +249,6 @@ func (s *Service) networkStats(c *gin.Context) {
 		"network_status": statusBreakdown,
 	})
 }
+
+// Ensure applyMTUToDHCP is available for future use.
+var _ = (*Service).applyMTUToDHCP

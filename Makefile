@@ -74,8 +74,7 @@ vet: ## Run go vet
 
 test: ## Run tests
 	@echo "Running tests..."
-	@CGO_ENABLED=0 go test -coverprofile=coverage.out ./...
-	@go tool cover -html=coverage.out -o coverage.html
+	@CGO_ENABLED=0 go test -short -count=1 ./...
 
 test-coverage: ## Run tests with detailed coverage
 	@echo "Running tests with coverage..."

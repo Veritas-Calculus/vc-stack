@@ -320,7 +320,6 @@ func (s *Service) webShellHandler(c *gin.Context) {
 
 		// Provide user-friendly error message.
 		errorMsg := err.Error()
-		//nolint:gocritic
 		if strings.Contains(errorMsg, "unable to authenticate") {
 			s.sendWebShellError(conn, fmt.Sprintf("Authentication failed for user '%s'@%s. Please verify your password or SSH key.", req.User, req.Host))
 		} else if strings.Contains(errorMsg, "connection refused") {

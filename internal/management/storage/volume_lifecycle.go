@@ -310,6 +310,7 @@ func (s *Service) provisionVolumeBackend(volume *models.Volume, offering *models
 	if pool == "" {
 		pool = "volumes"
 	}
+	_ = pool // TODO: pass to RBD backend once real provisioning is added
 	imageName := fmt.Sprintf("vol-%d", volume.ID)
 	if volume.RBDImage != "" {
 		imageName = volume.RBDImage
