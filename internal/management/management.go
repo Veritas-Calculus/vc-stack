@@ -24,6 +24,7 @@ import (
 	"github.com/Veritas-Calculus/vc-stack/internal/management/gateway"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/ha"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/host"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/hpc"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/identity"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/image"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/kms"
@@ -106,6 +107,7 @@ type Service struct {
 	Registry      *registry.Service
 	ConfigCenter  *configcenter.Service
 	EventBus      *eventbus.Service
+	HPC           *hpc.Service
 
 	// ── Module registry (new: interface-based) ────────────────────────
 	modules map[string]Module

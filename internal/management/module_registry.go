@@ -59,6 +59,7 @@ type ModulesConfig struct {
 	EnableRegistry   *bool `json:"enable_registry" yaml:"enable_registry"`
 	EnableConfigCtr  *bool `json:"enable_configcenter" yaml:"enable_configcenter"`
 	EnableEventBus   *bool `json:"enable_eventbus" yaml:"enable_eventbus"`
+	EnableHPC        *bool `json:"enable_hpc" yaml:"enable_hpc"`
 }
 
 // isEnabled returns whether a module flag is enabled (defaults to true if nil).

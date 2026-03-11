@@ -67,8 +67,8 @@ func TestSeedRBAC(t *testing.T) {
 	// Verify permissions were seeded.
 	var permCount int64
 	svc.db.Model(&Permission{}).Count(&permCount)
-	if permCount != 90 {
-		t.Errorf("expected 90 permissions, got %d", permCount)
+	if permCount != 117 {
+		t.Errorf("expected 117 permissions, got %d", permCount)
 	}
 
 	// Verify roles were seeded.
@@ -81,8 +81,8 @@ func TestSeedRBAC(t *testing.T) {
 	// Verify admin role has all permissions.
 	var adminRole Role
 	svc.db.Preload("Permissions").Where("name = ?", "admin").First(&adminRole)
-	if len(adminRole.Permissions) != 90 {
-		t.Errorf("admin role should have 90 permissions, got %d", len(adminRole.Permissions))
+	if len(adminRole.Permissions) != 117 {
+		t.Errorf("admin role should have 117 permissions, got %d", len(adminRole.Permissions))
 	}
 
 	// Verify viewer role has only read permissions.
@@ -99,7 +99,9 @@ func TestSeedRBAC(t *testing.T) {
 	svc.db.Preload("Permissions").Where("name = ?", "member").First(&memberRole)
 	for _, p := range memberRole.Permissions {
 		if p.Resource == "user" || p.Resource == "role" || p.Resource == "policy" ||
-			p.Resource == "host" || p.Resource == "cluster" || p.Resource == "flavor" {
+			p.Resource == "host" || p.Resource == "cluster" || p.Resource == "flavor" ||
+			p.Resource == "hpc_cluster" || p.Resource == "slurm_cluster" ||
+			p.Resource == "slurm_partition" || p.Resource == "slurm_user" {
 			t.Errorf("member role should not have %s permission", p.Name)
 		}
 	}
@@ -239,8 +241,8 @@ func TestListPermissionsAPI(t *testing.T) {
 	var resp map[string]interface{}
 	json.Unmarshal(w.Body.Bytes(), &resp)
 	perms := resp["permissions"].([]interface{})
-	if len(perms) != 90 {
-		t.Errorf("expected 90 permissions, got %d", len(perms))
+	if len(perms) != 117 {
+		t.Errorf("expected 117 permissions, got %d", len(perms))
 	}
 
 	// Verify groups.

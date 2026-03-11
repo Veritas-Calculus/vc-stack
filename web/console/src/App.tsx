@@ -53,6 +53,10 @@ import { BareMetal } from '@/features/baremetal/BareMetal'
 import { ServiceCatalog } from '@/features/catalog/ServiceCatalog'
 import { SelfHealing } from '@/features/selfheal/SelfHealing'
 import { PlatformSettings } from '@/features/platform/PlatformSettings'
+import { HPC } from '@/features/hpc/HPC'
+import { HPCJobs } from '@/features/hpc/HPCJobs'
+import { HPCClusters } from '@/features/hpc/HPCClusters'
+import { GPUResources } from '@/features/hpc/GPUResources'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const token = useAuthStore((s) => s.token)
@@ -225,6 +229,12 @@ export default function App() {
                 <Route path="/service-catalog" element={<ServiceCatalog />} />
                 <Route path="/self-healing" element={<SelfHealing />} />
                 <Route path="/platform-settings" element={<PlatformSettings />} />
+                {/* HPC */}
+                <Route path="/hpc" element={<HPC />} />
+                <Route path="/hpc/clusters" element={<HPCClusters />} />
+                <Route path="/hpc/jobs" element={<HPCJobs />} />
+                <Route path="/hpc/gpu" element={<GPUResources />} />
+                <Route path="/hpc/*" element={<HPC />} />
                 {/* Global Infrastructure */}
                 <Route path="/infrastructure/*" element={<Infrastructure />} />
                 {/* ── Project-scoped routes (all wrapped in ProjectContextSetter) ── */}

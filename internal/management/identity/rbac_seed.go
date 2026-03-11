@@ -111,6 +111,40 @@ var defaultPermissions = []struct {
 	{"cluster", "create", "Create clusters"},
 	{"cluster", "update", "Update clusters"},
 	{"cluster", "delete", "Delete clusters"},
+	// HPC Kubernetes Clusters
+	{"hpc_cluster", "list", "List HPC Kubernetes clusters"},
+	{"hpc_cluster", "get", "View HPC cluster details"},
+	{"hpc_cluster", "create", "Create HPC Kubernetes clusters"},
+	{"hpc_cluster", "update", "Update HPC cluster configuration"},
+	{"hpc_cluster", "delete", "Delete HPC Kubernetes clusters"},
+	{"hpc_cluster", "scale", "Scale HPC cluster nodes"},
+	// HPC GPU Resources
+	{"hpc_gpu", "list", "List GPU resources and pools"},
+	{"hpc_gpu", "get", "View GPU resource details"},
+	{"hpc_gpu", "create", "Create GPU pools"},
+	{"hpc_gpu", "delete", "Delete GPU pools"},
+	// Slurm Clusters
+	{"slurm_cluster", "list", "List Slurm clusters"},
+	{"slurm_cluster", "get", "View Slurm cluster details"},
+	{"slurm_cluster", "create", "Create Slurm clusters"},
+	{"slurm_cluster", "update", "Update Slurm configuration"},
+	{"slurm_cluster", "delete", "Delete Slurm clusters"},
+	// Slurm Partitions
+	{"slurm_partition", "list", "List Slurm partitions"},
+	{"slurm_partition", "create", "Create Slurm partitions"},
+	{"slurm_partition", "update", "Update Slurm partition settings"},
+	{"slurm_partition", "delete", "Delete Slurm partitions"},
+	// HPC Jobs (unified)
+	{"hpc_job", "list", "List HPC jobs"},
+	{"hpc_job", "get", "View HPC job details and logs"},
+	{"hpc_job", "create", "Submit HPC jobs"},
+	{"hpc_job", "delete", "Cancel or delete HPC jobs"},
+	// Slurm Users (admin-only sync)
+	{"slurm_user", "list", "List Slurm user mappings"},
+	{"slurm_user", "create", "Sync IAM users to Slurm"},
+	{"slurm_user", "delete", "Remove Slurm user mappings"},
+	// HPC Monitoring
+	{"hpc_monitoring", "list", "View HPC metrics and dashboards"},
 }
 
 // defaultRoles defines the 4 system roles and their permission sets.
@@ -127,12 +161,12 @@ var defaultRoles = map[string]struct {
 		Actions:     []string{"*"}, // wild-card: gets every permission
 	},
 	"operator": {
-		Description: "Manage cloud resources — compute, storage, network, DNS, orchestration",
-		Actions:     []string{"list", "get", "create", "update", "delete", "start", "stop", "reboot", "console", "attach", "detach"},
+		Description: "Manage cloud resources — compute, storage, network, DNS, orchestration, HPC",
+		Actions:     []string{"list", "get", "create", "update", "delete", "start", "stop", "reboot", "console", "attach", "detach", "scale"},
 	},
 	"member": {
 		Description: "Standard project member — create and manage own resources",
-		Actions:     []string{"list", "get", "create", "update", "delete", "start", "stop", "reboot", "console", "attach", "detach"},
+		Actions:     []string{"list", "get", "create", "update", "delete", "start", "stop", "reboot", "console", "attach", "detach", "scale"},
 	},
 	"viewer": {
 		Description: "Read-only access to all resources",
@@ -141,9 +175,15 @@ var defaultRoles = map[string]struct {
 }
 
 // memberExcludedResources are resources that 'member' role cannot manage.
+// Members can submit HPC jobs but cannot manage clusters, partitions, or user sync.
 var memberExcludedResources = map[string]bool{
 	"user": true, "role": true, "policy": true,
 	"host": true, "cluster": true, "flavor": true,
+	// HPC management resources — member can submit jobs but not manage infra.
+	"hpc_cluster":     true,
+	"slurm_cluster":   true,
+	"slurm_partition": true,
+	"slurm_user":      true,
 }
 
 // seedDefaultPermissions creates the standard permissions if they don't exist.

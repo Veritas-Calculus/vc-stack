@@ -101,6 +101,19 @@ export function getGlobalSections(): SidebarSection[] {
       ]
     },
 
+    // ── HPC ──────────────────────────────────────────────────
+    {
+      type: 'group',
+      label: 'HPC',
+      base: '/hpc',
+      children: [
+        { to: '/hpc', label: 'Overview' },
+        { to: '/hpc/clusters', label: 'Clusters' },
+        { to: '/hpc/jobs', label: 'Job Queue' },
+        { to: '/hpc/gpu', label: 'GPU Resources' }
+      ]
+    },
+
     // ── Administration ───────────────────────────────────────
     {
       type: 'group',
@@ -244,6 +257,19 @@ export function getProjectSections(projectId: string): SidebarSection[] {
         { to: '/offerings', label: 'Offerings' },
         { to: '/service-catalog', label: 'Service Catalog' },
         { to: '/orchestration', label: 'Orchestration' }
+      ]
+    },
+
+    // ── HPC ──────────────────────────────────────────────────
+    {
+      type: 'group',
+      label: 'HPC',
+      base: '/hpc',
+      children: [
+        { to: '/hpc', label: 'Overview' },
+        { to: '/hpc/clusters', label: 'Clusters' },
+        { to: '/hpc/jobs', label: 'Job Queue' },
+        { to: '/hpc/gpu', label: 'GPU Resources' }
       ]
     },
 

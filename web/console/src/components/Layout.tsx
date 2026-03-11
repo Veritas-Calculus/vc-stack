@@ -1447,6 +1447,102 @@ function NavIcon({ name, small }: { name: string; small?: boolean }) {
         <path d="M12 22.08V12" />
       </svg>
     ),
+    HPC: (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="2" y="3" width="20" height="7" rx="1" />
+        <rect x="2" y="14" width="20" height="7" rx="1" />
+        <circle cx="6" cy="6.5" r="1" />
+        <circle cx="6" cy="17.5" r="1" />
+        <path d="M10 6.5h8M10 17.5h8" />
+      </svg>
+    ),
+    'K8s Clusters': (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <polygon points="12 2 19 7 19 17 12 22 5 17 5 7" />
+        <circle cx="12" cy="12" r="2" />
+      </svg>
+    ),
+    'Slurm Clusters': (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="2" y="3" width="20" height="5" rx="1" />
+        <rect x="2" y="10" width="20" height="5" rx="1" />
+        <rect x="2" y="17" width="20" height="5" rx="1" />
+        <circle cx="6" cy="5.5" r="1" />
+        <circle cx="6" cy="12.5" r="1" />
+        <circle cx="6" cy="19.5" r="1" />
+      </svg>
+    ),
+    Jobs: (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+      </svg>
+    ),
+    'GPU Resources': (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="4" y="4" width="16" height="16" rx="2" />
+        <rect x="8" y="8" width="8" height="8" rx="1" />
+        <path d="M4 9h1M4 15h1M19 9h1M19 15h1M9 4v1M15 4v1M9 19v1M15 19v1" />
+      </svg>
+    ),
+    Monitoring: (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+      </svg>
+    ),
     Administration: (
       <svg
         width={size}

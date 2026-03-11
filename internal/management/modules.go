@@ -23,6 +23,7 @@ import (
 	"github.com/Veritas-Calculus/vc-stack/internal/management/gateway"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/ha"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/host"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/hpc"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/identity"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/image"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/kms"
@@ -414,9 +415,15 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 				svc.Encryption = s
 				return nil
 			}},
-		{"caas", func(mc ModulesConfig) bool { return isEnabled(mc.EnableCaaS) }, nil,
+		{"caas", func(mc ModulesConfig) bool { return isEnabled(mc.EnableCaaS) },
+			[]string{"identity"},
 			func(svc *Service, cfg Config) error {
-				s, err := caas.NewService(caas.Config{DB: cfg.DB, Logger: cfg.Logger.Named("caas")})
+				s, err := caas.NewService(caas.Config{
+					DB:        cfg.DB,
+					Logger:    cfg.Logger.Named("caas"),
+					JWTSecret: cfg.JWTSecret,
+					Identity:  svc.Identity,
+				})
 				if err != nil {
 					return err
 				}
@@ -493,6 +500,21 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.EventBus = s
+				return nil
+			}},
+		{"hpc", func(mc ModulesConfig) bool { return isEnabled(mc.EnableHPC) },
+			[]string{"identity", "compute"},
+			func(svc *Service, cfg Config) error {
+				s, err := hpc.NewService(hpc.Config{
+					DB:        cfg.DB,
+					Logger:    cfg.Logger.Named("hpc"),
+					JWTSecret: cfg.JWTSecret,
+					Identity:  svc.Identity,
+				})
+				if err != nil {
+					return err
+				}
+				svc.HPC = s
 				return nil
 			}},
 	}
@@ -610,6 +632,10 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 			case "eventbus":
 				if svc.EventBus != nil {
 					svc.RegisterModule(WrapModule(capturedName, svc.EventBus))
+				}
+			case "hpc":
+				if svc.HPC != nil {
+					svc.RegisterModule(svc.HPC) // HPC implements Module directly (Name + SetupRoutes)
 				}
 			}
 			return nil
