@@ -11,6 +11,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -157,20 +159,21 @@ func (s *Service) seedDefaults() {
 // ---------- Routes ----------
 
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	api := router.Group("/api/v1/selfheal")
 	{
-		api.GET("/status", s.getStatus)
-		api.GET("/checks", s.listChecks)
-		api.POST("/checks", s.createCheck)
-		api.PUT("/checks/:id", s.updateCheck)
-		api.DELETE("/checks/:id", s.deleteCheck)
-		api.POST("/checks/:id/run", s.runCheck)
-		api.GET("/policies", s.listPolicies)
-		api.POST("/policies", s.createPolicy)
-		api.PUT("/policies/:id", s.updatePolicy)
-		api.DELETE("/policies/:id", s.deletePolicy)
-		api.GET("/events", s.listEvents)
-		api.POST("/simulate", s.simulateIncident)
+		api.GET("/status", rp("selfheal", "list"), s.getStatus)
+		api.GET("/checks", rp("selfheal", "list"), s.listChecks)
+		api.POST("/checks", rp("selfheal", "create"), s.createCheck)
+		api.PUT("/checks/:id", rp("selfheal", "update"), s.updateCheck)
+		api.DELETE("/checks/:id", rp("selfheal", "delete"), s.deleteCheck)
+		api.POST("/checks/:id/run", rp("selfheal", "create"), s.runCheck)
+		api.GET("/policies", rp("selfheal", "list"), s.listPolicies)
+		api.POST("/policies", rp("selfheal", "create"), s.createPolicy)
+		api.PUT("/policies/:id", rp("selfheal", "update"), s.updatePolicy)
+		api.DELETE("/policies/:id", rp("selfheal", "delete"), s.deletePolicy)
+		api.GET("/events", rp("selfheal", "list"), s.listEvents)
+		api.POST("/simulate", rp("selfheal", "create"), s.simulateIncident)
 	}
 }
 

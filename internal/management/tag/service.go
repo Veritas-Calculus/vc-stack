@@ -8,6 +8,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -60,17 +62,18 @@ func NewService(cfg Config) (*Service, error) {
 
 // SetupRoutes registers HTTP routes for the tag service.
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	api := router.Group("/api/v1/tags")
 	{
-		api.GET("", s.listTags)
-		api.GET("/:resourceType/:resourceId", s.getResourceTags)
-		api.POST("/:resourceType/:resourceId", s.setTags)
-		api.DELETE("/:resourceType/:resourceId/:key", s.deleteTag)
-		api.DELETE("/:resourceType/:resourceId", s.deleteAllTags)
+		api.GET("", rp("tag", "list"), s.listTags)
+		api.GET("/:resourceType/:resourceId", rp("tag", "get"), s.getResourceTags)
+		api.POST("/:resourceType/:resourceId", rp("tag", "create"), s.setTags)
+		api.DELETE("/:resourceType/:resourceId/:key", rp("tag", "delete"), s.deleteTag)
+		api.DELETE("/:resourceType/:resourceId", rp("tag", "delete"), s.deleteAllTags)
 	}
 
 	// Search by tags.
-	router.GET("/api/v1/search/by-tag", s.searchByTag)
+	router.GET("/api/v1/search/by-tag", rp("tag", "list"), s.searchByTag)
 }
 
 // --- Public API for other services ---

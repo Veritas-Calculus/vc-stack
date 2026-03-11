@@ -13,6 +13,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -444,27 +446,28 @@ func (s *Service) assessControl(c ComplianceControl) (string, string) {
 // ---------- Routes ----------
 
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	api := router.Group("/api/v1/audit")
 	{
-		api.GET("/status", s.getStatus)
+		api.GET("/status", rp("audit", "list"), s.getStatus)
 		// Audit logs
-		api.GET("/logs", s.listLogs)
-		api.GET("/logs/verify", s.verifyChain)
-		api.GET("/logs/stats", s.logStats)
+		api.GET("/logs", rp("audit", "list"), s.listLogs)
+		api.GET("/logs/verify", rp("audit", "list"), s.verifyChain)
+		api.GET("/logs/stats", rp("audit", "get"), s.logStats)
 		// Policies
-		api.GET("/policies", s.listPolicies)
-		api.POST("/policies", s.createPolicy)
-		api.PUT("/policies/:id", s.updatePolicy)
-		api.DELETE("/policies/:id", s.deletePolicy)
+		api.GET("/policies", rp("audit", "list"), s.listPolicies)
+		api.POST("/policies", rp("audit", "create"), s.createPolicy)
+		api.PUT("/policies/:id", rp("audit", "update"), s.updatePolicy)
+		api.DELETE("/policies/:id", rp("audit", "delete"), s.deletePolicy)
 		// Compliance
-		api.GET("/compliance/frameworks", s.listFrameworks)
-		api.GET("/compliance/frameworks/:id/controls", s.listControls)
-		api.POST("/compliance/assess", s.assess)
-		api.POST("/compliance/assess/:frameworkId", s.assessFramework)
+		api.GET("/compliance/frameworks", rp("audit", "list"), s.listFrameworks)
+		api.GET("/compliance/frameworks/:id/controls", rp("audit", "get"), s.listControls)
+		api.POST("/compliance/assess", rp("audit", "create"), s.assess)
+		api.POST("/compliance/assess/:frameworkId", rp("audit", "create"), s.assessFramework)
 		// Reports
-		api.GET("/reports", s.listReports)
-		api.POST("/reports", s.generateReport)
-		api.GET("/reports/:id", s.getReport)
+		api.GET("/reports", rp("audit", "list"), s.listReports)
+		api.POST("/reports", rp("audit", "create"), s.generateReport)
+		api.GET("/reports/:id", rp("audit", "get"), s.getReport)
 	}
 }
 

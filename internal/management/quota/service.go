@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -83,13 +85,14 @@ func NewService(cfg Config) (*Service, error) {
 
 // SetupRoutes registers HTTP routes for the quota service.
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	api := router.Group("/api/v1/quotas")
-	api.GET("/tenants/:tenant_id", s.getQuota)
-	api.PUT("/tenants/:tenant_id", s.updateQuota)
-	api.DELETE("/tenants/:tenant_id", s.resetQuota)
-	api.GET("/tenants/:tenant_id/usage", s.getUsage)
-	api.GET("/defaults", s.getDefaults)
-	api.PUT("/defaults", s.updateDefaults)
+	api.GET("/tenants/:tenant_id", rp("quota", "get"), s.getQuota)
+	api.PUT("/tenants/:tenant_id", rp("quota", "update"), s.updateQuota)
+	api.DELETE("/tenants/:tenant_id", rp("quota", "delete"), s.resetQuota)
+	api.GET("/tenants/:tenant_id/usage", rp("quota", "get"), s.getUsage)
+	api.GET("/defaults", rp("quota", "list"), s.getDefaults)
+	api.PUT("/defaults", rp("quota", "update"), s.updateDefaults)
 }
 
 // getQuota retrieves quota for a tenant.

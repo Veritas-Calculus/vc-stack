@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -119,21 +121,22 @@ func (s *Service) seedDefaults() {
 // ---------- Routes ----------
 
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	api := router.Group("/api/v1/eventbus")
 	{
-		api.GET("/status", s.getStatus)
-		api.GET("/topics", s.listTopics)
-		api.POST("/topics", s.createTopic)
-		api.DELETE("/topics/:id", s.deleteTopic)
-		api.GET("/topics/:id/events", s.listTopicEvents)
-		api.GET("/subscriptions", s.listSubscriptions)
-		api.POST("/subscriptions", s.createSubscription)
-		api.PUT("/subscriptions/:id/pause", s.pauseSubscription)
-		api.PUT("/subscriptions/:id/resume", s.resumeSubscription)
-		api.DELETE("/subscriptions/:id", s.deleteSubscription)
-		api.POST("/publish", s.publishEvent)
-		api.GET("/events", s.listEvents)
-		api.POST("/replay", s.replayEvents)
+		api.GET("/status", rp("eventbus", "list"), s.getStatus)
+		api.GET("/topics", rp("eventbus", "list"), s.listTopics)
+		api.POST("/topics", rp("eventbus", "create"), s.createTopic)
+		api.DELETE("/topics/:id", rp("eventbus", "delete"), s.deleteTopic)
+		api.GET("/topics/:id/events", rp("eventbus", "get"), s.listTopicEvents)
+		api.GET("/subscriptions", rp("eventbus", "list"), s.listSubscriptions)
+		api.POST("/subscriptions", rp("eventbus", "create"), s.createSubscription)
+		api.PUT("/subscriptions/:id/pause", rp("eventbus", "update"), s.pauseSubscription)
+		api.PUT("/subscriptions/:id/resume", rp("eventbus", "update"), s.resumeSubscription)
+		api.DELETE("/subscriptions/:id", rp("eventbus", "delete"), s.deleteSubscription)
+		api.POST("/publish", rp("eventbus", "create"), s.publishEvent)
+		api.GET("/events", rp("eventbus", "list"), s.listEvents)
+		api.POST("/replay", rp("eventbus", "create"), s.replayEvents)
 	}
 }
 

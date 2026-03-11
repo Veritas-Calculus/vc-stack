@@ -19,6 +19,7 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	apierrors "github.com/Veritas-Calculus/vc-stack/pkg/errors"
 )
 
@@ -296,38 +297,39 @@ func NewService(cfg Config) (*Service, error) {
 
 // SetupRoutes registers API endpoints.
 func (s *Service) SetupRoutes(rg *gin.RouterGroup) {
+	rp := middleware.RequirePermission
 	os := rg.Group("/object-storage")
 	{
 		// Bucket management.
-		os.GET("/buckets", s.listBuckets)
-		os.POST("/buckets", s.createBucket)
-		os.GET("/buckets/:bucket_id", s.getBucket)
-		os.PUT("/buckets/:bucket_id", s.updateBucket)
-		os.DELETE("/buckets/:bucket_id", s.deleteBucket)
+		os.GET("/buckets", rp("storage", "list"), s.listBuckets)
+		os.POST("/buckets", rp("storage", "create"), s.createBucket)
+		os.GET("/buckets/:bucket_id", rp("storage", "get"), s.getBucket)
+		os.PUT("/buckets/:bucket_id", rp("storage", "update"), s.updateBucket)
+		os.DELETE("/buckets/:bucket_id", rp("storage", "delete"), s.deleteBucket)
 
 		// Bucket policy.
-		os.GET("/buckets/:bucket_id/policy", s.getBucketPolicy)
-		os.PUT("/buckets/:bucket_id/policy", s.setBucketPolicy)
-		os.DELETE("/buckets/:bucket_id/policy", s.deleteBucketPolicy)
+		os.GET("/buckets/:bucket_id/policy", rp("storage", "get"), s.getBucketPolicy)
+		os.PUT("/buckets/:bucket_id/policy", rp("storage", "update"), s.setBucketPolicy)
+		os.DELETE("/buckets/:bucket_id/policy", rp("storage", "delete"), s.deleteBucketPolicy)
 
 		// S3.1: Bucket lifecycle.
-		os.GET("/buckets/:bucket_id/lifecycle", s.getBucketLifecycle)
-		os.PUT("/buckets/:bucket_id/lifecycle", s.setBucketLifecycle)
-		os.DELETE("/buckets/:bucket_id/lifecycle", s.deleteBucketLifecycle)
+		os.GET("/buckets/:bucket_id/lifecycle", rp("storage", "get"), s.getBucketLifecycle)
+		os.PUT("/buckets/:bucket_id/lifecycle", rp("storage", "update"), s.setBucketLifecycle)
+		os.DELETE("/buckets/:bucket_id/lifecycle", rp("storage", "delete"), s.deleteBucketLifecycle)
 
 		// S3.3: Object Lock / WORM.
-		os.GET("/buckets/:bucket_id/object-lock", s.getBucketObjectLock)
-		os.PUT("/buckets/:bucket_id/object-lock", s.setBucketObjectLock)
+		os.GET("/buckets/:bucket_id/object-lock", rp("storage", "get"), s.getBucketObjectLock)
+		os.PUT("/buckets/:bucket_id/object-lock", rp("storage", "update"), s.setBucketObjectLock)
 
 		// S3 credentials management.
-		os.GET("/credentials", s.listCredentials)
-		os.POST("/credentials", s.createCredential)
-		os.DELETE("/credentials/:cred_id", s.deleteCredential)
+		os.GET("/credentials", rp("storage", "list"), s.listCredentials)
+		os.POST("/credentials", rp("storage", "create"), s.createCredential)
+		os.DELETE("/credentials/:cred_id", rp("storage", "delete"), s.deleteCredential)
 
 		// Usage / statistics.
-		os.GET("/usage", s.getUsage)
-		os.GET("/stats", s.getStats)
-		os.GET("/stats/top-buckets", s.getBucketTopN) // S3.2
+		os.GET("/usage", rp("storage", "list"), s.getUsage)
+		os.GET("/stats", rp("storage", "get"), s.getStats)
+		os.GET("/stats/top-buckets", rp("storage", "get"), s.getBucketTopN) // S3.2
 	}
 }
 

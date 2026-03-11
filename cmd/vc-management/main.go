@@ -41,6 +41,7 @@ import (
 	"github.com/Veritas-Calculus/vc-stack/internal/management/compute"
 	"github.com/Veritas-Calculus/vc-stack/pkg/appconfig"
 	"github.com/Veritas-Calculus/vc-stack/pkg/database"
+	_ "github.com/Veritas-Calculus/vc-stack/pkg/iam" // Register IAM permission mappings
 	"github.com/Veritas-Calculus/vc-stack/pkg/logger"
 	pkgsentry "github.com/Veritas-Calculus/vc-stack/pkg/sentry"
 	"github.com/Veritas-Calculus/vc-stack/pkg/telemetry"

@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -81,17 +83,18 @@ func (s *Service) seedRoot() {
 
 // SetupRoutes registers HTTP routes for the domain service.
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	if s == nil {
 		return
 	}
 	api := router.Group("/api/v1/domains")
 	{
-		api.GET("", s.listDomains)
-		api.GET("/tree", s.getDomainTree)
-		api.GET("/:id", s.getDomain)
-		api.POST("", s.createDomain)
-		api.PUT("/:id", s.updateDomain)
-		api.DELETE("/:id", s.deleteDomain)
+		api.GET("", rp("domain", "list"), s.listDomains)
+		api.GET("/tree", rp("domain", "list"), s.getDomainTree)
+		api.GET("/:id", rp("domain", "get"), s.getDomain)
+		api.POST("", rp("domain", "create"), s.createDomain)
+		api.PUT("/:id", rp("domain", "update"), s.updateDomain)
+		api.DELETE("/:id", rp("domain", "delete"), s.deleteDomain)
 	}
 }
 

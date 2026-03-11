@@ -8,6 +8,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 
@@ -65,69 +67,70 @@ func NewService(cfg Config) (*Service, error) {
 // These routes provide a dedicated /api/v1/storage/* namespace
 // for volume and snapshot operations.
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	api := router.Group("/api/v1/storage")
 	{
 		// Volume routes.
-		api.POST("/volumes", s.createVolumeEnhanced) // S1: enhanced create
-		api.GET("/volumes", s.listVolumes)
-		api.GET("/volumes/:id", s.getVolume)
-		api.DELETE("/volumes/:id", s.deleteVolume)
-		api.POST("/volumes/:id/resize", s.resizeVolume)
-		api.POST("/volumes/:id/extend", s.resizeVolume) // alias for resize
+		api.POST("/volumes", rp("storage", "create"), s.createVolumeEnhanced) // S1: enhanced create
+		api.GET("/volumes", rp("storage", "list"), s.listVolumes)
+		api.GET("/volumes/:id", rp("storage", "get"), s.getVolume)
+		api.DELETE("/volumes/:id", rp("storage", "delete"), s.deleteVolume)
+		api.POST("/volumes/:id/resize", rp("storage", "create"), s.resizeVolume)
+		api.POST("/volumes/:id/extend", rp("storage", "create"), s.resizeVolume) // alias for resize
 
 		// S1.4: Attach / Detach.
-		api.POST("/volumes/:id/attach", s.attachVolume)
-		api.POST("/volumes/:id/detach", s.detachVolume)
+		api.POST("/volumes/:id/attach", rp("storage", "create"), s.attachVolume)
+		api.POST("/volumes/:id/detach", rp("storage", "create"), s.detachVolume)
 
 		// S1.2/S2.3: Revert to snapshot.
-		api.POST("/volumes/:id/revert", s.revertToSnapshot)
+		api.POST("/volumes/:id/revert", rp("storage", "create"), s.revertToSnapshot)
 
 		// S2.2: Clone.
-		api.POST("/volumes/:id/clone", s.cloneVolume)
+		api.POST("/volumes/:id/clone", rp("storage", "create"), s.cloneVolume)
 
 		// Snapshot routes.
-		api.POST("/snapshots", s.createSnapshot)
-		api.GET("/snapshots", s.listSnapshots)
-		api.GET("/snapshots/:id", s.getSnapshot)
-		api.DELETE("/snapshots/:id", s.deleteSnapshot)
+		api.POST("/snapshots", rp("storage", "create"), s.createSnapshot)
+		api.GET("/snapshots", rp("storage", "list"), s.listSnapshots)
+		api.GET("/snapshots/:id", rp("storage", "get"), s.getSnapshot)
+		api.DELETE("/snapshots/:id", rp("storage", "delete"), s.deleteSnapshot)
 
 		// Storage pool info.
-		api.GET("/pools", s.listPools)
-		api.GET("/summary", s.getSummary)
+		api.GET("/pools", rp("storage", "list"), s.listPools)
+		api.GET("/summary", rp("storage", "get"), s.getSummary)
 
 		// S1.1: Disk Offering management.
-		api.GET("/disk-offerings", s.listDiskOfferings)
-		api.POST("/disk-offerings", s.createDiskOffering)
-		api.DELETE("/disk-offerings/:id", s.deleteDiskOffering)
+		api.GET("/disk-offerings", rp("storage", "list"), s.listDiskOfferings)
+		api.POST("/disk-offerings", rp("storage", "create"), s.createDiskOffering)
+		api.DELETE("/disk-offerings/:id", rp("storage", "delete"), s.deleteDiskOffering)
 
 		// S2.1: Volume Transfer.
-		api.GET("/transfers", s.listTransfers)
-		api.POST("/transfers", s.createTransfer)
-		api.POST("/transfers/:id/accept", s.acceptTransfer)
-		api.DELETE("/transfers/:id", s.cancelTransfer)
+		api.GET("/transfers", rp("storage", "list"), s.listTransfers)
+		api.POST("/transfers", rp("storage", "create"), s.createTransfer)
+		api.POST("/transfers/:id/accept", rp("storage", "create"), s.acceptTransfer)
+		api.DELETE("/transfers/:id", rp("storage", "delete"), s.cancelTransfer)
 
 		// S5.1: Shared Filesystems.
-		api.GET("/shared-fs", s.listSharedFS)
-		api.POST("/shared-fs", s.createSharedFS)
-		api.GET("/shared-fs/:id", s.getSharedFS)
-		api.DELETE("/shared-fs/:id", s.deleteSharedFS)
-		api.POST("/shared-fs/:id/exports", s.createExport)
-		api.DELETE("/shared-fs/:id/exports/:export_id", s.deleteExport)
+		api.GET("/shared-fs", rp("storage", "list"), s.listSharedFS)
+		api.POST("/shared-fs", rp("storage", "create"), s.createSharedFS)
+		api.GET("/shared-fs/:id", rp("storage", "get"), s.getSharedFS)
+		api.DELETE("/shared-fs/:id", rp("storage", "delete"), s.deleteSharedFS)
+		api.POST("/shared-fs/:id/exports", rp("storage", "create"), s.createExport)
+		api.DELETE("/shared-fs/:id/exports/:export_id", rp("storage", "delete"), s.deleteExport)
 
 		// S5.2: Storage Pool CRUD.
-		api.GET("/storage-pools", s.listStoragePools)
-		api.POST("/storage-pools", s.createStoragePool)
-		api.GET("/storage-pools/:id", s.getStoragePool)
-		api.PUT("/storage-pools/:id", s.updateStoragePool)
-		api.DELETE("/storage-pools/:id", s.deleteStoragePool)
+		api.GET("/storage-pools", rp("storage", "list"), s.listStoragePools)
+		api.POST("/storage-pools", rp("storage", "create"), s.createStoragePool)
+		api.GET("/storage-pools/:id", rp("storage", "get"), s.getStoragePool)
+		api.PUT("/storage-pools/:id", rp("storage", "update"), s.updateStoragePool)
+		api.DELETE("/storage-pools/:id", rp("storage", "delete"), s.deleteStoragePool)
 
 		// S5.3: Consistency Groups.
-		api.GET("/consistency-groups", s.listConsistencyGroups)
-		api.POST("/consistency-groups", s.createConsistencyGroup)
-		api.GET("/consistency-groups/:id", s.getConsistencyGroup)
-		api.DELETE("/consistency-groups/:id", s.deleteConsistencyGroup)
-		api.POST("/consistency-groups/:id/volumes", s.addVolumeToCG)
-		api.POST("/consistency-groups/:id/snapshot", s.createCGSnapshot)
+		api.GET("/consistency-groups", rp("storage", "list"), s.listConsistencyGroups)
+		api.POST("/consistency-groups", rp("storage", "create"), s.createConsistencyGroup)
+		api.GET("/consistency-groups/:id", rp("storage", "get"), s.getConsistencyGroup)
+		api.DELETE("/consistency-groups/:id", rp("storage", "delete"), s.deleteConsistencyGroup)
+		api.POST("/consistency-groups/:id/volumes", rp("storage", "create"), s.addVolumeToCG)
+		api.POST("/consistency-groups/:id/snapshot", rp("storage", "create"), s.createCGSnapshot)
 	}
 }
 

@@ -19,6 +19,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"go.uber.org/zap"
 	"golang.org/x/time/rate"
 	"gorm.io/gorm"
@@ -410,18 +412,19 @@ func (s *Service) logEvent(policy *RateLimitPolicy, clientIP, path, method, user
 
 // SetupRoutes registers rate limiting admin API.
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	g := router.Group("/api/v1/rate-limits")
 	{
-		g.GET("/status", s.getStatus)
-		g.GET("/policies", s.listPolicies)
-		g.POST("/policies", s.createPolicy)
-		g.GET("/policies/:id", s.getPolicy)
-		g.PUT("/policies/:id", s.updatePolicy)
-		g.DELETE("/policies/:id", s.deletePolicy)
-		g.GET("/events", s.listEvents)
-		g.GET("/events/stats", s.getEventStats)
-		g.GET("/adaptive", s.getAdaptive)
-		g.PUT("/adaptive", s.updateAdaptive)
+		g.GET("/status", rp("ratelimit", "list"), s.getStatus)
+		g.GET("/policies", rp("ratelimit", "list"), s.listPolicies)
+		g.POST("/policies", rp("ratelimit", "create"), s.createPolicy)
+		g.GET("/policies/:id", rp("ratelimit", "get"), s.getPolicy)
+		g.PUT("/policies/:id", rp("ratelimit", "update"), s.updatePolicy)
+		g.DELETE("/policies/:id", rp("ratelimit", "delete"), s.deletePolicy)
+		g.GET("/events", rp("ratelimit", "list"), s.listEvents)
+		g.GET("/events/stats", rp("ratelimit", "get"), s.getEventStats)
+		g.GET("/adaptive", rp("ratelimit", "list"), s.getAdaptive)
+		g.PUT("/adaptive", rp("ratelimit", "update"), s.updateAdaptive)
 	}
 }
 

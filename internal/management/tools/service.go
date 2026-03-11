@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -67,6 +69,7 @@ func NewService(cfg Config) (*Service, error) {
 
 // SetupRoutes registers HTTP routes.
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	if s == nil {
 		return
 	}
@@ -75,18 +78,18 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		// Comments
 		comments := api.Group("/comments")
 		{
-			comments.GET("", s.listComments)
-			comments.POST("", s.createComment)
-			comments.DELETE("/:id", s.deleteComment)
+			comments.GET("", rp("tools", "list"), s.listComments)
+			comments.POST("", rp("tools", "create"), s.createComment)
+			comments.DELETE("/:id", rp("tools", "delete"), s.deleteComment)
 		}
 		// Webhooks
 		webhooks := api.Group("/webhooks")
 		{
-			webhooks.GET("", s.listWebhooks)
-			webhooks.POST("", s.createWebhook)
-			webhooks.PUT("/:id", s.updateWebhook)
-			webhooks.DELETE("/:id", s.deleteWebhook)
-			webhooks.POST("/:id/test", s.testWebhook)
+			webhooks.GET("", rp("tools", "list"), s.listWebhooks)
+			webhooks.POST("", rp("tools", "create"), s.createWebhook)
+			webhooks.PUT("/:id", rp("tools", "update"), s.updateWebhook)
+			webhooks.DELETE("/:id", rp("tools", "delete"), s.deleteWebhook)
+			webhooks.POST("/:id/test", rp("tools", "create"), s.testWebhook)
 		}
 	}
 }

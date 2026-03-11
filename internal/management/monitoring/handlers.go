@@ -11,6 +11,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 )
 
 // MonitoringHandlers provides HTTP handlers for monitoring.
@@ -35,22 +37,23 @@ func NewMonitoringHandlers(mc *MetricsCollector, fg *FlameGraphGenerator, logger
 
 // SetupRoutes registers monitoring routes.
 func (h *MonitoringHandlers) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	api := router.Group("/api/v1/monitoring")
 	{
 		// Metrics endpoints.
-		api.GET("/metrics/component/:name", h.GetComponentMetrics)
-		api.GET("/metrics/system", h.GetSystemMetrics)
-		api.GET("/metrics/http", h.GetHTTPMetrics)
-		api.GET("/metrics/errors/:component", h.GetErrorMetrics)
+		api.GET("/metrics/component/:name", rp("monitoring", "get"), h.GetComponentMetrics)
+		api.GET("/metrics/system", rp("monitoring", "get"), h.GetSystemMetrics)
+		api.GET("/metrics/http", rp("monitoring", "get"), h.GetHTTPMetrics)
+		api.GET("/metrics/errors/:component", rp("monitoring", "get"), h.GetErrorMetrics)
 
 		// Flamegraph endpoints.
-		api.POST("/flamegraph/cpu", h.GenerateCPUFlameGraph)
-		api.POST("/flamegraph/heap", h.GenerateHeapFlameGraph)
-		api.POST("/flamegraph/goroutine", h.GenerateGoroutineFlameGraph)
-		api.GET("/flamegraph/:filename", h.GetFlameGraph)
+		api.POST("/flamegraph/cpu", rp("monitoring", "create"), h.GenerateCPUFlameGraph)
+		api.POST("/flamegraph/heap", rp("monitoring", "create"), h.GenerateHeapFlameGraph)
+		api.POST("/flamegraph/goroutine", rp("monitoring", "create"), h.GenerateGoroutineFlameGraph)
+		api.GET("/flamegraph/:filename", rp("monitoring", "get"), h.GetFlameGraph)
 
 		// Profiling data.
-		api.GET("/profile/analyze", h.AnalyzePerformance)
+		api.GET("/profile/analyze", rp("monitoring", "get"), h.AnalyzePerformance)
 	}
 }
 

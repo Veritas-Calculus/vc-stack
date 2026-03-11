@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -108,6 +110,7 @@ func NewService(cfg Config) (*Service, error) {
 
 // SetupRoutes registers VPN HTTP routes.
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	if s == nil {
 		return
 	}
@@ -115,28 +118,28 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	{
 		gw := api.Group("/vpn-gateways")
 		{
-			gw.GET("", s.listGateways)
-			gw.POST("", s.createGateway)
-			gw.DELETE("/:id", s.deleteGateway)
+			gw.GET("", rp("vpn", "list"), s.listGateways)
+			gw.POST("", rp("vpn", "create"), s.createGateway)
+			gw.DELETE("/:id", rp("vpn", "delete"), s.deleteGateway)
 		}
 		cg := api.Group("/vpn-customer-gateways")
 		{
-			cg.GET("", s.listCustomerGateways)
-			cg.POST("", s.createCustomerGateway)
-			cg.DELETE("/:id", s.deleteCustomerGateway)
+			cg.GET("", rp("vpn", "list"), s.listCustomerGateways)
+			cg.POST("", rp("vpn", "create"), s.createCustomerGateway)
+			cg.DELETE("/:id", rp("vpn", "delete"), s.deleteCustomerGateway)
 		}
 		conn := api.Group("/vpn-connections")
 		{
-			conn.GET("", s.listConnections)
-			conn.POST("", s.createConnection)
-			conn.POST("/:id/reset", s.resetConnection)
-			conn.DELETE("/:id", s.deleteConnection)
+			conn.GET("", rp("vpn", "list"), s.listConnections)
+			conn.POST("", rp("vpn", "create"), s.createConnection)
+			conn.POST("/:id/reset", rp("vpn", "create"), s.resetConnection)
+			conn.DELETE("/:id", rp("vpn", "delete"), s.deleteConnection)
 		}
 		users := api.Group("/vpn-users")
 		{
-			users.GET("", s.listUsers)
-			users.POST("", s.createUser)
-			users.DELETE("/:id", s.deleteUser)
+			users.GET("", rp("vpn", "list"), s.listUsers)
+			users.POST("", rp("vpn", "create"), s.createUser)
+			users.DELETE("/:id", rp("vpn", "delete"), s.deleteUser)
 		}
 	}
 }

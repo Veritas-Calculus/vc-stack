@@ -9,6 +9,8 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 
@@ -95,26 +97,27 @@ func NewService(cfg Config) (*Service, error) {
 }
 
 func (s *Service) SetupRoutes(r *gin.Engine) {
+	rp := middleware.RequirePermission
 	// Health check under scheduler prefix to avoid conflicts
 	r.GET("/api/scheduler/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "healthy", "service": "vc-scheduler"})
 	})
 	v1 := r.Group("/api/v1")
 	{
-		v1.POST("/schedule", s.schedule)
-		v1.POST("/dispatch/vms", s.dispatchVMCreate)
+		v1.POST("/schedule", rp("scheduler", "create"), s.schedule)
+		v1.POST("/dispatch/vms", rp("scheduler", "create"), s.dispatchVMCreate)
 
 		// Zone capacity and scheduling APIs.
-		v1.GET("/scheduler/zones", s.listZoneCapacities)
-		v1.GET("/scheduler/zones/:zone_id", s.getZoneCapacity)
-		v1.GET("/scheduler/stats", s.schedulerStats)
+		v1.GET("/scheduler/zones", rp("scheduler", "list"), s.listZoneCapacities)
+		v1.GET("/scheduler/zones/:zone_id", rp("scheduler", "get"), s.getZoneCapacity)
+		v1.GET("/scheduler/stats", rp("scheduler", "get"), s.schedulerStats)
 
 		// Legacy /nodes endpoints — delegate to hosts table.
-		v1.POST("/nodes/register", s.legacyRegisterNode)
-		v1.POST("/nodes/heartbeat", s.legacyHeartbeat)
-		v1.GET("/nodes", s.listNodes)
-		v1.GET("/nodes/:id", s.getNode)
-		v1.DELETE("/nodes/:id", s.deleteNode)
+		v1.POST("/nodes/register", rp("scheduler", "create"), s.legacyRegisterNode)
+		v1.POST("/nodes/heartbeat", rp("scheduler", "create"), s.legacyHeartbeat)
+		v1.GET("/nodes", rp("scheduler", "list"), s.listNodes)
+		v1.GET("/nodes/:id", rp("scheduler", "get"), s.getNode)
+		v1.DELETE("/nodes/:id", rp("scheduler", "delete"), s.deleteNode)
 	}
 }
 

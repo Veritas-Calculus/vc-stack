@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -66,16 +68,17 @@ func NewService(cfg Config) (*Service, error) {
 
 // SetupRoutes registers HTTP routes for the config service.
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	if s == nil {
 		return
 	}
 	api := router.Group("/api/v1/settings")
 	{
-		api.GET("", s.listSettings)
-		api.GET("/:key", s.getSetting)
-		api.PUT("/:key", s.updateSetting)
-		api.POST("/reset/:key", s.resetSetting)
-		api.GET("/categories", s.listCategories)
+		api.GET("", rp("config", "list"), s.listSettings)
+		api.GET("/:key", rp("config", "get"), s.getSetting)
+		api.PUT("/:key", rp("config", "update"), s.updateSetting)
+		api.POST("/reset/:key", rp("config", "create"), s.resetSetting)
+		api.GET("/categories", rp("config", "list"), s.listCategories)
 	}
 }
 

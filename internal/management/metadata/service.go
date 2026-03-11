@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 
@@ -54,22 +56,23 @@ func NewService(cfg Config) (*Service, error) {
 
 // SetupRoutes registers HTTP routes for the metadata service.
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	// EC2-compatible metadata API.
 	meta := router.Group("/latest")
 	{
-		meta.GET("/meta-data", s.getMetadata)
-		meta.GET("/meta-data/:key", s.getMetadataKey)
-		meta.GET("/user-data", s.getUserData)
-		meta.GET("/vendor-data", s.getVendorData)
+		meta.GET("/meta-data", rp("metadata", "list"), s.getMetadata)
+		meta.GET("/meta-data/:key", rp("metadata", "get"), s.getMetadataKey)
+		meta.GET("/user-data", rp("metadata", "list"), s.getUserData)
+		meta.GET("/vendor-data", rp("metadata", "list"), s.getVendorData)
 	}
 
 	// OpenStack-compatible metadata API.
 	api := router.Group("/api/v1/metadata")
 	{
-		api.POST("/instances", s.createMetadata)
-		api.GET("/instances/:id", s.getInstanceMetadata)
-		api.PUT("/instances/:id", s.updateMetadata)
-		api.DELETE("/instances/:id", s.deleteMetadata)
+		api.POST("/instances", rp("metadata", "create"), s.createMetadata)
+		api.GET("/instances/:id", rp("metadata", "get"), s.getInstanceMetadata)
+		api.PUT("/instances/:id", rp("metadata", "update"), s.updateMetadata)
+		api.DELETE("/instances/:id", rp("metadata", "delete"), s.deleteMetadata)
 	}
 }
 

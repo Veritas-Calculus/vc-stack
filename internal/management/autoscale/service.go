@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -94,6 +96,7 @@ func NewService(cfg Config) (*Service, error) {
 
 // SetupRoutes registers autoscale HTTP routes.
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	if s == nil {
 		return
 	}
@@ -101,19 +104,19 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	{
 		groups := api.Group("/autoscale-groups")
 		{
-			groups.GET("", s.listGroups)
-			groups.POST("", s.createGroup)
-			groups.GET("/:id", s.getGroup)
-			groups.PUT("/:id", s.updateGroup)
-			groups.DELETE("/:id", s.deleteGroup)
+			groups.GET("", rp("autoscale", "list"), s.listGroups)
+			groups.POST("", rp("autoscale", "create"), s.createGroup)
+			groups.GET("/:id", rp("autoscale", "get"), s.getGroup)
+			groups.PUT("/:id", rp("autoscale", "update"), s.updateGroup)
+			groups.DELETE("/:id", rp("autoscale", "delete"), s.deleteGroup)
 			// Policies
-			groups.GET("/:id/policies", s.listPolicies)
-			groups.POST("/:id/policies", s.createPolicy)
-			groups.DELETE("/:id/policies/:policyId", s.deletePolicy)
+			groups.GET("/:id/policies", rp("autoscale", "get"), s.listPolicies)
+			groups.POST("/:id/policies", rp("autoscale", "create"), s.createPolicy)
+			groups.DELETE("/:id/policies/:policyId", rp("autoscale", "delete"), s.deletePolicy)
 			// Activity
-			groups.GET("/:id/activity", s.listActivity)
+			groups.GET("/:id/activity", rp("autoscale", "get"), s.listActivity)
 			// Manual scale
-			groups.POST("/:id/scale", s.manualScale)
+			groups.POST("/:id/scale", rp("autoscale", "create"), s.manualScale)
 		}
 	}
 }

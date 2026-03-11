@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -200,28 +202,29 @@ func (s *Service) seedDefaults() {
 // ---------- Routes ----------
 
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	api := router.Group("/api/v1/baremetal")
 	{
-		api.GET("/status", s.getStatus)
+		api.GET("/status", rp("baremetal", "list"), s.getStatus)
 		// Servers
-		api.GET("/servers", s.listServers)
-		api.POST("/servers", s.createServer)
-		api.GET("/servers/:id", s.getServer)
-		api.PUT("/servers/:id", s.updateServer)
-		api.DELETE("/servers/:id", s.deleteServer)
+		api.GET("/servers", rp("baremetal", "list"), s.listServers)
+		api.POST("/servers", rp("baremetal", "create"), s.createServer)
+		api.GET("/servers/:id", rp("baremetal", "get"), s.getServer)
+		api.PUT("/servers/:id", rp("baremetal", "update"), s.updateServer)
+		api.DELETE("/servers/:id", rp("baremetal", "delete"), s.deleteServer)
 		// IPMI power actions
-		api.POST("/servers/:id/power", s.powerAction)
-		api.GET("/servers/:id/ipmi-log", s.getIPMILog)
+		api.POST("/servers/:id/power", rp("baremetal", "create"), s.powerAction)
+		api.GET("/servers/:id/ipmi-log", rp("baremetal", "get"), s.getIPMILog)
 		// Provisioning
-		api.POST("/servers/:id/provision", s.provisionServer)
-		api.GET("/servers/:id/provision-status", s.getProvisionStatus)
+		api.POST("/servers/:id/provision", rp("baremetal", "create"), s.provisionServer)
+		api.GET("/servers/:id/provision-status", rp("baremetal", "get"), s.getProvisionStatus)
 		// OS Profiles
-		api.GET("/profiles", s.listProfiles)
-		api.POST("/profiles", s.createProfile)
-		api.PUT("/profiles/:id", s.updateProfile)
-		api.DELETE("/profiles/:id", s.deleteProfile)
+		api.GET("/profiles", rp("baremetal", "list"), s.listProfiles)
+		api.POST("/profiles", rp("baremetal", "create"), s.createProfile)
+		api.PUT("/profiles/:id", rp("baremetal", "update"), s.updateProfile)
+		api.DELETE("/profiles/:id", rp("baremetal", "delete"), s.deleteProfile)
 		// Provisions history
-		api.GET("/provisions", s.listProvisions)
+		api.GET("/provisions", rp("baremetal", "list"), s.listProvisions)
 	}
 }
 

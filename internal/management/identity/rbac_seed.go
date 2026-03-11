@@ -2,115 +2,25 @@ package identity
 
 import (
 	"go.uber.org/zap"
+
+	"github.com/Veritas-Calculus/vc-stack/pkg/iam"
 )
 
-// defaultPermissions defines the standard VC Stack permissions.
-// Format: resource:action → description.
-var defaultPermissions = []struct {
+// defaultPermissions is now built from the centralized iam.Registry() plus
+// HPC-specific permissions that are not yet in the registry.
+// The old "resource:action" format remains the source of truth until full migration.
+var defaultPermissions []struct {
+	Resource    string
+	Action      string
+	Description string
+}
+
+// hpcPermissions are HPC-specific and not in the generic iam.Registry().
+var hpcPermissions = []struct {
 	Resource    string
 	Action      string
 	Description string
 }{
-	// Compute
-	{"compute", "list", "List instances"},
-	{"compute", "get", "View instance details"},
-	{"compute", "create", "Create instances"},
-	{"compute", "update", "Update instances"},
-	{"compute", "delete", "Delete instances"},
-	{"compute", "start", "Start instances"},
-	{"compute", "stop", "Stop instances"},
-	{"compute", "reboot", "Reboot instances"},
-	{"compute", "console", "Access instance console"},
-	// Flavors
-	{"flavor", "list", "List flavors"},
-	{"flavor", "create", "Create flavors"},
-	{"flavor", "delete", "Delete flavors"},
-	// Images
-	{"image", "list", "List images"},
-	{"image", "get", "View image details"},
-	{"image", "create", "Upload images"},
-	{"image", "delete", "Delete images"},
-	// Storage
-	{"volume", "list", "List volumes"},
-	{"volume", "get", "View volume details"},
-	{"volume", "create", "Create volumes"},
-	{"volume", "update", "Update volumes"},
-	{"volume", "delete", "Delete volumes"},
-	{"volume", "attach", "Attach volumes"},
-	{"volume", "detach", "Detach volumes"},
-	{"snapshot", "list", "List snapshots"},
-	{"snapshot", "create", "Create snapshots"},
-	{"snapshot", "delete", "Delete snapshots"},
-	// Network
-	{"network", "list", "List networks"},
-	{"network", "get", "View network details"},
-	{"network", "create", "Create networks"},
-	{"network", "update", "Update networks"},
-	{"network", "delete", "Delete networks"},
-	{"security_group", "list", "List security groups"},
-	{"security_group", "create", "Create security groups"},
-	{"security_group", "update", "Update security group rules"},
-	{"security_group", "delete", "Delete security groups"},
-	{"floating_ip", "list", "List floating IPs"},
-	{"floating_ip", "create", "Allocate floating IPs"},
-	{"floating_ip", "delete", "Release floating IPs"},
-	{"router", "list", "List routers"},
-	{"router", "create", "Create routers"},
-	{"router", "update", "Update routers"},
-	{"router", "delete", "Delete routers"},
-	// DNS
-	{"dns_zone", "list", "List DNS zones"},
-	{"dns_zone", "create", "Create DNS zones"},
-	{"dns_zone", "update", "Update DNS zones"},
-	{"dns_zone", "delete", "Delete DNS zones"},
-	{"dns_record", "list", "List DNS records"},
-	{"dns_record", "create", "Create DNS records"},
-	{"dns_record", "update", "Update DNS records"},
-	{"dns_record", "delete", "Delete DNS records"},
-	// Object Storage
-	{"bucket", "list", "List buckets"},
-	{"bucket", "create", "Create buckets"},
-	{"bucket", "update", "Update bucket settings"},
-	{"bucket", "delete", "Delete buckets"},
-	{"s3_credential", "list", "List S3 credentials"},
-	{"s3_credential", "create", "Create S3 credentials"},
-	{"s3_credential", "delete", "Revoke S3 credentials"},
-	// Orchestration
-	{"stack", "list", "List stacks"},
-	{"stack", "get", "View stack details"},
-	{"stack", "create", "Create stacks"},
-	{"stack", "update", "Update stacks"},
-	{"stack", "delete", "Delete stacks"},
-	{"template", "list", "List templates"},
-	{"template", "create", "Create templates"},
-	{"template", "delete", "Delete templates"},
-	// IAM
-	{"user", "list", "List users"},
-	{"user", "get", "View user details"},
-	{"user", "create", "Create users"},
-	{"user", "update", "Update users"},
-	{"user", "delete", "Delete users"},
-	{"role", "list", "List roles"},
-	{"role", "create", "Create roles"},
-	{"role", "update", "Update roles"},
-	{"role", "delete", "Delete roles"},
-	{"project", "list", "List projects"},
-	{"project", "create", "Create projects"},
-	{"project", "delete", "Delete projects"},
-	{"policy", "list", "List policies"},
-	{"policy", "create", "Create policies"},
-	{"policy", "update", "Update policies"},
-	{"policy", "delete", "Delete policies"},
-	// Infrastructure
-	{"host", "list", "List hosts"},
-	{"host", "create", "Register hosts"},
-	{"host", "update", "Update host configuration"},
-	{"host", "delete", "Deregister hosts"},
-	{"host", "maintenance", "Toggle host maintenance mode"},
-	{"cluster", "list", "List clusters"},
-	{"cluster", "create", "Create clusters"},
-	{"cluster", "update", "Update clusters"},
-	{"cluster", "delete", "Delete clusters"},
 	// HPC Kubernetes Clusters
 	{"hpc_cluster", "list", "List HPC Kubernetes clusters"},
 	{"hpc_cluster", "get", "View HPC cluster details"},
@@ -145,6 +55,65 @@ var defaultPermissions = []struct {
 	{"slurm_user", "delete", "Remove Slurm user mappings"},
 	// HPC Monitoring
 	{"hpc_monitoring", "list", "View HPC metrics and dashboards"},
+	// CaaS (Kubernetes as a Service)
+	{"caas_cluster", "list", "List CaaS clusters"},
+	{"caas_cluster", "get", "View CaaS cluster details"},
+	{"caas_cluster", "create", "Create CaaS clusters"},
+	{"caas_cluster", "update", "Update CaaS clusters"},
+	{"caas_cluster", "delete", "Delete CaaS clusters"},
+	{"caas_cluster", "scale", "Scale CaaS cluster nodes"},
+	// Object Storage (legacy)
+	{"bucket", "list", "List buckets"},
+	{"bucket", "create", "Create buckets"},
+	{"bucket", "update", "Update bucket settings"},
+	{"bucket", "delete", "Delete buckets"},
+	{"s3_credential", "list", "List S3 credentials"},
+	{"s3_credential", "create", "Create S3 credentials"},
+	{"s3_credential", "delete", "Revoke S3 credentials"},
+	// Orchestration (legacy names)
+	{"stack", "list", "List stacks"},
+	{"stack", "get", "View stack details"},
+	{"stack", "create", "Create stacks"},
+	{"stack", "update", "Update stacks"},
+	{"stack", "delete", "Delete stacks"},
+	{"template", "list", "List templates"},
+	{"template", "create", "Create templates"},
+	{"template", "delete", "Delete templates"},
+}
+
+func init() {
+	// Build defaultPermissions from the centralized iam.Registry.
+	type perm = struct {
+		Resource    string
+		Action      string
+		Description string
+	}
+
+	// Deduplicate using a set.
+	seen := map[string]bool{}
+	var perms []perm
+
+	// 1. Add all permissions from the centralized registry.
+	for _, m := range iam.Registry() {
+		key := m.Resource + ":" + m.Action
+		if seen[key] {
+			continue
+		}
+		seen[key] = true
+		perms = append(perms, perm{m.Resource, m.Action, m.Description})
+	}
+
+	// 2. Add HPC and other non-registry permissions.
+	for _, hp := range hpcPermissions {
+		key := hp.Resource + ":" + hp.Action
+		if seen[key] {
+			continue
+		}
+		seen[key] = true
+		perms = append(perms, perm{hp.Resource, hp.Action, hp.Description})
+	}
+
+	defaultPermissions = perms
 }
 
 // defaultRoles defines the 4 system roles and their permission sets.
@@ -187,8 +156,13 @@ var memberExcludedResources = map[string]bool{
 }
 
 // seedDefaultPermissions creates the standard permissions if they don't exist.
+// It seeds both the legacy "resource:action" format and the new "vc:service:Action" format
+// (dual-write strategy for gradual migration).
 func (s *Service) seedDefaultPermissions() {
+	legacyToNew := iam.LegacyToNew()
+
 	for _, dp := range defaultPermissions {
+		// 1. Seed legacy format (resource:action) — always.
 		name := dp.Resource + ":" + dp.Action
 		var count int64
 		s.db.Model(&Permission{}).Where("name = ?", name).Count(&count)
@@ -201,6 +175,23 @@ func (s *Service) seedDefaultPermissions() {
 			}
 			if err := s.db.Create(perm).Error; err != nil {
 				s.logger.Warn("Failed to seed permission", zap.String("name", name), zap.Error(err))
+			}
+		}
+
+		// 2. Seed new format (vc:service:Action) — if mapping exists.
+		if newName, ok := legacyToNew[name]; ok {
+			var newCount int64
+			s.db.Model(&Permission{}).Where("name = ?", newName).Count(&newCount)
+			if newCount == 0 {
+				perm := &Permission{
+					Name:        newName,
+					Resource:    dp.Resource,
+					Action:      dp.Action,
+					Description: dp.Description + " [v2]",
+				}
+				if err := s.db.Create(perm).Error; err != nil {
+					s.logger.Warn("Failed to seed v2 permission", zap.String("name", newName), zap.Error(err))
+				}
 			}
 		}
 	}

@@ -16,6 +16,7 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	apierrors "github.com/Veritas-Calculus/vc-stack/pkg/errors"
 )
 
@@ -155,32 +156,33 @@ func NewService(cfg Config) (*Service, error) {
 }
 
 func (s *Service) SetupRoutes(rg *gin.RouterGroup) {
+	rp := middleware.RequirePermission
 	dns := rg.Group("/dns")
 	{
 		// Zone management (Designate-compatible).
-		dns.GET("/zones", s.listZones)
-		dns.POST("/zones", s.createZone)
-		dns.GET("/zones/:zone_id", s.getZone)
-		dns.PUT("/zones/:zone_id", s.updateZone)
-		dns.PATCH("/zones/:zone_id", s.updateZone) // Designate uses PATCH
-		dns.DELETE("/zones/:zone_id", s.deleteZone)
+		dns.GET("/zones", rp("dns_zone", "list"), s.listZones)
+		dns.POST("/zones", rp("dns_zone", "create"), s.createZone)
+		dns.GET("/zones/:zone_id", rp("dns_zone", "get"), s.getZone)
+		dns.PUT("/zones/:zone_id", rp("dns_zone", "update"), s.updateZone)
+		dns.PATCH("/zones/:zone_id", rp("dns_zone", "update"), s.updateZone) // Designate uses PATCH
+		dns.DELETE("/zones/:zone_id", rp("dns_zone", "delete"), s.deleteZone)
 
 		// RecordSet management within a zone (Designate-compatible).
-		dns.GET("/zones/:zone_id/recordsets", s.listRecordSets)
-		dns.POST("/zones/:zone_id/recordsets", s.createRecordSet)
-		dns.GET("/zones/:zone_id/recordsets/:rs_id", s.getRecordSet)
-		dns.PUT("/zones/:zone_id/recordsets/:rs_id", s.updateRecordSet)
-		dns.DELETE("/zones/:zone_id/recordsets/:rs_id", s.deleteRecordSet)
+		dns.GET("/zones/:zone_id/recordsets", rp("dns_record", "list"), s.listRecordSets)
+		dns.POST("/zones/:zone_id/recordsets", rp("dns_record", "create"), s.createRecordSet)
+		dns.GET("/zones/:zone_id/recordsets/:rs_id", rp("dns_record", "get"), s.getRecordSet)
+		dns.PUT("/zones/:zone_id/recordsets/:rs_id", rp("dns_record", "update"), s.updateRecordSet)
+		dns.DELETE("/zones/:zone_id/recordsets/:rs_id", rp("dns_record", "delete"), s.deleteRecordSet)
 
 		// Cross-zone record search (Designate-compatible).
-		dns.GET("/recordsets", s.searchRecordSets)
+		dns.GET("/recordsets", rp("dns_record", "list"), s.searchRecordSets)
 
 		// Bulk operations.
-		dns.POST("/zones/:zone_id/import", s.importRecords)
-		dns.GET("/zones/:zone_id/export", s.exportZone)
+		dns.POST("/zones/:zone_id/import", rp("dns_record", "create"), s.importRecords)
+		dns.GET("/zones/:zone_id/export", rp("dns_zone", "get"), s.exportZone)
 
 		// Reverse DNS.
-		dns.GET("/reverse/floatingips", s.listReverseDNS)
+		dns.GET("/reverse/floatingips", rp("dns_record", "list"), s.listReverseDNS)
 	}
 }
 

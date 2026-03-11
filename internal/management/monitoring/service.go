@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -112,6 +114,7 @@ func NewService(cfg Config) (*Service, error) {
 
 // SetupRoutes registers HTTP routes for the monitoring service.
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	// Add metrics middleware if collector is available.
 	if s.metricsCollector != nil {
 		router.Use(MetricsMiddleware(s.metricsCollector))
@@ -119,23 +122,23 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 
 	health := router.Group("/health")
 	{
-		health.GET("", s.healthCheck)
-		health.GET("/liveness", s.livenessProbe)
-		health.GET("/readiness", s.readinessProbe)
-		health.GET("/details", s.healthDetails)
+		health.GET("", rp("monitoring", "list"), s.healthCheck)
+		health.GET("/liveness", rp("monitoring", "list"), s.livenessProbe)
+		health.GET("/readiness", rp("monitoring", "list"), s.readinessProbe)
+		health.GET("/details", rp("monitoring", "list"), s.healthDetails)
 	}
 
 	// Prometheus-compatible metrics endpoint.
-	router.GET("/metrics", s.prometheusMetrics)
-	router.GET("/metrics/system", s.systemMetricsJSON)
+	router.GET("/metrics", rp("monitoring", "list"), s.prometheusMetrics)
+	router.GET("/metrics/system", rp("monitoring", "list"), s.systemMetricsJSON)
 
 	api := router.Group("/api/v1/monitoring")
 	{
-		api.GET("/status", s.componentStatus)
+		api.GET("/status", rp("monitoring", "list"), s.componentStatus)
 	}
 
 	// Dashboard summary endpoint — aggregates counts and usage across all services.
-	router.GET("/api/v1/dashboard/summary", s.dashboardSummary)
+	router.GET("/api/v1/dashboard/summary", rp("monitoring", "get"), s.dashboardSummary)
 
 	// Setup additional monitoring routes if handlers are available.
 	if s.handlers != nil {

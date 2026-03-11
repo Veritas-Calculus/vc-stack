@@ -16,6 +16,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -208,33 +210,34 @@ func (s *Service) seedDefaultPolicy() {
 
 // SetupRoutes registers HA HTTP routes.
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	api := router.Group("/api/v1/ha")
 	{
 		// Dashboard / overview.
-		api.GET("/status", s.getHAStatus)
+		api.GET("/status", rp("ha", "list"), s.getHAStatus)
 
 		// HA policies.
-		api.GET("/policies", s.listPolicies)
-		api.POST("/policies", s.createPolicy)
-		api.GET("/policies/:id", s.getPolicy)
-		api.PUT("/policies/:id", s.updatePolicy)
-		api.DELETE("/policies/:id", s.deletePolicy)
+		api.GET("/policies", rp("ha", "list"), s.listPolicies)
+		api.POST("/policies", rp("ha", "create"), s.createPolicy)
+		api.GET("/policies/:id", rp("ha", "get"), s.getPolicy)
+		api.PUT("/policies/:id", rp("ha", "update"), s.updatePolicy)
+		api.DELETE("/policies/:id", rp("ha", "delete"), s.deletePolicy)
 
 		// Instance HA config.
-		api.GET("/instances", s.listProtectedInstances)
-		api.PUT("/instances/:id", s.updateInstanceHA)
-		api.POST("/instances/:id/enable", s.enableInstanceHA)
-		api.POST("/instances/:id/disable", s.disableInstanceHA)
+		api.GET("/instances", rp("ha", "list"), s.listProtectedInstances)
+		api.PUT("/instances/:id", rp("ha", "update"), s.updateInstanceHA)
+		api.POST("/instances/:id/enable", rp("ha", "create"), s.enableInstanceHA)
+		api.POST("/instances/:id/disable", rp("ha", "create"), s.disableInstanceHA)
 
 		// Evacuation.
-		api.GET("/evacuations", s.listEvacuations)
-		api.GET("/evacuations/:id", s.getEvacuation)
-		api.POST("/hosts/:id/evacuate", s.evacuateHostManual)
-		api.POST("/hosts/:id/fence", s.fenceHost)
-		api.POST("/hosts/:id/unfence", s.unfenceHost)
+		api.GET("/evacuations", rp("ha", "list"), s.listEvacuations)
+		api.GET("/evacuations/:id", rp("ha", "get"), s.getEvacuation)
+		api.POST("/hosts/:id/evacuate", rp("ha", "create"), s.evacuateHostManual)
+		api.POST("/hosts/:id/fence", rp("ha", "create"), s.fenceHost)
+		api.POST("/hosts/:id/unfence", rp("ha", "create"), s.unfenceHost)
 
 		// Fencing events.
-		api.GET("/fencing", s.listFencingEvents)
+		api.GET("/fencing", rp("ha", "list"), s.listFencingEvents)
 	}
 }
 

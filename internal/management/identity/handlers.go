@@ -126,6 +126,15 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 				policies.PUT("/:id", s.updatePolicyHandler)
 				policies.DELETE("/:id", s.deletePolicyHandler)
 			}
+
+			// Service Account management.
+			s.SetupServiceAccountRoutes(protected)
+
+			// IAM Groups & Permission Boundaries (P5).
+			s.SetupGroupRoutes(protected)
+
+			// Access Logging, Simulator, Analyzer (P6).
+			s.SetupAccessAnalyticsRoutes(protected)
 		}
 	}
 
@@ -182,7 +191,7 @@ func (s *Service) refreshHandler(c *gin.Context) {
 // logoutHandler handles user logout requests.
 func (s *Service) logoutHandler(c *gin.Context) {
 	var req struct {
-		RefreshToken string `json:"refresh_token" binding:"required"` // #nosec // This is a token, not a hardcoded secret
+		RefreshToken string `json:"refresh_token" binding:"required"` // #nosec
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {

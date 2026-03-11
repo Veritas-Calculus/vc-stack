@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -110,6 +112,7 @@ func (s *Service) seedDefaultTariffs() {
 
 // SetupRoutes registers HTTP routes.
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	if s == nil {
 		return
 	}
@@ -118,22 +121,22 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		// Usage records
 		usage := api.Group("/usage")
 		{
-			usage.GET("", s.listUsageRecords)
-			usage.GET("/summary", s.getUsageSummary)
+			usage.GET("", rp("usage", "list"), s.listUsageRecords)
+			usage.GET("/summary", rp("usage", "get"), s.getUsageSummary)
 		}
 		// Tariffs
 		tariffs := api.Group("/tariffs")
 		{
-			tariffs.GET("", s.listTariffs)
-			tariffs.POST("", s.createTariff)
-			tariffs.PUT("/:id", s.updateTariff)
-			tariffs.DELETE("/:id", s.deleteTariff)
+			tariffs.GET("", rp("usage", "list"), s.listTariffs)
+			tariffs.POST("", rp("usage", "create"), s.createTariff)
+			tariffs.PUT("/:id", rp("usage", "update"), s.updateTariff)
+			tariffs.DELETE("/:id", rp("usage", "delete"), s.deleteTariff)
 		}
 		// Quota / Billing summary
 		billing := api.Group("/billing")
 		{
-			billing.GET("/summary", s.listQuotaSummaries)
-			billing.POST("/credit", s.addCredit)
+			billing.GET("/summary", rp("usage", "get"), s.listQuotaSummaries)
+			billing.POST("/credit", rp("usage", "create"), s.addCredit)
 		}
 	}
 }

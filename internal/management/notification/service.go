@@ -12,6 +12,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -129,29 +131,30 @@ func NewService(cfg Config) (*Service, error) {
 
 // SetupRoutes registers HTTP routes for the notification service.
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	api := router.Group("/api/v1/notifications")
 	{
 		// Channel CRUD.
-		api.POST("/channels", s.createChannel)
-		api.GET("/channels", s.listChannels)
-		api.GET("/channels/:id", s.getChannel)
-		api.PUT("/channels/:id", s.updateChannel)
-		api.DELETE("/channels/:id", s.deleteChannel)
-		api.POST("/channels/:id/test", s.testChannel)
+		api.POST("/channels", rp("notification", "create"), s.createChannel)
+		api.GET("/channels", rp("notification", "list"), s.listChannels)
+		api.GET("/channels/:id", rp("notification", "get"), s.getChannel)
+		api.PUT("/channels/:id", rp("notification", "update"), s.updateChannel)
+		api.DELETE("/channels/:id", rp("notification", "delete"), s.deleteChannel)
+		api.POST("/channels/:id/test", rp("notification", "create"), s.testChannel)
 
 		// Subscription CRUD.
-		api.POST("/subscriptions", s.createSubscription)
-		api.GET("/subscriptions", s.listSubscriptions)
-		api.DELETE("/subscriptions/:id", s.deleteSubscription)
+		api.POST("/subscriptions", rp("notification", "create"), s.createSubscription)
+		api.GET("/subscriptions", rp("notification", "list"), s.listSubscriptions)
+		api.DELETE("/subscriptions/:id", rp("notification", "delete"), s.deleteSubscription)
 
 		// Log.
-		api.GET("/logs", s.listLogs)
+		api.GET("/logs", rp("notification", "list"), s.listLogs)
 
 		// Dead letter queue.
-		api.GET("/dead-letters", s.listDeadLetters)
-		api.POST("/dead-letters/:id/retry", s.retryDeadLetter)
-		api.DELETE("/dead-letters/:id", s.deleteDeadLetter)
-		api.DELETE("/dead-letters", s.purgeDeadLetters)
+		api.GET("/dead-letters", rp("notification", "list"), s.listDeadLetters)
+		api.POST("/dead-letters/:id/retry", rp("notification", "create"), s.retryDeadLetter)
+		api.DELETE("/dead-letters/:id", rp("notification", "delete"), s.deleteDeadLetter)
+		api.DELETE("/dead-letters", rp("notification", "delete"), s.purgeDeadLetters)
 	}
 }
 

@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -84,12 +86,13 @@ func NewService(cfg Config) (*Service, error) {
 
 // SetupRoutes registers HTTP routes for the event service.
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	api := router.Group("/api/v1/events")
-	api.POST("", s.createEvent)
-	api.GET("", s.listEvents)
-	api.GET("/:id", s.getEvent)
-	api.GET("/resource/:resource_type/:resource_id", s.getResourceEvents)
-	api.DELETE("/cleanup", s.manualCleanup)
+	api.POST("", rp("event", "create"), s.createEvent)
+	api.GET("", rp("event", "list"), s.listEvents)
+	api.GET("/:id", rp("event", "get"), s.getEvent)
+	api.GET("/resource/:resource_type/:resource_id", rp("event", "get"), s.getResourceEvents)
+	api.DELETE("/cleanup", rp("event", "delete"), s.manualCleanup)
 }
 
 // CreateEventRequest represents an event creation request.

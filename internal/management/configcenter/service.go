@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -136,18 +138,19 @@ func (s *Service) seedDefaults() {
 // ---------- Routes ----------
 
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	api := router.Group("/api/v1/config")
 	{
-		api.GET("/status", s.getStatus)
-		api.GET("/namespaces", s.listNamespaces)
-		api.POST("/namespaces", s.createNamespace)
-		api.GET("/namespaces/:name/items", s.listItems)
-		api.GET("/items/:id", s.getItem)
-		api.PUT("/items/:id", s.updateItem)
-		api.POST("/items", s.createItem)
-		api.DELETE("/items/:id", s.deleteItem)
-		api.GET("/history", s.listHistory)
-		api.GET("/export", s.exportConfig)
+		api.GET("/status", rp("configcenter", "list"), s.getStatus)
+		api.GET("/namespaces", rp("configcenter", "list"), s.listNamespaces)
+		api.POST("/namespaces", rp("configcenter", "create"), s.createNamespace)
+		api.GET("/namespaces/:name/items", rp("configcenter", "get"), s.listItems)
+		api.GET("/items/:id", rp("configcenter", "get"), s.getItem)
+		api.PUT("/items/:id", rp("configcenter", "update"), s.updateItem)
+		api.POST("/items", rp("configcenter", "create"), s.createItem)
+		api.DELETE("/items/:id", rp("configcenter", "delete"), s.deleteItem)
+		api.GET("/history", rp("configcenter", "list"), s.listHistory)
+		api.GET("/export", rp("configcenter", "list"), s.exportConfig)
 	}
 }
 

@@ -10,6 +10,8 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -90,16 +92,17 @@ func NewService(cfg Config) (*Service, error) {
 
 // SetupRoutes registers all HTTP routes for image management.
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	api := router.Group("/api/v1")
 	{
-		api.POST("/images", s.createImage)
-		api.GET("/images", s.listImages)
-		api.GET("/images/:id", s.getImage)
-		api.PUT("/images/:id", s.updateImage)
-		api.DELETE("/images/:id", s.deleteImage)
-		api.POST("/images/register", s.registerImage)
-		api.POST("/images/upload", s.uploadImage)
-		api.POST("/images/:id/import", s.importImage)
+		api.POST("/images", rp("image", "create"), s.createImage)
+		api.GET("/images", rp("image", "list"), s.listImages)
+		api.GET("/images/:id", rp("image", "get"), s.getImage)
+		api.PUT("/images/:id", rp("image", "update"), s.updateImage)
+		api.DELETE("/images/:id", rp("image", "delete"), s.deleteImage)
+		api.POST("/images/register", rp("image", "create"), s.registerImage)
+		api.POST("/images/upload", rp("image", "create"), s.uploadImage)
+		api.POST("/images/:id/import", rp("image", "create"), s.importImage)
 	}
 }
 

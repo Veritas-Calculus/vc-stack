@@ -14,6 +14,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -76,12 +78,13 @@ func NewService(cfg Config) (*Service, error) {
 
 // SetupRoutes registers HTTP routes for the task service.
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	api := router.Group("/api/v1")
 	{
-		api.GET("/tasks", s.listTasks)
-		api.GET("/tasks/:id", s.getTask)
-		api.POST("/tasks/:id/cancel", s.cancelTask)
-		api.DELETE("/tasks/:id", s.deleteTask)
+		api.GET("/tasks", rp("task", "list"), s.listTasks)
+		api.GET("/tasks/:id", rp("task", "get"), s.getTask)
+		api.POST("/tasks/:id/cancel", rp("task", "create"), s.cancelTask)
+		api.DELETE("/tasks/:id", rp("task", "delete"), s.deleteTask)
 	}
 }
 

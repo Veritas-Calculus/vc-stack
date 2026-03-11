@@ -10,6 +10,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -126,17 +128,18 @@ func (s *Service) seedDefaults() {
 // ---------- Routes ----------
 
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	api := router.Group("/api/v1/registry")
 	{
-		api.GET("/status", s.getStatus)
-		api.GET("/services", s.listServices)
-		api.GET("/services/:name", s.getService)
-		api.POST("/register", s.register)
-		api.DELETE("/deregister/:id", s.deregister)
-		api.PUT("/heartbeat/:id", s.heartbeat)
-		api.PUT("/instances/:id/drain", s.drain)
-		api.GET("/routes", s.listRoutes)
-		api.GET("/topology", s.getTopology)
+		api.GET("/status", rp("registry", "list"), s.getStatus)
+		api.GET("/services", rp("registry", "list"), s.listServices)
+		api.GET("/services/:name", rp("registry", "get"), s.getService)
+		api.POST("/register", rp("registry", "create"), s.register)
+		api.DELETE("/deregister/:id", rp("registry", "delete"), s.deregister)
+		api.PUT("/heartbeat/:id", rp("registry", "update"), s.heartbeat)
+		api.PUT("/instances/:id/drain", rp("registry", "update"), s.drain)
+		api.GET("/routes", rp("registry", "list"), s.listRoutes)
+		api.GET("/topology", rp("registry", "list"), s.getTopology)
 	}
 }
 

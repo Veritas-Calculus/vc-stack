@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -175,22 +177,23 @@ func (s *Service) seedDefaults() {
 // ---------- Routes ----------
 
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	api := router.Group("/api/v1/catalog")
 	{
-		api.GET("/status", s.getStatus)
-		api.GET("/categories", s.listCategories)
-		api.GET("/items", s.listItems)
-		api.GET("/items/:id", s.getItem)
-		api.GET("/featured", s.listFeatured)
-		api.GET("/popular", s.listPopular)
-		api.POST("/items", s.createItem)
-		api.PUT("/items/:id", s.updateItem)
-		api.DELETE("/items/:id", s.deleteItem)
+		api.GET("/status", rp("catalog", "list"), s.getStatus)
+		api.GET("/categories", rp("catalog", "list"), s.listCategories)
+		api.GET("/items", rp("catalog", "list"), s.listItems)
+		api.GET("/items/:id", rp("catalog", "get"), s.getItem)
+		api.GET("/featured", rp("catalog", "list"), s.listFeatured)
+		api.GET("/popular", rp("catalog", "list"), s.listPopular)
+		api.POST("/items", rp("catalog", "create"), s.createItem)
+		api.PUT("/items/:id", rp("catalog", "update"), s.updateItem)
+		api.DELETE("/items/:id", rp("catalog", "delete"), s.deleteItem)
 		// Requests
-		api.GET("/requests", s.listRequests)
-		api.POST("/requests", s.createRequest)
-		api.PUT("/requests/:id/approve", s.approveRequest)
-		api.PUT("/requests/:id/reject", s.rejectRequest)
+		api.GET("/requests", rp("catalog", "list"), s.listRequests)
+		api.POST("/requests", rp("catalog", "create"), s.createRequest)
+		api.PUT("/requests/:id/approve", rp("catalog", "update"), s.approveRequest)
+		api.PUT("/requests/:id/reject", rp("catalog", "update"), s.rejectRequest)
 	}
 }
 

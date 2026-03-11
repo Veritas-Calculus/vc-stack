@@ -16,6 +16,7 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	apierrors "github.com/Veritas-Calculus/vc-stack/pkg/errors"
 )
 
@@ -241,35 +242,36 @@ func NewService(cfg Config) (*Service, error) {
 
 // SetupRoutes registers API endpoints.
 func (s *Service) SetupRoutes(rg *gin.RouterGroup) {
+	rp := middleware.RequirePermission
 	orch := rg.Group("/stacks")
 	{
-		orch.GET("", s.listStacks)
-		orch.POST("", s.createStack)
-		orch.GET("/:stack_id", s.getStack)
-		orch.PUT("/:stack_id", s.updateStack)
-		orch.DELETE("/:stack_id", s.deleteStack)
+		orch.GET("", rp("orchestration", "list"), s.listStacks)
+		orch.POST("", rp("orchestration", "create"), s.createStack)
+		orch.GET("/:stack_id", rp("orchestration", "get"), s.getStack)
+		orch.PUT("/:stack_id", rp("orchestration", "update"), s.updateStack)
+		orch.DELETE("/:stack_id", rp("orchestration", "delete"), s.deleteStack)
 
 		// Resources within a stack.
-		orch.GET("/:stack_id/resources", s.listResources)
-		orch.GET("/:stack_id/resources/:resource_id", s.getResource)
+		orch.GET("/:stack_id/resources", rp("orchestration", "get"), s.listResources)
+		orch.GET("/:stack_id/resources/:resource_id", rp("orchestration", "get"), s.getResource)
 
 		// Events.
-		orch.GET("/:stack_id/events", s.listEvents)
+		orch.GET("/:stack_id/events", rp("orchestration", "get"), s.listEvents)
 
 		// Template preview (dry run).
-		orch.POST("/preview", s.previewStack)
+		orch.POST("/preview", rp("orchestration", "create"), s.previewStack)
 
 		// Get template from a running stack.
-		orch.GET("/:stack_id/template", s.getStackTemplate)
+		orch.GET("/:stack_id/template", rp("orchestration", "get"), s.getStackTemplate)
 	}
 
 	// Reusable templates library.
 	tpl := rg.Group("/templates")
 	{
-		tpl.GET("", s.listTemplates)
-		tpl.POST("", s.createTemplate)
-		tpl.GET("/:template_id", s.getTemplate)
-		tpl.DELETE("/:template_id", s.deleteTemplate)
+		tpl.GET("", rp("orchestration", "list"), s.listTemplates)
+		tpl.POST("", rp("orchestration", "create"), s.createTemplate)
+		tpl.GET("/:template_id", rp("orchestration", "get"), s.getTemplate)
+		tpl.DELETE("/:template_id", rp("orchestration", "delete"), s.deleteTemplate)
 	}
 }
 

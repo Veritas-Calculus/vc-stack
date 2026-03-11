@@ -11,6 +11,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -189,32 +191,33 @@ func (s *Service) seedDefaults() {
 // ---------- Routes ----------
 
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	api := router.Group("/api/v1/dr")
 	{
-		api.GET("/status", s.getStatus)
+		api.GET("/status", rp("dr", "list"), s.getStatus)
 		// Sites
-		api.GET("/sites", s.listSites)
-		api.POST("/sites", s.createSite)
-		api.PUT("/sites/:id", s.updateSite)
-		api.DELETE("/sites/:id", s.deleteSite)
+		api.GET("/sites", rp("dr", "list"), s.listSites)
+		api.POST("/sites", rp("dr", "create"), s.createSite)
+		api.PUT("/sites/:id", rp("dr", "update"), s.updateSite)
+		api.DELETE("/sites/:id", rp("dr", "delete"), s.deleteSite)
 		// Plans
-		api.GET("/plans", s.listPlans)
-		api.POST("/plans", s.createPlan)
-		api.GET("/plans/:id", s.getPlan)
-		api.PUT("/plans/:id", s.updatePlan)
-		api.DELETE("/plans/:id", s.deletePlan)
+		api.GET("/plans", rp("dr", "list"), s.listPlans)
+		api.POST("/plans", rp("dr", "create"), s.createPlan)
+		api.GET("/plans/:id", rp("dr", "get"), s.getPlan)
+		api.PUT("/plans/:id", rp("dr", "update"), s.updatePlan)
+		api.DELETE("/plans/:id", rp("dr", "delete"), s.deletePlan)
 		// Protected resources
-		api.GET("/plans/:id/resources", s.listResources)
-		api.POST("/plans/:id/resources", s.addResource)
-		api.DELETE("/resources/:resourceId", s.removeResource)
+		api.GET("/plans/:id/resources", rp("dr", "get"), s.listResources)
+		api.POST("/plans/:id/resources", rp("dr", "create"), s.addResource)
+		api.DELETE("/resources/:resourceId", rp("dr", "delete"), s.removeResource)
 		// Drills
-		api.GET("/drills", s.listDrills)
-		api.POST("/drills", s.createDrill)
-		api.GET("/drills/:id", s.getDrill)
+		api.GET("/drills", rp("dr", "list"), s.listDrills)
+		api.POST("/drills", rp("dr", "create"), s.createDrill)
+		api.GET("/drills/:id", rp("dr", "get"), s.getDrill)
 		// Failover
-		api.GET("/failover-events", s.listFailoverEvents)
-		api.POST("/failover", s.initiateFailover)
-		api.POST("/failback", s.initiateFailback)
+		api.GET("/failover-events", rp("dr", "list"), s.listFailoverEvents)
+		api.POST("/failover", rp("dr", "create"), s.initiateFailover)
+		api.POST("/failback", rp("dr", "create"), s.initiateFailback)
 	}
 }
 

@@ -254,6 +254,9 @@ func NewService(config Config) (*Service, error) {
 		config.Logger.Warn("Failed to migrate federation tables", zap.Error(err))
 	}
 
+	// Register API key authenticator for VC-HMAC-SHA256 support.
+	service.registerAPIKeyAuthenticator()
+
 	return service, nil
 }
 
@@ -284,8 +287,34 @@ func (s *Service) migrate() error {
 		&Quota{},
 		&IdentityProvider{},
 		&RefreshToken{},
+		// Service Account tables (P3)
+		&ServiceAccount{},
+		// Group & Permission Boundary tables (P5)
+		&Group{},
+		&PermissionBoundary{},
+		// Access Log table (P6)
+		&AccessLogEntry{},
 	); err != nil {
 		return fmt.Errorf("failed to auto-migrate identity models: %w", err)
+	}
+
+	// Setup join tables for service accounts.
+	if err := s.db.SetupJoinTable(&ServiceAccount{}, "Roles", &ServiceAccountRole{}); err != nil {
+		return err
+	}
+	if err := s.db.SetupJoinTable(&ServiceAccount{}, "Policies", &ServiceAccountPolicy{}); err != nil {
+		return err
+	}
+
+	// Setup join tables for groups (P5).
+	if err := s.db.SetupJoinTable(&Group{}, "Users", &GroupUser{}); err != nil {
+		return err
+	}
+	if err := s.db.SetupJoinTable(&Group{}, "Roles", &GroupRole{}); err != nil {
+		return err
+	}
+	if err := s.db.SetupJoinTable(&Group{}, "Policies", &GroupPolicy{}); err != nil {
+		return err
 	}
 
 	return nil

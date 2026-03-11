@@ -18,6 +18,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -142,29 +144,30 @@ func NewService(cfg Config) (*Service, error) {
 
 // SetupRoutes registers KMS API routes.
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	g := router.Group("/api/v1/kms")
 	{
 		// Secrets
-		g.GET("/secrets", s.listSecrets)
-		g.POST("/secrets", s.createSecret)
-		g.GET("/secrets/:id", s.getSecret)
-		g.GET("/secrets/:id/payload", s.getSecretPayload)
-		g.DELETE("/secrets/:id", s.deleteSecret)
+		g.GET("/secrets", rp("kms", "list"), s.listSecrets)
+		g.POST("/secrets", rp("kms", "create"), s.createSecret)
+		g.GET("/secrets/:id", rp("kms", "get"), s.getSecret)
+		g.GET("/secrets/:id/payload", rp("kms", "get"), s.getSecretPayload)
+		g.DELETE("/secrets/:id", rp("kms", "delete"), s.deleteSecret)
 
 		// Encryption Keys
-		g.GET("/keys", s.listKeys)
-		g.POST("/keys", s.createKey)
-		g.GET("/keys/:id", s.getKey)
-		g.DELETE("/keys/:id", s.deleteKey)
-		g.POST("/keys/:id/rotate", s.rotateKey)
+		g.GET("/keys", rp("kms", "list"), s.listKeys)
+		g.POST("/keys", rp("kms", "create"), s.createKey)
+		g.GET("/keys/:id", rp("kms", "get"), s.getKey)
+		g.DELETE("/keys/:id", rp("kms", "delete"), s.deleteKey)
+		g.POST("/keys/:id/rotate", rp("kms", "create"), s.rotateKey)
 
 		// Encrypt / Decrypt
-		g.POST("/encrypt", s.encrypt)
-		g.POST("/decrypt", s.decrypt)
-		g.POST("/generate-dek", s.generateDEK)
+		g.POST("/encrypt", rp("kms", "create"), s.encrypt)
+		g.POST("/decrypt", rp("kms", "create"), s.decrypt)
+		g.POST("/generate-dek", rp("kms", "create"), s.generateDEK)
 
 		// Status
-		g.GET("/status", s.getStatus)
+		g.GET("/status", rp("kms", "list"), s.getStatus)
 	}
 }
 

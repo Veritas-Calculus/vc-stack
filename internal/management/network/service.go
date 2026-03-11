@@ -13,6 +13,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 )
 
 // Service represents the network service.
@@ -456,299 +458,300 @@ END$$;`).Error
 
 // SetupRoutes sets up the HTTP routes for the network service.
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	api := router.Group("/api/v1")
 	{
 		// Network routes.
 		networks := api.Group("/networks")
 		{
-			networks.GET("", s.listNetworks)
-			networks.POST("", s.createNetwork)
-			networks.GET("/config", s.getNetworkConfig)
-			networks.GET("/suggest-cidr", s.suggestCIDR)
-			networks.GET("/:id", s.getNetwork)
-			networks.PUT("/:id", s.updateNetwork)
-			networks.DELETE("/:id", s.deleteNetwork)
-			networks.POST("/:id/restart", s.restartNetwork)
-			networks.POST("/:id/repair-l3", s.repairNetworkL3)
-			networks.POST("/:id/repair-ports", s.repairNetworkPorts)
+			networks.GET("", rp("network", "list"), s.listNetworks)
+			networks.POST("", rp("network", "create"), s.createNetwork)
+			networks.GET("/config", rp("network", "get"), s.getNetworkConfig)
+			networks.GET("/suggest-cidr", rp("network", "get"), s.suggestCIDR)
+			networks.GET("/:id", rp("network", "get"), s.getNetwork)
+			networks.PUT("/:id", rp("network", "update"), s.updateNetwork)
+			networks.DELETE("/:id", rp("network", "delete"), s.deleteNetwork)
+			networks.POST("/:id/restart", rp("network", "update"), s.restartNetwork)
+			networks.POST("/:id/repair-l3", rp("network", "update"), s.repairNetworkL3)
+			networks.POST("/:id/repair-ports", rp("network", "update"), s.repairNetworkPorts)
 			// Diagnostics.
-			networks.GET("/:id/diagnose", s.diagnoseNetwork)
-			networks.GET("/diagnose", s.diagnoseNetworkByName)
+			networks.GET("/:id/diagnose", rp("network", "get"), s.diagnoseNetwork)
+			networks.GET("/diagnose", rp("network", "get"), s.diagnoseNetworkByName)
 		}
 
 		// VPC routes.
 		vpcs := api.Group("/vpcs")
 		{
-			vpcs.GET("", s.listVPCs)
-			vpcs.POST("", s.createVPC)
-			vpcs.GET("/:id", s.getVPC)
-			vpcs.DELETE("/:id", s.deleteVPC)
-			vpcs.POST("/:id/restart", s.restartVPC)
+			vpcs.GET("", rp("network", "list"), s.listVPCs)
+			vpcs.POST("", rp("network", "create"), s.createVPC)
+			vpcs.GET("/:id", rp("network", "get"), s.getVPC)
+			vpcs.DELETE("/:id", rp("network", "delete"), s.deleteVPC)
+			vpcs.POST("/:id/restart", rp("network", "update"), s.restartVPC)
 			// VPC Tiers.
-			vpcs.POST("/:id/tiers", s.createVPCTier)
-			vpcs.DELETE("/:id/tiers/:tierId", s.deleteVPCTier)
+			vpcs.POST("/:id/tiers", rp("network", "create"), s.createVPCTier)
+			vpcs.DELETE("/:id/tiers/:tierId", rp("network", "delete"), s.deleteVPCTier)
 		}
 
 		// Network ACL routes.
 		acls := api.Group("/network-acls")
 		{
-			acls.GET("", s.listNetworkACLs)
-			acls.POST("", s.createNetworkACL)
-			acls.DELETE("/:id", s.deleteNetworkACL)
-			acls.POST("/:id/rules", s.addACLRule)
-			acls.DELETE("/:id/rules/:ruleId", s.deleteACLRule)
+			acls.GET("", rp("security_group", "list"), s.listNetworkACLs)
+			acls.POST("", rp("security_group", "create"), s.createNetworkACL)
+			acls.DELETE("/:id", rp("security_group", "delete"), s.deleteNetworkACL)
+			acls.POST("/:id/rules", rp("security_group", "update"), s.addACLRule)
+			acls.DELETE("/:id/rules/:ruleId", rp("security_group", "delete"), s.deleteACLRule)
 		}
 
 		// Subnet routes.
 		subnets := api.Group("/subnets")
 		{
-			subnets.GET("", s.listSubnets)
-			subnets.GET("/stats", s.subnetStats) // IP utilization stats
-			subnets.POST("", s.createSubnet)
-			subnets.GET("/:id", s.getSubnet)
-			subnets.PUT("/:id", s.updateSubnet)
-			subnets.DELETE("/:id", s.deleteSubnet)
+			subnets.GET("", rp("network", "list"), s.listSubnets)
+			subnets.GET("/stats", rp("network", "get"), s.subnetStats) // IP utilization stats
+			subnets.POST("", rp("network", "create"), s.createSubnet)
+			subnets.GET("/:id", rp("network", "get"), s.getSubnet)
+			subnets.PUT("/:id", rp("network", "update"), s.updateSubnet)
+			subnets.DELETE("/:id", rp("network", "delete"), s.deleteSubnet)
 		}
 
 		// Security group routes.
 		securityGroups := api.Group("/security-groups")
 		{
-			securityGroups.GET("", s.listSecurityGroups)
-			securityGroups.POST("", s.createSecurityGroup)
-			securityGroups.GET("/:id", s.getSecurityGroup)
-			securityGroups.PUT("/:id", s.updateSecurityGroup)
-			securityGroups.DELETE("/:id", s.deleteSecurityGroup)
+			securityGroups.GET("", rp("security_group", "list"), s.listSecurityGroups)
+			securityGroups.POST("", rp("security_group", "create"), s.createSecurityGroup)
+			securityGroups.GET("/:id", rp("security_group", "list"), s.getSecurityGroup)
+			securityGroups.PUT("/:id", rp("security_group", "update"), s.updateSecurityGroup)
+			securityGroups.DELETE("/:id", rp("security_group", "delete"), s.deleteSecurityGroup)
 		}
 
 		// Security group rule routes.
 		securityGroupRules := api.Group("/security-group-rules")
 		{
-			securityGroupRules.GET("", s.listSecurityGroupRules)
-			securityGroupRules.POST("", s.createSecurityGroupRule)
-			securityGroupRules.GET("/:id", s.getSecurityGroupRule)
-			securityGroupRules.DELETE("/:id", s.deleteSecurityGroupRule)
+			securityGroupRules.GET("", rp("security_group", "list"), s.listSecurityGroupRules)
+			securityGroupRules.POST("", rp("security_group", "create"), s.createSecurityGroupRule)
+			securityGroupRules.GET("/:id", rp("security_group", "list"), s.getSecurityGroupRule)
+			securityGroupRules.DELETE("/:id", rp("security_group", "delete"), s.deleteSecurityGroupRule)
 		}
 
 		// Floating IP routes.
 		floatingIPs := api.Group("/floating-ips")
 		{
-			floatingIPs.GET("", s.listFloatingIPs)
-			floatingIPs.POST("", s.createFloatingIP)
-			floatingIPs.GET("/:id", s.getFloatingIP)
-			floatingIPs.PUT("/:id", s.updateFloatingIP)
-			floatingIPs.DELETE("/:id", s.deleteFloatingIP)
+			floatingIPs.GET("", rp("floating_ip", "list"), s.listFloatingIPs)
+			floatingIPs.POST("", rp("floating_ip", "create"), s.createFloatingIP)
+			floatingIPs.GET("/:id", rp("floating_ip", "list"), s.getFloatingIP)
+			floatingIPs.PUT("/:id", rp("floating_ip", "create"), s.updateFloatingIP)
+			floatingIPs.DELETE("/:id", rp("floating_ip", "delete"), s.deleteFloatingIP)
 		}
 
 		// Port routes.
 		ports := api.Group("/ports")
 		{
-			ports.GET("", s.listPorts)
-			ports.POST("", s.createPort)
-			ports.GET("/:id", s.getPort)
-			ports.PUT("/:id", s.updatePort)
-			ports.DELETE("/:id", s.deletePort)
+			ports.GET("", rp("network", "list"), s.listPorts)
+			ports.POST("", rp("network", "create"), s.createPort)
+			ports.GET("/:id", rp("network", "get"), s.getPort)
+			ports.PUT("/:id", rp("network", "update"), s.updatePort)
+			ports.DELETE("/:id", rp("network", "delete"), s.deletePort)
 		}
 
 		// ASN routes.
 		asns := api.Group("/asns")
 		{
-			asns.GET("", s.listASNs)
-			asns.POST("", s.createASN)
-			asns.GET("/:id", s.getASN)
-			asns.PUT("/:id", s.updateASN)
-			asns.DELETE("/:id", s.deleteASN)
+			asns.GET("", rp("network", "list"), s.listASNs)
+			asns.POST("", rp("network", "create"), s.createASN)
+			asns.GET("/:id", rp("network", "get"), s.getASN)
+			asns.PUT("/:id", rp("network", "update"), s.updateASN)
+			asns.DELETE("/:id", rp("network", "delete"), s.deleteASN)
 		}
 
 		// Zone routes.
 		zones := api.Group("/zones")
 		{
-			zones.GET("", s.listZones)
-			zones.POST("", s.createZone)
-			zones.GET("/:id", s.getZone)
-			zones.PUT("/:id", s.updateZone)
-			zones.DELETE("/:id", s.deleteZone)
+			zones.GET("", rp("cluster", "list"), s.listZones)
+			zones.POST("", rp("cluster", "create"), s.createZone)
+			zones.GET("/:id", rp("cluster", "list"), s.getZone)
+			zones.PUT("/:id", rp("cluster", "update"), s.updateZone)
+			zones.DELETE("/:id", rp("cluster", "delete"), s.deleteZone)
 		}
 
 		// Cluster routes.
 		clusters := api.Group("/clusters")
 		{
-			clusters.GET("", s.listClusters)
-			clusters.POST("", s.createCluster)
-			clusters.GET("/:id", s.getCluster)
-			clusters.PUT("/:id", s.updateCluster)
-			clusters.DELETE("/:id", s.deleteCluster)
+			clusters.GET("", rp("cluster", "list"), s.listClusters)
+			clusters.POST("", rp("cluster", "create"), s.createCluster)
+			clusters.GET("/:id", rp("cluster", "list"), s.getCluster)
+			clusters.PUT("/:id", rp("cluster", "update"), s.updateCluster)
+			clusters.DELETE("/:id", rp("cluster", "delete"), s.deleteCluster)
 		}
 
 		// Router routes.
 		routers := api.Group("/routers")
 		{
-			routers.GET("", s.listRouters)
-			routers.POST("", s.createRouter)
-			routers.GET("/:id", s.getRouter)
-			routers.PUT("/:id", s.updateRouter)
-			routers.DELETE("/:id", s.deleteRouter)
+			routers.GET("", rp("router", "list"), s.listRouters)
+			routers.POST("", rp("router", "create"), s.createRouter)
+			routers.GET("/:id", rp("router", "list"), s.getRouter)
+			routers.PUT("/:id", rp("router", "update"), s.updateRouter)
+			routers.DELETE("/:id", rp("router", "delete"), s.deleteRouter)
 			// Router interface operations.
-			routers.POST("/:id/add-interface", s.addRouterInterface)
-			routers.POST("/:id/remove-interface", s.removeRouterInterface)
-			routers.GET("/:id/interfaces", s.listRouterInterfaces)
+			routers.POST("/:id/add-interface", rp("router", "update"), s.addRouterInterface)
+			routers.POST("/:id/remove-interface", rp("router", "update"), s.removeRouterInterface)
+			routers.GET("/:id/interfaces", rp("router", "list"), s.listRouterInterfaces)
 			// External gateway operations.
-			routers.POST("/:id/set-gateway", s.setRouterGateway)
-			routers.POST("/:id/clear-gateway", s.clearRouterGateway)
+			routers.POST("/:id/set-gateway", rp("router", "update"), s.setRouterGateway)
+			routers.POST("/:id/clear-gateway", rp("router", "update"), s.clearRouterGateway)
 		}
 
 		// Load Balancer routes.
 		lbs := api.Group("/loadbalancers")
 		{
-			lbs.GET("", s.listLoadBalancers)
-			lbs.POST("", s.createLoadBalancer)
-			lbs.GET("/:name", s.getLoadBalancer)
-			lbs.DELETE("/:name", s.deleteLoadBalancer)
-			lbs.PUT("/:name/backends", s.updateLoadBalancerBackends)
-			lbs.PUT("/:name/algorithm", s.setLoadBalancerAlgorithm)
-			lbs.POST("/:name/healthcheck", s.enableLoadBalancerHealthCheck)
-			lbs.POST("/:name/attach-router", s.attachLoadBalancerToRouter)
-			lbs.POST("/:name/detach-router", s.detachLoadBalancerFromRouter)
-			lbs.POST("/:name/attach-switch", s.attachLoadBalancerToSwitch)
-			lbs.POST("/:name/detach-switch", s.detachLoadBalancerFromSwitch)
-			lbs.POST("/sync", s.syncLoadBalancers)
+			lbs.GET("", rp("network", "list"), s.listLoadBalancers)
+			lbs.POST("", rp("network", "create"), s.createLoadBalancer)
+			lbs.GET("/:name", rp("network", "get"), s.getLoadBalancer)
+			lbs.DELETE("/:name", rp("network", "delete"), s.deleteLoadBalancer)
+			lbs.PUT("/:name/backends", rp("network", "update"), s.updateLoadBalancerBackends)
+			lbs.PUT("/:name/algorithm", rp("network", "update"), s.setLoadBalancerAlgorithm)
+			lbs.POST("/:name/healthcheck", rp("network", "update"), s.enableLoadBalancerHealthCheck)
+			lbs.POST("/:name/attach-router", rp("network", "update"), s.attachLoadBalancerToRouter)
+			lbs.POST("/:name/detach-router", rp("network", "update"), s.detachLoadBalancerFromRouter)
+			lbs.POST("/:name/attach-switch", rp("network", "update"), s.attachLoadBalancerToSwitch)
+			lbs.POST("/:name/detach-switch", rp("network", "update"), s.detachLoadBalancerFromSwitch)
+			lbs.POST("/sync", rp("network", "update"), s.syncLoadBalancers)
 		}
 
 		// Port Forwarding routes.
 		pfs := api.Group("/port-forwardings")
 		{
-			pfs.GET("", s.listPortForwardings)
-			pfs.POST("", s.createPortForwarding)
-			pfs.GET("/:id", s.getPortForwarding)
-			pfs.DELETE("/:id", s.deletePortForwarding)
+			pfs.GET("", rp("floating_ip", "list"), s.listPortForwardings)
+			pfs.POST("", rp("floating_ip", "create"), s.createPortForwarding)
+			pfs.GET("/:id", rp("floating_ip", "list"), s.getPortForwarding)
+			pfs.DELETE("/:id", rp("floating_ip", "delete"), s.deletePortForwarding)
 		}
 
 		// QoS Policy routes.
 		qos := api.Group("/qos-policies")
 		{
-			qos.GET("", s.listQoSPolicies)
-			qos.POST("", s.createQoSPolicy)
-			qos.GET("/:id", s.getQoSPolicy)
-			qos.PUT("/:id", s.updateQoSPolicy)
-			qos.DELETE("/:id", s.deleteQoSPolicy)
+			qos.GET("", rp("network", "list"), s.listQoSPolicies)
+			qos.POST("", rp("network", "create"), s.createQoSPolicy)
+			qos.GET("/:id", rp("network", "get"), s.getQoSPolicy)
+			qos.PUT("/:id", rp("network", "update"), s.updateQoSPolicy)
+			qos.DELETE("/:id", rp("network", "delete"), s.deleteQoSPolicy)
 		}
 
 		// Network Topology.
-		networks.GET("/topology", s.getNetworkTopology)
+		networks.GET("/topology", rp("network", "get"), s.getNetworkTopology)
 
 		// Firewall-as-a-Service (FWaaS) routes.
 		fw := api.Group("/firewall-policies")
 		{
-			fw.GET("", s.listFirewallPolicies)
-			fw.POST("", s.createFirewallPolicy)
-			fw.GET("/:id", s.getFirewallPolicy)
-			fw.PUT("/:id", s.updateFirewallPolicy)
-			fw.DELETE("/:id", s.deleteFirewallPolicy)
-			fw.GET("/:id/rules", s.listFirewallRules)
-			fw.POST("/:id/rules", s.createFirewallRule)
-			fw.DELETE("/:id/rules/:ruleId", s.deleteFirewallRule)
+			fw.GET("", rp("security_group", "list"), s.listFirewallPolicies)
+			fw.POST("", rp("security_group", "create"), s.createFirewallPolicy)
+			fw.GET("/:id", rp("security_group", "list"), s.getFirewallPolicy)
+			fw.PUT("/:id", rp("security_group", "update"), s.updateFirewallPolicy)
+			fw.DELETE("/:id", rp("security_group", "delete"), s.deleteFirewallPolicy)
+			fw.GET("/:id/rules", rp("security_group", "list"), s.listFirewallRules)
+			fw.POST("/:id/rules", rp("security_group", "create"), s.createFirewallRule)
+			fw.DELETE("/:id/rules/:ruleId", rp("security_group", "delete"), s.deleteFirewallRule)
 		}
 
 		// Network Audit.
-		api.GET("/network-audit", s.listNetworkAudit)
+		api.GET("/network-audit", rp("network", "list"), s.listNetworkAudit)
 
 		// Trunk Port routes (N6.1).
 		trunks := api.Group("/trunk-ports")
 		{
-			trunks.GET("", s.listTrunkPorts)
-			trunks.POST("", s.createTrunkPort)
-			trunks.DELETE("/:id", s.deleteTrunkPort)
-			trunks.POST("/:id/sub-ports", s.addTrunkSubPort)
-			trunks.DELETE("/:id/sub-ports/:subId", s.removeTrunkSubPort)
+			trunks.GET("", rp("network", "list"), s.listTrunkPorts)
+			trunks.POST("", rp("network", "create"), s.createTrunkPort)
+			trunks.DELETE("/:id", rp("network", "delete"), s.deleteTrunkPort)
+			trunks.POST("/:id/sub-ports", rp("network", "update"), s.addTrunkSubPort)
+			trunks.DELETE("/:id/sub-ports/:subId", rp("network", "delete"), s.removeTrunkSubPort)
 		}
 
 		// Allowed Address Pairs (N6.2) — on existing ports.
-		ports.GET("/:id/allowed-address-pairs", s.listAllowedAddressPairs)
-		ports.POST("/:id/allowed-address-pairs", s.addAllowedAddressPair)
-		ports.DELETE("/:id/allowed-address-pairs/:pairId", s.removeAllowedAddressPair)
+		ports.GET("/:id/allowed-address-pairs", rp("network", "get"), s.listAllowedAddressPairs)
+		ports.POST("/:id/allowed-address-pairs", rp("network", "update"), s.addAllowedAddressPair)
+		ports.DELETE("/:id/allowed-address-pairs/:pairId", rp("network", "delete"), s.removeAllowedAddressPair)
 
 		// Router Static Routes (N6.4).
-		routers.GET("/:id/routes", s.listStaticRoutes)
-		routers.POST("/:id/routes", s.addStaticRoute)
-		routers.DELETE("/:id/routes/:routeId", s.deleteStaticRoute)
+		routers.GET("/:id/routes", rp("router", "list"), s.listStaticRoutes)
+		routers.POST("/:id/routes", rp("router", "update"), s.addStaticRoute)
+		routers.DELETE("/:id/routes/:routeId", rp("router", "delete"), s.deleteStaticRoute)
 
 		// Network RBAC (N6.3).
 		rbac := api.Group("/network-rbac")
 		{
-			rbac.GET("", s.listNetworkRBACPolicies)
-			rbac.POST("", s.createNetworkRBACPolicy)
-			rbac.DELETE("/:id", s.deleteNetworkRBACPolicy)
+			rbac.GET("", rp("network", "list"), s.listNetworkRBACPolicies)
+			rbac.POST("", rp("network", "create"), s.createNetworkRBACPolicy)
+			rbac.DELETE("/:id", rp("network", "delete"), s.deleteNetworkRBACPolicy)
 		}
 
 		// Network Usage Stats (N6.6).
-		networks.GET("/stats", s.networkStats)
+		networks.GET("/stats", rp("network", "list"), s.networkStats)
 
 		// Port Mirroring (N8.3).
 		mirrors := api.Group("/port-mirrors")
 		{
-			mirrors.GET("", s.listPortMirrors)
-			mirrors.POST("", s.createPortMirror)
-			mirrors.DELETE("/:id", s.deletePortMirror)
+			mirrors.GET("", rp("network", "list"), s.listPortMirrors)
+			mirrors.POST("", rp("network", "create"), s.createPortMirror)
+			mirrors.DELETE("/:id", rp("network", "delete"), s.deletePortMirror)
 		}
 
 		// N-BGP1: ASN Range management.
 		asnRanges := api.Group("/asn-ranges")
 		{
-			asnRanges.GET("", s.listASNRanges)
-			asnRanges.POST("", s.createASNRange)
-			asnRanges.DELETE("/:id", s.deleteASNRange)
+			asnRanges.GET("", rp("network", "list"), s.listASNRanges)
+			asnRanges.POST("", rp("network", "create"), s.createASNRange)
+			asnRanges.DELETE("/:id", rp("network", "delete"), s.deleteASNRange)
 		}
 		// ASN Allocation.
-		api.POST("/asn-allocations", s.allocateASN)
-		api.GET("/asn-allocations", s.listASNAllocations)
-		api.DELETE("/asn-allocations/:id", s.releaseASN)
+		api.POST("/asn-allocations", rp("network", "create"), s.allocateASN)
+		api.GET("/asn-allocations", rp("network", "list"), s.listASNAllocations)
+		api.DELETE("/asn-allocations/:id", rp("network", "delete"), s.releaseASN)
 
 		// N-BGP2: BGP Peer management.
 		bgpPeers := api.Group("/bgp-peers")
 		{
-			bgpPeers.GET("", s.listBGPPeers)
-			bgpPeers.POST("", s.createBGPPeer)
-			bgpPeers.GET("/:id", s.getBGPPeer)
-			bgpPeers.PUT("/:id", s.updateBGPPeer)
-			bgpPeers.DELETE("/:id", s.deleteBGPPeer)
+			bgpPeers.GET("", rp("network", "list"), s.listBGPPeers)
+			bgpPeers.POST("", rp("network", "create"), s.createBGPPeer)
+			bgpPeers.GET("/:id", rp("network", "get"), s.getBGPPeer)
+			bgpPeers.PUT("/:id", rp("network", "update"), s.updateBGPPeer)
+			bgpPeers.DELETE("/:id", rp("network", "delete"), s.deleteBGPPeer)
 		}
 
 		// N-BGP3: Route Advertisement.
 		advRoutes := api.Group("/advertised-routes")
 		{
-			advRoutes.GET("", s.listAdvertisedRoutes)
-			advRoutes.POST("", s.advertiseRoute)
-			advRoutes.POST("/:id/withdraw", s.withdrawRoute)
-			advRoutes.DELETE("/:id", s.deleteAdvertisedRoute)
+			advRoutes.GET("", rp("network", "list"), s.listAdvertisedRoutes)
+			advRoutes.POST("", rp("network", "create"), s.advertiseRoute)
+			advRoutes.POST("/:id/withdraw", rp("network", "update"), s.withdrawRoute)
+			advRoutes.DELETE("/:id", rp("network", "delete"), s.deleteAdvertisedRoute)
 		}
 		// Route Policy.
 		routePolicies := api.Group("/route-policies")
 		{
-			routePolicies.GET("", s.listRoutePolicies)
-			routePolicies.POST("", s.createRoutePolicy)
-			routePolicies.DELETE("/:id", s.deleteRoutePolicy)
+			routePolicies.GET("", rp("network", "list"), s.listRoutePolicies)
+			routePolicies.POST("", rp("network", "create"), s.createRoutePolicy)
+			routePolicies.DELETE("/:id", rp("network", "delete"), s.deleteRoutePolicy)
 		}
 
 		// N-BGP4: Network Offering.
 		offerings := api.Group("/network-offerings")
 		{
-			offerings.GET("", s.listNetworkOfferings)
-			offerings.POST("", s.createNetworkOffering)
-			offerings.GET("/:id", s.getNetworkOffering)
-			offerings.DELETE("/:id", s.deleteNetworkOffering)
+			offerings.GET("", rp("network", "list"), s.listNetworkOfferings)
+			offerings.POST("", rp("network", "create"), s.createNetworkOffering)
+			offerings.GET("/:id", rp("network", "get"), s.getNetworkOffering)
+			offerings.DELETE("/:id", rp("network", "delete"), s.deleteNetworkOffering)
 		}
 
 		// N-BGP6.2: Internal DNS.
 		dns := api.Group("/dns-records")
 		{
-			dns.GET("", s.listDNSRecords)
-			dns.POST("", s.createDNSRecord)
-			dns.GET("/:id", s.getDNSRecord)
-			dns.PUT("/:id", s.updateDNSRecord)
-			dns.DELETE("/:id", s.deleteDNSRecord)
+			dns.GET("", rp("dns_record", "list"), s.listDNSRecords)
+			dns.POST("", rp("dns_record", "create"), s.createDNSRecord)
+			dns.GET("/:id", rp("dns_record", "list"), s.getDNSRecord)
+			dns.PUT("/:id", rp("dns_record", "update"), s.updateDNSRecord)
+			dns.DELETE("/:id", rp("dns_record", "delete"), s.deleteDNSRecord)
 		}
 		// DNS zone config per network.
-		networks.GET("/:id/dns-zone", s.getDNSZoneConfig)
-		networks.PUT("/:id/dns-zone", s.upsertDNSZoneConfig)
+		networks.GET("/:id/dns-zone", rp("dns_zone", "list"), s.getDNSZoneConfig)
+		networks.PUT("/:id/dns-zone", rp("dns_zone", "update"), s.upsertDNSZoneConfig)
 	}
 
 	// Health check under network prefix to avoid conflicts.

@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -119,6 +121,7 @@ func (s *Service) seedDefaults() {
 
 // SetupRoutes registers backup HTTP routes.
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	if s == nil {
 		return
 	}
@@ -127,25 +130,25 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		// Backup Offerings
 		offerings := api.Group("/backup-offerings")
 		{
-			offerings.GET("", s.listOfferings)
-			offerings.POST("", s.createOffering)
-			offerings.DELETE("/:id", s.deleteOffering)
+			offerings.GET("", rp("backup", "list"), s.listOfferings)
+			offerings.POST("", rp("backup", "create"), s.createOffering)
+			offerings.DELETE("/:id", rp("backup", "delete"), s.deleteOffering)
 		}
 		// Backups
 		backups := api.Group("/backups")
 		{
-			backups.GET("", s.listBackups)
-			backups.POST("", s.createBackup)
-			backups.POST("/:id/restore", s.restoreBackup)
-			backups.DELETE("/:id", s.deleteBackup)
+			backups.GET("", rp("backup", "list"), s.listBackups)
+			backups.POST("", rp("backup", "create"), s.createBackup)
+			backups.POST("/:id/restore", rp("backup", "create"), s.restoreBackup)
+			backups.DELETE("/:id", rp("backup", "delete"), s.deleteBackup)
 		}
 		// Backup Schedules
 		schedules := api.Group("/backup-schedules")
 		{
-			schedules.GET("", s.listSchedules)
-			schedules.POST("", s.createSchedule)
-			schedules.PUT("/:id", s.updateSchedule)
-			schedules.DELETE("/:id", s.deleteSchedule)
+			schedules.GET("", rp("backup", "list"), s.listSchedules)
+			schedules.POST("", rp("backup", "create"), s.createSchedule)
+			schedules.PUT("/:id", rp("backup", "update"), s.updateSchedule)
+			schedules.DELETE("/:id", rp("backup", "delete"), s.deleteSchedule)
 		}
 	}
 }

@@ -11,6 +11,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -72,21 +74,22 @@ func NewService(cfg Config) (*Service, error) {
 
 // SetupRoutes registers HTTP routes for the host service.
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	api := router.Group("/api/v1")
 	{
-		api.POST("/hosts/register", s.registerHost)
-		api.POST("/hosts/heartbeat", s.heartbeat)
-		api.POST("/hosts/test-connection", s.testConnection)
-		api.GET("/hosts", s.listHosts)
-		api.GET("/hosts/install-script", s.generateInstallScript)
-		api.POST("/hosts/deploy", s.deployHost)
-		api.GET("/hosts/:id", s.getHost)
-		api.PUT("/hosts/:id", s.updateHost)
-		api.DELETE("/hosts/:id", s.deleteHost)
-		api.POST("/hosts/:id/enable", s.enableHost)
-		api.POST("/hosts/:id/disable", s.disableHost)
-		api.POST("/hosts/:id/maintenance", s.maintenanceMode)
-		api.POST("/hosts/:id/evacuate", s.evacuateHostHTTP)
+		api.POST("/hosts/register", rp("host", "create"), s.registerHost)
+		api.POST("/hosts/heartbeat", rp("host", "create"), s.heartbeat)
+		api.POST("/hosts/test-connection", rp("host", "create"), s.testConnection)
+		api.GET("/hosts", rp("host", "list"), s.listHosts)
+		api.GET("/hosts/install-script", rp("host", "list"), s.generateInstallScript)
+		api.POST("/hosts/deploy", rp("host", "create"), s.deployHost)
+		api.GET("/hosts/:id", rp("host", "get"), s.getHost)
+		api.PUT("/hosts/:id", rp("host", "update"), s.updateHost)
+		api.DELETE("/hosts/:id", rp("host", "delete"), s.deleteHost)
+		api.POST("/hosts/:id/enable", rp("host", "create"), s.enableHost)
+		api.POST("/hosts/:id/disable", rp("host", "create"), s.disableHost)
+		api.POST("/hosts/:id/maintenance", rp("host", "create"), s.maintenanceMode)
+		api.POST("/hosts/:id/evacuate", rp("host", "create"), s.evacuateHostHTTP)
 	}
 }
 
