@@ -36,6 +36,7 @@ import (
 	"github.com/Veritas-Calculus/vc-stack/internal/management/orchestration"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/quota"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/ratelimit"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/region"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/registry"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/scheduler"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/selfheal"
@@ -45,6 +46,10 @@ import (
 	"github.com/Veritas-Calculus/vc-stack/internal/management/tools"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/usage"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/vpn"
+
+	"github.com/Veritas-Calculus/vc-stack/pkg/dlock"
+	"github.com/Veritas-Calculus/vc-stack/pkg/mq"
+	"github.com/Veritas-Calculus/vc-stack/pkg/vcredis"
 
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -59,6 +64,27 @@ type Config struct {
 	// Modules controls which optional modules are enabled.
 	// If nil, all modules are enabled (backward compatible).
 	Modules *ModulesConfig
+
+	// SchedulerOvercommit holds CPU/RAM/Disk overcommit ratios for the scheduler.
+	SchedulerOvercommit struct {
+		CPURatio  float64
+		RAMRatio  float64
+		DiskRatio float64
+	}
+
+	// DLock is an optional distributed lock manager backed by etcd.
+	// If nil, the management plane runs in single-instance mode
+	// (no leader election, no distributed locking).
+	DLock *dlock.Manager
+
+	// Redis is an optional Redis manager for session sharing,
+	// token blacklisting, and distributed rate limiting.
+	// If nil, in-memory fallback is used.
+	Redis *vcredis.Manager
+
+	// MQ is an optional message bus (Kafka).
+	// If nil, synchronous REST dispatch is used.
+	MQ mq.MessageBus
 }
 
 // Service composes all management plane services
@@ -108,12 +134,18 @@ type Service struct {
 	ConfigCenter  *configcenter.Service
 	EventBus      *eventbus.Service
 	HPC           *hpc.Service
+	Region        *region.Service
 
 	// ── Module registry (new: interface-based) ────────────────────────
 	modules map[string]Module
 	// ── Runtime feature flags ─────────────────────────────────────────
 	Features *FeatureFlags
 	logger   *zap.Logger
+
+	// ── HA infrastructure (P4) ───────────────────────────────────────
+	DLock *dlock.Manager   // nil = single-instance mode
+	Redis *vcredis.Manager // nil = in-memory fallback
+	MQ    mq.MessageBus    // nil = synchronous REST dispatch
 }
 
 // RegisterModule registers a module by its Name(). Called by module factories
@@ -169,6 +201,9 @@ func New(cfg Config) (*Service, error) {
 		logger:   cfg.Logger,
 		modules:  make(map[string]Module),
 		Features: NewFeatureFlags(cfg.Logger.Named("feature-flags"), 30*time.Second),
+		DLock:    cfg.DLock,
+		Redis:    cfg.Redis,
+		MQ:       cfg.MQ,
 	}
 
 	// Build the module registry.

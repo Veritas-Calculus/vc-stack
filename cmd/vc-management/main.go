@@ -41,10 +41,14 @@ import (
 	"github.com/Veritas-Calculus/vc-stack/internal/management/compute"
 	"github.com/Veritas-Calculus/vc-stack/pkg/appconfig"
 	"github.com/Veritas-Calculus/vc-stack/pkg/database"
+	"github.com/Veritas-Calculus/vc-stack/pkg/dlock"
 	_ "github.com/Veritas-Calculus/vc-stack/pkg/iam" // Register IAM permission mappings
 	"github.com/Veritas-Calculus/vc-stack/pkg/logger"
+	"github.com/Veritas-Calculus/vc-stack/pkg/metrics"
+	"github.com/Veritas-Calculus/vc-stack/pkg/mq"
 	pkgsentry "github.com/Veritas-Calculus/vc-stack/pkg/sentry"
 	"github.com/Veritas-Calculus/vc-stack/pkg/telemetry"
+	"github.com/Veritas-Calculus/vc-stack/pkg/vcredis"
 )
 
 var (
@@ -133,6 +137,53 @@ func main() {
 		zapLogger.Info("database migrations completed")
 	}
 
+	// --- Initialize etcd (distributed lock / leader election) ---
+	var dlockMgr *dlock.Manager
+	if len(appCfg.Etcd.Endpoints) > 0 {
+		dlockMgr, err = dlock.NewManager(appCfg.Etcd, zapLogger.Named("dlock"))
+		if err != nil {
+			zapLogger.Warn("etcd connect failed, running in single-instance mode", zap.Error(err))
+			dlockMgr = nil
+		} else {
+			zapLogger.Info("etcd connected for distributed locking",
+				zap.Strings("endpoints", appCfg.Etcd.Endpoints))
+			defer func() { _ = dlockMgr.Close() }()
+		}
+	} else {
+		zapLogger.Info("etcd not configured, running in single-instance mode")
+	}
+
+	// --- Initialize Redis (session / cache) ---
+	var redisMgr *vcredis.Manager
+	if appCfg.Redis.Addr != "" || len(appCfg.Redis.SentinelAddrs) > 0 {
+		redisMgr, err = vcredis.NewManager(appCfg.Redis, zapLogger.Named("redis"))
+		if err != nil {
+			zapLogger.Warn("Redis connect failed, using in-memory fallback", zap.Error(err))
+			redisMgr = nil
+		} else {
+			zapLogger.Info("Redis connected for session/cache")
+			defer func() { _ = redisMgr.Close() }()
+		}
+	} else {
+		zapLogger.Info("Redis not configured, using in-memory session/cache")
+	}
+
+	// --- Initialize Kafka (message bus) ---
+	var mqBus mq.MessageBus
+	if len(appCfg.Kafka.Brokers) > 0 {
+		kafkaBus, kErr := mq.NewKafkaBus(appCfg.Kafka, zapLogger.Named("kafka"))
+		if kErr != nil {
+			zapLogger.Warn("Kafka connect failed, using synchronous REST dispatch", zap.Error(kErr))
+		} else {
+			zapLogger.Info("Kafka connected for message bus",
+				zap.Strings("brokers", appCfg.Kafka.Brokers))
+			mqBus = kafkaBus
+			defer func() { _ = kafkaBus.Close() }()
+		}
+	} else {
+		zapLogger.Info("Kafka not configured, using synchronous REST dispatch")
+	}
+
 	// --- Compose management plane services ---
 	jwtSecret := appCfg.Identity.JWTSecret
 	if jwtSecret == "" {
@@ -144,11 +195,19 @@ func main() {
 		jwtSecret = "vc-stack-jwt-secret-change-me-in-production" // #nosec G101 -- dev-only fallback
 	}
 
-	mgmtSvc, err := management.New(management.Config{
+	mgmtCfg := management.Config{
 		DB:        db,
 		Logger:    zapLogger,
 		JWTSecret: jwtSecret,
-	})
+		DLock:     dlockMgr,
+		Redis:     redisMgr,
+		MQ:        mqBus,
+	}
+	mgmtCfg.SchedulerOvercommit.CPURatio = appCfg.Scheduler.CPUOvercommitRatio
+	mgmtCfg.SchedulerOvercommit.RAMRatio = appCfg.Scheduler.RAMOvercommitRatio
+	mgmtCfg.SchedulerOvercommit.DiskRatio = appCfg.Scheduler.DiskOvercommitRatio
+
+	mgmtSvc, err := management.New(mgmtCfg)
 	if err != nil {
 		zapLogger.Fatal("failed to initialize management services", zap.Error(err))
 	}
@@ -174,9 +233,11 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.Use(gin.Recovery())
+	router.Use(metrics.GinMiddleware())
 	if otelEndpoint != "" {
 		router.Use(telemetry.GinMiddleware("vc-management"))
 	}
+	router.GET("/metrics", metrics.Handler())
 	mgmtSvc.SetupRoutes(router)
 
 	// Serve frontend Web Console.

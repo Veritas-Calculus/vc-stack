@@ -128,6 +128,45 @@ scheduler:
     # Heartbeat timeout
     heartbeat_timeout: 120s
 
+# ── HA Infrastructure (P4) ──────────────────────────────────
+
+# etcd — distributed lock + leader election + Patroni DCS
+# Leave endpoints empty to run in single-instance mode (no distributed locking).
+etcd:
+  endpoints: []
+  # endpoints:                        # HA mode:
+  #   - etcd-1:2379
+  #   - etcd-2:2379
+  #   - etcd-3:2379
+  dial_timeout: 5s
+  tls: false
+  # cert_file: /etc/vc-stack/certs/etcd-client.crt
+  # key_file: /etc/vc-stack/certs/etcd-client.key
+
+# Redis — session sharing, token blacklist, distributed rate limiting
+# Leave addr and sentinel_addrs empty to disable Redis (in-memory fallback).
+redis:
+  addr: ""                             # Standalone: "localhost:6379"
+  # Sentinel (HA) mode:
+  # master_name: vcstack-master
+  # sentinel_addrs:
+  #   - redis-sentinel-1:26379
+  #   - redis-sentinel-2:26379
+  #   - redis-sentinel-3:26379
+  password: ""
+  db: 0
+  pool_size: 10
+  min_idle_conns: 3
+
+# Kafka — message bus (P5, currently unused)
+# kafka:
+#   brokers:
+#     - kafka-1:9092
+#     - kafka-2:9092
+#     - kafka-3:9092
+#   consumer_group: vc-management
+#   compression: snappy
+
 # Security configuration
 security:
   # CORS configuration

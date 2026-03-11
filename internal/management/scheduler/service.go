@@ -2,15 +2,22 @@ package scheduler
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"sort"
 	"strings"
+	"sync/atomic"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
+	"github.com/Veritas-Calculus/vc-stack/pkg/circuitbreaker"
+	"github.com/Veritas-Calculus/vc-stack/pkg/dlock"
+	"github.com/Veritas-Calculus/vc-stack/pkg/mq"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 
@@ -37,27 +44,56 @@ const (
 	ZoneDown     = "down"     // 0 hosts up
 )
 
+// OvercommitConfig defines resource overcommit ratios.
+type OvercommitConfig struct {
+	CPURatio  float64 // e.g., 4.0 means 1 physical CPU supports 4 vCPUs. 0 or 1.0 = no overcommit.
+	RAMRatio  float64 // e.g., 1.5 means 64GB physical can schedule 96GB of VM RAM.
+	DiskRatio float64 // e.g., 2.0 for thin-provisioned storage.
+}
+
 type Config struct {
-	DB     *gorm.DB
-	Logger *zap.Logger
+	DB         *gorm.DB
+	Logger     *zap.Logger
+	Overcommit OvercommitConfig
+
+	// DLock is an optional distributed lock manager for leader election.
+	// If nil, this instance acts as the sole scheduler (single-instance mode).
+	DLock *dlock.Manager
+
+	// MQ is an optional message bus. If set, VM commands are published
+	// to Kafka instead of dispatched via synchronous REST.
+	MQ mq.MessageBus
 }
 
 // Service provides scheduling and VM dispatch.
 // It reads host data from the persistent `hosts` table instead of
 // keeping a volatile in-memory map that would be lost on restart.
+//
+// In multi-replica mode, only the elected leader performs scheduling.
+// Follower replicas serve read-only endpoints but reject write operations.
 type Service struct {
-	db     *gorm.DB
-	logger *zap.Logger
+	db         *gorm.DB
+	logger     *zap.Logger
+	overcommit OvercommitConfig
+	cbManager  *circuitbreaker.Manager
+
+	// Leader election (nil = always leader).
+	leader   dlock.LeaderElector
+	isLeader atomic.Bool
+
+	// Message bus (nil = synchronous REST dispatch).
+	mq mq.MessageBus
 }
 
 // ScheduleRequest describes what resources to schedule and placement preferences.
 type ScheduleRequest struct {
-	VCPUs     int    `json:"vcpus"`
-	RAMMB     int    `json:"ram_mb"`
-	DiskGB    int    `json:"disk_gb"`
-	ZoneID    string `json:"zone_id"`
-	ClusterID string `json:"cluster_id"`
-	Strategy  string `json:"strategy"` // spread (default), pack, zone-affinity, zone-required
+	VCPUs         int    `json:"vcpus"`
+	RAMMB         int    `json:"ram_mb"`
+	DiskGB        int    `json:"disk_gb"`
+	ZoneID        string `json:"zone_id"`
+	ClusterID     string `json:"cluster_id"`
+	Strategy      string `json:"strategy"`        // spread (default), pack, zone-affinity, zone-required
+	ServerGroupID string `json:"server_group_id"` // optional server group for affinity/anti-affinity
 }
 
 // ScheduleResponse describes the scheduling result.
@@ -93,32 +129,151 @@ func NewService(cfg Config) (*Service, error) {
 	if cfg.Logger == nil {
 		cfg.Logger = zap.NewNop()
 	}
-	return &Service{db: cfg.DB, logger: cfg.Logger}, nil
+
+	// Normalize overcommit ratios — values < 1.0 are treated as no overcommit.
+	if cfg.Overcommit.CPURatio < 1.0 {
+		cfg.Overcommit.CPURatio = 1.0
+	}
+	if cfg.Overcommit.RAMRatio < 1.0 {
+		cfg.Overcommit.RAMRatio = 1.0
+	}
+	if cfg.Overcommit.DiskRatio < 1.0 {
+		cfg.Overcommit.DiskRatio = 1.0
+	}
+
+	cbMgr := circuitbreaker.NewManager(circuitbreaker.Options{
+		FailureThreshold: 5,
+		SuccessThreshold: 2,
+		ResetTimeout:     30 * time.Second,
+		Logger:           cfg.Logger.Named("circuit-breaker"),
+	})
+
+	cfg.Logger.Info("scheduler initialized",
+		zap.Float64("cpu_overcommit", cfg.Overcommit.CPURatio),
+		zap.Float64("ram_overcommit", cfg.Overcommit.RAMRatio),
+		zap.Float64("disk_overcommit", cfg.Overcommit.DiskRatio))
+
+	svc := &Service{
+		db:         cfg.DB,
+		logger:     cfg.Logger,
+		overcommit: cfg.Overcommit,
+		cbManager:  cbMgr,
+		mq:         cfg.MQ,
+	}
+
+	// If distributed lock manager is available, start leader election.
+	if cfg.DLock != nil {
+		leader, err := cfg.DLock.NewLeaderElection("/vc/leader/scheduler", 15*time.Second)
+		if err != nil {
+			return nil, fmt.Errorf("scheduler: leader election init failed: %w", err)
+		}
+		svc.leader = leader
+
+		// Get a unique identifier for this instance.
+		hostname, _ := os.Hostname()
+		instanceID := fmt.Sprintf("%s-%d", hostname, os.Getpid())
+
+		// Campaign in the background — blocks until elected.
+		go func() {
+			cfg.Logger.Info("scheduler: starting leader election campaign",
+				zap.String("instance", instanceID))
+			if err := leader.Campaign(context.Background(), instanceID); err != nil {
+				cfg.Logger.Error("scheduler: leader campaign failed", zap.Error(err))
+				return
+			}
+			svc.isLeader.Store(true)
+			cfg.Logger.Info("scheduler: elected as leader",
+				zap.String("instance", instanceID))
+		}()
+	} else {
+		// Single-instance mode: always leader.
+		svc.isLeader.Store(true)
+		cfg.Logger.Info("scheduler: running in single-instance mode (always leader)")
+	}
+
+	return svc, nil
 }
 
 func (s *Service) SetupRoutes(r *gin.Engine) {
 	rp := middleware.RequirePermission
 	// Health check under scheduler prefix to avoid conflicts
 	r.GET("/api/scheduler/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"status": "healthy", "service": "vc-scheduler"})
+		status := "follower"
+		if s.isLeader.Load() {
+			status = "leader"
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"status":    "healthy",
+			"service":   "vc-scheduler",
+			"role":      status,
+			"is_leader": s.isLeader.Load(),
+		})
 	})
 	v1 := r.Group("/api/v1")
 	{
-		v1.POST("/schedule", rp("scheduler", "create"), s.schedule)
-		v1.POST("/dispatch/vms", rp("scheduler", "create"), s.dispatchVMCreate)
+		// Write endpoints — leader only.
+		v1.POST("/schedule", rp("scheduler", "create"), s.requireLeader(), s.schedule)
+		v1.POST("/dispatch/vms", rp("scheduler", "create"), s.requireLeader(), s.dispatchVMCreate)
 
-		// Zone capacity and scheduling APIs.
+		// Read endpoints — all replicas can serve.
 		v1.GET("/scheduler/zones", rp("scheduler", "list"), s.listZoneCapacities)
 		v1.GET("/scheduler/zones/:zone_id", rp("scheduler", "get"), s.getZoneCapacity)
 		v1.GET("/scheduler/stats", rp("scheduler", "get"), s.schedulerStats)
 
+		// Server group management.
+		v1.POST("/server-groups", rp("scheduler", "create"), s.requireLeader(), s.createServerGroup)
+		v1.GET("/server-groups", rp("scheduler", "list"), s.listServerGroups)
+		v1.GET("/server-groups/:id", rp("scheduler", "get"), s.getServerGroup)
+		v1.DELETE("/server-groups/:id", rp("scheduler", "delete"), s.requireLeader(), s.deleteServerGroup)
+
+		// Diagnostics — all replicas.
+		v1.GET("/scheduler/circuit-breakers", rp("scheduler", "get"), s.listCircuitBreakers)
+		v1.GET("/scheduler/leader", rp("scheduler", "get"), s.leaderStatus)
+
 		// Legacy /nodes endpoints — delegate to hosts table.
-		v1.POST("/nodes/register", rp("scheduler", "create"), s.legacyRegisterNode)
+		v1.POST("/nodes/register", rp("scheduler", "create"), s.requireLeader(), s.legacyRegisterNode)
 		v1.POST("/nodes/heartbeat", rp("scheduler", "create"), s.legacyHeartbeat)
 		v1.GET("/nodes", rp("scheduler", "list"), s.listNodes)
 		v1.GET("/nodes/:id", rp("scheduler", "get"), s.getNode)
-		v1.DELETE("/nodes/:id", rp("scheduler", "delete"), s.deleteNode)
+		v1.DELETE("/nodes/:id", rp("scheduler", "delete"), s.requireLeader(), s.deleteNode)
 	}
+}
+
+// requireLeader is a Gin middleware that rejects write requests when
+// this instance is not the scheduler leader.
+func (s *Service) requireLeader() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if !s.isLeader.Load() {
+			c.JSON(http.StatusServiceUnavailable, gin.H{
+				"error":     "this instance is not the scheduler leader",
+				"code":      "SCHEDULER_NOT_LEADER",
+				"is_leader": false,
+			})
+			c.Abort()
+			return
+		}
+		c.Next()
+	}
+}
+
+// leaderStatus returns the current leader election status.
+func (s *Service) leaderStatus(c *gin.Context) {
+	hostname, _ := os.Hostname()
+	instanceID := fmt.Sprintf("%s-%d", hostname, os.Getpid())
+
+	resp := gin.H{
+		"is_leader":   s.isLeader.Load(),
+		"instance_id": instanceID,
+	}
+
+	if s.leader != nil {
+		resp["leader_value"] = s.leader.LeaderValue()
+		resp["mode"] = "distributed"
+	} else {
+		resp["mode"] = "single-instance"
+	}
+
+	c.JSON(http.StatusOK, resp)
 }
 
 // dispatchVMCreate selects a host and forwards the VM create request.
@@ -163,19 +318,28 @@ func (s *Service) dispatchVMCreate(c *gin.Context) {
 		zap.String("uuid", host.UUID), zap.String("name", host.Name),
 		zap.String("reason", schedResp.Reason))
 
-	// Forward request to the selected host's VM driver.
+	// Forward request to the selected host's VM driver via circuit breaker.
 	addr := strings.TrimRight(host.GetManagementURL(), "/") + "/api/v1/vms"
 	buf := &bytes.Buffer{}
 	if err := json.NewEncoder(buf).Encode(payload); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to encode payload"})
 		return
 	}
-	reqHTTP, _ := http.NewRequest("POST", addr, buf)
-	reqHTTP.Header.Set("Content-Type", "application/json")
-	httpResp, err := http.DefaultClient.Do(reqHTTP) // #nosec
-	if err != nil {
-		s.logger.Error("dispatch forward failed", zap.String("addr", addr), zap.Error(err))
-		c.JSON(http.StatusBadGateway, gin.H{"error": "forward to node failed"})
+
+	var httpResp *http.Response
+	cbErr := s.cbManager.Execute(host.UUID, func() error {
+		reqHTTP, _ := http.NewRequest("POST", addr, buf)
+		reqHTTP.Header.Set("Content-Type", "application/json")
+		var reqErr error
+		httpResp, reqErr = http.DefaultClient.Do(reqHTTP) // #nosec
+		return reqErr
+	})
+	if cbErr != nil {
+		s.logger.Error("dispatch forward failed",
+			zap.String("addr", addr),
+			zap.String("host", host.UUID),
+			zap.Error(cbErr))
+		c.JSON(http.StatusBadGateway, gin.H{"error": circuitbreaker.FormatError(host.Name, cbErr).Error()})
 		return
 	}
 	defer func() { _ = httpResp.Body.Close() }()
@@ -327,12 +491,27 @@ func (s *Service) selectHost(req ScheduleRequest) (*models.Host, ScheduleRespons
 		}
 	}
 
+	// Apply server group constraints if specified.
+	if req.ServerGroupID != "" {
+		candidates = s.applyServerGroupFilter(candidates, req.ServerGroupID)
+		if len(candidates) == 0 {
+			emptyResp.Reason = "no hosts available that satisfy server group policy"
+			return nil, emptyResp
+		}
+	}
+
 	// Sort candidates based on strategy.
 	s.sortCandidates(candidates, strategy)
 
 	chosen := &candidates[0]
-	reason := fmt.Sprintf("%s: cpu=%d/%d ram=%d/%d",
-		strategy, chosen.CPUAllocated, chosen.CPUCores, chosen.RAMAllocatedMB, chosen.RAMMB)
+
+	// Build reason string with overcommit info if active.
+	overcommitInfo := ""
+	if s.overcommit.CPURatio > 1.0 || s.overcommit.RAMRatio > 1.0 {
+		overcommitInfo = fmt.Sprintf(" overcommit(cpu=%.1fx,ram=%.1fx)", s.overcommit.CPURatio, s.overcommit.RAMRatio)
+	}
+	reason := fmt.Sprintf("%s: cpu=%d/%d ram=%d/%d%s",
+		strategy, chosen.CPUAllocated, chosen.CPUCores, chosen.RAMAllocatedMB, chosen.RAMMB, overcommitInfo)
 
 	resp := ScheduleResponse{
 		NodeID:   chosen.UUID,
@@ -361,7 +540,7 @@ func (s *Service) findHostsInZone(baseQuery *gorm.DB, req ScheduleRequest) []mod
 		s.logger.Error("failed to query zone hosts", zap.Error(err))
 		return nil
 	}
-	return filterByResources(hosts, req)
+	return s.filterByResources(hosts, req)
 }
 
 // findHostsAllZones queries hosts across all zones that fit the request.
@@ -376,18 +555,31 @@ func (s *Service) findHostsAllZones(baseQuery *gorm.DB, req ScheduleRequest) []m
 		s.logger.Error("failed to query hosts", zap.Error(err))
 		return nil
 	}
-	return filterByResources(hosts, req)
+	return s.filterByResources(hosts, req)
 }
 
-// filterByResources filters hosts by available resources.
-func filterByResources(hosts []models.Host, req ScheduleRequest) []models.Host {
+// filterByResources filters hosts by available resources, applying overcommit ratios.
+func (s *Service) filterByResources(hosts []models.Host, req ScheduleRequest) []models.Host {
 	candidates := make([]models.Host, 0, len(hosts))
 	for _, h := range hosts {
-		if h.HasEnoughResources(req.VCPUs, int64(req.RAMMB), int64(req.DiskGB)) {
+		if s.hasEnoughWithOvercommit(h, req.VCPUs, int64(req.RAMMB), int64(req.DiskGB)) {
 			candidates = append(candidates, h)
 		}
 	}
 	return candidates
+}
+
+// hasEnoughWithOvercommit checks if a host has enough resources after applying overcommit ratios.
+func (s *Service) hasEnoughWithOvercommit(h models.Host, cpus int, ramMB, diskGB int64) bool {
+	effectiveCPU := int(float64(h.CPUCores) * s.overcommit.CPURatio)
+	effectiveRAM := int64(float64(h.RAMMB) * s.overcommit.RAMRatio)
+	effectiveDisk := int64(float64(h.DiskGB) * s.overcommit.DiskRatio)
+
+	freeCPU := effectiveCPU - h.CPUAllocated
+	freeRAM := effectiveRAM - h.RAMAllocatedMB
+	freeDisk := effectiveDisk - h.DiskAllocatedGB
+
+	return freeCPU >= cpus && freeRAM >= ramMB && freeDisk >= diskGB
 }
 
 // sortCandidates sorts hosts based on the scheduling strategy.

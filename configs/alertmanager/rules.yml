@@ -1,0 +1,151 @@
+# AlertManager Rules for VC Stack
+# Compatible with Prometheus AlertManager.
+# Place in /etc/alertmanager/ or mount as ConfigMap.
+
+groups:
+  - name: vc_infrastructure
+    interval: 30s
+    rules:
+      # --- Node Health ---
+      - alert: HostDown
+        expr: up{job="vc-management"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "VC Management instance {{ $labels.instance }} is down"
+          description: "Management plane instance has been unreachable for >2 minutes."
+
+      - alert: HostHighCPU
+        expr: (1 - avg by(instance)(rate(node_cpu_seconds_total{mode="idle"}[5m]))) > 0.9
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage above 90% for >10 minutes."
+
+      - alert: HostHighMemory
+        expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) > 0.9
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) < 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Disk space below 10% on {{ $labels.instance }}:{{ $labels.mountpoint }}"
+
+      # --- Database ---
+      - alert: PostgreSQLDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL is down on {{ $labels.instance }}"
+
+      - alert: PostgreSQLReplicationLag
+        expr: pg_replication_lag > 30
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "PostgreSQL replication lag >30s on {{ $labels.instance }}"
+
+      - alert: PostgreSQLConnectionsHigh
+        expr: pg_stat_activity_count > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High PostgreSQL connections ({{ $value }}) on {{ $labels.instance }}"
+
+      # --- Kafka ---
+      - alert: KafkaBrokerDown
+        expr: kafka_server_broker_state != 3
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Kafka broker {{ $labels.instance }} is down"
+
+      - alert: KafkaConsumerLag
+        expr: kafka_consumer_group_lag > 10000
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Kafka consumer lag >10k on group {{ $labels.group }}, topic {{ $labels.topic }}"
+
+      - alert: KafkaUnderReplicatedPartitions
+        expr: kafka_server_replica_manager_under_replicated_partitions > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Under-replicated partitions on broker {{ $labels.instance }}"
+
+      # --- etcd ---
+      - alert: EtcdClusterUnhealthy
+        expr: etcd_server_has_leader == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "etcd member {{ $labels.instance }} has no leader"
+
+      - alert: EtcdHighFsyncDuration
+        expr: histogram_quantile(0.99, rate(etcd_disk_wal_fsync_duration_seconds_bucket[5m])) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "etcd WAL fsync P99 >500ms on {{ $labels.instance }}"
+
+      # --- Redis ---
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis is down on {{ $labels.instance }}"
+
+      - alert: RedisHighMemory
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis memory >90% on {{ $labels.instance }}"
+
+      # --- VC Stack Application ---
+      - alert: HighErrorRate
+        expr: rate(vc_http_requests_total{status=~"5.."}[5m]) / rate(vc_http_requests_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Error rate >5% on {{ $labels.path }}"
+
+      - alert: HighAPILatency
+        expr: histogram_quantile(0.99, rate(vc_http_request_duration_seconds_bucket[5m])) > 5
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "API P99 latency >5s on {{ $labels.path }}"
+
+      - alert: SchedulerNotLeader
+        expr: count(vc_scheduler_is_leader == 1) == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "No scheduler leader elected — scheduling is halted"

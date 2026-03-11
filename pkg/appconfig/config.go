@@ -16,17 +16,25 @@ import (
 	"time"
 
 	"github.com/spf13/viper"
+
+	"github.com/Veritas-Calculus/vc-stack/pkg/dlock"
+	"github.com/Veritas-Calculus/vc-stack/pkg/mq"
+	"github.com/Veritas-Calculus/vc-stack/pkg/vcredis"
 )
 
 // AppConfig is the root configuration for vc-management.
 type AppConfig struct {
-	Server   ServerConfig   `mapstructure:"server"`
-	Database DatabaseConfig `mapstructure:"database"`
-	Identity IdentityConfig `mapstructure:"identity"`
-	Network  NetworkConfig  `mapstructure:"network"`
-	Security SecurityConfig `mapstructure:"security"`
-	Logging  LoggingConfig  `mapstructure:"logging"`
-	Modules  ModulesConfig  `mapstructure:"modules"`
+	Server    ServerConfig    `mapstructure:"server"`
+	Database  DatabaseConfig  `mapstructure:"database"`
+	Identity  IdentityConfig  `mapstructure:"identity"`
+	Network   NetworkConfig   `mapstructure:"network"`
+	Security  SecurityConfig  `mapstructure:"security"`
+	Logging   LoggingConfig   `mapstructure:"logging"`
+	Modules   ModulesConfig   `mapstructure:"modules"`
+	Scheduler SchedulerConfig `mapstructure:"scheduler"`
+	Etcd      dlock.Config    `mapstructure:"etcd"`
+	Redis     vcredis.Config  `mapstructure:"redis"`
+	Kafka     mq.KafkaConfig  `mapstructure:"kafka"`
 
 	// SDN configuration (also via env vars).
 	SDNProvider    string `mapstructure:"sdn_provider"`
@@ -96,6 +104,18 @@ type SecurityConfig struct {
 	CORSAllowedOrigins []string `mapstructure:"cors_allowed_origins"`
 	RateLimitEnabled   bool     `mapstructure:"rate_limit_enabled"`
 	RateLimitRPM       int      `mapstructure:"rate_limit_rpm"`
+}
+
+// SchedulerConfig holds resource scheduling configuration.
+type SchedulerConfig struct {
+	// CPUOvercommitRatio allows scheduling more vCPUs than physical cores.
+	// A ratio of 4.0 means each physical core can host 4 vCPUs. Default: 1.0 (no overcommit).
+	CPUOvercommitRatio float64 `mapstructure:"cpu_overcommit_ratio"`
+	// RAMOvercommitRatio allows scheduling more RAM than physical memory.
+	// A ratio of 1.5 means 64GB physical RAM can host 96GB of VM RAM. Default: 1.0 (no overcommit).
+	RAMOvercommitRatio float64 `mapstructure:"ram_overcommit_ratio"`
+	// DiskOvercommitRatio for thin-provisioned storage. Default: 1.0.
+	DiskOvercommitRatio float64 `mapstructure:"disk_overcommit_ratio"`
 }
 
 // LoggingConfig holds log output settings.
@@ -242,6 +262,38 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("modules.enable_registry", true)
 	v.SetDefault("modules.enable_configcenter", true)
 	v.SetDefault("modules.enable_eventbus", true)
+
+	// Scheduler
+	v.SetDefault("scheduler.cpu_overcommit_ratio", 1.0)
+	v.SetDefault("scheduler.ram_overcommit_ratio", 1.0)
+	v.SetDefault("scheduler.disk_overcommit_ratio", 1.0)
+
+	// etcd (distributed lock / leader election)
+	// Empty endpoints = etcd disabled (single-instance mode).
+	v.SetDefault("etcd.endpoints", []string{})
+	v.SetDefault("etcd.dial_timeout", "5s")
+	v.SetDefault("etcd.tls", false)
+
+	// Redis (session / cache / rate limiting)
+	// Empty addr + empty sentinel_addrs = Redis disabled.
+	v.SetDefault("redis.addr", "")
+	v.SetDefault("redis.master_name", "")
+	v.SetDefault("redis.sentinel_addrs", []string{})
+	v.SetDefault("redis.password", "")
+	v.SetDefault("redis.db", 0)
+	v.SetDefault("redis.pool_size", 10)
+	v.SetDefault("redis.min_idle_conns", 3)
+
+	// Kafka (message bus)
+	// Empty brokers = Kafka disabled.
+	v.SetDefault("kafka.brokers", []string{})
+	v.SetDefault("kafka.consumer_group", "vc-management")
+	v.SetDefault("kafka.compression", "snappy")
+	v.SetDefault("kafka.max_retries", 3)
+	v.SetDefault("kafka.dlq_topic", "vc.system.dlq")
+	v.SetDefault("kafka.dlq_enabled", true)
+	v.SetDefault("kafka.batch_size", 100)
+	v.SetDefault("kafka.batch_timeout", "1s")
 }
 
 // bindEnvVars maps environment variable names to config keys.
@@ -278,4 +330,26 @@ func bindEnvVars(v *viper.Viper) {
 
 	_ = v.BindEnv("sentry_dsn", "SENTRY_DSN")
 	_ = v.BindEnv("sentry_environment", "SENTRY_ENVIRONMENT")
+
+	_ = v.BindEnv("scheduler.cpu_overcommit_ratio", "SCHEDULER_CPU_OVERCOMMIT")
+	_ = v.BindEnv("scheduler.ram_overcommit_ratio", "SCHEDULER_RAM_OVERCOMMIT")
+	_ = v.BindEnv("scheduler.disk_overcommit_ratio", "SCHEDULER_DISK_OVERCOMMIT")
+
+	// etcd
+	_ = v.BindEnv("etcd.endpoints", "ETCD_ENDPOINTS")
+	_ = v.BindEnv("etcd.dial_timeout", "ETCD_DIAL_TIMEOUT")
+	_ = v.BindEnv("etcd.username", "ETCD_USERNAME")
+	_ = v.BindEnv("etcd.password", "ETCD_PASSWORD")
+
+	// Redis
+	_ = v.BindEnv("redis.addr", "REDIS_ADDR")
+	_ = v.BindEnv("redis.master_name", "REDIS_MASTER_NAME")
+	_ = v.BindEnv("redis.sentinel_addrs", "REDIS_SENTINEL_ADDRS")
+	_ = v.BindEnv("redis.password", "REDIS_PASSWORD")
+	_ = v.BindEnv("redis.db", "REDIS_DB")
+
+	// Kafka
+	_ = v.BindEnv("kafka.brokers", "KAFKA_BROKERS")
+	_ = v.BindEnv("kafka.consumer_group", "KAFKA_CONSUMER_GROUP")
+	_ = v.BindEnv("kafka.compression", "KAFKA_COMPRESSION")
 }

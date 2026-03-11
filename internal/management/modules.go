@@ -113,7 +113,17 @@ func RegisterCoreModules(r *ModuleRegistry) {
 	r.Register(ModuleDescriptor{
 		Name: "scheduler", Core: true,
 		Factory: func(svc *Service, cfg Config) error {
-			s, err := scheduler.NewService(scheduler.Config{DB: cfg.DB, Logger: cfg.Logger})
+			s, err := scheduler.NewService(scheduler.Config{
+				DB:     cfg.DB,
+				Logger: cfg.Logger,
+				DLock:  cfg.DLock,
+				MQ:     cfg.MQ,
+				Overcommit: scheduler.OvercommitConfig{
+					CPURatio:  cfg.SchedulerOvercommit.CPURatio,
+					RAMRatio:  cfg.SchedulerOvercommit.RAMRatio,
+					DiskRatio: cfg.SchedulerOvercommit.DiskRatio,
+				},
+			})
 			if err != nil {
 				return err
 			}

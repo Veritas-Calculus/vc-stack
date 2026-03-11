@@ -1,0 +1,295 @@
+# VC Stack HA Development Environment
+#
+# This compose file deploys the full HA stack for P4 validation:
+#   - PostgreSQL Patroni 3-node cluster (via etcd DCS)
+#   - etcd 3-node Raft cluster
+#   - Redis Sentinel (1 master + 1 slave + 3 sentinels)
+#   - PgBouncer connection pooler
+#   - HAProxy load balancer for vc-management
+#
+# Usage:
+#   docker compose -f docker-compose.ha.yml up -d          # Start HA infra
+#   docker compose -f docker-compose.ha.yml logs -f etcd1  # Watch etcd logs
+#   docker compose -f docker-compose.ha.yml down -v        # Tear down
+
+services:
+
+  # ===================== etcd Cluster (3-node) =====================
+  # Serves as:
+  #   1. Patroni DCS (PostgreSQL leader election)
+  #   2. vc-management distributed lock / leader election
+
+  etcd1:
+    image: bitnami/etcd:3.5
+    container_name: vc-etcd-1
+    environment:
+      ETCD_NAME: etcd1
+      ETCD_INITIAL_ADVERTISE_PEER_URLS: http://etcd1:2380
+      ETCD_LISTEN_PEER_URLS: http://0.0.0.0:2380
+      ETCD_LISTEN_CLIENT_URLS: http://0.0.0.0:2379
+      ETCD_ADVERTISE_CLIENT_URLS: http://etcd1:2379
+      ETCD_INITIAL_CLUSTER: etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380
+      ETCD_INITIAL_CLUSTER_STATE: new
+      ETCD_INITIAL_CLUSTER_TOKEN: vc-etcd-cluster
+      ALLOW_NONE_AUTHENTICATION: "yes"
+    volumes:
+      - etcd1_data:/bitnami/etcd
+    healthcheck:
+      test: [ "CMD", "etcdctl", "endpoint", "health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - vc-ha
+    restart: unless-stopped
+
+  etcd2:
+    image: bitnami/etcd:3.5
+    container_name: vc-etcd-2
+    environment:
+      ETCD_NAME: etcd2
+      ETCD_INITIAL_ADVERTISE_PEER_URLS: http://etcd2:2380
+      ETCD_LISTEN_PEER_URLS: http://0.0.0.0:2380
+      ETCD_LISTEN_CLIENT_URLS: http://0.0.0.0:2379
+      ETCD_ADVERTISE_CLIENT_URLS: http://etcd2:2379
+      ETCD_INITIAL_CLUSTER: etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380
+      ETCD_INITIAL_CLUSTER_STATE: new
+      ETCD_INITIAL_CLUSTER_TOKEN: vc-etcd-cluster
+      ALLOW_NONE_AUTHENTICATION: "yes"
+    volumes:
+      - etcd2_data:/bitnami/etcd
+    networks:
+      - vc-ha
+    restart: unless-stopped
+
+  etcd3:
+    image: bitnami/etcd:3.5
+    container_name: vc-etcd-3
+    environment:
+      ETCD_NAME: etcd3
+      ETCD_INITIAL_ADVERTISE_PEER_URLS: http://etcd3:2380
+      ETCD_LISTEN_PEER_URLS: http://0.0.0.0:2380
+      ETCD_LISTEN_CLIENT_URLS: http://0.0.0.0:2379
+      ETCD_ADVERTISE_CLIENT_URLS: http://etcd3:2379
+      ETCD_INITIAL_CLUSTER: etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380
+      ETCD_INITIAL_CLUSTER_STATE: new
+      ETCD_INITIAL_CLUSTER_TOKEN: vc-etcd-cluster
+      ALLOW_NONE_AUTHENTICATION: "yes"
+    volumes:
+      - etcd3_data:/bitnami/etcd
+    networks:
+      - vc-ha
+    restart: unless-stopped
+
+  # ===================== PostgreSQL Patroni Cluster (3-node) =====================
+
+  patroni1:
+    image: bitnami/postgresql-repmgr:15
+    container_name: vc-patroni-1
+    environment:
+      POSTGRESQL_POSTGRES_PASSWORD: ${PG_SUPERUSER_PASS:-postgres}
+      POSTGRESQL_USERNAME: ${DB_USER:-vcstack}
+      POSTGRESQL_PASSWORD: ${DB_PASS:-vcstack-dev-password}
+      POSTGRESQL_DATABASE: ${DB_NAME:-vcstack}
+      POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS: 1
+      REPMGR_PRIMARY_HOST: patroni1
+      REPMGR_PARTNER_NODES: patroni1,patroni2,patroni3
+      REPMGR_NODE_NAME: patroni1
+      REPMGR_NODE_NETWORK_NAME: patroni1
+      REPMGR_PASSWORD: ${REPMGR_PASS:-repmgr-password}
+    volumes:
+      - patroni1_data:/bitnami/postgresql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U vcstack -d vcstack" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - vc-ha
+    restart: unless-stopped
+
+  patroni2:
+    image: bitnami/postgresql-repmgr:15
+    container_name: vc-patroni-2
+    environment:
+      POSTGRESQL_POSTGRES_PASSWORD: ${PG_SUPERUSER_PASS:-postgres}
+      POSTGRESQL_USERNAME: ${DB_USER:-vcstack}
+      POSTGRESQL_PASSWORD: ${DB_PASS:-vcstack-dev-password}
+      POSTGRESQL_DATABASE: ${DB_NAME:-vcstack}
+      POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS: 1
+      REPMGR_PRIMARY_HOST: patroni1
+      REPMGR_PARTNER_NODES: patroni1,patroni2,patroni3
+      REPMGR_NODE_NAME: patroni2
+      REPMGR_NODE_NETWORK_NAME: patroni2
+      REPMGR_PASSWORD: ${REPMGR_PASS:-repmgr-password}
+    volumes:
+      - patroni2_data:/bitnami/postgresql
+    networks:
+      - vc-ha
+    restart: unless-stopped
+
+  patroni3:
+    image: bitnami/postgresql-repmgr:15
+    container_name: vc-patroni-3
+    environment:
+      POSTGRESQL_POSTGRES_PASSWORD: ${PG_SUPERUSER_PASS:-postgres}
+      POSTGRESQL_USERNAME: ${DB_USER:-vcstack}
+      POSTGRESQL_PASSWORD: ${DB_PASS:-vcstack-dev-password}
+      POSTGRESQL_DATABASE: ${DB_NAME:-vcstack}
+      POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS: 1
+      REPMGR_PRIMARY_HOST: patroni1
+      REPMGR_PARTNER_NODES: patroni1,patroni2,patroni3
+      REPMGR_NODE_NAME: patroni3
+      REPMGR_NODE_NETWORK_NAME: patroni3
+      REPMGR_PASSWORD: ${REPMGR_PASS:-repmgr-password}
+    volumes:
+      - patroni3_data:/bitnami/postgresql
+    networks:
+      - vc-ha
+    restart: unless-stopped
+
+  # ===================== PgBouncer (Connection Pooler) =====================
+
+  pgbouncer:
+    image: bitnami/pgbouncer:1
+    container_name: vc-pgbouncer
+    depends_on:
+      patroni1:
+        condition: service_healthy
+    environment:
+      PGBOUNCER_DATABASE: ${DB_NAME:-vcstack}
+      POSTGRESQL_HOST: patroni1
+      POSTGRESQL_PORT: 5432
+      POSTGRESQL_USERNAME: ${DB_USER:-vcstack}
+      POSTGRESQL_PASSWORD: ${DB_PASS:-vcstack-dev-password}
+      PGBOUNCER_PORT: 6432
+      PGBOUNCER_POOL_MODE: transaction
+      PGBOUNCER_MAX_CLIENT_CONN: 1000
+      PGBOUNCER_DEFAULT_POOL_SIZE: 50
+      PGBOUNCER_MIN_POOL_SIZE: 10
+      PGBOUNCER_RESERVE_POOL_SIZE: 5
+    ports:
+      - "6432:6432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -h 127.0.0.1 -p 6432 -U vcstack -d vcstack" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - vc-ha
+    restart: unless-stopped
+
+  # ===================== Redis Sentinel =====================
+
+  redis-master:
+    image: bitnami/redis:7.4
+    container_name: vc-redis-master
+    environment:
+      REDIS_REPLICATION_MODE: master
+      ALLOW_EMPTY_PASSWORD: "yes"
+    volumes:
+      - redis_master_data:/bitnami/redis
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - vc-ha
+    restart: unless-stopped
+
+  redis-slave:
+    image: bitnami/redis:7.4
+    container_name: vc-redis-slave
+    depends_on:
+      redis-master:
+        condition: service_healthy
+    environment:
+      REDIS_REPLICATION_MODE: slave
+      REDIS_MASTER_HOST: redis-master
+      ALLOW_EMPTY_PASSWORD: "yes"
+    volumes:
+      - redis_slave_data:/bitnami/redis
+    networks:
+      - vc-ha
+    restart: unless-stopped
+
+  redis-sentinel-1:
+    image: bitnami/redis-sentinel:7.4
+    container_name: vc-redis-sentinel-1
+    depends_on:
+      redis-master:
+        condition: service_healthy
+    environment:
+      REDIS_SENTINEL_DOWN_AFTER_MILLISECONDS: 5000
+      REDIS_SENTINEL_FAILOVER_TIMEOUT: 10000
+      REDIS_SENTINEL_QUORUM: 2
+      REDIS_MASTER_HOST: redis-master
+      REDIS_MASTER_SET: vcstack-master
+      ALLOW_EMPTY_PASSWORD: "yes"
+    networks:
+      - vc-ha
+    restart: unless-stopped
+
+  redis-sentinel-2:
+    image: bitnami/redis-sentinel:7.4
+    container_name: vc-redis-sentinel-2
+    depends_on:
+      redis-master:
+        condition: service_healthy
+    environment:
+      REDIS_SENTINEL_DOWN_AFTER_MILLISECONDS: 5000
+      REDIS_SENTINEL_FAILOVER_TIMEOUT: 10000
+      REDIS_SENTINEL_QUORUM: 2
+      REDIS_MASTER_HOST: redis-master
+      REDIS_MASTER_SET: vcstack-master
+      ALLOW_EMPTY_PASSWORD: "yes"
+    networks:
+      - vc-ha
+    restart: unless-stopped
+
+  redis-sentinel-3:
+    image: bitnami/redis-sentinel:7.4
+    container_name: vc-redis-sentinel-3
+    depends_on:
+      redis-master:
+        condition: service_healthy
+    environment:
+      REDIS_SENTINEL_DOWN_AFTER_MILLISECONDS: 5000
+      REDIS_SENTINEL_FAILOVER_TIMEOUT: 10000
+      REDIS_SENTINEL_QUORUM: 2
+      REDIS_MASTER_HOST: redis-master
+      REDIS_MASTER_SET: vcstack-master
+      ALLOW_EMPTY_PASSWORD: "yes"
+    networks:
+      - vc-ha
+    restart: unless-stopped
+
+  # ===================== HAProxy (Management LB) =====================
+
+  haproxy:
+    image: haproxy:2.9-alpine
+    container_name: vc-haproxy
+    ports:
+      - "8080:8080"
+      - "8404:8404" # HAProxy stats page
+    volumes:
+      - ./configs/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    networks:
+      - vc-ha
+    restart: unless-stopped
+
+volumes:
+  etcd1_data:
+  etcd2_data:
+  etcd3_data:
+  patroni1_data:
+  patroni2_data:
+  patroni3_data:
+  redis_master_data:
+  redis_slave_data:
+
+
+networks:
+  vc-ha:
+    driver: bridge
