@@ -168,7 +168,9 @@ export function HPCJobs() {
           <div key={s.label} className="bg-surface-tertiary border border-border rounded-xl p-4">
             <div className="flex items-center gap-2 mb-1">
               <span className={`w-2 h-2 rounded-full ${s.dot}`} />
-              <span className="text-xs text-content-tertiary uppercase tracking-wider">{s.label}</span>
+              <span className="text-xs text-content-tertiary uppercase tracking-wider">
+                {s.label}
+              </span>
             </div>
             <div className={`text-2xl font-bold ${s.color}`}>{s.value}</div>
           </div>
@@ -258,7 +260,9 @@ export function HPCJobs() {
                       {job.gpus > 0 && (
                         <span className="text-status-purple font-medium" title="GPUs">
                           {Icons.cpu('w-3.5 h-3.5 inline')} {job.gpus} GPU{job.gpus > 1 ? 's' : ''}
-                          {job.gpu_type && <span className="text-status-purple"> {job.gpu_type}</span>}
+                          {job.gpu_type && (
+                            <span className="text-status-purple"> {job.gpu_type}</span>
+                          )}
                         </span>
                       )}
                       {job.nodes > 1 && (
@@ -317,7 +321,10 @@ export function HPCJobs() {
               {selectedJob.name}
               <span className={statusBadge(selectedJob.status)}>{selectedJob.status}</span>
             </h3>
-            <button onClick={() => setSelectedJob(null)} className="text-content-tertiary hover:text-content-primary">
+            <button
+              onClick={() => setSelectedJob(null)}
+              className="text-content-tertiary hover:text-content-primary"
+            >
               {Icons.xMark('w-5 h-5')}
             </button>
           </div>
@@ -527,7 +534,9 @@ function SubmitJobModal({
 
           {/* Resources */}
           <div className="border-t border-border pt-4">
-            <h3 className="text-xs text-content-secondary uppercase tracking-wider mb-3">Resources</h3>
+            <h3 className="text-xs text-content-secondary uppercase tracking-wider mb-3">
+              Resources
+            </h3>
             <div className="grid grid-cols-4 gap-3">
               <div>
                 <label className={labelClass}>CPUs</label>

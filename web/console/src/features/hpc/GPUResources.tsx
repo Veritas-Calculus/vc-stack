@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import api from '@/lib/api'
 import { Icons } from '@/components/ui/Icons'
+import { SummaryBox } from '@/components/ui/SummaryBox'
 
 interface GPUPool {
   id: string
@@ -105,12 +106,6 @@ export function GPUResources() {
       : utilizationPct > 50
         ? 'text-status-text-warning'
         : 'text-status-text-success'
-  const utilizationBarColor =
-    utilizationPct > 80
-      ? 'from-red-500 to-red-600'
-      : utilizationPct > 50
-        ? 'from-amber-500 to-amber-600'
-        : 'from-emerald-500 to-emerald-600'
 
   if (loading) {
     return (
@@ -133,73 +128,49 @@ export function GPUResources() {
       </div>
 
       {/* GPU Overview Banner */}
-      <div className="bg-gradient-to-r from-purple-600/20 via-violet-600/20 to-blue-600/20 border border-border rounded-2xl p-6 mb-6">
-        <div className="flex items-center gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-6">
+        <div className="bg-surface-secondary border border-border rounded-xl p-5 flex flex-col items-center justify-center shadow-sm">
           {/* Utilization Ring */}
-          <div className="relative w-28 h-28 flex-shrink-0">
-            <svg className="w-28 h-28 -rotate-90" viewBox="0 0 120 120">
+          <div className="relative w-24 h-24 flex-shrink-0">
+            <svg className="w-24 h-24 -rotate-90" viewBox="0 0 120 120">
               <circle
                 cx="60"
                 cy="60"
                 r="50"
                 stroke="currentColor"
-                className="text-content-secondary"
-                strokeWidth="8"
+                className="text-content-secondary/20"
+                strokeWidth="10"
                 fill="none"
               />
               <circle
                 cx="60"
                 cy="60"
                 r="50"
-                stroke="url(#gpuGradient)"
-                strokeWidth="8"
+                stroke="currentColor"
+                className={utilizationColor}
+                strokeWidth="10"
                 fill="none"
                 strokeDasharray={`${utilizationPct * 3.14} ${314 - utilizationPct * 3.14}`}
                 strokeLinecap="round"
               />
-              <defs>
-                <linearGradient id="gpuGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#a855f7" />
-                  <stop offset="100%" stopColor="#3b82f6" />
-                </linearGradient>
-              </defs>
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center">
-                <div className={`text-2xl font-bold ${utilizationColor}`}>{utilizationPct}%</div>
-                <div className="text-[10px] text-content-tertiary">utilized</div>
+                <div className={`text-xl font-bold ${utilizationColor}`}>{utilizationPct}%</div>
+                <div className="text-[10px] text-content-tertiary uppercase tracking-wider">
+                  used
+                </div>
               </div>
             </div>
           </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-4 gap-6 flex-1">
-            {[
-              { label: 'Total GPUs', value: totalGPUs, color: 'text-content-primary' },
-              { label: 'Allocated', value: allocatedGPUs, color: 'text-accent' },
-              { label: 'Available', value: availableGPUs, color: 'text-accent' },
-              { label: 'MIG Pools', value: migPools, color: 'text-accent' }
-            ].map((s) => (
-              <div key={s.label}>
-                <div className="text-xs text-content-tertiary uppercase tracking-wider mb-1">{s.label}</div>
-                <div className={`text-3xl font-bold ${s.color}`}>{s.value}</div>
-              </div>
-            ))}
-          </div>
         </div>
 
-        {/* Utilization Bar */}
-        <div className="mt-4">
-          <div className="w-full h-3 bg-surface-hover/50 rounded-full overflow-hidden">
-            <div
-              className={`h-full rounded-full bg-gradient-to-r ${utilizationBarColor} transition-all duration-500`}
-              style={{ width: `${utilizationPct}%` }}
-            />
-          </div>
-          <div className="flex justify-between mt-1 text-xs text-content-tertiary">
-            <span>{allocatedGPUs} allocated</span>
-            <span>{availableGPUs} available</span>
-          </div>
+        {/* Stats */}
+        <div className="lg:col-span-4 grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <SummaryBox label="Total GPUs" value={totalGPUs} />
+          <SummaryBox label="Allocated" value={allocatedGPUs} />
+          <SummaryBox label="Available" value={availableGPUs} />
+          <SummaryBox label="MIG Pools" value={migPools} />
         </div>
       </div>
 
@@ -209,19 +180,25 @@ export function GPUResources() {
           {Object.entries(byType).map(([type, data]) => (
             <div
               key={type}
-              className={`bg-gradient-to-br ${gpuTypeColors[type] || 'from-gray-600 to-gray-700'} bg-opacity-20 border border-border rounded-xl p-4 relative overflow-hidden`}
+              className="bg-surface-secondary border border-border rounded-xl p-4 shadow-sm hover:border-border-strong transition-colors relative overflow-hidden"
             >
-              <div className="absolute top-0 right-0 w-16 h-16 bg-surface-hover rounded-bl-[40px]" />
-              <div className="relative">
+              <div
+                className={`absolute top-0 right-0 w-1.5 h-full bg-gradient-to-b ${gpuTypeColors[type] || 'from-gray-600 to-gray-700'}`}
+              />
+              <div className="relative pr-2">
                 <div className="text-content-primary font-bold text-lg">{type}</div>
                 <div className="text-content-secondary text-xs mt-1">
                   {data.pools} pool{data.pools > 1 ? 's' : ''}
                 </div>
                 <div className="mt-3 flex items-baseline gap-1">
                   <span className="text-2xl font-bold text-content-primary">{data.total}</span>
-                  <span className="text-content-tertiary text-xs">GPUs</span>
+                  <span className="text-content-tertiary text-xs uppercase tracking-wider">
+                    GPUs
+                  </span>
                 </div>
-                <div className="text-xs text-content-secondary mt-1">{data.available} available</div>
+                <div className="text-xs text-content-secondary mt-1">
+                  {data.available} available
+                </div>
               </div>
             </div>
           ))}
@@ -239,7 +216,9 @@ export function GPUResources() {
           <div className="text-center py-16">
             <div className="mb-4 text-status-purple">{Icons.cpu('w-12 h-12 mx-auto')}</div>
             <p className="text-content-secondary text-lg">No GPU pools configured</p>
-            <p className="text-content-tertiary text-sm mt-1">Create GPU pools in your HPC clusters</p>
+            <p className="text-content-tertiary text-sm mt-1">
+              Create GPU pools in your HPC clusters
+            </p>
           </div>
         ) : (
           <table className="w-full text-sm">
@@ -317,10 +296,7 @@ export function GPUResources() {
           </h3>
           <div className="grid grid-cols-4 gap-3">
             {topology.gpu_devices.map((gpu) => (
-              <div
-                key={gpu.index}
-                className="bg-surface-hover border border-border rounded-lg p-3"
-              >
+              <div key={gpu.index} className="bg-surface-hover border border-border rounded-lg p-3">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-status-purple font-mono text-xs">GPU {gpu.index}</span>
                   <span

@@ -183,7 +183,9 @@ export function Dashboard() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-content-primary">Dashboard</h1>
-          <p className="text-sm text-content-secondary mt-1">System overview and resource utilization</p>
+          <p className="text-sm text-content-secondary mt-1">
+            System overview and resource utilization
+          </p>
         </div>
         <button
           onClick={fetchDashboard}
@@ -373,7 +375,9 @@ export function Dashboard() {
           </div>
           <div className="divide-y divide-border">
             {d.recent_events.length === 0 ? (
-              <div className="px-4 py-6 text-center text-content-tertiary text-sm">No recent events</div>
+              <div className="px-4 py-6 text-center text-content-tertiary text-sm">
+                No recent events
+              </div>
             ) : (
               d.recent_events.slice(0, 8).map((evt) => (
                 <div
@@ -391,10 +395,14 @@ export function Dashboard() {
                     <div>
                       <span className="text-sm text-content-primary capitalize">{evt.action}</span>
                       <span className="text-sm text-content-tertiary"> · </span>
-                      <span className="text-sm text-content-secondary capitalize">{evt.resource_type}</span>
+                      <span className="text-sm text-content-secondary capitalize">
+                        {evt.resource_type}
+                      </span>
                     </div>
                   </div>
-                  <span className="text-xs text-content-tertiary">{relativeTime(evt.timestamp)}</span>
+                  <span className="text-xs text-content-tertiary">
+                    {relativeTime(evt.timestamp)}
+                  </span>
                 </div>
               ))
             )}
@@ -432,7 +440,9 @@ export function Dashboard() {
                     />
                     <span className="text-sm text-content-primary">{alert.message}</span>
                   </div>
-                  <span className="text-xs text-content-tertiary">{relativeTime(alert.timestamp)}</span>
+                  <span className="text-xs text-content-tertiary">
+                    {relativeTime(alert.timestamp)}
+                  </span>
                 </div>
               ))
             )}

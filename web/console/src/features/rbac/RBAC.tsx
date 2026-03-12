@@ -186,7 +186,9 @@ export function RBAC() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-content-primary">Access Control (RBAC)</h1>
-          <p className="text-sm text-content-secondary mt-1">Manage roles, permissions, and user access</p>
+          <p className="text-sm text-content-secondary mt-1">
+            Manage roles, permissions, and user access
+          </p>
         </div>
         <div className="flex gap-2">
           {tab === 'roles' && (
@@ -261,7 +263,9 @@ export function RBAC() {
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-content-secondary mb-4 line-clamp-2">{role.description}</p>
+                      <p className="text-xs text-content-secondary mb-4 line-clamp-2">
+                        {role.description}
+                      </p>
                       <div className="flex items-center justify-between text-xs text-content-tertiary">
                         <span>{role.permission_count} permissions</span>
                         <span>{role.user_count} users</span>
@@ -312,7 +316,9 @@ export function RBAC() {
               </div>
 
               {/* Permissions on this role */}
-              <h3 className="text-sm font-medium text-content-secondary mb-3">Assigned Permissions</h3>
+              <h3 className="text-sm font-medium text-content-secondary mb-3">
+                Assigned Permissions
+              </h3>
               {selectedRole.permissions?.length > 0 ? (
                 <div className="rounded-xl border border-border overflow-hidden">
                   <table className="w-full text-sm">
@@ -327,14 +333,18 @@ export function RBAC() {
                     <tbody className="divide-y divide-border/50">
                       {selectedRole.permissions.map((p) => (
                         <tr key={p.id} className="hover:bg-surface-tertiary transition-colors">
-                          <td className="px-4 py-2 font-mono text-xs text-content-primary">{p.name}</td>
+                          <td className="px-4 py-2 font-mono text-xs text-content-primary">
+                            {p.name}
+                          </td>
                           <td
                             className={`px-4 py-2 text-xs font-medium ${resourceColor(p.resource)}`}
                           >
                             {p.resource}
                           </td>
                           <td className="px-4 py-2 text-xs text-content-secondary">{p.action}</td>
-                          <td className="px-4 py-2 text-xs text-content-tertiary">{p.description}</td>
+                          <td className="px-4 py-2 text-xs text-content-tertiary">
+                            {p.description}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -375,7 +385,9 @@ export function RBAC() {
                               className="px-4 py-2 flex items-center justify-between hover:bg-surface-tertiary/20"
                             >
                               <div className="flex items-center gap-3">
-                                <span className="font-mono text-xs text-content-primary w-40">{p.name}</span>
+                                <span className="font-mono text-xs text-content-primary w-40">
+                                  {p.name}
+                                </span>
                                 <span className="px-2 py-0.5 rounded bg-surface-hover text-xs text-content-secondary">
                                   {p.action}
                                 </span>
@@ -411,7 +423,9 @@ export function RBAC() {
                     <tbody className="divide-y divide-border/50">
                       {users.map((u) => (
                         <tr key={u.id} className="hover:bg-surface-tertiary transition-colors">
-                          <td className="px-4 py-3 font-medium text-content-primary">{u.username}</td>
+                          <td className="px-4 py-3 font-medium text-content-primary">
+                            {u.username}
+                          </td>
                           <td className="px-4 py-3 text-content-secondary text-xs">{u.email}</td>
                           <td className="px-4 py-3">
                             <div className="flex flex-wrap gap-1">
@@ -521,7 +535,9 @@ export function RBAC() {
                     </div>
                   ))}
               </div>
-              <div className="text-xs text-content-tertiary mt-1">{selectedPerms.length} selected</div>
+              <div className="text-xs text-content-tertiary mt-1">
+                {selectedPerms.length} selected
+              </div>
             </Field>
             <div className="flex justify-end gap-2 pt-2">
               <button
@@ -622,7 +638,10 @@ function Modal({
       >
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-lg font-semibold text-content-primary">{title}</h2>
-          <button onClick={onClose} className="text-content-secondary hover:text-content-primary text-xl leading-none">
+          <button
+            onClick={onClose}
+            className="text-content-secondary hover:text-content-primary text-xl leading-none"
+          >
             ×
           </button>
         </div>

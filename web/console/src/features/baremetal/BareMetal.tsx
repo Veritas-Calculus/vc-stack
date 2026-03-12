@@ -253,7 +253,9 @@ export function BareMetal() {
                               className={`w-2 h-2 rounded-full ${srv.power_status === 'on' ? 'bg-emerald-400' : 'bg-border-strong'}`}
                             ></div>
                             <div>
-                              <div className="text-content-primary font-medium text-sm">{srv.name}</div>
+                              <div className="text-content-primary font-medium text-sm">
+                                {srv.name}
+                              </div>
                               <div className="text-content-tertiary text-xs">
                                 {srv.manufacturer} {srv.model}
                               </div>
@@ -357,7 +359,9 @@ export function BareMetal() {
                 <h4 className="text-xs text-content-tertiary uppercase mb-2">Compute</h4>
                 <div className="text-content-primary font-bold">{serverDetail.cpu_cores} Cores</div>
                 <div className="text-content-secondary text-xs">{serverDetail.cpu_model}</div>
-                <div className="text-content-secondary text-xs">{serverDetail.cpu_sockets} sockets</div>
+                <div className="text-content-secondary text-xs">
+                  {serverDetail.cpu_sockets} sockets
+                </div>
               </div>
               <div className="bg-surface-hover rounded-lg p-4">
                 <h4 className="text-xs text-content-tertiary uppercase mb-2">Memory</h4>
@@ -384,12 +388,17 @@ export function BareMetal() {
                 <h4 className="text-xs text-content-tertiary uppercase mb-2">Network</h4>
                 <div className="text-sm text-content-secondary space-y-1">
                   <div>
-                    MAC: <span className="font-mono text-content-primary">{serverDetail.primary_mac}</span>
+                    MAC:{' '}
+                    <span className="font-mono text-content-primary">
+                      {serverDetail.primary_mac}
+                    </span>
                   </div>
                   {serverDetail.primary_ip && (
                     <div>
                       IP:{' '}
-                      <span className="font-mono text-status-text-success">{serverDetail.primary_ip}</span>
+                      <span className="font-mono text-status-text-success">
+                        {serverDetail.primary_ip}
+                      </span>
                     </div>
                   )}
                   <div>
@@ -410,7 +419,8 @@ export function BareMetal() {
                   </div>
                   {serverDetail.os_profile && (
                     <div>
-                      OS: <span className="text-status-text-warning">{serverDetail.os_profile}</span>
+                      OS:{' '}
+                      <span className="text-status-text-warning">{serverDetail.os_profile}</span>
                     </div>
                   )}
                 </div>
@@ -545,7 +555,9 @@ export function BareMetal() {
                             </span>
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-content-secondary text-xs">{prov.phase as string}</td>
+                        <td className="px-4 py-3 text-content-secondary text-xs">
+                          {prov.phase as string}
+                        </td>
                         <td className="px-4 py-3 text-content-secondary text-xs">
                           {prov.started_at
                             ? new Date(prov.started_at as string).toLocaleString()

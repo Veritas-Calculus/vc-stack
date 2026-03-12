@@ -183,7 +183,11 @@ export function ComplianceAudit() {
   }
 
   const scoreColor = (s: number) =>
-    s >= 80 ? 'text-status-text-success' : s >= 60 ? 'text-status-text-warning' : 'text-status-text-error'
+    s >= 80
+      ? 'text-status-text-success'
+      : s >= 60
+        ? 'text-status-text-warning'
+        : 'text-status-text-error'
 
   const tabs: { key: Tab; label: string }[] = [
     { key: 'overview', label: 'Overview' },
@@ -317,7 +321,9 @@ export function ComplianceAudit() {
                     className="border-t border-border hover:bg-surface-hover transition"
                   >
                     <td className="px-4 py-3 text-content-primary font-medium">{p.name}</td>
-                    <td className="px-4 py-3 text-content-secondary font-mono text-xs">{p.event_pattern}</td>
+                    <td className="px-4 py-3 text-content-secondary font-mono text-xs">
+                      {p.event_pattern}
+                    </td>
                     <td className="px-4 py-3 text-content-secondary text-xs">{p.category}</td>
                     <td className="px-4 py-3">
                       <span className={badge(p.severity)}>{p.severity}</span>
@@ -424,7 +430,10 @@ export function ComplianceAudit() {
                     <td className="px-4 py-3">
                       <span className={badge(l.result)}>{l.result}</span>
                     </td>
-                    <td className="px-4 py-3 text-content-tertiary font-mono text-xs" title={l.hash}>
+                    <td
+                      className="px-4 py-3 text-content-tertiary font-mono text-xs"
+                      title={l.hash}
+                    >
                       {l.hash?.slice(0, 12)}…
                     </td>
                   </tr>
@@ -528,7 +537,9 @@ export function ComplianceAudit() {
                       <div>
                         <div className="text-content-primary font-semibold group-hover:text-status-purple transition">
                           {fw.name}{' '}
-                          <span className="text-content-tertiary text-sm font-normal">v{fw.version}</span>
+                          <span className="text-content-tertiary text-sm font-normal">
+                            v{fw.version}
+                          </span>
                         </div>
                         <div className="text-content-tertiary text-xs mt-0.5">{fw.description}</div>
                       </div>
@@ -551,9 +562,15 @@ export function ComplianceAudit() {
                         {fw.score}%
                       </div>
                       {fw.enabled ? (
-                        <span className="flex items-center gap-1 text-status-text-success text-xs"><span className="inline-block w-2 h-2 rounded-full bg-emerald-400"></span> active</span>
+                        <span className="flex items-center gap-1 text-status-text-success text-xs">
+                          <span className="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>{' '}
+                          active
+                        </span>
                       ) : (
-                        <span className="flex items-center gap-1 text-content-tertiary text-xs"><span className="inline-block w-2 h-2 rounded-full border border-border-strong"></span> disabled</span>
+                        <span className="flex items-center gap-1 text-content-tertiary text-xs">
+                          <span className="inline-block w-2 h-2 rounded-full border border-border-strong"></span>{' '}
+                          disabled
+                        </span>
                       )}
                     </div>
                   </div>

@@ -91,7 +91,9 @@ export function VPNManagement() {
     <div>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-content-primary">VPN</h1>
-        <p className="text-sm text-content-secondary mt-1">Site-to-site VPN and remote access management</p>
+        <p className="text-sm text-content-secondary mt-1">
+          Site-to-site VPN and remote access management
+        </p>
       </div>
 
       <div className="flex gap-1 mb-6 border-b border-border pb-px">

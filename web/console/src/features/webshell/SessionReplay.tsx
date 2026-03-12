@@ -432,7 +432,9 @@ export function SessionReplay() {
             </button>
 
             <div className="flex items-center gap-2 ml-4">
-              <span className="text-sm text-content-tertiary dark:text-content-secondary">速度:</span>
+              <span className="text-sm text-content-tertiary dark:text-content-secondary">
+                速度:
+              </span>
               <select
                 value={playbackSpeed}
                 onChange={(e) => setPlaybackSpeed(parseFloat(e.target.value))}

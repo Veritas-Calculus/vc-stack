@@ -166,7 +166,9 @@ export function SessionList() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-content-primary">WebShell 会话记录</h1>
-          <p className="text-sm text-content-tertiary dark:text-content-secondary mt-1">查看和管理所有SSH会话记录</p>
+          <p className="text-sm text-content-tertiary dark:text-content-secondary mt-1">
+            查看和管理所有SSH会话记录
+          </p>
         </div>
 
         <button
@@ -211,9 +213,7 @@ export function SessionList() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-content-secondary mb-1">
-                状态
-              </label>
+              <label className="block text-sm font-medium text-content-secondary mb-1">状态</label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
@@ -257,7 +257,9 @@ export function SessionList() {
       {/* Sessions Table */}
       <div className="bg-surface-secondary rounded-lg border border-border overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-content-tertiary dark:text-content-secondary">加载中...</div>
+          <div className="p-8 text-center text-content-tertiary dark:text-content-secondary">
+            加载中...
+          </div>
         ) : sessions.length === 0 ? (
           <div className="p-8 text-center text-content-tertiary dark:text-content-secondary">
             <Terminal className="w-12 h-12 mx-auto mb-3 opacity-50" />
@@ -290,7 +292,10 @@ export function SessionList() {
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {sessions.map((session) => (
-                  <tr key={session.id} className="hover:bg-surface-hover dark:hover:bg-surface-primary/50">
+                  <tr
+                    key={session.id}
+                    className="hover:bg-surface-hover dark:hover:bg-surface-primary/50"
+                  >
                     <td className="px-4 py-4">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">

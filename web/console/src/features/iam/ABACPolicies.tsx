@@ -37,7 +37,9 @@ export function ABACPolicies() {
         allow
       </span>
     ) : (
-      <span className="text-xs px-2 py-0.5 rounded-full bg-red-500/15 text-status-text-error">deny</span>
+      <span className="text-xs px-2 py-0.5 rounded-full bg-red-500/15 text-status-text-error">
+        deny
+      </span>
     )
 
   const cols: Column<UIABACPolicy>[] = [

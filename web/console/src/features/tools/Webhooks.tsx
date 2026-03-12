@@ -143,7 +143,9 @@ export function Webhooks() {
                 />
               </div>
               <div>
-                <label className="block text-xs text-content-secondary mb-1">Events (comma-separated)</label>
+                <label className="block text-xs text-content-secondary mb-1">
+                  Events (comma-separated)
+                </label>
                 <input
                   value={events}
                   onChange={(e) => setEvents(e.target.value)}

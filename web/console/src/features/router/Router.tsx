@@ -245,7 +245,9 @@ export default function RouterManagement() {
       key: 'external_gateway',
       header: 'External Gateway',
       render: (r) => (
-        <span className={r.external_gateway_network_id ? 'text-green-400' : 'text-content-tertiary'}>
+        <span
+          className={r.external_gateway_network_id ? 'text-green-400' : 'text-content-tertiary'}
+        >
           {getNetworkName(r.external_gateway_network_id)}
         </span>
       )
@@ -519,7 +521,9 @@ export default function RouterManagement() {
 
           {/* Connected Interfaces */}
           <div>
-            <h3 className="text-sm font-semibold text-content-primary mb-3">Connected Interfaces</h3>
+            <h3 className="text-sm font-semibold text-content-primary mb-3">
+              Connected Interfaces
+            </h3>
             {routerInterfaces.length === 0 ? (
               <p className="text-content-tertiary text-sm">No interfaces connected</p>
             ) : (

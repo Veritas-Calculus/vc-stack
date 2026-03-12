@@ -159,7 +159,9 @@ export function RateLimiting() {
           >
             {t.label}
             {'count' in t && t.count !== undefined && (
-              <span className="ml-2 px-1.5 py-0.5 bg-surface-hover/60 rounded text-xs">{t.count}</span>
+              <span className="ml-2 px-1.5 py-0.5 bg-surface-hover/60 rounded text-xs">
+                {t.count}
+              </span>
             )}
           </button>
         ))}
@@ -185,7 +187,8 @@ export function RateLimiting() {
               {
                 label: 'Block Rate',
                 value: `${status.block_rate}%`,
-                color: status.block_rate > 5 ? 'text-status-text-error' : 'text-status-text-success',
+                color:
+                  status.block_rate > 5 ? 'text-status-text-error' : 'text-status-text-success',
                 icon: Icons.chart('w-5 h-5')
               },
               {
@@ -319,7 +322,9 @@ export function RateLimiting() {
                         .slice(0, 5)
                         .map((t) => (
                           <div key={t.tenant_id} className="flex justify-between text-xs py-1">
-                            <span className="text-content-secondary">{t.tenant_id || '(anonymous)'}</span>
+                            <span className="text-content-secondary">
+                              {t.tenant_id || '(anonymous)'}
+                            </span>
                             <span className="text-status-purple">{t.count}</span>
                           </div>
                         ))}
@@ -373,7 +378,9 @@ export function RateLimiting() {
                     <td className="px-4 py-3">
                       <span className={scopeBadge(p.scope)}>{p.scope}</span>
                     </td>
-                    <td className="px-4 py-3 text-content-secondary font-mono text-xs">{p.scope_id}</td>
+                    <td className="px-4 py-3 text-content-secondary font-mono text-xs">
+                      {p.scope_id}
+                    </td>
                     <td className="px-4 py-3 text-content-primary">
                       {p.requests_per_min}
                       <span className="text-content-tertiary text-xs">/min</span>
@@ -413,7 +420,9 @@ export function RateLimiting() {
           <div className="bg-surface-tertiary border border-border rounded-xl overflow-hidden">
             {events.length === 0 ? (
               <div className="text-center py-12">
-                <div className="mb-3 text-status-text-success">{Icons.checkCircle('w-10 h-10')}</div>
+                <div className="mb-3 text-status-text-success">
+                  {Icons.checkCircle('w-10 h-10')}
+                </div>
                 <p className="text-content-secondary">No rate limit violations</p>
                 <p className="text-content-tertiary text-sm mt-1">
                   All API requests are within configured limits
@@ -446,9 +455,15 @@ export function RateLimiting() {
                       <td className="px-4 py-3 text-content-secondary font-mono text-xs">
                         {e.method} {e.path}
                       </td>
-                      <td className="px-4 py-3 text-content-secondary font-mono text-xs">{e.client_ip}</td>
-                      <td className="px-4 py-3 text-content-secondary text-xs">{e.tenant_id || '—'}</td>
-                      <td className="px-4 py-3 text-content-secondary text-xs">{e.user_id || '—'}</td>
+                      <td className="px-4 py-3 text-content-secondary font-mono text-xs">
+                        {e.client_ip}
+                      </td>
+                      <td className="px-4 py-3 text-content-secondary text-xs">
+                        {e.tenant_id || '—'}
+                      </td>
+                      <td className="px-4 py-3 text-content-secondary text-xs">
+                        {e.user_id || '—'}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -524,7 +539,8 @@ export function RateLimiting() {
             <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg text-sm text-content-secondary">
               <p className="text-accent font-medium mb-1">How it works:</p>
               <p>
-                CPU &gt; threshold OR latency &gt; threshold &rarr; limits × scale_down_factor (min 10%)
+                CPU &gt; threshold OR latency &gt; threshold &rarr; limits × scale_down_factor (min
+                10%)
               </p>
               <p>
                 CPU &lt; 70% of threshold AND latency &lt; 50% of threshold &rarr; limits ×
@@ -562,7 +578,9 @@ function CreatePolicyModal({
         className="bg-surface-secondary border border-border rounded-xl p-6 w-[520px]"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-lg font-semibold text-content-primary mb-4">Create Rate Limit Policy</h2>
+        <h2 className="text-lg font-semibold text-content-primary mb-4">
+          Create Rate Limit Policy
+        </h2>
         <div className="space-y-4">
           <div>
             <label className="block text-sm text-content-secondary mb-1">Name</label>

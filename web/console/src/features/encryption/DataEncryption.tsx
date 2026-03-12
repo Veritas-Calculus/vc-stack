@@ -195,7 +195,9 @@ export function DataEncryption() {
           >
             {t.label}
             {'count' in t && t.count !== undefined && (
-              <span className="ml-2 px-1.5 py-0.5 bg-surface-hover/60 rounded text-xs">{t.count}</span>
+              <span className="ml-2 px-1.5 py-0.5 bg-surface-hover/60 rounded text-xs">
+                {t.count}
+              </span>
             )}
           </button>
         ))}
@@ -216,7 +218,9 @@ export function DataEncryption() {
                 label: 'Encryption %',
                 value: `${Number(status.encryption_pct || 0).toFixed(0)}%`,
                 color:
-                  Number(status.encryption_pct || 0) > 80 ? 'text-status-text-success' : 'text-status-text-warning',
+                  Number(status.encryption_pct || 0) > 80
+                    ? 'text-status-text-success'
+                    : 'text-status-text-warning',
                 icon: Icons.chart('w-5 h-5')
               },
               {
@@ -270,7 +274,9 @@ export function DataEncryption() {
                 </div>
                 <div className="flex items-center justify-between py-1">
                   <span className="text-content-secondary">Key Management</span>
-                  <span className="text-status-text-success font-mono text-xs">KMS (AES-256-GCM)</span>
+                  <span className="text-status-text-success font-mono text-xs">
+                    KMS (AES-256-GCM)
+                  </span>
                 </div>
               </div>
             </div>
@@ -281,7 +287,11 @@ export function DataEncryption() {
               <div className="space-y-3 text-sm">
                 <div className="flex items-center justify-between py-1">
                   <span className="text-content-secondary">Status</span>
-                  <span className={status.mtls_enabled ? 'text-status-text-success' : 'text-status-text-warning'}>
+                  <span
+                    className={
+                      status.mtls_enabled ? 'text-status-text-success' : 'text-status-text-warning'
+                    }
+                  >
                     {status.mtls_enabled ? 'Enabled' : 'Disabled'}
                   </span>
                 </div>
@@ -296,7 +306,11 @@ export function DataEncryption() {
                 <div className="flex items-center justify-between py-1">
                   <span className="text-content-secondary">Expired</span>
                   <span
-                    className={Number(status.expired_certs) > 0 ? 'text-status-text-error' : 'text-content-primary'}
+                    className={
+                      Number(status.expired_certs) > 0
+                        ? 'text-status-text-error'
+                        : 'text-content-primary'
+                    }
                   >
                     {String(status.expired_certs)}
                   </span>
@@ -375,10 +389,16 @@ export function DataEncryption() {
                         <div className="text-content-tertiary text-xs">{p.description}</div>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-content-secondary font-mono text-xs">{p.provider}</td>
-                    <td className="px-4 py-3 text-content-secondary font-mono text-xs">{p.cipher}</td>
+                    <td className="px-4 py-3 text-content-secondary font-mono text-xs">
+                      {p.provider}
+                    </td>
+                    <td className="px-4 py-3 text-content-secondary font-mono text-xs">
+                      {p.cipher}
+                    </td>
                     <td className="px-4 py-3 text-content-primary">{p.key_size}-bit</td>
-                    <td className="px-4 py-3 text-content-secondary text-xs">{p.control_location}</td>
+                    <td className="px-4 py-3 text-content-secondary text-xs">
+                      {p.control_location}
+                    </td>
                     <td className="px-4 py-3">
                       <span className={statusBadge(p.enabled ? 'active' : 'expired')}>
                         {p.enabled ? 'enabled' : 'disabled'}
@@ -452,10 +472,16 @@ export function DataEncryption() {
                         <div className="text-content-primary font-medium">
                           {v.volume_name || `vol-${v.volume_id}`}
                         </div>
-                        <div className="text-content-tertiary text-xs">{v.volume_size_gb || '—'} GB</div>
+                        <div className="text-content-tertiary text-xs">
+                          {v.volume_size_gb || '—'} GB
+                        </div>
                       </td>
-                      <td className="px-4 py-3 text-content-secondary text-xs">{v.profile?.name || '—'}</td>
-                      <td className="px-4 py-3 text-content-secondary font-mono text-xs">{v.cipher}</td>
+                      <td className="px-4 py-3 text-content-secondary text-xs">
+                        {v.profile?.name || '—'}
+                      </td>
+                      <td className="px-4 py-3 text-content-secondary font-mono text-xs">
+                        {v.cipher}
+                      </td>
                       <td className="px-4 py-3 text-content-primary">{v.key_size}-bit</td>
                       <td className="px-4 py-3 text-content-secondary">v{v.luks_version}</td>
                       <td className="px-4 py-3 text-content-secondary font-mono text-xs">
@@ -639,7 +665,9 @@ function CreateProfileModal({
         className="bg-surface-secondary border border-border rounded-xl p-6 w-[520px]"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-lg font-semibold text-content-primary mb-4">Create Encryption Profile</h2>
+        <h2 className="text-lg font-semibold text-content-primary mb-4">
+          Create Encryption Profile
+        </h2>
         <div className="space-y-4">
           <div>
             <label className="block text-sm text-content-secondary mb-1">Name</label>
@@ -785,7 +813,9 @@ function IssueCertModal({
             </div>
           </div>
           <div>
-            <label className="block text-sm text-content-secondary mb-1">SANs (comma-separated)</label>
+            <label className="block text-sm text-content-secondary mb-1">
+              SANs (comma-separated)
+            </label>
             <input
               value={sans}
               onChange={(e) => setSANs(e.target.value)}

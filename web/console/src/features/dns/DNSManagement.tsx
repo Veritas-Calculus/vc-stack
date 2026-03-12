@@ -265,7 +265,9 @@ export function DNSManagement() {
                           <td className="px-4 py-3">
                             <div className="font-medium text-content-primary">{z.name}</div>
                             {z.description && (
-                              <div className="text-xs text-content-tertiary mt-0.5">{z.description}</div>
+                              <div className="text-xs text-content-tertiary mt-0.5">
+                                {z.description}
+                              </div>
                             )}
                           </td>
                           <td className="px-4 py-3">
@@ -283,7 +285,9 @@ export function DNSManagement() {
                           <td className="px-4 py-3 text-center text-content-secondary">
                             {z.recordset_count}
                           </td>
-                          <td className="px-4 py-3 font-mono text-xs text-content-secondary">{z.serial}</td>
+                          <td className="px-4 py-3 font-mono text-xs text-content-secondary">
+                            {z.serial}
+                          </td>
                           <td className="px-4 py-3 text-content-secondary">{z.ttl}s</td>
                           <td className="px-4 py-3 text-right">
                             <div
@@ -324,7 +328,9 @@ export function DNSManagement() {
                   {/* Zone info header */}
                   <div className="mb-4 p-4 rounded-xl border border-border bg-surface-secondary flex items-center justify-between">
                     <div>
-                      <h2 className="text-lg font-semibold text-content-primary">{selectedZone.name}</h2>
+                      <h2 className="text-lg font-semibold text-content-primary">
+                        {selectedZone.name}
+                      </h2>
                       <p className="text-xs text-content-secondary mt-1">
                         Serial: <span className="font-mono">{selectedZone.serial}</span> · TTL:{' '}
                         {selectedZone.ttl}s · Email: {selectedZone.email || '—'}
@@ -371,7 +377,9 @@ export function DNSManagement() {
                         <tbody className="divide-y divide-border/50">
                           {records.map((r) => (
                             <tr key={r.id} className="hover:bg-surface-tertiary transition-colors">
-                              <td className="px-4 py-3 font-mono text-xs text-content-primary">{r.name}</td>
+                              <td className="px-4 py-3 font-mono text-xs text-content-primary">
+                                {r.name}
+                              </td>
                               <td className="px-4 py-3">
                                 <span
                                   className={`px-2 py-0.5 rounded text-xs font-medium ${
@@ -597,7 +605,10 @@ function Modal({
       >
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-lg font-semibold text-content-primary">{title}</h2>
-          <button onClick={onClose} className="text-content-secondary hover:text-content-primary text-xl leading-none">
+          <button
+            onClick={onClose}
+            className="text-content-secondary hover:text-content-primary text-xl leading-none"
+          >
             ×
           </button>
         </div>

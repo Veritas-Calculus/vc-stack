@@ -130,7 +130,9 @@ export function UsageBilling() {
                     >
                       <td className="px-4 py-3">
                         <div className="text-content-primary font-medium">{t.name}</div>
-                        <div className="text-xs text-content-tertiary font-mono">{t.resource_type}</div>
+                        <div className="text-xs text-content-tertiary font-mono">
+                          {t.resource_type}
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-status-text-success font-mono font-semibold">
                         ${t.rate.toFixed(2)}
@@ -167,7 +169,9 @@ export function UsageBilling() {
                     <div className="text-xs text-content-tertiary uppercase tracking-wider mb-1">
                       {u.resource_type.replace(/_/g, ' ')}
                     </div>
-                    <div className="text-2xl font-bold text-content-primary">{u.total_usage.toFixed(1)}</div>
+                    <div className="text-2xl font-bold text-content-primary">
+                      {u.total_usage.toFixed(1)}
+                    </div>
                     <div className="text-xs text-content-secondary">{unitLabel(u.unit)}</div>
                   </div>
                 ))}

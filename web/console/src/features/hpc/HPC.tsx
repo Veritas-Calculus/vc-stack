@@ -76,7 +76,8 @@ export function HPC() {
               <div>
                 <h2 className="text-lg font-semibold text-content-primary">HPC Platform</h2>
                 <p className="text-sm text-content-secondary">
-                  Status: <span className="text-status-text-success font-medium">{status.status}</span>
+                  Status:{' '}
+                  <span className="text-status-text-success font-medium">{status.status}</span>
                 </p>
               </div>
             </div>
@@ -196,10 +197,11 @@ function QuickAction({
           <h3 className="text-base font-semibold text-content-primary mb-1">{title}</h3>
           <p className="text-sm text-content-secondary mb-3">{description}</p>
           <span
-            className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${status === 'Active'
+            className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${
+              status === 'Active'
                 ? 'bg-emerald-500/10 text-status-text-success border border-emerald-500/30'
                 : 'bg-surface-hover text-content-secondary border border-border'
-              }`}
+            }`}
           >
             {status === 'Active' && (
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />

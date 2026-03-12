@@ -431,8 +431,12 @@ export function Kubernetes() {
                     <td className="px-4 py-3">
                       <span className={roleBadge(n.role)}>{n.role}</span>
                     </td>
-                    <td className="px-4 py-3 text-content-secondary font-mono text-xs">{n.ip_address}</td>
-                    <td className="px-4 py-3 text-content-secondary font-mono text-xs">{n.pod_cidr}</td>
+                    <td className="px-4 py-3 text-content-secondary font-mono text-xs">
+                      {n.ip_address}
+                    </td>
+                    <td className="px-4 py-3 text-content-secondary font-mono text-xs">
+                      {n.pod_cidr}
+                    </td>
                     <td className="px-4 py-3 text-content-secondary text-xs">{n.flavor_name}</td>
                     <td className="px-4 py-3 text-content-secondary text-xs">v{n.k8s_version}</td>
                     <td className="px-4 py-3">
@@ -544,19 +548,25 @@ export function Kubernetes() {
               </div>
               <span className="text-content-tertiary">&rarr;</span>
               <div className="text-center p-3 border border-purple-500/30 rounded-lg bg-purple-500/5 w-32">
-                <div className="text-lg mb-1 text-status-purple">{Icons.scaleBalance('w-5 h-5')}</div>
+                <div className="text-lg mb-1 text-status-purple">
+                  {Icons.scaleBalance('w-5 h-5')}
+                </div>
                 <div className="text-content-primary font-medium text-xs">OVN LB</div>
                 <div className="text-content-tertiary text-xs">L4 Load Balancer</div>
               </div>
               <span className="text-content-tertiary">&rarr;</span>
               <div className="text-center p-3 border border-cyan-500/30 rounded-lg bg-cyan-500/5 w-32">
-                <div className="text-lg mb-1 text-status-cyan">{Icons.desktopComputer('w-5 h-5')}</div>
+                <div className="text-lg mb-1 text-status-cyan">
+                  {Icons.desktopComputer('w-5 h-5')}
+                </div>
                 <div className="text-content-primary font-medium text-xs">NodePort</div>
                 <div className="text-content-tertiary text-xs">kube-proxy</div>
               </div>
               <span className="text-content-tertiary">&rarr;</span>
               <div className="text-center p-3 border border-emerald-500/30 rounded-lg bg-emerald-500/5 w-32">
-                <div className="text-lg mb-1 text-status-text-success">{Icons.network('w-5 h-5')}</div>
+                <div className="text-lg mb-1 text-status-text-success">
+                  {Icons.network('w-5 h-5')}
+                </div>
                 <div className="text-content-primary font-medium text-xs">Calico CNI</div>
                 <div className="text-content-tertiary text-xs">{selectedCluster.calico_mode}</div>
               </div>
@@ -705,7 +715,9 @@ export function Kubernetes() {
                       className="border-t border-border hover:bg-surface-hover transition"
                     >
                       <td className="px-4 py-3 text-content-primary font-medium">{p.name}</td>
-                      <td className="px-4 py-3 text-content-secondary font-mono text-xs">{p.peer_ip}</td>
+                      <td className="px-4 py-3 text-content-secondary font-mono text-xs">
+                        {p.peer_ip}
+                      </td>
                       <td className="px-4 py-3 text-content-secondary">AS {p.peer_asn}</td>
                       <td className="px-4 py-3 text-content-secondary">AS {p.node_asn}</td>
                       <td className="px-4 py-3 text-content-secondary text-xs">
@@ -794,7 +806,9 @@ function CreateClusterModal({
         className="bg-surface-secondary border border-border rounded-xl p-6 w-[600px] max-h-[80vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-lg font-semibold text-content-primary mb-4">Create Kubernetes Cluster</h2>
+        <h2 className="text-lg font-semibold text-content-primary mb-4">
+          Create Kubernetes Cluster
+        </h2>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>

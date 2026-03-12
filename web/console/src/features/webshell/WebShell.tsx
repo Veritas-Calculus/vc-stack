@@ -71,7 +71,11 @@ function TreeNode({ node, onPick, openMap, setOpenMap, query }: TreeNodeProps) {
   const host = node as CmdbHost
   return (
     <div className="ml-2 text-sm">
-      <button type="button" className="text-status-link hover:underline" onClick={() => onPick(host)}>
+      <button
+        type="button"
+        className="text-status-link hover:underline"
+        onClick={() => onPick(host)}
+      >
         {host.name}
       </button>
       <span className="text-content-tertiary">

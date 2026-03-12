@@ -4,10 +4,12 @@ import { useAuthStore } from '@/lib/auth'
 import { useSettingsStore } from '@/lib/store'
 import { useAppStore } from '@/lib/appStore'
 import { loginApi, fetchProjects, type UIProject } from '@/lib/api'
+import { useTranslation } from 'react-i18next'
 
 type LoginStep = 'credentials' | 'project'
 
 export function Login() {
+  const { t } = useTranslation()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -83,13 +85,15 @@ export function Login() {
       }
     } catch (err) {
       console.error('Failed to fetch projects', err) // eslint-disable-line no-console
-      setError('Failed to load projects. Continuing without project scope.')
+      setError(
+        t('auth.failedToLoadProjects', 'Failed to load projects. Continuing without project scope.')
+      )
       // Still allow login even if project fetch fails
       setTimeout(() => navigateAfterLogin(null), 1500)
     } finally {
       setProjectsLoading(false)
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [t]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Navigate to the dashboard after project is selected (or skipped)
   const navigateAfterLogin = useCallback(
@@ -117,7 +121,7 @@ export function Login() {
 
     try {
       if (!username || !password) {
-        setError('Please enter username and password.')
+        setError(t('auth.invalidCredentials', 'Please enter username and password.'))
         return
       }
       const res = await loginApi(username, password)
@@ -130,16 +134,18 @@ export function Login() {
         setStep('project')
         loadProjects()
       } else {
-        setError('Login failed: No token received from server.')
+        setError(t('auth.loginFailedNoToken', 'Login failed: No token received from server.'))
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err)
       if (message.includes('401') || message.includes('Unauthorized')) {
-        setError('Incorrect username or password.')
+        setError(t('auth.invalidCredentials', 'Incorrect username or password.'))
       } else if (message.includes('Failed to fetch') || message.includes('NetworkError')) {
-        setError('Unable to connect to the server. Please check your network.')
+        setError(
+          t('auth.networkError', 'Unable to connect to the server. Please check your network.')
+        )
       } else {
-        setError(`Login failed: ${message}`)
+        setError(`${t('auth.loginFailed', 'Login failed:')} ${message}`)
       }
     } finally {
       setLoading(false)
@@ -182,11 +188,11 @@ export function Login() {
               <img src="/logo-42.svg" alt="logo" className="h-6 w-6 rounded object-contain" />
             )}
             <h1 className="text-xl font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-              Sign in to VC Console
+              {t('auth.loginTitle', 'Sign in to VC Console')}
             </h1>
           </div>
           <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-            Use your account to access the console.
+            {t('auth.loginSubtitle', 'Use your account to access the console.')}
           </p>
           {error && (
             <div className="rounded-md bg-red-500/10 border border-red-500/30 px-3 py-2 text-sm text-status-text-error">
@@ -200,7 +206,7 @@ export function Login() {
                 className="btn-secondary w-full h-9 rounded-md text-sm"
                 onClick={startOidc}
               >
-                Continue with OpenID Connect
+                {t('auth.ssoLogin', 'Continue with OpenID Connect')}
               </button>
               <div
                 className="flex items-center gap-2 text-xs"
@@ -218,7 +224,7 @@ export function Login() {
               htmlFor="username"
               style={{ color: 'var(--color-text-secondary)' }}
             >
-              Username
+              {t('auth.username', 'Username')}
             </label>
             <input
               id="username"
@@ -237,7 +243,7 @@ export function Login() {
               htmlFor="password"
               style={{ color: 'var(--color-text-secondary)' }}
             >
-              Password
+              {t('auth.password', 'Password')}
             </label>
             <input
               id="password"
@@ -255,7 +261,7 @@ export function Login() {
             className="btn-primary w-full inline-flex items-center justify-center rounded-md h-9 disabled:opacity-50"
             disabled={loading}
           >
-            {loading ? 'Signing in...' : 'Sign in'}
+            {loading ? t('auth.signingIn', 'Signing in...') : t('auth.signIn', 'Sign in')}
           </button>
         </form>
       </div>
@@ -286,15 +292,15 @@ export function Login() {
               <img src="/logo-42.svg" alt="logo" className="h-5 w-5 rounded object-contain" />
             )}
             <h1 className="text-lg font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-              Select Project
+              {t('auth.selectProject', 'Select Project')}
             </h1>
           </div>
           <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-            Welcome back,{' '}
+            {t('auth.welcomeBack', 'Welcome back')},{' '}
             <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
               {username}
             </span>
-            . Choose a project to continue.
+            . {t('auth.chooseProject', 'Choose a project to continue.')}
           </p>
         </div>
 
@@ -311,7 +317,7 @@ export function Login() {
               style={{ borderColor: 'var(--color-accent)', borderTopColor: 'transparent' }}
             />
             <span className="text-sm" style={{ color: 'var(--color-text-tertiary)' }}>
-              Loading projects...
+              {t('common.loading', 'Loading...')}
             </span>
           </div>
         ) : (
@@ -321,7 +327,7 @@ export function Login() {
               <div>
                 <input
                   className="input w-full rounded-md px-3 py-2 text-sm"
-                  placeholder="Search projects..."
+                  placeholder={t('common.search', 'Search...')}
                   value={projectFilter}
                   onChange={(e) => setProjectFilter(e.target.value)}
                   autoFocus
@@ -339,7 +345,7 @@ export function Login() {
                   className="text-center py-6 text-sm"
                   style={{ color: 'var(--color-text-tertiary)' }}
                 >
-                  {projectFilter ? 'No projects match your search.' : 'No projects available.'}
+                  {projectFilter ? t('common.noData', 'No data') : t('common.noData', 'No data')}
                 </div>
               ) : (
                 filteredProjects.map((p) => {
@@ -443,7 +449,7 @@ export function Login() {
                 className="btn-secondary flex-1 h-9 rounded-md text-sm"
                 onClick={() => navigateAfterLogin(null)}
               >
-                Skip
+                {t('common.cancel', 'Skip')}
               </button>
               <button
                 type="submit"
@@ -462,7 +468,7 @@ export function Login() {
                 >
                   <path d="M5 12h14M12 5l7 7-7 7" />
                 </svg>
-                Continue
+                {t('common.confirm', 'Continue')}
               </button>
             </div>
           </>

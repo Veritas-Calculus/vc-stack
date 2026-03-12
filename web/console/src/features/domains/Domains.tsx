@@ -344,7 +344,9 @@ function TreeItem({
           </button>
         )}
         {!hasChildren && <span className="w-4" />}
-        <span className="text-xs text-content-tertiary">{d.parent_id === null ? 'Root' : 'Sub'}</span>
+        <span className="text-xs text-content-tertiary">
+          {d.parent_id === null ? 'Root' : 'Sub'}
+        </span>
         <span className="font-medium">{d.name}</span>
         {d.state !== 'active' && (
           <span className="px-1 py-0.5 rounded text-[10px] bg-red-500/20 text-status-text-error">
@@ -369,7 +371,9 @@ function TreeItem({
 function QuotaCard({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-lg border border-border bg-surface-tertiary p-3 text-center">
-      <div className="text-lg font-semibold text-content-primary">{value === 0 ? 'Unlimited' : value}</div>
+      <div className="text-lg font-semibold text-content-primary">
+        {value === 0 ? 'Unlimited' : value}
+      </div>
       <div className="text-xs text-content-tertiary">{label}</div>
     </div>
   )

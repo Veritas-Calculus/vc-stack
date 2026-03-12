@@ -252,7 +252,9 @@ export function KeyManagement() {
           >
             {t.label}
             {t.count !== null && (
-              <span className="ml-2 px-1.5 py-0.5 bg-surface-hover/60 rounded text-xs">{t.count}</span>
+              <span className="ml-2 px-1.5 py-0.5 bg-surface-hover/60 rounded text-xs">
+                {t.count}
+              </span>
             )}
           </button>
         ))}
@@ -330,7 +332,8 @@ export function KeyManagement() {
             </h3>
             <div className="text-sm text-content-secondary space-y-2">
               <p>
-                KMS uses <span className="text-content-primary font-medium">envelope encryption</span> to
+                KMS uses{' '}
+                <span className="text-content-primary font-medium">envelope encryption</span> to
                 protect data:
               </p>
               <div className="flex items-center gap-2 py-2">
@@ -485,7 +488,9 @@ export function KeyManagement() {
                       <td className="px-4 py-3">
                         <span className={statusBadge(k.status)}>{k.status}</span>
                       </td>
-                      <td className="px-4 py-3 text-content-secondary">{k.usage_count.toLocaleString()}</td>
+                      <td className="px-4 py-3 text-content-secondary">
+                        {k.usage_count.toLocaleString()}
+                      </td>
                       <td className="px-4 py-3 text-content-secondary text-xs">
                         {k.rotated_at ? formatTime(k.rotated_at) : '—'}
                       </td>
@@ -526,7 +531,9 @@ export function KeyManagement() {
       {tab === 'encrypt' && (
         <div className="space-y-6">
           <div className="bg-surface-tertiary border border-border rounded-xl p-6">
-            <h3 className="text-content-primary font-semibold text-lg mb-4">Data Encryption / Decryption</h3>
+            <h3 className="text-content-primary font-semibold text-lg mb-4">
+              Data Encryption / Decryption
+            </h3>
 
             {/* Mode Selector */}
             <div className="flex gap-2 mb-4">
@@ -599,7 +606,9 @@ export function KeyManagement() {
             )}
             {cryptoMode === 'decrypt' && (
               <div className="mb-4">
-                <label className="block text-sm text-content-secondary mb-1">Ciphertext (base64)</label>
+                <label className="block text-sm text-content-secondary mb-1">
+                  Ciphertext (base64)
+                </label>
                 <textarea
                   value={ciphertext}
                   onChange={(e) => setCiphertext(e.target.value)}
@@ -721,7 +730,9 @@ function CreateSecretModal({
             </p>
           )}
           <div>
-            <label className="block text-sm text-content-secondary mb-1">Description (optional)</label>
+            <label className="block text-sm text-content-secondary mb-1">
+              Description (optional)
+            </label>
             <input
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -799,7 +810,9 @@ function CreateKeyModal({
             </select>
           </div>
           <div>
-            <label className="block text-sm text-content-secondary mb-1">Description (optional)</label>
+            <label className="block text-sm text-content-secondary mb-1">
+              Description (optional)
+            </label>
             <input
               value={description}
               onChange={(e) => setDescription(e.target.value)}

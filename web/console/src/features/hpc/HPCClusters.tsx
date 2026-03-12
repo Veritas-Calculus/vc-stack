@@ -340,7 +340,9 @@ export function HPCClusters() {
                           {c.accounting_enabled && (
                             <span className="text-status-text-success">Accounting</span>
                           )}
-                          {c.fairshare_enabled && <span className="text-status-cyan">FairShare</span>}
+                          {c.fairshare_enabled && (
+                            <span className="text-status-cyan">FairShare</span>
+                          )}
                         </div>
                       </div>
                     </div>

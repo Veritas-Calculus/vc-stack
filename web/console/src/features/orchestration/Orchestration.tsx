@@ -194,7 +194,8 @@ export function Orchestration() {
   const typeColor = (type: string) => {
     if (type.includes('Compute')) return 'bg-blue-500/15 text-accent'
     if (type.includes('Network')) return 'bg-purple-500/15 text-status-purple'
-    if (type.includes('Storage') || type.includes('Volume')) return 'bg-amber-500/15 text-status-text-warning'
+    if (type.includes('Storage') || type.includes('Volume'))
+      return 'bg-amber-500/15 text-status-text-warning'
     if (type.includes('DNS')) return 'bg-cyan-500/15 text-status-cyan'
     if (type.includes('ObjectStorage')) return 'bg-teal-500/15 text-teal-400'
     return 'bg-content-tertiary/15 text-content-secondary'
@@ -220,7 +221,9 @@ export function Orchestration() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-content-primary">Orchestration</h1>
-          <p className="text-sm text-content-secondary mt-1">Template-based infrastructure orchestration</p>
+          <p className="text-sm text-content-secondary mt-1">
+            Template-based infrastructure orchestration
+          </p>
         </div>
         <div className="flex gap-2">
           {tab === 'templates' && (
@@ -295,7 +298,9 @@ export function Orchestration() {
                         >
                           <td className="px-4 py-3">
                             <div className="font-medium text-content-primary">{s.name}</div>
-                            {s.tags && <div className="text-xs text-content-tertiary mt-0.5">{s.tags}</div>}
+                            {s.tags && (
+                              <div className="text-xs text-content-tertiary mt-0.5">{s.tags}</div>
+                            )}
                           </td>
                           <td className="px-4 py-3">
                             <span
@@ -342,7 +347,9 @@ export function Orchestration() {
 
               <div className="rounded-xl border border-border bg-surface-secondary p-5 mb-6">
                 <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-lg font-semibold text-content-primary">{selectedStack.name}</h2>
+                  <h2 className="text-lg font-semibold text-content-primary">
+                    {selectedStack.name}
+                  </h2>
                   <span
                     className={`px-3 py-1 rounded text-xs font-medium ${statusColor(selectedStack.status)}`}
                   >
@@ -358,11 +365,15 @@ export function Orchestration() {
                   </div>
                   <div>
                     <span className="text-content-tertiary">Resources</span>
-                    <div className="text-content-secondary mt-0.5">{selectedStack.resource_count}</div>
+                    <div className="text-content-secondary mt-0.5">
+                      {selectedStack.resource_count}
+                    </div>
                   </div>
                   <div>
                     <span className="text-content-tertiary">Timeout</span>
-                    <div className="text-content-secondary mt-0.5">{selectedStack.timeout_mins} min</div>
+                    <div className="text-content-secondary mt-0.5">
+                      {selectedStack.timeout_mins} min
+                    </div>
                   </div>
                   <div>
                     <span className="text-content-tertiary">Created</span>
@@ -372,7 +383,9 @@ export function Orchestration() {
                   </div>
                 </div>
                 {selectedStack.status_reason && (
-                  <div className="mt-3 text-xs text-content-tertiary">{selectedStack.status_reason}</div>
+                  <div className="mt-3 text-xs text-content-tertiary">
+                    {selectedStack.status_reason}
+                  </div>
                 )}
               </div>
 
@@ -407,7 +420,9 @@ export function Orchestration() {
                     <tbody className="divide-y divide-border/50">
                       {resources.map((r) => (
                         <tr key={r.id} className="hover:bg-surface-tertiary transition-colors">
-                          <td className="px-4 py-2.5 font-medium text-content-primary">{r.logical_id}</td>
+                          <td className="px-4 py-2.5 font-medium text-content-primary">
+                            {r.logical_id}
+                          </td>
                           <td className="px-4 py-2.5">
                             <span className={`px-2 py-0.5 rounded text-xs ${typeColor(r.type)}`}>
                               {typeShort(r.type)}
@@ -695,7 +710,10 @@ function Modal({
       >
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-lg font-semibold text-content-primary">{title}</h2>
-          <button onClick={onClose} className="text-content-secondary hover:text-content-primary text-xl leading-none">
+          <button
+            onClick={onClose}
+            className="text-content-secondary hover:text-content-primary text-xl leading-none"
+          >
             ×
           </button>
         </div>

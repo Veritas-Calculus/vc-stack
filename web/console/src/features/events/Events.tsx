@@ -249,7 +249,9 @@ export function Events() {
                 >
                   <td className="px-4 py-3">
                     <div className="text-content-primary">{relativeTime(evt.timestamp)}</div>
-                    <div className="text-xs text-content-tertiary">{formatTimestamp(evt.timestamp)}</div>
+                    <div className="text-xs text-content-tertiary">
+                      {formatTimestamp(evt.timestamp)}
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
@@ -285,7 +287,9 @@ export function Events() {
                     {evt.source_ip || '—'}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <button className="text-accent hover:text-accent-hover text-xs">View &rarr;</button>
+                    <button className="text-accent hover:text-accent-hover text-xs">
+                      View &rarr;
+                    </button>
                   </td>
                 </tr>
               ))
@@ -380,10 +384,7 @@ export function Events() {
                   ['User Agent', selectedEvent.user_agent],
                   ['Timestamp', formatTimestamp(selectedEvent.timestamp)]
                 ].map(([label, value]) => (
-                  <div
-                    key={label}
-                    className="flex justify-between py-2 border-b border-border/50"
-                  >
+                  <div key={label} className="flex justify-between py-2 border-b border-border/50">
                     <span className="text-content-secondary text-sm">{label}</span>
                     <span
                       className="text-content-primary text-sm font-mono text-right max-w-[60%] truncate"
@@ -398,7 +399,9 @@ export function Events() {
               {/* Error Message */}
               {selectedEvent.error_message && (
                 <div className="rounded-lg bg-red-500/10 border border-red-500/30 p-4">
-                  <div className="text-status-text-error text-xs font-medium mb-1">Error Message</div>
+                  <div className="text-status-text-error text-xs font-medium mb-1">
+                    Error Message
+                  </div>
                   <div className="text-status-text-error text-sm font-mono">
                     {selectedEvent.error_message}
                   </div>

@@ -130,7 +130,9 @@ export function AutoScale() {
                   </div>
                   <div>
                     <div className="text-content-tertiary">Cooldown</div>
-                    <div className="text-lg font-bold text-content-secondary">{g.cooldown_sec}s</div>
+                    <div className="text-lg font-bold text-content-secondary">
+                      {g.cooldown_sec}s
+                    </div>
                   </div>
                 </div>
                 <div className="px-4 py-2 border-t border-border/50 flex justify-end">
@@ -182,8 +184,9 @@ export function AutoScale() {
                             {p.metric.replace(/_/g, ' ')}
                           </span>{' '}
                           <span className="text-content-secondary">{p.operator}</span>{' '}
-                          <span className="text-content-primary font-semibold">{p.threshold}%</span> for{' '}
-                          <span className="text-content-secondary">{p.duration}s</span> &rarr; adjust by{' '}
+                          <span className="text-content-primary font-semibold">{p.threshold}%</span>{' '}
+                          for <span className="text-content-secondary">{p.duration}s</span> &rarr;
+                          adjust by{' '}
                           <span className="text-content-primary font-semibold">{p.adjust_by}</span>
                         </div>
                       </div>

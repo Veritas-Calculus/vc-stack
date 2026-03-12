@@ -215,7 +215,9 @@ export function ObjectStorage() {
 
               {/* RGW Status */}
               <div className="rounded-xl border border-border bg-surface-secondary p-4">
-                <h3 className="text-sm font-medium text-content-secondary mb-3">Ceph RGW Backend</h3>
+                <h3 className="text-sm font-medium text-content-secondary mb-3">
+                  Ceph RGW Backend
+                </h3>
                 <div className="flex items-center gap-3">
                   <div
                     className={`w-3 h-3 rounded-full ${stats.rgw_connected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`}
@@ -283,8 +285,12 @@ export function ObjectStorage() {
                       {filteredBuckets.map((b) => (
                         <tr key={b.id} className="hover:bg-surface-tertiary transition-colors">
                           <td className="px-4 py-3">
-                            <div className="font-medium text-content-primary font-mono text-xs">{b.name}</div>
-                            {b.tags && <div className="text-xs text-content-tertiary mt-0.5">{b.tags}</div>}
+                            <div className="font-medium text-content-primary font-mono text-xs">
+                              {b.name}
+                            </div>
+                            {b.tags && (
+                              <div className="text-xs text-content-tertiary mt-0.5">{b.tags}</div>
+                            )}
                           </td>
                           <td className="px-4 py-3 text-content-secondary">{b.region}</td>
                           <td className="px-4 py-3">
@@ -347,11 +353,15 @@ export function ObjectStorage() {
                     <tbody className="divide-y divide-border/50">
                       {credentials.map((c) => (
                         <tr key={c.id} className="hover:bg-surface-tertiary transition-colors">
-                          <td className="px-4 py-3 font-mono text-xs text-content-primary">{c.access_key}</td>
+                          <td className="px-4 py-3 font-mono text-xs text-content-primary">
+                            {c.access_key}
+                          </td>
                           <td className="px-4 py-3 font-mono text-xs text-content-tertiary">
                             {c.secret_key}
                           </td>
-                          <td className="px-4 py-3 text-content-secondary text-xs">{c.rgw_user || '—'}</td>
+                          <td className="px-4 py-3 text-content-secondary text-xs">
+                            {c.rgw_user || '—'}
+                          </td>
                           <td className="px-4 py-3">
                             <span className="px-2 py-0.5 rounded text-xs bg-emerald-500/15 text-status-text-success">
                               {c.status}
@@ -530,7 +540,10 @@ function Modal({
       >
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-lg font-semibold text-content-primary">{title}</h2>
-          <button onClick={onClose} className="text-content-secondary hover:text-content-primary text-xl leading-none">
+          <button
+            onClick={onClose}
+            className="text-content-secondary hover:text-content-primary text-xl leading-none"
+          >
             ×
           </button>
         </div>

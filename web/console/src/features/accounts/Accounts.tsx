@@ -215,7 +215,9 @@ export function Accounts() {
                       <span className="text-content-secondary text-xs">User</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-content-tertiary text-xs">{formatDate(user.created_at)}</td>
+                  <td className="px-4 py-3 text-content-tertiary text-xs">
+                    {formatDate(user.created_at)}
+                  </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex justify-end gap-1">
                       <button
@@ -273,8 +275,12 @@ export function Accounts() {
                   {selectedUser.username?.charAt(0).toUpperCase() || '?'}
                 </div>
                 <div>
-                  <div className="text-lg font-medium text-content-primary">{selectedUser.username}</div>
-                  <div className="text-sm text-content-secondary">{selectedUser.email || 'No email'}</div>
+                  <div className="text-lg font-medium text-content-primary">
+                    {selectedUser.username}
+                  </div>
+                  <div className="text-sm text-content-secondary">
+                    {selectedUser.email || 'No email'}
+                  </div>
                 </div>
               </div>
 
@@ -291,10 +297,7 @@ export function Accounts() {
                   ['Created', formatDate(selectedUser.created_at)],
                   ['Updated', formatDate(selectedUser.updated_at)]
                 ].map(([label, value]) => (
-                  <div
-                    key={label}
-                    className="flex justify-between py-2 border-b border-border/50"
-                  >
+                  <div key={label} className="flex justify-between py-2 border-b border-border/50">
                     <span className="text-content-secondary text-sm">{label}</span>
                     <span className="text-content-primary text-sm font-mono">{value || '—'}</span>
                   </div>
@@ -467,8 +470,9 @@ export function Accounts() {
           <div className="relative w-full max-w-sm bg-surface-secondary rounded-xl border border-border shadow-2xl p-6">
             <h2 className="text-lg font-semibold text-content-primary mb-2">Reset Password</h2>
             <p className="text-sm text-content-secondary mb-4">
-              Reset the password for <strong className="text-content-primary">{selectedUser.username}</strong>{' '}
-              to the default value?
+              Reset the password for{' '}
+              <strong className="text-content-primary">{selectedUser.username}</strong> to the
+              default value?
             </p>
             <div className="flex justify-end gap-2">
               <button

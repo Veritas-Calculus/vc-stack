@@ -187,7 +187,9 @@ export function PlatformSettings() {
                         className={`w-3 h-3 rounded-full ${Number(svc.healthy) === Number(svc.instances) ? 'bg-emerald-400' : 'bg-amber-400'}`}
                       ></div>
                       <div>
-                        <div className="text-content-primary font-medium">{String(svc.service_name)}</div>
+                        <div className="text-content-primary font-medium">
+                          {String(svc.service_name)}
+                        </div>
                         <div className="text-content-tertiary text-xs">
                           {String(svc.instances)} instance(s)
                         </div>
@@ -225,7 +227,9 @@ export function PlatformSettings() {
                             <span className={badge(String(inst.status))}>
                               {String(inst.status)}
                             </span>
-                            <span className="text-content-primary">{String(inst.service_name)}</span>
+                            <span className="text-content-primary">
+                              {String(inst.service_name)}
+                            </span>
                             <span className="text-content-tertiary">
                               {String(inst.host)}:{String(inst.port)}
                             </span>
@@ -290,7 +294,9 @@ export function PlatformSettings() {
                     className={`w-full text-left px-3 py-2 rounded-lg text-sm transition ${selectedNs === String(ns.name) ? 'bg-blue-600/20 text-accent border border-blue-500/30' : 'text-content-secondary hover:bg-surface-hover'}`}
                   >
                     <div className="font-medium">{String(ns.name)}</div>
-                    <div className="text-xs text-content-tertiary">{String(ns.item_count)} items</div>
+                    <div className="text-xs text-content-tertiary">
+                      {String(ns.item_count)} items
+                    </div>
                   </button>
                 ))}
               </div>
@@ -351,7 +357,9 @@ export function PlatformSettings() {
                   </tbody>
                 </table>
               ) : (
-                <p className="text-content-tertiary text-sm">Select a namespace to view config items</p>
+                <p className="text-content-tertiary text-sm">
+                  Select a namespace to view config items
+                </p>
               )}
             </div>
           </div>
@@ -412,8 +420,12 @@ export function PlatformSettings() {
                 {topics.map((t) => (
                   <div key={String(t.id)} className="bg-surface-hover rounded-lg p-3">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-content-primary font-medium text-sm">{String(t.name)}</span>
-                      <span className="text-content-tertiary text-xs">{String(t.event_count)} events</span>
+                      <span className="text-content-primary font-medium text-sm">
+                        {String(t.name)}
+                      </span>
+                      <span className="text-content-tertiary text-xs">
+                        {String(t.event_count)} events
+                      </span>
                     </div>
                     <div className="text-content-tertiary text-xs">{String(t.description)}</div>
                     <div className="flex gap-3 mt-1 text-xs text-content-tertiary">
@@ -448,7 +460,9 @@ export function PlatformSettings() {
                     <div className="text-content-tertiary text-xs">
                       Topic: <span className="text-status-cyan">{String(s.topic_name)}</span>
                       {Boolean(s.filter_expr) && (
-                        <span className="ml-2 text-status-text-warning">filter: {String(s.filter_expr)}</span>
+                        <span className="ml-2 text-status-text-warning">
+                          filter: {String(s.filter_expr)}
+                        </span>
                       )}
                     </div>
                   </div>

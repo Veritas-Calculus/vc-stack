@@ -131,7 +131,9 @@ export function ServiceAccounts() {
       render: (row) => (
         <span
           className={`inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded-full ${
-            row.is_active ? 'bg-emerald-500/15 text-status-text-success' : 'bg-zinc-600/20 text-zinc-400'
+            row.is_active
+              ? 'bg-emerald-500/15 text-status-text-success'
+              : 'bg-zinc-600/20 text-zinc-400'
           }`}
         >
           <span

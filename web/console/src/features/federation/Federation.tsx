@@ -318,7 +318,9 @@ export function Federation() {
                           >
                             {idp.type}
                           </span>
-                          <span className="text-lg font-medium text-content-primary">{idp.name}</span>
+                          <span className="text-lg font-medium text-content-primary">
+                            {idp.name}
+                          </span>
                           {idp.is_enabled ? (
                             <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-status-text-success text-[10px] uppercase">
                               Active
@@ -354,9 +356,7 @@ export function Federation() {
                       </div>
                       <div className="mt-2 text-xs text-content-tertiary flex gap-4">
                         {idp.issuer && <span>Issuer: {idp.issuer}</span>}
-                        {idp.auto_provision && (
-                          <span className="text-accent">Auto-provision</span>
-                        )}
+                        {idp.auto_provision && <span className="text-accent">Auto-provision</span>}
                         {idp.auto_link && <span className="text-status-cyan">Auto-link</span>}
                       </div>
                     </div>
@@ -388,7 +388,9 @@ export function Federation() {
                     >
                       {selectedIDP.type}
                     </span>
-                    <span className="text-xl font-semibold text-content-primary">{selectedIDP.name}</span>
+                    <span className="text-xl font-semibold text-content-primary">
+                      {selectedIDP.name}
+                    </span>
                     {selectedIDP.is_enabled ? (
                       <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-status-text-success text-[10px] uppercase">
                         Active
@@ -454,7 +456,9 @@ export function Federation() {
               {/* Test Results */}
               {testResult && (
                 <div className="rounded-xl border border-border bg-surface-secondary p-5 mb-6">
-                  <h3 className="text-sm font-medium text-content-primary mb-3">Connection Test Results</h3>
+                  <h3 className="text-sm font-medium text-content-primary mb-3">
+                    Connection Test Results
+                  </h3>
                   <pre className="text-xs text-content-secondary bg-surface-tertiary rounded-lg p-3 overflow-x-auto">
                     {JSON.stringify(testResult, null, 2)}
                   </pre>
@@ -590,8 +594,12 @@ export function Federation() {
                     <tbody className="divide-y divide-border/50">
                       {fedUsers.map((fu) => (
                         <tr key={fu.id} className="hover:bg-surface-tertiary transition-colors">
-                          <td className="px-4 py-3 font-medium text-content-primary">{fu.user?.username}</td>
-                          <td className="px-4 py-3 text-content-secondary text-xs">{fu.external_email}</td>
+                          <td className="px-4 py-3 font-medium text-content-primary">
+                            {fu.user?.username}
+                          </td>
+                          <td className="px-4 py-3 text-content-secondary text-xs">
+                            {fu.external_email}
+                          </td>
                           <td className="px-4 py-3">
                             <span
                               className={`px-2 py-0.5 rounded text-xs border ${typeColor(fu.provider?.type || 'oidc')}`}
@@ -901,7 +909,10 @@ function Modal({
       >
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-lg font-semibold text-content-primary">{title}</h2>
-          <button onClick={onClose} className="text-content-secondary hover:text-content-primary text-xl leading-none">
+          <button
+            onClick={onClose}
+            className="text-content-secondary hover:text-content-primary text-xl leading-none"
+          >
             ×
           </button>
         </div>
@@ -943,7 +954,9 @@ function Toggle({ label, enabled }: { label: string; enabled: boolean }) {
   return (
     <span className="flex items-center gap-1.5 text-xs">
       <span className={`w-2 h-2 rounded-full ${enabled ? 'bg-emerald-400' : 'bg-border-strong'}`} />
-      <span className={enabled ? 'text-status-text-success' : 'text-content-tertiary'}>{label}</span>
+      <span className={enabled ? 'text-status-text-success' : 'text-content-tertiary'}>
+        {label}
+      </span>
     </span>
   )
 }
