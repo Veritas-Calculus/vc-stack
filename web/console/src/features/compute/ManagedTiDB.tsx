@@ -59,7 +59,9 @@ export function ManagedTiDB() {
             TiKV: {r.tikv_nodes} × {r.tikv_storage_gb}GB
           </div>
           <div>PD: {r.pd_nodes}</div>
-          {r.tiflash_nodes > 0 && <div className="text-status-purple">TiFlash: {r.tiflash_nodes}</div>}
+          {r.tiflash_nodes > 0 && (
+            <div className="text-status-purple">TiFlash: {r.tiflash_nodes}</div>
+          )}
         </div>
       )
     },

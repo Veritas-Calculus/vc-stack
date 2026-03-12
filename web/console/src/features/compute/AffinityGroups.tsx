@@ -89,7 +89,9 @@ export function AffinityGroups() {
             className="relative rounded-xl border border-border bg-surface-secondary p-6 w-full max-w-md shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-lg font-semibold text-content-primary mb-4">Create Affinity Group</h3>
+            <h3 className="text-lg font-semibold text-content-primary mb-4">
+              Create Affinity Group
+            </h3>
             <div className="space-y-3">
               <div>
                 <label className="block text-xs text-content-secondary mb-1">Name</label>

@@ -206,7 +206,9 @@ export function DeletionProgress({ instanceIds, onComplete, onClose }: DeletionP
                     {state.status.toUpperCase()}
                   </span>
                 </div>
-                {state.message && <p className="text-xs text-status-text-error mt-1">{state.message}</p>}
+                {state.message && (
+                  <p className="text-xs text-status-text-error mt-1">{state.message}</p>
+                )}
                 {state.retryCount !== undefined && state.retryCount > 0 && (
                   <p className="text-xs text-yellow-400 mt-1">
                     Retry {state.retryCount}/{state.maxRetries}
@@ -222,7 +224,9 @@ export function DeletionProgress({ instanceIds, onComplete, onClose }: DeletionP
           <div className="pt-4 border-t border-border">
             <div className="flex items-center justify-between text-sm">
               <span className="text-green-400">Completed: {completedCount}</span>
-              {failedCount > 0 && <span className="text-status-text-error">Failed: {failedCount}</span>}
+              {failedCount > 0 && (
+                <span className="text-status-text-error">Failed: {failedCount}</span>
+              )}
             </div>
           </div>
         )}

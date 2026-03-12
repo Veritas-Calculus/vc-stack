@@ -53,7 +53,8 @@ export function FlowLogs() {
     loadConfigs()
   }
 
-  const actionColor = (a: string) => (a === 'ACCEPT' ? 'text-status-text-success' : 'text-status-text-error')
+  const actionColor = (a: string) =>
+    a === 'ACCEPT' ? 'text-status-text-success' : 'text-status-text-error'
 
   return (
     <div className="space-y-3">

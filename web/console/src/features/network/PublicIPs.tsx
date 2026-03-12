@@ -81,7 +81,9 @@ export function PublicIPs() {
       {
         key: 'attached',
         header: 'Attached To',
-        render: (row) => <span className="text-xs text-content-secondary">{attachedLabel(row)}</span>
+        render: (row) => (
+          <span className="text-xs text-content-secondary">{attachedLabel(row)}</span>
+        )
       },
       {
         key: 'id',

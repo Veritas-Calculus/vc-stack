@@ -194,7 +194,9 @@ export default function QoSManagement() {
       key: 'status',
       header: 'Status',
       render: (r) => (
-        <span className={`text-xs ${r.status === 'active' ? 'text-green-400' : 'text-content-tertiary'}`}>
+        <span
+          className={`text-xs ${r.status === 'active' ? 'text-green-400' : 'text-content-tertiary'}`}
+        >
           {r.status}
         </span>
       )

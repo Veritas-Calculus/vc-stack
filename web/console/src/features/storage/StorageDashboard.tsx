@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { fetchStorageSummary, fetchDiskOfferings } from '@/lib/api'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { SummaryBox } from '@/components/ui/SummaryBox'
+import { Icons } from '@/components/ui/Icons'
 
 interface StorageSummary {
   volumes: number
@@ -44,7 +46,9 @@ export default function StorageDashboard() {
   }, [])
 
   if (loading) {
-    return <div className="p-6 text-center text-content-secondary">Loading storage dashboard...</div>
+    return (
+      <div className="p-6 text-center text-content-secondary">Loading storage dashboard...</div>
+    )
   }
 
   const totalVols = summary?.volumes ?? 0
@@ -73,16 +77,18 @@ export default function StorageDashboard() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <SummaryCard icon="disk" label="Volumes" value={totalVols} />
-        <SummaryCard icon="camera" label="Snapshots" value={totalSnaps} />
-        <SummaryCard icon="database" label="Total Capacity" value={`${totalGB} GB`} />
-        <SummaryCard icon="layers" label="Storage Classes" value={offerings.length} />
+        <SummaryBox icon={Icons.drive('w-5 h-5')} label="Volumes" value={totalVols} />
+        <SummaryBox icon={Icons.clock('w-5 h-5')} label="Snapshots" value={totalSnaps} />
+        <SummaryBox icon={Icons.server('w-5 h-5')} label="Total Capacity" value={`${totalGB} GB`} />
+        <SummaryBox icon={Icons.cube('w-5 h-5')} label="Storage Classes" value={offerings.length} />
       </div>
 
       {/* Status Distribution */}
       {totalVols > 0 && (
-        <div className="bg-[var(--card-bg,#1a1a2e)] border border-[var(--border-primary,#2a2a4a)] rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-content-secondary mb-3">Volume Status Distribution</h3>
+        <div className="bg-surface-secondary border border-border rounded-xl p-5">
+          <h3 className="text-sm font-semibold text-content-secondary mb-3">
+            Volume Status Distribution
+          </h3>
           <div className="flex rounded-full overflow-hidden h-5 bg-surface-secondary">
             {statusItems.map((s, i) => (
               <div
@@ -112,7 +118,7 @@ export default function StorageDashboard() {
 
       {/* Disk Offerings */}
       {offerings.length > 0 && (
-        <div className="bg-[var(--card-bg,#1a1a2e)] border border-[var(--border-primary,#2a2a4a)] rounded-xl p-5">
+        <div className="bg-surface-secondary border border-border rounded-xl p-5">
           <h3 className="text-sm font-semibold text-content-secondary mb-3">
             Storage Classes (Disk Offerings)
           </h3>
@@ -120,7 +126,7 @@ export default function StorageDashboard() {
             {offerings.map((o) => (
               <div
                 key={o.id}
-                className="border border-[var(--border-secondary,#333)] rounded-lg p-3 hover:border-blue-500/50 transition-colors"
+                className="border border-border bg-surface-tertiary rounded-lg p-3 hover:border-accent transition-colors"
               >
                 <div className="flex justify-between items-start mb-2">
                   <span className="font-medium text-content-primary text-sm">{o.name}</span>
@@ -128,7 +134,9 @@ export default function StorageDashboard() {
                     {o.storage_type}
                   </span>
                 </div>
-                {o.display_text && <p className="text-xs text-content-tertiary mb-2">{o.display_text}</p>}
+                {o.display_text && (
+                  <p className="text-xs text-content-tertiary mb-2">{o.display_text}</p>
+                )}
                 <div className="grid grid-cols-2 gap-1 text-xs text-content-secondary">
                   {o.disk_size_gb > 0 && <span>Size: {o.disk_size_gb} GB</span>}
                   {o.is_custom && <span>Custom Size</span>}
@@ -144,40 +152,6 @@ export default function StorageDashboard() {
           </div>
         </div>
       )}
-    </div>
-  )
-}
-
-function SummaryCard({
-  icon,
-  label,
-  value
-}: {
-  icon: string
-  label: string
-  value: string | number
-}) {
-  const iconStyles: Record<string, string> = {
-    disk: 'bg-blue-500/20 text-accent',
-    camera: 'bg-purple-500/20 text-status-purple',
-    database: 'bg-emerald-500/20 text-status-text-success',
-    layers: 'bg-amber-500/20 text-status-text-warning'
-  }
-  const iconLabels: Record<string, string> = {
-    disk: 'VOL',
-    camera: 'SNAP',
-    database: 'CAP',
-    layers: 'CLS'
-  }
-  return (
-    <div className="bg-[var(--card-bg,#1a1a2e)] border border-[var(--border-primary,#2a2a4a)] rounded-xl p-4 flex items-center gap-3">
-      <span className={`w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold ${iconStyles[icon] || 'bg-content-tertiary/20 text-content-secondary'}`}>
-        {iconLabels[icon] || icon}
-      </span>
-      <div>
-        <div className="text-lg font-bold text-content-primary">{value}</div>
-        <div className="text-xs text-content-tertiary">{label}</div>
-      </div>
     </div>
   )
 }

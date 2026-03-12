@@ -166,7 +166,8 @@ export default function InstanceDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, instanceId])
 
-  if (loading) return <div className="p-8 text-center text-content-tertiary">Loading instance...</div>
+  if (loading)
+    return <div className="p-8 text-center text-content-tertiary">Loading instance...</div>
   if (error && !inst) return <div className="p-8 text-center text-status-text-error">{error}</div>
   if (!inst) return <div className="p-8 text-center text-status-text-error">Instance not found</div>
 
@@ -462,7 +463,9 @@ export default function InstanceDetail() {
               <span className="font-mono text-status-text-success">{inst.floating_ip || '-'}</span>
             </InfoRow>
             <InfoRow label="Host">
-              <span className="font-mono text-xs text-content-secondary">{inst.host_id || '-'}</span>
+              <span className="font-mono text-xs text-content-secondary">
+                {inst.host_id || '-'}
+              </span>
             </InfoRow>
             <InfoRow label="Created">
               {inst.created_at ? new Date(inst.created_at).toLocaleString() : '-'}
@@ -507,7 +510,9 @@ export default function InstanceDetail() {
               Network Interfaces
             </h3>
             {interfaces.length === 0 ? (
-              <div className="text-center py-6 text-content-tertiary">No network interfaces attached</div>
+              <div className="text-center py-6 text-content-tertiary">
+                No network interfaces attached
+              </div>
             ) : (
               <table className="w-full text-sm">
                 <thead>
@@ -521,14 +526,15 @@ export default function InstanceDetail() {
                 </thead>
                 <tbody>
                   {interfaces.map((iface) => (
-                    <tr key={iface.port_id} className="border-b border-border hover:bg-surface-hover">
+                    <tr
+                      key={iface.port_id}
+                      className="border-b border-border hover:bg-surface-hover"
+                    >
                       <td className="py-2 px-3 font-mono text-xs">
                         {iface.port_id.slice(0, 12)}...
                       </td>
                       <td className="py-2 px-3 font-mono text-xs">{iface.mac_address}</td>
-                      <td className="py-2 px-3 font-mono text-accent">
-                        {iface.ip_address || '-'}
-                      </td>
+                      <td className="py-2 px-3 font-mono text-accent">{iface.ip_address || '-'}</td>
                       <td className="py-2 px-3 font-mono text-xs text-content-secondary">
                         {iface.network_id ? iface.network_id.slice(0, 12) + '...' : '-'}
                       </td>
@@ -574,7 +580,9 @@ export default function InstanceDetail() {
                         {v.status}
                       </Badge>
                     </td>
-                    <td className="py-2 px-3 font-mono text-xs text-content-secondary">{v.rbd || '-'}</td>
+                    <td className="py-2 px-3 font-mono text-xs text-content-secondary">
+                      {v.rbd || '-'}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -988,7 +996,9 @@ function DiagRow({ label, ok }: { label: string; ok: boolean }) {
   return (
     <div className="flex items-center justify-between text-sm">
       <span className="text-content-secondary">{label}</span>
-      <span className={ok ? 'text-status-text-success' : 'text-status-text-error'}>{ok ? 'OK' : 'FAIL'}</span>
+      <span className={ok ? 'text-status-text-success' : 'text-status-text-error'}>
+        {ok ? 'OK' : 'FAIL'}
+      </span>
     </div>
   )
 }

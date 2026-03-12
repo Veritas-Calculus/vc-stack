@@ -230,7 +230,9 @@ export default function VolumeDetail() {
           </div>
           {volume.metadata && Object.keys(volume.metadata).length > 0 && (
             <div className="mt-4 pt-4 border-t border-[var(--border-primary,#2a2a4a)]">
-              <h4 className="text-xs font-semibold text-content-secondary mb-2 uppercase">Metadata</h4>
+              <h4 className="text-xs font-semibold text-content-secondary mb-2 uppercase">
+                Metadata
+              </h4>
               <div className="flex flex-wrap gap-2">
                 {Object.entries(volume.metadata).map(([k, v]) => (
                   <span

@@ -202,7 +202,9 @@ export default function LoadBalancers() {
       key: 'health_check',
       header: 'Health Check',
       render: (r) => (
-        <span className={r.health_check ? 'text-green-400 text-xs' : 'text-content-tertiary text-xs'}>
+        <span
+          className={r.health_check ? 'text-green-400 text-xs' : 'text-content-tertiary text-xs'}
+        >
           {r.health_check ? 'Enabled' : 'Disabled'}
         </span>
       )
@@ -337,7 +339,9 @@ export default function LoadBalancers() {
               rows={4}
               placeholder={'10.0.0.2:80\n10.0.0.3:80\n10.0.0.4:80'}
             />
-            <p className="text-xs text-content-secondary mt-1">One backend per line (IP:Port format)</p>
+            <p className="text-xs text-content-secondary mt-1">
+              One backend per line (IP:Port format)
+            </p>
           </div>
         </div>
       </Modal>

@@ -306,7 +306,9 @@ function Volumes() {
                 setResizeNewSize(e.target.value ? Number(e.target.value) : resizeCurrentSize)
               }
             />
-            <p className="text-xs text-content-secondary mt-1">New size must be larger than current size</p>
+            <p className="text-xs text-content-secondary mt-1">
+              New size must be larger than current size
+            </p>
           </div>
         </div>
       </Modal>

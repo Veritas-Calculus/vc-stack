@@ -88,7 +88,10 @@ export function LoadBalancersL7() {
       header: '',
       className: 'w-20 text-right',
       render: (r) => (
-        <button className="text-xs text-status-text-error hover:underline" onClick={() => handleDelete(r.id)}>
+        <button
+          className="text-xs text-status-text-error hover:underline"
+          onClick={() => handleDelete(r.id)}
+        >
           Delete
         </button>
       )

@@ -113,7 +113,9 @@ export default function StorageClasses() {
       render: (r) => (
         <div>
           <span className="font-medium text-content-primary">{r.name}</span>
-          {r.display_text && <p className="text-xs text-content-tertiary mt-0.5">{r.display_text}</p>}
+          {r.display_text && (
+            <p className="text-xs text-content-tertiary mt-0.5">{r.display_text}</p>
+          )}
         </div>
       )
     },
@@ -126,7 +128,11 @@ export default function StorageClasses() {
       key: 'disk_size_gb',
       header: 'Size',
       render: (r) =>
-        r.is_custom ? <span className="text-content-secondary text-xs">Custom</span> : `${r.disk_size_gb} GB`
+        r.is_custom ? (
+          <span className="text-content-secondary text-xs">Custom</span>
+        ) : (
+          `${r.disk_size_gb} GB`
+        )
     },
     {
       key: 'max_iops',

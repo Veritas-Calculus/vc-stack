@@ -111,7 +111,9 @@ export function SnapshotSchedules() {
               <div className="px-4 py-3 space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-content-tertiary">Volume</span>
-                  <span className="text-content-secondary">{s.volume?.name || `#${s.volume_id}`}</span>
+                  <span className="text-content-secondary">
+                    {s.volume?.name || `#${s.volume_id}`}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-content-tertiary">Interval</span>

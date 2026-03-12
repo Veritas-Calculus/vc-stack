@@ -337,7 +337,9 @@ export function SecurityGroups() {
             onClick={() => setShowCreate(false)}
           />
           <div className="relative w-full max-w-md bg-surface-secondary rounded-xl border border-border shadow-2xl p-6">
-            <h2 className="text-lg font-semibold text-content-primary mb-4">Create Security Group</h2>
+            <h2 className="text-lg font-semibold text-content-primary mb-4">
+              Create Security Group
+            </h2>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm text-content-secondary mb-1">Name</label>
@@ -438,7 +440,9 @@ export function SecurityGroups() {
                 </>
               )}
               <div className={ruleProtocol === 'icmp' ? 'col-span-2' : 'col-span-2'}>
-                <label className="block text-sm text-content-secondary mb-1">Remote IP Prefix (CIDR)</label>
+                <label className="block text-sm text-content-secondary mb-1">
+                  Remote IP Prefix (CIDR)
+                </label>
                 <input
                   type="text"
                   value={ruleRemoteIP}
@@ -510,7 +514,9 @@ function RulesTable({
                 {rule.protocol}
               </span>
             </td>
-            <td className="py-2.5 pr-3 font-mono text-content-secondary text-xs">{portRange(rule)}</td>
+            <td className="py-2.5 pr-3 font-mono text-content-secondary text-xs">
+              {portRange(rule)}
+            </td>
             <td className="py-2.5 pr-3 font-mono text-content-secondary text-xs">
               {rule.remote_ip_prefix || '0.0.0.0/0'}
             </td>

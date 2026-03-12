@@ -269,7 +269,9 @@ function NetworksPage() {
             <span className="font-medium text-accent">
               {typeLabels[type] || type.toUpperCase()}
             </span>
-            {r.segmentation_id && <span className="text-content-secondary ml-1">({r.segmentation_id})</span>}
+            {r.segmentation_id && (
+              <span className="text-content-secondary ml-1">({r.segmentation_id})</span>
+            )}
           </span>
         )
       }
@@ -552,7 +554,9 @@ function NetworksPage() {
               >
                 <span
                   className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold ${
-                    step >= s.n ? 'bg-accent text-content-inverse' : 'bg-surface-hover text-content-secondary'
+                    step >= s.n
+                      ? 'bg-accent text-content-inverse'
+                      : 'bg-surface-hover text-content-secondary'
                   }`}
                 >
                   {s.n}
@@ -722,7 +726,9 @@ function NetworksPage() {
                   value={mtu}
                   onChange={(e) => setMtu(e.target.value)}
                 />
-                <p className="text-xs text-content-secondary mt-1">1450 for overlay, 1500 for provider</p>
+                <p className="text-xs text-content-secondary mt-1">
+                  1450 for overlay, 1500 for provider
+                </p>
               </div>
             </div>
           </div>
@@ -759,7 +765,9 @@ function NetworksPage() {
                     Auto
                   </button>
                 </div>
-                {cidrConflict && <p className="text-xs text-status-text-error mt-1">{cidrConflict}</p>}
+                {cidrConflict && (
+                  <p className="text-xs text-status-text-error mt-1">{cidrConflict}</p>
+                )}
                 {!cidrConflict && cidrInfo && (
                   <p className="text-xs text-content-secondary mt-1">
                     ~{cidrInfo.numHosts} hosts | GW: {cidrInfo.gateway}
@@ -938,7 +946,9 @@ function NetworksPage() {
                 <div className="text-content-secondary">Zone</div>
                 <div className="text-content-primary">{zone || '-'}</div>
                 <div className="text-content-secondary">CIDR</div>
-                <div className={`text-content-primary ${cidrConflict ? 'text-status-text-error' : ''}`}>
+                <div
+                  className={`text-content-primary ${cidrConflict ? 'text-status-text-error' : ''}`}
+                >
                   {cidr || '-'}
                 </div>
                 {cidrInfo && (
@@ -951,13 +961,17 @@ function NetworksPage() {
                       {allocationEnd || cidrInfo.allocationEnd}
                     </div>
                     <div className="text-content-secondary">Hosts</div>
-                    <div className="text-content-primary">~{cidrInfo.numHosts.toLocaleString()}</div>
+                    <div className="text-content-primary">
+                      ~{cidrInfo.numHosts.toLocaleString()}
+                    </div>
                   </>
                 )}
                 {(dns1 || dns2) && (
                   <>
                     <div className="text-content-secondary">DNS</div>
-                    <div className="text-content-primary">{[dns1, dns2].filter(Boolean).join(', ')}</div>
+                    <div className="text-content-primary">
+                      {[dns1, dns2].filter(Boolean).join(', ')}
+                    </div>
                   </>
                 )}
                 {(networkType === 'vlan' || networkType === 'flat') && physicalNetwork && (
@@ -1330,7 +1344,9 @@ function ACLPage() {
           <div className="flex items-center justify-between p-4 border-b border-border">
             <div>
               <h3 className="font-medium text-content-primary">{acl.name}</h3>
-              {acl.description && <p className="text-xs text-content-secondary mt-0.5">{acl.description}</p>}
+              {acl.description && (
+                <p className="text-xs text-content-secondary mt-0.5">{acl.description}</p>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -1387,7 +1403,9 @@ function ACLPage() {
                       <td className="py-1.5 pr-3">
                         <span
                           className={`text-xs font-medium ${
-                            rule.action === 'allow' ? 'text-status-text-success' : 'text-status-text-error'
+                            rule.action === 'allow'
+                              ? 'text-status-text-success'
+                              : 'text-status-text-error'
                           }`}
                         >
                           {rule.action.toUpperCase()}

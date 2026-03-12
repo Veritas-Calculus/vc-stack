@@ -163,7 +163,10 @@ export default function FirewallManagement() {
           >
             {expanded === r.id ? 'Collapse' : 'Rules'}
           </button>
-          <button className="btn-secondary text-xs text-status-text-error" onClick={() => handleDelete(r.id)}>
+          <button
+            className="btn-secondary text-xs text-status-text-error"
+            onClick={() => handleDelete(r.id)}
+          >
             Delete
           </button>
         </div>
