@@ -36,24 +36,17 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	}
 
 	// ── Phase 4: Module routes via interface ──────────────────────────
-	// Only NEW modules (N7-N9) that have no legacy route wiring are auto-routed
-	// here. Existing core modules have their routes set up via their own
-	// initialisation paths and must NOT be re-registered.
-	autoRouteModules := map[string]bool{
-		"redis":         true,
-		"natgateway":    true,
-		"abac":          true,
-		"tidb":          true,
-		"elasticsearch": true,
-		"invoice":       true,
-		"stackdrift":    true,
-		"gpuscheduler":  true,
+	// All registered modules get their SetupRoutes called here, EXCEPT those
+	// that are explicitly handled in other phases to avoid duplicate routes.
+	skipModules := map[string]bool{
+		"gateway": true, // handled in Phase 3 (middleware) + Phase 5 (proxy)
+		"apidocs": true, // handled in Phase 2
 	}
 
 	// Sort module names for deterministic route registration order.
 	names := make([]string, 0, len(s.modules))
 	for name := range s.modules {
-		if !autoRouteModules[name] {
+		if skipModules[name] {
 			continue
 		}
 		names = append(names, name)

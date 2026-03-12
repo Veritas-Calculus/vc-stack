@@ -257,10 +257,7 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		api.POST("/disk-offerings", middleware.RequirePermission("flavor", "create"), s.createDiskOffering)
 		api.DELETE("/disk-offerings/:id", middleware.RequirePermission("flavor", "delete"), s.deleteDiskOffering)
 
-		// Network Offering routes.
-		api.GET("/network-offerings", middleware.RequirePermission("flavor", "list"), s.listNetworkOfferings)
-		api.POST("/network-offerings", middleware.RequirePermission("flavor", "create"), s.createNetworkOffering)
-		api.DELETE("/network-offerings/:id", middleware.RequirePermission("flavor", "delete"), s.deleteNetworkOffering)
+		// Note: Network Offering routes are registered by the network module (N-BGP4).
 
 		// Snapshot Schedule routes.
 		api.GET("/snapshot-schedules", middleware.RequirePermission("snapshot", "list"), s.listSnapshotSchedules)
