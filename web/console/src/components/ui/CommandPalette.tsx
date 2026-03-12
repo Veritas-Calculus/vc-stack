@@ -412,10 +412,11 @@ export function CommandPalette() {
             results.map((r, i) => (
               <button
                 key={r.id}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${i === selectedIndex
+                className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
+                  i === selectedIndex
                     ? 'bg-accent-subtle text-content-primary'
                     : 'text-content-secondary hover:bg-surface-hover'
-                  }`}
+                }`}
                 onClick={() => {
                   navigate(r.path)
                   setOpen(false)
@@ -427,7 +428,9 @@ export function CommandPalette() {
                 </span>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium truncate">{r.title}</div>
-                  {r.subtitle && <div className="text-xs text-content-tertiary truncate">{r.subtitle}</div>}
+                  {r.subtitle && (
+                    <div className="text-xs text-content-tertiary truncate">{r.subtitle}</div>
+                  )}
                 </div>
                 {i === selectedIndex && (
                   <kbd className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-mono text-content-tertiary bg-surface-tertiary border border-border">

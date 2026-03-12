@@ -305,6 +305,263 @@ export default function App() {
                   }
                 />
                 <Route
+                  path="/project/:projectId/bare-metal"
+                  element={
+                    <ProjectContextSetter>
+                      <BareMetal />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/autoscale"
+                  element={
+                    <ProjectContextSetter>
+                      <AutoScale />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/affinity-groups"
+                  element={
+                    <ProjectContextSetter>
+                      <AffinityGroups />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/snapshot-schedules"
+                  element={
+                    <ProjectContextSetter>
+                      <SnapshotSchedules />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/object-storage"
+                  element={
+                    <ProjectContextSetter>
+                      <ObjectStorage />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/dns"
+                  element={
+                    <ProjectContextSetter>
+                      <DNSManagement />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/platform-settings"
+                  element={
+                    <ProjectContextSetter>
+                      <PlatformSettings />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/self-healing"
+                  element={
+                    <ProjectContextSetter>
+                      <SelfHealing />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/ha"
+                  element={
+                    <ProjectContextSetter>
+                      <HighAvailability />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/disaster-recovery"
+                  element={
+                    <ProjectContextSetter>
+                      <DisasterRecovery />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/rbac"
+                  element={
+                    <ProjectContextSetter>
+                      <RBAC />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/kms"
+                  element={
+                    <ProjectContextSetter>
+                      <KeyManagement />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/encryption"
+                  element={
+                    <ProjectContextSetter>
+                      <DataEncryption />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/federation"
+                  element={
+                    <ProjectContextSetter>
+                      <Federation />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/compliance-audit"
+                  element={
+                    <ProjectContextSetter>
+                      <ComplianceAudit />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/offerings"
+                  element={
+                    <ProjectContextSetter>
+                      <Offerings />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/service-catalog"
+                  element={
+                    <ProjectContextSetter>
+                      <ServiceCatalog />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/orchestration"
+                  element={
+                    <ProjectContextSetter>
+                      <Orchestration />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/accounts"
+                  element={
+                    <ProjectContextSetter>
+                      <Accounts />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/domains"
+                  element={
+                    <ProjectContextSetter>
+                      <Domains />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/events"
+                  element={
+                    <ProjectContextSetter>
+                      <Events />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/notifications"
+                  element={
+                    <ProjectContextSetter>
+                      <Notifications />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/webhooks"
+                  element={
+                    <ProjectContextSetter>
+                      <Webhooks />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/usage"
+                  element={
+                    <ProjectContextSetter>
+                      <UsageBilling />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/rate-limits"
+                  element={
+                    <ProjectContextSetter>
+                      <RateLimiting />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/settings/global"
+                  element={
+                    <ProjectContextSetter>
+                      <GlobalSettings />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/utilization"
+                  element={
+                    <ProjectContextSetter>
+                      <Utilization />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/docs"
+                  element={
+                    <ProjectContextSetter>
+                      <Docs />
+                    </ProjectContextSetter>
+                  }
+                />
+                {/* ── Project-scoped HPC routes ── */}
+                <Route
+                  path="/project/:projectId/hpc/clusters"
+                  element={
+                    <ProjectContextSetter>
+                      <HPCClusters />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/hpc/jobs"
+                  element={
+                    <ProjectContextSetter>
+                      <HPCJobs />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/hpc/gpu"
+                  element={
+                    <ProjectContextSetter>
+                      <GPUResources />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
+                  path="/project/:projectId/hpc"
+                  element={
+                    <ProjectContextSetter>
+                      <HPC />
+                    </ProjectContextSetter>
+                  }
+                />
+                <Route
                   path="/project/:projectId/network/sg"
                   element={
                     <ProjectContextSetter>

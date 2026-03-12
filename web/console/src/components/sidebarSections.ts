@@ -154,9 +154,9 @@ export function getProjectSections(projectId: string): SidebarSection[] {
         { to: `${prefix}/compute/migrations`, label: 'Migrations' },
         { to: `${prefix}/compute/k8s`, label: 'Kubernetes' },
         { to: `${prefix}/compute/kms`, label: 'SSH Keypairs' },
-        { to: '/bare-metal', label: 'Bare Metal' },
-        { to: '/autoscale', label: 'Auto Scale' },
-        { to: '/affinity-groups', label: 'Affinity Groups' }
+        { to: `${prefix}/bare-metal`, label: 'Bare Metal' },
+        { to: `${prefix}/autoscale`, label: 'Auto Scale' },
+        { to: `${prefix}/affinity-groups`, label: 'Affinity Groups' }
       ]
     },
 
@@ -171,8 +171,8 @@ export function getProjectSections(projectId: string): SidebarSection[] {
         { to: `${prefix}/storage/snapshots`, label: 'Snapshots' },
         { to: `${prefix}/storage/backups`, label: 'Backups' },
         { to: `${prefix}/storage/storage-classes`, label: 'Storage Classes' },
-        { to: '/snapshot-schedules', label: 'Schedules' },
-        { to: '/object-storage', label: 'Object Storage' }
+        { to: `${prefix}/snapshot-schedules`, label: 'Schedules' },
+        { to: `${prefix}/object-storage`, label: 'Object Storage' }
       ]
     },
 
@@ -194,7 +194,7 @@ export function getProjectSections(projectId: string): SidebarSection[] {
         { to: `${prefix}/network/port-forwarding`, label: 'Port Forwarding' },
         { to: `${prefix}/network/qos`, label: 'QoS Policies' },
         { to: `${prefix}/network/vpn`, label: 'VPN' },
-        { to: '/dns', label: 'DNS' },
+        { to: `${prefix}/dns`, label: 'DNS' },
         { to: `${prefix}/network/acl`, label: 'Network ACL' },
         { to: `${prefix}/network/asns`, label: 'ASNs' },
         { to: `${prefix}/network/bgp`, label: 'BGP / Dynamic Routing' }
@@ -227,10 +227,10 @@ export function getProjectSections(projectId: string): SidebarSection[] {
         { to: `${prefix}/infrastructure/secondary-storage`, label: 'Secondary Storage' },
         { to: `${prefix}/infrastructure/db-usage`, label: 'DB / Usage' },
         { to: `${prefix}/infrastructure/alarms`, label: 'Alarms' },
-        { to: '/platform-settings', label: 'Platform Services' },
-        { to: '/self-healing', label: 'Self-Healing' },
-        { to: '/ha', label: 'High Availability' },
-        { to: '/disaster-recovery', label: 'Disaster Recovery' }
+        { to: `${prefix}/platform-settings`, label: 'Platform Services' },
+        { to: `${prefix}/self-healing`, label: 'Self-Healing' },
+        { to: `${prefix}/ha`, label: 'High Availability' },
+        { to: `${prefix}/disaster-recovery`, label: 'Disaster Recovery' }
       ]
     },
 
@@ -238,13 +238,13 @@ export function getProjectSections(projectId: string): SidebarSection[] {
     {
       type: 'group',
       label: 'Security',
-      base: '/_security',
+      base: `${prefix}/security`,
       children: [
-        { to: '/rbac', label: 'Access Control' },
-        { to: '/kms', label: 'Key Management' },
-        { to: '/encryption', label: 'Data Encryption' },
-        { to: '/federation', label: 'Federation' },
-        { to: '/compliance-audit', label: 'Compliance' }
+        { to: `${prefix}/rbac`, label: 'Access Control' },
+        { to: `${prefix}/kms`, label: 'Key Management' },
+        { to: `${prefix}/encryption`, label: 'Data Encryption' },
+        { to: `${prefix}/federation`, label: 'Federation' },
+        { to: `${prefix}/compliance-audit`, label: 'Compliance' }
       ]
     },
 
@@ -252,11 +252,11 @@ export function getProjectSections(projectId: string): SidebarSection[] {
     {
       type: 'group',
       label: 'Service Offerings',
-      base: '/_offerings',
+      base: `${prefix}/offerings`,
       children: [
-        { to: '/offerings', label: 'Offerings' },
-        { to: '/service-catalog', label: 'Service Catalog' },
-        { to: '/orchestration', label: 'Orchestration' }
+        { to: `${prefix}/offerings`, label: 'Offerings' },
+        { to: `${prefix}/service-catalog`, label: 'Service Catalog' },
+        { to: `${prefix}/orchestration`, label: 'Orchestration' }
       ]
     },
 
@@ -264,12 +264,12 @@ export function getProjectSections(projectId: string): SidebarSection[] {
     {
       type: 'group',
       label: 'HPC',
-      base: '/hpc',
+      base: `${prefix}/hpc`,
       children: [
-        { to: '/hpc', label: 'Overview' },
-        { to: '/hpc/clusters', label: 'Clusters' },
-        { to: '/hpc/jobs', label: 'Job Queue' },
-        { to: '/hpc/gpu', label: 'GPU Resources' }
+        { to: `${prefix}/hpc`, label: 'Overview' },
+        { to: `${prefix}/hpc/clusters`, label: 'Clusters' },
+        { to: `${prefix}/hpc/jobs`, label: 'Job Queue' },
+        { to: `${prefix}/hpc/gpu`, label: 'GPU Resources' }
       ]
     },
 
@@ -277,18 +277,18 @@ export function getProjectSections(projectId: string): SidebarSection[] {
     {
       type: 'group',
       label: 'Administration',
-      base: '/_admin',
+      base: `${prefix}/admin`,
       children: [
-        { to: '/accounts', label: 'Accounts' },
-        { to: '/domains', label: 'Domains' },
-        { to: '/events', label: 'Events' },
-        { to: '/notifications', label: 'Notifications' },
-        { to: '/webhooks', label: 'Webhooks' },
-        { to: '/usage', label: 'Usage & Billing' },
-        { to: '/rate-limits', label: 'Rate Limiting' },
-        { to: '/settings/global', label: 'Global Settings' },
+        { to: `${prefix}/accounts`, label: 'Accounts' },
+        { to: `${prefix}/domains`, label: 'Domains' },
+        { to: `${prefix}/events`, label: 'Events' },
+        { to: `${prefix}/notifications`, label: 'Notifications' },
+        { to: `${prefix}/webhooks`, label: 'Webhooks' },
+        { to: `${prefix}/usage`, label: 'Usage & Billing' },
+        { to: `${prefix}/rate-limits`, label: 'Rate Limiting' },
+        { to: `${prefix}/settings/global`, label: 'Global Settings' },
         { to: `${prefix}/utilization`, label: 'Utilization' },
-        { to: '/docs', label: 'Docs' }
+        { to: `${prefix}/docs`, label: 'Docs' }
       ]
     }
   ]

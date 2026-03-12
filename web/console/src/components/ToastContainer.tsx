@@ -9,12 +9,13 @@ export function ToastContainer() {
       {toasts.map((t) => (
         <div
           key={t.id}
-          className={`rounded-lg border shadow-glass-sm backdrop-blur-xl p-3 text-sm flex items-start gap-2 animate-slide-in ${t.variant === 'success'
+          className={`rounded-lg border shadow-glass-sm backdrop-blur-xl p-3 text-sm flex items-start gap-2 animate-slide-in ${
+            t.variant === 'success'
               ? 'border-emerald-700 bg-emerald-900/40 text-status-text-success'
               : t.variant === 'error'
                 ? 'border-rose-700 bg-rose-900/40 text-status-rose'
                 : 'border-border bg-surface-elevated text-content-primary'
-            }`}
+          }`}
         >
           <div className="mt-0.5">
             {t.variant === 'success' && (

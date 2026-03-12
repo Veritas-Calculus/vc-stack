@@ -53,6 +53,118 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const { t, i18n } = useTranslation()
   const { resolvedTheme, setTheme } = useThemeStore()
 
+  // Helper to get translated nav labels
+  const getNavLabel = (label: string) => {
+    const map: Record<string, string> = {
+      // Global & Top Level
+      Dashboard: 'nav.dashboard',
+      Compute: 'nav.compute',
+      Storage: 'nav.storage',
+      Network: 'nav.network',
+      Images: 'nav.images',
+      Infrastructure: 'nav.infrastructure',
+      Security: 'nav.security',
+      'Service Offerings': 'nav.offerings',
+      Administration: 'nav.administration',
+      HPC: 'nav.hpc',
+
+      // Compute Group
+      Instances: 'compute.instances',
+      Firecracker: 'compute.firecracker',
+      Flavors: 'compute.flavor',
+      'VM Snapshots': 'compute.vmSnapshots',
+      Migrations: 'compute.migrations',
+      Kubernetes: 'nav.kubernetes',
+      'SSH Keypairs': 'compute.sshKeys',
+      'Bare Metal': 'nav.bareMetal',
+      'Auto Scale': 'nav.autoScale',
+      'Affinity Groups': 'nav.affinityGroups',
+
+      // Storage Group
+      Volumes: 'storage.volumes',
+      Snapshots: 'storage.snapshots',
+      Backups: 'nav.backups',
+      'Storage Classes': 'storage.storageClasses',
+      Schedules: 'storage.schedules',
+      'Object Storage': 'nav.objectStorage',
+
+      // Network Group
+      Networks: 'network.networks',
+      Topology: 'network.topology',
+      Routers: 'network.routers',
+      'Load Balancers': 'network.loadBalancers',
+      'Security Groups': 'network.securityGroups',
+      Firewalls: 'network.firewalls',
+      'Public IPs': 'network.publicIPs',
+      Ports: 'network.ports',
+      'Port Forwarding': 'network.portForwarding',
+      'QoS Policies': 'network.qos',
+      VPN: 'nav.vpn',
+      DNS: 'nav.dns',
+      'Network ACL': 'network.acls',
+      ASNs: 'network.asns',
+      'BGP / Dynamic Routing': 'network.bgp',
+
+      // Images Group
+      Templates: 'images.templates',
+      ISOs: 'images.iso',
+      'Kubernetes ISO': 'images.k8sIso',
+
+      // Infrastructure Group
+      Overview: 'nav.overview',
+      Zones: 'nav.zones',
+      Clusters: 'nav.clusters',
+      Hosts: 'nav.hosts',
+      'Primary Storage': 'nav.primaryStorage',
+      'Secondary Storage': 'nav.secondaryStorage',
+      'DB / Usage': 'nav.dbUsage',
+      Alarms: 'nav.alarms',
+      'Platform Services': 'nav.platformSettings',
+      'Self-Healing': 'nav.selfHealing',
+      'High Availability': 'nav.highAvailability',
+      'Disaster Recovery': 'nav.disasterRecovery',
+
+      // Security Group
+      'Access Control': 'nav.accessControl',
+      'Key Management': 'nav.keyManagement',
+      'Data Encryption': 'nav.dataEncryption',
+      Federation: 'nav.federation',
+      Compliance: 'nav.complianceAudit',
+
+      // Offerings Group
+      Offerings: 'nav.offerings',
+      'Service Catalog': 'nav.serviceCatalog',
+      Orchestration: 'nav.orchestration',
+
+      // HPC Group
+      'Job Queue': 'nav.hpcJobs',
+      'GPU Resources': 'nav.hpcGpu',
+
+      // Administration Group
+      Projects: 'nav.project',
+      Accounts: 'nav.accounts',
+      Domains: 'nav.domains',
+      Events: 'nav.events',
+      Notifications: 'nav.notifications',
+      Webhooks: 'nav.webhooks',
+      'Usage & Billing': 'nav.usageBilling',
+      'Rate Limiting': 'nav.rateLimiting',
+      'Global Settings': 'nav.globalSettings',
+      Utilization: 'nav.utilization',
+      Docs: 'nav.docs'
+    }
+    const key = map[label]
+    if (key) return t(key, { defaultValue: label })
+
+    // Fallback camelCase mapping for others
+    const camel = label
+      .replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => {
+        return index === 0 ? word.toLowerCase() : word.toUpperCase()
+      })
+      .replace(/\s+/g, '')
+    return t(`nav.${camel}`, { defaultValue: label })
+  }
+
   // keep active project in store when browsing inside a project
   useEffect(() => {
     if (!urlProjectId) return
@@ -119,7 +231,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               className="font-semibold text-[15px] tracking-tight transition-colors"
               style={{ color: 'var(--color-text-primary)' }}
             >
-              VC Console
+              {t('auth.loginTitle', { defaultValue: 'VC Console' }).replace('登录 ', '')}
             </Link>
           )}
         </div>
@@ -137,7 +249,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   }
                 >
                   <NavIcon name={s.label} />
-                  {!sidebarCollapsed && <span>{s.label}</span>}
+                  {!sidebarCollapsed && <span>{getNavLabel(s.label)}</span>}
                 </NavLink>
               )
             }
@@ -176,7 +288,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 >
                   <span className="flex items-center gap-2.5">
                     <NavIcon name={s.label} />
-                    {!sidebarCollapsed && <span>{s.label}</span>}
+                    {!sidebarCollapsed && <span>{getNavLabel(s.label)}</span>}
                   </span>
                   {!sidebarCollapsed && (
                     <svg
@@ -212,7 +324,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     }}
                   >
                     <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-content-tertiary">
-                      {s.label}
+                      {getNavLabel(s.label)}
                     </div>
                     {s.children.map((c) => (
                       <NavLink
@@ -224,7 +336,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                         onClick={() => setCollapsedFlyout(null)}
                       >
                         <NavIcon name={c.label} small />
-                        <span>{c.label}</span>
+                        <span>{getNavLabel(c.label)}</span>
                       </NavLink>
                     ))}
                   </div>
@@ -242,7 +354,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                         }
                       >
                         <NavIcon name={c.label} small />
-                        <span>{c.label}</span>
+                        <span>{getNavLabel(c.label)}</span>
                       </NavLink>
                     ))}
                   </div>
@@ -520,12 +632,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
               e.currentTarget.style.background = 'transparent'
             }}
             onClick={() => {
-              const next = i18n.language === 'en' ? 'zh' : 'en'
+              const isZh = i18n.language?.startsWith('zh')
+              const next = isZh ? 'en' : 'zh'
               i18n.changeLanguage(next)
             }}
             title={t('language.switchLanguage')}
           >
-            {i18n.language === 'zh' ? 'EN' : '中'}
+            {i18n.language?.startsWith('zh') ? 'EN' : '中'}
           </button>
 
           {/* Theme toggle */}
