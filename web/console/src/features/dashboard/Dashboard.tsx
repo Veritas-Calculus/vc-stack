@@ -368,7 +368,7 @@ export function Dashboard() {
               onClick={() => navigate('/events')}
               className="text-xs text-blue-400 hover:text-blue-300"
             >
-              View All ->
+              View All &rarr;
             </button>
           </div>
           <div className="divide-y divide-oxide-800/30">
@@ -409,7 +409,7 @@ export function Dashboard() {
               onClick={() => navigate('/notifications')}
               className="text-xs text-blue-400 hover:text-blue-300"
             >
-              View All ->
+              View All &rarr;
             </button>
           </div>
           <div className="divide-y divide-oxide-800/30">

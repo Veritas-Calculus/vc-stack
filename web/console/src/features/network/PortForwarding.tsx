@@ -133,7 +133,7 @@ export default function PortForwarding() {
     {
       key: 'direction',
       header: '',
-      render: () => <span className="text-gray-500">-></span>,
+      render: () => <span className="text-gray-500">&rarr;</span>,
       className: 'w-8 text-center'
     },
     {

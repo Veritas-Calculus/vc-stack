@@ -315,7 +315,7 @@ export function DisasterRecovery() {
               <div className="flex items-center justify-center gap-2 mt-4 text-gray-400">
                 <span className="text-sm">{siteForId(plans[0].source_site_id)}</span>
                 <span className="text-cyan-400">
-                  ->->-> {plans[0].replication_type} replication ->->->
+                  &rarr;&rarr;&rarr; {plans[0].replication_type} replication &rarr;&rarr;&rarr;
                 </span>
                 <span className="text-sm">{siteForId(plans[0].target_site_id)}</span>
                 <span className="text-xs text-gray-500 ml-4">
@@ -472,7 +472,7 @@ export function DisasterRecovery() {
               </div>
               <div className="flex items-center gap-4 text-xs text-gray-400 mt-2">
                 <span>Source: {siteForId(p.source_site_id)}</span>
-                <span>-></span>
+                <span>&rarr;</span>
                 <span>Target: {siteForId(p.target_site_id)}</span>
                 {p.last_replication && (
                   <span className="ml-auto">

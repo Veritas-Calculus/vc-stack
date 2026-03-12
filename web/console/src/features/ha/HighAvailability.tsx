@@ -580,7 +580,7 @@ export function HighAvailability() {
                         ? `${Math.round((new Date(e.completed_at).getTime() - new Date(e.started_at).getTime()) / 1000)}s`
                         : '—'}
                     </td>
-                    <td className="px-4 py-3 text-blue-400 text-xs">Details -></td>
+                    <td className="px-4 py-3 text-blue-400 text-xs">Details &rarr;</td>
                   </tr>
                 ))}
               </tbody>

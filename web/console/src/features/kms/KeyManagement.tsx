@@ -337,11 +337,11 @@ export function KeyManagement() {
                 <span className="px-2 py-1 bg-purple-500/20 text-purple-400 rounded text-xs">
                   Master Key (KEK)
                 </span>
-                <span className="text-gray-500">-> encrypts -></span>
+                <span className="text-gray-500">&rarr; encrypts &rarr;</span>
                 <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs">
                   Data Encryption Key (DEK)
                 </span>
-                <span className="text-gray-500">-> encrypts -></span>
+                <span className="text-gray-500">&rarr; encrypts &rarr;</span>
                 <span className="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded text-xs">
                   Your Data
                 </span>

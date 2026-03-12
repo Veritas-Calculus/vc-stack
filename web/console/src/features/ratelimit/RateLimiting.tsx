@@ -524,10 +524,10 @@ export function RateLimiting() {
             <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg text-sm text-gray-400">
               <p className="text-blue-400 font-medium mb-1">How it works:</p>
               <p>
-                CPU &gt; threshold OR latency &gt; threshold -> limits × scale_down_factor (min 10%)
+                CPU &gt; threshold OR latency &gt; threshold &rarr; limits × scale_down_factor (min 10%)
               </p>
               <p>
-                CPU &lt; 70% of threshold AND latency &lt; 50% of threshold -> limits ×
+                CPU &lt; 70% of threshold AND latency &lt; 50% of threshold &rarr; limits ×
                 scale_up_factor (max 100%)
               </p>
             </div>

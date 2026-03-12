@@ -542,25 +542,25 @@ export function Kubernetes() {
                 <div className="text-white font-medium text-xs">External</div>
                 <div className="text-gray-500 text-xs">Floating IP</div>
               </div>
-              <span className="text-gray-500">-></span>
+              <span className="text-gray-500">&rarr;</span>
               <div className="text-center p-3 border border-purple-500/30 rounded-lg bg-purple-500/5 w-32">
                 <div className="text-lg mb-1 text-purple-400">{Icons.scaleBalance('w-5 h-5')}</div>
                 <div className="text-white font-medium text-xs">OVN LB</div>
                 <div className="text-gray-500 text-xs">L4 Load Balancer</div>
               </div>
-              <span className="text-gray-500">-></span>
+              <span className="text-gray-500">&rarr;</span>
               <div className="text-center p-3 border border-cyan-500/30 rounded-lg bg-cyan-500/5 w-32">
                 <div className="text-lg mb-1 text-cyan-400">{Icons.desktopComputer('w-5 h-5')}</div>
                 <div className="text-white font-medium text-xs">NodePort</div>
                 <div className="text-gray-500 text-xs">kube-proxy</div>
               </div>
-              <span className="text-gray-500">-></span>
+              <span className="text-gray-500">&rarr;</span>
               <div className="text-center p-3 border border-emerald-500/30 rounded-lg bg-emerald-500/5 w-32">
                 <div className="text-lg mb-1 text-emerald-400">{Icons.network('w-5 h-5')}</div>
                 <div className="text-white font-medium text-xs">Calico CNI</div>
                 <div className="text-gray-500 text-xs">{selectedCluster.calico_mode}</div>
               </div>
-              <span className="text-gray-500">-></span>
+              <span className="text-gray-500">&rarr;</span>
               <div className="text-center p-3 border border-amber-500/30 rounded-lg bg-amber-500/5 w-32">
                 <div className="text-lg mb-1 text-amber-400">{Icons.cube('w-5 h-5')}</div>
                 <div className="text-white font-medium text-xs">Pod</div>

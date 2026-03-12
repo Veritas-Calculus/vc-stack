@@ -183,7 +183,7 @@ export function AutoScale() {
                           </span>{' '}
                           <span className="text-gray-300">{p.operator}</span>{' '}
                           <span className="text-white font-semibold">{p.threshold}%</span> for{' '}
-                          <span className="text-gray-300">{p.duration}s</span> -> adjust by{' '}
+                          <span className="text-gray-300">{p.duration}s</span> &rarr; adjust by{' '}
                           <span className="text-white font-semibold">{p.adjust_by}</span>
                         </div>
                       </div>

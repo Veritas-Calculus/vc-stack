@@ -465,7 +465,7 @@ export function Federation() {
               <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 p-5 mb-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-medium text-white">
-                    Group -> Role Mappings ({mappings.length})
+                    Group &rarr; Role Mappings ({mappings.length})
                   </h3>
                   <button
                     onClick={() => setShowMapping(true)}
@@ -490,7 +490,7 @@ export function Federation() {
                           <span className="px-2.5 py-1 rounded bg-purple-500/15 text-purple-400 border border-purple-500/30 text-xs font-mono">
                             {m.external_group}
                           </span>
-                          <span className="text-gray-500 text-xs">-></span>
+                          <span className="text-gray-500 text-xs">&rarr;</span>
                           <span className="px-2.5 py-1 rounded bg-blue-500/15 text-blue-400 border border-blue-500/30 text-xs font-medium">
                             {m.role.name}
                           </span>
