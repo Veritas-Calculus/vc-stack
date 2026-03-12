@@ -331,7 +331,7 @@ func (s *Service) dispatchVMCreate(c *gin.Context) {
 		reqHTTP, _ := http.NewRequest("POST", addr, buf)
 		reqHTTP.Header.Set("Content-Type", "application/json")
 		var reqErr error
-		httpResp, reqErr = http.DefaultClient.Do(reqHTTP) // #nosec
+		httpResp, reqErr = http.DefaultClient.Do(reqHTTP) //nolint:bodyclose // closed on both error and success paths
 		return reqErr
 	})
 	if cbErr != nil {

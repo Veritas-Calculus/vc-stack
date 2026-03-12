@@ -261,7 +261,7 @@ func (s *Service) handleCreateBackup(c *gin.Context) {
 	var req struct {
 		Type string `json:"type"`
 	}
-	c.ShouldBindJSON(&req)
+	_ = c.ShouldBindJSON(&req)
 	b, err := s.CreateBackup(uint(id), req.Type)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

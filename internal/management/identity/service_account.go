@@ -89,7 +89,7 @@ func (sa *ServiceAccount) IsExpired() bool {
 // ──────────────────────────────────────────────────────────────────────
 
 // generateAccessKeyID generates a unique access key ID.
-// Format: VC-AKIA-{16 hex chars} (24 chars total)
+// Format: VC-AKIA-{16 hex chars} (24 chars total).
 func generateAccessKeyID() (string, error) {
 	b := make([]byte, 8) // 16 hex chars
 	if _, err := rand.Read(b); err != nil {
@@ -99,7 +99,7 @@ func generateAccessKeyID() (string, error) {
 }
 
 // generateSecretKey generates a cryptographically random secret key.
-// Format: base64url-encoded 32 bytes (43 chars)
+// Format: base64url-encoded 32 bytes (43 chars).
 func generateSecretKey() (string, error) {
 	b := make([]byte, 32)
 	if _, err := rand.Read(b); err != nil {
@@ -113,11 +113,11 @@ func generateSecretKey() (string, error) {
 // ──────────────────────────────────────────────────────────────────────
 
 // HMACAuth is the authorization header scheme for API key authentication.
-// Format: VC-HMAC-SHA256 AccessKeyId={key}, Timestamp={unix}, Signature={sig}
+// Format: VC-HMAC-SHA256 AccessKeyId={key}, Timestamp={unix}, Signature={sig}.
 const HMACAuth = "VC-HMAC-SHA256"
 
 // computeHMAC computes the HMAC-SHA256 signature for API key authentication.
-// The signing string is: "accessKeyID\ntimestamp\nHTTPMethod\npath"
+// The signing string is: "accessKeyID\ntimestamp\nHTTPMethod\npath".
 func computeHMAC(secretKey, accessKeyID, timestamp, method, path string) string {
 	signingString := accessKeyID + "\n" + timestamp + "\n" + method + "\n" + path
 	mac := hmac.New(sha256.New, []byte(secretKey))
@@ -666,7 +666,7 @@ func (s *Service) handleAPIKeyAuth(c *gin.Context, authHeader string) {
 }
 
 // parseHMACParams parses the HMAC authorization header parameters.
-// Input: "VC-HMAC-SHA256 AccessKeyId=XXX, Timestamp=YYY, Signature=ZZZ"
+// Input: "VC-HMAC-SHA256 AccessKeyId=XXX, Timestamp=YYY, Signature=ZZZ".
 func parseHMACParams(header string) map[string]string {
 	result := map[string]string{}
 

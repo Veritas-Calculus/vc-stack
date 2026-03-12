@@ -159,21 +159,21 @@ const (
 	IAMCreateProject = "vc:iam:CreateProject"
 	IAMDeleteProject = "vc:iam:DeleteProject"
 
-	// Service Account Actions (P3)
+	// Service Account Actions (P3).
 	IAMListServiceAccounts  = "vc:iam:ListServiceAccounts"
 	IAMGetServiceAccount    = "vc:iam:GetServiceAccount"
 	IAMCreateServiceAccount = "vc:iam:CreateServiceAccount"
 	IAMDeleteServiceAccount = "vc:iam:DeleteServiceAccount"
 	IAMRotateServiceAccount = "vc:iam:RotateServiceAccountKey"
 
-	// Group Actions (P5)
+	// Group Actions (P5).
 	IAMListGroups  = "vc:iam:ListGroups"
 	IAMGetGroup    = "vc:iam:GetGroup"
 	IAMCreateGroup = "vc:iam:CreateGroup"
 	IAMUpdateGroup = "vc:iam:UpdateGroup"
 	IAMDeleteGroup = "vc:iam:DeleteGroup"
 
-	// Permission Boundary Actions (P5)
+	// Permission Boundary Actions (P5).
 	IAMSetPermissionBoundary    = "vc:iam:SetPermissionBoundary"
 	IAMGetPermissionBoundary    = "vc:iam:GetPermissionBoundary"
 	IAMDeletePermissionBoundary = "vc:iam:DeletePermissionBoundary"

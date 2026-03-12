@@ -136,7 +136,9 @@ func (s *Service) DetectDrift(stackID uint) (*DriftReport, error) {
 
 	// Parse template to get declared resources.
 	var declared map[string]interface{}
-	json.Unmarshal([]byte(active.Template), &declared)
+	if err := json.Unmarshal([]byte(active.Template), &declared); err != nil {
+		return nil, fmt.Errorf("parse template: %w", err)
+	}
 
 	// Simulate drift detection comparing template vs actual state.
 	// In production, each resource type would have a provider that checks real state.
@@ -174,7 +176,9 @@ func (s *Service) GetDepGraph(stackID uint) ([]DepNode, error) {
 	}
 
 	var tmpl map[string]interface{}
-	json.Unmarshal([]byte(active.Template), &tmpl)
+	if err := json.Unmarshal([]byte(active.Template), &tmpl); err != nil {
+		return nil, fmt.Errorf("parse template: %w", err)
+	}
 
 	var nodes []DepNode
 	if resources, ok := tmpl["resources"].([]interface{}); ok {

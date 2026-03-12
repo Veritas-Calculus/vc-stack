@@ -584,18 +584,18 @@ func parseWallTime(wallTime string) int {
 			_, _ = fmt.Sscanf(dParts[1], "%d", &h)
 			h += d * 24
 		} else {
-			fmt.Sscanf(hourPart, "%d", &h)
+			_, _ = fmt.Sscanf(hourPart, "%d", &h)
 		}
-		fmt.Sscanf(parts[1], "%d", &m)
+		_, _ = fmt.Sscanf(parts[1], "%d", &m)
 		return h*60 + m
 	case 2: // HH:MM
 		var h, m int
-		fmt.Sscanf(parts[0], "%d", &h)
-		fmt.Sscanf(parts[1], "%d", &m)
+		_, _ = fmt.Sscanf(parts[0], "%d", &h)
+		_, _ = fmt.Sscanf(parts[1], "%d", &m)
 		return h*60 + m
 	default:
 		var mins int
-		fmt.Sscanf(wallTime, "%d", &mins)
+		_, _ = fmt.Sscanf(wallTime, "%d", &mins)
 		return mins
 	}
 }
