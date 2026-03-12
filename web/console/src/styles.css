@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* ═══════════════════════════════════════════════════════════════
-   VC Console – Apple-inspired Design System
+   VC Console – Apple-inspired Design System (Refined)
    ═══════════════════════════════════════════════════════════════ */
 
 /* ── CSS Custom Properties ────────────────────────────────────── */
@@ -15,34 +15,34 @@
   --radius: 12px;
 
   /* Glass surfaces */
-  --glass-bg: rgba(28, 37, 55, 0.72);
-  --glass-bg-sidebar: rgba(28, 37, 55, 0.88);
-  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-bg: rgba(28, 28, 30, 0.72);
+  --glass-bg-sidebar: rgba(28, 28, 30, 0.88);
+  --glass-border: rgba(255, 255, 255, 0.08);
 
   /* ── Semantic Surface Tokens ── */
-  --surface-primary: #0f1724;
-  --surface-secondary: #1c2537;
-  --surface-tertiary: #232d3f;
-  --surface-elevated: rgba(28, 37, 55, 0.85);
-  --surface-hover: rgba(255, 255, 255, 0.06);
-  --surface-active: rgba(10, 132, 255, 0.12);
-  --surface-inset: rgba(0, 0, 0, 0.2);
+  --surface-primary: #000000;
+  --surface-secondary: #1c1c1e;
+  --surface-tertiary: #2c2c2e;
+  --surface-elevated: rgba(44, 44, 46, 0.85);
+  --surface-hover: rgba(255, 255, 255, 0.08);
+  --surface-active: rgba(10, 132, 255, 0.15);
+  --surface-inset: rgba(0, 0, 0, 0.4);
 
   /* ── Text / Content ── */
-  --content-primary: #f5f5f7;
-  --content-secondary: #a1a1a6;
-  --content-tertiary: #6e6e73;
-  --content-placeholder: #48484a;
-  --content-inverse: #1d1d1f;
+  --content-primary: rgba(255, 255, 255, 0.95);
+  --content-secondary: rgba(255, 255, 255, 0.6);
+  --content-tertiary: rgba(255, 255, 255, 0.4);
+  --content-placeholder: rgba(255, 255, 255, 0.25);
+  --content-inverse: #000000;
 
   /* ── Borders ── */
-  --border-default: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.12);
+  --border-default: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.16);
 
   /* ── Accent ── */
   --accent-color: #0a84ff;
   --accent-color-hover: #409cff;
-  --accent-subtle: rgba(10, 132, 255, 0.12);
+  --accent-subtle: rgba(10, 132, 255, 0.15);
 
   /* ── Status (bg pill fills) ── */
   --status-success: #30d158;
@@ -51,25 +51,22 @@
   --status-info: #0a84ff;
 
   /* ── Status Text (readable on dark bg) ── */
-  --text-success: #34d399;
-  --text-warning: #fbbf24;
-  --text-error: #f87171;
-  --text-info: #38bdf8;
-  --text-link: #60a5fa;
-  --text-cyan: #22d3ee;
-  --text-purple: #c084fc;
-  --text-indigo: #818cf8;
-  --text-orange: #fb923c;
-  --text-rose: #fb7185;
+  --text-success: #32d74b;
+  --text-warning: #ffd60a;
+  --text-error: #ff453a;
+  --text-info: #64d2ff;
+  --text-link: #0a84ff;
+  --text-cyan: #64d2ff;
+  --text-purple: #bf5af2;
+  --text-indigo: #5e5ce6;
+  --text-orange: #ff9f0a;
+  --text-rose: #ff375f;
 
   /* ── Icon ── */
   --icon-muted: rgba(255, 255, 255, 0.4);
-  --icon-hover: rgba(255, 255, 255, 0.8);
+  --icon-hover: rgba(255, 255, 255, 0.85);
 
-  /* ── Misc ── */
-  --progress-bg: rgba(255, 255, 255, 0.08);
-
-  /* Legacy aliases (backward compat – will be removed in P5) */
+  /* Legacy aliases (backward compat) */
   --color-bg-primary: var(--surface-primary);
   --color-bg-secondary: var(--surface-secondary);
   --color-bg-tertiary: var(--surface-tertiary);
@@ -90,80 +87,75 @@
 html.light {
   color-scheme: light;
 
-  --glass-bg: rgba(255, 255, 255, 0.72);
-  --glass-bg-sidebar: rgba(246, 248, 252, 0.92);
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-bg-sidebar: rgba(242, 242, 247, 0.92);
   --glass-border: rgba(0, 0, 0, 0.08);
 
   /* ── Semantic Surface Tokens ── */
-  --surface-primary: #f5f5f7;
+  --surface-primary: #f2f2f7;
   --surface-secondary: #ffffff;
-  --surface-tertiary: #f0f0f5;
-  --surface-elevated: rgba(255, 255, 255, 0.95);
-  --surface-hover: rgba(0, 0, 0, 0.04);
-  --surface-active: rgba(0, 122, 255, 0.08);
-  --surface-inset: rgba(0, 0, 0, 0.03);
+  --surface-tertiary: #e5e5ea;
+  --surface-elevated: rgba(255, 255, 255, 0.98);
+  --surface-hover: rgba(0, 0, 0, 0.05);
+  --surface-active: rgba(0, 122, 255, 0.1);
+  --surface-inset: rgba(0, 0, 0, 0.05);
 
   /* ── Text / Content ── */
-  --content-primary: #1d1d1f;
-  --content-secondary: #6e6e73;
-  --content-tertiary: #86868b;
-  --content-placeholder: #aeaeb2;
-  --content-inverse: #f5f5f7;
+  --content-primary: rgba(0, 0, 0, 0.95);
+  --content-secondary: rgba(0, 0, 0, 0.7);
+  --content-tertiary: rgba(0, 0, 0, 0.5);
+  --content-placeholder: rgba(0, 0, 0, 0.35);
+  --content-inverse: #ffffff;
 
   /* ── Borders ── */
-  --border-default: rgba(0, 0, 0, 0.08);
-  --border-strong: rgba(0, 0, 0, 0.12);
+  --border-default: rgba(0, 0, 0, 0.1);
+  --border-strong: rgba(0, 0, 0, 0.15);
 
   /* ── Accent ── */
   --accent-color: #007aff;
   --accent-color-hover: #0066cc;
-  --accent-subtle: rgba(0, 122, 255, 0.08);
+  --accent-subtle: rgba(0, 122, 255, 0.1);
 
-  /* ── Status (bg pill fills) ── */
-  --status-success: #34c759;
-  --status-warning: #ff9500;
-  --status-error: #ff3b30;
-  --status-info: #007aff;
-
-  /* ── Status Text (readable on light bg) ── */
-  --text-success: #16a34a;
-  --text-warning: #d97706;
-  --text-error: #dc2626;
-  --text-info: #0284c7;
-  --text-link: #2563eb;
-  --text-cyan: #0891b2;
-  --text-purple: #9333ea;
-  --text-indigo: #4f46e5;
-  --text-orange: #ea580c;
-  --text-rose: #e11d48;
+  /* ── Status Text (light optimized) ── */
+  --text-success: #248a3d;
+  --text-warning: #b25000;
+  --text-error: #c9342b;
+  --text-info: #0071a4;
+  --text-link: #007aff;
+  --text-cyan: #05858b;
+  --text-purple: #8944ab;
+  --text-indigo: #3634a8;
+  --text-orange: #c93400;
+  --text-rose: #d30f45;
 
   /* ── Icon ── */
-  --icon-muted: rgba(0, 0, 0, 0.35);
-  --icon-hover: rgba(0, 0, 0, 0.7);
+  --icon-muted: rgba(0, 0, 0, 0.55);
+  --icon-hover: rgba(0, 0, 0, 0.9);
 
-  /* ── Misc ── */
-  --progress-bg: rgba(0, 0, 0, 0.06);
+  /* Force legacy aliases in Light Mode for inline styles */
+  --color-bg-primary: var(--surface-primary);
+  --color-bg-secondary: var(--surface-secondary);
+  --color-bg-tertiary: var(--surface-tertiary);
+  --color-border: var(--border-default);
+  --color-text-primary: var(--content-primary);
+  --color-text-secondary: var(--content-secondary);
+  --color-text-tertiary: var(--content-tertiary);
+  --color-icon-muted: var(--icon-muted);
+  --color-icon-hover: var(--icon-hover);
 }
 
 /* ── Base ──────────────────────────────────────────────────── */
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
 }
 
 body {
   background-color: var(--surface-primary);
   color: var(--content-primary);
   font-family:
-    'Inter',
-    -apple-system,
-    BlinkMacSystemFont,
-    system-ui,
-    'Helvetica Neue',
-    Arial,
-    sans-serif;
-  font-feature-settings: 'ss01', 'ss02', 'cv01';
+    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Icons', 'Helvetica Neue', Helvetica,
+    Arial, sans-serif;
   letter-spacing: -0.011em;
 }
 
@@ -173,37 +165,24 @@ body {
   color: #fff;
 }
 
-/* ── Focus rings – Apple style ─────────────────────────────── */
-:focus-visible {
-  outline: 2px solid rgba(10, 132, 255, 0.5);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-
-/* ── Scrollbar – minimal, macOS style ──────────────────────── */
+/* ── Scrollbar ────────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
-
 ::-webkit-scrollbar-track {
   background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--border-strong);
+  border-radius: 10px;
 }
 
 /* ── Glass surfaces ────────────────────────────────────────── */
 .glass {
   background: var(--glass-bg);
-  backdrop-filter: blur(20px) saturate(1.4);
-  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
   border: 1px solid var(--glass-border);
 }
 
@@ -216,156 +195,126 @@ body {
 
 /* ── Card component ────────────────────────────────────────── */
 .card {
-  @apply rounded-xl border shadow-glass-sm;
-  background: var(--color-bg-secondary);
-  border-color: var(--color-border);
+  @apply rounded-xl border;
+  background: var(--surface-secondary);
+  border-color: var(--border-default);
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
 }
-
 .card:hover {
-  border-color: var(--color-border-strong);
+  border-color: var(--border-strong);
 }
 
 /* ── Buttons ───────────────────────────────────────────────── */
 .btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition-all duration-200 disabled:opacity-40 disabled:pointer-events-none;
-  letter-spacing: -0.006em;
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 active:scale-[0.97] disabled:opacity-40;
 }
 
 .btn-primary {
   @apply btn text-white;
-  background: linear-gradient(180deg, #1a7ef7 0%, #0a6fe0 100%);
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  background: var(--accent-color);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .btn-primary:hover {
-  background: linear-gradient(180deg, #2b8bf8 0%, #1278e8 100%);
-  box-shadow:
-    0 2px 6px rgba(10, 132, 255, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
-}
-
-.btn-primary:active {
-  background: linear-gradient(180deg, #0a6fe0 0%, #085fc0 100%);
-  transform: scale(0.98);
+  background: var(--accent-color-hover);
 }
 
 .btn-secondary {
   @apply btn;
-  color: var(--color-text-primary);
-  background: var(--color-bg-hover);
-  border: 1px solid var(--color-border);
-}
-
-.btn-secondary:hover {
-  background: var(--color-bg-tertiary);
-  border-color: var(--color-border-strong);
+  background: var(--surface-tertiary);
+  color: var(--content-primary);
+  border: 1px solid var(--border-default);
 }
 
 /* ── Inputs ────────────────────────────────────────────────── */
 .input,
 .input-field {
-  @apply w-full rounded-lg px-3 py-2 text-sm placeholder:text-gray-500 focus:outline-none;
-  color: var(--color-text-primary);
-  background: var(--color-bg-tertiary);
-  border: 1px solid var(--color-border);
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+  @apply w-full rounded-lg px-3 py-2 text-sm transition-all focus:outline-none;
+  background: var(--surface-tertiary);
+  border: 1px solid var(--border-default);
+  color: var(--content-primary);
 }
 
 .input:focus,
 .input-field:focus {
-  border-color: rgba(10, 132, 255, 0.5);
-  box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.12);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.15);
 }
 
 .label {
   @apply text-sm font-medium;
-  color: var(--color-text-secondary);
-  letter-spacing: 0.01em;
-}
-
-/* ── Icon buttons (header, toolbar) ───────────────────────── */
-.icon-btn {
-  @apply inline-flex items-center justify-center p-1.5 rounded-lg transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed;
-  color: var(--color-icon-muted);
-}
-
-.icon-btn:hover {
-  background: var(--color-bg-hover);
-  color: var(--color-icon-hover);
+  color: var(--content-secondary);
 }
 
 /* ── Sidebar nav items ─────────────────────────────────────── */
 .nav-item {
   @apply flex items-center gap-2.5 rounded-lg text-[13px] font-medium transition-all duration-150;
-  color: var(--color-text-muted);
+  color: var(--icon-muted);
   padding: 7px 10px;
 }
 
 .nav-item:hover {
-  background: var(--color-bg-hover);
-  color: var(--color-text-primary);
+  background: var(--surface-hover);
+  color: var(--content-primary);
 }
 
 .nav-item.active {
   background: rgba(10, 132, 255, 0.12);
-  color: var(--color-accent);
+  color: var(--accent-color);
 }
 
 .nav-item.active svg {
-  color: var(--color-accent);
+  color: var(--accent-color);
 }
 
 /* ── Dropdown / popover menus ──────────────────────────────── */
 .dropdown-menu {
   @apply absolute z-50 rounded-xl py-1.5 animate-scale-in;
-  background: var(--color-bg-elevated);
+  background: var(--surface-elevated);
   backdrop-filter: blur(20px) saturate(1.4);
   -webkit-backdrop-filter: blur(20px) saturate(1.4);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--border-default);
   box-shadow:
     0 4px 24px rgba(0, 0, 0, 0.15),
-    0 0 0 1px var(--color-border);
+    0 0 0 1px var(--border-default);
 }
 
 .dropdown-item {
   @apply block w-full text-left px-3 py-1.5 text-[13px] transition-colors duration-100;
-  color: var(--color-text-secondary);
+  color: var(--content-secondary);
 }
 
 .dropdown-item:hover {
-  background: var(--color-bg-hover);
-  color: var(--color-text-primary);
-}
-
-/* ── Section headers in sidebar ────────────────────────────── */
-.section-label {
-  @apply text-[10px] font-semibold uppercase tracking-widest px-3 pt-5 pb-1.5;
-  color: var(--color-text-tertiary);
+  background: var(--surface-hover);
+  color: var(--content-primary);
 }
 
 /* ── Badge / pill ──────────────────────────────────────────── */
 .badge-count {
   @apply absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full text-[10px] leading-4 grid place-items-center font-semibold;
-  background: #ff375f;
+  background: var(--status-error);
   color: #fff;
-  box-shadow: 0 1px 3px rgba(255, 55, 95, 0.4);
+  box-shadow: 0 1px 3px rgba(255, 69, 58, 0.4);
 }
 
-/* ── Transition helpers ────────────────────────────────────── */
-.transition-fast {
-  transition: all 0.15s ease;
+/* ── Status Dots (Replacing Emojis) ────────────────────────── */
+.status-dot {
+  @apply w-2 h-2 rounded-full inline-block mr-2;
+}
+.status-dot-success {
+  @apply status-dot bg-status-success shadow-[0_0_8px_rgba(48,209,88,0.4)];
+}
+.status-dot-warning {
+  @apply status-dot bg-status-warning shadow-[0_0_8px_rgba(255,159,10,0.4)];
+}
+.status-dot-error {
+  @apply status-dot bg-status-error   shadow-[0_0_8px_rgba(255,69,58,0.4)];
 }
 
 /* ═══════════════════════════════════════════════════════════════
    LIGHT MODE — Essential Global Overrides
-   Only structural/element-level rules that can't use Tailwind utilities
    ═══════════════════════════════════════════════════════════════ */
 
 /* ── Body ─────────────────────────────────────────────────── */
@@ -374,19 +323,16 @@ html.light body {
   color: var(--content-primary);
 }
 
-/* ── Selection ────────────────────────────────────────────── */
 html.light ::selection {
   background: rgba(0, 122, 255, 0.2);
-  color: #1d1d1f;
+  color: #000;
 }
 
-/* ── Scrollbar ────────────────────────────────────────────── */
 html.light ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.12);
+  background: rgba(0, 0, 0, 0.15);
 }
-
 html.light ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.25);
 }
 
 /* ── Header ───────────────────────────────────────────────── */
@@ -399,7 +345,7 @@ html.light header {
 /* ── Sidebar ──────────────────────────────────────────────── */
 html.light aside,
 html.light nav {
-  background-color: rgba(246, 248, 252, 0.95) !important;
+  background-color: rgba(242, 242, 247, 0.95) !important;
   border-color: var(--border-default) !important;
 }
 
@@ -419,34 +365,12 @@ html.light select {
 }
 
 html.light .input:focus,
-html.light .input-field:focus,
-html.light input:focus,
-html.light textarea:focus,
-html.light select:focus {
+html.light .input-field:focus {
   border-color: var(--accent-color) !important;
 }
 
-html.light .input::placeholder,
-html.light .input-field::placeholder,
-html.light input::placeholder,
-html.light textarea::placeholder {
+html.light .input::placeholder {
   color: var(--content-placeholder) !important;
-}
-
-/* ── btn-primary stays white text in ALL themes ───────────── */
-html.light .btn-primary,
-html.light .btn-primary:hover,
-html.light .btn-primary:active {
-  color: #ffffff !important;
-}
-
-html.light button[class*='btn-primary'] {
-  color: #ffffff !important;
-}
-
-/* ── Gradient avatar stays white text ─────────────────────── */
-html.light .bg-gradient-to-br.from-apple-blue.to-apple-purple {
-  color: #ffffff !important;
 }
 
 /* ── Dropdown menu ────────────────────────────────────────── */
@@ -458,10 +382,20 @@ html.light .dropdown-menu {
     0 0 0 1px rgba(0, 0, 0, 0.04);
 }
 
-/* ── Shadows ──────────────────────────────────────────────── */
-html.light .shadow-card,
-html.light .shadow-glass-sm {
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.06),
-    0 1px 2px rgba(0, 0, 0, 0.04) !important;
+/* ── Buttons (Ensure text is readable) ────────────────────── */
+html.light .btn-primary {
+  color: #ffffff !important;
+}
+html.light .btn-secondary {
+  background: #ffffff;
+  color: var(--content-primary);
+  border-color: var(--border-default);
+}
+html.light .btn-secondary:hover {
+  background: var(--surface-hover);
+}
+
+/* ── Card ─────────────────────────────────────────────────── */
+html.light .card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }

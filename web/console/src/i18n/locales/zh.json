@@ -108,7 +108,18 @@
     "administration": "系统管理",
     "loadBalancers": "负载均衡",
     "topology": "拓扑",
-    "tools": "工具"
+    "tools": "工具",
+    "hpc": "高性能计算",
+    "hpcJobs": "任务队列",
+    "hpcGpu": "GPU 资源",
+    "overview": "概览",
+    "zones": "可用区",
+    "clusters": "集群",
+    "hosts": "主机",
+    "primaryStorage": "主存储",
+    "secondaryStorage": "备份存储",
+    "dbUsage": "数据库使用率",
+    "alarms": "告警"
   },
   "auth": {
     "login": "登录",
@@ -187,21 +198,25 @@
     "detachVolume": "卸载云硬盘",
     "securityGroups": "安全组",
     "cloudInit": "Cloud-Init",
-    "userData": "自定义数据"
+    "userData": "自定义数据",
+    "firecracker": "Firecracker 微机",
+    "vmSnapshots": "主机快照",
+    "migrations": "实例迁移"
   },
   "network": {
-    "networks": "网络",
+    "networks": "虚拟网络",
     "subnets": "子网",
     "routers": "路由器",
     "floatingIPs": "弹性公网IP",
+    "publicIPs": "公网 IP",
     "securityGroups": "安全组",
-    "ports": "端口",
+    "ports": "虚拟端口",
     "createNetwork": "创建网络",
     "cidr": "CIDR",
     "gateway": "网关",
     "dhcp": "DHCP",
     "vlanId": "VLAN ID",
-    "topology": "拓扑",
+    "topology": "网络拓扑",
     "loadBalancers": "负载均衡",
     "createLoadBalancer": "创建负载均衡器",
     "vip": "虚拟IP",
@@ -212,17 +227,21 @@
     "detachFromRouter": "解除关联路由器",
     "vpcs": "VPC",
     "acls": "网络 ACL",
-    "asns": "ASN",
+    "asns": "ASNs",
     "external": "外部",
     "internal": "内部",
     "shared": "共享",
     "mtu": "MTU",
     "networkType": "网络类型",
-    "segmentationId": "分段 ID"
+    "segmentationId": "分段 ID",
+    "firewalls": "防火墙",
+    "portForwarding": "端口转发",
+    "qos": "QoS 策略",
+    "bgp": "BGP 动态路由"
   },
   "storage": {
     "volumes": "云硬盘",
-    "snapshots": "快照",
+    "snapshots": "卷快照",
     "createVolume": "创建云硬盘",
     "size": "大小",
     "storageType": "存储类型",
@@ -235,7 +254,14 @@
     "backups": "备份",
     "createBackup": "创建备份",
     "restore": "恢复",
-    "snapshotSchedules": "快照调度"
+    "snapshotSchedules": "快照调度",
+    "storageClasses": "存储类",
+    "schedules": "调度任务"
+  },
+  "images": {
+    "templates": "系统模板",
+    "iso": "ISO 镜像",
+    "k8sIso": "K8s 镜像"
   },
   "security": {
     "title": "安全",

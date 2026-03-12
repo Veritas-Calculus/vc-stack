@@ -128,18 +128,18 @@ type ListSnapshotsResponse = {
 // Mappers to UI types
 const mapInstance =
   (p: string | undefined) =>
-    (x: ListInstancesResponse['instances'][number]): UIInstance => ({
-      id: String(x.id),
-      projectId: p ?? String(x.project_id ?? ''),
-      name: x.name,
-      ip: x.ip_address || '',
-      // Check both status and power_state for running state
-      // Backend may return status='running' or 'active', and power_state='running'
-      state:
-        x.power_state === 'running' || x.status === 'active' || x.status === 'running'
-          ? 'running'
-          : 'stopped'
-    })
+  (x: ListInstancesResponse['instances'][number]): UIInstance => ({
+    id: String(x.id),
+    projectId: p ?? String(x.project_id ?? ''),
+    name: x.name,
+    ip: x.ip_address || '',
+    // Check both status and power_state for running state
+    // Backend may return status='running' or 'active', and power_state='running'
+    state:
+      x.power_state === 'running' || x.status === 'active' || x.status === 'running'
+        ? 'running'
+        : 'stopped'
+  })
 
 const mapFlavor = (x: ListFlavorsResponse['flavors'][number]): UIFlavor => ({
   id: String(x.id),
@@ -2828,26 +2828,43 @@ export async function payInvoice(id: number): Promise<void> {
 // ── N9: Stack Drift Detection ───────────────────────────────
 
 export type UIStackVersion = {
-  id: number; stack_id: number; version: number; template: string
-  status: string; created_at: string
+  id: number
+  stack_id: number
+  version: number
+  template: string
+  status: string
+  created_at: string
 }
 
 export type UIDriftReport = {
-  id: number; stack_id: number; status: string; drifted_count: number
-  total_resources: number; details: string; detected_at: string
+  id: number
+  stack_id: number
+  status: string
+  drifted_count: number
+  total_resources: number
+  details: string
+  detected_at: string
 }
 
 export type UIDepNode = {
-  id: string; resource_type: string; name: string
-  depends_on?: string[]; status: string
+  id: string
+  resource_type: string
+  name: string
+  depends_on?: string[]
+  status: string
 }
 
 export async function fetchStackVersions(stackID: number): Promise<UIStackVersion[]> {
   const res = await api.get<{ versions: UIStackVersion[] }>(`/v1/stacks/${stackID}/versions`)
   return res.data.versions ?? []
 }
-export async function rollbackStack(stackID: number, targetVersion: number): Promise<UIStackVersion> {
-  const res = await api.post<{ version: UIStackVersion }>(`/v1/stacks/${stackID}/rollback`, { target_version: targetVersion })
+export async function rollbackStack(
+  stackID: number,
+  targetVersion: number
+): Promise<UIStackVersion> {
+  const res = await api.post<{ version: UIStackVersion }>(`/v1/stacks/${stackID}/rollback`, {
+    target_version: targetVersion
+  })
   return res.data.version
 }
 export async function detectDrift(stackID: number): Promise<UIDriftReport> {
@@ -2862,27 +2879,48 @@ export async function fetchDepGraph(stackID: number): Promise<UIDepNode[]> {
 // ── N9: GPU / vGPU Scheduler ────────────────────────────────
 
 export type UIPhysicalGPU = {
-  id: number; host_id: number; model: string; vendor: string
-  vram_mb: number; pci_addr: string; mig_capable: boolean
-  partitions: number; status: string; created_at: string
+  id: number
+  host_id: number
+  model: string
+  vendor: string
+  vram_mb: number
+  pci_addr: string
+  mig_capable: boolean
+  partitions: number
+  status: string
+  created_at: string
 }
 
 export type UIVirtualGPU = {
-  id: number; physical_gpu_id: number; profile_name: string
-  vram_mb: number; compute_slice: number; instance_id?: number
+  id: number
+  physical_gpu_id: number
+  profile_name: string
+  vram_mb: number
+  compute_slice: number
+  instance_id?: number
   status: string
 }
 
 export type UIGPUProfile = {
-  id: number; name: string; vram_mb: number; compute: number
-  max_per_gpu: number; description: string
+  id: number
+  name: string
+  vram_mb: number
+  compute: number
+  max_per_gpu: number
+  description: string
 }
 
 export async function fetchPhysicalGPUs(): Promise<UIPhysicalGPU[]> {
   const res = await api.get<{ gpus: UIPhysicalGPU[] }>('/v1/gpu/physical')
   return res.data.gpus ?? []
 }
-export async function registerPhysicalGPU(body: { host_id: number; model: string; vram_mb: number; pci_addr?: string; mig_capable?: boolean }): Promise<UIPhysicalGPU> {
+export async function registerPhysicalGPU(body: {
+  host_id: number
+  model: string
+  vram_mb: number
+  pci_addr?: string
+  mig_capable?: boolean
+}): Promise<UIPhysicalGPU> {
   const res = await api.post<{ gpu: UIPhysicalGPU }>('/v1/gpu/physical', body)
   return res.data.gpu
 }
@@ -2891,7 +2929,9 @@ export async function fetchVGPUs(gpuID: number): Promise<UIVirtualGPU[]> {
   return res.data.vgpus ?? []
 }
 export async function createVGPU(gpuID: number, profileName: string): Promise<UIVirtualGPU> {
-  const res = await api.post<{ vgpu: UIVirtualGPU }>(`/v1/gpu/physical/${gpuID}/vgpus`, { profile_name: profileName })
+  const res = await api.post<{ vgpu: UIVirtualGPU }>(`/v1/gpu/physical/${gpuID}/vgpus`, {
+    profile_name: profileName
+  })
   return res.data.vgpu
 }
 export async function fetchGPUProfiles(): Promise<UIGPUProfile[]> {
