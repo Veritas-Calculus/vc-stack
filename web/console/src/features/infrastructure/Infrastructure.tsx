@@ -1,9 +1,10 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { PageHeader } from '@/components/ui/PageHeader'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { TableToolbar } from '@/components/ui/TableToolbar'
 import { DataTable } from '@/components/ui/DataTable'
 import { Badge } from '@/components/ui/Badge'
+import { SummaryBox } from '@/components/ui/SummaryBox'
 import {
   fetchNodes,
   type NodeInfo,
@@ -205,42 +206,21 @@ function Overview() {
         {/* Host status */}
         <div className="rounded-xl border border-border bg-surface-secondary backdrop-blur p-5">
           <h3 className="text-sm font-medium text-content-secondary mb-4">Host Status</h3>
-          <div className="grid grid-cols-3 gap-3 text-center">
-            <div className="rounded-lg bg-surface-tertiary p-3">
-              <div className="text-2xl font-bold text-content-primary">{infra.hosts}</div>
-              <div className="text-xs text-content-tertiary">Total</div>
-            </div>
-            <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3">
-              <div className="text-2xl font-bold text-status-text-success">{infra.hosts_up}</div>
-              <div className="text-xs text-status-text-success/60">Online</div>
-            </div>
-            <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3">
-              <div className="text-2xl font-bold text-status-text-error">{infra.hosts_down}</div>
-              <div className="text-xs text-status-text-error/60">Offline</div>
-            </div>
+          <div className="grid grid-cols-3 gap-3">
+            <SummaryBox label="Total" value={infra.hosts} />
+            <SummaryBox label="Online" value={infra.hosts_up} />
+            <SummaryBox label="Offline" value={infra.hosts_down} />
           </div>
         </div>
 
         {/* Workload summary */}
         <div className="rounded-xl border border-border bg-surface-secondary backdrop-blur p-5">
           <h3 className="text-sm font-medium text-content-secondary mb-4">Workload Summary</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-            <div className="rounded-lg bg-surface-tertiary p-3">
-              <div className="text-xl font-bold text-content-primary">{compute.total_instances}</div>
-              <div className="text-xs text-content-tertiary">Instances</div>
-            </div>
-            <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3">
-              <div className="text-xl font-bold text-status-text-success">{compute.active_instances}</div>
-              <div className="text-xs text-status-text-success/60">Active</div>
-            </div>
-            <div className="rounded-lg bg-surface-tertiary p-3">
-              <div className="text-xl font-bold text-content-primary">{storage.total_volumes}</div>
-              <div className="text-xs text-content-tertiary">Volumes</div>
-            </div>
-            <div className="rounded-lg bg-surface-tertiary p-3">
-              <div className="text-xl font-bold text-content-primary">{storage.total_snapshots}</div>
-              <div className="text-xs text-content-tertiary">Snapshots</div>
-            </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <SummaryBox label="Instances" value={compute.total_instances} />
+            <SummaryBox label="Active" value={compute.active_instances} />
+            <SummaryBox label="Volumes" value={storage.total_volumes} />
+            <SummaryBox label="Snapshots" value={storage.total_snapshots} />
           </div>
         </div>
       </div>
@@ -300,17 +280,17 @@ function Zones() {
     header: string
     render?: (row: ZoneRow) => React.ReactNode
   }[] = [
-      { key: 'name', header: 'Name' },
-      {
-        key: 'allocation',
-        header: 'Allocation state',
-        render: (r) => (
-          <Badge variant={r.allocation === 'enabled' ? 'success' : 'warning'}>{r.allocation}</Badge>
-        )
-      },
-      { key: 'type', header: 'Type', render: (r) => <span className="uppercase">{r.type}</span> },
-      { key: 'networkType', header: 'Network Type' }
-    ]
+    { key: 'name', header: 'Name' },
+    {
+      key: 'allocation',
+      header: 'Allocation state',
+      render: (r) => (
+        <Badge variant={r.allocation === 'enabled' ? 'success' : 'warning'}>{r.allocation}</Badge>
+      )
+    },
+    { key: 'type', header: 'Type', render: (r) => <span className="uppercase">{r.type}</span> },
+    { key: 'networkType', header: 'Network Type' }
+  ]
 
   return (
     <div className="space-y-3">
@@ -470,43 +450,43 @@ function Clusters() {
     header: string
     render?: (row: ClusterRow) => React.ReactNode
   }[] = [
-      { key: 'name', header: 'Name' },
-      {
-        key: 'zone_id',
-        header: 'Zone',
-        render: (r) => r.zone_id || '—'
-      },
-      { key: 'hypervisor_type', header: 'Hypervisor' },
-      {
-        key: 'allocation',
-        header: 'Allocation',
-        render: (r) => (
-          <Badge variant={r.allocation === 'enabled' ? 'success' : 'warning'}>{r.allocation}</Badge>
-        )
-      },
-      { key: 'description', header: 'Description' },
-      {
-        key: 'id',
-        header: 'Actions',
-        render: (r) => (
-          <button
-            className="btn btn-sm text-status-text-error hover:text-status-text-error"
-            onClick={async () => {
-              if (!confirm(`Delete cluster "${r.name}"?`)) return
-              try {
-                await deleteCluster(r.id)
-                setRows((prev) => prev.filter((c) => c.id !== r.id))
-                toast.success('Cluster deleted')
-              } catch {
-                toast.error('Failed to delete cluster')
-              }
-            }}
-          >
-            Delete
-          </button>
-        )
-      }
-    ]
+    { key: 'name', header: 'Name' },
+    {
+      key: 'zone_id',
+      header: 'Zone',
+      render: (r) => r.zone_id || '—'
+    },
+    { key: 'hypervisor_type', header: 'Hypervisor' },
+    {
+      key: 'allocation',
+      header: 'Allocation',
+      render: (r) => (
+        <Badge variant={r.allocation === 'enabled' ? 'success' : 'warning'}>{r.allocation}</Badge>
+      )
+    },
+    { key: 'description', header: 'Description' },
+    {
+      key: 'id',
+      header: 'Actions',
+      render: (r) => (
+        <button
+          className="btn btn-sm text-status-text-error hover:text-status-text-error"
+          onClick={async () => {
+            if (!confirm(`Delete cluster "${r.name}"?`)) return
+            try {
+              await deleteCluster(r.id)
+              setRows((prev) => prev.filter((c) => c.id !== r.id))
+              toast.success('Cluster deleted')
+            } catch {
+              toast.error('Failed to delete cluster')
+            }
+          }}
+        >
+          Delete
+        </button>
+      )
+    }
+  ]
 
   return (
     <div className="card p-4">
@@ -657,7 +637,7 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     fetchZones()
       .then((z) => setZones(z.map((x) => ({ id: x.id, name: x.name }))))
-      .catch(() => { })
+      .catch(() => {})
   }, [])
 
   const scriptURL = useMemo(
@@ -804,8 +784,11 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
         {(['script', 'ssh', 'manual'] as const).map((t) => (
           <button
             key={t}
-            className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${tab === t ? 'bg-accent text-content-inverse' : 'text-content-secondary hover:text-content-primary'
-              }`}
+            className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              tab === t
+                ? 'bg-accent text-content-inverse'
+                : 'text-content-secondary hover:text-content-primary'
+            }`}
             onClick={() => setTab(t)}
           >
             {t === 'script' ? 'Install Script' : t === 'ssh' ? 'SSH Deploy' : 'Manual'}
@@ -935,7 +918,8 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
                   const stepNum = i + 1
                   const latest = deploySteps.filter((s) => s.step === stepNum).pop()
                   let color = 'bg-surface-hover text-content-tertiary'
-                  if (latest?.status === 'running') color = 'bg-blue-600 text-content-primary animate-pulse'
+                  if (latest?.status === 'running')
+                    color = 'bg-blue-600 text-content-primary animate-pulse'
                   else if (latest?.status === 'success' || latest?.status === 'done')
                     color = 'bg-emerald-600 text-content-primary'
                   else if (latest?.status === 'error') color = 'bg-red-600 text-content-primary'
@@ -964,12 +948,13 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
                 {deploySteps.map((evt, i) => (
                   <div
                     key={i}
-                    className={`text-xs font-mono py-0.5 ${evt.status === 'error'
-                      ? 'text-status-text-error'
-                      : evt.status === 'success' || evt.status === 'done'
-                        ? 'text-status-text-success'
-                        : 'text-content-secondary'
-                      }`}
+                    className={`text-xs font-mono py-0.5 ${
+                      evt.status === 'error'
+                        ? 'text-status-text-error'
+                        : evt.status === 'success' || evt.status === 'done'
+                          ? 'text-status-text-success'
+                          : 'text-content-secondary'
+                    }`}
                   >
                     <span className="text-content-tertiary mr-2">
                       [{evt.step}/{evt.total}]
@@ -1218,65 +1203,65 @@ function Hosts() {
     headerRender?: React.ReactNode
     className?: string
   }[] = [
-      {
-        key: '__sel__',
-        header: '',
-        headerRender: (
-          <input
-            type="checkbox"
-            aria-label="Select all"
-            checked={rows.length > 0 && rows.every((r) => selectedIds.has(r.id))}
-            onChange={(e) => {
-              if (e.target.checked) setSelectedIds(new Set(rows.map((r) => r.id)))
-              else setSelectedIds(new Set())
-            }}
-          />
-        ),
-        render: (r) => (
-          <input
-            type="checkbox"
-            aria-label={`Select ${r.name}`}
-            checked={selectedIds.has(r.id)}
-            onChange={(e) => {
-              e.stopPropagation()
-              setSelectedIds((prev) => {
-                const next = new Set(prev)
-                if (e.target.checked) next.add(r.id)
-                else next.delete(r.id)
-                return next
-              })
-            }}
-            onClick={(e) => e.stopPropagation()}
-          />
-        ),
-        className: 'w-8'
-      },
-      { key: 'name', header: 'Name' },
-      {
-        key: 'state',
-        header: 'State',
-        render: (r: HostRow) => (
-          <Badge
-            variant={r.state === 'up' ? 'success' : r.state === 'connecting' ? 'warning' : 'danger'}
-          >
-            {r.state}
-          </Badge>
-        )
-      },
-      {
-        key: 'resourceState',
-        header: 'Resource State',
-        render: (r: HostRow) => (
-          <Badge variant={r.resourceState === 'enabled' ? 'success' : 'warning'}>
-            {r.resourceState}
-          </Badge>
-        )
-      },
-      { key: 'ip', header: 'IP' },
-      { key: 'arch', header: 'Arch' },
-      { key: 'hypervisor', header: 'Hypervisor' },
-      { key: 'version', header: 'Version' }
-    ]
+    {
+      key: '__sel__',
+      header: '',
+      headerRender: (
+        <input
+          type="checkbox"
+          aria-label="Select all"
+          checked={rows.length > 0 && rows.every((r) => selectedIds.has(r.id))}
+          onChange={(e) => {
+            if (e.target.checked) setSelectedIds(new Set(rows.map((r) => r.id)))
+            else setSelectedIds(new Set())
+          }}
+        />
+      ),
+      render: (r) => (
+        <input
+          type="checkbox"
+          aria-label={`Select ${r.name}`}
+          checked={selectedIds.has(r.id)}
+          onChange={(e) => {
+            e.stopPropagation()
+            setSelectedIds((prev) => {
+              const next = new Set(prev)
+              if (e.target.checked) next.add(r.id)
+              else next.delete(r.id)
+              return next
+            })
+          }}
+          onClick={(e) => e.stopPropagation()}
+        />
+      ),
+      className: 'w-8'
+    },
+    { key: 'name', header: 'Name' },
+    {
+      key: 'state',
+      header: 'State',
+      render: (r: HostRow) => (
+        <Badge
+          variant={r.state === 'up' ? 'success' : r.state === 'connecting' ? 'warning' : 'danger'}
+        >
+          {r.state}
+        </Badge>
+      )
+    },
+    {
+      key: 'resourceState',
+      header: 'Resource State',
+      render: (r: HostRow) => (
+        <Badge variant={r.resourceState === 'enabled' ? 'success' : 'warning'}>
+          {r.resourceState}
+        </Badge>
+      )
+    },
+    { key: 'ip', header: 'IP' },
+    { key: 'arch', header: 'Arch' },
+    { key: 'hypervisor', header: 'Hypervisor' },
+    { key: 'version', header: 'Version' }
+  ]
 
   return (
     <div className="space-y-3">
@@ -1381,8 +1366,8 @@ function Hosts() {
       >
         <p className="text-sm text-content-secondary">
           Are you sure you want to delete{' '}
-          <span className="font-semibold text-content-primary">{selectedIds.size}</span> selected host(s)?
-          This action cannot be undone.
+          <span className="font-semibold text-content-primary">{selectedIds.size}</span> selected
+          host(s)? This action cannot be undone.
         </p>
       </Modal>
     </div>
@@ -1440,24 +1425,34 @@ function StoragePoolManager({
   const [q, setQ] = useState('')
   const [summary, setSummary] = useState({ totalCap: 0, usedCap: 0, freeCap: 0, totalVols: 0 })
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true)
     try {
       const data = await fetchStoragePools(scope)
       const list = data.pools ?? []
       setPools(list)
       setSummary({
-        totalCap: data.summary?.total_capacity_gb ?? list.reduce((a: number, p: PoolRow) => a + p.total_capacity_gb, 0),
-        usedCap: data.summary?.used_capacity_gb ?? list.reduce((a: number, p: PoolRow) => a + p.used_capacity_gb, 0),
-        freeCap: data.summary?.free_capacity_gb ?? list.reduce((a: number, p: PoolRow) => a + p.free_capacity_gb, 0),
-        totalVols: data.summary?.total_volumes ?? list.reduce((a: number, p: PoolRow) => a + p.volume_count, 0)
+        totalCap:
+          data.summary?.total_capacity_gb ??
+          list.reduce((a: number, p: PoolRow) => a + p.total_capacity_gb, 0),
+        usedCap:
+          data.summary?.used_capacity_gb ??
+          list.reduce((a: number, p: PoolRow) => a + p.used_capacity_gb, 0),
+        freeCap:
+          data.summary?.free_capacity_gb ??
+          list.reduce((a: number, p: PoolRow) => a + p.free_capacity_gb, 0),
+        totalVols:
+          data.summary?.total_volumes ??
+          list.reduce((a: number, p: PoolRow) => a + p.volume_count, 0)
       })
     } finally {
       setLoading(false)
     }
-  }
+  }, [scope])
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    void load()
+  }, [load])
 
   const filtered = useMemo(() => {
     if (!q) return pools
@@ -1471,7 +1466,7 @@ function StoragePoolManager({
     if (!confirm(`Delete storage pool "${pool.name}"? This cannot be undone.`)) return
     try {
       await deleteStoragePool(pool.id)
-      load()
+      void load()
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Delete failed'
       alert(msg)
@@ -1483,47 +1478,72 @@ function StoragePoolManager({
     header: string
     render?: (r: PoolRow) => React.ReactNode
   }[] = [
-      {
-        key: 'name', header: 'Name', render: (r) => (
-          <span className="font-medium text-content-primary">
-            {r.name}
-            {r.is_default && <span className="ml-2"><Badge variant="info">default</Badge></span>}
-          </span>
-        )
-      },
-      {
-        key: 'backend', header: 'Backend', render: (r) => (
-          <Badge variant={r.backend === 'ceph' ? 'info' : 'default'}>{r.backend}</Badge>
-        )
-      },
-      { key: 'pool_type', header: 'Type', render: (r) => r.pool_type },
-      { key: 'replica_count', header: 'Replicas' },
-      {
-        key: 'status', header: 'Status', render: (r) => (
-          <Badge variant={
-            r.status === 'active' ? 'success' :
-              r.status === 'degraded' ? 'warning' :
-                r.status === 'offline' ? 'danger' : 'default'
-          }>{r.status}</Badge>
-        )
-      },
-      {
-        key: 'capacity', header: 'Capacity', render: (r) => (
-          <span className="text-xs text-content-secondary">{r.used_capacity_gb} / {r.total_capacity_gb} GB</span>
-        )
-      },
-      { key: 'volume_count', header: 'Volumes' },
-      {
-        key: 'actions', header: '', render: (r) => (
-          <button
-            className="text-status-text-error hover:text-status-text-error text-xs"
-            onClick={(e) => { e.stopPropagation(); handleDelete(r) }}
-          >
-            Delete
-          </button>
-        )
-      }
-    ]
+    {
+      key: 'name',
+      header: 'Name',
+      render: (r) => (
+        <span className="font-medium text-content-primary">
+          {r.name}
+          {r.is_default && (
+            <span className="ml-2">
+              <Badge variant="info">default</Badge>
+            </span>
+          )}
+        </span>
+      )
+    },
+    {
+      key: 'backend',
+      header: 'Backend',
+      render: (r) => <Badge variant={r.backend === 'ceph' ? 'info' : 'default'}>{r.backend}</Badge>
+    },
+    { key: 'pool_type', header: 'Type', render: (r) => r.pool_type },
+    { key: 'replica_count', header: 'Replicas' },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (r) => (
+        <Badge
+          variant={
+            r.status === 'active'
+              ? 'success'
+              : r.status === 'degraded'
+                ? 'warning'
+                : r.status === 'offline'
+                  ? 'danger'
+                  : 'default'
+          }
+        >
+          {r.status}
+        </Badge>
+      )
+    },
+    {
+      key: 'capacity',
+      header: 'Capacity',
+      render: (r) => (
+        <span className="text-xs text-content-secondary">
+          {r.used_capacity_gb} / {r.total_capacity_gb} GB
+        </span>
+      )
+    },
+    { key: 'volume_count', header: 'Volumes' },
+    {
+      key: 'actions',
+      header: '',
+      render: (r) => (
+        <button
+          className="text-status-text-error hover:text-status-text-error text-xs"
+          onClick={(e) => {
+            e.stopPropagation()
+            void handleDelete(r)
+          }}
+        >
+          Delete
+        </button>
+      )
+    }
+  ]
 
   return (
     <div className="space-y-4">
@@ -1531,25 +1551,24 @@ function StoragePoolManager({
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <SummaryBox label="Pools" value={pools.length} color="blue" />
-        <SummaryBox label="Total Capacity" value={`${summary.totalCap} GB`} color="emerald" />
-        <SummaryBox label="Used" value={`${summary.usedCap} GB`} color="amber" />
-        <SummaryBox label="Volumes" value={summary.totalVols} color="purple" />
+        <SummaryBox label="Pools" value={pools.length} />
+        <SummaryBox label="Total Capacity" value={`${summary.totalCap} GB`} />
+        <SummaryBox label="Used" value={`${summary.usedCap} GB`} />
+        <SummaryBox label="Volumes" value={summary.totalVols} />
       </div>
 
       {/* Pool Table */}
       <div className="card p-3 space-y-3">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <button className="btn" onClick={load} disabled={loading}>
+            <button className="btn" onClick={() => void load()} disabled={loading}>
               {loading ? 'Refreshing...' : 'Refresh'}
             </button>
-            <TableToolbar
-              placeholder="Filter pools..."
-              onSearch={setQ}
-            />
+            <TableToolbar placeholder="Filter pools..." onSearch={setQ} />
           </div>
-          <button className="btn btn-primary" onClick={() => setShowAdd(true)}>Add Pool</button>
+          <button className="btn btn-primary" onClick={() => setShowAdd(true)}>
+            Add Pool
+          </button>
         </div>
         <DataTable
           columns={columns as any}
@@ -1562,21 +1581,6 @@ function StoragePoolManager({
       {showAdd && (
         <AddPoolDialog scope={scope} onClose={() => setShowAdd(false)} onCreated={load} />
       )}
-    </div>
-  )
-}
-
-function SummaryBox({ label, value, color }: { label: string; value: string | number; color: string }) {
-  const colorMap: Record<string, string> = {
-    blue: 'bg-blue-500/10 text-accent border-blue-500/20',
-    emerald: 'bg-emerald-500/10 text-status-text-success border-emerald-500/20',
-    amber: 'bg-amber-500/10 text-status-text-warning border-amber-500/20',
-    purple: 'bg-purple-500/10 text-status-purple border-purple-500/20'
-  }
-  return (
-    <div className={`rounded-xl border p-3 ${colorMap[color] || colorMap.blue}`}>
-      <div className="text-lg font-bold">{value}</div>
-      <div className="text-xs opacity-70">{label}</div>
     </div>
   )
 }
@@ -1602,7 +1606,10 @@ function AddPoolDialog({
   const [error, setError] = useState('')
 
   const handleSubmit = async () => {
-    if (!name.trim()) { setError('Name is required'); return }
+    if (!name.trim()) {
+      setError('Name is required')
+      return
+    }
     setSubmitting(true)
     setError('')
     try {
@@ -1627,7 +1634,10 @@ function AddPoolDialog({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={onClose}>
+    <div
+      className="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
+      onClick={onClose}
+    >
       <div
         className="bg-[var(--card-bg,#1a1a2e)] border border-[var(--border-primary,#2a2a4a)] rounded-xl p-6 w-full max-w-lg space-y-4"
         onClick={(e) => e.stopPropagation()}
@@ -1636,17 +1646,28 @@ function AddPoolDialog({
           Add {scope === 'primary' ? 'Primary' : 'Secondary'} Storage Pool
         </h3>
 
-        {error && <div className="text-status-text-error text-sm bg-red-500/10 rounded p-2">{error}</div>}
+        {error && (
+          <div className="text-status-text-error text-sm bg-red-500/10 rounded p-2">{error}</div>
+        )}
 
         <div className="grid grid-cols-2 gap-3">
           <div className="col-span-2">
             <label className="block text-xs text-content-secondary mb-1">Pool Name</label>
-            <input className="input w-full" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. ssd-pool" />
+            <input
+              className="input w-full"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. ssd-pool"
+            />
           </div>
 
           <div>
             <label className="block text-xs text-content-secondary mb-1">Backend</label>
-            <select className="select w-full" value={backend} onChange={(e) => setBackend(e.target.value)}>
+            <select
+              className="select w-full"
+              value={backend}
+              onChange={(e) => setBackend(e.target.value)}
+            >
               <option value="ceph">Ceph</option>
               <option value="local">Local</option>
               <option value="nfs">NFS</option>
@@ -1655,7 +1676,11 @@ function AddPoolDialog({
 
           <div>
             <label className="block text-xs text-content-secondary mb-1">Pool Type</label>
-            <select className="select w-full" value={poolType} onChange={(e) => setPoolType(e.target.value)}>
+            <select
+              className="select w-full"
+              value={poolType}
+              onChange={(e) => setPoolType(e.target.value)}
+            >
               <option value="replicated">Replicated</option>
               <option value="erasure_coded">Erasure Coded</option>
             </select>
@@ -1663,35 +1688,68 @@ function AddPoolDialog({
 
           <div>
             <label className="block text-xs text-content-secondary mb-1">Replica Count</label>
-            <input className="input w-full" type="number" min={1} max={5} value={replicaCount} onChange={(e) => setReplicaCount(Number(e.target.value))} />
+            <input
+              className="input w-full"
+              type="number"
+              min={1}
+              max={5}
+              value={replicaCount}
+              onChange={(e) => setReplicaCount(Number(e.target.value))}
+            />
           </div>
 
           <div>
             <label className="block text-xs text-content-secondary mb-1">Total Capacity (GB)</label>
-            <input className="input w-full" type="number" min={0} value={totalCapGB} onChange={(e) => setTotalCapGB(Number(e.target.value))} />
+            <input
+              className="input w-full"
+              type="number"
+              min={0}
+              value={totalCapGB}
+              onChange={(e) => setTotalCapGB(Number(e.target.value))}
+            />
           </div>
 
           {backend === 'ceph' && (
             <>
               <div>
                 <label className="block text-xs text-content-secondary mb-1">CRUSH Rule</label>
-                <input className="input w-full" value={crushRule} onChange={(e) => setCrushRule(e.target.value)} placeholder="e.g. ssd_rule" />
+                <input
+                  className="input w-full"
+                  value={crushRule}
+                  onChange={(e) => setCrushRule(e.target.value)}
+                  placeholder="e.g. ssd_rule"
+                />
               </div>
               <div>
                 <label className="block text-xs text-content-secondary mb-1">PG Count</label>
-                <input className="input w-full" type="number" min={1} value={pgCount} onChange={(e) => setPgCount(Number(e.target.value))} />
+                <input
+                  className="input w-full"
+                  type="number"
+                  min={1}
+                  value={pgCount}
+                  onChange={(e) => setPgCount(Number(e.target.value))}
+                />
               </div>
             </>
           )}
 
           <div className="col-span-2 flex items-center gap-2">
-            <input type="checkbox" id="is-default" checked={isDefault} onChange={(e) => setIsDefault(e.target.checked)} />
-            <label htmlFor="is-default" className="text-sm text-content-secondary">Set as default pool</label>
+            <input
+              type="checkbox"
+              id="is-default"
+              checked={isDefault}
+              onChange={(e) => setIsDefault(e.target.checked)}
+            />
+            <label htmlFor="is-default" className="text-sm text-content-secondary">
+              Set as default pool
+            </label>
           </div>
         </div>
 
         <div className="flex justify-end gap-2 pt-2">
-          <button className="btn" onClick={onClose}>Cancel</button>
+          <button className="btn" onClick={onClose}>
+            Cancel
+          </button>
           <button className="btn btn-primary" onClick={handleSubmit} disabled={submitting}>
             {submitting ? 'Creating...' : 'Create Pool'}
           </button>
@@ -1729,13 +1787,13 @@ function DBUsage() {
         timestamp: data.timestamp,
         db: dbComp
           ? {
-            status: dbComp.status,
-            message: dbComp.message,
-            latency_ms: Number(dbComp.details?.latency_ms ?? 0),
-            open: Number(dbComp.details?.open_connections ?? 0),
-            inUse: Number(dbComp.details?.in_use ?? 0),
-            idle: Number(dbComp.details?.idle ?? 0)
-          }
+              status: dbComp.status,
+              message: dbComp.message,
+              latency_ms: Number(dbComp.details?.latency_ms ?? 0),
+              open: Number(dbComp.details?.open_connections ?? 0),
+              inUse: Number(dbComp.details?.in_use ?? 0),
+              idle: Number(dbComp.details?.idle ?? 0)
+            }
           : undefined
       })
     } catch {

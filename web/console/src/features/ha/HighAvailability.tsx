@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import api from '@/lib/api'
 import { Icons } from '@/components/ui/Icons'
+import { SummaryBox } from '@/components/ui/SummaryBox'
 
 interface HAPolicy {
   id: number
@@ -265,7 +266,9 @@ export function HighAvailability() {
           >
             {t.label}
             {t.count !== null && (
-              <span className="ml-2 px-1.5 py-0.5 bg-surface-hover/60 rounded text-xs">{t.count}</span>
+              <span className="ml-2 px-1.5 py-0.5 bg-surface-hover/60 rounded text-xs">
+                {t.count}
+              </span>
             )}
           </button>
         ))}
@@ -286,7 +289,10 @@ export function HighAvailability() {
               {
                 label: 'Hosts Down',
                 value: status.hosts?.down || 0,
-                color: (status.hosts?.down || 0) > 0 ? 'text-status-text-error' : 'text-content-secondary',
+                color:
+                  (status.hosts?.down || 0) > 0
+                    ? 'text-status-text-error'
+                    : 'text-content-secondary',
                 icon: Icons.xCircle('w-5 h-5')
               },
               {
@@ -380,8 +386,12 @@ export function HighAvailability() {
                     </div>
                     <div className="flex items-center gap-4 text-xs text-content-secondary">
                       <span className="text-status-text-success">{e.evacuated} done</span>
-                      {e.failed > 0 && <span className="text-status-text-error">{e.failed} fail</span>}
-                      {e.skipped > 0 && <span className="text-content-secondary">{e.skipped} skipped</span>}
+                      {e.failed > 0 && (
+                        <span className="text-status-text-error">{e.failed} fail</span>
+                      )}
+                      {e.skipped > 0 && (
+                        <span className="text-content-secondary">{e.skipped} skipped</span>
+                      )}
                       <span>{formatTime(e.started_at)}</span>
                     </div>
                   </div>
@@ -557,7 +567,9 @@ export function HighAvailability() {
                     className="border-t border-border hover:bg-surface-hover transition cursor-pointer"
                     onClick={() => viewEvacDetails(e)}
                   >
-                    <td className="px-4 py-3 text-content-primary font-medium">{e.source_host_name}</td>
+                    <td className="px-4 py-3 text-content-primary font-medium">
+                      {e.source_host_name}
+                    </td>
                     <td className="px-4 py-3">
                       <span
                         className={`px-2 py-0.5 rounded text-xs ${e.trigger === 'heartbeat_timeout' ? 'bg-red-500/20 text-status-text-error' : e.trigger === 'maintenance' ? 'bg-amber-500/20 text-status-text-warning' : 'bg-blue-500/20 text-accent'}`}
@@ -570,11 +582,17 @@ export function HighAvailability() {
                     </td>
                     <td className="px-4 py-3 text-content-secondary">
                       <span className="text-status-text-success">{e.evacuated}</span>
-                      {e.failed > 0 && <span className="text-status-text-error ml-1">/ {e.failed} fail</span>}
-                      {e.skipped > 0 && <span className="text-content-tertiary ml-1">/ {e.skipped}skipped</span>}
+                      {e.failed > 0 && (
+                        <span className="text-status-text-error ml-1">/ {e.failed} fail</span>
+                      )}
+                      {e.skipped > 0 && (
+                        <span className="text-content-tertiary ml-1">/ {e.skipped}skipped</span>
+                      )}
                       <span className="text-content-tertiary"> of {e.total_instances}</span>
                     </td>
-                    <td className="px-4 py-3 text-content-secondary text-xs">{formatTime(e.started_at)}</td>
+                    <td className="px-4 py-3 text-content-secondary text-xs">
+                      {formatTime(e.started_at)}
+                    </td>
                     <td className="px-4 py-3 text-content-secondary text-xs">
                       {e.completed_at
                         ? `${Math.round((new Date(e.completed_at).getTime() - new Date(e.started_at).getTime()) / 1000)}s`
@@ -612,27 +630,11 @@ export function HighAvailability() {
                 {selectedEvac.event.status}
               </span>
             </div>
-            <div className="grid grid-cols-4 gap-4 text-sm mb-4">
-              <div className="bg-surface-hover rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold text-content-primary">
-                  {selectedEvac.event.total_instances}
-                </div>
-                <div className="text-content-secondary text-xs">Total</div>
-              </div>
-              <div className="bg-emerald-500/10 rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold text-status-text-success">
-                  {selectedEvac.event.evacuated}
-                </div>
-                <div className="text-content-secondary text-xs">Evacuated</div>
-              </div>
-              <div className="bg-red-500/10 rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold text-status-text-error">{selectedEvac.event.failed}</div>
-                <div className="text-content-secondary text-xs">Failed</div>
-              </div>
-              <div className="bg-content-tertiary/10 rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold text-content-secondary">{selectedEvac.event.skipped}</div>
-                <div className="text-content-secondary text-xs">Skipped</div>
-              </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              <SummaryBox label="Total" value={selectedEvac.event.total_instances} />
+              <SummaryBox label="Evacuated" value={selectedEvac.event.evacuated} />
+              <SummaryBox label="Failed" value={selectedEvac.event.failed} />
+              <SummaryBox label="Skipped" value={selectedEvac.event.skipped} />
             </div>
           </div>
 
@@ -656,8 +658,12 @@ export function HighAvailability() {
                     <td className="px-4 py-3">
                       <span className={statusBadge(inst.status)}>{inst.status}</span>
                     </td>
-                    <td className="px-4 py-3 text-content-secondary">{inst.dest_host_name || '—'}</td>
-                    <td className="px-4 py-3 text-status-text-error text-xs">{inst.error_message || '—'}</td>
+                    <td className="px-4 py-3 text-content-secondary">
+                      {inst.dest_host_name || '—'}
+                    </td>
+                    <td className="px-4 py-3 text-status-text-error text-xs">
+                      {inst.error_message || '—'}
+                    </td>
                     <td className="px-4 py-3 text-content-secondary text-xs">
                       {inst.started_at && inst.completed_at
                         ? `${Math.round((new Date(inst.completed_at).getTime() - new Date(inst.started_at).getTime()) / 1000)}s`
@@ -708,8 +714,12 @@ export function HighAvailability() {
                       {f.reason}
                     </td>
                     <td className="px-4 py-3 text-content-secondary">{f.fenced_by}</td>
-                    <td className="px-4 py-3 text-content-secondary text-xs">{formatTime(f.fenced_at)}</td>
-                    <td className="px-4 py-3 text-content-secondary text-xs">{formatTime(f.released_at)}</td>
+                    <td className="px-4 py-3 text-content-secondary text-xs">
+                      {formatTime(f.fenced_at)}
+                    </td>
+                    <td className="px-4 py-3 text-content-secondary text-xs">
+                      {formatTime(f.released_at)}
+                    </td>
                     <td className="px-4 py-3">
                       {f.status === 'fenced' && (
                         <button

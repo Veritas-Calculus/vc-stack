@@ -75,7 +75,9 @@ export function ComponentMonitoring() {
         </div>
       </div>
 
-      {error && <div className="p-4 bg-status-error/10 text-status-text-error rounded">{error}</div>}
+      {error && (
+        <div className="p-4 bg-status-error/10 text-status-text-error rounded">{error}</div>
+      )}
 
       {loading && <div className="text-center py-8">Loading metrics...</div>}
 
@@ -101,7 +103,9 @@ export function ComponentMonitoring() {
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <div className="text-sm text-content-tertiary">Errors</div>
-            <div className="text-2xl font-bold text-status-text-error">{latestMetric.error_count || 0}</div>
+            <div className="text-2xl font-bold text-status-text-error">
+              {latestMetric.error_count || 0}
+            </div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <div className="text-sm text-content-tertiary">Avg Response Time</div>

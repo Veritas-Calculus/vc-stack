@@ -359,11 +359,15 @@ export function DisasterRecovery() {
                       <span className={badge(p.priority)}>{p.priority}</span>
                     </td>
                     <td className="px-4 py-3 text-status-cyan font-mono">{p.rpo_minutes}m</td>
-                    <td className="px-4 py-3 text-status-text-warning font-mono">{p.rto_minutes}m</td>
+                    <td className="px-4 py-3 text-status-text-warning font-mono">
+                      {p.rto_minutes}m
+                    </td>
                     <td className="px-4 py-3">
                       <span className={badge(p.replication_type)}>{p.replication_type}</span>
                     </td>
-                    <td className="px-4 py-3 text-content-primary">{p.protected_count} resources</td>
+                    <td className="px-4 py-3 text-content-primary">
+                      {p.protected_count} resources
+                    </td>
                     <td className="px-4 py-3 text-content-secondary font-mono text-xs">
                       {p.replication_lag_seconds}s
                     </td>
@@ -459,7 +463,9 @@ export function DisasterRecovery() {
                 </div>
                 <div className="bg-surface-hover rounded-lg p-3 text-center">
                   <div className="text-content-tertiary text-xs mb-1">Protected</div>
-                  <div className="text-status-text-success font-bold text-lg">{p.protected_count}</div>
+                  <div className="text-status-text-success font-bold text-lg">
+                    {p.protected_count}
+                  </div>
                 </div>
                 <div className="bg-surface-hover rounded-lg p-3 text-center">
                   <div className="text-content-tertiary text-xs mb-1">Current Lag</div>

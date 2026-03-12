@@ -69,7 +69,11 @@ export function MetricsDashboard() {
 
   const memPercent = sys.memory_percent ?? 0
   const memColor =
-    memPercent > 90 ? 'text-status-text-error' : memPercent > 70 ? 'text-status-text-warning' : 'text-status-text-success'
+    memPercent > 90
+      ? 'text-status-text-error'
+      : memPercent > 70
+        ? 'text-status-text-warning'
+        : 'text-status-text-success'
 
   return (
     <div className="space-y-5">
@@ -151,7 +155,11 @@ export function MetricsDashboard() {
                     <td className="py-1.5 text-xs">
                       {m.error_rate !== undefined ? (
                         <span
-                          className={Number(m.error_rate) > 5 ? 'text-status-text-error' : 'text-status-text-success'}
+                          className={
+                            Number(m.error_rate) > 5
+                              ? 'text-status-text-error'
+                              : 'text-status-text-success'
+                          }
                         >
                           {Number(m.error_rate).toFixed(1)}%
                         </span>

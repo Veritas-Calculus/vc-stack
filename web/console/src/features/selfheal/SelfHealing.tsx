@@ -103,7 +103,9 @@ export function SelfHealing() {
           {status && (
             <span className="text-sm text-content-secondary">
               Heal rate:{' '}
-              <span className="text-status-text-success font-bold">{String(status.healing_rate_pct)}%</span>
+              <span className="text-status-text-success font-bold">
+                {String(status.healing_rate_pct)}%
+              </span>
             </span>
           )}
           {status && (
@@ -224,7 +226,9 @@ export function SelfHealing() {
             <div className="grid grid-cols-5 gap-3">
               {policies.map((p) => (
                 <div key={p.id as string} className="bg-surface-hover rounded-lg p-3">
-                  <div className="text-content-primary text-sm font-medium mb-1">{p.name as string}</div>
+                  <div className="text-content-primary text-sm font-medium mb-1">
+                    {p.name as string}
+                  </div>
                   <div className="text-xs text-content-tertiary">
                     {p.resource_type as string} &rarr; {p.action as string}
                   </div>
@@ -351,7 +355,9 @@ export function SelfHealing() {
                           : Icons.xCircle('w-5 h-5 text-status-text-error')}
                       </span>
                       <div>
-                        <div className="text-content-primary font-medium">{e.policy_name as string}</div>
+                        <div className="text-content-primary font-medium">
+                          {e.policy_name as string}
+                        </div>
                         <div className="text-content-secondary text-xs">{e.details as string}</div>
                       </div>
                     </div>

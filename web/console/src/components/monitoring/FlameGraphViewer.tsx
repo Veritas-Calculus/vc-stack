@@ -87,7 +87,9 @@ export function FlameGraphViewer() {
           </button>
         </div>
 
-        {error && <div className="mt-4 p-4 bg-status-error/10 text-status-text-error rounded">{error}</div>}
+        {error && (
+          <div className="mt-4 p-4 bg-status-error/10 text-status-text-error rounded">{error}</div>
+        )}
       </div>
 
       {svgUrl && (
