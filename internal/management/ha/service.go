@@ -791,7 +791,7 @@ func (s *Service) listProtectedInstances(c *gin.Context) {
 }
 
 func (s *Service) updateInstanceHA(c *gin.Context) {
-	instanceID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	instanceID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid instance ID"})
 		return
@@ -860,7 +860,7 @@ func (s *Service) disableInstanceHA(c *gin.Context) {
 }
 
 func (s *Service) setInstanceHAState(c *gin.Context, enabled bool) {
-	instanceID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	instanceID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid instance ID"})
 		return

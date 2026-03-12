@@ -193,7 +193,7 @@ func (s *Service) handleCreateOrg(c *gin.Context) {
 }
 
 func (s *Service) handleGetOrg(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	org, err := s.GetOrg(uint(id))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
@@ -203,7 +203,7 @@ func (s *Service) handleGetOrg(c *gin.Context) {
 }
 
 func (s *Service) handleDeleteOrg(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err := s.DeleteOrg(uint(id)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -212,7 +212,7 @@ func (s *Service) handleDeleteOrg(c *gin.Context) {
 }
 
 func (s *Service) handleListOUs(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	ous, err := s.ListOUs(uint(id))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -222,7 +222,7 @@ func (s *Service) handleListOUs(c *gin.Context) {
 }
 
 func (s *Service) handleCreateOU(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	var req struct {
 		Name     string `json:"name" binding:"required"`
 		ParentID *uint  `json:"parent_id"`
@@ -240,7 +240,7 @@ func (s *Service) handleCreateOU(c *gin.Context) {
 }
 
 func (s *Service) handleMoveProject(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	var req struct {
 		ProjectID uint `json:"project_id" binding:"required"`
 		OUID      uint `json:"ou_id" binding:"required"`

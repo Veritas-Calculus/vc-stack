@@ -164,7 +164,7 @@ func (s *Service) handleCreatePolicy(c *gin.Context) {
 }
 
 func (s *Service) handleDeletePolicy(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err := s.DeletePolicy(uint(id)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

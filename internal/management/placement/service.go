@@ -147,7 +147,7 @@ func (s *Service) handleCreate(c *gin.Context) {
 }
 
 func (s *Service) handleGet(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	pg, err := s.Get(uint(id))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
@@ -157,7 +157,7 @@ func (s *Service) handleGet(c *gin.Context) {
 }
 
 func (s *Service) handleDelete(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err := s.Delete(uint(id)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -166,7 +166,7 @@ func (s *Service) handleDelete(c *gin.Context) {
 }
 
 func (s *Service) handleAddMember(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	var req struct {
 		InstanceID string `json:"instance_id" binding:"required"`
 	}
@@ -183,7 +183,7 @@ func (s *Service) handleAddMember(c *gin.Context) {
 }
 
 func (s *Service) handleRemoveMember(c *gin.Context) {
-	mid, _ := strconv.ParseUint(c.Param("mid"), 10, 64)
+	mid, _ := strconv.ParseUint(c.Param("mid"), 10, 32)
 	if err := s.RemoveMember(uint(mid)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -334,7 +334,7 @@ func (s *Service) handleCreateRule(c *gin.Context) {
 }
 
 func (s *Service) handleGetRule(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
 		return
@@ -349,7 +349,7 @@ func (s *Service) handleGetRule(c *gin.Context) {
 }
 
 func (s *Service) handleUpdateRule(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
 		return
@@ -370,7 +370,7 @@ func (s *Service) handleUpdateRule(c *gin.Context) {
 }
 
 func (s *Service) handleDeleteRule(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
 		return
@@ -384,7 +384,7 @@ func (s *Service) handleDeleteRule(c *gin.Context) {
 }
 
 func (s *Service) handleToggleRule(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
 		return
@@ -408,7 +408,7 @@ func (s *Service) handleToggleRule(c *gin.Context) {
 func (s *Service) handleListHistory(c *gin.Context) {
 	var ruleID uint
 	if rid := c.Query("rule_id"); rid != "" {
-		id, _ := strconv.ParseUint(rid, 10, 64)
+		id, _ := strconv.ParseUint(rid, 10, 32)
 		ruleID = uint(id)
 	}
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))

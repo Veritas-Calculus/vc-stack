@@ -458,7 +458,7 @@ func (s *Service) listGroupsHandler(c *gin.Context) {
 }
 
 func (s *Service) getGroupHandler(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("group_id"), 10, 64)
+	id, err := strconv.ParseUint(c.Param("group_id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid group ID"})
 		return
@@ -472,7 +472,7 @@ func (s *Service) getGroupHandler(c *gin.Context) {
 }
 
 func (s *Service) updateGroupHandler(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("group_id"), 10, 64)
+	id, err := strconv.ParseUint(c.Param("group_id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid group ID"})
 		return
@@ -491,7 +491,7 @@ func (s *Service) updateGroupHandler(c *gin.Context) {
 }
 
 func (s *Service) deleteGroupHandler(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("group_id"), 10, 64)
+	id, err := strconv.ParseUint(c.Param("group_id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid group ID"})
 		return
@@ -504,8 +504,8 @@ func (s *Service) deleteGroupHandler(c *gin.Context) {
 }
 
 func (s *Service) addUserToGroupHandler(c *gin.Context) {
-	gid, _ := strconv.ParseUint(c.Param("group_id"), 10, 64)
-	uid, _ := strconv.ParseUint(c.Param("user_id"), 10, 64)
+	gid, _ := strconv.ParseUint(c.Param("group_id"), 10, 32)
+	uid, _ := strconv.ParseUint(c.Param("user_id"), 10, 32)
 	if err := s.AddUserToGroup(uint(gid), uint(uid)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -514,8 +514,8 @@ func (s *Service) addUserToGroupHandler(c *gin.Context) {
 }
 
 func (s *Service) removeUserFromGroupHandler(c *gin.Context) {
-	gid, _ := strconv.ParseUint(c.Param("group_id"), 10, 64)
-	uid, _ := strconv.ParseUint(c.Param("user_id"), 10, 64)
+	gid, _ := strconv.ParseUint(c.Param("group_id"), 10, 32)
+	uid, _ := strconv.ParseUint(c.Param("user_id"), 10, 32)
 	if err := s.RemoveUserFromGroup(uint(gid), uint(uid)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -524,8 +524,8 @@ func (s *Service) removeUserFromGroupHandler(c *gin.Context) {
 }
 
 func (s *Service) attachGroupRoleHandler(c *gin.Context) {
-	gid, _ := strconv.ParseUint(c.Param("group_id"), 10, 64)
-	rid, _ := strconv.ParseUint(c.Param("role_id"), 10, 64)
+	gid, _ := strconv.ParseUint(c.Param("group_id"), 10, 32)
+	rid, _ := strconv.ParseUint(c.Param("role_id"), 10, 32)
 	if err := s.AttachRoleToGroup(uint(gid), uint(rid)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -534,8 +534,8 @@ func (s *Service) attachGroupRoleHandler(c *gin.Context) {
 }
 
 func (s *Service) detachGroupRoleHandler(c *gin.Context) {
-	gid, _ := strconv.ParseUint(c.Param("group_id"), 10, 64)
-	rid, _ := strconv.ParseUint(c.Param("role_id"), 10, 64)
+	gid, _ := strconv.ParseUint(c.Param("group_id"), 10, 32)
+	rid, _ := strconv.ParseUint(c.Param("role_id"), 10, 32)
 	if err := s.DetachRoleFromGroup(uint(gid), uint(rid)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -544,8 +544,8 @@ func (s *Service) detachGroupRoleHandler(c *gin.Context) {
 }
 
 func (s *Service) attachGroupPolicyHandler(c *gin.Context) {
-	gid, _ := strconv.ParseUint(c.Param("group_id"), 10, 64)
-	pid, _ := strconv.ParseUint(c.Param("policy_id"), 10, 64)
+	gid, _ := strconv.ParseUint(c.Param("group_id"), 10, 32)
+	pid, _ := strconv.ParseUint(c.Param("policy_id"), 10, 32)
 	if err := s.AttachPolicyToGroup(uint(gid), uint(pid)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -554,8 +554,8 @@ func (s *Service) attachGroupPolicyHandler(c *gin.Context) {
 }
 
 func (s *Service) detachGroupPolicyHandler(c *gin.Context) {
-	gid, _ := strconv.ParseUint(c.Param("group_id"), 10, 64)
-	pid, _ := strconv.ParseUint(c.Param("policy_id"), 10, 64)
+	gid, _ := strconv.ParseUint(c.Param("group_id"), 10, 32)
+	pid, _ := strconv.ParseUint(c.Param("policy_id"), 10, 32)
 	if err := s.DetachPolicyFromGroup(uint(gid), uint(pid)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -565,7 +565,7 @@ func (s *Service) detachGroupPolicyHandler(c *gin.Context) {
 
 func (s *Service) setPermissionBoundaryHandler(c *gin.Context) {
 	entityType := c.Param("entity_type")
-	entityID, err := strconv.ParseUint(c.Param("entity_id"), 10, 64)
+	entityID, err := strconv.ParseUint(c.Param("entity_id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid entity ID"})
 		return
@@ -589,7 +589,7 @@ func (s *Service) setPermissionBoundaryHandler(c *gin.Context) {
 
 func (s *Service) getPermissionBoundaryHandler(c *gin.Context) {
 	entityType := c.Param("entity_type")
-	entityID, err := strconv.ParseUint(c.Param("entity_id"), 10, 64)
+	entityID, err := strconv.ParseUint(c.Param("entity_id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid entity ID"})
 		return
@@ -605,7 +605,7 @@ func (s *Service) getPermissionBoundaryHandler(c *gin.Context) {
 
 func (s *Service) deletePermissionBoundaryHandler(c *gin.Context) {
 	entityType := c.Param("entity_type")
-	entityID, err := strconv.ParseUint(c.Param("entity_id"), 10, 64)
+	entityID, err := strconv.ParseUint(c.Param("entity_id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid entity ID"})
 		return
@@ -619,7 +619,7 @@ func (s *Service) deletePermissionBoundaryHandler(c *gin.Context) {
 }
 
 func (s *Service) effectivePermissionsHandler(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user ID"})
 		return

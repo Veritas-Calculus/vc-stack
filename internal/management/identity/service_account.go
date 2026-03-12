@@ -473,7 +473,7 @@ func (s *Service) listServiceAccountsHandler(c *gin.Context) {
 }
 
 func (s *Service) getServiceAccountHandler(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("sa_id"), 10, 64)
+	id, err := strconv.ParseUint(c.Param("sa_id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid service account ID"})
 		return
@@ -489,7 +489,7 @@ func (s *Service) getServiceAccountHandler(c *gin.Context) {
 }
 
 func (s *Service) deleteServiceAccountHandler(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("sa_id"), 10, 64)
+	id, err := strconv.ParseUint(c.Param("sa_id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid service account ID"})
 		return
@@ -504,7 +504,7 @@ func (s *Service) deleteServiceAccountHandler(c *gin.Context) {
 }
 
 func (s *Service) rotateKeyHandler(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("sa_id"), 10, 64)
+	id, err := strconv.ParseUint(c.Param("sa_id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid service account ID"})
 		return
@@ -520,7 +520,7 @@ func (s *Service) rotateKeyHandler(c *gin.Context) {
 }
 
 func (s *Service) toggleStatusHandler(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("sa_id"), 10, 64)
+	id, err := strconv.ParseUint(c.Param("sa_id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid service account ID"})
 		return
@@ -543,8 +543,8 @@ func (s *Service) toggleStatusHandler(c *gin.Context) {
 }
 
 func (s *Service) attachSARoleHandler(c *gin.Context) {
-	saID, _ := strconv.ParseUint(c.Param("sa_id"), 10, 64)
-	roleID, _ := strconv.ParseUint(c.Param("role_id"), 10, 64)
+	saID, _ := strconv.ParseUint(c.Param("sa_id"), 10, 32)
+	roleID, _ := strconv.ParseUint(c.Param("role_id"), 10, 32)
 	if err := s.AttachRoleToServiceAccount(uint(saID), uint(roleID)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -553,8 +553,8 @@ func (s *Service) attachSARoleHandler(c *gin.Context) {
 }
 
 func (s *Service) detachSARoleHandler(c *gin.Context) {
-	saID, _ := strconv.ParseUint(c.Param("sa_id"), 10, 64)
-	roleID, _ := strconv.ParseUint(c.Param("role_id"), 10, 64)
+	saID, _ := strconv.ParseUint(c.Param("sa_id"), 10, 32)
+	roleID, _ := strconv.ParseUint(c.Param("role_id"), 10, 32)
 	if err := s.DetachRoleFromServiceAccount(uint(saID), uint(roleID)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -563,8 +563,8 @@ func (s *Service) detachSARoleHandler(c *gin.Context) {
 }
 
 func (s *Service) attachSAPolicyHandler(c *gin.Context) {
-	saID, _ := strconv.ParseUint(c.Param("sa_id"), 10, 64)
-	policyID, _ := strconv.ParseUint(c.Param("policy_id"), 10, 64)
+	saID, _ := strconv.ParseUint(c.Param("sa_id"), 10, 32)
+	policyID, _ := strconv.ParseUint(c.Param("policy_id"), 10, 32)
 	if err := s.AttachPolicyToServiceAccount(uint(saID), uint(policyID)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -573,8 +573,8 @@ func (s *Service) attachSAPolicyHandler(c *gin.Context) {
 }
 
 func (s *Service) detachSAPolicyHandler(c *gin.Context) {
-	saID, _ := strconv.ParseUint(c.Param("sa_id"), 10, 64)
-	policyID, _ := strconv.ParseUint(c.Param("policy_id"), 10, 64)
+	saID, _ := strconv.ParseUint(c.Param("sa_id"), 10, 32)
+	policyID, _ := strconv.ParseUint(c.Param("policy_id"), 10, 32)
 	if err := s.DetachPolicyFromServiceAccount(uint(saID), uint(policyID)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -592,7 +592,7 @@ func parseUserID(v interface{}) (uint, bool) {
 	case int:
 		return uint(id), true
 	case string:
-		if n, err := strconv.ParseUint(id, 10, 64); err == nil {
+		if n, err := strconv.ParseUint(id, 10, 32); err == nil {
 			return uint(n), true
 		}
 	}

@@ -128,8 +128,7 @@ func (d *Driver) CreateVM(ctx context.Context, cfg *VMConfig) error {
 	d.logger.Info("starting qemu vm",
 		zap.String("id", cfg.ID),
 		zap.String("binary", qemuBin),
-		zap.Int("args_count", len(args)),
-		zap.String("args", strings.Join(args, " ")))
+		zap.Int("args_count", len(args)))
 
 	if err := cmd.Start(); err != nil {
 		d.cleanupNetworking(cfg)

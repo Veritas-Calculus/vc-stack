@@ -338,7 +338,7 @@ func (s *Service) handleCreate(c *gin.Context) {
 }
 
 func (s *Service) handleGet(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	lb, err := s.Get(uint(id))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
@@ -348,7 +348,7 @@ func (s *Service) handleGet(c *gin.Context) {
 }
 
 func (s *Service) handleDelete(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err := s.Delete(uint(id)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -357,7 +357,7 @@ func (s *Service) handleDelete(c *gin.Context) {
 }
 
 func (s *Service) handleAddListener(c *gin.Context) {
-	lbID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	lbID, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	var req CreateListenerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -372,7 +372,7 @@ func (s *Service) handleAddListener(c *gin.Context) {
 }
 
 func (s *Service) handleRemoveListener(c *gin.Context) {
-	lid, _ := strconv.ParseUint(c.Param("lid"), 10, 64)
+	lid, _ := strconv.ParseUint(c.Param("lid"), 10, 32)
 	if err := s.RemoveListener(uint(lid)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -381,7 +381,7 @@ func (s *Service) handleRemoveListener(c *gin.Context) {
 }
 
 func (s *Service) handleListPools(c *gin.Context) {
-	lbID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	lbID, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	pools, err := s.ListPools(uint(lbID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -391,7 +391,7 @@ func (s *Service) handleListPools(c *gin.Context) {
 }
 
 func (s *Service) handleAddPool(c *gin.Context) {
-	lbID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	lbID, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	var req CreatePoolRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -406,7 +406,7 @@ func (s *Service) handleAddPool(c *gin.Context) {
 }
 
 func (s *Service) handleAddMember(c *gin.Context) {
-	pid, _ := strconv.ParseUint(c.Param("pid"), 10, 64)
+	pid, _ := strconv.ParseUint(c.Param("pid"), 10, 32)
 	var req AddMemberRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -421,7 +421,7 @@ func (s *Service) handleAddMember(c *gin.Context) {
 }
 
 func (s *Service) handleRemoveMember(c *gin.Context) {
-	mid, _ := strconv.ParseUint(c.Param("mid"), 10, 64)
+	mid, _ := strconv.ParseUint(c.Param("mid"), 10, 32)
 	if err := s.RemoveMember(uint(mid)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

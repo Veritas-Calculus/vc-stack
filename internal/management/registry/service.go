@@ -214,7 +214,7 @@ func (s *Service) handleCreateRepo(c *gin.Context) {
 }
 
 func (s *Service) handleGetRepo(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	r, err := s.GetRepo(uint(id))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
@@ -224,7 +224,7 @@ func (s *Service) handleGetRepo(c *gin.Context) {
 }
 
 func (s *Service) handleDeleteRepo(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err := s.DeleteRepo(uint(id)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -233,7 +233,7 @@ func (s *Service) handleDeleteRepo(c *gin.Context) {
 }
 
 func (s *Service) handlePushTag(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	var req PushTagRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -248,7 +248,7 @@ func (s *Service) handlePushTag(c *gin.Context) {
 }
 
 func (s *Service) handleDeleteTag(c *gin.Context) {
-	tid, _ := strconv.ParseUint(c.Param("tid"), 10, 64)
+	tid, _ := strconv.ParseUint(c.Param("tid"), 10, 32)
 	if err := s.DeleteTag(uint(tid)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

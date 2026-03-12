@@ -216,7 +216,7 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 }
 
 func (s *Service) handleListVersions(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	vs, err := s.ListVersions(uint(id))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -226,7 +226,7 @@ func (s *Service) handleListVersions(c *gin.Context) {
 }
 
 func (s *Service) handleCreateVersion(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	var req struct {
 		Template string `json:"template" binding:"required"`
 	}
@@ -243,7 +243,7 @@ func (s *Service) handleCreateVersion(c *gin.Context) {
 }
 
 func (s *Service) handleRollback(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	var req struct {
 		TargetVersion int `json:"target_version" binding:"required"`
 	}
@@ -260,7 +260,7 @@ func (s *Service) handleRollback(c *gin.Context) {
 }
 
 func (s *Service) handleDetectDrift(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	r, err := s.DetectDrift(uint(id))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -270,7 +270,7 @@ func (s *Service) handleDetectDrift(c *gin.Context) {
 }
 
 func (s *Service) handleListDriftReports(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	rs, err := s.ListDriftReports(uint(id))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -280,7 +280,7 @@ func (s *Service) handleListDriftReports(c *gin.Context) {
 }
 
 func (s *Service) handleDepGraph(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	nodes, err := s.GetDepGraph(uint(id))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

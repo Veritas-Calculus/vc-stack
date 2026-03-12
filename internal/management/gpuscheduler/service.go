@@ -210,7 +210,7 @@ func (s *Service) handleRegister(c *gin.Context) {
 }
 
 func (s *Service) handleListVGPUs(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	vs, err := s.ListVGPUs(uint(id))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -220,7 +220,7 @@ func (s *Service) handleListVGPUs(c *gin.Context) {
 }
 
 func (s *Service) handleCreateVGPU(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	var req struct {
 		ProfileName string `json:"profile_name" binding:"required"`
 	}
@@ -237,7 +237,7 @@ func (s *Service) handleCreateVGPU(c *gin.Context) {
 }
 
 func (s *Service) handleAllocate(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	var req struct {
 		InstanceID uint `json:"instance_id" binding:"required"`
 	}
@@ -253,7 +253,7 @@ func (s *Service) handleAllocate(c *gin.Context) {
 }
 
 func (s *Service) handleRelease(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err := s.ReleaseVGPU(uint(id)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

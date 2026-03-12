@@ -196,7 +196,7 @@ func (s *Service) handleCreate(c *gin.Context) {
 }
 
 func (s *Service) handleGet(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	p, err := s.Get(uint(id))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
@@ -206,7 +206,7 @@ func (s *Service) handleGet(c *gin.Context) {
 }
 
 func (s *Service) handleAccept(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	p, err := s.Accept(uint(id), 0)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -216,7 +216,7 @@ func (s *Service) handleAccept(c *gin.Context) {
 }
 
 func (s *Service) handleReject(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err := s.Reject(uint(id)); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -225,7 +225,7 @@ func (s *Service) handleReject(c *gin.Context) {
 }
 
 func (s *Service) handleDelete(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err := s.Delete(uint(id)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

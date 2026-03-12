@@ -297,7 +297,7 @@ func (s *Service) handleCreateTemplate(c *gin.Context) {
 }
 
 func (s *Service) handleDeleteTemplate(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err := s.DeleteTemplate(uint(id)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -329,7 +329,7 @@ func (s *Service) handleCreateGroup(c *gin.Context) {
 }
 
 func (s *Service) handleGetGroup(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	g, err := s.GetGroup(uint(id))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
@@ -339,7 +339,7 @@ func (s *Service) handleGetGroup(c *gin.Context) {
 }
 
 func (s *Service) handleDeleteGroup(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err := s.DeleteGroup(uint(id)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -348,7 +348,7 @@ func (s *Service) handleDeleteGroup(c *gin.Context) {
 }
 
 func (s *Service) handleSetDesired(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	var req struct {
 		DesiredCapacity int `json:"desired_capacity"`
 	}
@@ -364,7 +364,7 @@ func (s *Service) handleSetDesired(c *gin.Context) {
 }
 
 func (s *Service) handleAddPolicy(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	var req CreatePolicyRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -379,7 +379,7 @@ func (s *Service) handleAddPolicy(c *gin.Context) {
 }
 
 func (s *Service) handleListActivities(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	acts, err := s.ListActivities(uint(id), 50)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

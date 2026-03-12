@@ -151,7 +151,7 @@ func (s *Service) handleCreate(c *gin.Context) {
 }
 
 func (s *Service) handleGet(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	fs, err := s.Get(uint(id))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
@@ -161,7 +161,7 @@ func (s *Service) handleGet(c *gin.Context) {
 }
 
 func (s *Service) handleDelete(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err := s.Delete(uint(id)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -170,7 +170,7 @@ func (s *Service) handleDelete(c *gin.Context) {
 }
 
 func (s *Service) handleResize(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	var req struct {
 		SizeGB int `json:"size_gb"`
 	}
@@ -186,7 +186,7 @@ func (s *Service) handleResize(c *gin.Context) {
 }
 
 func (s *Service) handleAddAccess(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	var req struct {
 		AccessTo    string `json:"access_to" binding:"required"`
 		AccessLevel string `json:"access_level"`

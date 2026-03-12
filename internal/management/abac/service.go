@@ -289,7 +289,7 @@ func (s *Service) handleCreate(c *gin.Context) {
 }
 
 func (s *Service) handleGet(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	p, err := s.GetPolicy(uint(id))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
@@ -299,7 +299,7 @@ func (s *Service) handleGet(c *gin.Context) {
 }
 
 func (s *Service) handleDelete(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err := s.DeletePolicy(uint(id)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -308,7 +308,7 @@ func (s *Service) handleDelete(c *gin.Context) {
 }
 
 func (s *Service) handleToggle(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	var req struct {
 		Enabled bool `json:"enabled"`
 	}

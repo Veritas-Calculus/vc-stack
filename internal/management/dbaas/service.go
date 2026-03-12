@@ -290,7 +290,7 @@ func (s *Service) handleCreate(c *gin.Context) {
 }
 
 func (s *Service) handleGet(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	inst, err := s.Get(uint(id))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
@@ -300,7 +300,7 @@ func (s *Service) handleGet(c *gin.Context) {
 }
 
 func (s *Service) handleDelete(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err := s.Delete(uint(id)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -309,7 +309,7 @@ func (s *Service) handleDelete(c *gin.Context) {
 }
 
 func (s *Service) handleResize(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	var req struct {
 		StorageGB int  `json:"storage_gb"`
 		FlavorID  uint `json:"flavor_id"`
@@ -326,7 +326,7 @@ func (s *Service) handleResize(c *gin.Context) {
 }
 
 func (s *Service) handleAddReplica(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	var req struct {
 		Name string `json:"name" binding:"required"`
 	}
@@ -343,7 +343,7 @@ func (s *Service) handleAddReplica(c *gin.Context) {
 }
 
 func (s *Service) handleRemoveReplica(c *gin.Context) {
-	rid, _ := strconv.ParseUint(c.Param("rid"), 10, 64)
+	rid, _ := strconv.ParseUint(c.Param("rid"), 10, 32)
 	if err := s.RemoveReplica(uint(rid)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -352,7 +352,7 @@ func (s *Service) handleRemoveReplica(c *gin.Context) {
 }
 
 func (s *Service) handleListBackups(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	backups, err := s.ListBackups(uint(id))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -362,7 +362,7 @@ func (s *Service) handleListBackups(c *gin.Context) {
 }
 
 func (s *Service) handleCreateBackup(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	var req struct {
 		Name string `json:"name" binding:"required"`
 	}
@@ -379,7 +379,7 @@ func (s *Service) handleCreateBackup(c *gin.Context) {
 }
 
 func (s *Service) handleDeleteBackup(c *gin.Context) {
-	bid, _ := strconv.ParseUint(c.Param("bid"), 10, 64)
+	bid, _ := strconv.ParseUint(c.Param("bid"), 10, 32)
 	if err := s.DeleteBackup(uint(bid)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -250,7 +250,7 @@ func (s *Service) handleCreateConfig(c *gin.Context) {
 }
 
 func (s *Service) handleDeleteConfig(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err := s.DeleteConfig(uint(id)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -259,7 +259,7 @@ func (s *Service) handleDeleteConfig(c *gin.Context) {
 }
 
 func (s *Service) handleToggleConfig(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 	var req struct {
 		Enabled bool `json:"enabled"`
 	}

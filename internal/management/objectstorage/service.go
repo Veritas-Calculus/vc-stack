@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -174,7 +175,7 @@ func (r *RGWClient) CreateBucket(bucket, uid string) error {
 		return nil // no-op in dev mode without RGW
 	}
 	url := fmt.Sprintf("%s%s/bucket?bucket=%s&uid=%s&format=json",
-		r.Endpoint, r.AdminPath, bucket, uid)
+		r.Endpoint, r.AdminPath, url.QueryEscape(bucket), url.QueryEscape(uid))
 	req, _ := http.NewRequest(http.MethodPut, url, nil)
 	r.signRequest(req)
 	resp, err := r.client.Do(req)
@@ -199,7 +200,7 @@ func (r *RGWClient) DeleteBucket(bucket string, purge bool) error {
 		purgeStr = "true"
 	}
 	url := fmt.Sprintf("%s%s/bucket?bucket=%s&purge-objects=%s&format=json",
-		r.Endpoint, r.AdminPath, bucket, purgeStr)
+		r.Endpoint, r.AdminPath, url.QueryEscape(bucket), purgeStr)
 	req, _ := http.NewRequest(http.MethodDelete, url, nil)
 	r.signRequest(req)
 	resp, err := r.client.Do(req)
@@ -216,7 +217,7 @@ func (r *RGWClient) CreateUser(uid, displayName string) error {
 		return nil
 	}
 	url := fmt.Sprintf("%s%s/user?uid=%s&display-name=%s&format=json",
-		r.Endpoint, r.AdminPath, uid, displayName)
+		r.Endpoint, r.AdminPath, url.QueryEscape(uid), url.QueryEscape(displayName))
 	req, _ := http.NewRequest(http.MethodPut, url, nil)
 	r.signRequest(req)
 	resp, err := r.client.Do(req)
@@ -233,7 +234,7 @@ func (r *RGWClient) SetBucketQuota(uid, bucket string, maxSizeKB, maxObjects int
 		return nil
 	}
 	url := fmt.Sprintf("%s%s/bucket?bucket=%s&quota&max-size-kb=%d&max-objects=%d&enabled=true&format=json",
-		r.Endpoint, r.AdminPath, bucket, maxSizeKB, maxObjects)
+		r.Endpoint, r.AdminPath, url.QueryEscape(bucket), maxSizeKB, maxObjects)
 	req, _ := http.NewRequest(http.MethodPut, url, nil)
 	r.signRequest(req)
 	resp, err := r.client.Do(req)
