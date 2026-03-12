@@ -34,6 +34,15 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	if s.RateLimit != nil {
 		router.Use(s.RateLimit.Middleware())
 	}
+	// ── Phase 3b: Global auth middleware (non-blocking) ─────────────
+	// Parse JWT and populate gin context (user_id, permissions, etc.)
+	// when a valid token is present, but do NOT block unauthenticated
+	// requests. Downstream RequirePermission middleware will enforce
+	// access control on protected routes. This allows /health, /metrics,
+	// and /hosts/heartbeat to pass through freely.
+	if s.jwtSecret != "" {
+		router.Use(middleware.OptionalAuthMiddleware(s.jwtSecret, s.logger))
+	}
 
 	// ── Phase 4: Module routes via interface ──────────────────────────
 	// All registered modules get their SetupRoutes called here, EXCEPT those

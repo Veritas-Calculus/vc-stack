@@ -88,6 +88,57 @@ func AuthMiddleware(jwtSecret string, logger *zap.Logger) gin.HandlerFunc {
 	}
 }
 
+// OptionalAuthMiddleware is a non-blocking variant of AuthMiddleware.
+// If a valid JWT Bearer token is present, it parses it and populates the
+// gin context (user_id, permissions, etc.). If no token or an invalid
+// token is provided, it simply calls c.Next() without aborting.
+//
+// This is used as global middleware so RequirePermission works on core
+// modules that don't apply AuthMiddleware individually, while allowing
+// unauthenticated endpoints (/health, /metrics, /hosts/heartbeat) through.
+func OptionalAuthMiddleware(jwtSecret string, logger *zap.Logger) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			c.Next()
+			return
+		}
+
+		parts := strings.SplitN(authHeader, " ", 2)
+		if len(parts) != 2 || parts[0] != "Bearer" {
+			c.Next()
+			return
+		}
+
+		tokenString := parts[1]
+		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, jwt.ErrSignatureInvalid
+			}
+			return []byte(jwtSecret), nil
+		})
+
+		if err != nil || !token.Valid {
+			// Invalid token — log but don't block.
+			logger.Debug("optional auth: invalid token", zap.Error(err))
+			c.Next()
+			return
+		}
+
+		if claims, ok := token.Claims.(jwt.MapClaims); ok {
+			c.Set("user_id", claims["user_id"])
+			c.Set("project_id", claims["project_id"])
+			c.Set("username", claims["username"])
+			c.Set("is_admin", claims["is_admin"])
+			c.Set("tenant_id", claims["tenant_id"])
+			c.Set("roles", claims["roles"])
+			c.Set("permissions", claims["permissions"])
+		}
+
+		c.Next()
+	}
+}
+
 // handleAPIKeyMiddlewareAuth processes VC-HMAC-SHA256 auth in the shared middleware.
 func handleAPIKeyMiddlewareAuth(c *gin.Context, authHeader string, logger *zap.Logger) {
 	// Parse: VC-HMAC-SHA256 AccessKeyId=XXX, Timestamp=YYY, Signature=ZZZ

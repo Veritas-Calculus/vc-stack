@@ -122,14 +122,16 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 
 	health := router.Group("/health")
 	{
-		health.GET("", rp("monitoring", "list"), s.healthCheck)
-		health.GET("/liveness", rp("monitoring", "list"), s.livenessProbe)
-		health.GET("/readiness", rp("monitoring", "list"), s.readinessProbe)
+		// Basic probes are unauthenticated (Docker HEALTHCHECK, k8s probes).
+		health.GET("", s.healthCheck)
+		health.GET("/liveness", s.livenessProbe)
+		health.GET("/readiness", s.readinessProbe)
+		// Details endpoint exposes internals — keep auth.
 		health.GET("/details", rp("monitoring", "list"), s.healthDetails)
 	}
 
-	// Prometheus-compatible metrics endpoint.
-	router.GET("/metrics", rp("monitoring", "list"), s.prometheusMetrics)
+	// Prometheus-compatible metrics endpoint (unauthenticated for scraping).
+	router.GET("/metrics", s.prometheusMetrics)
 	router.GET("/metrics/system", rp("monitoring", "list"), s.systemMetricsJSON)
 
 	api := router.Group("/api/v1/monitoring")

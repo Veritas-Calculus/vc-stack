@@ -157,8 +157,9 @@ type Service struct {
 	// ── Module registry (new: interface-based) ────────────────────────
 	modules map[string]Module
 	// ── Runtime feature flags ─────────────────────────────────────────
-	Features *FeatureFlags
-	logger   *zap.Logger
+	Features  *FeatureFlags
+	logger    *zap.Logger
+	jwtSecret string // #nosec G101 -- stored for global auth middleware
 
 	// ── HA infrastructure (P4) ───────────────────────────────────────
 	DLock *dlock.Manager   // nil = single-instance mode
@@ -216,12 +217,13 @@ func New(cfg Config) (*Service, error) {
 	cfg.JWTSecret = jwtSecret
 
 	svc := &Service{
-		logger:   cfg.Logger,
-		modules:  make(map[string]Module),
-		Features: NewFeatureFlags(cfg.Logger.Named("feature-flags"), 30*time.Second),
-		DLock:    cfg.DLock,
-		Redis:    cfg.Redis,
-		MQ:       cfg.MQ,
+		logger:    cfg.Logger,
+		modules:   make(map[string]Module),
+		Features:  NewFeatureFlags(cfg.Logger.Named("feature-flags"), 30*time.Second),
+		DLock:     cfg.DLock,
+		Redis:     cfg.Redis,
+		MQ:        cfg.MQ,
+		jwtSecret: jwtSecret,
 	}
 
 	// Build the module registry.

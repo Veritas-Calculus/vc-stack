@@ -77,8 +77,9 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	rp := middleware.RequirePermission
 	api := router.Group("/api/v1")
 	{
-		api.POST("/hosts/register", rp("host", "create"), s.registerHost)
-		api.POST("/hosts/heartbeat", rp("host", "create"), s.heartbeat)
+		// Register and heartbeat are unauthenticated machine-to-machine endpoints.
+		api.POST("/hosts/register", s.registerHost)
+		api.POST("/hosts/heartbeat", s.heartbeat)
 		api.POST("/hosts/test-connection", rp("host", "create"), s.testConnection)
 		api.GET("/hosts", rp("host", "list"), s.listHosts)
 		api.GET("/hosts/install-script", rp("host", "list"), s.generateInstallScript)
