@@ -45,6 +45,8 @@ import { ManagedElasticsearch } from '@/features/compute/ManagedElasticsearch'
 import { NATGateways } from '@/features/network/NATGateways'
 import { ABACPolicies } from '@/features/iam/ABACPolicies'
 import { Invoices } from '@/features/billing/Invoices'
+import { StackDrift } from '@/features/orchestration/StackDrift'
+import { GPUResources as GPUSchedulerPage } from '@/features/compute/GPUResources'
 import { Accounts } from '@/features/accounts/Accounts'
 import { Infrastructure } from '@/features/infrastructure/Infrastructure'
 import { Dashboard } from '@/features/dashboard/Dashboard'
@@ -237,6 +239,9 @@ export default function App() {
                 <Route path="/compute/tidb" element={<ManagedTiDB />} />
                 <Route path="/compute/elasticsearch" element={<ManagedElasticsearch />} />
                 <Route path="/billing/invoices" element={<Invoices />} />
+                {/* N9: Operations */}
+                <Route path="/orchestration/drift" element={<StackDrift />} />
+                <Route path="/compute/gpu-scheduler" element={<GPUSchedulerPage />} />
                 <Route path="/accounts" element={<Accounts />} />
                 {/* Security Groups (global) */}
                 <Route path="/network/security-groups" element={<SecurityGroups />} />
