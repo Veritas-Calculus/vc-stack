@@ -43,7 +43,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build \
     -o /out/vcctl ./cmd/vcctl
 
 # Build compute with Ceph SDK (CGO required for go-ceph)
-# This may fail if Ceph headers are mismatched — management builds are unaffected.
+# Falls back to a pure-Go build without Ceph if SDK headers are missing.
 RUN CGO_ENABLED=1 GOOS=linux go build \
     -trimpath -tags "ceph" \
     -ldflags="-s -w \
@@ -51,7 +51,14 @@ RUN CGO_ENABLED=1 GOOS=linux go build \
     -X 'main.Commit=${COMMIT}' \
     -X 'main.BuildTime=$(date -u +%Y-%m-%dT%H:%M:%SZ)'" \
     -o /out/vc-compute ./cmd/vc-compute \
-    || echo "WARN: vc-compute build failed (Ceph SDK issue); management-only mode"
+    || (echo "WARN: Ceph build failed, building without Ceph support" && \
+    CGO_ENABLED=0 GOOS=linux go build \
+    -trimpath \
+    -ldflags="-s -w \
+    -X 'main.Version=${VERSION}' \
+    -X 'main.Commit=${COMMIT}' \
+    -X 'main.BuildTime=$(date -u +%Y-%m-%dT%H:%M:%SZ)'" \
+    -o /out/vc-compute ./cmd/vc-compute)
 
 # ---- Frontend build stage ----
 FROM node:22-slim AS frontend-builder

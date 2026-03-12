@@ -222,6 +222,13 @@ func runServer(_ *cobra.Command, args []string) {
 
 				// Start heartbeat sync agent (30s interval).
 				syncAgent := computenode.NewSyncAgent(client, nil, zapLogger, 30*time.Second)
+				// Store registration info so the agent can re-register if management forgets.
+				syncAgent.SetRegistrationInfo(computenode.SyncAgentRegInfo{
+					NodeInfo:  nodeInfo,
+					Port:      port,
+					ZoneID:    zoneID,
+					ClusterID: clusterID,
+				})
 				syncAgent.Start()
 				zapLogger.Info("heartbeat sync agent started", zap.Duration("interval", 30*time.Second))
 				return // Registration succeeded, exit retry loop.

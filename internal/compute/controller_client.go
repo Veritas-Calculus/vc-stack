@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -12,6 +13,10 @@ import (
 
 	"go.uber.org/zap"
 )
+
+// ErrHostNotFound is returned when management responds with 404 to a heartbeat,
+// indicating the node is no longer registered (e.g. database was reset).
+var ErrHostNotFound = errors.New("host not found on management server")
 
 // ControllerClient manages communication with VC management.
 type ControllerClient struct {
@@ -224,6 +229,13 @@ func (c *ControllerClient) SendHeartbeat(ctx context.Context, stats NodeStats) e
 	}
 	defer func() { _ = resp.Body.Close() }()
 
+	if resp.StatusCode == http.StatusNotFound {
+		body, _ := io.ReadAll(resp.Body)
+		c.logger.Warn("Heartbeat rejected: host not found (node may need re-registration)",
+			zap.String("body", string(body)))
+		return ErrHostNotFound
+	}
+
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusAccepted {
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
@@ -299,6 +311,15 @@ type NodeStats struct {
 	MemoryUsage     float64
 }
 
+// SyncAgentRegInfo holds registration details so the SyncAgent can
+// re-register the node if management forgets it (e.g. DB reset).
+type SyncAgentRegInfo struct {
+	NodeInfo  NodeInfo
+	Port      int
+	ZoneID    string
+	ClusterID string
+}
+
 // SyncAgent periodically syncs with management.
 type SyncAgent struct {
 	client       *ControllerClient
@@ -306,6 +327,7 @@ type SyncAgent struct {
 	logger       *zap.Logger
 	syncInterval time.Duration
 	stopCh       chan struct{}
+	regInfo      *SyncAgentRegInfo // nil = no auto-re-registration
 }
 
 // NewSyncAgent creates a new sync agent.
@@ -317,6 +339,11 @@ func NewSyncAgent(client *ControllerClient, manager *QEMUManager, logger *zap.Lo
 		syncInterval: interval,
 		stopCh:       make(chan struct{}),
 	}
+}
+
+// SetRegistrationInfo stores node registration info for auto-re-registration.
+func (a *SyncAgent) SetRegistrationInfo(info SyncAgentRegInfo) {
+	a.regInfo = &info
 }
 
 // Start begins periodic sync.
@@ -380,7 +407,21 @@ func (a *SyncAgent) performSync() {
 	// Calculate and send node stats.
 	stats := a.calculateStats(vms)
 	if err := a.client.SendHeartbeat(ctx, stats); err != nil {
-		a.logger.Warn("Failed to send heartbeat", zap.Error(err))
+		if errors.Is(err, ErrHostNotFound) && a.regInfo != nil {
+			// Management doesn't know about us anymore — re-register.
+			a.logger.Warn("Host not found on management, attempting re-registration")
+			regCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+			uuid, regErr := a.client.RegisterNode(regCtx, a.regInfo.NodeInfo, a.regInfo.Port, a.regInfo.ZoneID, a.regInfo.ClusterID)
+			cancel()
+			if regErr != nil {
+				a.logger.Error("Auto re-registration failed", zap.Error(regErr))
+			} else {
+				a.client.SetNodeID(uuid)
+				a.logger.Info("Node re-registered with management", zap.String("uuid", uuid))
+			}
+		} else {
+			a.logger.Warn("Failed to send heartbeat", zap.Error(err))
+		}
 	}
 
 	a.logger.Debug("Sync completed",
