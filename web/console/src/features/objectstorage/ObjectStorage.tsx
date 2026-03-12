@@ -137,7 +137,7 @@ export function ObjectStorage() {
   }
 
   const aclColor = (acl: string) => {
-    if (acl === 'private') return 'bg-gray-500/15 text-content-secondary'
+    if (acl === 'private') return 'bg-content-tertiary/15 text-content-secondary'
     if (acl === 'public-read') return 'bg-amber-500/15 text-status-text-warning'
     if (acl === 'public-read-write') return 'bg-red-500/15 text-status-text-error'
     return 'bg-blue-500/15 text-accent'
@@ -260,7 +260,7 @@ export function ObjectStorage() {
                   placeholder="Search buckets..."
                   value={searchFilter}
                   onChange={(e) => setSearchFilter(e.target.value)}
-                  className="w-full max-w-sm px-3 py-2 rounded-lg bg-surface-secondary border border-border text-sm text-content-primary placeholder-content-placeholder focus:border-blue-500 focus:outline-none"
+                  className="w-full max-w-sm px-3 py-2 rounded-lg bg-surface-secondary border border-border text-sm text-content-primary placeholder-content-placeholder focus:border-accent focus:outline-none"
                 />
               </div>
               {filteredBuckets.length === 0 ? (
@@ -304,7 +304,7 @@ export function ObjectStorage() {
                                 On
                               </span>
                             ) : (
-                              <span className="px-2 py-0.5 rounded text-xs bg-gray-500/15 text-content-tertiary">
+                              <span className="px-2 py-0.5 rounded text-xs bg-content-tertiary/15 text-content-tertiary">
                                 Off
                               </span>
                             )}

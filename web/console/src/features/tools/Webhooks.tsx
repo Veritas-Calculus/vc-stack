@@ -190,7 +190,7 @@ export function Webhooks() {
               <div className="px-5 py-4 flex items-center justify-between">
                 <div className="flex items-center gap-3 min-w-0">
                   <span
-                    className={`w-2 h-2 rounded-full shrink-0 ${wh.enabled ? 'bg-emerald-400' : 'bg-gray-500'}`}
+                    className={`w-2 h-2 rounded-full shrink-0 ${wh.enabled ? 'bg-emerald-400' : 'bg-content-tertiary'}`}
                   />
                   <div className="min-w-0">
                     <div className="text-sm font-medium text-content-primary">{wh.name}</div>

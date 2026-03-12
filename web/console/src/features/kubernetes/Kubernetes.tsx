@@ -174,7 +174,7 @@ export function Kubernetes() {
       error: 'bg-red-500/20 text-status-text-error',
       'not-ready': 'bg-red-500/20 text-status-text-error'
     }
-    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-content-secondary'}`
+    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-content-tertiary/20 text-content-secondary'}`
   }
 
   const roleBadge = (r: string) => {
@@ -182,7 +182,7 @@ export function Kubernetes() {
       'control-plane': 'bg-purple-500/20 text-status-purple',
       worker: 'bg-cyan-500/20 text-status-cyan'
     }
-    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[r] || 'bg-gray-500/20 text-content-secondary'}`
+    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[r] || 'bg-content-tertiary/20 text-content-secondary'}`
   }
 
   if (loading && !status)
@@ -317,7 +317,7 @@ export function Kubernetes() {
                             </>
                           ) : (
                             <>
-                              <span className="w-2 h-2 rounded-full bg-gray-400 inline-block"></span>{' '}
+                              <span className="w-2 h-2 rounded-full bg-content-tertiary inline-block"></span>{' '}
                               Single
                             </>
                           )}{' '}
@@ -379,7 +379,7 @@ export function Kubernetes() {
                   setTab('networking')
                   fetchClusterDetail(selectedCluster.id)
                 }}
-                className="px-3 py-1.5 bg-surface-hover text-content-secondary rounded-lg text-sm hover:bg-gray-600 transition flex items-center gap-1.5"
+                className="px-3 py-1.5 bg-surface-hover text-content-secondary rounded-lg text-sm hover:bg-border-strong transition flex items-center gap-1.5"
               >
                 {Icons.globe('w-4 h-4')} Networking
               </button>
@@ -791,7 +791,7 @@ function CreateClusterModal({
       onClick={onClose}
     >
       <div
-        className="bg-gray-800 border border-border rounded-xl p-6 w-[600px] max-h-[80vh] overflow-y-auto"
+        className="bg-surface-secondary border border-border rounded-xl p-6 w-[600px] max-h-[80vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-lg font-semibold text-content-primary mb-4">Create Kubernetes Cluster</h2>
@@ -802,7 +802,7 @@ function CreateClusterModal({
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
                 placeholder="e.g. production-k8s"
               />
             </div>
@@ -811,7 +811,7 @@ function CreateClusterModal({
               <select
                 value={version}
                 onChange={(e) => setVersion(e.target.value)}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
               >
                 <option value="1.30">1.30</option>
                 <option value="1.29">1.29</option>
@@ -828,7 +828,7 @@ function CreateClusterModal({
                   setCalicoMode(e.target.value)
                   if (e.target.value === 'bgp') setBGPEnabled(true)
                 }}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
               >
                 <option value="overlay">Overlay (VXLAN)</option>
                 <option value="bgp">BGP (Direct)</option>
@@ -840,7 +840,7 @@ function CreateClusterModal({
               <select
                 value={cpCount}
                 onChange={(e) => setCPCount(Number(e.target.value))}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
               >
                 <option value={1}>1</option>
                 <option value={3}>3 (HA)</option>
@@ -851,7 +851,7 @@ function CreateClusterModal({
               <select
                 value={workerCount}
                 onChange={(e) => setWorkerCount(Number(e.target.value))}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
               >
                 <option value={1}>1</option>
                 <option value={2}>2</option>
@@ -866,7 +866,7 @@ function CreateClusterModal({
               <input
                 value={podCIDR}
                 onChange={(e) => setPodCIDR(e.target.value)}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm font-mono focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm font-mono focus:border-accent outline-none"
               />
             </div>
             <div>
@@ -874,7 +874,7 @@ function CreateClusterModal({
               <input
                 value={svcCIDR}
                 onChange={(e) => setSvcCIDR(e.target.value)}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm font-mono focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm font-mono focus:border-accent outline-none"
               />
             </div>
           </div>
@@ -899,14 +899,14 @@ function CreateClusterModal({
             </label>
           </div>
           {bgpEnabled && (
-            <div className="grid grid-cols-2 gap-4 p-3 bg-surface-hover rounded-lg border border-gray-600/50">
+            <div className="grid grid-cols-2 gap-4 p-3 bg-surface-hover rounded-lg border border-border-strong/50">
               <div>
                 <label className="block text-sm text-content-secondary mb-1">OVN Router ASN</label>
                 <input
                   type="number"
                   value={bgpPeerASN}
                   onChange={(e) => setBGPPeerASN(Number(e.target.value))}
-                  className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm font-mono focus:border-blue-500 outline-none"
+                  className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm font-mono focus:border-accent outline-none"
                 />
               </div>
               <div>
@@ -915,7 +915,7 @@ function CreateClusterModal({
                   type="number"
                   value={bgpNodeASN}
                   onChange={(e) => setBGPNodeASN(Number(e.target.value))}
-                  className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm font-mono focus:border-blue-500 outline-none"
+                  className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm font-mono focus:border-accent outline-none"
                 />
               </div>
             </div>
@@ -974,7 +974,7 @@ function CreateLBModal({
       onClick={onClose}
     >
       <div
-        className="bg-gray-800 border border-border rounded-xl p-6 w-[480px]"
+        className="bg-surface-secondary border border-border rounded-xl p-6 w-[480px]"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-lg font-semibold text-content-primary mb-4">Create LoadBalancer</h2>
@@ -988,7 +988,7 @@ function CreateLBModal({
               <input
                 value={svcName}
                 onChange={(e) => setSvcName(e.target.value)}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
                 placeholder="nginx-svc"
               />
             </div>
@@ -997,7 +997,7 @@ function CreateLBModal({
               <input
                 value={ns}
                 onChange={(e) => setNS(e.target.value)}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
               />
             </div>
           </div>
@@ -1008,7 +1008,7 @@ function CreateLBModal({
                 type="number"
                 value={extPort}
                 onChange={(e) => setExtPort(Number(e.target.value))}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
               />
             </div>
             <div>
@@ -1017,7 +1017,7 @@ function CreateLBModal({
                 type="number"
                 value={nodePort}
                 onChange={(e) => setNodePort(Number(e.target.value))}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
               />
             </div>
             <div>
@@ -1025,7 +1025,7 @@ function CreateLBModal({
               <select
                 value={protocol}
                 onChange={(e) => setProtocol(e.target.value)}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
               >
                 <option>TCP</option>
                 <option>UDP</option>

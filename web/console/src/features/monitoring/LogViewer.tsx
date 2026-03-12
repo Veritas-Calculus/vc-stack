@@ -55,7 +55,7 @@ export function LogViewer() {
       <PageHeader title="Log Viewer" subtitle="Search and filter centralized platform logs" />
 
       {/* Filter Bar */}
-      <div className="flex flex-wrap gap-3 items-center bg-zinc-900/50 border border-white/5 rounded-lg p-3">
+      <div className="flex flex-wrap gap-3 items-center bg-zinc-900/50 border border-border rounded-lg p-3">
         <input
           className="input flex-1 min-w-[200px]"
           placeholder="Search log messages..."
@@ -95,8 +95,8 @@ export function LogViewer() {
       </div>
 
       {/* Results */}
-      <div className="bg-zinc-900/50 border border-white/5 rounded-lg">
-        <div className="flex items-center justify-between px-4 py-2 border-b border-white/5">
+      <div className="bg-zinc-900/50 border border-border rounded-lg">
+        <div className="flex items-center justify-between px-4 py-2 border-b border-border">
           <span className="text-xs text-zinc-500">
             {total.toLocaleString()} logs found
             {(filters.offset ?? 0) > 0 &&

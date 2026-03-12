@@ -149,7 +149,7 @@ export function SessionList() {
       case 'active':
         return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
       case 'closed':
-        return 'bg-gray-100 text-content-primary dark:bg-surface-hover dark:text-content-secondary'
+        return 'bg-surface-hover text-content-secondary'
       case 'connection_failed':
       case 'auth_failed':
         return 'bg-status-error/10 text-status-text-error'
@@ -266,7 +266,7 @@ export function SessionList() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-gray-900 border-b border-border">
+              <thead className="bg-surface-primary border-b border-border">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-content-tertiary dark:text-content-secondary uppercase tracking-wider">
                     会话信息
@@ -290,7 +290,7 @@ export function SessionList() {
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {sessions.map((session) => (
-                  <tr key={session.id} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
+                  <tr key={session.id} className="hover:bg-surface-hover dark:hover:bg-surface-primary/50">
                     <td className="px-4 py-4">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
@@ -413,7 +413,7 @@ export function SessionList() {
                   onClick={() => setPage(pageNum)}
                   className={`px-3 py-1 text-sm font-medium rounded ${
                     page === pageNum
-                      ? 'bg-blue-600 text-content-primary'
+                      ? 'bg-accent text-content-inverse'
                       : 'bg-surface-secondary text-content-secondary border border-border hover:bg-surface-hover'
                   }`}
                 >

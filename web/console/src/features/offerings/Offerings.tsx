@@ -360,7 +360,7 @@ function ServiceTag({ label }: { label: string }) {
 
 function StorageTypeBadge({ type }: { type: string }) {
   const colors: Record<string, string> = {
-    shared: 'bg-gray-500/15 text-content-secondary border-gray-500/20',
+    shared: 'bg-content-tertiary/15 text-content-secondary border-border',
     ssd: 'bg-blue-500/15 text-accent border-blue-500/20',
     nvme: 'bg-emerald-500/15 text-status-text-success border-emerald-500/20',
     local: 'bg-amber-500/15 text-status-text-warning border-amber-500/20'

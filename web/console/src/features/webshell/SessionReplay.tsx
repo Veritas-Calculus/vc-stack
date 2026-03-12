@@ -335,14 +335,14 @@ export function SessionReplay() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="flex flex-col h-screen bg-surface-primary">
       {/* Header */}
       <div className="bg-surface-secondary border-b border-border px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate('/webshell/sessions')}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-surface-hover rounded"
+              className="p-2 hover:bg-surface-hover rounded"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -387,7 +387,7 @@ export function SessionReplay() {
                 max={totalDuration}
                 value={currentTime}
                 onChange={(e) => handleSeek(parseInt(e.target.value))}
-                className="w-full h-2 bg-gray-200 dark:bg-surface-hover rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-surface-hover rounded-lg appearance-none cursor-pointer"
                 style={{
                   background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${(currentTime / totalDuration) * 100}%, #e5e7eb ${(currentTime / totalDuration) * 100}%, #e5e7eb 100%)`
                 }}
@@ -402,7 +402,7 @@ export function SessionReplay() {
           <div className="flex items-center justify-center gap-4">
             <button
               onClick={handleRestart}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-surface-hover rounded"
+              className="p-2 hover:bg-surface-hover rounded"
               title="重新开始"
             >
               <SkipBack className="w-5 h-5" />
@@ -410,7 +410,7 @@ export function SessionReplay() {
 
             <button
               onClick={handleSkipBackward}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-surface-hover rounded"
+              className="p-2 hover:bg-surface-hover rounded"
               title="后退"
             >
               <SkipBack className="w-4 h-4" />
@@ -425,7 +425,7 @@ export function SessionReplay() {
 
             <button
               onClick={handleSkipForward}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-surface-hover rounded"
+              className="p-2 hover:bg-surface-hover rounded"
               title="前进"
             >
               <SkipForward className="w-4 h-4" />

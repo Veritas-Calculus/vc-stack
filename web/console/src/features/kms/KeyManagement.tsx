@@ -197,10 +197,10 @@ export function KeyManagement() {
       'pre-active': 'bg-blue-500/20 text-accent',
       deactivated: 'bg-amber-500/20 text-status-text-warning',
       destroyed: 'bg-red-500/20 text-status-text-error',
-      expired: 'bg-gray-500/20 text-content-secondary',
+      expired: 'bg-content-tertiary/20 text-content-secondary',
       compromised: 'bg-red-500/20 text-status-text-error'
     }
-    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colors[s] || 'bg-gray-500/20 text-content-secondary'}`
+    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colors[s] || 'bg-content-tertiary/20 text-content-secondary'}`
   }
 
   const formatTime = (t?: string) => (t ? new Date(t).toLocaleString() : '—')
@@ -248,7 +248,7 @@ export function KeyManagement() {
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${tab === t.key ? 'text-accent after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-400' : 'text-content-secondary hover:text-content-secondary'}`}
+            className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${tab === t.key ? 'text-accent after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-accent' : 'text-content-secondary hover:text-content-secondary'}`}
           >
             {t.label}
             {t.count !== null && (
@@ -267,14 +267,14 @@ export function KeyManagement() {
                 label: 'Secrets',
                 value: status.secrets_total,
                 active: status.secrets_active,
-                color: 'text-status-purple',
+                color: 'text-accent',
                 icon: Icons.lock('w-5 h-5')
               },
               {
                 label: 'Active Secrets',
                 value: status.secrets_active,
                 active: undefined,
-                color: 'text-status-text-success',
+                color: 'text-accent',
                 icon: Icons.checkCircle('w-5 h-5')
               },
               {
@@ -288,7 +288,7 @@ export function KeyManagement() {
                 label: 'Active Keys',
                 value: status.encryption_keys_active,
                 active: undefined,
-                color: 'text-status-text-warning',
+                color: 'text-accent',
                 icon: Icons.bolt('w-5 h-5')
               }
             ].map((s) => (
@@ -537,7 +537,7 @@ export function KeyManagement() {
                     setCryptoMode(m)
                     setCryptoResult('')
                   }}
-                  className={`px-4 py-2 rounded-lg text-sm transition ${cryptoMode === m ? 'bg-blue-600 text-content-primary' : 'bg-surface-hover/50 text-content-secondary hover:text-content-primary'}`}
+                  className={`px-4 py-2 rounded-lg text-sm transition ${cryptoMode === m ? 'bg-accent text-content-inverse' : 'bg-surface-hover/50 text-content-secondary hover:text-content-primary'}`}
                 >
                   {m === 'encrypt' ? (
                     <>
@@ -568,7 +568,7 @@ export function KeyManagement() {
               <select
                 value={selectedKeyId}
                 onChange={(e) => setSelectedKeyId(e.target.value)}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
               >
                 <option value="">Select a key...</option>
                 {keys
@@ -592,7 +592,7 @@ export function KeyManagement() {
                 <textarea
                   value={plaintext}
                   onChange={(e) => setPlaintext(e.target.value)}
-                  className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm h-24 font-mono focus:border-blue-500 outline-none"
+                  className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm h-24 font-mono focus:border-accent outline-none"
                   placeholder="Enter text to encrypt..."
                 />
               </div>
@@ -603,7 +603,7 @@ export function KeyManagement() {
                 <textarea
                   value={ciphertext}
                   onChange={(e) => setCiphertext(e.target.value)}
-                  className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm h-24 font-mono focus:border-blue-500 outline-none"
+                  className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm h-24 font-mono focus:border-accent outline-none"
                   placeholder="Paste base64-encoded ciphertext..."
                 />
               </div>
@@ -635,12 +635,12 @@ export function KeyManagement() {
               <div className="mt-4">
                 <label className="block text-sm text-content-secondary mb-1">Result</label>
                 <div className="relative">
-                  <pre className="bg-gray-900/60 border border-border rounded-lg p-4 text-sm text-status-text-success font-mono overflow-x-auto max-h-48 whitespace-pre-wrap break-all">
+                  <pre className="bg-surface-primary/60 border border-border rounded-lg p-4 text-sm text-status-text-success font-mono overflow-x-auto max-h-48 whitespace-pre-wrap break-all">
                     {cryptoResult}
                   </pre>
                   <button
                     onClick={() => navigator.clipboard.writeText(cryptoResult)}
-                    className="absolute top-2 right-2 px-2 py-1 bg-surface-hover rounded text-xs text-content-secondary hover:bg-gray-600 transition"
+                    className="absolute top-2 right-2 px-2 py-1 bg-surface-hover rounded text-xs text-content-secondary hover:bg-border-strong transition"
                   >
                     Copy
                   </button>
@@ -672,7 +672,7 @@ function CreateSecretModal({
       onClick={onClose}
     >
       <div
-        className="bg-gray-800 border border-border rounded-xl p-6 w-[520px]"
+        className="bg-surface-secondary border border-border rounded-xl p-6 w-[520px]"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-lg font-semibold text-content-primary mb-4">Store Secret</h2>
@@ -682,7 +682,7 @@ function CreateSecretModal({
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+              className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
               placeholder="e.g. db-password"
             />
           </div>
@@ -691,7 +691,7 @@ function CreateSecretModal({
             <select
               value={secretType}
               onChange={(e) => setSecretType(e.target.value)}
-              className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+              className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
             >
               <option value="opaque">Opaque</option>
               <option value="passphrase">Passphrase</option>
@@ -707,7 +707,7 @@ function CreateSecretModal({
               <textarea
                 value={payload}
                 onChange={(e) => setPayload(e.target.value)}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm h-24 font-mono focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm h-24 font-mono focus:border-accent outline-none"
                 placeholder="Paste secret value..."
               />
               <p className="text-content-tertiary text-xs mt-1">
@@ -725,7 +725,7 @@ function CreateSecretModal({
             <input
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+              className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
             />
           </div>
         </div>
@@ -772,7 +772,7 @@ function CreateKeyModal({
       onClick={onClose}
     >
       <div
-        className="bg-gray-800 border border-border rounded-xl p-6 w-[480px]"
+        className="bg-surface-secondary border border-border rounded-xl p-6 w-[480px]"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-lg font-semibold text-content-primary mb-4">Create Encryption Key</h2>
@@ -782,7 +782,7 @@ function CreateKeyModal({
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+              className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
               placeholder="e.g. volume-encryption-key"
             />
           </div>
@@ -791,7 +791,7 @@ function CreateKeyModal({
             <select
               value={bitLength}
               onChange={(e) => setBitLength(parseInt(e.target.value))}
-              className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+              className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
             >
               <option value={128}>AES-128 (128 bits)</option>
               <option value={192}>AES-192 (192 bits)</option>
@@ -803,7 +803,7 @@ function CreateKeyModal({
             <input
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+              className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
             />
           </div>
         </div>

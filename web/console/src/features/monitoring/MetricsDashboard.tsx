@@ -51,7 +51,7 @@ export function MetricsDashboard() {
     sub?: string,
     color = 'text-content-primary'
   ) => (
-    <div className="bg-zinc-900/60 border border-white/5 rounded-xl p-5">
+    <div className="bg-zinc-900/60 border border-border rounded-xl p-5">
       <div className="text-xs text-zinc-500 uppercase tracking-wider mb-2">{label}</div>
       <div className={`text-2xl font-bold ${color}`}>{value}</div>
       {sub && <div className="text-xs text-zinc-500 mt-1">{sub}</div>}
@@ -102,7 +102,7 @@ export function MetricsDashboard() {
       </div>
 
       {/* Memory Bar */}
-      <div className="bg-zinc-900/60 border border-white/5 rounded-xl p-5">
+      <div className="bg-zinc-900/60 border border-border rounded-xl p-5">
         <div className="text-xs text-zinc-500 uppercase tracking-wider mb-3">
           Memory Utilization
         </div>
@@ -122,14 +122,14 @@ export function MetricsDashboard() {
 
       {/* HTTP Metrics Table */}
       {httpMetrics.length > 0 && (
-        <div className="bg-zinc-900/60 border border-white/5 rounded-xl p-5">
+        <div className="bg-zinc-900/60 border border-border rounded-xl p-5">
           <div className="text-xs text-zinc-500 uppercase tracking-wider mb-3">
             HTTP Request Metrics
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-xs text-zinc-500 border-b border-white/5">
+                <tr className="text-left text-xs text-zinc-500 border-b border-border">
                   <th className="pb-2 pr-4">Endpoint</th>
                   <th className="pb-2 pr-4">Method</th>
                   <th className="pb-2 pr-4">Requests</th>

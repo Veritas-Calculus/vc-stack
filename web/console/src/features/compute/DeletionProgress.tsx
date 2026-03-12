@@ -194,7 +194,7 @@ export function DeletionProgress({ instanceIds, onComplete, onClose }: DeletionP
           {Array.from(states.values()).map((state) => (
             <div
               key={state.instanceId}
-              className="flex items-start gap-3 p-3 bg-gray-800 rounded-lg"
+              className="flex items-start gap-3 p-3 bg-surface-secondary rounded-lg"
             >
               <div className="flex-shrink-0 mt-0.5">{getStatusIcon(state.status)}</div>
               <div className="flex-1 min-w-0">

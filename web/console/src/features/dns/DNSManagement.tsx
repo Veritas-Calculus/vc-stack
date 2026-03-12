@@ -170,7 +170,7 @@ export function DNSManagement() {
     if (s === 'ACTIVE') return 'bg-emerald-500/15 text-status-text-success'
     if (s === 'PENDING') return 'bg-amber-500/15 text-status-text-warning'
     if (s === 'ERROR') return 'bg-red-500/15 text-status-text-error'
-    return 'bg-gray-500/15 text-content-secondary'
+    return 'bg-content-tertiary/15 text-content-secondary'
   }
 
   const recordTypes = ['A', 'AAAA', 'CNAME', 'MX', 'TXT', 'SRV', 'NS', 'PTR', 'SPF']
@@ -233,7 +233,7 @@ export function DNSManagement() {
                   placeholder="Search zones..."
                   value={searchFilter}
                   onChange={(e) => setSearchFilter(e.target.value)}
-                  className="w-full max-w-sm px-3 py-2 rounded-lg bg-surface-secondary border border-border text-sm text-content-primary placeholder-content-placeholder focus:border-blue-500 focus:outline-none"
+                  className="w-full max-w-sm px-3 py-2 rounded-lg bg-surface-secondary border border-border text-sm text-content-primary placeholder-content-placeholder focus:border-accent focus:outline-none"
                 />
               </div>
               {filteredZones.length === 0 ? (
@@ -384,7 +384,7 @@ export function DNSManagement() {
                                           : r.type === 'TXT' || r.type === 'SPF'
                                             ? 'bg-yellow-500/15 text-yellow-400'
                                             : r.type === 'SOA' || r.type === 'NS'
-                                              ? 'bg-gray-500/15 text-content-secondary'
+                                              ? 'bg-content-tertiary/15 text-content-secondary'
                                               : 'bg-teal-500/15 text-teal-400'
                                   }`}
                                 >

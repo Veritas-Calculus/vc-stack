@@ -232,7 +232,7 @@ export default function ConsoleViewer() {
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center space-y-6">
               {/* Power icon */}
-              <div className="mx-auto w-20 h-20 rounded-full border-2 border-gray-600 flex items-center justify-center">
+              <div className="mx-auto w-20 h-20 rounded-full border-2 border-border-strong flex items-center justify-center">
                 <svg
                   width="40"
                   height="40"

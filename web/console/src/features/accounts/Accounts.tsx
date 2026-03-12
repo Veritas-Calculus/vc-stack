@@ -18,7 +18,7 @@ interface User {
 
 const STATUS_COLORS: Record<string, string> = {
   active: 'bg-emerald-500/15 text-status-text-success border-emerald-500/30',
-  inactive: 'bg-gray-500/15 text-content-secondary border-gray-500/30',
+  inactive: 'bg-content-tertiary/15 text-content-secondary border-border-strong/30',
   suspended: 'bg-red-500/15 text-status-text-error border-red-500/30'
 }
 
@@ -201,7 +201,7 @@ export function Accounts() {
                   <td className="px-4 py-3 text-content-secondary">{user.email || '—'}</td>
                   <td className="px-4 py-3">
                     <span
-                      className={`px-2 py-0.5 rounded-full text-xs border ${STATUS_COLORS[user.status] || 'bg-gray-500/15 text-content-secondary border-gray-500/30'}`}
+                      className={`px-2 py-0.5 rounded-full text-xs border ${STATUS_COLORS[user.status] || 'bg-content-tertiary/15 text-content-secondary border-border-strong/30'}`}
                     >
                       {user.status || 'active'}
                     </span>

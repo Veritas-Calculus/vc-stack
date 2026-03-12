@@ -109,7 +109,7 @@ export function HPCClusters() {
       error: 'bg-red-500/20 text-status-text-error',
       deleting: 'bg-red-500/20 text-status-text-error'
     }
-    return `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${m[s] || 'bg-gray-500/20 text-content-secondary'}`
+    return `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${m[s] || 'bg-content-tertiary/20 text-content-secondary'}`
   }
 
   const gpuBar = (total: number, allocated: number) => {

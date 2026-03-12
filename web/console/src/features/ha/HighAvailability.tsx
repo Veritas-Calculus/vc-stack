@@ -180,18 +180,18 @@ export function HighAvailability() {
       running: 'bg-blue-500/20 text-accent',
       partial: 'bg-amber-500/20 text-status-text-warning',
       failed: 'bg-red-500/20 text-status-text-error',
-      pending: 'bg-gray-500/20 text-content-secondary',
+      pending: 'bg-content-tertiary/20 text-content-secondary',
       fenced: 'bg-red-500/20 text-status-text-error',
       released: 'bg-emerald-500/20 text-status-text-success',
       migrating: 'bg-blue-500/20 text-accent',
-      skipped: 'bg-gray-500/20 text-content-secondary',
+      skipped: 'bg-content-tertiary/20 text-content-secondary',
       active: 'bg-emerald-500/20 text-status-text-success',
       error: 'bg-red-500/20 text-status-text-error',
       building: 'bg-blue-500/20 text-accent',
-      stopped: 'bg-gray-500/20 text-content-secondary',
+      stopped: 'bg-content-tertiary/20 text-content-secondary',
       rebuilding: 'bg-amber-500/20 text-status-text-warning'
     }
-    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colors[s] || 'bg-gray-500/20 text-content-secondary'}`
+    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colors[s] || 'bg-content-tertiary/20 text-content-secondary'}`
   }
 
   const formatTime = (t?: string) => {
@@ -244,7 +244,7 @@ export function HighAvailability() {
               HA {status.ha_enabled ? 'Enabled' : 'Disabled'}
             </span>
             <span
-              className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium ${status.auto_fence ? 'bg-amber-500/20 text-status-text-warning border border-amber-500/30' : 'bg-gray-500/20 text-content-secondary border border-gray-500/30'}`}
+              className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium ${status.auto_fence ? 'bg-amber-500/20 text-status-text-warning border border-amber-500/30' : 'bg-content-tertiary/20 text-content-secondary border border-border-strong/30'}`}
             >
               Auto-Fence {status.auto_fence ? 'ON' : 'OFF'}
             </span>
@@ -261,7 +261,7 @@ export function HighAvailability() {
               setTab(t.key)
               setSelectedEvac(null)
             }}
-            className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${tab === t.key ? 'text-accent after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-400' : 'text-content-secondary hover:text-content-secondary'}`}
+            className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${tab === t.key ? 'text-accent after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-accent' : 'text-content-secondary hover:text-content-secondary'}`}
           >
             {t.label}
             {t.count !== null && (
@@ -280,7 +280,7 @@ export function HighAvailability() {
               {
                 label: 'Hosts Up',
                 value: status.hosts?.up || 0,
-                color: 'text-status-text-success',
+                color: 'text-accent',
                 icon: Icons.checkCircle('w-5 h-5')
               },
               {
@@ -298,7 +298,7 @@ export function HighAvailability() {
               {
                 label: 'Total Active VMs',
                 value: status.total_instances,
-                color: 'text-status-purple',
+                color: 'text-accent',
                 icon: Icons.desktopComputer('w-5 h-5')
               }
             ].map((s) => (
@@ -414,7 +414,7 @@ export function HighAvailability() {
                       ACTIVE
                     </span>
                   ) : (
-                    <span className="text-content-secondary text-xs bg-gray-500/20 px-2 py-0.5 rounded">
+                    <span className="text-content-secondary text-xs bg-content-tertiary/20 px-2 py-0.5 rounded">
                       DISABLED
                     </span>
                   )}
@@ -498,7 +498,7 @@ export function HighAvailability() {
                     </td>
                     <td className="px-4 py-3">
                       <span
-                        className={`w-2 h-2 rounded-full inline-block ${inst.ha_enabled ? 'bg-emerald-400' : 'bg-gray-500'}`}
+                        className={`w-2 h-2 rounded-full inline-block ${inst.ha_enabled ? 'bg-emerald-400' : 'bg-content-tertiary'}`}
                       ></span>
                       <span
                         className={`ml-2 ${inst.ha_enabled ? 'text-status-text-success' : 'text-content-tertiary'}`}
@@ -629,7 +629,7 @@ export function HighAvailability() {
                 <div className="text-2xl font-bold text-status-text-error">{selectedEvac.event.failed}</div>
                 <div className="text-content-secondary text-xs">Failed</div>
               </div>
-              <div className="bg-gray-500/10 rounded-lg p-3 text-center">
+              <div className="bg-content-tertiary/10 rounded-lg p-3 text-center">
                 <div className="text-2xl font-bold text-content-secondary">{selectedEvac.event.skipped}</div>
                 <div className="text-content-secondary text-xs">Skipped</div>
               </div>
@@ -749,7 +749,7 @@ function CreatePolicyModal({
       onClick={onClose}
     >
       <div
-        className="bg-gray-800 border border-border rounded-xl p-6 w-[480px]"
+        className="bg-surface-secondary border border-border rounded-xl p-6 w-[480px]"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-lg font-semibold text-content-primary mb-4">Create HA Policy</h2>
@@ -759,7 +759,7 @@ function CreatePolicyModal({
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+              className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
               placeholder="e.g. database-tier"
             />
           </div>
@@ -770,7 +770,7 @@ function CreatePolicyModal({
                 type="number"
                 value={priority}
                 onChange={(e) => setPriority(parseInt(e.target.value) || 0)}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
               />
             </div>
             <div>
@@ -779,7 +779,7 @@ function CreatePolicyModal({
                 type="number"
                 value={maxRestarts}
                 onChange={(e) => setMaxRestarts(parseInt(e.target.value) || 3)}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
               />
             </div>
             <div>
@@ -788,7 +788,7 @@ function CreatePolicyModal({
                 type="number"
                 value={restartWindow}
                 onChange={(e) => setRestartWindow(parseInt(e.target.value) || 3600)}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
               />
             </div>
           </div>

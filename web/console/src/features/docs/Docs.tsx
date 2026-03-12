@@ -541,7 +541,7 @@ export function Docs() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500 focus:border-accent"
             placeholder="Search endpoints (e.g. instances, POST, security-groups)..."
           />
         </div>

@@ -15,7 +15,7 @@ interface Setting {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  General: 'bg-gray-400',
+  General: 'bg-content-tertiary',
   Compute: 'bg-amber-400',
   Storage: 'bg-emerald-400',
   Network: 'bg-indigo-400',
@@ -157,7 +157,7 @@ export function GlobalSettings() {
                   >
                     <div className="flex items-center gap-2">
                       <span
-                        className={`w-2 h-2 rounded-full ${cat === 'All' ? 'bg-blue-400' : CATEGORY_COLORS[cat] || 'bg-gray-400'}`}
+                        className={`w-2 h-2 rounded-full ${cat === 'All' ? 'bg-accent' : CATEGORY_COLORS[cat] || 'bg-content-tertiary'}`}
                       />
                       <span>{cat}</span>
                     </div>
@@ -186,7 +186,7 @@ export function GlobalSettings() {
               >
                 <div className="px-4 py-3 border-b border-border bg-surface-secondary flex items-center gap-2">
                   <span
-                    className={`w-2 h-2 rounded-full ${CATEGORY_COLORS[category] || 'bg-gray-400'}`}
+                    className={`w-2 h-2 rounded-full ${CATEGORY_COLORS[category] || 'bg-content-tertiary'}`}
                   />
                   <h3 className="text-sm font-medium text-content-primary">{category}</h3>
                   <span className="text-xs text-content-tertiary">{items.length} settings</span>
@@ -217,7 +217,7 @@ export function GlobalSettings() {
             <div className="rounded-xl border border-border bg-surface-secondary backdrop-blur overflow-hidden">
               <div className="px-4 py-3 border-b border-border bg-surface-secondary flex items-center gap-2">
                 <span
-                  className={`w-2 h-2 rounded-full ${CATEGORY_COLORS[activeCategory] || 'bg-gray-400'}`}
+                  className={`w-2 h-2 rounded-full ${CATEGORY_COLORS[activeCategory] || 'bg-content-tertiary'}`}
                 />
                 <h3 className="text-sm font-medium text-content-primary">{activeCategory}</h3>
               </div>
@@ -281,7 +281,7 @@ function SettingRow({
           <div className="flex items-center gap-2">
             <code className="text-sm text-content-primary font-mono">{shortKey}</code>
             {setting.read_only && (
-              <span className="px-1.5 py-0.5 rounded text-[10px] bg-gray-500/20 text-content-secondary border border-gray-500/20">
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-content-tertiary/20 text-content-secondary border border-border">
                 readonly
               </span>
             )}
@@ -368,7 +368,7 @@ function ValueDisplay({ value, dataType }: { value: string; dataType: string }) 
   if (dataType === 'boolean') {
     return (
       <span
-        className={`px-2 py-0.5 rounded text-xs font-medium ${value === 'true' ? 'bg-emerald-500/15 text-status-text-success' : 'bg-gray-500/15 text-content-secondary'}`}
+        className={`px-2 py-0.5 rounded text-xs font-medium ${value === 'true' ? 'bg-emerald-500/15 text-status-text-success' : 'bg-content-tertiary/15 text-content-secondary'}`}
       >
         {value}
       </span>

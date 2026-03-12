@@ -382,7 +382,7 @@ export function Dashboard() {
                 >
                   <div className="flex items-center gap-2.5">
                     <span
-                      className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[evt.status] || 'bg-gray-500'}`}
+                      className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[evt.status] || 'bg-content-tertiary'}`}
                     />
                     <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-surface-hover text-content-secondary">
                       {RESOURCE_ABBREV[evt.resource_type] ||

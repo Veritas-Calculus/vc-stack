@@ -235,7 +235,7 @@ export default function VolumeDetail() {
                 {Object.entries(volume.metadata).map(([k, v]) => (
                   <span
                     key={k}
-                    className="text-xs bg-gray-800 border border-border rounded px-2 py-0.5"
+                    className="text-xs bg-surface-secondary border border-border rounded px-2 py-0.5"
                   >
                     {k}={v}
                   </span>

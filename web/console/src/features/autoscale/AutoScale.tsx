@@ -77,7 +77,7 @@ export function AutoScale() {
   const stateColor = (s: string) => {
     if (s === 'enabled') return 'bg-emerald-500/15 text-status-text-success'
     if (s === 'scaling') return 'bg-blue-500/15 text-accent'
-    return 'bg-gray-500/15 text-content-secondary'
+    return 'bg-content-tertiary/15 text-content-secondary'
   }
 
   return (

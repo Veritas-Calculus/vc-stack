@@ -175,7 +175,7 @@ export default function LoadBalancers() {
       key: 'algorithm',
       header: 'Algorithm',
       render: (r) => (
-        <span className="text-xs px-1.5 py-0.5 rounded bg-gray-800">{r.algorithm}</span>
+        <span className="text-xs px-1.5 py-0.5 rounded bg-surface-secondary">{r.algorithm}</span>
       )
     },
     {

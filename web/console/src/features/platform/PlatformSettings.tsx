@@ -90,7 +90,7 @@ export function PlatformSettings() {
       published: 'bg-blue-500/20 text-accent',
       delivered: 'bg-emerald-500/20 text-status-text-success'
     }
-    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-content-secondary'}`
+    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-content-tertiary/20 text-content-secondary'}`
   }
 
   const tabIcons: Record<Tab, JSX.Element> = {
@@ -339,7 +339,7 @@ export function PlatformSettings() {
                                   ? 'bg-purple-500/20 text-status-purple'
                                   : String(item.value_type) === 'int'
                                     ? 'bg-blue-500/20 text-accent'
-                                    : 'bg-gray-500/20 text-content-secondary'
+                                    : 'bg-content-tertiary/20 text-content-secondary'
                             }`}
                           >
                             {String(item.value_type)}

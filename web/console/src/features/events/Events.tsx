@@ -154,7 +154,7 @@ export function Events() {
             setFilterType(e.target.value)
             setPage(1)
           }}
-          className="px-3 py-1.5 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          className="px-3 py-1.5 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm focus:ring-1 focus:ring-blue-500 focus:border-accent outline-none"
         >
           <option value="">All Actions</option>
           <option value="create">Create</option>
@@ -170,7 +170,7 @@ export function Events() {
             setFilterResource(e.target.value)
             setPage(1)
           }}
-          className="px-3 py-1.5 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          className="px-3 py-1.5 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm focus:ring-1 focus:ring-blue-500 focus:border-accent outline-none"
         >
           <option value="">All Resources</option>
           <option value="instance">Instance</option>
@@ -189,7 +189,7 @@ export function Events() {
             setFilterStatus(e.target.value)
             setPage(1)
           }}
-          className="px-3 py-1.5 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          className="px-3 py-1.5 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm focus:ring-1 focus:ring-blue-500 focus:border-accent outline-none"
         >
           <option value="">All Statuses</option>
           <option value="success">Success</option>
@@ -276,7 +276,7 @@ export function Events() {
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`px-2 py-0.5 rounded-full text-xs border ${STATUS_COLORS[evt.status] || 'bg-gray-500/15 text-content-secondary border-gray-500/30'}`}
+                      className={`px-2 py-0.5 rounded-full text-xs border ${STATUS_COLORS[evt.status] || 'bg-content-tertiary/15 text-content-secondary border-border-strong/30'}`}
                     >
                       {evt.status}
                     </span>
@@ -358,7 +358,7 @@ export function Events() {
                 </span>
                 <div>
                   <span
-                    className={`px-2.5 py-1 rounded-full text-xs font-medium border ${STATUS_COLORS[selectedEvent.status] || 'bg-gray-500/15 text-content-secondary border-gray-500/30'}`}
+                    className={`px-2.5 py-1 rounded-full text-xs font-medium border ${STATUS_COLORS[selectedEvent.status] || 'bg-content-tertiary/15 text-content-secondary border-border-strong/30'}`}
                   >
                     {selectedEvent.status}
                   </span>

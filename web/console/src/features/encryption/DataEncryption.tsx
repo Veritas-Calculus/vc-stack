@@ -127,11 +127,11 @@ export function DataEncryption() {
       fail: 'bg-red-500/20 text-status-text-error',
       active: 'bg-emerald-500/20 text-status-text-success',
       revoked: 'bg-red-500/20 text-status-text-error',
-      expired: 'bg-gray-500/20 text-content-secondary',
+      expired: 'bg-content-tertiary/20 text-content-secondary',
       encrypted: 'bg-emerald-500/20 text-status-text-success',
       error: 'bg-red-500/20 text-status-text-error'
     }
-    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-content-secondary'}`
+    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-content-tertiary/20 text-content-secondary'}`
   }
 
   const certTypeBadge = (t: string) => {
@@ -140,7 +140,7 @@ export function DataEncryption() {
       server: 'bg-blue-500/20 text-accent',
       client: 'bg-cyan-500/20 text-status-cyan'
     }
-    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[t] || 'bg-gray-500/20 text-content-secondary'}`
+    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[t] || 'bg-content-tertiary/20 text-content-secondary'}`
   }
 
   const formatDate = (d?: string) => (d ? new Date(d).toLocaleDateString() : '—')
@@ -191,7 +191,7 @@ export function DataEncryption() {
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${tab === t.key ? 'text-accent after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-400' : 'text-content-secondary hover:text-content-secondary'}`}
+            className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${tab === t.key ? 'text-accent after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-accent' : 'text-content-secondary hover:text-content-secondary'}`}
           >
             {t.label}
             {'count' in t && t.count !== undefined && (
@@ -209,7 +209,7 @@ export function DataEncryption() {
               {
                 label: 'Encrypted Volumes',
                 value: `${status.encrypted_volumes}/${status.total_volumes}`,
-                color: 'text-status-text-success',
+                color: 'text-accent',
                 icon: Icons.lock('w-5 h-5')
               },
               {
@@ -228,7 +228,7 @@ export function DataEncryption() {
               {
                 label: 'Profiles',
                 value: String(status.encryption_profiles),
-                color: 'text-status-purple',
+                color: 'text-accent',
                 icon: Icons.shieldCheck('w-5 h-5')
               }
             ].map((s) => (
@@ -310,19 +310,19 @@ export function DataEncryption() {
               Envelope Encryption Architecture
             </h3>
             <div className="flex items-center gap-4 text-sm text-content-secondary justify-center py-4">
-              <div className="text-center p-3 border border-gray-600 rounded-lg">
+              <div className="text-center p-3 border border-border-strong rounded-lg">
                 <div className="mb-1 text-accent">{Icons.key('w-5 h-5')}</div>
                 <div className="text-content-primary font-medium">Master Key (KEK)</div>
                 <div className="text-xs">KMS-managed</div>
               </div>
               <span className="text-content-tertiary text-xl">&rarr;</span>
-              <div className="text-center p-3 border border-gray-600 rounded-lg">
+              <div className="text-center p-3 border border-border-strong rounded-lg">
                 <div className="mb-1 text-status-purple">{Icons.lock('w-5 h-5')}</div>
                 <div className="text-content-primary font-medium">Data Encryption Key</div>
                 <div className="text-xs">Per-volume DEK</div>
               </div>
               <span className="text-content-tertiary text-xl">&rarr;</span>
-              <div className="text-center p-3 border border-gray-600 rounded-lg">
+              <div className="text-center p-3 border border-border-strong rounded-lg">
                 <div className="mb-1 text-status-text-success">{Icons.drive('w-5 h-5')}</div>
                 <div className="text-content-primary font-medium">LUKS2 Volume</div>
                 <div className="text-xs">AES-XTS encrypted</div>
@@ -636,7 +636,7 @@ function CreateProfileModal({
       onClick={onClose}
     >
       <div
-        className="bg-gray-800 border border-border rounded-xl p-6 w-[520px]"
+        className="bg-surface-secondary border border-border rounded-xl p-6 w-[520px]"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-lg font-semibold text-content-primary mb-4">Create Encryption Profile</h2>
@@ -646,7 +646,7 @@ function CreateProfileModal({
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+              className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
               placeholder="e.g. high-security-luks2"
             />
           </div>
@@ -656,7 +656,7 @@ function CreateProfileModal({
               <select
                 value={provider}
                 onChange={(e) => setProvider(e.target.value)}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
               >
                 <option value="luks2">LUKS2</option>
                 <option value="luks">LUKS1</option>
@@ -668,7 +668,7 @@ function CreateProfileModal({
               <select
                 value={cipher}
                 onChange={(e) => setCipher(e.target.value)}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
               >
                 <option value="aes-xts-plain64">aes-xts-plain64</option>
                 <option value="aes-cbc-essiv:sha256">aes-cbc-essiv</option>
@@ -680,7 +680,7 @@ function CreateProfileModal({
               <select
                 value={keySize}
                 onChange={(e) => setKeySize(Number(e.target.value))}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
               >
                 <option value={128}>128-bit</option>
                 <option value={256}>256-bit</option>
@@ -693,7 +693,7 @@ function CreateProfileModal({
             <input
               value={desc}
               onChange={(e) => setDesc(e.target.value)}
-              className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+              className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
             />
           </div>
         </div>
@@ -737,7 +737,7 @@ function IssueCertModal({
       onClick={onClose}
     >
       <div
-        className="bg-gray-800 border border-border rounded-xl p-6 w-[520px]"
+        className="bg-surface-secondary border border-border rounded-xl p-6 w-[520px]"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-lg font-semibold text-content-primary mb-4">Issue mTLS Certificate</h2>
@@ -748,7 +748,7 @@ function IssueCertModal({
               <input
                 value={serviceName}
                 onChange={(e) => setServiceName(e.target.value)}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
                 placeholder="e.g. vc-compute-node-1"
               />
             </div>
@@ -757,7 +757,7 @@ function IssueCertModal({
               <input
                 value={cn}
                 onChange={(e) => setCN(e.target.value)}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
                 placeholder="e.g. compute-1.local"
               />
             </div>
@@ -768,7 +768,7 @@ function IssueCertModal({
               <select
                 value={certType}
                 onChange={(e) => setCertType(e.target.value)}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
               >
                 <option value="server">Server</option>
                 <option value="client">Client</option>
@@ -780,7 +780,7 @@ function IssueCertModal({
                 type="number"
                 value={validDays}
                 onChange={(e) => setValidDays(Number(e.target.value))}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
               />
             </div>
           </div>
@@ -789,7 +789,7 @@ function IssueCertModal({
             <input
               value={sans}
               onChange={(e) => setSANs(e.target.value)}
-              className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+              className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
               placeholder="e.g. compute-1, 10.0.0.5"
             />
           </div>

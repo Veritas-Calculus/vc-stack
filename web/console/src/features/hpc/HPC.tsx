@@ -46,7 +46,7 @@ export function HPC() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent" />
       </div>
     )
   }
@@ -59,7 +59,7 @@ export function HPC() {
       />
 
       {error && (
-        <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 text-yellow-300">
+        <div className="bg-status-warning/10 border border-status-warning/30 rounded-xl p-4 text-status-text-warning">
           {Icons.warning('w-5 h-5 inline mr-2')}
           {error}
         </div>
@@ -68,15 +68,15 @@ export function HPC() {
       {status && (
         <>
           {/* Status Banner */}
-          <div className="bg-gradient-to-r from-purple-600/20 via-blue-600/20 to-cyan-600/20 border border-white/10 rounded-2xl p-6">
+          <div className="bg-surface-secondary border border-border rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 rounded-lg bg-purple-500/20">
-                {Icons.cpu('w-6 h-6 text-status-purple')}
+              <div className="p-2 rounded-lg bg-accent-subtle">
+                {Icons.cpu('w-6 h-6 text-accent')}
               </div>
               <div>
                 <h2 className="text-lg font-semibold text-content-primary">HPC Platform</h2>
                 <p className="text-sm text-content-secondary">
-                  Status: <span className="text-green-400 font-medium">{status.status}</span>
+                  Status: <span className="text-status-text-success font-medium">{status.status}</span>
                 </p>
               </div>
             </div>
@@ -89,42 +89,42 @@ export function HPC() {
                 label: 'K8s Clusters',
                 value: status.kubernetes_clusters,
                 icon: Icons.kubernetes('w-5 h-5 text-accent'),
-                color: 'blue'
+                color: 'accent'
               },
               {
                 label: 'Slurm Clusters',
                 value: status.slurm_clusters,
-                icon: Icons.server('w-5 h-5 text-status-orange'),
-                color: 'orange'
+                icon: Icons.server('w-5 h-5 text-accent'),
+                color: 'accent'
               },
               {
                 label: 'Total Jobs',
                 value: status.total_jobs,
-                icon: Icons.clock('w-5 h-5 text-green-400'),
-                color: 'green'
+                icon: Icons.clock('w-5 h-5 text-accent'),
+                color: 'accent'
               },
               {
                 label: 'Active Jobs',
                 value: status.active_jobs,
-                icon: Icons.bolt('w-5 h-5 text-status-cyan'),
-                color: 'cyan'
+                icon: Icons.bolt('w-5 h-5 text-accent'),
+                color: 'accent'
               },
               {
                 label: 'GPU Pools',
                 value: status.gpu_pools,
-                icon: Icons.cpu('w-5 h-5 text-status-purple'),
-                color: 'purple'
+                icon: Icons.cpu('w-5 h-5 text-accent'),
+                color: 'accent'
               },
               {
                 label: 'Total GPUs',
                 value: status.total_gpus,
-                icon: Icons.cpu('w-5 h-5 text-pink-400'),
-                color: 'pink'
+                icon: Icons.cpu('w-5 h-5 text-accent'),
+                color: 'accent'
               }
             ].map((stat) => (
               <div
                 key={stat.label}
-                className="bg-gray-800/50 border border-white/5 rounded-xl p-4 hover:border-white/10 transition-colors"
+                className="bg-surface-secondary/50 border border-border rounded-xl p-4 hover:border-border-strong transition-colors"
               >
                 <div className="flex items-center gap-2 mb-2">
                   {stat.icon}
@@ -143,23 +143,23 @@ export function HPC() {
               title="HPC Clusters"
               description="Manage GPU-aware K8s clusters (Volcano, Kueue) and Slurm clusters"
               icon={Icons.kubernetes('w-8 h-8 text-accent')}
-              gradient="from-blue-600/20 to-blue-800/20"
+              gradient="from-accent/10 to-accent/5"
               status="Active"
               onClick={() => navigate('/hpc/clusters')}
             />
             <QuickAction
               title="Job Queue"
               description="Submit, monitor, and manage HPC jobs across K8s and Slurm schedulers"
-              icon={Icons.clock('w-8 h-8 text-green-400')}
-              gradient="from-green-600/20 to-green-800/20"
+              icon={Icons.clock('w-8 h-8 text-accent')}
+              gradient="from-accent/10 to-accent/5"
               status="Active"
               onClick={() => navigate('/hpc/jobs')}
             />
             <QuickAction
               title="GPU Resources"
               description="GPU pool management, utilization monitoring, and NVLink topology"
-              icon={Icons.cpu('w-8 h-8 text-status-purple')}
-              gradient="from-purple-600/20 to-purple-800/20"
+              icon={Icons.cpu('w-8 h-8 text-accent')}
+              gradient="from-accent/10 to-accent/5"
               status="Active"
               onClick={() => navigate('/hpc/gpu')}
             />
@@ -187,7 +187,7 @@ function QuickAction({
 }) {
   return (
     <div
-      className={`bg-gradient-to-br ${gradient} border border-white/5 rounded-xl p-6 hover:border-white/10 transition-all ${onClick ? 'cursor-pointer hover:scale-[1.02]' : 'cursor-default'}`}
+      className={`bg-gradient-to-br ${gradient} border border-border rounded-xl p-6 hover:border-border-strong transition-all ${onClick ? 'cursor-pointer hover:scale-[1.02]' : 'cursor-default'}`}
       onClick={onClick}
     >
       <div className="flex items-start gap-4">
@@ -196,11 +196,10 @@ function QuickAction({
           <h3 className="text-base font-semibold text-content-primary mb-1">{title}</h3>
           <p className="text-sm text-content-secondary mb-3">{description}</p>
           <span
-            className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${
-              status === 'Active'
+            className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${status === 'Active'
                 ? 'bg-emerald-500/10 text-status-text-success border border-emerald-500/30'
-                : 'bg-white/5 text-content-secondary border border-white/10'
-            }`}
+                : 'bg-surface-hover text-content-secondary border border-border'
+              }`}
           >
             {status === 'Active' && (
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />

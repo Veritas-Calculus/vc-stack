@@ -67,7 +67,7 @@ export function MonitoringDashboard() {
           </button>
           <button
             onClick={loadMetrics}
-            className="px-4 py-2 bg-gray-500 text-content-primary rounded hover:bg-gray-600"
+            className="px-4 py-2 bg-surface-tertiary text-content-secondary rounded hover:bg-surface-hover"
           >
             Refresh
           </button>

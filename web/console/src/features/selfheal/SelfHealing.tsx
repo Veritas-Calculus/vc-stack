@@ -73,14 +73,14 @@ export function SelfHealing() {
       healthy: 'bg-emerald-500/20 text-status-text-success',
       warning: 'bg-amber-500/20 text-status-text-warning',
       critical: 'bg-red-500/20 text-status-text-error',
-      unknown: 'bg-gray-500/20 text-content-secondary',
+      unknown: 'bg-content-tertiary/20 text-content-secondary',
       success: 'bg-emerald-500/20 text-status-text-success',
       failed: 'bg-red-500/20 text-status-text-error',
       triggered: 'bg-blue-500/20 text-accent',
       executing: 'bg-amber-500/20 text-status-text-warning',
       escalated: 'bg-orange-500/20 text-status-orange'
     }
-    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-content-secondary'}`
+    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-content-tertiary/20 text-content-secondary'}`
   }
 
   const tabs: { key: Tab; label: string }[] = [
@@ -141,19 +141,19 @@ export function SelfHealing() {
                 label: 'Healthy',
                 value: String(status.healthy),
                 icon: Icons.checkCircle('w-4 h-4'),
-                color: 'text-status-text-success'
+                color: 'text-accent'
               },
               {
                 label: 'Warning',
                 value: String(status.warning),
                 icon: Icons.warning('w-4 h-4'),
-                color: 'text-status-text-warning'
+                color: 'text-accent'
               },
               {
                 label: 'Critical',
                 value: String(status.critical),
                 icon: Icons.circleFilled('w-4 h-4 text-status-text-error'),
-                color: 'text-status-text-error'
+                color: 'text-accent'
               }
             ].map((s) => (
               <div
@@ -249,7 +249,7 @@ export function SelfHealing() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div
-                    className={`w-3 h-3 rounded-full ${c.status === 'healthy' ? 'bg-emerald-400' : c.status === 'warning' ? 'bg-amber-400' : c.status === 'critical' ? 'bg-red-400' : 'bg-gray-400'}`}
+                    className={`w-3 h-3 rounded-full ${c.status === 'healthy' ? 'bg-emerald-400' : c.status === 'warning' ? 'bg-amber-400' : c.status === 'critical' ? 'bg-red-400' : 'bg-content-tertiary'}`}
                   ></div>
                   <div>
                     <div className="text-content-primary font-medium">{c.name as string}</div>

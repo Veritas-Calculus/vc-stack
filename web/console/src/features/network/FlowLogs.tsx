@@ -82,7 +82,7 @@ export function FlowLogs() {
       />
 
       {tab === 'configs' ? (
-        <div className="bg-zinc-900/50 border border-white/5 rounded-lg divide-y divide-white/5">
+        <div className="bg-zinc-900/50 border border-border rounded-lg divide-y divide-white/5">
           {configs.length === 0 ? (
             <div className="text-center py-8 text-zinc-500">No flow log configs</div>
           ) : (
@@ -117,7 +117,7 @@ export function FlowLogs() {
       ) : (
         <>
           {/* Filter bar */}
-          <div className="flex gap-3 items-center bg-zinc-900/50 border border-white/5 rounded-lg p-3">
+          <div className="flex gap-3 items-center bg-zinc-900/50 border border-border rounded-lg p-3">
             <select
               className="input w-28"
               value={query.action ?? ''}
@@ -155,8 +155,8 @@ export function FlowLogs() {
           </div>
 
           {/* Results */}
-          <div className="bg-zinc-900/50 border border-white/5 rounded-lg">
-            <div className="px-4 py-2 border-b border-white/5 text-xs text-zinc-500">
+          <div className="bg-zinc-900/50 border border-border rounded-lg">
+            <div className="px-4 py-2 border-b border-border text-xs text-zinc-500">
               {total.toLocaleString()} flow entries
             </div>
             {loading ? (

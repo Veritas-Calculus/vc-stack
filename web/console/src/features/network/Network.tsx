@@ -552,7 +552,7 @@ function NetworksPage() {
               >
                 <span
                   className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold ${
-                    step >= s.n ? 'bg-blue-600 text-content-primary' : 'bg-surface-hover text-content-secondary'
+                    step >= s.n ? 'bg-accent text-content-inverse' : 'bg-surface-hover text-content-secondary'
                   }`}
                 >
                   {s.n}
@@ -777,7 +777,7 @@ function NetworksPage() {
                       className={`text-xs px-2 py-0.5 rounded border transition-colors ${
                         cidr === tpl.cidr
                           ? 'border-blue-500 bg-blue-500/20 text-status-link'
-                          : 'border-gray-600 text-content-secondary hover:border-gray-500 hover:text-content-secondary'
+                          : 'border-border-strong text-content-secondary hover:border-border-strong hover:text-content-secondary'
                       }`}
                       onClick={() => setCidr(tpl.cidr)}
                     >
@@ -926,7 +926,7 @@ function NetworksPage() {
             </div>
 
             {/* Review Card */}
-            <div className="p-3 bg-gray-800/50 border border-border rounded-lg">
+            <div className="p-3 bg-surface-secondary/50 border border-border rounded-lg">
               <h4 className="text-xs font-semibold text-content-secondary uppercase tracking-wide mb-2">
                 Network Preview
               </h4>
@@ -1009,7 +1009,7 @@ function NetworksPage() {
                     <h4 className="text-xs font-semibold text-content-secondary uppercase tracking-wider mb-1">
                       Network
                     </h4>
-                    <div className="p-2 bg-gray-800/50 rounded text-xs font-mono text-content-secondary overflow-x-auto">
+                    <div className="p-2 bg-surface-secondary/50 rounded text-xs font-mono text-content-secondary overflow-x-auto">
                       <div>ID: {diagnoseData.network.id}</div>
                       <div>Status: {diagnoseData.network.status}</div>
                       <div>CIDR: {diagnoseData.network.cidr}</div>
@@ -1023,7 +1023,7 @@ function NetworksPage() {
                     <h4 className="text-xs font-semibold text-content-secondary uppercase tracking-wider mb-1">
                       OVN State
                     </h4>
-                    <pre className="p-2 bg-gray-800/50 rounded text-xs font-mono text-content-secondary overflow-x-auto whitespace-pre-wrap">
+                    <pre className="p-2 bg-surface-secondary/50 rounded text-xs font-mono text-content-secondary overflow-x-auto whitespace-pre-wrap">
                       {JSON.stringify(diagnoseData.ovn, null, 2)}
                     </pre>
                   </div>
@@ -1034,7 +1034,7 @@ function NetworksPage() {
                     <h4 className="text-xs font-semibold text-content-secondary uppercase tracking-wider mb-1">
                       Subnets ({(diagnoseData.subnets as unknown[]).length})
                     </h4>
-                    <pre className="p-2 bg-gray-800/50 rounded text-xs font-mono text-content-secondary overflow-x-auto whitespace-pre-wrap">
+                    <pre className="p-2 bg-surface-secondary/50 rounded text-xs font-mono text-content-secondary overflow-x-auto whitespace-pre-wrap">
                       {JSON.stringify(diagnoseData.subnets, null, 2)}
                     </pre>
                   </div>
@@ -1045,7 +1045,7 @@ function NetworksPage() {
                     <h4 className="text-xs font-semibold text-content-secondary uppercase tracking-wider mb-1">
                       Expected OVN Objects
                     </h4>
-                    <pre className="p-2 bg-gray-800/50 rounded text-xs font-mono text-content-secondary overflow-x-auto whitespace-pre-wrap">
+                    <pre className="p-2 bg-surface-secondary/50 rounded text-xs font-mono text-content-secondary overflow-x-auto whitespace-pre-wrap">
                       {JSON.stringify(diagnoseData.expected, null, 2)}
                     </pre>
                   </div>
@@ -1371,7 +1371,7 @@ function ACLPage() {
                 </thead>
                 <tbody>
                   {acl.rules.map((rule) => (
-                    <tr key={rule.id} className="border-b border-gray-800 text-content-secondary">
+                    <tr key={rule.id} className="border-b border-border text-content-secondary">
                       <td className="py-1.5 pr-3 text-content-tertiary">{rule.number}</td>
                       <td className="py-1.5 pr-3">
                         <span

@@ -185,8 +185,8 @@ export function Orchestration() {
     if (status.includes('IN_PROGRESS')) return 'bg-blue-500/15 text-accent'
     if (status.includes('FAILED')) return 'bg-red-500/15 text-status-text-error'
     if (status.includes('ROLLBACK')) return 'bg-amber-500/15 text-status-text-warning'
-    if (status.includes('DELETE')) return 'bg-gray-500/15 text-content-secondary'
-    return 'bg-gray-500/15 text-content-secondary'
+    if (status.includes('DELETE')) return 'bg-content-tertiary/15 text-content-secondary'
+    return 'bg-content-tertiary/15 text-content-secondary'
   }
 
   const typeShort = (type: string) => type.split('::').pop() || type
@@ -197,7 +197,7 @@ export function Orchestration() {
     if (type.includes('Storage') || type.includes('Volume')) return 'bg-amber-500/15 text-status-text-warning'
     if (type.includes('DNS')) return 'bg-cyan-500/15 text-status-cyan'
     if (type.includes('ObjectStorage')) return 'bg-teal-500/15 text-teal-400'
-    return 'bg-gray-500/15 text-content-secondary'
+    return 'bg-content-tertiary/15 text-content-secondary'
   }
 
   const catColor = (cat: string) => {
@@ -207,7 +207,7 @@ export function Orchestration() {
       network: 'bg-purple-500/15 text-status-purple',
       compute: 'bg-emerald-500/15 text-status-text-success'
     }
-    return colors[cat] || 'bg-gray-500/15 text-content-secondary'
+    return colors[cat] || 'bg-content-tertiary/15 text-content-secondary'
   }
 
   const tabs = [

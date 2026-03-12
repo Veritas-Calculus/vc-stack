@@ -124,16 +124,16 @@ function Overview() {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {[
           { label: 'Zones', value: infra.zones, color: 'text-accent' },
-          { label: 'Clusters', value: infra.clusters, color: 'text-status-purple' },
+          { label: 'Clusters', value: infra.clusters, color: 'text-accent' },
           {
             label: 'Hosts',
             value: infra.hosts,
-            color: 'text-status-cyan',
+            color: 'text-accent',
             sub: `${infra.hosts_up} up`
           },
-          { label: 'Total vCPUs', value: infra.total_vcpus, color: 'text-status-text-warning' },
-          { label: 'Total RAM', value: formatRAM(infra.total_ram_mb), color: 'text-status-text-success' },
-          { label: 'Total Disk', value: `${infra.total_disk_gb} GB`, color: 'text-status-indigo' }
+          { label: 'Total vCPUs', value: infra.total_vcpus, color: 'text-accent' },
+          { label: 'Total RAM', value: formatRAM(infra.total_ram_mb), color: 'text-accent' },
+          { label: 'Total Disk', value: `${infra.total_disk_gb} GB`, color: 'text-accent' }
         ].map((item) => (
           <div
             key={item.label}
@@ -804,7 +804,7 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
         {(['script', 'ssh', 'manual'] as const).map((t) => (
           <button
             key={t}
-            className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${tab === t ? 'bg-blue-600 text-content-primary' : 'text-content-secondary hover:text-content-primary'
+            className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${tab === t ? 'bg-accent text-content-inverse' : 'text-content-secondary hover:text-content-primary'
               }`}
             onClick={() => setTab(t)}
           >

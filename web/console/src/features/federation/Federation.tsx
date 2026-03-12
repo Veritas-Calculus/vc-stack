@@ -324,7 +324,7 @@ export function Federation() {
                               Active
                             </span>
                           ) : (
-                            <span className="px-2 py-0.5 rounded bg-gray-500/15 text-content-tertiary text-[10px] uppercase">
+                            <span className="px-2 py-0.5 rounded bg-content-tertiary/15 text-content-tertiary text-[10px] uppercase">
                               Disabled
                             </span>
                           )}
@@ -394,7 +394,7 @@ export function Federation() {
                         Active
                       </span>
                     ) : (
-                      <span className="px-2 py-0.5 rounded bg-gray-500/15 text-content-tertiary text-[10px] uppercase">
+                      <span className="px-2 py-0.5 rounded bg-content-tertiary/15 text-content-tertiary text-[10px] uppercase">
                         Disabled
                       </span>
                     )}
@@ -942,7 +942,7 @@ function ConfigItem({ label, value }: { label: string; value?: string }) {
 function Toggle({ label, enabled }: { label: string; enabled: boolean }) {
   return (
     <span className="flex items-center gap-1.5 text-xs">
-      <span className={`w-2 h-2 rounded-full ${enabled ? 'bg-emerald-400' : 'bg-gray-600'}`} />
+      <span className={`w-2 h-2 rounded-full ${enabled ? 'bg-emerald-400' : 'bg-border-strong'}`} />
       <span className={enabled ? 'text-status-text-success' : 'text-content-tertiary'}>{label}</span>
     </span>
   )

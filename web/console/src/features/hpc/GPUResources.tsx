@@ -133,7 +133,7 @@ export function GPUResources() {
       </div>
 
       {/* GPU Overview Banner */}
-      <div className="bg-gradient-to-r from-purple-600/20 via-violet-600/20 to-blue-600/20 border border-white/10 rounded-2xl p-6 mb-6">
+      <div className="bg-gradient-to-r from-purple-600/20 via-violet-600/20 to-blue-600/20 border border-border rounded-2xl p-6 mb-6">
         <div className="flex items-center gap-8">
           {/* Utilization Ring */}
           <div className="relative w-28 h-28 flex-shrink-0">
@@ -176,9 +176,9 @@ export function GPUResources() {
           <div className="grid grid-cols-4 gap-6 flex-1">
             {[
               { label: 'Total GPUs', value: totalGPUs, color: 'text-content-primary' },
-              { label: 'Allocated', value: allocatedGPUs, color: 'text-status-purple' },
-              { label: 'Available', value: availableGPUs, color: 'text-status-text-success' },
-              { label: 'MIG Pools', value: migPools, color: 'text-status-cyan' }
+              { label: 'Allocated', value: allocatedGPUs, color: 'text-accent' },
+              { label: 'Available', value: availableGPUs, color: 'text-accent' },
+              { label: 'MIG Pools', value: migPools, color: 'text-accent' }
             ].map((s) => (
               <div key={s.label}>
                 <div className="text-xs text-content-tertiary uppercase tracking-wider mb-1">{s.label}</div>
@@ -209,9 +209,9 @@ export function GPUResources() {
           {Object.entries(byType).map(([type, data]) => (
             <div
               key={type}
-              className={`bg-gradient-to-br ${gpuTypeColors[type] || 'from-gray-600 to-gray-700'} bg-opacity-20 border border-white/10 rounded-xl p-4 relative overflow-hidden`}
+              className={`bg-gradient-to-br ${gpuTypeColors[type] || 'from-gray-600 to-gray-700'} bg-opacity-20 border border-border rounded-xl p-4 relative overflow-hidden`}
             >
-              <div className="absolute top-0 right-0 w-16 h-16 bg-white/5 rounded-bl-[40px]" />
+              <div className="absolute top-0 right-0 w-16 h-16 bg-surface-hover rounded-bl-[40px]" />
               <div className="relative">
                 <div className="text-content-primary font-bold text-lg">{type}</div>
                 <div className="text-content-secondary text-xs mt-1">
@@ -219,9 +219,9 @@ export function GPUResources() {
                 </div>
                 <div className="mt-3 flex items-baseline gap-1">
                   <span className="text-2xl font-bold text-content-primary">{data.total}</span>
-                  <span className="text-white/50 text-xs">GPUs</span>
+                  <span className="text-content-tertiary text-xs">GPUs</span>
                 </div>
-                <div className="text-xs text-white/60 mt-1">{data.available} available</div>
+                <div className="text-xs text-content-secondary mt-1">{data.available} available</div>
               </div>
             </div>
           ))}
@@ -319,7 +319,7 @@ export function GPUResources() {
             {topology.gpu_devices.map((gpu) => (
               <div
                 key={gpu.index}
-                className="bg-surface-hover border border-gray-600/30 rounded-lg p-3"
+                className="bg-surface-hover border border-border rounded-lg p-3"
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-status-purple font-mono text-xs">GPU {gpu.index}</span>
@@ -339,7 +339,7 @@ export function GPUResources() {
                   {gpu.mig_enabled && <span className="text-status-cyan">MIG</span>}
                 </div>
                 <div className="mt-2">
-                  <div className="w-full h-1.5 bg-gray-600 rounded-full overflow-hidden">
+                  <div className="w-full h-1.5 bg-border-strong rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full ${
                         gpu.utilization_pct > 80

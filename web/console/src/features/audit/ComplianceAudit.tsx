@@ -175,11 +175,11 @@ export function ComplianceAudit() {
       compliant: 'bg-emerald-500/20 text-status-text-success',
       non_compliant: 'bg-red-500/20 text-status-text-error',
       partially_compliant: 'bg-amber-500/20 text-status-text-warning',
-      not_assessed: 'bg-gray-500/20 text-content-secondary',
+      not_assessed: 'bg-content-tertiary/20 text-content-secondary',
       ready: 'bg-emerald-500/20 text-status-text-success',
       generating: 'bg-blue-500/20 text-accent'
     }
-    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-content-secondary'}`
+    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-content-tertiary/20 text-content-secondary'}`
   }
 
   const scoreColor = (s: number) =>
@@ -236,19 +236,19 @@ export function ComplianceAudit() {
                 label: 'Policies',
                 value: String(status.policies),
                 icon: Icons.shield('w-4 h-4'),
-                color: 'text-status-cyan'
+                color: 'text-accent'
               },
               {
                 label: 'Frameworks',
                 value: String(status.frameworks),
                 icon: Icons.building('w-4 h-4'),
-                color: 'text-status-purple'
+                color: 'text-accent'
               },
               {
                 label: 'Reports',
                 value: String(status.reports),
                 icon: Icons.chart('w-4 h-4'),
-                color: 'text-status-text-warning'
+                color: 'text-accent'
               }
             ].map((s) => (
               <div
@@ -338,7 +338,7 @@ export function ComplianceAudit() {
                       {p.enabled ? (
                         <span className="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
                       ) : (
-                        <span className="inline-block w-2 h-2 rounded-full border border-gray-500"></span>
+                        <span className="inline-block w-2 h-2 rounded-full border border-border-strong"></span>
                       )}
                     </td>
                   </tr>
@@ -356,7 +356,7 @@ export function ComplianceAudit() {
             <select
               value={logFilter.category}
               onChange={(e) => setLogFilter((p) => ({ ...p, category: e.target.value }))}
-              className="bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+              className="bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
             >
               <option value="">All Categories</option>
               {[
@@ -375,7 +375,7 @@ export function ComplianceAudit() {
             <select
               value={logFilter.severity}
               onChange={(e) => setLogFilter((p) => ({ ...p, severity: e.target.value }))}
-              className="bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+              className="bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
             >
               <option value="">All Severities</option>
               {['info', 'warning', 'critical', 'alert'].map((s) => (
@@ -553,7 +553,7 @@ export function ComplianceAudit() {
                       {fw.enabled ? (
                         <span className="flex items-center gap-1 text-status-text-success text-xs"><span className="inline-block w-2 h-2 rounded-full bg-emerald-400"></span> active</span>
                       ) : (
-                        <span className="flex items-center gap-1 text-content-tertiary text-xs"><span className="inline-block w-2 h-2 rounded-full border border-gray-500"></span> disabled</span>
+                        <span className="flex items-center gap-1 text-content-tertiary text-xs"><span className="inline-block w-2 h-2 rounded-full border border-border-strong"></span> disabled</span>
                       )}
                     </div>
                   </div>

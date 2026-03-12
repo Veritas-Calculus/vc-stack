@@ -68,7 +68,7 @@ export function ComponentMonitoring() {
           </select>
           <button
             onClick={loadData}
-            className="px-4 py-2 bg-gray-500 text-content-primary rounded hover:bg-gray-600"
+            className="px-4 py-2 bg-surface-tertiary text-content-secondary rounded hover:bg-surface-hover"
           >
             Refresh
           </button>
@@ -119,7 +119,7 @@ export function ComponentMonitoring() {
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+              <thead className="bg-surface-primary">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-content-tertiary uppercase tracking-wider">
                     Time

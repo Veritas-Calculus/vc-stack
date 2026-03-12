@@ -84,7 +84,7 @@ export function VPNManagement() {
   const stateColor = (s: string) => {
     if (s === 'connected' || s === 'enabled') return 'bg-emerald-500/15 text-status-text-success'
     if (s === 'error') return 'bg-red-500/15 text-status-text-error'
-    return 'bg-gray-500/15 text-content-secondary'
+    return 'bg-content-tertiary/15 text-content-secondary'
   }
 
   return (

@@ -103,7 +103,7 @@ export function SnapshotSchedules() {
                   <span className="text-sm font-medium text-content-primary">{s.name}</span>
                 </div>
                 <span
-                  className={`px-2 py-0.5 rounded text-xs ${s.enabled ? 'bg-emerald-500/15 text-status-text-success' : 'bg-gray-500/15 text-content-secondary'}`}
+                  className={`px-2 py-0.5 rounded text-xs ${s.enabled ? 'bg-emerald-500/15 text-status-text-success' : 'bg-content-tertiary/15 text-content-secondary'}`}
                 >
                   {s.enabled ? 'Active' : 'Paused'}
                 </span>

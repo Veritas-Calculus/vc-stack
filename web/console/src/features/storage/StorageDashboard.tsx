@@ -83,7 +83,7 @@ export default function StorageDashboard() {
       {totalVols > 0 && (
         <div className="bg-[var(--card-bg,#1a1a2e)] border border-[var(--border-primary,#2a2a4a)] rounded-xl p-5">
           <h3 className="text-sm font-semibold text-content-secondary mb-3">Volume Status Distribution</h3>
-          <div className="flex rounded-full overflow-hidden h-5 bg-gray-800">
+          <div className="flex rounded-full overflow-hidden h-5 bg-surface-secondary">
             {statusItems.map((s, i) => (
               <div
                 key={i}
@@ -171,7 +171,7 @@ function SummaryCard({
   }
   return (
     <div className="bg-[var(--card-bg,#1a1a2e)] border border-[var(--border-primary,#2a2a4a)] rounded-xl p-4 flex items-center gap-3">
-      <span className={`w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold ${iconStyles[icon] || 'bg-gray-500/20 text-content-secondary'}`}>
+      <span className={`w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold ${iconStyles[icon] || 'bg-content-tertiary/20 text-content-secondary'}`}>
         {iconLabels[icon] || icon}
       </span>
       <div>

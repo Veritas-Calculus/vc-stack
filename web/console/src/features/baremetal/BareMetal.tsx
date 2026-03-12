@@ -109,20 +109,20 @@ export function BareMetal() {
       provisioning: 'bg-amber-500/20 text-status-text-warning',
       maintenance: 'bg-orange-500/20 text-status-orange',
       error: 'bg-red-500/20 text-status-text-error',
-      decommissioned: 'bg-gray-500/20 text-content-secondary',
+      decommissioned: 'bg-content-tertiary/20 text-content-secondary',
       on: 'bg-emerald-500/20 text-status-text-success',
-      off: 'bg-gray-500/20 text-content-secondary',
+      off: 'bg-content-tertiary/20 text-content-secondary',
       linux: 'bg-amber-500/20 text-status-text-warning',
       windows: 'bg-blue-500/20 text-status-link',
       esxi: 'bg-cyan-500/20 text-status-cyan',
       nvme: 'bg-purple-500/20 text-status-purple',
       ssd: 'bg-cyan-500/20 text-status-cyan',
-      hdd: 'bg-gray-500/20 text-content-secondary',
+      hdd: 'bg-content-tertiary/20 text-content-secondary',
       completed: 'bg-emerald-500/20 text-status-text-success',
       pending: 'bg-amber-500/20 text-status-text-warning',
       failed: 'bg-red-500/20 text-status-text-error'
     }
-    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-content-secondary'}`
+    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-content-tertiary/20 text-content-secondary'}`
   }
 
   const tabs: { key: Tab; label: string }[] = [
@@ -180,7 +180,7 @@ export function BareMetal() {
                 label: 'Available',
                 value: String(status.available),
                 icon: Icons.checkCircle('w-4 h-4'),
-                color: 'text-status-text-success'
+                color: 'text-accent'
               },
               {
                 label: 'Active',
@@ -192,13 +192,13 @@ export function BareMetal() {
                 label: 'CPU Cores',
                 value: String(status.total_cpu_cores),
                 icon: Icons.cpu('w-4 h-4'),
-                color: 'text-status-cyan'
+                color: 'text-accent'
               },
               {
                 label: 'Storage',
                 value: `${status.total_storage_tb} TB`,
                 icon: Icons.drive('w-4 h-4'),
-                color: 'text-status-purple'
+                color: 'text-accent'
               }
             ].map((s) => (
               <div
@@ -250,7 +250,7 @@ export function BareMetal() {
                               U{srv.rack_unit}
                             </div>
                             <div
-                              className={`w-2 h-2 rounded-full ${srv.power_status === 'on' ? 'bg-emerald-400' : 'bg-gray-600'}`}
+                              className={`w-2 h-2 rounded-full ${srv.power_status === 'on' ? 'bg-emerald-400' : 'bg-border-strong'}`}
                             ></div>
                             <div>
                               <div className="text-content-primary font-medium text-sm">{srv.name}</div>
@@ -439,7 +439,7 @@ export function BareMetal() {
               </button>
               <button
                 onClick={() => doPower(serverDetail.id, 'reset')}
-                className="px-3 py-1.5 bg-gray-600 text-content-primary rounded text-xs hover:bg-gray-500 transition"
+                className="px-3 py-1.5 bg-border-strong text-content-primary rounded text-xs hover:bg-surface-hover0 transition"
               >
                 Reset
               </button>

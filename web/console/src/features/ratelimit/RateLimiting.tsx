@@ -112,7 +112,7 @@ export function RateLimiting() {
       user: 'bg-emerald-500/20 text-status-text-success',
       path: 'bg-amber-500/20 text-status-text-warning'
     }
-    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colors[s] || 'bg-gray-500/20 text-content-secondary'}`
+    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colors[s] || 'bg-content-tertiary/20 text-content-secondary'}`
   }
 
   const formatTime = (t?: string) => (t ? new Date(t).toLocaleString() : '—')
@@ -155,7 +155,7 @@ export function RateLimiting() {
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${tab === t.key ? 'text-accent after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-400' : 'text-content-secondary hover:text-content-secondary'}`}
+            className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${tab === t.key ? 'text-accent after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-accent' : 'text-content-secondary hover:text-content-secondary'}`}
           >
             {t.label}
             {'count' in t && t.count !== undefined && (
@@ -259,7 +259,7 @@ export function RateLimiting() {
                 <div className="flex items-center justify-between">
                   <span className="text-content-secondary">Status</span>
                   <span
-                    className={`px-2 py-0.5 rounded text-xs font-medium ${status.adaptive.enabled ? 'bg-emerald-500/20 text-status-text-success' : 'bg-gray-500/20 text-content-secondary'}`}
+                    className={`px-2 py-0.5 rounded text-xs font-medium ${status.adaptive.enabled ? 'bg-emerald-500/20 text-status-text-success' : 'bg-content-tertiary/20 text-content-secondary'}`}
                   >
                     {status.adaptive.enabled ? 'Enabled' : 'Disabled'}
                   </span>
@@ -383,7 +383,7 @@ export function RateLimiting() {
                     <td className="px-4 py-3">
                       <button
                         onClick={() => togglePolicy(p)}
-                        className={`px-2 py-0.5 rounded text-xs font-medium cursor-pointer transition ${p.enabled ? 'bg-emerald-500/20 text-status-text-success hover:bg-emerald-500/30' : 'bg-gray-500/20 text-content-secondary hover:bg-gray-500/30'}`}
+                        className={`px-2 py-0.5 rounded text-xs font-medium cursor-pointer transition ${p.enabled ? 'bg-emerald-500/20 text-status-text-success hover:bg-emerald-500/30' : 'bg-content-tertiary/20 text-content-secondary hover:bg-surface-hover0/30'}`}
                       >
                         {p.enabled ? 'enabled' : 'disabled'}
                       </button>
@@ -473,7 +473,7 @@ export function RateLimiting() {
                 <div className="flex justify-between">
                   <span className="text-content-secondary">Status</span>
                   <span
-                    className={`px-2 py-0.5 rounded text-xs font-medium ${(adaptive.config as Record<string, unknown>)?.enabled ? 'bg-emerald-500/20 text-status-text-success' : 'bg-gray-500/20 text-content-secondary'}`}
+                    className={`px-2 py-0.5 rounded text-xs font-medium ${(adaptive.config as Record<string, unknown>)?.enabled ? 'bg-emerald-500/20 text-status-text-success' : 'bg-content-tertiary/20 text-content-secondary'}`}
                   >
                     {(adaptive.config as Record<string, unknown>)?.enabled ? 'Enabled' : 'Disabled'}
                   </span>
@@ -559,7 +559,7 @@ function CreatePolicyModal({
       onClick={onClose}
     >
       <div
-        className="bg-gray-800 border border-border rounded-xl p-6 w-[520px]"
+        className="bg-surface-secondary border border-border rounded-xl p-6 w-[520px]"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-lg font-semibold text-content-primary mb-4">Create Rate Limit Policy</h2>
@@ -569,7 +569,7 @@ function CreatePolicyModal({
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+              className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
               placeholder="e.g. high-volume-tenant"
             />
           </div>
@@ -579,7 +579,7 @@ function CreatePolicyModal({
               <select
                 value={scope}
                 onChange={(e) => setScope(e.target.value)}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
               >
                 <option value="global">Global</option>
                 <option value="tenant">Tenant</option>
@@ -592,7 +592,7 @@ function CreatePolicyModal({
               <input
                 value={scopeId}
                 onChange={(e) => setScopeId(e.target.value)}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
                 placeholder={
                   scope === 'global' ? '*' : scope === 'path' ? '/api/v1/...' : 'ID or *'
                 }
@@ -606,7 +606,7 @@ function CreatePolicyModal({
                 type="number"
                 value={rpm}
                 onChange={(e) => setRpm(parseInt(e.target.value))}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
               />
             </div>
             <div>
@@ -615,7 +615,7 @@ function CreatePolicyModal({
                 type="number"
                 value={burst}
                 onChange={(e) => setBurst(parseInt(e.target.value))}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
               />
             </div>
             <div>
@@ -624,7 +624,7 @@ function CreatePolicyModal({
                 type="number"
                 value={priority}
                 onChange={(e) => setPriority(parseInt(e.target.value))}
-                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
               />
             </div>
           </div>
@@ -633,7 +633,7 @@ function CreatePolicyModal({
             <input
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
+              className="w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:border-accent outline-none"
             />
           </div>
         </div>

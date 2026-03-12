@@ -2,6 +2,22 @@ import { useState, useEffect, useCallback } from 'react'
 import api from '@/lib/api'
 import { Icons } from '@/components/ui/Icons'
 
+/** Maps API icon strings (emoji) to consistent SVG icons */
+function catalogIcon(icon: string, className = 'w-6 h-6') {
+  const c = `${className} text-accent`
+  const map: Record<string, React.ReactNode> = {
+    '🖥️': Icons.server(c), '🖥': Icons.server(c),
+    '💾': Icons.drive(c), '💿': Icons.drive(c),
+    '🌐': Icons.globe(c), '🔒': Icons.lock(c),
+    '📦': Icons.cube(c), '⚡': Icons.bolt(c),
+    '🐘': Icons.drive(c), '🔴': Icons.statusDot(c),
+    '⚖️': Icons.scaleBalance(c), '☸️': Icons.kubernetes(c),
+    '🔑': Icons.key(c), '🗄️': Icons.drive(c),
+    '🗄': Icons.drive(c),
+  }
+  return map[icon] || Icons.cube(c)
+}
+
 interface Category {
   id: string
   name: string
@@ -63,7 +79,7 @@ export function ServiceCatalog() {
       api
         .get('/v1/catalog/requests')
         .then((r) => setRequests(r.data.requests || []))
-        .catch(() => {})
+        .catch(() => { })
     }
   }, [tab])
 
@@ -103,7 +119,7 @@ export function ServiceCatalog() {
   const provisionBadge = (type: string) => {
     if (type === 'instant') return 'bg-emerald-500/20 text-status-text-success'
     if (type === 'approval_required') return 'bg-amber-500/20 text-status-text-warning'
-    return 'bg-gray-500/20 text-content-secondary'
+    return 'bg-content-tertiary/20 text-content-secondary'
   }
 
   const tabs: { key: Tab; label: string }[] = [
@@ -151,7 +167,7 @@ export function ServiceCatalog() {
           <div className="w-56 shrink-0 space-y-1">
             <button
               onClick={() => setSelectedCat(null)}
-              className={`w-full text-left px-3 py-2 rounded-lg text-sm transition ${!selectedCat ? 'bg-blue-600/20 text-accent' : 'text-content-secondary hover:text-content-primary hover:bg-surface-hover'}`}
+              className={`w-full text-left px-3 py-2 rounded-lg text-sm transition ${!selectedCat ? 'bg-accent-subtle text-accent' : 'text-content-secondary hover:text-content-primary hover:bg-surface-hover'}`}
             >
               All ({items.length})
             </button>
@@ -159,9 +175,9 @@ export function ServiceCatalog() {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCat(cat.id)}
-                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition ${selectedCat === cat.id ? 'bg-blue-600/20 text-accent' : 'text-content-secondary hover:text-content-primary hover:bg-surface-hover'}`}
+                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 ${selectedCat === cat.id ? 'bg-accent-subtle text-accent' : 'text-content-secondary hover:text-content-primary hover:bg-surface-hover'}`}
               >
-                <span className="mr-2">{cat.icon}</span>
+                {catalogIcon(cat.icon, 'w-4 h-4')}
                 {cat.name} ({cat.item_count})
               </button>
             ))}
@@ -172,10 +188,10 @@ export function ServiceCatalog() {
               <div
                 key={item.id}
                 onClick={() => setSelectedItem(item)}
-                className="bg-surface-tertiary border border-border rounded-xl p-5 cursor-pointer hover:border-blue-500/40 transition group"
+                className="bg-surface-tertiary border border-border rounded-xl p-5 cursor-pointer hover:border-accent/40 transition group"
               >
                 <div className="flex items-start gap-3 mb-3">
-                  <div className="text-3xl">{item.icon}</div>
+                  <div className="w-10 h-10 rounded-lg bg-accent-subtle flex items-center justify-center">{catalogIcon(item.icon, 'w-5 h-5')}</div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <h3 className="text-content-primary font-bold">{item.display_name}</h3>
@@ -189,7 +205,7 @@ export function ServiceCatalog() {
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="text-lg font-bold text-status-text-success">
+                  <div className="text-lg font-bold text-accent">
                     {formatPrice(item.price_amount, item.price_unit)}
                   </div>
                   <div className="flex items-center gap-2 text-xs">
@@ -225,7 +241,7 @@ export function ServiceCatalog() {
           <div className="bg-surface-tertiary border border-border rounded-xl p-6">
             <div className="flex items-start justify-between mb-6">
               <div className="flex items-center gap-4">
-                <div className="text-5xl">{selectedItem.icon}</div>
+                <div className="w-14 h-14 rounded-xl bg-accent-subtle flex items-center justify-center">{catalogIcon(selectedItem.icon, 'w-8 h-8')}</div>
                 <div>
                   <h2 className="text-2xl font-bold text-content-primary">{selectedItem.display_name}</h2>
                   <p className="text-content-secondary mt-1">{selectedItem.description}</p>
@@ -233,7 +249,7 @@ export function ServiceCatalog() {
               </div>
               <button
                 onClick={() => doRequest(selectedItem)}
-                className="px-6 py-2.5 bg-blue-600 text-content-primary rounded-lg font-medium hover:bg-blue-500 transition"
+                className="btn-primary px-6 py-2.5 rounded-lg font-medium"
               >
                 {selectedItem.provision_type === 'instant' ? (
                   <span className="inline-flex items-center gap-1">
@@ -249,7 +265,7 @@ export function ServiceCatalog() {
             <div className="grid grid-cols-3 gap-4">
               <div className="bg-surface-hover rounded-lg p-4">
                 <h4 className="text-xs text-content-tertiary uppercase mb-2">Pricing</h4>
-                <div className="text-xl font-bold text-status-text-success">
+                <div className="text-xl font-bold text-accent">
                   {formatPrice(selectedItem.price_amount, selectedItem.price_unit)}
                 </div>
               </div>
@@ -270,7 +286,7 @@ export function ServiceCatalog() {
                   {parseTags(selectedItem.tags).map((tag: string) => (
                     <span
                       key={tag}
-                      className="px-2 py-0.5 bg-gray-600/40 text-content-secondary text-xs rounded"
+                      className="px-2 py-0.5 bg-border-strong/40 text-content-secondary text-xs rounded"
                     >
                       {tag}
                     </span>
@@ -295,15 +311,15 @@ export function ServiceCatalog() {
                 setSelectedItem(item)
                 setTab('browse')
               }}
-              className="bg-gradient-to-br from-gray-800/80 to-gray-700/40 border border-amber-500/20 rounded-xl p-5 cursor-pointer hover:border-amber-400/50 transition"
+              className="bg-surface-tertiary border border-border rounded-xl p-5 cursor-pointer hover:border-accent/40 transition"
             >
-              <div className="w-12 h-12 rounded-lg bg-amber-500/10 flex items-center justify-center text-2xl mb-3">
-                {item.icon}
+              <div className="w-12 h-12 rounded-lg bg-accent-subtle flex items-center justify-center mb-3">
+                {catalogIcon(item.icon, 'w-6 h-6')}
               </div>
               <h3 className="text-content-primary font-bold text-lg mb-1">{item.display_name}</h3>
               <p className="text-content-secondary text-sm mb-4 line-clamp-2">{item.description}</p>
               <div className="flex items-center justify-between">
-                <span className="text-status-text-success font-bold">
+                <span className="text-accent font-bold">
                   {formatPrice(item.price_amount, item.price_unit)}
                 </span>
                 <span className="text-content-tertiary text-xs">{item.deployments} deployed</span>
@@ -343,7 +359,7 @@ export function ServiceCatalog() {
                           ? 'text-status-text-warning bg-amber-500/20'
                           : st === 'rejected'
                             ? 'text-status-text-error bg-red-500/20'
-                            : 'text-content-secondary bg-gray-500/20'
+                            : 'text-content-secondary bg-content-tertiary/20'
                     return (
                       <tr key={req.id as string} className="border-t border-border">
                         <td className="px-4 py-3 text-content-primary">{req.item_name as string}</td>

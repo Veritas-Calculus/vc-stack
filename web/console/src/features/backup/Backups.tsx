@@ -72,7 +72,7 @@ export function Backups() {
     if (s === 'ready') return 'bg-emerald-500/15 text-status-text-success'
     if (s === 'creating' || s === 'restoring') return 'bg-blue-500/15 text-accent'
     if (s === 'error') return 'bg-red-500/15 text-status-text-error'
-    return 'bg-gray-500/15 text-content-secondary'
+    return 'bg-content-tertiary/15 text-content-secondary'
   }
 
   const formatSize = (b: number) => {
@@ -197,7 +197,7 @@ export function Backups() {
                     <div className="flex justify-between">
                       <span className="text-content-tertiary">Status</span>
                       <span
-                        className={`px-2 py-0.5 rounded text-xs ${o.enabled ? 'bg-emerald-500/15 text-status-text-success' : 'bg-gray-500/15 text-content-secondary'}`}
+                        className={`px-2 py-0.5 rounded text-xs ${o.enabled ? 'bg-emerald-500/15 text-status-text-success' : 'bg-content-tertiary/15 text-content-secondary'}`}
                       >
                         {o.enabled ? 'Enabled' : 'Disabled'}
                       </span>

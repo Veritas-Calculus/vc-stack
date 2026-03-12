@@ -93,7 +93,7 @@ export default function Migrations() {
             className={`px-3 py-1 text-xs rounded-full transition-colors ${
               filter === f
                 ? 'bg-blue-500/20 text-accent border border-blue-500/50'
-                : 'bg-white/5 text-content-secondary border border-white/10 hover:bg-surface-hover'
+                : 'bg-surface-hover text-content-secondary border border-border hover:bg-surface-hover'
             }`}
           >
             {filterLabels[f]}
@@ -115,7 +115,7 @@ export default function Migrations() {
           {migrations.map((m) => (
             <div
               key={m.id}
-              className="p-4 rounded-lg bg-white/5 border border-white/10 hover:bg-white/[0.07] transition-colors"
+              className="p-4 rounded-lg bg-surface-hover border border-border hover:bg-white/[0.07] transition-colors"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="space-y-2 flex-1">
@@ -130,7 +130,7 @@ export default function Migrations() {
                     <span className="font-mono">{m.dest_host_name || 'unknown'}</span>
                   </div>
                   {(m.status === 'migrating' || m.status === 'preparing') && (
-                    <div className="w-full bg-white/10 rounded-full h-1.5 mt-1">
+                    <div className="w-full bg-surface-hover rounded-full h-1.5 mt-1">
                       <div
                         className="bg-blue-500 h-1.5 rounded-full transition-all duration-500"
                         style={{ width: `${m.progress}%` }}

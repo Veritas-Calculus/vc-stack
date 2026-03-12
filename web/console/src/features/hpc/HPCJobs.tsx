@@ -86,14 +86,14 @@ export function HPCJobs() {
 
   const statusBadge = (s: string) => {
     const m: Record<string, string> = {
-      pending: 'bg-gray-500/20 text-content-secondary',
+      pending: 'bg-content-tertiary/20 text-content-secondary',
       queued: 'bg-amber-500/20 text-status-text-warning',
       running: 'bg-blue-500/20 text-accent animate-pulse',
       completed: 'bg-emerald-500/20 text-status-text-success',
       failed: 'bg-red-500/20 text-status-text-error',
-      cancelled: 'bg-gray-500/20 text-content-tertiary'
+      cancelled: 'bg-content-tertiary/20 text-content-tertiary'
     }
-    return `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${m[s] || 'bg-gray-500/20 text-content-secondary'}`
+    return `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${m[s] || 'bg-content-tertiary/20 text-content-secondary'}`
   }
 
   const schedulerBadge = (s: string) => {
@@ -101,7 +101,7 @@ export function HPCJobs() {
       kubernetes: 'bg-blue-500/15 text-accent border border-blue-500/30',
       slurm: 'bg-orange-500/15 text-status-orange border border-orange-500/30'
     }
-    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-content-secondary'}`
+    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-content-tertiary/20 text-content-secondary'}`
   }
 
   const formatDuration = (start: string | null, end: string | null) => {
@@ -150,18 +150,18 @@ export function HPCJobs() {
             color: 'text-accent',
             dot: 'bg-blue-400 animate-pulse'
           },
-          { label: 'Queued', value: queuedCount, color: 'text-status-text-warning', dot: 'bg-amber-400' },
+          { label: 'Queued', value: queuedCount, color: 'text-accent', dot: 'bg-amber-400' },
           {
             label: 'Completed',
             value: completedCount,
-            color: 'text-status-text-success',
+            color: 'text-accent',
             dot: 'bg-emerald-400'
           },
-          { label: 'Failed', value: failedCount, color: 'text-status-text-error', dot: 'bg-red-400' },
+          { label: 'Failed', value: failedCount, color: 'text-accent', dot: 'bg-red-400' },
           {
             label: 'GPUs In Use',
             value: totalGPUsUsed,
-            color: 'text-status-purple',
+            color: 'text-accent',
             dot: 'bg-purple-400'
           }
         ].map((s) => (
@@ -185,7 +185,7 @@ export function HPCJobs() {
                 onClick={() => setFilterStatus(s)}
                 className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${
                   filterStatus === s
-                    ? 'bg-white/10 text-content-primary'
+                    ? 'bg-surface-hover text-content-primary'
                     : 'text-content-tertiary hover:text-content-secondary'
                 }`}
               >
@@ -201,7 +201,7 @@ export function HPCJobs() {
               onClick={() => setFilterScheduler(s)}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${
                 filterScheduler === s
-                  ? 'bg-white/10 text-content-primary'
+                  ? 'bg-surface-hover text-content-primary'
                   : 'text-content-tertiary hover:text-content-secondary'
               }`}
             >
@@ -351,7 +351,7 @@ export function HPCJobs() {
             </div>
           )}
           {selectedJob.script && (
-            <div className="mt-3 bg-gray-900/50 rounded-lg p-4 border border-border">
+            <div className="mt-3 bg-surface-primary/50 rounded-lg p-4 border border-border">
               <div className="text-content-tertiary text-xs mb-2">Script</div>
               <pre className="text-content-secondary text-xs font-mono whitespace-pre-wrap">
                 {selectedJob.script}
@@ -384,7 +384,7 @@ export function HPCJobs() {
           onClick={() => setShowManifest(false)}
         >
           <div
-            className="bg-gray-800 border border-border rounded-xl p-6 w-[700px] max-h-[80vh] overflow-y-auto"
+            className="bg-surface-secondary border border-border rounded-xl p-6 w-[700px] max-h-[80vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
@@ -396,7 +396,7 @@ export function HPCJobs() {
                 {Icons.xMark('w-5 h-5')}
               </button>
             </div>
-            <pre className="bg-gray-900 rounded-lg p-4 text-xs font-mono text-content-secondary overflow-auto max-h-[60vh] whitespace-pre-wrap">
+            <pre className="bg-surface-primary rounded-lg p-4 text-xs font-mono text-content-secondary overflow-auto max-h-[60vh] whitespace-pre-wrap">
               {manifestData}
             </pre>
           </div>
@@ -442,7 +442,7 @@ function SubmitJobModal({
   }
 
   const inputClass =
-    'w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:outline-none focus:border-blue-500 transition'
+    'w-full bg-surface-hover/50 border border-border-strong rounded-lg px-3 py-2 text-content-primary text-sm focus:outline-none focus:border-accent transition'
   const labelClass = 'block text-xs text-content-secondary mb-1'
 
   return (
@@ -451,7 +451,7 @@ function SubmitJobModal({
       onClick={onClose}
     >
       <div
-        className="bg-gray-800 border border-border rounded-xl p-6 w-[640px] max-h-[85vh] overflow-y-auto"
+        className="bg-surface-secondary border border-border rounded-xl p-6 w-[640px] max-h-[85vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-lg font-semibold text-content-primary mb-5">Submit HPC Job</h2>
@@ -469,7 +469,7 @@ function SubmitJobModal({
                       ? s === 'kubernetes'
                         ? 'bg-blue-600/20 border-blue-500/40 text-accent'
                         : 'bg-orange-600/20 border-orange-500/40 text-status-orange'
-                      : 'bg-surface-hover border-gray-600/30 text-content-tertiary hover:text-content-secondary'
+                      : 'bg-surface-hover border-border text-content-tertiary hover:text-content-secondary'
                   }`}
                 >
                   {s === 'kubernetes' ? 'Kubernetes (Volcano/MPI)' : 'Slurm'}

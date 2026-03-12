@@ -156,14 +156,14 @@ export function DisasterRecovery() {
       active: 'bg-emerald-500/20 text-status-text-success',
       primary: 'bg-blue-500/20 text-accent',
       warm_standby: 'bg-amber-500/20 text-status-text-warning',
-      cold_standby: 'bg-gray-500/20 text-content-secondary',
+      cold_standby: 'bg-content-tertiary/20 text-content-secondary',
       offline: 'bg-red-500/20 text-status-text-error',
       failover_active: 'bg-purple-500/20 text-status-purple',
       degraded: 'bg-orange-500/20 text-status-orange',
       critical: 'bg-red-500/20 text-status-text-error',
       high: 'bg-orange-500/20 text-status-orange',
       medium: 'bg-amber-500/20 text-status-text-warning',
-      low: 'bg-gray-500/20 text-content-secondary',
+      low: 'bg-content-tertiary/20 text-content-secondary',
       completed: 'bg-emerald-500/20 text-status-text-success',
       failed: 'bg-red-500/20 text-status-text-error',
       running: 'bg-blue-500/20 text-accent',
@@ -174,7 +174,7 @@ export function DisasterRecovery() {
       failback: 'bg-emerald-500/20 text-status-text-success',
       switchover: 'bg-amber-500/20 text-status-text-warning'
     }
-    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-content-secondary'}`
+    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-content-tertiary/20 text-content-secondary'}`
   }
 
   const tabs: { key: Tab; label: string }[] = [
@@ -240,21 +240,21 @@ export function DisasterRecovery() {
                 label: 'Active Plans',
                 value: String(status.active_plans),
                 icon: Icons.pencil('w-5 h-5'),
-                color: 'text-status-cyan',
+                color: 'text-accent',
                 sub: 'RPO/RTO monitored'
               },
               {
                 label: 'Protected Resources',
                 value: String(status.protected_resources),
                 icon: Icons.shieldCheck('w-5 h-5'),
-                color: 'text-status-text-success',
+                color: 'text-accent',
                 sub: 'replicated'
               },
               {
                 label: 'Failover Events',
                 value: String(status.failover_events),
                 icon: Icons.bolt('w-5 h-5'),
-                color: 'text-status-text-warning',
+                color: 'text-accent',
                 sub: 'total'
               }
             ].map((s) => (
@@ -389,7 +389,7 @@ export function DisasterRecovery() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div
-                    className={`w-14 h-14 rounded-lg flex items-center justify-center text-2xl ${site.type === 'primary' ? 'bg-blue-500/20' : site.type === 'warm_standby' ? 'bg-amber-500/20' : 'bg-gray-500/20'}`}
+                    className={`w-14 h-14 rounded-lg flex items-center justify-center text-2xl ${site.type === 'primary' ? 'bg-blue-500/20' : site.type === 'warm_standby' ? 'bg-amber-500/20' : 'bg-content-tertiary/20'}`}
                   >
                     {site.type === 'primary'
                       ? Icons.building('w-4 h-4')
