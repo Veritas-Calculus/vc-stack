@@ -46,7 +46,7 @@ function TreeNode({ node, onPick, openMap, setOpenMap, query }: TreeNodeProps) {
           className="text-left text-sm text-gray-200 hover:underline"
           onClick={() => setOpenMap(group.id, !isOpen)}
         >
-          {isOpen ? '▾' : '▸'} {group.name}
+          {isOpen ? '-' : '+'} {group.name}
         </button>
         {isOpen && (
           <div className="ml-4 border-l border-oxide-800 pl-2">

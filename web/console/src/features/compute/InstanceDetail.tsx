@@ -821,7 +821,7 @@ export default function InstanceDetail() {
                   <ul className="space-y-1">
                     {diagnostics.issues.map((issue, i) => (
                       <li key={i} className="text-sm text-red-300 flex items-start gap-2">
-                        <span className="text-red-500 mt-0.5">●</span>
+                        <span className="inline-block w-2 h-2 rounded-full bg-red-500 mt-0.5"></span>
                         {issue}
                       </li>
                     ))}
@@ -988,7 +988,7 @@ function DiagRow({ label, ok }: { label: string; ok: boolean }) {
   return (
     <div className="flex items-center justify-between text-sm">
       <span className="text-gray-400">{label}</span>
-      <span className={ok ? 'text-emerald-400' : 'text-red-400'}>{ok ? '● OK' : '● FAIL'}</span>
+      <span className={ok ? 'text-emerald-400' : 'text-red-400'}>{ok ? 'OK' : 'FAIL'}</span>
     </div>
   )
 }

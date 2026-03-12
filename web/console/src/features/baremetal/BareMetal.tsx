@@ -145,7 +145,7 @@ export function BareMetal() {
         </div>
         {status && (
           <span className="px-3 py-1 rounded-lg border border-emerald-500/30 text-emerald-400 text-sm">
-            ● Operational
+            Operational
           </span>
         )}
       </div>

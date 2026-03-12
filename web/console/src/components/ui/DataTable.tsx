@@ -66,7 +66,7 @@ export function DataTable<T extends Record<string, unknown>>({
                     ? null
                     : sortKey === c.key && (
                         <span className="text-xs text-gray-500">
-                          {sortDir === 'asc' ? '▲' : '▼'}
+                          {sortDir === 'asc' ? '^' : 'v'}
                         </span>
                       )}
                 </span>

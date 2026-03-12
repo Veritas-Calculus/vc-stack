@@ -336,9 +336,9 @@ export function ComplianceAudit() {
                     </td>
                     <td className="px-4 py-3">
                       {p.enabled ? (
-                        <span className="text-emerald-400 text-xs">●</span>
+                        <span className="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
                       ) : (
-                        <span className="text-gray-500 text-xs">○</span>
+                        <span className="inline-block w-2 h-2 rounded-full border border-gray-500"></span>
                       )}
                     </td>
                   </tr>
@@ -551,9 +551,9 @@ export function ComplianceAudit() {
                         {fw.score}%
                       </div>
                       {fw.enabled ? (
-                        <span className="text-emerald-400 text-xs">● active</span>
+                        <span className="flex items-center gap-1 text-emerald-400 text-xs"><span className="inline-block w-2 h-2 rounded-full bg-emerald-400"></span> active</span>
                       ) : (
-                        <span className="text-gray-500 text-xs">○ disabled</span>
+                        <span className="flex items-center gap-1 text-gray-500 text-xs"><span className="inline-block w-2 h-2 rounded-full border border-gray-500"></span> disabled</span>
                       )}
                     </div>
                   </div>

@@ -108,7 +108,7 @@ export function SelfHealing() {
           )}
           {status && (
             <span className="px-3 py-1 rounded-lg border border-emerald-500/30 text-emerald-400 text-sm">
-              ● Active
+              Active
             </span>
           )}
         </div>

@@ -344,7 +344,7 @@ function TreeItem({
           </button>
         )}
         {!hasChildren && <span className="w-4" />}
-        <span className="text-xs text-gray-500">{d.parent_id === null ? '◆' : '○'}</span>
+        <span className="text-xs text-gray-500">{d.parent_id === null ? 'Root' : 'Sub'}</span>
         <span className="font-medium">{d.name}</span>
         {d.state !== 'active' && (
           <span className="px-1 py-0.5 rounded text-[10px] bg-red-500/20 text-red-400">
