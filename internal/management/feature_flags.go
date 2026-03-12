@@ -185,6 +185,22 @@ func (ff *FeatureFlags) ApplyToModulesConfig(mc *ModulesConfig) {
 			mc.EnableConfigCtr = ptr
 		case "eventbus":
 			mc.EnableEventBus = ptr
+		case "redis":
+			mc.EnableRedis = ptr
+		case "natgateway":
+			mc.EnableNATGW = ptr
+		case "abac":
+			mc.EnableABAC = ptr
+		case "tidb":
+			mc.EnableTiDB = ptr
+		case "elasticsearch":
+			mc.EnableES = ptr
+		case "invoice":
+			mc.EnableInvoice = ptr
+		case "stackdrift":
+			mc.EnableStackDrift = ptr
+		case "gpuscheduler":
+			mc.EnableGPU = ptr
 		}
 		return true
 	})

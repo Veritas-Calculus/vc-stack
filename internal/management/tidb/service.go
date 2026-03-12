@@ -63,20 +63,22 @@ func (TiDBBackup) TableName() string { return "tidb_backups" }
 // ──────────────────────────────────────────────────────────────────────
 
 type Config struct {
-	DB     *gorm.DB
-	Logger *zap.Logger
+	DB        *gorm.DB
+	Logger    *zap.Logger
+	JWTSecret string
 }
 
 type Service struct {
-	db     *gorm.DB
-	logger *zap.Logger
+	db        *gorm.DB
+	logger    *zap.Logger
+	jwtSecret string
 }
 
 func NewService(cfg Config) (*Service, error) {
 	if err := cfg.DB.AutoMigrate(&Cluster{}, &TiDBBackup{}); err != nil {
 		return nil, fmt.Errorf("tidb auto-migrate: %w", err)
 	}
-	return &Service{db: cfg.DB, logger: cfg.Logger}, nil
+	return &Service{db: cfg.DB, logger: cfg.Logger, jwtSecret: cfg.JWTSecret}, nil
 }
 
 type CreateClusterRequest struct {
@@ -155,9 +157,9 @@ func (s *Service) ListBackups(clusterID uint) ([]TiDBBackup, error) {
 // HTTP Handlers
 // ──────────────────────────────────────────────────────────────────────
 
-func (s *Service) SetupRoutes(router *gin.Engine, jwtSecret string) {
+func (s *Service) SetupRoutes(router *gin.Engine) {
 	api := router.Group("/api/v1/tidb")
-	api.Use(middleware.AuthMiddleware(jwtSecret, s.logger))
+	api.Use(middleware.AuthMiddleware(s.jwtSecret, s.logger))
 	{
 		api.GET("/clusters", s.handleList)
 		api.POST("/clusters", s.handleCreate)

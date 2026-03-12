@@ -60,6 +60,14 @@ type ModulesConfig struct {
 	EnableConfigCtr  *bool `json:"enable_configcenter" yaml:"enable_configcenter"`
 	EnableEventBus   *bool `json:"enable_eventbus" yaml:"enable_eventbus"`
 	EnableHPC        *bool `json:"enable_hpc" yaml:"enable_hpc"`
+	EnableRedis      *bool `json:"enable_redis" yaml:"enable_redis"`
+	EnableNATGW      *bool `json:"enable_natgateway" yaml:"enable_natgateway"`
+	EnableABAC       *bool `json:"enable_abac" yaml:"enable_abac"`
+	EnableTiDB       *bool `json:"enable_tidb" yaml:"enable_tidb"`
+	EnableES         *bool `json:"enable_elasticsearch" yaml:"enable_elasticsearch"`
+	EnableInvoice    *bool `json:"enable_invoice" yaml:"enable_invoice"`
+	EnableStackDrift *bool `json:"enable_stackdrift" yaml:"enable_stackdrift"`
+	EnableGPU        *bool `json:"enable_gpu" yaml:"enable_gpu"`
 }
 
 // isEnabled returns whether a module flag is enabled (defaults to true if nil).

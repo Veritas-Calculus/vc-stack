@@ -18,34 +18,43 @@ import (
 	"github.com/Veritas-Calculus/vc-stack/internal/management/dns"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/domain"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/dr"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/elasticsearch"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/encryption"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/event"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/eventbus"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/gateway"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/gpuscheduler"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/ha"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/host"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/hpc"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/identity"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/image"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/invoice"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/kms"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/metadata"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/monitoring"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/natgateway"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/network"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/notification"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/objectstorage"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/orchestration"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/quota"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/ratelimit"
+	managedredis "github.com/Veritas-Calculus/vc-stack/internal/management/redis"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/region"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/registry"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/scheduler"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/selfheal"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/stackdrift"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/storage"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/tag"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/task"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/tidb"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/tools"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/usage"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/vpn"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/abac"
 
 	"github.com/Veritas-Calculus/vc-stack/pkg/dlock"
 	"github.com/Veritas-Calculus/vc-stack/pkg/mq"
@@ -135,6 +144,15 @@ type Service struct {
 	EventBus      *eventbus.Service
 	HPC           *hpc.Service
 	Region        *region.Service
+	// ── N7-N9 modules ────────────────────────────────────────────
+	RedisManaged *managedredis.Service
+	NATGateway   *natgateway.Service
+	ABAC         *abac.Service
+	TiDB         *tidb.Service
+	Elastic      *elasticsearch.Service
+	Invoice      *invoice.Service
+	StackDrift   *stackdrift.Service
+	GPUScheduler *gpuscheduler.Service
 
 	// ── Module registry (new: interface-based) ────────────────────────
 	modules map[string]Module

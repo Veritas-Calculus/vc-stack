@@ -64,13 +64,15 @@ type GPUProfile struct {
 // ──────────────────────────────────────────────────────────────────────
 
 type Config struct {
-	DB     *gorm.DB
-	Logger *zap.Logger
+	DB        *gorm.DB
+	Logger    *zap.Logger
+	JWTSecret string
 }
 
 type Service struct {
-	db     *gorm.DB
-	logger *zap.Logger
+	db        *gorm.DB
+	logger    *zap.Logger
+	jwtSecret string
 }
 
 func NewService(cfg Config) (*Service, error) {
@@ -89,7 +91,7 @@ func NewService(cfg Config) (*Service, error) {
 	for _, d := range defaults {
 		cfg.DB.Where("name = ?", d.Name).FirstOrCreate(&d)
 	}
-	return &Service{db: cfg.DB, logger: cfg.Logger}, nil
+	return &Service{db: cfg.DB, logger: cfg.Logger, jwtSecret: cfg.JWTSecret}, nil
 }
 
 // ── Physical GPU Management ─────────────────────────────────
@@ -163,9 +165,9 @@ func (s *Service) ListProfiles() ([]GPUProfile, error) {
 // HTTP Handlers
 // ──────────────────────────────────────────────────────────────────────
 
-func (s *Service) SetupRoutes(router *gin.Engine, jwtSecret string) {
+func (s *Service) SetupRoutes(router *gin.Engine) {
 	api := router.Group("/api/v1/gpu")
-	api.Use(middleware.AuthMiddleware(jwtSecret, s.logger))
+	api.Use(middleware.AuthMiddleware(s.jwtSecret, s.logger))
 	{
 		api.GET("/physical", s.handleListGPUs)
 		api.POST("/physical", s.handleRegister)

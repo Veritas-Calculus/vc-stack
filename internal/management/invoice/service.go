@@ -55,20 +55,22 @@ type LineItem struct {
 // ──────────────────────────────────────────────────────────────────────
 
 type Config struct {
-	DB     *gorm.DB
-	Logger *zap.Logger
+	DB        *gorm.DB
+	Logger    *zap.Logger
+	JWTSecret string
 }
 
 type Service struct {
-	db     *gorm.DB
-	logger *zap.Logger
+	db        *gorm.DB
+	logger    *zap.Logger
+	jwtSecret string
 }
 
 func NewService(cfg Config) (*Service, error) {
 	if err := cfg.DB.AutoMigrate(&Invoice{}, &LineItem{}); err != nil {
 		return nil, fmt.Errorf("invoice auto-migrate: %w", err)
 	}
-	return &Service{db: cfg.DB, logger: cfg.Logger}, nil
+	return &Service{db: cfg.DB, logger: cfg.Logger, jwtSecret: cfg.JWTSecret}, nil
 }
 
 // ── Invoice Operations ───────────────────────────────────────
@@ -138,9 +140,9 @@ func (s *Service) Get(id uint) (*Invoice, error) {
 // HTTP Handlers
 // ──────────────────────────────────────────────────────────────────────
 
-func (s *Service) SetupRoutes(router *gin.Engine, jwtSecret string) {
+func (s *Service) SetupRoutes(router *gin.Engine) {
 	api := router.Group("/api/v1/invoices")
-	api.Use(middleware.AuthMiddleware(jwtSecret, s.logger))
+	api.Use(middleware.AuthMiddleware(s.jwtSecret, s.logger))
 	{
 		api.GET("", s.handleList)
 		api.POST("/generate", s.handleGenerate)

@@ -17,33 +17,42 @@ import (
 	"github.com/Veritas-Calculus/vc-stack/internal/management/dns"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/domain"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/dr"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/elasticsearch"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/encryption"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/event"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/eventbus"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/gateway"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/gpuscheduler"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/ha"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/host"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/hpc"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/identity"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/image"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/invoice"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/kms"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/metadata"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/monitoring"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/natgateway"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/network"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/notification"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/objectstorage"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/orchestration"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/quota"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/ratelimit"
+	managedredis "github.com/Veritas-Calculus/vc-stack/internal/management/redis"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/registry"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/scheduler"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/selfheal"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/stackdrift"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/storage"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/tag"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/task"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/tools"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/usage"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/vpn"
+
+	"github.com/Veritas-Calculus/vc-stack/internal/management/abac"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/tidb"
 )
 
 // RegisterCoreModules registers all core modules that cannot be disabled.
@@ -527,6 +536,79 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 				svc.HPC = s
 				return nil
 			}},
+		// ── N7-N9 modules ──
+		{"redis", func(mc ModulesConfig) bool { return isEnabled(mc.EnableRedis) }, nil,
+			func(svc *Service, cfg Config) error {
+				s, err := managedredis.NewService(managedredis.Config{DB: cfg.DB, Logger: cfg.Logger.Named("redis"), JWTSecret: cfg.JWTSecret})
+				if err != nil {
+					return err
+				}
+				svc.RedisManaged = s
+				return nil
+			}},
+		{"natgateway", func(mc ModulesConfig) bool { return isEnabled(mc.EnableNATGW) }, nil,
+			func(svc *Service, cfg Config) error {
+				s, err := natgateway.NewService(natgateway.Config{DB: cfg.DB, Logger: cfg.Logger.Named("natgateway"), JWTSecret: cfg.JWTSecret})
+				if err != nil {
+					return err
+				}
+				svc.NATGateway = s
+				return nil
+			}},
+		{"abac", func(mc ModulesConfig) bool { return isEnabled(mc.EnableABAC) }, nil,
+			func(svc *Service, cfg Config) error {
+				s, err := abac.NewService(abac.Config{DB: cfg.DB, Logger: cfg.Logger.Named("abac"), JWTSecret: cfg.JWTSecret})
+				if err != nil {
+					return err
+				}
+				svc.ABAC = s
+				return nil
+			}},
+		{"tidb", func(mc ModulesConfig) bool { return isEnabled(mc.EnableTiDB) }, nil,
+			func(svc *Service, cfg Config) error {
+				s, err := tidb.NewService(tidb.Config{DB: cfg.DB, Logger: cfg.Logger.Named("tidb"), JWTSecret: cfg.JWTSecret})
+				if err != nil {
+					return err
+				}
+				svc.TiDB = s
+				return nil
+			}},
+		{"elasticsearch", func(mc ModulesConfig) bool { return isEnabled(mc.EnableES) }, nil,
+			func(svc *Service, cfg Config) error {
+				s, err := elasticsearch.NewService(elasticsearch.Config{DB: cfg.DB, Logger: cfg.Logger.Named("elasticsearch"), JWTSecret: cfg.JWTSecret})
+				if err != nil {
+					return err
+				}
+				svc.Elastic = s
+				return nil
+			}},
+		{"invoice", func(mc ModulesConfig) bool { return isEnabled(mc.EnableInvoice) }, nil,
+			func(svc *Service, cfg Config) error {
+				s, err := invoice.NewService(invoice.Config{DB: cfg.DB, Logger: cfg.Logger.Named("invoice"), JWTSecret: cfg.JWTSecret})
+				if err != nil {
+					return err
+				}
+				svc.Invoice = s
+				return nil
+			}},
+		{"stackdrift", func(mc ModulesConfig) bool { return isEnabled(mc.EnableStackDrift) }, nil,
+			func(svc *Service, cfg Config) error {
+				s, err := stackdrift.NewService(stackdrift.Config{DB: cfg.DB, Logger: cfg.Logger.Named("stackdrift"), JWTSecret: cfg.JWTSecret})
+				if err != nil {
+					return err
+				}
+				svc.StackDrift = s
+				return nil
+			}},
+		{"gpuscheduler", func(mc ModulesConfig) bool { return isEnabled(mc.EnableGPU) }, nil,
+			func(svc *Service, cfg Config) error {
+				s, err := gpuscheduler.NewService(gpuscheduler.Config{DB: cfg.DB, Logger: cfg.Logger.Named("gpuscheduler"), JWTSecret: cfg.JWTSecret})
+				if err != nil {
+					return err
+				}
+				svc.GPUScheduler = s
+				return nil
+			}},
 	}
 
 	for _, sm := range simples {
@@ -645,7 +727,39 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 				}
 			case "hpc":
 				if svc.HPC != nil {
-					svc.RegisterModule(svc.HPC) // HPC implements Module directly (Name + SetupRoutes)
+					svc.RegisterModule(svc.HPC)
+				}
+			case "redis":
+				if svc.RedisManaged != nil {
+					svc.RegisterModule(WrapModule(capturedName, svc.RedisManaged))
+				}
+			case "natgateway":
+				if svc.NATGateway != nil {
+					svc.RegisterModule(WrapModule(capturedName, svc.NATGateway))
+				}
+			case "abac":
+				if svc.ABAC != nil {
+					svc.RegisterModule(WrapModule(capturedName, svc.ABAC))
+				}
+			case "tidb":
+				if svc.TiDB != nil {
+					svc.RegisterModule(WrapModule(capturedName, svc.TiDB))
+				}
+			case "elasticsearch":
+				if svc.Elastic != nil {
+					svc.RegisterModule(WrapModule(capturedName, svc.Elastic))
+				}
+			case "invoice":
+				if svc.Invoice != nil {
+					svc.RegisterModule(WrapModule(capturedName, svc.Invoice))
+				}
+			case "stackdrift":
+				if svc.StackDrift != nil {
+					svc.RegisterModule(WrapModule(capturedName, svc.StackDrift))
+				}
+			case "gpuscheduler":
+				if svc.GPUScheduler != nil {
+					svc.RegisterModule(WrapModule(capturedName, svc.GPUScheduler))
 				}
 			}
 			return nil
