@@ -17,7 +17,10 @@ import {
   fetchHealthStatus,
   getInstallScriptURL,
   resolveApiBase,
-  testHostConnection
+  testHostConnection,
+  fetchStoragePools,
+  createStoragePool,
+  deleteStoragePool
 } from '@/lib/api'
 import { toast } from '@/lib/toast'
 import { Modal } from '@/components/ui/Modal'
@@ -297,17 +300,17 @@ function Zones() {
     header: string
     render?: (row: ZoneRow) => React.ReactNode
   }[] = [
-    { key: 'name', header: 'Name' },
-    {
-      key: 'allocation',
-      header: 'Allocation state',
-      render: (r) => (
-        <Badge variant={r.allocation === 'enabled' ? 'success' : 'warning'}>{r.allocation}</Badge>
-      )
-    },
-    { key: 'type', header: 'Type', render: (r) => <span className="uppercase">{r.type}</span> },
-    { key: 'networkType', header: 'Network Type' }
-  ]
+      { key: 'name', header: 'Name' },
+      {
+        key: 'allocation',
+        header: 'Allocation state',
+        render: (r) => (
+          <Badge variant={r.allocation === 'enabled' ? 'success' : 'warning'}>{r.allocation}</Badge>
+        )
+      },
+      { key: 'type', header: 'Type', render: (r) => <span className="uppercase">{r.type}</span> },
+      { key: 'networkType', header: 'Network Type' }
+    ]
 
   return (
     <div className="space-y-3">
@@ -467,43 +470,43 @@ function Clusters() {
     header: string
     render?: (row: ClusterRow) => React.ReactNode
   }[] = [
-    { key: 'name', header: 'Name' },
-    {
-      key: 'zone_id',
-      header: 'Zone',
-      render: (r) => r.zone_id || '—'
-    },
-    { key: 'hypervisor_type', header: 'Hypervisor' },
-    {
-      key: 'allocation',
-      header: 'Allocation',
-      render: (r) => (
-        <Badge variant={r.allocation === 'enabled' ? 'success' : 'warning'}>{r.allocation}</Badge>
-      )
-    },
-    { key: 'description', header: 'Description' },
-    {
-      key: 'id',
-      header: 'Actions',
-      render: (r) => (
-        <button
-          className="btn btn-sm text-red-400 hover:text-red-300"
-          onClick={async () => {
-            if (!confirm(`Delete cluster "${r.name}"?`)) return
-            try {
-              await deleteCluster(r.id)
-              setRows((prev) => prev.filter((c) => c.id !== r.id))
-              toast.success('Cluster deleted')
-            } catch {
-              toast.error('Failed to delete cluster')
-            }
-          }}
-        >
-          Delete
-        </button>
-      )
-    }
-  ]
+      { key: 'name', header: 'Name' },
+      {
+        key: 'zone_id',
+        header: 'Zone',
+        render: (r) => r.zone_id || '—'
+      },
+      { key: 'hypervisor_type', header: 'Hypervisor' },
+      {
+        key: 'allocation',
+        header: 'Allocation',
+        render: (r) => (
+          <Badge variant={r.allocation === 'enabled' ? 'success' : 'warning'}>{r.allocation}</Badge>
+        )
+      },
+      { key: 'description', header: 'Description' },
+      {
+        key: 'id',
+        header: 'Actions',
+        render: (r) => (
+          <button
+            className="btn btn-sm text-red-400 hover:text-red-300"
+            onClick={async () => {
+              if (!confirm(`Delete cluster "${r.name}"?`)) return
+              try {
+                await deleteCluster(r.id)
+                setRows((prev) => prev.filter((c) => c.id !== r.id))
+                toast.success('Cluster deleted')
+              } catch {
+                toast.error('Failed to delete cluster')
+              }
+            }}
+          >
+            Delete
+          </button>
+        )
+      }
+    ]
 
   return (
     <div className="card p-4">
@@ -654,7 +657,7 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     fetchZones()
       .then((z) => setZones(z.map((x) => ({ id: x.id, name: x.name }))))
-      .catch(() => {})
+      .catch(() => { })
   }, [])
 
   const scriptURL = useMemo(
@@ -801,9 +804,8 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
         {(['script', 'ssh', 'manual'] as const).map((t) => (
           <button
             key={t}
-            className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-              tab === t ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-gray-200'
-            }`}
+            className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${tab === t ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-gray-200'
+              }`}
             onClick={() => setTab(t)}
           >
             {t === 'script' ? 'Install Script' : t === 'ssh' ? 'SSH Deploy' : 'Manual'}
@@ -962,13 +964,12 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
                 {deploySteps.map((evt, i) => (
                   <div
                     key={i}
-                    className={`text-xs font-mono py-0.5 ${
-                      evt.status === 'error'
-                        ? 'text-red-400'
-                        : evt.status === 'success' || evt.status === 'done'
-                          ? 'text-emerald-400'
-                          : 'text-gray-400'
-                    }`}
+                    className={`text-xs font-mono py-0.5 ${evt.status === 'error'
+                      ? 'text-red-400'
+                      : evt.status === 'success' || evt.status === 'done'
+                        ? 'text-emerald-400'
+                        : 'text-gray-400'
+                      }`}
                   >
                     <span className="text-gray-600 mr-2">
                       [{evt.step}/{evt.total}]
@@ -1217,65 +1218,65 @@ function Hosts() {
     headerRender?: React.ReactNode
     className?: string
   }[] = [
-    {
-      key: '__sel__',
-      header: '',
-      headerRender: (
-        <input
-          type="checkbox"
-          aria-label="Select all"
-          checked={rows.length > 0 && rows.every((r) => selectedIds.has(r.id))}
-          onChange={(e) => {
-            if (e.target.checked) setSelectedIds(new Set(rows.map((r) => r.id)))
-            else setSelectedIds(new Set())
-          }}
-        />
-      ),
-      render: (r) => (
-        <input
-          type="checkbox"
-          aria-label={`Select ${r.name}`}
-          checked={selectedIds.has(r.id)}
-          onChange={(e) => {
-            e.stopPropagation()
-            setSelectedIds((prev) => {
-              const next = new Set(prev)
-              if (e.target.checked) next.add(r.id)
-              else next.delete(r.id)
-              return next
-            })
-          }}
-          onClick={(e) => e.stopPropagation()}
-        />
-      ),
-      className: 'w-8'
-    },
-    { key: 'name', header: 'Name' },
-    {
-      key: 'state',
-      header: 'State',
-      render: (r: HostRow) => (
-        <Badge
-          variant={r.state === 'up' ? 'success' : r.state === 'connecting' ? 'warning' : 'danger'}
-        >
-          {r.state}
-        </Badge>
-      )
-    },
-    {
-      key: 'resourceState',
-      header: 'Resource State',
-      render: (r: HostRow) => (
-        <Badge variant={r.resourceState === 'enabled' ? 'success' : 'warning'}>
-          {r.resourceState}
-        </Badge>
-      )
-    },
-    { key: 'ip', header: 'IP' },
-    { key: 'arch', header: 'Arch' },
-    { key: 'hypervisor', header: 'Hypervisor' },
-    { key: 'version', header: 'Version' }
-  ]
+      {
+        key: '__sel__',
+        header: '',
+        headerRender: (
+          <input
+            type="checkbox"
+            aria-label="Select all"
+            checked={rows.length > 0 && rows.every((r) => selectedIds.has(r.id))}
+            onChange={(e) => {
+              if (e.target.checked) setSelectedIds(new Set(rows.map((r) => r.id)))
+              else setSelectedIds(new Set())
+            }}
+          />
+        ),
+        render: (r) => (
+          <input
+            type="checkbox"
+            aria-label={`Select ${r.name}`}
+            checked={selectedIds.has(r.id)}
+            onChange={(e) => {
+              e.stopPropagation()
+              setSelectedIds((prev) => {
+                const next = new Set(prev)
+                if (e.target.checked) next.add(r.id)
+                else next.delete(r.id)
+                return next
+              })
+            }}
+            onClick={(e) => e.stopPropagation()}
+          />
+        ),
+        className: 'w-8'
+      },
+      { key: 'name', header: 'Name' },
+      {
+        key: 'state',
+        header: 'State',
+        render: (r: HostRow) => (
+          <Badge
+            variant={r.state === 'up' ? 'success' : r.state === 'connecting' ? 'warning' : 'danger'}
+          >
+            {r.state}
+          </Badge>
+        )
+      },
+      {
+        key: 'resourceState',
+        header: 'Resource State',
+        render: (r: HostRow) => (
+          <Badge variant={r.resourceState === 'enabled' ? 'success' : 'warning'}>
+            {r.resourceState}
+          </Badge>
+        )
+      },
+      { key: 'ip', header: 'IP' },
+      { key: 'arch', header: 'Arch' },
+      { key: 'hypervisor', header: 'Hypervisor' },
+      { key: 'version', header: 'Version' }
+    ]
 
   return (
     <div className="space-y-3">
@@ -1389,18 +1390,313 @@ function Hosts() {
 }
 function PrimaryStorage() {
   return (
-    <div className="card p-4">
-      <PageHeader title="Primary Storage" subtitle="VM disk storage (Ceph RBD)" />
-    </div>
+    <StoragePoolManager
+      scope="primary"
+      title="Primary Storage"
+      subtitle="VM disk storage pools (Ceph RBD / Local)"
+    />
   )
 }
 function SecondaryStorage() {
   return (
-    <div className="card p-4">
-      <PageHeader
-        title="Secondary Storage"
-        subtitle="Templates, ISOs and snapshots storage (Ceph RBD)"
-      />
+    <StoragePoolManager
+      scope="secondary"
+      title="Secondary Storage"
+      subtitle="Templates, ISOs and snapshots storage"
+    />
+  )
+}
+
+interface PoolRow {
+  id: number
+  name: string
+  scope: string
+  backend: string
+  pool_type: string
+  replica_count: number
+  total_capacity_gb: number
+  used_capacity_gb: number
+  free_capacity_gb: number
+  volume_count: number
+  status: string
+  crush_rule: string
+  pg_count: number
+  is_default: boolean
+  created_at: string
+}
+
+function StoragePoolManager({
+  scope,
+  title,
+  subtitle
+}: {
+  scope: string
+  title: string
+  subtitle: string
+}) {
+  const [pools, setPools] = useState<PoolRow[]>([])
+  const [loading, setLoading] = useState(false)
+  const [showAdd, setShowAdd] = useState(false)
+  const [q, setQ] = useState('')
+  const [summary, setSummary] = useState({ totalCap: 0, usedCap: 0, freeCap: 0, totalVols: 0 })
+
+  const load = async () => {
+    setLoading(true)
+    try {
+      const data = await fetchStoragePools(scope)
+      const list = data.pools ?? []
+      setPools(list)
+      setSummary({
+        totalCap: data.summary?.total_capacity_gb ?? list.reduce((a: number, p: PoolRow) => a + p.total_capacity_gb, 0),
+        usedCap: data.summary?.used_capacity_gb ?? list.reduce((a: number, p: PoolRow) => a + p.used_capacity_gb, 0),
+        freeCap: data.summary?.free_capacity_gb ?? list.reduce((a: number, p: PoolRow) => a + p.free_capacity_gb, 0),
+        totalVols: data.summary?.total_volumes ?? list.reduce((a: number, p: PoolRow) => a + p.volume_count, 0)
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => { load() }, [])
+
+  const filtered = useMemo(() => {
+    if (!q) return pools
+    const k = q.toLowerCase()
+    return pools.filter(
+      (p) => p.name.toLowerCase().includes(k) || p.backend.includes(k) || p.status.includes(k)
+    )
+  }, [pools, q])
+
+  const handleDelete = async (pool: PoolRow) => {
+    if (!confirm(`Delete storage pool "${pool.name}"? This cannot be undone.`)) return
+    try {
+      await deleteStoragePool(pool.id)
+      load()
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Delete failed'
+      alert(msg)
+    }
+  }
+
+  const columns: {
+    key: string
+    header: string
+    render?: (r: PoolRow) => React.ReactNode
+  }[] = [
+      {
+        key: 'name', header: 'Name', render: (r) => (
+          <span className="font-medium text-gray-100">
+            {r.name}
+            {r.is_default && <span className="ml-2"><Badge variant="info">default</Badge></span>}
+          </span>
+        )
+      },
+      {
+        key: 'backend', header: 'Backend', render: (r) => (
+          <Badge variant={r.backend === 'ceph' ? 'info' : 'default'}>{r.backend}</Badge>
+        )
+      },
+      { key: 'pool_type', header: 'Type', render: (r) => r.pool_type },
+      { key: 'replica_count', header: 'Replicas' },
+      {
+        key: 'status', header: 'Status', render: (r) => (
+          <Badge variant={
+            r.status === 'active' ? 'success' :
+              r.status === 'degraded' ? 'warning' :
+                r.status === 'offline' ? 'danger' : 'default'
+          }>{r.status}</Badge>
+        )
+      },
+      {
+        key: 'capacity', header: 'Capacity', render: (r) => (
+          <span className="text-xs text-gray-400">{r.used_capacity_gb} / {r.total_capacity_gb} GB</span>
+        )
+      },
+      { key: 'volume_count', header: 'Volumes' },
+      {
+        key: 'actions', header: '', render: (r) => (
+          <button
+            className="text-red-400 hover:text-red-300 text-xs"
+            onClick={(e) => { e.stopPropagation(); handleDelete(r) }}
+          >
+            Delete
+          </button>
+        )
+      }
+    ]
+
+  return (
+    <div className="space-y-4">
+      <PageHeader title={title} subtitle={subtitle} />
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <SummaryBox label="Pools" value={pools.length} color="blue" />
+        <SummaryBox label="Total Capacity" value={`${summary.totalCap} GB`} color="emerald" />
+        <SummaryBox label="Used" value={`${summary.usedCap} GB`} color="amber" />
+        <SummaryBox label="Volumes" value={summary.totalVols} color="purple" />
+      </div>
+
+      {/* Pool Table */}
+      <div className="card p-3 space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <button className="btn" onClick={load} disabled={loading}>
+              {loading ? 'Refreshing...' : 'Refresh'}
+            </button>
+            <TableToolbar
+              placeholder="Filter pools..."
+              onSearch={setQ}
+            />
+          </div>
+          <button className="btn btn-primary" onClick={() => setShowAdd(true)}>Add Pool</button>
+        </div>
+        <DataTable
+          columns={columns as any}
+          data={filtered as any}
+          empty={loading ? 'Loading...' : 'No storage pools configured'}
+        />
+      </div>
+
+      {/* Add Pool Dialog */}
+      {showAdd && (
+        <AddPoolDialog scope={scope} onClose={() => setShowAdd(false)} onCreated={load} />
+      )}
+    </div>
+  )
+}
+
+function SummaryBox({ label, value, color }: { label: string; value: string | number; color: string }) {
+  const colorMap: Record<string, string> = {
+    blue: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+    emerald: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+    amber: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+    purple: 'bg-purple-500/10 text-purple-400 border-purple-500/20'
+  }
+  return (
+    <div className={`rounded-xl border p-3 ${colorMap[color] || colorMap.blue}`}>
+      <div className="text-lg font-bold">{value}</div>
+      <div className="text-xs opacity-70">{label}</div>
+    </div>
+  )
+}
+
+function AddPoolDialog({
+  scope,
+  onClose,
+  onCreated
+}: {
+  scope: string
+  onClose: () => void
+  onCreated: () => void
+}) {
+  const [name, setName] = useState('')
+  const [backend, setBackend] = useState('ceph')
+  const [poolType, setPoolType] = useState('replicated')
+  const [replicaCount, setReplicaCount] = useState(3)
+  const [totalCapGB, setTotalCapGB] = useState(0)
+  const [crushRule, setCrushRule] = useState('')
+  const [pgCount, setPgCount] = useState(128)
+  const [isDefault, setIsDefault] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleSubmit = async () => {
+    if (!name.trim()) { setError('Name is required'); return }
+    setSubmitting(true)
+    setError('')
+    try {
+      await createStoragePool({
+        name: name.trim(),
+        scope,
+        backend,
+        pool_type: poolType,
+        replica_count: replicaCount,
+        total_capacity_gb: totalCapGB,
+        crush_rule: crushRule || undefined,
+        pg_count: pgCount,
+        is_default: isDefault
+      })
+      onCreated()
+      onClose()
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to create pool')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={onClose}>
+      <div
+        className="bg-[var(--card-bg,#1a1a2e)] border border-[var(--border-primary,#2a2a4a)] rounded-xl p-6 w-full max-w-lg space-y-4"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3 className="text-lg font-semibold text-gray-100">
+          Add {scope === 'primary' ? 'Primary' : 'Secondary'} Storage Pool
+        </h3>
+
+        {error && <div className="text-red-400 text-sm bg-red-500/10 rounded p-2">{error}</div>}
+
+        <div className="grid grid-cols-2 gap-3">
+          <div className="col-span-2">
+            <label className="block text-xs text-gray-400 mb-1">Pool Name</label>
+            <input className="input w-full" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. ssd-pool" />
+          </div>
+
+          <div>
+            <label className="block text-xs text-gray-400 mb-1">Backend</label>
+            <select className="select w-full" value={backend} onChange={(e) => setBackend(e.target.value)}>
+              <option value="ceph">Ceph</option>
+              <option value="local">Local</option>
+              <option value="nfs">NFS</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs text-gray-400 mb-1">Pool Type</label>
+            <select className="select w-full" value={poolType} onChange={(e) => setPoolType(e.target.value)}>
+              <option value="replicated">Replicated</option>
+              <option value="erasure_coded">Erasure Coded</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs text-gray-400 mb-1">Replica Count</label>
+            <input className="input w-full" type="number" min={1} max={5} value={replicaCount} onChange={(e) => setReplicaCount(Number(e.target.value))} />
+          </div>
+
+          <div>
+            <label className="block text-xs text-gray-400 mb-1">Total Capacity (GB)</label>
+            <input className="input w-full" type="number" min={0} value={totalCapGB} onChange={(e) => setTotalCapGB(Number(e.target.value))} />
+          </div>
+
+          {backend === 'ceph' && (
+            <>
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">CRUSH Rule</label>
+                <input className="input w-full" value={crushRule} onChange={(e) => setCrushRule(e.target.value)} placeholder="e.g. ssd_rule" />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">PG Count</label>
+                <input className="input w-full" type="number" min={1} value={pgCount} onChange={(e) => setPgCount(Number(e.target.value))} />
+              </div>
+            </>
+          )}
+
+          <div className="col-span-2 flex items-center gap-2">
+            <input type="checkbox" id="is-default" checked={isDefault} onChange={(e) => setIsDefault(e.target.checked)} />
+            <label htmlFor="is-default" className="text-sm text-gray-300">Set as default pool</label>
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-2 pt-2">
+          <button className="btn" onClick={onClose}>Cancel</button>
+          <button className="btn btn-primary" onClick={handleSubmit} disabled={submitting}>
+            {submitting ? 'Creating...' : 'Create Pool'}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
@@ -1433,13 +1729,13 @@ function DBUsage() {
         timestamp: data.timestamp,
         db: dbComp
           ? {
-              status: dbComp.status,
-              message: dbComp.message,
-              latency_ms: Number(dbComp.details?.latency_ms ?? 0),
-              open: Number(dbComp.details?.open_connections ?? 0),
-              inUse: Number(dbComp.details?.in_use ?? 0),
-              idle: Number(dbComp.details?.idle ?? 0)
-            }
+            status: dbComp.status,
+            message: dbComp.message,
+            latency_ms: Number(dbComp.details?.latency_ms ?? 0),
+            open: Number(dbComp.details?.open_connections ?? 0),
+            inUse: Number(dbComp.details?.in_use ?? 0),
+            idle: Number(dbComp.details?.idle ?? 0)
+          }
           : undefined
       })
     } catch {

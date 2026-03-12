@@ -15,6 +15,7 @@ import (
 type StoragePool struct {
 	ID           uint      `gorm:"primaryKey" json:"id"`
 	Name         string    `gorm:"not null;uniqueIndex" json:"name"`      // e.g., "ssd-pool", "hdd-pool", "volumes"
+	Scope        string    `gorm:"default:'primary'" json:"scope"`        // primary (VM disks), secondary (templates/ISOs/snapshots)
 	Backend      string    `gorm:"default:'ceph'" json:"backend"`         // ceph, local, nfs
 	PoolType     string    `gorm:"default:'replicated'" json:"pool_type"` // replicated, erasure_coded
 	ReplicaCount int       `gorm:"default:3" json:"replica_count"`
@@ -36,6 +37,9 @@ type StoragePool struct {
 func (s *Service) listStoragePools(c *gin.Context) {
 	var pools []StoragePool
 	q := s.db.Order("name")
+	if scope := c.Query("scope"); scope != "" {
+		q = q.Where("scope = ?", scope)
+	}
 	if backend := c.Query("backend"); backend != "" {
 		q = q.Where("backend = ?", backend)
 	}
@@ -69,6 +73,7 @@ func (s *Service) listStoragePools(c *gin.Context) {
 func (s *Service) createStoragePool(c *gin.Context) {
 	var req struct {
 		Name         string `json:"name" binding:"required"`
+		Scope        string `json:"scope"`
 		Backend      string `json:"backend"`
 		PoolType     string `json:"pool_type"`
 		ReplicaCount int    `json:"replica_count"`
@@ -95,8 +100,14 @@ func (s *Service) createStoragePool(c *gin.Context) {
 		replicaCount = 3
 	}
 
+	scope := req.Scope
+	if scope == "" {
+		scope = "primary"
+	}
+
 	pool := StoragePool{
 		Name:         req.Name,
+		Scope:        scope,
 		Backend:      backend,
 		PoolType:     poolType,
 		ReplicaCount: replicaCount,

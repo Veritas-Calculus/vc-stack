@@ -1880,6 +1880,31 @@ export async function deleteDiskOffering(id: string): Promise<void> {
   await api.delete(`/v1/storage/disk-offerings/${id}`)
 }
 
+// ── Storage Pool Management ───────────────────────────────
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function fetchStoragePools(scope?: string): Promise<any> {
+  const params = scope ? { scope } : {}
+  const res = await api.get('/v1/storage/storage-pools', { params })
+  return res.data
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function createStoragePool(body: Record<string, unknown>): Promise<any> {
+  const res = await api.post('/v1/storage/storage-pools', body)
+  return res.data.pool
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function updateStoragePool(id: number, body: Record<string, unknown>): Promise<any> {
+  const res = await api.put(`/v1/storage/storage-pools/${id}`, body)
+  return res.data.pool
+}
+
+export async function deleteStoragePool(id: number): Promise<void> {
+  await api.delete(`/v1/storage/storage-pools/${id}`)
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function fetchVolumeById(volumeId: string): Promise<any> {
   const res = await api.get(`/v1/storage/volumes/${volumeId}`)
