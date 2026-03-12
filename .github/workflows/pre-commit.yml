@@ -39,9 +39,8 @@ jobs:
           if ! command -v goimports &> /dev/null; then
             go install golang.org/x/tools/cmd/goimports@latest
           fi
-          if ! command -v golangci-lint &> /dev/null; then
-            curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.1.0
-          fi
+          # Always install golangci-lint to ensure Go version compatibility
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin
           echo "$HOME/go/bin" >> $GITHUB_PATH
 
       - name: Set up Node.js
