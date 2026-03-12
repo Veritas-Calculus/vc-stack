@@ -69,7 +69,7 @@ func DefaultMirrorConfig() MirrorConfig {
 // back to defaults for any missing fields.
 func LoadMirrorConfig(path string) (MirrorConfig, error) {
 	cfg := DefaultMirrorConfig()
-	data, err := os.ReadFile(path)
+	data, err := os.ReadFile(path) // #nosec G304 -- path from config
 	if err != nil {
 		if os.IsNotExist(err) {
 			return cfg, nil // use defaults
@@ -110,7 +110,7 @@ func (l *License) IsValid() error {
 
 // LoadLicense reads and parses a license file.
 func LoadLicense(path string) (*License, error) {
-	data, err := os.ReadFile(path)
+	data, err := os.ReadFile(path) // #nosec G304 -- path from config
 	if err != nil {
 		return nil, fmt.Errorf("load license: %w", err)
 	}
@@ -195,7 +195,7 @@ func (m *BundleManifest) SaveManifest(path string) error {
 
 // LoadManifest reads a bundle manifest from a JSON file.
 func LoadManifest(path string) (*BundleManifest, error) {
-	data, err := os.ReadFile(path)
+	data, err := os.ReadFile(path) // #nosec G304 -- path from caller
 	if err != nil {
 		return nil, fmt.Errorf("load manifest: %w", err)
 	}

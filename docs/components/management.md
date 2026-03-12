@@ -44,31 +44,40 @@ Beyond the core infrastructure, `vc-management` provides several advanced servic
 
 ## Detailed Features
 
-
 ### 1. Metadata Service
+
 Provides an EC2-compatible metadata service for instances. It supports `cloud-init` for automatic configuration of virtual machines.
+
 - EC2-compatible APIs: `/latest/meta-data`, `/latest/user-data`
 - Dynamic configuration retrieval within VMs via `169.254.169.254`.
 
 ### 2. Event & Audit Service
+
 A comprehensive audit trail and event log system:
+
 - **Audit Logs**: Records all operations on resources.
 - **Multi-dimensional Queries**: Filter by resource, user, or time.
 - **Retention**: Configurable data retention policies (default: 90 days).
 
 ### 3. Quota Management
+
 Flexible resource quota system to ensure fair usage and prevent resource exhaustion:
+
 - **Dimensions**: Instances, vCPUs, RAM, Disk, Volumes, Floating IPs, etc.
 - **Enforcement**: Automatic checks before resource creation.
 
 ### 4. API Gateway & Middleware
+
 Standardized request handling through a multi-layer middleware stack:
+
 - **Security**: JWT authentication, RBAC checks.
 - **Performance**: Rate limiting, request tracing.
 - **Usability**: CORS, structured logging, request-id propagation.
 
 ## Database & Persistence
+
 `vc-management` uses **PostgreSQL 15+** as its primary data store.
+
 - Schema evolution is managed via GORM AutoMigrate and SQL migration files in `migrations/`.
 - Sensitive data (passwords, tokens) is encrypted at rest using `AES-256-GCM`.
 
@@ -82,6 +91,7 @@ Standardized request handling through a multi-layer middleware stack:
 ## Configuration
 
 Configuration is handled via a YAML file (e.g., `configs/vc-management.yaml`) or environment variables. Key settings include:
+
 - `VC_MANAGEMENT_PORT`: API listening port (default: 8080).
 - `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS`: Database connection details.
 - `MASTER_KEY`: Used for encrypting/decrypting sensitive database fields.

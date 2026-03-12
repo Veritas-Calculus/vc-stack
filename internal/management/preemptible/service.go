@@ -165,7 +165,7 @@ func (s *Service) handleTerminate(c *gin.Context) {
 	var req struct {
 		Reason string `json:"reason"`
 	}
-	c.ShouldBindJSON(&req)
+	_ = c.ShouldBindJSON(&req) // best-effort: reason defaults to "capacity_reclaim"
 	reason := req.Reason
 	if reason == "" {
 		reason = "capacity_reclaim"

@@ -205,7 +205,7 @@ func (b *KafkaBus) Subscribe(ctx context.Context, topic, groupID string, handler
 		MaxWait:  3 * time.Second,
 		Logger:   kafka.LoggerFunc(func(msg string, args ...interface{}) { b.logger.Debug(fmt.Sprintf(msg, args...)) }),
 	})
-	defer r.Close()
+	defer func() { _ = r.Close() }()
 
 	b.logger.Info("mq: subscribed",
 		zap.String("topic", topic),

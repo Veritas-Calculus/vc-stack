@@ -115,7 +115,7 @@ main()
 ### Compute Node (`vc-compute`)
 
 The compute node is a single binary with three internal services
-composed via direct function calls (no HTTP between them). 
+composed via direct function calls (no HTTP between them).
 See the [Detailed Compute Documentation](components/compute.md) for more info.
 
 #### Internal Architecture

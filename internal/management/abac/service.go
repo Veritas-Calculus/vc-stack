@@ -138,7 +138,9 @@ func (s *Service) Evaluate(req *EvalRequest) (*EvalResult, error) {
 		}
 
 		var conditions []Condition
-		json.Unmarshal([]byte(p.Conditions), &conditions)
+		if err := json.Unmarshal([]byte(p.Conditions), &conditions); err != nil {
+			continue
+		}
 
 		if evaluateConditions(conditions, req) {
 			return &EvalResult{
@@ -214,7 +216,9 @@ func evalOp(op, actual, expected string) bool {
 		return strings.Contains(actual, expected)
 	case "in":
 		var vals []string
-		json.Unmarshal([]byte(expected), &vals)
+		if err := json.Unmarshal([]byte(expected), &vals); err != nil {
+			return false
+		}
 		for _, v := range vals {
 			if v == actual {
 				return true
@@ -223,7 +227,9 @@ func evalOp(op, actual, expected string) bool {
 		return false
 	case "not_in":
 		var vals []string
-		json.Unmarshal([]byte(expected), &vals)
+		if err := json.Unmarshal([]byte(expected), &vals); err != nil {
+			return true
+		}
 		for _, v := range vals {
 			if v == actual {
 				return false

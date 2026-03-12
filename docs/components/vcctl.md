@@ -22,24 +22,32 @@ The CLI follows a hierarchical command structure:
 ## Feature Highlights
 
 ### 1. Secret Management
+
 `vcctl` includes built-in tools for managing system secrets.
+
 - **Initialization**: `vcctl secrets init` initializes the master key for the system.
 - **Encryption**: `vcctl secrets encrypt <plain_text>` generates an `ENC()` wrapped value that can be safely stored in configuration files or the database.
 - **Decryption**: `vcctl secrets decrypt <encrypted_value>` (Requires `VC_MASTER_KEY`).
 
 ### 2. Configuration Profiles
+
 Manage multiple environments (e.g., staging, production) easily:
+
 - `vcctl config init`: Initial configuration.
 - `vcctl --profile <name>`: Switch between different profiles.
 
 ### 3. Output Formats
+
 Control how data is presented using the `--output` flag:
+
 - `table` (Default): Human-readable formatted table.
 - `json`: Machine-readable JSON for integration with other tools like `jq`.
 - `yaml`: Formatted YAML for configuration management.
 
 ### 4. Interactive Help
+
 Comprehensive built-in documentation:
+
 - `vcctl --help`: Global help.
 - `vcctl <service> --help`: Service-specific commands.
 - `vcctl <service> <resource> <action> --help`: Action-specific flags and examples.
@@ -47,6 +55,7 @@ Comprehensive built-in documentation:
 ## Example Usage
 
 ### Instance Lifecycle
+
 ```bash
 # List all instances
 vcctl compute instances list
@@ -60,6 +69,7 @@ vcctl compute instances stop vm-123
 ```
 
 ### Networking
+
 ```bash
 # List available subnets
 vcctl network subnets list

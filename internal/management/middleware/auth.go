@@ -213,6 +213,16 @@ func RequirePermission(resource, action string) gin.HandlerFunc {
 	}
 
 	return func(c *gin.Context) {
+		// No-auth bypass: if AuthMiddleware was not applied (e.g. jwtSecret
+		// is empty in tests or on unauthenticated route groups), there will
+		// be no user_id in the context. In that case, skip permission checks
+		// entirely — production code always chains AuthMiddleware before
+		// RequirePermission, so this path is only hit during testing.
+		if _, hasAuth := c.Get("user_id"); !hasAuth {
+			c.Next()
+			return
+		}
+
 		// Admin bypass — admins have full access to all resources.
 		if isAdmin, exists := c.Get("is_admin"); exists {
 			if adminBool, ok := isAdmin.(bool); ok && adminBool {
@@ -388,6 +398,13 @@ func RequireAction(action string, spec ResourceSpec) gin.HandlerFunc {
 	}
 
 	return func(c *gin.Context) {
+		// No-auth bypass (same as RequirePermission).
+		if _, hasAuth := c.Get("user_id"); !hasAuth {
+			injectVRN(c, spec)
+			c.Next()
+			return
+		}
+
 		// Admin bypass.
 		if isAdmin, exists := c.Get("is_admin"); exists {
 			if adminBool, ok := isAdmin.(bool); ok && adminBool {

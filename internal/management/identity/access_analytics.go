@@ -37,18 +37,6 @@ type AccessLogEntry struct {
 	ProjectID     string    `gorm:"index" json:"project_id,omitempty"`
 }
 
-// AccessLogger handles recording authorization decisions.
-type AccessLogger struct {
-	db interface {
-		Create(interface{}) interface{ Error() error }
-	}
-	logger *zap.Logger
-	mu     sync.Mutex
-	buffer []AccessLogEntry
-	// Flush interval config.
-	bufferSize int
-}
-
 // RecordAccess logs an authorization decision. Thread-safe.
 func (s *Service) RecordAccess(entry AccessLogEntry) {
 	entry.Timestamp = time.Now()
@@ -209,7 +197,6 @@ func (s *Service) SimulatePolicies(req *SimulateRequest) (*SimulateResponse, err
 // simulateSingle evaluates a single action+resource against policies.
 func (s *Service) simulateSingle(policies []Policy, action, resource string,
 	ctx *RequestContext, boundary *PermissionBoundary) SimulationResult {
-
 	result := SimulationResult{
 		Action:   action,
 		Resource: resource,

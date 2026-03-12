@@ -318,7 +318,7 @@ func (s *Service) DeletePermissionBoundary(entityType string, entityID uint) err
 // considering: user roles, user policies, group roles, group policies,
 // and permission boundaries.
 //
-// effective = (user_perms | group_perms) & boundary_perms
+// effective = (user_perms | group_perms) & boundary_perms.
 func (s *Service) EffectivePermissions(userID uint) ([]string, []Policy, error) {
 	// 1. Collect user's direct permissions.
 	var user User

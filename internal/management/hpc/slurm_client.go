@@ -511,9 +511,9 @@ func ParseGresString(gres string) (gpuType string, gpuCount int) {
 	}
 	if len(parts) == 3 {
 		gpuType = strings.ToUpper(parts[1])
-		fmt.Sscanf(parts[2], "%d", &gpuCount)
+		_, _ = fmt.Sscanf(parts[2], "%d", &gpuCount)
 	} else if len(parts) == 2 {
-		fmt.Sscanf(parts[1], "%d", &gpuCount)
+		_, _ = fmt.Sscanf(parts[1], "%d", &gpuCount)
 	}
 	return
 }
@@ -527,7 +527,7 @@ func buildSbatchScript(job *HPCJob, gres string, env map[string]string) string {
 	sb.WriteString("#!/bin/bash\n")
 	sb.WriteString(fmt.Sprintf("#SBATCH --job-name=%s\n", job.Name))
 	sb.WriteString(fmt.Sprintf("#SBATCH --nodes=%d\n", max(job.Nodes, 1)))
-	sb.WriteString(fmt.Sprintf("#SBATCH --ntasks-per-node=1\n"))
+	sb.WriteString("#SBATCH --ntasks-per-node=1\n")
 	sb.WriteString(fmt.Sprintf("#SBATCH --cpus-per-task=%d\n", max(job.CPUs, 1)))
 	sb.WriteString(fmt.Sprintf("#SBATCH --mem=%dM\n", max(job.MemoryMB, 1024)))
 
@@ -580,8 +580,8 @@ func parseWallTime(wallTime string) int {
 		hourPart := parts[0]
 		if dParts := strings.Split(hourPart, "-"); len(dParts) == 2 {
 			var d int
-			fmt.Sscanf(dParts[0], "%d", &d)
-			fmt.Sscanf(dParts[1], "%d", &h)
+			_, _ = fmt.Sscanf(dParts[0], "%d", &d)
+			_, _ = fmt.Sscanf(dParts[1], "%d", &h)
 			h += d * 24
 		} else {
 			fmt.Sscanf(hourPart, "%d", &h)

@@ -60,7 +60,7 @@ type RequestContext struct {
 
 // ConditionBlock represents a single condition block from a policy statement.
 // Structure: operator -> conditionKey -> conditionValues
-// Example: {"IpAddress": {"vc:SourceIp": ["10.0.0.0/8"]}}
+// Example: {"IpAddress": {"vc:SourceIp": ["10.0.0.0/8"]}}.
 type ConditionBlock map[string]map[string]interface{}
 
 // conditionKeyResolver resolves a condition key to its runtime value.

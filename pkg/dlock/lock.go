@@ -98,7 +98,7 @@ func NewManager(cfg Config, logger *zap.Logger) (*Manager, error) {
 	defer cancel()
 	_, err = client.Status(ctx, cfg.Endpoints[0])
 	if err != nil {
-		client.Close()
+		_ = client.Close()
 		return nil, fmt.Errorf("dlock: etcd health check failed: %w", err)
 	}
 
@@ -152,7 +152,7 @@ func (m *Manager) Lock(ctx context.Context, key string, ttl time.Duration) (Leas
 
 	mutex := concurrency.NewMutex(session, key)
 	if err := mutex.Lock(ctx); err != nil {
-		session.Close()
+		_ = session.Close()
 		return nil, fmt.Errorf("dlock: lock acquire failed for %q: %w", key, err)
 	}
 
@@ -175,7 +175,7 @@ func (m *Manager) TryLock(ctx context.Context, key string, ttl time.Duration) (L
 
 	mutex := concurrency.NewMutex(session, key)
 	if err := mutex.TryLock(ctx); err != nil {
-		session.Close()
+		_ = session.Close()
 		if err == concurrency.ErrLocked {
 			return nil, false, nil
 		}

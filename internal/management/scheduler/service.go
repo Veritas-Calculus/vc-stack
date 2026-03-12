@@ -335,6 +335,9 @@ func (s *Service) dispatchVMCreate(c *gin.Context) {
 		return reqErr
 	})
 	if cbErr != nil {
+		if httpResp != nil {
+			_ = httpResp.Body.Close()
+		}
 		s.logger.Error("dispatch forward failed",
 			zap.String("addr", addr),
 			zap.String("host", host.UUID),

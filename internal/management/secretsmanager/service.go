@@ -129,7 +129,9 @@ func (s *Service) PutValue(id uint, newValue string) (*SecretVersion, error) {
 // Rotate generates a random new value for the secret.
 func (s *Service) Rotate(id uint) (*SecretVersion, error) {
 	b := make([]byte, 32)
-	rand.Read(b)
+	if _, err := rand.Read(b); err != nil {
+		return nil, fmt.Errorf("secretsmanager: failed to generate random bytes: %w", err)
+	}
 	return s.PutValue(id, hex.EncodeToString(b))
 }
 

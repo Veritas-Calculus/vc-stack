@@ -148,7 +148,7 @@ func matchResourceString(pattern, value string) bool {
 }
 
 // matchVRN matches two VRN strings component by component.
-// Format: vrn:partition:service:project:type/id
+// Format: vrn:partition:service:project:type/id.
 func matchVRN(pattern, value string) bool {
 	pParts := strings.SplitN(pattern, ":", 5)
 	vParts := strings.SplitN(value, ":", 5)

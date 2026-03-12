@@ -280,17 +280,17 @@ function Zones() {
     header: string
     render?: (row: ZoneRow) => React.ReactNode
   }[] = [
-    { key: 'name', header: 'Name' },
-    {
-      key: 'allocation',
-      header: 'Allocation state',
-      render: (r) => (
-        <Badge variant={r.allocation === 'enabled' ? 'success' : 'warning'}>{r.allocation}</Badge>
-      )
-    },
-    { key: 'type', header: 'Type', render: (r) => <span className="uppercase">{r.type}</span> },
-    { key: 'networkType', header: 'Network Type' }
-  ]
+      { key: 'name', header: 'Name' },
+      {
+        key: 'allocation',
+        header: 'Allocation state',
+        render: (r) => (
+          <Badge variant={r.allocation === 'enabled' ? 'success' : 'warning'}>{r.allocation}</Badge>
+        )
+      },
+      { key: 'type', header: 'Type', render: (r) => <span className="uppercase">{r.type}</span> },
+      { key: 'networkType', header: 'Network Type' }
+    ]
 
   return (
     <div className="space-y-3">
@@ -450,43 +450,43 @@ function Clusters() {
     header: string
     render?: (row: ClusterRow) => React.ReactNode
   }[] = [
-    { key: 'name', header: 'Name' },
-    {
-      key: 'zone_id',
-      header: 'Zone',
-      render: (r) => r.zone_id || '—'
-    },
-    { key: 'hypervisor_type', header: 'Hypervisor' },
-    {
-      key: 'allocation',
-      header: 'Allocation',
-      render: (r) => (
-        <Badge variant={r.allocation === 'enabled' ? 'success' : 'warning'}>{r.allocation}</Badge>
-      )
-    },
-    { key: 'description', header: 'Description' },
-    {
-      key: 'id',
-      header: 'Actions',
-      render: (r) => (
-        <button
-          className="btn btn-sm text-status-text-error hover:text-status-text-error"
-          onClick={async () => {
-            if (!confirm(`Delete cluster "${r.name}"?`)) return
-            try {
-              await deleteCluster(r.id)
-              setRows((prev) => prev.filter((c) => c.id !== r.id))
-              toast.success('Cluster deleted')
-            } catch {
-              toast.error('Failed to delete cluster')
-            }
-          }}
-        >
-          Delete
-        </button>
-      )
-    }
-  ]
+      { key: 'name', header: 'Name' },
+      {
+        key: 'zone_id',
+        header: 'Zone',
+        render: (r) => r.zone_id || '—'
+      },
+      { key: 'hypervisor_type', header: 'Hypervisor' },
+      {
+        key: 'allocation',
+        header: 'Allocation',
+        render: (r) => (
+          <Badge variant={r.allocation === 'enabled' ? 'success' : 'warning'}>{r.allocation}</Badge>
+        )
+      },
+      { key: 'description', header: 'Description' },
+      {
+        key: 'id',
+        header: 'Actions',
+        render: (r) => (
+          <button
+            className="btn btn-sm text-status-text-error hover:text-status-text-error"
+            onClick={async () => {
+              if (!confirm(`Delete cluster "${r.name}"?`)) return
+              try {
+                await deleteCluster(r.id)
+                setRows((prev) => prev.filter((c) => c.id !== r.id))
+                toast.success('Cluster deleted')
+              } catch {
+                toast.error('Failed to delete cluster')
+              }
+            }}
+          >
+            Delete
+          </button>
+        )
+      }
+    ]
 
   return (
     <div className="card p-4">
@@ -637,7 +637,7 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     fetchZones()
       .then((z) => setZones(z.map((x) => ({ id: x.id, name: x.name }))))
-      .catch(() => {})
+      .catch(() => { })
   }, [])
 
   const scriptURL = useMemo(
@@ -784,11 +784,10 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
         {(['script', 'ssh', 'manual'] as const).map((t) => (
           <button
             key={t}
-            className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-              tab === t
-                ? 'bg-accent text-content-inverse'
-                : 'text-content-secondary hover:text-content-primary'
-            }`}
+            className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${tab === t
+              ? 'bg-accent text-content-inverse'
+              : 'text-content-secondary hover:text-content-primary'
+              }`}
             onClick={() => setTab(t)}
           >
             {t === 'script' ? 'Install Script' : t === 'ssh' ? 'SSH Deploy' : 'Manual'}
@@ -948,13 +947,12 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
                 {deploySteps.map((evt, i) => (
                   <div
                     key={i}
-                    className={`text-xs font-mono py-0.5 ${
-                      evt.status === 'error'
-                        ? 'text-status-text-error'
-                        : evt.status === 'success' || evt.status === 'done'
-                          ? 'text-status-text-success'
-                          : 'text-content-secondary'
-                    }`}
+                    className={`text-xs font-mono py-0.5 ${evt.status === 'error'
+                      ? 'text-status-text-error'
+                      : evt.status === 'success' || evt.status === 'done'
+                        ? 'text-status-text-success'
+                        : 'text-content-secondary'
+                      }`}
                   >
                     <span className="text-content-tertiary mr-2">
                       [{evt.step}/{evt.total}]
@@ -1203,65 +1201,65 @@ function Hosts() {
     headerRender?: React.ReactNode
     className?: string
   }[] = [
-    {
-      key: '__sel__',
-      header: '',
-      headerRender: (
-        <input
-          type="checkbox"
-          aria-label="Select all"
-          checked={rows.length > 0 && rows.every((r) => selectedIds.has(r.id))}
-          onChange={(e) => {
-            if (e.target.checked) setSelectedIds(new Set(rows.map((r) => r.id)))
-            else setSelectedIds(new Set())
-          }}
-        />
-      ),
-      render: (r) => (
-        <input
-          type="checkbox"
-          aria-label={`Select ${r.name}`}
-          checked={selectedIds.has(r.id)}
-          onChange={(e) => {
-            e.stopPropagation()
-            setSelectedIds((prev) => {
-              const next = new Set(prev)
-              if (e.target.checked) next.add(r.id)
-              else next.delete(r.id)
-              return next
-            })
-          }}
-          onClick={(e) => e.stopPropagation()}
-        />
-      ),
-      className: 'w-8'
-    },
-    { key: 'name', header: 'Name' },
-    {
-      key: 'state',
-      header: 'State',
-      render: (r: HostRow) => (
-        <Badge
-          variant={r.state === 'up' ? 'success' : r.state === 'connecting' ? 'warning' : 'danger'}
-        >
-          {r.state}
-        </Badge>
-      )
-    },
-    {
-      key: 'resourceState',
-      header: 'Resource State',
-      render: (r: HostRow) => (
-        <Badge variant={r.resourceState === 'enabled' ? 'success' : 'warning'}>
-          {r.resourceState}
-        </Badge>
-      )
-    },
-    { key: 'ip', header: 'IP' },
-    { key: 'arch', header: 'Arch' },
-    { key: 'hypervisor', header: 'Hypervisor' },
-    { key: 'version', header: 'Version' }
-  ]
+      {
+        key: '__sel__',
+        header: '',
+        headerRender: (
+          <input
+            type="checkbox"
+            aria-label="Select all"
+            checked={rows.length > 0 && rows.every((r) => selectedIds.has(r.id))}
+            onChange={(e) => {
+              if (e.target.checked) setSelectedIds(new Set(rows.map((r) => r.id)))
+              else setSelectedIds(new Set())
+            }}
+          />
+        ),
+        render: (r) => (
+          <input
+            type="checkbox"
+            aria-label={`Select ${r.name}`}
+            checked={selectedIds.has(r.id)}
+            onChange={(e) => {
+              e.stopPropagation()
+              setSelectedIds((prev) => {
+                const next = new Set(prev)
+                if (e.target.checked) next.add(r.id)
+                else next.delete(r.id)
+                return next
+              })
+            }}
+            onClick={(e) => e.stopPropagation()}
+          />
+        ),
+        className: 'w-8'
+      },
+      { key: 'name', header: 'Name' },
+      {
+        key: 'state',
+        header: 'State',
+        render: (r: HostRow) => (
+          <Badge
+            variant={r.state === 'up' ? 'success' : r.state === 'connecting' ? 'warning' : 'danger'}
+          >
+            {r.state}
+          </Badge>
+        )
+      },
+      {
+        key: 'resourceState',
+        header: 'Resource State',
+        render: (r: HostRow) => (
+          <Badge variant={r.resourceState === 'enabled' ? 'success' : 'warning'}>
+            {r.resourceState}
+          </Badge>
+        )
+      },
+      { key: 'ip', header: 'IP' },
+      { key: 'arch', header: 'Arch' },
+      { key: 'hypervisor', header: 'Hypervisor' },
+      { key: 'version', header: 'Version' }
+    ]
 
   return (
     <div className="space-y-3">
@@ -1478,72 +1476,72 @@ function StoragePoolManager({
     header: string
     render?: (r: PoolRow) => React.ReactNode
   }[] = [
-    {
-      key: 'name',
-      header: 'Name',
-      render: (r) => (
-        <span className="font-medium text-content-primary">
-          {r.name}
-          {r.is_default && (
-            <span className="ml-2">
-              <Badge variant="info">default</Badge>
-            </span>
-          )}
-        </span>
-      )
-    },
-    {
-      key: 'backend',
-      header: 'Backend',
-      render: (r) => <Badge variant={r.backend === 'ceph' ? 'info' : 'default'}>{r.backend}</Badge>
-    },
-    { key: 'pool_type', header: 'Type', render: (r) => r.pool_type },
-    { key: 'replica_count', header: 'Replicas' },
-    {
-      key: 'status',
-      header: 'Status',
-      render: (r) => (
-        <Badge
-          variant={
-            r.status === 'active'
-              ? 'success'
-              : r.status === 'degraded'
-                ? 'warning'
-                : r.status === 'offline'
-                  ? 'danger'
-                  : 'default'
-          }
-        >
-          {r.status}
-        </Badge>
-      )
-    },
-    {
-      key: 'capacity',
-      header: 'Capacity',
-      render: (r) => (
-        <span className="text-xs text-content-secondary">
-          {r.used_capacity_gb} / {r.total_capacity_gb} GB
-        </span>
-      )
-    },
-    { key: 'volume_count', header: 'Volumes' },
-    {
-      key: 'actions',
-      header: '',
-      render: (r) => (
-        <button
-          className="text-status-text-error hover:text-status-text-error text-xs"
-          onClick={(e) => {
-            e.stopPropagation()
-            void handleDelete(r)
-          }}
-        >
-          Delete
-        </button>
-      )
-    }
-  ]
+      {
+        key: 'name',
+        header: 'Name',
+        render: (r) => (
+          <span className="font-medium text-content-primary">
+            {r.name}
+            {r.is_default && (
+              <span className="ml-2">
+                <Badge variant="info">default</Badge>
+              </span>
+            )}
+          </span>
+        )
+      },
+      {
+        key: 'backend',
+        header: 'Backend',
+        render: (r) => <Badge variant={r.backend === 'ceph' ? 'info' : 'default'}>{r.backend}</Badge>
+      },
+      { key: 'pool_type', header: 'Type', render: (r) => r.pool_type },
+      { key: 'replica_count', header: 'Replicas' },
+      {
+        key: 'status',
+        header: 'Status',
+        render: (r) => (
+          <Badge
+            variant={
+              r.status === 'active'
+                ? 'success'
+                : r.status === 'degraded'
+                  ? 'warning'
+                  : r.status === 'offline'
+                    ? 'danger'
+                    : 'default'
+            }
+          >
+            {r.status}
+          </Badge>
+        )
+      },
+      {
+        key: 'capacity',
+        header: 'Capacity',
+        render: (r) => (
+          <span className="text-xs text-content-secondary">
+            {r.used_capacity_gb} / {r.total_capacity_gb} GB
+          </span>
+        )
+      },
+      { key: 'volume_count', header: 'Volumes' },
+      {
+        key: 'actions',
+        header: '',
+        render: (r) => (
+          <button
+            className="text-status-text-error hover:text-status-text-error text-xs"
+            onClick={(e) => {
+              e.stopPropagation()
+              void handleDelete(r)
+            }}
+          >
+            Delete
+          </button>
+        )
+      }
+    ]
 
   return (
     <div className="space-y-4">
@@ -1570,9 +1568,10 @@ function StoragePoolManager({
             Add Pool
           </button>
         </div>
-        <DataTable
-          columns={columns as any}
-          data={filtered as any}
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+        <DataTable<Record<string, unknown>>
+          columns={columns as unknown as { key: string; header: string; render?: (r: Record<string, unknown>) => React.ReactNode }[]}
+          data={filtered as unknown as Record<string, unknown>[]}
           empty={loading ? 'Loading...' : 'No storage pools configured'}
         />
       </div>
@@ -1787,13 +1786,13 @@ function DBUsage() {
         timestamp: data.timestamp,
         db: dbComp
           ? {
-              status: dbComp.status,
-              message: dbComp.message,
-              latency_ms: Number(dbComp.details?.latency_ms ?? 0),
-              open: Number(dbComp.details?.open_connections ?? 0),
-              inUse: Number(dbComp.details?.in_use ?? 0),
-              idle: Number(dbComp.details?.idle ?? 0)
-            }
+            status: dbComp.status,
+            message: dbComp.message,
+            latency_ms: Number(dbComp.details?.latency_ms ?? 0),
+            open: Number(dbComp.details?.open_connections ?? 0),
+            inUse: Number(dbComp.details?.in_use ?? 0),
+            idle: Number(dbComp.details?.idle ?? 0)
+          }
           : undefined
       })
     } catch {

@@ -277,7 +277,10 @@ func (s *Service) handleCreateSnapshot(c *gin.Context) {
 	var req struct {
 		Name string `json:"name"`
 	}
-	c.ShouldBindJSON(&req)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	snap, err := s.CreateSnapshot(uint(id), req.Name)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

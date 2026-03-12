@@ -77,7 +77,7 @@ func TestRecordAndQueryFlows(t *testing.T) {
 	}
 
 	// Filter by action
-	entries, total, _ = svc.QueryFlows(&FlowLogQuery{Action: "REJECT"})
+	_, total, _ = svc.QueryFlows(&FlowLogQuery{Action: "REJECT"})
 	if total != 1 {
 		t.Errorf("expected 1 rejected, got %d", total)
 	}
