@@ -309,6 +309,7 @@ func (s *Service) heartbeat(c *gin.Context) {
 	// Update status to up if it was down, disconnected, or connecting
 	if host.Status == models.HostStatusDown || host.Status == models.HostStatusDisconnected || host.Status == models.HostStatusConnecting {
 		updates["status"] = models.HostStatusUp
+		updates["disconnected_at"] = nil // Clear disconnect timestamp on recovery
 		s.logger.Info("host came back online", zap.String("uuid", host.UUID))
 	}
 
@@ -518,8 +519,12 @@ func (s *Service) checkHostHealth() {
 	for _, host := range hosts {
 		now := time.Now()
 		updates := map[string]interface{}{
-			"status":          models.HostStatusDown,
-			"disconnected_at": now,
+			"status": models.HostStatusDown,
+		}
+		// Only set disconnected_at on first transition to down
+		// (preserve timestamp for sustained-down evacuation check).
+		if host.DisconnectedAt == nil {
+			updates["disconnected_at"] = now
 		}
 
 		if err := s.db.Model(&host).Updates(updates).Error; err != nil {
@@ -534,8 +539,19 @@ func (s *Service) checkHostHealth() {
 			zap.String("name", host.Name),
 			zap.Time("last_heartbeat", *host.LastHeartbeat))
 
-		// Trigger automatic evacuation for downed host.
-		go s.evacuateHost(host.UUID, host.Name)
+		// Only trigger evacuation after sustained downtime (5+ minutes).
+		// This gives compute nodes time to re-register after container
+		// rebuilds, restarts, or brief network interruptions.
+		disconnectedAt := host.DisconnectedAt
+		if disconnectedAt == nil {
+			disconnectedAt = &now
+		}
+		if time.Since(*disconnectedAt) > 5*time.Minute {
+			s.logger.Warn("host sustained down for 5+ minutes, triggering evacuation",
+				zap.String("uuid", host.UUID),
+				zap.String("name", host.Name))
+			go s.evacuateHost(host.UUID, host.Name)
+		}
 	}
 }
 

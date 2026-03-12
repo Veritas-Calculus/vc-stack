@@ -38,8 +38,11 @@ func CollectNodeInfo(logger *zap.Logger) NodeInfo {
 		HypervisorType: "kvm",
 	}
 
-	// Hostname
-	if h, err := os.Hostname(); err == nil {
+	// Hostname — prefer NODE_NAME env var (common in containerized deploys),
+	// then fall back to os.Hostname().
+	if name := os.Getenv("NODE_NAME"); name != "" {
+		info.Hostname = name
+	} else if h, err := os.Hostname(); err == nil {
 		info.Hostname = h
 	}
 
