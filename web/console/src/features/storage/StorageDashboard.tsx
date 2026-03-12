@@ -157,15 +157,23 @@ function SummaryCard({
   label: string
   value: string | number
 }) {
-  const icons: Record<string, string> = {
-    disk: '\u{1F4BE}',
-    camera: '\u{1F4F7}',
-    database: '\u{1F4CA}',
-    layers: '\u{1F5C2}'
+  const iconStyles: Record<string, string> = {
+    disk: 'bg-blue-500/20 text-blue-400',
+    camera: 'bg-purple-500/20 text-purple-400',
+    database: 'bg-emerald-500/20 text-emerald-400',
+    layers: 'bg-amber-500/20 text-amber-400'
+  }
+  const iconLabels: Record<string, string> = {
+    disk: 'VOL',
+    camera: 'SNAP',
+    database: 'CAP',
+    layers: 'CLS'
   }
   return (
     <div className="bg-[var(--card-bg,#1a1a2e)] border border-[var(--border-primary,#2a2a4a)] rounded-xl p-4 flex items-center gap-3">
-      <span className="text-2xl">{icons[icon] || ''}</span>
+      <span className={`w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold ${iconStyles[icon] || 'bg-gray-500/20 text-gray-400'}`}>
+        {iconLabels[icon] || icon}
+      </span>
       <div>
         <div className="text-lg font-bold text-gray-100">{value}</div>
         <div className="text-xs text-gray-500">{label}</div>
