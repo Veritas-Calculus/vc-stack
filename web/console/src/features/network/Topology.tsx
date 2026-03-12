@@ -34,12 +34,12 @@ const NODE_COLORS: Record<string, string> = {
 }
 
 const NODE_ICONS: Record<string, string> = {
-  external: '🌐',
-  network: '🔗',
-  subnet: '📡',
-  router: '🔀',
-  floating_ip: '📌',
-  vm: '🖥️'
+  external: 'globe',
+  network: 'link',
+  subnet: 'radio',
+  router: 'git-branch',
+  floating_ip: 'map-pin',
+  vm: 'monitor'
 }
 
 const EDGE_COLORS: Record<string, string> = {

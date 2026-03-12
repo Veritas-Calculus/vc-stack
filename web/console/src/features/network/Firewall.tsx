@@ -347,7 +347,7 @@ export default function FirewallManagement() {
                     <code className="text-xs">{rule.destination_ip || 'any'}</code>
                   </td>
                   <td className="py-2 px-2">{rule.destination_port || '—'}</td>
-                  <td className="py-2 px-2">{rule.enabled ? '✓' : '✗'}</td>
+                  <td className="py-2 px-2">{rule.enabled ? 'Yes' : 'No'}</td>
                   <td className="py-2 px-2">
                     <button
                       className="text-red-400 text-xs hover:underline"

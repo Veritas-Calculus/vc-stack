@@ -11,8 +11,8 @@ import {
 } from '@/lib/api'
 
 const ENGINES = [
-  { value: 'postgresql', label: 'PostgreSQL', icon: '🐘' },
-  { value: 'mysql', label: 'MySQL', icon: '🐬' }
+  { value: 'postgresql', label: 'PostgreSQL', icon: 'database' },
+  { value: 'mysql', label: 'MySQL', icon: 'database' }
 ]
 
 export function DBaaS() {

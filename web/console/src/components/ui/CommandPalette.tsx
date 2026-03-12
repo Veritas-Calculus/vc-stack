@@ -286,12 +286,12 @@ const PAGE_ENTRIES: SearchResult[] = [
 ]
 
 const typeIcons: Record<string, string> = {
-  instance: '🖥️',
-  volume: '💾',
-  network: '🌐',
-  image: '📀',
-  project: '📁',
-  page: '📄'
+  instance: 'monitor',
+  volume: 'hard-drive',
+  network: 'globe',
+  image: 'disc',
+  project: 'folder',
+  page: 'file-text'
 }
 
 export function CommandPalette() {
@@ -424,7 +424,7 @@ export function CommandPalette() {
                 onMouseEnter={() => setSelectedIndex(i)}
               >
                 <span className="text-base w-6 text-center shrink-0">
-                  {typeIcons[r.type] || '📄'}
+                  {typeIcons[r.type] || 'file-text'}
                 </span>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium truncate">{r.title}</div>
