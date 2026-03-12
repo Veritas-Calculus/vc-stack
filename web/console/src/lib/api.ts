@@ -1899,3 +1899,700 @@ export async function cloneVolume(volumeId: string, name: string): Promise<void>
 export async function detachVolumeFromVM(volumeId: string, instanceId: string): Promise<void> {
   await api.post(`/v1/storage/volumes/${volumeId}/detach`, { instance_id: instanceId })
 }
+
+// ── Service Accounts (API Key Management) ───────────────────
+
+export type UIServiceAccount = {
+  id: number
+  name: string
+  description: string
+  project_id?: number
+  created_by_id: number
+  access_key_id: string
+  is_active: boolean
+  last_used_at?: string
+  expires_at?: string
+  created_at: string
+  updated_at: string
+  roles?: Array<{ id: number; name: string }>
+  policies?: Array<{ id: number; name: string }>
+}
+
+export type CreateServiceAccountResponse = {
+  service_account: UIServiceAccount
+  access_key_id: string
+  secret_key: string
+}
+
+export async function fetchServiceAccounts(): Promise<UIServiceAccount[]> {
+  const res = await api.get<{ service_accounts: UIServiceAccount[] }>('/v1/service-accounts')
+  return res.data.service_accounts ?? []
+}
+
+export async function createServiceAccount(body: {
+  name: string
+  description?: string
+  project_id?: number
+  expires_in?: string
+}): Promise<CreateServiceAccountResponse> {
+  const res = await api.post<CreateServiceAccountResponse>('/v1/service-accounts', body)
+  return res.data
+}
+
+export async function deleteServiceAccount(id: number): Promise<void> {
+  await api.delete(`/v1/service-accounts/${id}`)
+}
+
+export async function rotateServiceAccountKey(id: number): Promise<CreateServiceAccountResponse> {
+  const res = await api.post<CreateServiceAccountResponse>(`/v1/service-accounts/${id}/rotate`)
+  return res.data
+}
+
+export async function toggleServiceAccountStatus(id: number, active: boolean): Promise<void> {
+  await api.patch(`/v1/service-accounts/${id}/status`, { active })
+}
+
+// ── Alert Rules ─────────────────────────────────────────────
+
+export type UIAlertRule = {
+  id: number
+  name: string
+  description: string
+  metric: string
+  operator: string
+  threshold: number
+  duration: string
+  severity: string
+  resource_type: string
+  resource_id: string
+  channel: string
+  channel_target: string
+  enabled: boolean
+  state: string
+  last_eval_at?: string
+  fired_at?: string
+  resolved_at?: string
+  created_at: string
+}
+
+export type UIAlertHistory = {
+  id: number
+  rule_id: number
+  rule_name: string
+  metric: string
+  value: number
+  threshold: number
+  severity: string
+  state: string
+  message: string
+  fired_at: string
+  resolved_at?: string
+}
+
+export async function fetchAlertRules(): Promise<UIAlertRule[]> {
+  const res = await api.get<{ rules: UIAlertRule[] }>('/v1/alerts/rules')
+  return res.data.rules ?? []
+}
+
+export async function createAlertRule(body: {
+  name: string
+  metric: string
+  operator: string
+  threshold: number
+  duration?: string
+  severity?: string
+  resource_type?: string
+  channel?: string
+  channel_target?: string
+}): Promise<UIAlertRule> {
+  const res = await api.post<{ rule: UIAlertRule }>('/v1/alerts/rules', body)
+  return res.data.rule
+}
+
+export async function deleteAlertRule(id: number): Promise<void> {
+  await api.delete(`/v1/alerts/rules/${id}`)
+}
+
+export async function toggleAlertRule(id: number, enabled: boolean): Promise<void> {
+  await api.patch(`/v1/alerts/rules/${id}/toggle`, { enabled })
+}
+
+export async function fetchAlertHistory(ruleId?: number, limit = 50): Promise<UIAlertHistory[]> {
+  const params: Record<string, string> = { limit: String(limit) }
+  if (ruleId) params.rule_id = String(ruleId)
+  const res = await api.get<{ history: UIAlertHistory[] }>('/v1/alerts/history', { params })
+  return res.data.history ?? []
+}
+
+// ── Centralized Logging ─────────────────────────────────────
+
+export type UILogEntry = {
+  id: number
+  timestamp: string
+  level: string
+  source: string
+  component: string
+  message: string
+  host_id?: string
+  instance_id?: string
+  project_id?: string
+  request_id?: string
+  trace_id?: string
+}
+
+export type LogQueryParams = {
+  level?: string
+  source?: string
+  component?: string
+  search?: string
+  host_id?: string
+  instance_id?: string
+  since?: string
+  until?: string
+  limit?: number
+  offset?: number
+}
+
+export async function fetchLogs(
+  params: LogQueryParams
+): Promise<{ logs: UILogEntry[]; total: number }> {
+  const res = await api.get<{ logs: UILogEntry[]; total: number }>('/v1/logs', { params })
+  return { logs: res.data.logs ?? [], total: res.data.total ?? 0 }
+}
+
+export async function fetchLogStats(): Promise<
+  Array<{ source: string; level: string; count: number }>
+> {
+  const res = await api.get<{ stats: Array<{ source: string; level: string; count: number }> }>(
+    '/v1/logs/stats'
+  )
+  return res.data.stats ?? []
+}
+
+// ── Monitoring Metrics ──────────────────────────────────────
+
+export async function fetchSystemMetrics(): Promise<Record<string, unknown>> {
+  const res = await api.get<Record<string, unknown>>('/v1/monitoring/system')
+  return res.data
+}
+
+export async function fetchHTTPMetrics(): Promise<Record<string, unknown>[]> {
+  const res = await api.get<{ metrics: Record<string, unknown>[] }>('/v1/monitoring/http')
+  return res.data.metrics ?? []
+}
+
+export async function fetchComponentMetrics(component: string): Promise<Record<string, unknown>[]> {
+  const res = await api.get<{ metrics: Record<string, unknown>[] }>(
+    `/v1/monitoring/component/${component}`
+  )
+  return res.data.metrics ?? []
+}
+
+// ── L7 Application Load Balancers (ALB) ─────────────────────
+
+export type UILB7 = {
+  id: number
+  name: string
+  description: string
+  algorithm: string
+  status: string
+  vip: string
+  network_id: number
+  subnet_id: number
+  listeners?: Array<{ id: number; name: string; protocol: string; port: number }>
+  created_at: string
+}
+
+export async function fetchLB7s(): Promise<UILB7[]> {
+  const res = await api.get<{ load_balancers: UILB7[] }>('/v1/load-balancers')
+  return res.data.load_balancers ?? []
+}
+
+export async function createLB7(body: {
+  name: string
+  description?: string
+  algorithm?: string
+  network_id?: number
+  subnet_id?: number
+}): Promise<UILB7> {
+  const res = await api.post<{ load_balancer: UILB7 }>('/v1/load-balancers', body)
+  return res.data.load_balancer
+}
+
+export async function deleteLB7(id: number): Promise<void> {
+  await api.delete(`/v1/load-balancers/${id}`)
+}
+
+// ── VPC Flow Logs ───────────────────────────────────────────
+
+export type UIFlowLogConfig = {
+  id: number
+  name: string
+  network_id: number
+  direction: string
+  filter: string
+  enabled: boolean
+  created_at: string
+}
+
+export type UIFlowLogEntry = {
+  id: number
+  timestamp: string
+  direction: string
+  action: string
+  protocol: string
+  src_ip: string
+  src_port: number
+  dst_ip: string
+  dst_port: number
+  bytes: number
+  packets: number
+  network_id: number
+  instance_id?: string
+}
+
+export async function fetchFlowLogConfigs(): Promise<UIFlowLogConfig[]> {
+  const res = await api.get<{ configs: UIFlowLogConfig[] }>('/v1/flow-logs/configs')
+  return res.data.configs ?? []
+}
+
+export async function createFlowLogConfig(body: {
+  name: string
+  network_id: number
+  direction?: string
+  filter?: string
+}): Promise<UIFlowLogConfig> {
+  const res = await api.post<{ config: UIFlowLogConfig }>('/v1/flow-logs/configs', body)
+  return res.data.config
+}
+
+export async function deleteFlowLogConfig(id: number): Promise<void> {
+  await api.delete(`/v1/flow-logs/configs/${id}`)
+}
+
+export async function fetchFlowLogs(
+  params: Record<string, string | number>
+): Promise<{ flows: UIFlowLogEntry[]; total: number }> {
+  const res = await api.get<{ flows: UIFlowLogEntry[]; total: number }>('/v1/flow-logs', { params })
+  return { flows: res.data.flows ?? [], total: res.data.total ?? 0 }
+}
+
+// ── VPC Peering ─────────────────────────────────────────────
+
+export type UIVPCPeering = {
+  id: number
+  name: string
+  description: string
+  requester_network_id: number
+  requester_project_id: number
+  accepter_network_id: number
+  accepter_project_id: number
+  status: string
+  created_at: string
+}
+
+export async function fetchVPCPeerings(): Promise<UIVPCPeering[]> {
+  const res = await api.get<{ peerings: UIVPCPeering[] }>('/v1/vpc-peerings')
+  return res.data.peerings ?? []
+}
+
+export async function createVPCPeering(body: {
+  name: string
+  requester_network_id: number
+  accepter_network_id: number
+  description?: string
+}): Promise<UIVPCPeering> {
+  const res = await api.post<{ peering: UIVPCPeering }>('/v1/vpc-peerings', body)
+  return res.data.peering
+}
+
+export async function acceptVPCPeering(id: number): Promise<void> {
+  await api.post(`/v1/vpc-peerings/${id}/accept`)
+}
+
+export async function rejectVPCPeering(id: number): Promise<void> {
+  await api.post(`/v1/vpc-peerings/${id}/reject`)
+}
+
+export async function deleteVPCPeering(id: number): Promise<void> {
+  await api.delete(`/v1/vpc-peerings/${id}`)
+}
+
+// ── DBaaS (Managed Database) ────────────────────────────────
+
+export type UIDBInstance = {
+  id: number
+  name: string
+  engine: string
+  engine_version: string
+  storage_gb: number
+  storage_type: string
+  status: string
+  endpoint: string
+  port: number
+  admin_user: string
+  database_name: string
+  backup_enabled: boolean
+  backup_window: string
+  retention_days: number
+  multi_az: boolean
+  replicas?: Array<{ id: number; name: string; status: string; endpoint?: string }>
+  created_at: string
+}
+
+export async function fetchDBInstances(): Promise<UIDBInstance[]> {
+  const res = await api.get<{ databases: UIDBInstance[] }>('/v1/databases')
+  return res.data.databases ?? []
+}
+
+export async function createDBInstance(body: {
+  name: string
+  engine: string
+  engine_version?: string
+  storage_gb?: number
+  storage_type?: string
+  database_name?: string
+  backup_enabled?: boolean
+  multi_az?: boolean
+}): Promise<UIDBInstance> {
+  const res = await api.post<{ database: UIDBInstance }>('/v1/databases', body)
+  return res.data.database
+}
+
+export async function deleteDBInstance(id: number): Promise<void> {
+  await api.delete(`/v1/databases/${id}`)
+}
+
+export async function addDBReplica(id: number, name: string): Promise<void> {
+  await api.post(`/v1/databases/${id}/replicas`, { name })
+}
+
+// ── Launch Templates & Scaling Groups ───────────────────────
+
+export type UILaunchTemplate = {
+  id: number
+  name: string
+  description: string
+  flavor_id: number
+  image_id: number
+  network_id: number
+  version: number
+  created_at: string
+}
+
+export type UIScalingGroup = {
+  id: number
+  name: string
+  launch_template_id: number
+  min_size: number
+  max_size: number
+  desired_capacity: number
+  current_size: number
+  cooldown_seconds: number
+  status: string
+  policies?: Array<{
+    id: number
+    name: string
+    metric_name: string
+    target_value: number
+    policy_type: string
+  }>
+  created_at: string
+}
+
+export async function fetchLaunchTemplates(): Promise<UILaunchTemplate[]> {
+  const res = await api.get<{ templates: UILaunchTemplate[] }>('/v1/launch-templates')
+  return res.data.templates ?? []
+}
+
+export async function createLaunchTemplate(body: {
+  name: string
+  description?: string
+  flavor_id?: number
+  image_id?: number
+  network_id?: number
+  user_data?: string
+}): Promise<UILaunchTemplate> {
+  const res = await api.post<{ template: UILaunchTemplate }>('/v1/launch-templates', body)
+  return res.data.template
+}
+
+export async function deleteLaunchTemplate(id: number): Promise<void> {
+  await api.delete(`/v1/launch-templates/${id}`)
+}
+
+export async function fetchScalingGroups(): Promise<UIScalingGroup[]> {
+  const res = await api.get<{ groups: UIScalingGroup[] }>('/v1/scaling-groups')
+  return res.data.groups ?? []
+}
+
+export async function createScalingGroup(body: {
+  name: string
+  launch_template_id: number
+  min_size?: number
+  max_size?: number
+  desired_capacity?: number
+}): Promise<UIScalingGroup> {
+  const res = await api.post<{ group: UIScalingGroup }>('/v1/scaling-groups', body)
+  return res.data.group
+}
+
+export async function deleteScalingGroup(id: number): Promise<void> {
+  await api.delete(`/v1/scaling-groups/${id}`)
+}
+
+// ── Container Registry ──────────────────────────────────────
+
+export type UIImageRepo = {
+  id: number
+  name: string
+  description: string
+  visibility: string
+  tag_count: number
+  created_at: string
+  tags?: Array<{
+    id: number
+    tag: string
+    digest: string
+    size_bytes: number
+    architecture: string
+    pushed_at: string
+  }>
+}
+
+export async function fetchImageRepos(): Promise<UIImageRepo[]> {
+  const res = await api.get<{ repositories: UIImageRepo[] }>('/v1/registries')
+  return res.data.repositories ?? []
+}
+
+export async function createImageRepo(body: {
+  name: string
+  description?: string
+  visibility?: string
+}): Promise<UIImageRepo> {
+  const res = await api.post<{ repository: UIImageRepo }>('/v1/registries', body)
+  return res.data.repository
+}
+
+export async function deleteImageRepo(id: number): Promise<void> {
+  await api.delete(`/v1/registries/${id}`)
+}
+
+export async function getImageRepoDetail(id: number): Promise<UIImageRepo> {
+  const res = await api.get<{ repository: UIImageRepo }>(`/v1/registries/${id}`)
+  return res.data.repository
+}
+
+// ── N5: Organization ────────────────────────────────────────
+
+export type UIOrganization = {
+  id: number
+  name: string
+  display_name: string
+  description: string
+  status: string
+  ous?: Array<{ id: number; name: string; path: string }>
+  created_at: string
+}
+
+export async function fetchOrganizations(): Promise<UIOrganization[]> {
+  const res = await api.get<{ organizations: UIOrganization[] }>('/v1/organizations')
+  return res.data.organizations ?? []
+}
+
+export async function createOrganization(body: {
+  name: string
+  display_name?: string
+  description?: string
+}): Promise<UIOrganization> {
+  const res = await api.post<{ organization: UIOrganization }>('/v1/organizations', body)
+  return res.data.organization
+}
+
+export async function deleteOrganization(id: number): Promise<void> {
+  await api.delete(`/v1/organizations/${id}`)
+}
+
+// ── N5: Secrets Manager ─────────────────────────────────────
+
+export type UISecret = {
+  id: number
+  name: string
+  description: string
+  version_id: number
+  rotate_after_days: number
+  last_rotated?: string
+  created_at: string
+}
+
+export async function fetchSecrets(): Promise<UISecret[]> {
+  const res = await api.get<{ secrets: UISecret[] }>('/v1/secrets')
+  return res.data.secrets ?? []
+}
+
+export async function createSecret(body: {
+  name: string
+  description?: string
+  value: string
+  rotate_after_days?: number
+}): Promise<UISecret> {
+  const res = await api.post<{ secret: UISecret }>('/v1/secrets', body)
+  return res.data.secret
+}
+
+export async function deleteSecret(id: number): Promise<void> {
+  await api.delete(`/v1/secrets/${id}`)
+}
+export async function rotateSecret(id: number): Promise<void> {
+  await api.post(`/v1/secrets/${id}/rotate`)
+}
+
+// ── N5: Budget ──────────────────────────────────────────────
+
+export type UIBudget = {
+  id: number
+  name: string
+  project_id: number
+  limit_amount: number
+  currency: string
+  period: string
+  current_spend: number
+  thresholds?: Array<{ id: number; percent: number; triggered: boolean }>
+  alerts?: Array<{ id: number; percent: number; spend: number; created_at: string }>
+  created_at: string
+}
+
+export async function fetchBudgets(): Promise<UIBudget[]> {
+  const res = await api.get<{ budgets: UIBudget[] }>('/v1/budgets')
+  return res.data.budgets ?? []
+}
+
+export async function createBudget(body: {
+  name: string
+  project_id: number
+  limit_amount: number
+  thresholds?: number[]
+}): Promise<UIBudget> {
+  const res = await api.post<{ budget: UIBudget }>('/v1/budgets', body)
+  return res.data.budget
+}
+
+export async function deleteBudget(id: number): Promise<void> {
+  await api.delete(`/v1/budgets/${id}`)
+}
+
+// ── N5: Placement Groups ───────────────────────────────────
+
+export type UIPlacementGroup = {
+  id: number
+  name: string
+  strategy: string
+  members?: Array<{ id: number; instance_id: string; host_id?: string }>
+  created_at: string
+}
+
+export async function fetchPlacementGroups(): Promise<UIPlacementGroup[]> {
+  const res = await api.get<{ groups: UIPlacementGroup[] }>('/v1/placement-groups')
+  return res.data.groups ?? []
+}
+
+export async function createPlacementGroup(body: {
+  name: string
+  strategy: string
+}): Promise<UIPlacementGroup> {
+  const res = await api.post<{ group: UIPlacementGroup }>('/v1/placement-groups', body)
+  return res.data.group
+}
+
+export async function deletePlacementGroup(id: number): Promise<void> {
+  await api.delete(`/v1/placement-groups/${id}`)
+}
+
+// ── N6: File Shares ─────────────────────────────────────────
+
+export type UIFileShare = {
+  id: number
+  name: string
+  protocol: string
+  size_gb: number
+  used_gb: number
+  export_path: string
+  status: string
+  access_rules?: Array<{ id: number; access_to: string; access_level: string }>
+  created_at: string
+}
+
+export async function fetchFileShares(): Promise<UIFileShare[]> {
+  const res = await api.get<{ shares: UIFileShare[] }>('/v1/file-shares')
+  return res.data.shares ?? []
+}
+
+export async function createFileShare(body: {
+  name: string
+  protocol?: string
+  size_gb?: number
+}): Promise<UIFileShare> {
+  const res = await api.post<{ share: UIFileShare }>('/v1/file-shares', body)
+  return res.data.share
+}
+
+export async function deleteFileShare(id: number): Promise<void> {
+  await api.delete(`/v1/file-shares/${id}`)
+}
+
+// ── N6: Storage QoS ─────────────────────────────────────────
+
+export type UIStorageQoS = {
+  id: number
+  name: string
+  description: string
+  tier: string
+  max_iops: number
+  burst_iops: number
+  max_throughput_mb: number
+  min_iops: number
+  per_gb_iops: number
+  created_at: string
+}
+
+export async function fetchStorageQoSPolicies(): Promise<UIStorageQoS[]> {
+  const res = await api.get<{ policies: UIStorageQoS[] }>('/v1/storage-qos/policies')
+  return res.data.policies ?? []
+}
+
+export async function createStorageQoSPolicy(body: {
+  name: string
+  max_iops?: number
+  tier?: string
+}): Promise<UIStorageQoS> {
+  const res = await api.post<{ policy: UIStorageQoS }>('/v1/storage-qos/policies', body)
+  return res.data.policy
+}
+
+export async function deleteStorageQoSPolicy(id: number): Promise<void> {
+  await api.delete(`/v1/storage-qos/policies/${id}`)
+}
+
+// ── N6: Preemptible Instances ───────────────────────────────
+
+export type UIPreemptibleInstance = {
+  id: number
+  instance_id: string
+  flavor_id: number
+  status: string
+  spot_price: number
+  started_at: string
+  expires_at?: string
+  reason?: string
+}
+
+export async function fetchPreemptibleInstances(): Promise<UIPreemptibleInstance[]> {
+  const res = await api.get<{ instances: UIPreemptibleInstance[] }>('/v1/preemptible/instances')
+  return res.data.instances ?? []
+}
+
+export async function terminatePreemptible(instanceID: string, reason?: string): Promise<void> {
+  await api.post(`/v1/preemptible/instances/${instanceID}/terminate`, {
+    reason: reason ?? 'manual'
+  })
+}

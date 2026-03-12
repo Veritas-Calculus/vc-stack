@@ -1,303 +1,266 @@
-// Package registry implements a lightweight service discovery registry
-// for VC Stack. Services register themselves with health endpoints,
-// metadata, and tags. The registry tracks heartbeats and automatically
-// deregisters unhealthy instances.
+// Package registry provides a built-in container image registry for VC Stack.
+//
+// It manages repositories, image tags, and manifests. In production, this
+// would front a Distribution (Docker Registry v2) or Harbor instance.
+// CaaS clusters pull images from this registry via standard Docker protocol.
 package registry
 
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
-
-	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
-// ---------- Models ----------
+// ──────────────────────────────────────────────────────────────────────
+// Models
+// ──────────────────────────────────────────────────────────────────────
 
-// ServiceInstance represents a registered service endpoint.
-type ServiceInstance struct {
-	ID            string     `json:"id" gorm:"primaryKey;type:varchar(36)"`
-	ServiceName   string     `json:"service_name" gorm:"not null;index"`
-	Version       string     `json:"version"`
-	Host          string     `json:"host" gorm:"not null"`
-	Port          int        `json:"port" gorm:"not null"`
-	Scheme        string     `json:"scheme" gorm:"default:'http'"`
-	HealthPath    string     `json:"health_path" gorm:"default:'/health'"`
-	Tags          string     `json:"tags" gorm:"type:text"`      // JSON array
-	Metadata      string     `json:"metadata" gorm:"type:text"`  // JSON object
-	Status        string     `json:"status" gorm:"default:'up'"` // up, down, draining, starting
-	Weight        int        `json:"weight" gorm:"default:100"`  // load-balancing weight
-	Zone          string     `json:"zone"`                       // availability zone
-	Region        string     `json:"region"`
-	LastHeartbeat *time.Time `json:"last_heartbeat"`
-	RegisteredAt  time.Time  `json:"registered_at"`
-	UpdatedAt     time.Time  `json:"updated_at"`
+// ImageRepository represents a container image repository.
+type ImageRepository struct {
+	ID          uint       `json:"id" gorm:"primarykey"`
+	Name        string     `json:"name" gorm:"uniqueIndex;not null"` // e.g. "myproject/nginx"
+	Description string     `json:"description"`
+	Visibility  string     `json:"visibility" gorm:"default:'private'"` // private, public
+	ProjectID   uint       `json:"project_id" gorm:"index"`
+	TagCount    int        `json:"tag_count" gorm:"-"`
+	SizeBytes   int64      `json:"size_bytes" gorm:"-"`
+	Tags        []ImageTag `json:"tags,omitempty" gorm:"foreignKey:RepositoryID"`
+	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"`
 }
 
-func (ServiceInstance) TableName() string { return "registry_instances" }
-
-// ServiceRoute defines an API route provided by a service.
-type ServiceRoute struct {
-	ID           string    `json:"id" gorm:"primaryKey;type:varchar(36)"`
-	ServiceName  string    `json:"service_name" gorm:"not null;index"`
-	Method       string    `json:"method"` // GET, POST, PUT, DELETE, *
-	PathPrefix   string    `json:"path_prefix" gorm:"not null"`
-	Description  string    `json:"description"`
-	AuthRequired bool      `json:"auth_required" gorm:"default:true"`
-	RateLimit    int       `json:"rate_limit"` // requests per minute, 0 = unlimited
+// ImageTag represents a tagged image within a repository.
+type ImageTag struct {
+	ID           uint      `json:"id" gorm:"primarykey"`
+	RepositoryID uint      `json:"repository_id" gorm:"index;not null"`
+	Tag          string    `json:"tag" gorm:"not null"` // e.g. "latest", "v1.0.0"
+	Digest       string    `json:"digest"`              // sha256:...
+	SizeBytes    int64     `json:"size_bytes"`
+	Architecture string    `json:"architecture" gorm:"default:'amd64'"`
+	OS           string    `json:"os" gorm:"default:'linux'"`
+	PushedAt     time.Time `json:"pushed_at"`
 	CreatedAt    time.Time `json:"created_at"`
 }
 
-func (ServiceRoute) TableName() string { return "registry_routes" }
+// ──────────────────────────────────────────────────────────────────────
+// Service
+// ──────────────────────────────────────────────────────────────────────
 
-// ---------- Service ----------
-
+// Config holds registry service configuration.
 type Config struct {
 	DB     *gorm.DB
 	Logger *zap.Logger
 }
 
+// Service provides container registry operations.
 type Service struct {
 	db     *gorm.DB
 	logger *zap.Logger
 }
 
+// NewService creates a new registry service.
 func NewService(cfg Config) (*Service, error) {
-	s := &Service{db: cfg.DB, logger: cfg.Logger}
-	if err := cfg.DB.AutoMigrate(&ServiceInstance{}, &ServiceRoute{}); err != nil {
-		return nil, fmt.Errorf("registry: migrate: %w", err)
+	if err := cfg.DB.AutoMigrate(&ImageRepository{}, &ImageTag{}); err != nil {
+		return nil, fmt.Errorf("registry auto-migrate: %w", err)
 	}
-	s.seedDefaults()
-	s.logger.Info("Service registry initialized")
-	return s, nil
+	return &Service{db: cfg.DB, logger: cfg.Logger}, nil
 }
 
-func (s *Service) seedDefaults() {
-	now := time.Now()
-	instances := []ServiceInstance{
-		{ID: uuid.New().String(), ServiceName: "vc-management", Version: "1.0.0",
-			Host: "localhost", Port: 8080, Scheme: "http", HealthPath: "/health",
-			Tags: `["management","api","web"]`, Metadata: `{"binary":"vc-management","pid":1}`,
-			Status: "up", Weight: 100, Zone: "az-1", Region: "dc-primary",
-			LastHeartbeat: &now, RegisteredAt: now},
-		{ID: uuid.New().String(), ServiceName: "vc-compute", Version: "1.0.0",
-			Host: "compute-01", Port: 8081, Scheme: "http", HealthPath: "/health",
-			Tags: `["compute","hypervisor","kvm"]`, Metadata: `{"binary":"vc-compute","hypervisor":"qemu-kvm","cpu_cores":64}`,
-			Status: "up", Weight: 100, Zone: "az-1", Region: "dc-primary",
-			LastHeartbeat: &now, RegisteredAt: now},
-		{ID: uuid.New().String(), ServiceName: "vc-compute", Version: "1.0.0",
-			Host: "compute-02", Port: 8081, Scheme: "http", HealthPath: "/health",
-			Tags: `["compute","hypervisor","kvm","gpu"]`, Metadata: `{"binary":"vc-compute","hypervisor":"qemu-kvm","cpu_cores":128,"gpu":"A100"}`,
-			Status: "up", Weight: 100, Zone: "az-2", Region: "dc-primary",
-			LastHeartbeat: &now, RegisteredAt: now},
-		{ID: uuid.New().String(), ServiceName: "postgres", Version: "16.2",
-			Host: "postgres", Port: 5432, Scheme: "tcp", HealthPath: "",
-			Tags: `["database","primary"]`, Metadata: `{"engine":"PostgreSQL","role":"primary"}`,
-			Status: "up", Weight: 100, Zone: "az-1", Region: "dc-primary",
-			LastHeartbeat: &now, RegisteredAt: now},
-		{ID: uuid.New().String(), ServiceName: "ovn-central", Version: "23.09",
-			Host: "ovn-central-01", Port: 6641, Scheme: "tcp", HealthPath: "",
-			Tags: `["sdn","ovn","networking"]`, Metadata: `{"component":"ovn-northd","nb_port":6641,"sb_port":6642}`,
-			Status: "up", Weight: 100, Zone: "az-1", Region: "dc-primary",
-			LastHeartbeat: &now, RegisteredAt: now},
-	}
-	for i := range instances {
-		s.db.Where("service_name = ? AND host = ? AND port = ?",
-			instances[i].ServiceName, instances[i].Host, instances[i].Port).FirstOrCreate(&instances[i])
-	}
+// ── Repository CRUD ──────────────────────────────────────────
 
-	routes := []ServiceRoute{
-		{ID: uuid.New().String(), ServiceName: "vc-management", Method: "*", PathPrefix: "/api/v1/auth", Description: "Authentication", AuthRequired: false, RateLimit: 30},
-		{ID: uuid.New().String(), ServiceName: "vc-management", Method: "*", PathPrefix: "/api/v1/projects", Description: "Project Management", AuthRequired: true, RateLimit: 100},
-		{ID: uuid.New().String(), ServiceName: "vc-management", Method: "*", PathPrefix: "/api/v1/identity", Description: "Identity & RBAC", AuthRequired: true, RateLimit: 100},
-		{ID: uuid.New().String(), ServiceName: "vc-management", Method: "*", PathPrefix: "/api/v1/networks", Description: "Network Management", AuthRequired: true, RateLimit: 60},
-		{ID: uuid.New().String(), ServiceName: "vc-management", Method: "*", PathPrefix: "/api/v1/dns", Description: "DNS Management", AuthRequired: true, RateLimit: 60},
-		{ID: uuid.New().String(), ServiceName: "vc-compute", Method: "*", PathPrefix: "/api/v1/instances", Description: "VM Lifecycle", AuthRequired: true, RateLimit: 30},
-		{ID: uuid.New().String(), ServiceName: "vc-compute", Method: "*", PathPrefix: "/api/v1/volumes", Description: "Volume Management", AuthRequired: true, RateLimit: 60},
-	}
-	for i := range routes {
-		s.db.Where("service_name = ? AND path_prefix = ?", routes[i].ServiceName, routes[i].PathPrefix).FirstOrCreate(&routes[i])
-	}
+// CreateRepoRequest is the request body for creating a repository.
+type CreateRepoRequest struct {
+	Name        string `json:"name" binding:"required"`
+	Description string `json:"description"`
+	Visibility  string `json:"visibility"`
 }
 
-// ---------- Routes ----------
-
-func (s *Service) SetupRoutes(router *gin.Engine) {
-	rp := middleware.RequirePermission
-	api := router.Group("/api/v1/registry")
-	{
-		api.GET("/status", rp("registry", "list"), s.getStatus)
-		api.GET("/services", rp("registry", "list"), s.listServices)
-		api.GET("/services/:name", rp("registry", "get"), s.getService)
-		api.POST("/register", rp("registry", "create"), s.register)
-		api.DELETE("/deregister/:id", rp("registry", "delete"), s.deregister)
-		api.PUT("/heartbeat/:id", rp("registry", "update"), s.heartbeat)
-		api.PUT("/instances/:id/drain", rp("registry", "update"), s.drain)
-		api.GET("/routes", rp("registry", "list"), s.listRoutes)
-		api.GET("/topology", rp("registry", "list"), s.getTopology)
+// CreateRepo creates a new container repository.
+func (s *Service) CreateRepo(projectID uint, req *CreateRepoRequest) (*ImageRepository, error) {
+	r := &ImageRepository{
+		Name: req.Name, Description: req.Description,
+		Visibility: defaultS(req.Visibility, "private"),
+		ProjectID:  projectID,
 	}
+	if err := s.db.Create(r).Error; err != nil {
+		return nil, err
+	}
+	return r, nil
 }
 
-// ---------- Handlers ----------
+// ListRepos returns all repositories.
+func (s *Service) ListRepos(projectID uint) ([]ImageRepository, error) {
+	var repos []ImageRepository
+	q := s.db.Order("created_at DESC")
+	if projectID > 0 {
+		q = q.Where("project_id = ?", projectID)
+	}
+	if err := q.Find(&repos).Error; err != nil {
+		return nil, err
+	}
+	for i := range repos {
+		var count int64
+		s.db.Model(&ImageTag{}).Where("repository_id = ?", repos[i].ID).Count(&count)
+		repos[i].TagCount = int(count)
+	}
+	return repos, nil
+}
 
-func (s *Service) getStatus(c *gin.Context) {
-	var total, up, down int64
-	s.db.Model(&ServiceInstance{}).Count(&total)
-	s.db.Model(&ServiceInstance{}).Where("status = ?", "up").Count(&up)
-	s.db.Model(&ServiceInstance{}).Where("status = ?", "down").Count(&down)
-	var services int64
-	s.db.Model(&ServiceInstance{}).Distinct("service_name").Count(&services)
-	var routes int64
-	s.db.Model(&ServiceRoute{}).Count(&routes)
+// GetRepo returns a repository with all tags.
+func (s *Service) GetRepo(id uint) (*ImageRepository, error) {
+	var r ImageRepository
+	if err := s.db.Preload("Tags").First(&r, id).Error; err != nil {
+		return nil, err
+	}
+	r.TagCount = len(r.Tags)
+	return &r, nil
+}
 
-	c.JSON(http.StatusOK, gin.H{
-		"status":              "operational",
-		"unique_services":     services,
-		"total_instances":     total,
-		"healthy_instances":   up,
-		"unhealthy_instances": down,
-		"registered_routes":   routes,
+// DeleteRepo deletes a repository and all its tags.
+func (s *Service) DeleteRepo(id uint) error {
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		tx.Where("repository_id = ?", id).Delete(&ImageTag{})
+		return tx.Delete(&ImageRepository{}, id).Error
 	})
 }
 
-func (s *Service) listServices(c *gin.Context) {
-	type svcSummary struct {
-		ServiceName string `json:"service_name"`
-		Instances   int64  `json:"instances"`
-		Healthy     int64  `json:"healthy"`
-	}
+// ── Tag Operations ───────────────────────────────────────────
 
-	var names []string
-	s.db.Model(&ServiceInstance{}).Distinct("service_name").Pluck("service_name", &names)
-
-	summaries := make([]svcSummary, 0, len(names))
-	for _, n := range names {
-		var cnt, healthy int64
-		s.db.Model(&ServiceInstance{}).Where("service_name = ?", n).Count(&cnt)
-		s.db.Model(&ServiceInstance{}).Where("service_name = ? AND status = ?", n, "up").Count(&healthy)
-		summaries = append(summaries, svcSummary{ServiceName: n, Instances: cnt, Healthy: healthy})
-	}
-	c.JSON(http.StatusOK, gin.H{"services": summaries})
+// PushTagRequest simulates pushing a new tag.
+type PushTagRequest struct {
+	Tag          string `json:"tag" binding:"required"`
+	Digest       string `json:"digest"`
+	SizeBytes    int64  `json:"size_bytes"`
+	Architecture string `json:"architecture"`
+	OS           string `json:"os"`
 }
 
-func (s *Service) getService(c *gin.Context) {
-	name := c.Param("name")
-	var instances []ServiceInstance
-	s.db.Where("service_name = ?", name).Order("zone, host").Find(&instances)
-	if len(instances) == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "service not found"})
+// PushTag pushes (creates/updates) a tag in a repository.
+func (s *Service) PushTag(repoID uint, req *PushTagRequest) (*ImageTag, error) {
+	var existing ImageTag
+	err := s.db.Where("repository_id = ? AND tag = ?", repoID, req.Tag).First(&existing).Error
+	if err == nil {
+		existing.Digest = req.Digest
+		existing.SizeBytes = req.SizeBytes
+		existing.PushedAt = time.Now()
+		if req.Architecture != "" {
+			existing.Architecture = req.Architecture
+		}
+		if err := s.db.Save(&existing).Error; err != nil {
+			return nil, err
+		}
+		return &existing, nil
+	}
+
+	t := &ImageTag{
+		RepositoryID: repoID, Tag: req.Tag, Digest: req.Digest,
+		SizeBytes: req.SizeBytes, Architecture: defaultS(req.Architecture, "amd64"),
+		OS: defaultS(req.OS, "linux"), PushedAt: time.Now(),
+	}
+	if err := s.db.Create(t).Error; err != nil {
+		return nil, err
+	}
+	return t, nil
+}
+
+// DeleteTag deletes a tag from a repository.
+func (s *Service) DeleteTag(id uint) error {
+	return s.db.Delete(&ImageTag{}, id).Error
+}
+
+// ──────────────────────────────────────────────────────────────────────
+// HTTP Handlers
+// ──────────────────────────────────────────────────────────────────────
+
+// SetupRoutes registers registry API routes.
+func (s *Service) SetupRoutes(router *gin.Engine) {
+	api := router.Group("/api/v1/registries")
+	{
+		api.GET("", s.handleListRepos)
+		api.POST("", s.handleCreateRepo)
+		api.GET("/:id", s.handleGetRepo)
+		api.DELETE("/:id", s.handleDeleteRepo)
+		api.POST("/:id/tags", s.handlePushTag)
+		api.DELETE("/tags/:tid", s.handleDeleteTag)
+	}
+}
+
+func (s *Service) handleListRepos(c *gin.Context) {
+	repos, err := s.ListRepos(0)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	var routes []ServiceRoute
-	s.db.Where("service_name = ?", name).Find(&routes)
-	c.JSON(http.StatusOK, gin.H{"service": name, "instances": instances, "routes": routes})
+	c.JSON(http.StatusOK, gin.H{"repositories": repos})
 }
 
-func (s *Service) register(c *gin.Context) {
-	var req ServiceInstance
+func (s *Service) handleCreateRepo(c *gin.Context) {
+	var req CreateRepoRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	req.ID = uuid.New().String()
-	req.Status = "starting"
-	now := time.Now()
-	req.LastHeartbeat = &now
-	req.RegisteredAt = now
-	s.db.Create(&req)
-
-	// Auto-promote to up
-	s.db.Model(&req).Update("status", "up")
-	req.Status = "up"
-
-	s.logger.Info("Service registered", zap.String("service", req.ServiceName),
-		zap.String("host", req.Host), zap.Int("port", req.Port))
-	c.JSON(http.StatusCreated, gin.H{"instance": req})
-}
-
-func (s *Service) deregister(c *gin.Context) {
-	id := c.Param("id")
-	var inst ServiceInstance
-	if err := s.db.First(&inst, "id = ?", id).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "instance not found"})
+	r, err := s.CreateRepo(0, &req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	s.db.Delete(&inst)
-	s.logger.Info("Service deregistered", zap.String("service", inst.ServiceName), zap.String("host", inst.Host))
-	c.JSON(http.StatusOK, gin.H{"message": "deregistered"})
+	c.JSON(http.StatusCreated, gin.H{"repository": r})
 }
 
-func (s *Service) heartbeat(c *gin.Context) {
-	id := c.Param("id")
-	now := time.Now()
-	result := s.db.Model(&ServiceInstance{}).Where("id = ?", id).Updates(map[string]interface{}{
-		"last_heartbeat": now, "status": "up",
-	})
-	if result.RowsAffected == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "instance not found"})
+func (s *Service) handleGetRepo(c *gin.Context) {
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	r, err := s.GetRepo(uint(id))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "heartbeat received", "timestamp": now})
+	c.JSON(http.StatusOK, gin.H{"repository": r})
 }
 
-func (s *Service) drain(c *gin.Context) {
-	id := c.Param("id")
-	result := s.db.Model(&ServiceInstance{}).Where("id = ?", id).Update("status", "draining")
-	if result.RowsAffected == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "instance not found"})
+func (s *Service) handleDeleteRepo(c *gin.Context) {
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err := s.DeleteRepo(uint(id)); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "instance set to draining"})
+	c.JSON(http.StatusNoContent, nil)
 }
 
-func (s *Service) listRoutes(c *gin.Context) {
-	var routes []ServiceRoute
-	s.db.Order("service_name, path_prefix").Find(&routes)
-	c.JSON(http.StatusOK, gin.H{"routes": routes})
+func (s *Service) handlePushTag(c *gin.Context) {
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+	var req PushTagRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	t, err := s.PushTag(uint(id), &req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusCreated, gin.H{"tag": t})
 }
 
-func (s *Service) getTopology(c *gin.Context) {
-	var instances []ServiceInstance
-	s.db.Order("region, zone, service_name").Find(&instances)
+func (s *Service) handleDeleteTag(c *gin.Context) {
+	tid, _ := strconv.ParseUint(c.Param("tid"), 10, 64)
+	if err := s.DeleteTag(uint(tid)); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusNoContent, nil)
+}
 
-	// Build topology tree: region → zone → services
-	type zoneInfo struct {
-		Zone      string            `json:"zone"`
-		Instances []ServiceInstance `json:"instances"`
-	}
-	type regionInfo struct {
-		Region string     `json:"region"`
-		Zones  []zoneInfo `json:"zones"`
-	}
+// ──────────────────────────────────────────────────────────────────────
 
-	regionMap := map[string]map[string][]ServiceInstance{}
-	for _, inst := range instances {
-		r := inst.Region
-		if r == "" {
-			r = "default"
-		}
-		z := inst.Zone
-		if z == "" {
-			z = "default"
-		}
-		if regionMap[r] == nil {
-			regionMap[r] = map[string][]ServiceInstance{}
-		}
-		regionMap[r][z] = append(regionMap[r][z], inst)
+func defaultS(v, d string) string {
+	if v == "" {
+		return d
 	}
-
-	var topology []regionInfo
-	for rName, zones := range regionMap {
-		ri := regionInfo{Region: rName}
-		for zName, insts := range zones {
-			ri.Zones = append(ri.Zones, zoneInfo{Zone: zName, Instances: insts})
-		}
-		topology = append(topology, ri)
-	}
-	c.JSON(http.StatusOK, gin.H{"topology": topology})
+	return v
 }

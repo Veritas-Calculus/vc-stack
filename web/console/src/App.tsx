@@ -22,6 +22,23 @@ import { Templates } from '@/features/templates/Templates'
 import { Isos, K8sIsos } from '@/features/templates/Isos'
 import { Roles } from '@/features/iam/Roles'
 import { Policies } from '@/features/iam/Policies'
+import { ServiceAccounts } from '@/features/iam/ServiceAccounts'
+import { AlertRules } from '@/features/monitoring/AlertRules'
+import { LogViewer } from '@/features/monitoring/LogViewer'
+import { MetricsDashboard } from '@/features/monitoring/MetricsDashboard'
+import { LoadBalancersL7 } from '@/features/network/LoadBalancersL7'
+import { FlowLogs } from '@/features/network/FlowLogs'
+import { VPCPeering } from '@/features/network/VPCPeering'
+import { DBaaS } from '@/features/compute/DBaaS'
+import { AutoScale as AutoScaleV2 } from '@/features/compute/AutoScale'
+import { ContainerRegistry } from '@/features/compute/ContainerRegistry'
+import { Organizations } from '@/features/iam/Organizations'
+import { SecretsManager } from '@/features/iam/SecretsManager'
+import { BudgetAlerts } from '@/features/billing/BudgetAlerts'
+import { PlacementGroups } from '@/features/compute/PlacementGroups'
+import { FileShares } from '@/features/storage/FileShares'
+import { StorageQoS } from '@/features/storage/StorageQoS'
+import { PreemptibleInstances } from '@/features/compute/PreemptibleInstances'
 import { Accounts } from '@/features/accounts/Accounts'
 import { Infrastructure } from '@/features/infrastructure/Infrastructure'
 import { Dashboard } from '@/features/dashboard/Dashboard'
@@ -184,6 +201,28 @@ export default function App() {
                 <Route path="/images/k8s-iso" element={<K8sIsos />} />
                 <Route path="/iam/roles" element={<Roles />} />
                 <Route path="/iam/policies" element={<Policies />} />
+                <Route path="/iam/service-accounts" element={<ServiceAccounts />} />
+                {/* Observability */}
+                <Route path="/monitoring/alerts" element={<AlertRules />} />
+                <Route path="/monitoring/logs" element={<LogViewer />} />
+                <Route path="/monitoring/metrics" element={<MetricsDashboard />} />
+                {/* Network Enhancement */}
+                <Route path="/network/alb" element={<LoadBalancersL7 />} />
+                <Route path="/network/flow-logs" element={<FlowLogs />} />
+                <Route path="/network/peering" element={<VPCPeering />} />
+                {/* Managed Services */}
+                <Route path="/compute/databases" element={<DBaaS />} />
+                <Route path="/compute/autoscale" element={<AutoScaleV2 />} />
+                <Route path="/compute/registry" element={<ContainerRegistry />} />
+                {/* N5: IAM & Cost Governance */}
+                <Route path="/iam/organizations" element={<Organizations />} />
+                <Route path="/iam/secrets" element={<SecretsManager />} />
+                <Route path="/billing/budgets" element={<BudgetAlerts />} />
+                <Route path="/compute/placement-groups" element={<PlacementGroups />} />
+                {/* N6: Storage & Advanced Compute */}
+                <Route path="/storage/file-shares" element={<FileShares />} />
+                <Route path="/storage/qos" element={<StorageQoS />} />
+                <Route path="/compute/preemptible" element={<PreemptibleInstances />} />
                 <Route path="/accounts" element={<Accounts />} />
                 {/* Security Groups (global) */}
                 <Route path="/network/security-groups" element={<SecurityGroups />} />
