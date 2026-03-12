@@ -39,6 +39,12 @@ import { PlacementGroups } from '@/features/compute/PlacementGroups'
 import { FileShares } from '@/features/storage/FileShares'
 import { StorageQoS } from '@/features/storage/StorageQoS'
 import { PreemptibleInstances } from '@/features/compute/PreemptibleInstances'
+import { ManagedRedis } from '@/features/compute/ManagedRedis'
+import { ManagedTiDB } from '@/features/compute/ManagedTiDB'
+import { ManagedElasticsearch } from '@/features/compute/ManagedElasticsearch'
+import { NATGateways } from '@/features/network/NATGateways'
+import { ABACPolicies } from '@/features/iam/ABACPolicies'
+import { Invoices } from '@/features/billing/Invoices'
 import { Accounts } from '@/features/accounts/Accounts'
 import { Infrastructure } from '@/features/infrastructure/Infrastructure'
 import { Dashboard } from '@/features/dashboard/Dashboard'
@@ -223,6 +229,14 @@ export default function App() {
                 <Route path="/storage/file-shares" element={<FileShares />} />
                 <Route path="/storage/qos" element={<StorageQoS />} />
                 <Route path="/compute/preemptible" element={<PreemptibleInstances />} />
+                {/* N7: Production Critical */}
+                <Route path="/compute/redis" element={<ManagedRedis />} />
+                <Route path="/network/nat-gateways" element={<NATGateways />} />
+                <Route path="/iam/abac" element={<ABACPolicies />} />
+                {/* N8: Data Services */}
+                <Route path="/compute/tidb" element={<ManagedTiDB />} />
+                <Route path="/compute/elasticsearch" element={<ManagedElasticsearch />} />
+                <Route path="/billing/invoices" element={<Invoices />} />
                 <Route path="/accounts" element={<Accounts />} />
                 {/* Security Groups (global) */}
                 <Route path="/network/security-groups" element={<SecurityGroups />} />

@@ -2596,3 +2596,206 @@ export async function terminatePreemptible(instanceID: string, reason?: string):
     reason: reason ?? 'manual'
   })
 }
+
+// ── N7: Managed Redis ───────────────────────────────────────
+
+export type UIRedisInstance = {
+  id: number
+  name: string
+  mode: string
+  version: string
+  memory_mb: number
+  replicas: number
+  shards: number
+  persistence: string
+  endpoint: string
+  multi_az: boolean
+  status: string
+  created_at: string
+}
+
+export async function fetchRedisInstances(): Promise<UIRedisInstance[]> {
+  const res = await api.get<{ instances: UIRedisInstance[] }>('/v1/redis/instances')
+  return res.data.instances ?? []
+}
+export async function createRedisInstance(body: {
+  name: string
+  mode?: string
+  memory_mb?: number
+  replicas?: number
+  shards?: number
+}): Promise<UIRedisInstance> {
+  const res = await api.post<{ instance: UIRedisInstance }>('/v1/redis/instances', body)
+  return res.data.instance
+}
+export async function deleteRedisInstance(id: number): Promise<void> {
+  await api.delete(`/v1/redis/instances/${id}`)
+}
+
+// ── N7: NAT Gateway ─────────────────────────────────────────
+
+export type UINATGateway = {
+  id: number
+  name: string
+  subnet_id: number
+  public_ip: string
+  bandwidth_mbps: number
+  bytes_in: number
+  bytes_out: number
+  status: string
+  created_at: string
+}
+
+export async function fetchNATGateways(): Promise<UINATGateway[]> {
+  const res = await api.get<{ gateways: UINATGateway[] }>('/v1/nat-gateways')
+  return res.data.gateways ?? []
+}
+export async function createNATGateway(body: {
+  name: string
+  subnet_id: number
+  bandwidth_mbps?: number
+}): Promise<UINATGateway> {
+  const res = await api.post<{ gateway: UINATGateway }>('/v1/nat-gateways', body)
+  return res.data.gateway
+}
+export async function deleteNATGateway(id: number): Promise<void> {
+  await api.delete(`/v1/nat-gateways/${id}`)
+}
+
+// ── N7: ABAC Policies ───────────────────────────────────────
+
+export type UIABACPolicy = {
+  id: number
+  name: string
+  description: string
+  effect: string
+  resource: string
+  actions: string
+  conditions: string
+  priority: number
+  enabled: boolean
+  created_at: string
+}
+
+export async function fetchABACPolicies(): Promise<UIABACPolicy[]> {
+  const res = await api.get<{ policies: UIABACPolicy[] }>('/v1/abac/policies')
+  return res.data.policies ?? []
+}
+export async function createABACPolicy(body: {
+  name: string
+  effect: string
+  resource: string
+  actions: string
+  conditions?: Array<{ key: string; operator: string; value: string }>
+  priority?: number
+}): Promise<UIABACPolicy> {
+  const res = await api.post<{ policy: UIABACPolicy }>('/v1/abac/policies', body)
+  return res.data.policy
+}
+export async function deleteABACPolicy(id: number): Promise<void> {
+  await api.delete(`/v1/abac/policies/${id}`)
+}
+
+// ── N8: Managed TiDB ────────────────────────────────────────
+
+export type UITiDBCluster = {
+  id: number
+  name: string
+  version: string
+  tidb_nodes: number
+  tikv_nodes: number
+  pd_nodes: number
+  tiflash_nodes: number
+  tidb_flavor: string
+  tikv_storage_gb: number
+  endpoint: string
+  dashboard_url: string
+  status: string
+  created_at: string
+}
+
+export async function fetchTiDBClusters(): Promise<UITiDBCluster[]> {
+  const res = await api.get<{ clusters: UITiDBCluster[] }>('/v1/tidb/clusters')
+  return res.data.clusters ?? []
+}
+export async function createTiDBCluster(body: {
+  name: string
+  tidb_nodes?: number
+  tikv_nodes?: number
+}): Promise<UITiDBCluster> {
+  const res = await api.post<{ cluster: UITiDBCluster }>('/v1/tidb/clusters', body)
+  return res.data.cluster
+}
+export async function deleteTiDBCluster(id: number): Promise<void> {
+  await api.delete(`/v1/tidb/clusters/${id}`)
+}
+
+// ── N8: Managed Elasticsearch ───────────────────────────────
+
+export type UIESCluster = {
+  id: number
+  name: string
+  version: string
+  data_nodes: number
+  master_nodes: number
+  data_disk_gb: number
+  kibana_enabled: boolean
+  kibana_url: string
+  endpoint: string
+  status: string
+  created_at: string
+}
+
+export async function fetchESClusters(): Promise<UIESCluster[]> {
+  const res = await api.get<{ clusters: UIESCluster[] }>('/v1/elasticsearch/clusters')
+  return res.data.clusters ?? []
+}
+export async function createESCluster(body: {
+  name: string
+  data_nodes?: number
+  kibana_enabled?: boolean
+}): Promise<UIESCluster> {
+  const res = await api.post<{ cluster: UIESCluster }>('/v1/elasticsearch/clusters', body)
+  return res.data.cluster
+}
+export async function deleteESCluster(id: number): Promise<void> {
+  await api.delete(`/v1/elasticsearch/clusters/${id}`)
+}
+
+// ── N8: Invoices ────────────────────────────────────────────
+
+export type UIInvoice = {
+  id: number
+  number: string
+  project_id: number
+  period_start: string
+  period_end: string
+  subtotal: number
+  total: number
+  currency: string
+  status: string
+  line_items?: Array<{
+    id: number
+    resource_type: string
+    description: string
+    quantity: number
+    unit_price: number
+    amount: number
+  }>
+  created_at: string
+}
+
+export async function fetchInvoices(): Promise<UIInvoice[]> {
+  const res = await api.get<{ invoices: UIInvoice[] }>('/v1/invoices')
+  return res.data.invoices ?? []
+}
+export async function getInvoice(id: number): Promise<UIInvoice> {
+  const res = await api.get<{ invoice: UIInvoice }>(`/v1/invoices/${id}`)
+  return res.data.invoice
+}
+export async function issueInvoice(id: number): Promise<void> {
+  await api.post(`/v1/invoices/${id}/issue`)
+}
+export async function payInvoice(id: number): Promise<void> {
+  await api.post(`/v1/invoices/${id}/pay`)
+}
