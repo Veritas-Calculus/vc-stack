@@ -396,6 +396,10 @@ scripts/               Deploy, rollback, DB init/migration
 ## Documentation
 
 - [Architecture Overview](docs/ARCHITECTURE.md)
+- [Component Documentation](docs/components/README.md)
+  - [vc-management](docs/components/management.md)
+  - [vc-compute](docs/components/compute.md)
+  - [vcctl](docs/components/vcctl.md)
 - [Deployment Guide](docs/DEPLOYMENT.md)
 - [Naming Conventions](docs/NAMING.md)
 - [Security Best Practices](docs/SECURITY.md)

@@ -72,11 +72,11 @@ and design principles of VC Stack.
 
 ## Component Details
 
+For in-depth information about each component, see the [Component Documentation](components/README.md).
+
 ### Management Plane (`vc-management`)
 
-The management plane is a single Go binary that aggregates all
-control-plane services. Each service registers via `modules.go`
-and is initialized in dependency order.
+The management plane is a single Go binary that aggregates all control-plane services. Each service registers via `modules.go` and is initialized in dependency order. See the [Detailed Management Documentation](components/management.md) for more info.
 
 #### Service Initialization Flow
 
@@ -115,7 +115,8 @@ main()
 ### Compute Node (`vc-compute`)
 
 The compute node is a single binary with three internal services
-composed via direct function calls (no HTTP between them).
+composed via direct function calls (no HTTP between them). 
+See the [Detailed Compute Documentation](components/compute.md) for more info.
 
 #### Internal Architecture
 
@@ -147,6 +148,10 @@ vc-compute
 ### Web Console (`web/console/`)
 
 A React 18 SPA built with TypeScript, TailwindCSS, and Vite.
+
+### CLI Tool (`vcctl`)
+
+A unified command-line interface for VC Stack. See the [Detailed CLI Documentation](components/vcctl.md) for more info.
 
 #### Frontend Architecture
 

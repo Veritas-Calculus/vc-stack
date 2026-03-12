@@ -108,6 +108,49 @@ const apiDocs: ServiceDocs[] = [
     ]
   },
   {
+    name: 'Metadata',
+    icon: 'MD',
+    description: 'EC2-compatible instance metadata and user-data service',
+    endpoints: [
+      {
+        method: 'GET',
+        path: '/latest/meta-data',
+        description: 'Get instance metadata (compatible with EC2)',
+        params: [
+          {
+            name: 'instance_id',
+            type: 'string',
+            required: true,
+            description: 'Filter by instance ID'
+          }
+        ]
+      },
+      {
+        method: 'GET',
+        path: '/latest/user-data',
+        description: 'Get instance user-data (cloud-init script)',
+        params: [
+          {
+            name: 'instance_id',
+            type: 'string',
+            required: true,
+            description: 'Filter by instance ID'
+          }
+        ]
+      },
+      {
+        method: 'POST',
+        path: '/api/v1/metadata/instances',
+        description: 'Update instance metadata'
+      },
+      {
+        method: 'GET',
+        path: '/api/v1/metadata/instances/:id',
+        description: 'Get structured metadata for specific instance'
+      }
+    ]
+  },
+  {
     name: 'IAM',
     icon: 'ACL',
     description: 'Roles, permissions, and policy management',
@@ -357,71 +400,65 @@ const apiDocs: ServiceDocs[] = [
   },
   {
     name: 'Quotas',
-    icon: 'MON',
-    description: 'Resource quota management',
+    icon: 'QUO',
+    description: 'Resource quota management and usage tracking',
     endpoints: [
-      { method: 'GET', path: '/api/v1/quotas/default', description: 'Get default quota limits' },
+      {
+        method: 'GET',
+        path: '/api/v1/quotas/defaults',
+        description: 'Get system default quota limits'
+      },
       {
         method: 'PUT',
-        path: '/api/v1/quotas/default',
-        description: 'Update default quotas',
-        bodyExample:
-          '{\n  "max_instances": 50,\n  "max_vcpus": 100,\n  "max_ram_mb": 204800,\n  "max_volumes": 100,\n  "max_storage_gb": 10000\n}'
+        path: '/api/v1/quotas/tenants/:id',
+        description: 'Update tenant quota limits',
+        bodyExample: '{\n  "instances": 20,\n  "vcpus": 40,\n  "ram_mb": 81920\n}'
       },
-      { method: 'GET', path: '/api/v1/quotas/:projectId', description: 'Get project quota' },
-      { method: 'PUT', path: '/api/v1/quotas/:projectId', description: 'Update project quota' },
       { method: 'GET', path: '/api/v1/quotas/tenants/:id', description: 'Get tenant quota' },
-      { method: 'PUT', path: '/api/v1/quotas/tenants/:id', description: 'Update tenant quota' }
+      {
+        method: 'GET',
+        path: '/api/v1/quotas/tenants/:id/usage',
+        description: 'Get tenant resource usage'
+      }
     ]
   },
   {
     name: 'Events',
     icon: 'EVT',
-    description: 'System events and audit trail',
+    description: 'System-wide audit trail and operation logging',
     endpoints: [
       {
         method: 'GET',
         path: '/api/v1/events',
-        description: 'List events (paginated, filterable)',
+        description: 'List all audit events',
         params: [
-          { name: 'page', type: 'integer', description: 'Page number (default 1)' },
-          { name: 'limit', type: 'integer', description: 'Items per page' },
           {
-            name: 'action',
+            name: 'resource_type',
             type: 'string',
-            description: 'Filter by action (create/update/delete)'
+            description: 'Filter by resource type (vm/net/vol)'
           },
-          { name: 'resource_type', type: 'string', description: 'Filter by resource type' },
-          { name: 'status', type: 'string', description: 'Filter by status' }
+          { name: 'status', type: 'string', description: 'Filter by status (success/failure)' }
         ]
       },
-      { method: 'GET', path: '/api/v1/events/:id', description: 'Get event details' },
+      { method: 'POST', path: '/api/v1/events', description: 'Manually record system event' },
+      { method: 'GET', path: '/api/v1/events/:id', description: 'Get detailed event log' },
       {
         method: 'GET',
         path: '/api/v1/events/resource/:type/:id',
-        description: 'Get events for a specific resource'
+        description: 'Get operation history for a specific resource'
       }
     ]
   },
   {
     name: 'Monitoring',
-    icon: 'GW',
-    description: 'System health, metrics, and dashboard',
+    icon: 'MON',
+    description: 'System health, performance metrics, and component status',
     endpoints: [
-      { method: 'GET', path: '/health', description: 'Global system health check' },
-      { method: 'GET', path: '/api/identity/health', description: 'Identity service health' },
-      {
-        method: 'GET',
-        path: '/api/v1/monitoring/status',
-        description: 'Component status overview'
-      },
-      {
-        method: 'GET',
-        path: '/api/v1/dashboard/summary',
-        description: 'Aggregated dashboard metrics',
-        responseExample:
-          '{\n  "infrastructure": { "zones": 2, "clusters": 3, "hosts": 10 },\n  "compute": { "total_instances": 45, "active_instances": 38, "cpu_usage_percent": 62.5 },\n  "storage": { "total_volumes": 120, "used_size_gb": 450 },\n  "network": { "total_networks": 8, "security_groups": 15 },\n  "recent_events": [...],\n  "recent_alerts": [...]\n}'
-      }
+      { method: 'GET', path: '/health', description: 'Global health check' },
+      { method: 'GET', path: '/health/liveness', description: 'Kubernetes liveness probe' },
+      { method: 'GET', path: '/health/readiness', description: 'Kubernetes readiness probe' },
+      { method: 'GET', path: '/metrics', description: 'Prometheus metrics endpoint' },
+      { method: 'GET', path: '/api/v1/monitoring/status', description: 'Detailed component status' }
     ]
   },
   {
@@ -442,7 +479,11 @@ const apiDocs: ServiceDocs[] = [
 
 const METHOD_COLORS: Record<Method, { bg: string; text: string; border: string }> = {
   GET: { bg: 'bg-blue-500/15', text: 'text-accent', border: 'border-blue-500/30' },
-  POST: { bg: 'bg-emerald-500/15', text: 'text-status-text-success', border: 'border-emerald-500/30' },
+  POST: {
+    bg: 'bg-emerald-500/15',
+    text: 'text-status-text-success',
+    border: 'border-emerald-500/30'
+  },
   PUT: { bg: 'bg-amber-500/15', text: 'text-status-text-warning', border: 'border-amber-500/30' },
   PATCH: { bg: 'bg-orange-500/15', text: 'text-status-orange', border: 'border-orange-500/30' },
   DELETE: { bg: 'bg-red-500/15', text: 'text-status-text-error', border: 'border-red-500/30' }
@@ -560,7 +601,9 @@ export function Docs() {
                   {doc.icon}
                 </span>
                 <h3 className="text-sm font-medium text-content-primary">{doc.name}</h3>
-                <span className="text-xs text-content-tertiary">— {doc.endpoints.length} matches</span>
+                <span className="text-xs text-content-tertiary">
+                  — {doc.endpoints.length} matches
+                </span>
               </div>
               <div className="divide-y divide-border">
                 {doc.endpoints.map((ep, i) => (
@@ -604,7 +647,9 @@ export function Docs() {
                     </span>
                     <div>
                       <div className="font-medium">{doc.name}</div>
-                      <div className="text-xs text-content-tertiary">{doc.endpoints.length} endpoints</div>
+                      <div className="text-xs text-content-tertiary">
+                        {doc.endpoints.length} endpoints
+                      </div>
                     </div>
                   </button>
                 ))}
@@ -621,7 +666,9 @@ export function Docs() {
                     {activeDocs.icon}
                   </span>
                   <div>
-                    <h2 className="text-xl font-semibold text-content-primary">{activeDocs.name} API</h2>
+                    <h2 className="text-xl font-semibold text-content-primary">
+                      {activeDocs.name} API
+                    </h2>
                     <p className="text-sm text-content-secondary">{activeDocs.description}</p>
                   </div>
                 </div>
@@ -726,7 +773,9 @@ function EndpointCard({
 
       {expanded && (
         <div className="px-4 pb-4 border-t border-border/50 pt-3 space-y-4">
-          {endpoint.description && <p className="text-sm text-content-secondary">{endpoint.description}</p>}
+          {endpoint.description && (
+            <p className="text-sm text-content-secondary">{endpoint.description}</p>
+          )}
 
           {/* Params */}
           {endpoint.params && endpoint.params.length > 0 && (
@@ -748,10 +797,14 @@ function EndpointCard({
                       <tr key={i} className="border-t border-border/50">
                         <td className="px-3 py-2">
                           <code className="text-xs text-accent">{p.name}</code>
-                          {p.required && <span className="text-status-text-error text-xs ml-1">*</span>}
+                          {p.required && (
+                            <span className="text-status-text-error text-xs ml-1">*</span>
+                          )}
                         </td>
                         <td className="px-3 py-2 text-xs text-content-tertiary">{p.type}</td>
-                        <td className="px-3 py-2 text-xs text-content-secondary">{p.description}</td>
+                        <td className="px-3 py-2 text-xs text-content-secondary">
+                          {p.description}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
