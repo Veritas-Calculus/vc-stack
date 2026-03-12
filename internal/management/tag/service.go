@@ -55,7 +55,7 @@ func NewService(cfg Config) (*Service, error) {
 	}
 
 	// Add unique constraint if not exists.
-	cfg.DB.Exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_tag_unique ON tags (resource_type, resource_id, key)")
+	cfg.DB.Exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_tag_unique ON sys_tags (resource_type, resource_id, key)")
 
 	return svc, nil
 }

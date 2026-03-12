@@ -107,52 +107,53 @@ func NewService(cfg Config) (*Service, error) {
 
 func (s *Service) seedDefaults() {
 	now := time.Now()
+	// Use static UUIDs for default records to avoid duplicate key errors on name during FirstOrCreate.
 	checks := []HealthCheck{
-		{ID: uuid.New().String(), Name: "vm-heartbeat-check", ResourceType: "vm", CheckType: "ping",
+		{ID: "55091c1c-be90-49aa-beec-91550139bfc0", Name: "vm-heartbeat-check", ResourceType: "vm", CheckType: "ping",
 			Target: "all-instances", IntervalSec: 30, TimeoutSec: 5, Retries: 3,
 			WarningThreshold: 200, CriticalThreshold: 500, Status: "healthy", LastCheck: &now, Enabled: true},
-		{ID: uuid.New().String(), Name: "host-cpu-monitor", ResourceType: "host", CheckType: "cpu_usage",
+		{ID: "b0f74041-bac4-4816-8ce5-fe96dd412a01", Name: "host-cpu-monitor", ResourceType: "host", CheckType: "cpu_usage",
 			Target: "all-hosts", IntervalSec: 60, TimeoutSec: 10, Retries: 5,
 			WarningThreshold: 80, CriticalThreshold: 95, Status: "healthy", LastCheck: &now, Enabled: true},
-		{ID: uuid.New().String(), Name: "host-memory-monitor", ResourceType: "host", CheckType: "memory_usage",
+		{ID: "b24622ba-c562-4d82-a65b-82c0b08eaf08", Name: "host-memory-monitor", ResourceType: "host", CheckType: "memory_usage",
 			Target: "all-hosts", IntervalSec: 60, TimeoutSec: 10, Retries: 5,
 			WarningThreshold: 85, CriticalThreshold: 95, Status: "healthy", LastCheck: &now, Enabled: true},
-		{ID: uuid.New().String(), Name: "disk-usage-monitor", ResourceType: "volume", CheckType: "disk_usage",
+		{ID: "784d4ab8-2e23-4045-ab25-ff0d2ccda505", Name: "disk-usage-monitor", ResourceType: "volume", CheckType: "disk_usage",
 			Target: "all-volumes", IntervalSec: 300, TimeoutSec: 15, Retries: 2,
 			WarningThreshold: 80, CriticalThreshold: 90, Status: "healthy", LastCheck: &now, Enabled: true},
-		{ID: uuid.New().String(), Name: "api-health-probe", ResourceType: "service", CheckType: "http",
+		{ID: "ffd4e382-14a3-4dfc-90ff-29b583fb8da7", Name: "api-health-probe", ResourceType: "service", CheckType: "http",
 			Target: "http://localhost/health", IntervalSec: 15, TimeoutSec: 3, Retries: 3,
 			WarningThreshold: 500, CriticalThreshold: 2000, Status: "healthy", LastCheck: &now, Enabled: true},
-		{ID: uuid.New().String(), Name: "ovn-controller-check", ResourceType: "service", CheckType: "process",
+		{ID: "492195b1-35e0-4198-8115-b18d4eac7f64", Name: "ovn-controller-check", ResourceType: "service", CheckType: "process",
 			Target: "ovn-controller", IntervalSec: 30, TimeoutSec: 5, Retries: 3,
 			CriticalThreshold: 1, Status: "healthy", LastCheck: &now, Enabled: true},
-		{ID: uuid.New().String(), Name: "db-connection-check", ResourceType: "service", CheckType: "tcp",
+		{ID: "10b040aa-960e-4105-8c77-f442550fd1c6", Name: "db-connection-check", ResourceType: "service", CheckType: "tcp",
 			Target: "postgres:5432", IntervalSec: 15, TimeoutSec: 3, Retries: 3,
 			CriticalThreshold: 1, Status: "healthy", LastCheck: &now, Enabled: true},
 	}
 	for i := range checks {
-		s.db.Where("name = ?", checks[i].Name).FirstOrCreate(&checks[i])
+		s.db.Where("name = ?", checks[i].Name).Attrs(checks[i]).FirstOrCreate(&checks[i])
 	}
 
 	policies := []HealingPolicy{
-		{ID: uuid.New().String(), Name: "vm-auto-restart", ResourceType: "vm",
+		{ID: "b33811f7-d3f0-41b7-bd9b-a92f06b312a6", Name: "vm-auto-restart", ResourceType: "vm",
 			TriggerStatus: "critical", Action: "restart_vm", MaxRetries: 3, CooldownMin: 5,
 			EscalateAfter: 3, EscalateAction: "migrate_vm", Enabled: true, Priority: 1},
-		{ID: uuid.New().String(), Name: "host-overload-migrate", ResourceType: "host",
+		{ID: "26abaf89-8c84-491a-a83c-5fa523fa5984", Name: "host-overload-migrate", ResourceType: "host",
 			TriggerStatus: "critical", Action: "migrate_vm", MaxRetries: 2, CooldownMin: 15,
 			EscalateAfter: 2, EscalateAction: "notify_only", Enabled: true, Priority: 2},
-		{ID: uuid.New().String(), Name: "disk-cleanup", ResourceType: "volume",
+		{ID: "ba9f9111-846c-4961-8936-caeb75b24206", Name: "disk-cleanup", ResourceType: "volume",
 			TriggerStatus: "warning", Action: "clear_disk", MaxRetries: 1, CooldownMin: 30,
 			EscalateAfter: 1, EscalateAction: "scale_up", Enabled: true, Priority: 3},
-		{ID: uuid.New().String(), Name: "service-auto-restart", ResourceType: "service",
+		{ID: "f6500680-d4ff-4b6c-b6c9-921cad9868ca", Name: "service-auto-restart", ResourceType: "service",
 			TriggerStatus: "critical", Action: "restart_service", MaxRetries: 3, CooldownMin: 5,
 			EscalateAfter: 3, EscalateAction: "reboot_host", Enabled: true, Priority: 2},
-		{ID: uuid.New().String(), Name: "host-memory-alert", ResourceType: "host",
+		{ID: "87185464-ba19-4ca5-8c41-96b66d43cba2", Name: "host-memory-alert", ResourceType: "host",
 			TriggerStatus: "warning", Action: "notify_only", MaxRetries: 1, CooldownMin: 60,
 			Enabled: true, Priority: 5},
 	}
 	for i := range policies {
-		s.db.Where("name = ?", policies[i].Name).FirstOrCreate(&policies[i])
+		s.db.Where("name = ?", policies[i].Name).Attrs(policies[i]).FirstOrCreate(&policies[i])
 	}
 }
 

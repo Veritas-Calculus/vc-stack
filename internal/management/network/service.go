@@ -367,6 +367,7 @@ func (s *Service) migrateDatabase() error {
 		&ASN{},
 		&IPAllocation{},
 		&Zone{},
+		&Cluster{},
 		&Router{},
 		&RouterInterface{},
 		&LoadBalancer{},

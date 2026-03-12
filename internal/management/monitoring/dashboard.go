@@ -88,8 +88,8 @@ func (s *Service) dashboardSummary(c *gin.Context) {
 	summary := DashboardSummary{}
 
 	// Infrastructure counts
-	s.db.Table("zones").Count(&summary.Infrastructure.Zones)
-	s.db.Table("clusters").Count(&summary.Infrastructure.Clusters)
+	s.db.Table("infra_zones").Count(&summary.Infrastructure.Zones)
+	s.db.Table("infra_clusters").Count(&summary.Infrastructure.Clusters)
 	s.db.Table("hosts").Count(&summary.Infrastructure.Hosts)
 	s.db.Table("hosts").Where("status = ?", "up").Count(&summary.Infrastructure.HostsUp)
 	s.db.Table("hosts").Where("status != ? OR status IS NULL", "up").Count(&summary.Infrastructure.HostsDown)
@@ -101,7 +101,7 @@ func (s *Service) dashboardSummary(c *gin.Context) {
 		TotalDiskGB int64 `json:"total_disk_gb"`
 	}
 	var hostRes HostResources
-	s.db.Table("hosts").Select("COALESCE(SUM(vcpus),0) as total_vcpus, COALESCE(SUM(ram_mb),0) as total_ram_mb, COALESCE(SUM(disk_gb),0) as total_disk_gb").Scan(&hostRes)
+	s.db.Table("hosts").Select("COALESCE(SUM(cpu_cores),0) as total_vcpus, COALESCE(SUM(ram_mb),0) as total_ram_mb, COALESCE(SUM(disk_gb),0) as total_disk_gb").Scan(&hostRes)
 	summary.Infrastructure.TotalVCPUs = hostRes.TotalVCPUs
 	summary.Infrastructure.TotalRAMMB = hostRes.TotalRAMMB
 	summary.Infrastructure.TotalDiskGB = hostRes.TotalDiskGB
@@ -150,12 +150,12 @@ func (s *Service) dashboardSummary(c *gin.Context) {
 	summary.Storage.AvailableSizeGB = hostRes.TotalDiskGB - volSize.TotalSizeGB
 
 	// Network summary
-	s.db.Table("networks").Count(&summary.Network.TotalNetworks)
-	s.db.Table("subnets").Count(&summary.Network.TotalSubnets)
-	s.db.Table("network_ports").Count(&summary.Network.TotalPorts)
-	s.db.Table("floating_ips").Count(&summary.Network.TotalPublicIPs)
-	s.db.Table("floating_ips").Where("port_id IS NOT NULL AND port_id != ''").Count(&summary.Network.AllocatedIPs)
-	s.db.Table("security_groups").Count(&summary.Network.SecurityGroups)
+	s.db.Table("net_networks").Count(&summary.Network.TotalNetworks)
+	s.db.Table("net_subnets").Count(&summary.Network.TotalSubnets)
+	s.db.Table("net_ports").Count(&summary.Network.TotalPorts)
+	s.db.Table("net_floating_ips").Count(&summary.Network.TotalPublicIPs)
+	s.db.Table("net_floating_ips").Where("port_id IS NOT NULL AND port_id != ''").Count(&summary.Network.AllocatedIPs)
+	s.db.Table("net_security_groups").Count(&summary.Network.SecurityGroups)
 
 	// Recent events (last 10)
 	type DBEvent struct {
@@ -167,7 +167,7 @@ func (s *Service) dashboardSummary(c *gin.Context) {
 		Timestamp    string `gorm:"column:timestamp"`
 	}
 	var dbEvents []DBEvent
-	if err := s.db.Table("system_events").
+	if err := s.db.Table("sys_events").
 		Select("id, event_type, resource_type, action, status, timestamp").
 		Order("timestamp DESC").Limit(10).
 		Find(&dbEvents).Error; err != nil {
