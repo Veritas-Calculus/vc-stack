@@ -357,7 +357,7 @@ export function Firecracker() {
                 e.stopPropagation()
                 handleConsole(r.id, r.name)
               }}
-              className="icon-btn text-cyan-400"
+              className="icon-btn text-status-cyan"
               title="Console Log"
             >
               <svg
@@ -377,7 +377,7 @@ export function Firecracker() {
                 e.stopPropagation()
                 handleDelete(r.id)
               }}
-              className="icon-btn text-rose-400"
+              className="icon-btn text-status-rose"
               title="Delete"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">

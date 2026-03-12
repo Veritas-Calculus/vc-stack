@@ -10,9 +10,9 @@ export function ToastContainer() {
         <div
           key={t.id}
           className={`rounded-lg border shadow-glass-sm backdrop-blur-xl p-3 text-sm flex items-start gap-2 animate-slide-in ${t.variant === 'success'
-              ? 'border-emerald-700 bg-emerald-900/40 text-emerald-100'
+              ? 'border-emerald-700 bg-emerald-900/40 text-status-text-success'
               : t.variant === 'error'
-                ? 'border-rose-700 bg-rose-900/40 text-rose-100'
+                ? 'border-rose-700 bg-rose-900/40 text-status-rose'
                 : 'border-border bg-surface-elevated text-content-primary'
             }`}
         >

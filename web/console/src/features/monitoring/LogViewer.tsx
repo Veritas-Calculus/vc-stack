@@ -33,19 +33,19 @@ export function LogViewer() {
     const colors: Record<string, string> = {
       debug: 'text-zinc-500',
       info: 'text-accent',
-      warn: 'text-amber-400',
-      error: 'text-red-400',
-      fatal: 'text-red-500 font-bold'
+      warn: 'text-status-text-warning',
+      error: 'text-status-text-error',
+      fatal: 'text-status-text-error font-bold'
     }
     return colors[l] ?? 'text-zinc-400'
   }
 
   const sourceColor = (s: string) => {
     const colors: Record<string, string> = {
-      'vc-management': 'text-indigo-400',
-      'vc-compute': 'text-emerald-400',
-      ovn: 'text-cyan-400',
-      postgres: 'text-orange-400'
+      'vc-management': 'text-status-indigo',
+      'vc-compute': 'text-status-text-success',
+      ovn: 'text-status-cyan',
+      postgres: 'text-status-orange'
     }
     return colors[s] ?? 'text-zinc-400'
   }

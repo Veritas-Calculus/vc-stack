@@ -167,8 +167,8 @@ export default function InstanceDetail() {
   }, [tab, instanceId])
 
   if (loading) return <div className="p-8 text-center text-content-tertiary">Loading instance...</div>
-  if (error && !inst) return <div className="p-8 text-center text-red-400">{error}</div>
-  if (!inst) return <div className="p-8 text-center text-red-400">Instance not found</div>
+  if (error && !inst) return <div className="p-8 text-center text-status-text-error">{error}</div>
+  if (!inst) return <div className="p-8 text-center text-status-text-error">Instance not found</div>
 
   const isLocked = inst.metadata?.locked === 'true'
   const isRescue = inst.status === 'rescue'
@@ -410,7 +410,7 @@ export default function InstanceDetail() {
               Console
             </button>
             <button
-              className="btn-secondary text-red-400"
+              className="btn-secondary text-status-text-error"
               onClick={handleDelete}
               disabled={busy || isLocked}
             >
@@ -421,7 +421,7 @@ export default function InstanceDetail() {
       />
 
       {error && (
-        <div className="p-3 bg-red-900/30 border border-red-800/50 rounded text-red-400 text-sm">
+        <div className="p-3 bg-red-900/30 border border-red-800/50 rounded text-status-text-error text-sm">
           {error}
           <button className="ml-2 underline" onClick={() => setError(null)}>
             dismiss
@@ -459,7 +459,7 @@ export default function InstanceDetail() {
               <span className="font-mono text-accent">{inst.ip_address || '-'}</span>
             </InfoRow>
             <InfoRow label="Floating IP">
-              <span className="font-mono text-emerald-400">{inst.floating_ip || '-'}</span>
+              <span className="font-mono text-status-text-success">{inst.floating_ip || '-'}</span>
             </InfoRow>
             <InfoRow label="Host">
               <span className="font-mono text-xs text-content-secondary">{inst.host_id || '-'}</span>
@@ -499,7 +499,7 @@ export default function InstanceDetail() {
               <span className="font-mono text-accent">{inst.ip_address || '-'}</span>
             </InfoRow>
             <InfoRow label="Floating IP">
-              <span className="font-mono text-emerald-400">{inst.floating_ip || '-'}</span>
+              <span className="font-mono text-status-text-success">{inst.floating_ip || '-'}</span>
             </InfoRow>
           </div>
           <div className="p-4 rounded-lg bg-white/5 border border-white/10">
@@ -534,7 +534,7 @@ export default function InstanceDetail() {
                       </td>
                       <td className="py-2 px-3">
                         <button
-                          className="text-xs text-red-400 hover:text-red-300"
+                          className="text-xs text-status-text-error hover:text-status-text-error"
                           onClick={() => handleDetachInterface(iface.port_id)}
                           disabled={busy}
                         >
@@ -731,10 +731,10 @@ export default function InstanceDetail() {
                 <div
                   className={`text-4xl font-bold ${
                     diagnostics.health_score >= 80
-                      ? 'text-emerald-400'
+                      ? 'text-status-text-success'
                       : diagnostics.health_score >= 50
-                        ? 'text-amber-400'
-                        : 'text-red-400'
+                        ? 'text-status-text-warning'
+                        : 'text-status-text-error'
                   }`}
                 >
                   {diagnostics.health_score}
@@ -815,12 +815,12 @@ export default function InstanceDetail() {
               {/* Issues */}
               {diagnostics.issues.length > 0 && (
                 <div className="p-4 rounded-lg bg-red-900/10 border border-red-800/30">
-                  <h3 className="text-sm font-semibold text-red-400 uppercase tracking-wider mb-2">
+                  <h3 className="text-sm font-semibold text-status-text-error uppercase tracking-wider mb-2">
                     Issues ({diagnostics.issues.length})
                   </h3>
                   <ul className="space-y-1">
                     {diagnostics.issues.map((issue, i) => (
-                      <li key={i} className="text-sm text-red-300 flex items-start gap-2">
+                      <li key={i} className="text-sm text-status-text-error flex items-start gap-2">
                         <span className="inline-block w-2 h-2 rounded-full bg-red-500 mt-0.5"></span>
                         {issue}
                       </li>
@@ -966,11 +966,11 @@ function InfoRow({ label, children }: { label: string; children: React.ReactNode
 
 const colorMap: Record<string, string> = {
   blue: 'from-blue-500/20 to-blue-600/5 border-blue-500/30 text-accent',
-  purple: 'from-purple-500/20 to-purple-600/5 border-purple-500/30 text-purple-400',
-  emerald: 'from-emerald-500/20 to-emerald-600/5 border-emerald-500/30 text-emerald-400',
-  amber: 'from-amber-500/20 to-amber-600/5 border-amber-500/30 text-amber-400',
-  sky: 'from-sky-500/20 to-sky-600/5 border-sky-500/30 text-sky-400',
-  rose: 'from-rose-500/20 to-rose-600/5 border-rose-500/30 text-rose-400',
+  purple: 'from-purple-500/20 to-purple-600/5 border-purple-500/30 text-status-purple',
+  emerald: 'from-emerald-500/20 to-emerald-600/5 border-emerald-500/30 text-status-text-success',
+  amber: 'from-amber-500/20 to-amber-600/5 border-amber-500/30 text-status-text-warning',
+  sky: 'from-sky-500/20 to-sky-600/5 border-sky-500/30 text-status-text-info',
+  rose: 'from-rose-500/20 to-rose-600/5 border-rose-500/30 text-status-rose',
   teal: 'from-teal-500/20 to-teal-600/5 border-teal-500/30 text-teal-400',
   gray: 'from-gray-500/20 to-gray-600/5 border-gray-500/30 text-content-secondary'
 }
@@ -988,7 +988,7 @@ function DiagRow({ label, ok }: { label: string; ok: boolean }) {
   return (
     <div className="flex items-center justify-between text-sm">
       <span className="text-content-secondary">{label}</span>
-      <span className={ok ? 'text-emerald-400' : 'text-red-400'}>{ok ? 'OK' : 'FAIL'}</span>
+      <span className={ok ? 'text-status-text-success' : 'text-status-text-error'}>{ok ? 'OK' : 'FAIL'}</span>
     </div>
   )
 }

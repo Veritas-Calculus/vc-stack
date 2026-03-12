@@ -101,10 +101,10 @@ export function GPUResources() {
 
   const utilizationColor =
     utilizationPct > 80
-      ? 'text-red-400'
+      ? 'text-status-text-error'
       : utilizationPct > 50
-        ? 'text-amber-400'
-        : 'text-emerald-400'
+        ? 'text-status-text-warning'
+        : 'text-status-text-success'
   const utilizationBarColor =
     utilizationPct > 80
       ? 'from-red-500 to-red-600'
@@ -143,7 +143,7 @@ export function GPUResources() {
                 cy="60"
                 r="50"
                 stroke="currentColor"
-                className="text-gray-700"
+                className="text-content-secondary"
                 strokeWidth="8"
                 fill="none"
               />
@@ -176,9 +176,9 @@ export function GPUResources() {
           <div className="grid grid-cols-4 gap-6 flex-1">
             {[
               { label: 'Total GPUs', value: totalGPUs, color: 'text-content-primary' },
-              { label: 'Allocated', value: allocatedGPUs, color: 'text-purple-400' },
-              { label: 'Available', value: availableGPUs, color: 'text-emerald-400' },
-              { label: 'MIG Pools', value: migPools, color: 'text-cyan-400' }
+              { label: 'Allocated', value: allocatedGPUs, color: 'text-status-purple' },
+              { label: 'Available', value: availableGPUs, color: 'text-status-text-success' },
+              { label: 'MIG Pools', value: migPools, color: 'text-status-cyan' }
             ].map((s) => (
               <div key={s.label}>
                 <div className="text-xs text-content-tertiary uppercase tracking-wider mb-1">{s.label}</div>
@@ -237,7 +237,7 @@ export function GPUResources() {
         </div>
         {pools.length === 0 ? (
           <div className="text-center py-16">
-            <div className="mb-4 text-purple-400">{Icons.cpu('w-12 h-12 mx-auto')}</div>
+            <div className="mb-4 text-status-purple">{Icons.cpu('w-12 h-12 mx-auto')}</div>
             <p className="text-content-secondary text-lg">No GPU pools configured</p>
             <p className="text-content-tertiary text-sm mt-1">Create GPU pools in your HPC clusters</p>
           </div>
@@ -265,7 +265,7 @@ export function GPUResources() {
                   <td className="px-4 py-3 text-content-primary font-medium">{pool.name}</td>
                   <td className="px-4 py-3">
                     <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-500/20 text-purple-400`}
+                      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-500/20 text-status-purple`}
                     >
                       {pool.gpu_type}
                     </span>
@@ -294,7 +294,7 @@ export function GPUResources() {
                   </td>
                   <td className="px-4 py-3">
                     {pool.mig_enabled ? (
-                      <span className="text-cyan-400 text-xs font-mono">{pool.mig_profile}</span>
+                      <span className="text-status-cyan text-xs font-mono">{pool.mig_profile}</span>
                     ) : (
                       <span className="text-content-tertiary text-xs">—</span>
                     )}
@@ -322,9 +322,9 @@ export function GPUResources() {
                 className="bg-surface-hover border border-gray-600/30 rounded-lg p-3"
               >
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-purple-400 font-mono text-xs">GPU {gpu.index}</span>
+                  <span className="text-status-purple font-mono text-xs">GPU {gpu.index}</span>
                   <span
-                    className={`text-xs ${gpu.utilization_pct > 80 ? 'text-red-400' : gpu.utilization_pct > 50 ? 'text-amber-400' : 'text-emerald-400'}`}
+                    className={`text-xs ${gpu.utilization_pct > 80 ? 'text-status-text-error' : gpu.utilization_pct > 50 ? 'text-status-text-warning' : 'text-status-text-success'}`}
                   >
                     {gpu.utilization_pct}%
                   </span>
@@ -336,7 +336,7 @@ export function GPUResources() {
                 <div className="flex items-center gap-3 mt-2 text-xs text-content-secondary">
                   <span>{gpu.temperature_c}°C</span>
                   <span>{gpu.power_draw_w}W</span>
-                  {gpu.mig_enabled && <span className="text-cyan-400">MIG</span>}
+                  {gpu.mig_enabled && <span className="text-status-cyan">MIG</span>}
                 </div>
                 <div className="mt-2">
                   <div className="w-full h-1.5 bg-gray-600 rounded-full overflow-hidden">
@@ -367,7 +367,7 @@ export function GPUResources() {
                 {topology.nvlink_pairs.map((pair, i) => (
                   <span
                     key={i}
-                    className="px-2 py-1 bg-purple-500/10 text-purple-400 text-xs rounded font-mono"
+                    className="px-2 py-1 bg-purple-500/10 text-status-purple text-xs rounded font-mono"
                   >
                     GPU{pair.gpu0} - GPU{pair.gpu1}
                   </span>

@@ -167,9 +167,9 @@ export function DNSManagement() {
   }
 
   const statusColor = (s: string) => {
-    if (s === 'ACTIVE') return 'bg-emerald-500/15 text-emerald-400'
-    if (s === 'PENDING') return 'bg-amber-500/15 text-amber-400'
-    if (s === 'ERROR') return 'bg-red-500/15 text-red-400'
+    if (s === 'ACTIVE') return 'bg-emerald-500/15 text-status-text-success'
+    if (s === 'PENDING') return 'bg-amber-500/15 text-status-text-warning'
+    if (s === 'ERROR') return 'bg-red-500/15 text-status-text-error'
     return 'bg-gray-500/15 text-content-secondary'
   }
 
@@ -299,7 +299,7 @@ export function DNSManagement() {
                               </button>
                               <button
                                 onClick={() => handleDeleteZone(z.id)}
-                                className="px-2 py-1 rounded text-xs text-content-secondary hover:text-red-400 hover:bg-red-500/10"
+                                className="px-2 py-1 rounded text-xs text-content-secondary hover:text-status-text-error hover:bg-red-500/10"
                               >
                                 Delete
                               </button>
@@ -378,9 +378,9 @@ export function DNSManagement() {
                                     r.type === 'A' || r.type === 'AAAA'
                                       ? 'bg-blue-500/15 text-accent'
                                       : r.type === 'CNAME'
-                                        ? 'bg-purple-500/15 text-purple-400'
+                                        ? 'bg-purple-500/15 text-status-purple'
                                         : r.type === 'MX'
-                                          ? 'bg-orange-500/15 text-orange-400'
+                                          ? 'bg-orange-500/15 text-status-orange'
                                           : r.type === 'TXT' || r.type === 'SPF'
                                             ? 'bg-yellow-500/15 text-yellow-400'
                                             : r.type === 'SOA' || r.type === 'NS'
@@ -414,7 +414,7 @@ export function DNSManagement() {
                                 ) && (
                                   <button
                                     onClick={() => handleDeleteRecord(r.zone_id, r.id)}
-                                    className="px-2 py-1 rounded text-xs text-content-secondary hover:text-red-400 hover:bg-red-500/10"
+                                    className="px-2 py-1 rounded text-xs text-content-secondary hover:text-status-text-error hover:bg-red-500/10"
                                   >
                                     Delete
                                   </button>
@@ -619,7 +619,7 @@ function Field({
   return (
     <div>
       <label className="block text-sm font-medium text-content-secondary mb-1.5">
-        {label} {required && <span className="text-red-400">*</span>}
+        {label} {required && <span className="text-status-text-error">*</span>}
       </label>
       {children}
     </div>

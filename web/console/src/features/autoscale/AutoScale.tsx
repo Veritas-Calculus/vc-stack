@@ -75,7 +75,7 @@ export function AutoScale() {
   }
 
   const stateColor = (s: string) => {
-    if (s === 'enabled') return 'bg-emerald-500/15 text-emerald-400'
+    if (s === 'enabled') return 'bg-emerald-500/15 text-status-text-success'
     if (s === 'scaling') return 'bg-blue-500/15 text-accent'
     return 'bg-gray-500/15 text-content-secondary'
   }
@@ -139,7 +139,7 @@ export function AutoScale() {
                       e.stopPropagation()
                       handleDelete(g.id)
                     }}
-                    className="px-2 py-1 rounded text-xs text-content-secondary hover:text-red-400 hover:bg-red-500/10"
+                    className="px-2 py-1 rounded text-xs text-content-secondary hover:text-status-text-error hover:bg-red-500/10"
                   >
                     Delete
                   </button>
@@ -171,7 +171,7 @@ export function AutoScale() {
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-sm text-content-primary font-medium">{p.name}</span>
                           <span
-                            className={`px-2 py-0.5 rounded text-xs ${p.action === 'scale_up' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-amber-500/15 text-amber-400'}`}
+                            className={`px-2 py-0.5 rounded text-xs ${p.action === 'scale_up' ? 'bg-emerald-500/15 text-status-text-success' : 'bg-amber-500/15 text-status-text-warning'}`}
                           >
                             {p.action === 'scale_up' ? '↑ Scale Up' : '↓ Scale Down'}
                           </span>

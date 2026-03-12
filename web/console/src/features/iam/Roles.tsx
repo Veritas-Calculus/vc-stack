@@ -33,7 +33,7 @@ export function Roles() {
             Policies
           </button>
           <button
-            className="text-red-400 hover:underline disabled:opacity-50"
+            className="text-status-text-error hover:underline disabled:opacity-50"
             onClick={() => removeRole(r.id)}
             disabled={r.roleType === 'system'}
           >

@@ -55,7 +55,7 @@ export function NATGateways() {
       header: 'Status',
       render: (r) => (
         <span
-          className={`text-xs px-2 py-0.5 rounded-full ${r.status === 'available' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-zinc-600/20 text-zinc-400'}`}
+          className={`text-xs px-2 py-0.5 rounded-full ${r.status === 'available' ? 'bg-emerald-500/15 text-status-text-success' : 'bg-zinc-600/20 text-zinc-400'}`}
         >
           {r.status}
         </span>
@@ -67,7 +67,7 @@ export function NATGateways() {
       className: 'w-20 text-right',
       render: (r) => (
         <button
-          className="text-xs text-red-400 hover:underline"
+          className="text-xs text-status-text-error hover:underline"
           onClick={async () => {
             if (confirm('Delete?')) {
               await deleteNATGateway(r.id)

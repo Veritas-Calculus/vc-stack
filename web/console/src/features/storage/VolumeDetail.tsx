@@ -257,7 +257,7 @@ export default function VolumeDetail() {
                 sortable: false,
                 render: (r) => (
                   <button
-                    className="text-red-400 hover:text-red-300 text-xs"
+                    className="text-status-text-error hover:text-status-text-error text-xs"
                     onClick={() => handleDetach(r.instance_id)}
                   >
                     Detach

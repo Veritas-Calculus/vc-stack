@@ -140,33 +140,33 @@ export function RBAC() {
 
   const roleColor = (name: string) => {
     const colors: Record<string, string> = {
-      admin: 'bg-red-500/15 text-red-400 border-red-500/30',
-      operator: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
+      admin: 'bg-red-500/15 text-status-text-error border-red-500/30',
+      operator: 'bg-amber-500/15 text-status-text-warning border-amber-500/30',
       member: 'bg-blue-500/15 text-accent border-blue-500/30',
-      viewer: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+      viewer: 'bg-emerald-500/15 text-status-text-success border-emerald-500/30'
     }
-    return colors[name] || 'bg-purple-500/15 text-purple-400 border-purple-500/30'
+    return colors[name] || 'bg-purple-500/15 text-status-purple border-purple-500/30'
   }
 
   const resourceColor = (resource: string) => {
     const colors: Record<string, string> = {
       compute: 'text-accent',
-      volume: 'text-amber-400',
-      snapshot: 'text-amber-300',
-      network: 'text-purple-400',
-      security_group: 'text-purple-300',
-      floating_ip: 'text-purple-200',
-      router: 'text-purple-300',
-      dns_zone: 'text-cyan-400',
-      dns_record: 'text-cyan-300',
+      volume: 'text-status-text-warning',
+      snapshot: 'text-status-text-warning',
+      network: 'text-status-purple',
+      security_group: 'text-status-purple',
+      floating_ip: 'text-status-purple',
+      router: 'text-status-purple',
+      dns_zone: 'text-status-cyan',
+      dns_record: 'text-status-cyan',
       bucket: 'text-teal-400',
       s3_credential: 'text-teal-300',
-      stack: 'text-indigo-400',
-      template: 'text-indigo-300',
-      user: 'text-red-400',
-      role: 'text-red-300',
-      policy: 'text-red-300',
-      project: 'text-orange-400',
+      stack: 'text-status-indigo',
+      template: 'text-status-indigo',
+      user: 'text-status-text-error',
+      role: 'text-status-text-error',
+      policy: 'text-status-text-error',
+      project: 'text-status-orange',
       host: 'text-content-secondary',
       cluster: 'text-content-secondary',
       flavor: 'text-content-secondary',
@@ -298,7 +298,7 @@ export function RBAC() {
                   {!sysRoles.includes(selectedRole.name) && (
                     <button
                       onClick={() => handleDeleteRole(selectedRole.id)}
-                      className="px-3 py-1 rounded text-xs text-content-secondary hover:text-red-400 hover:bg-red-500/10"
+                      className="px-3 py-1 rounded text-xs text-content-secondary hover:text-status-text-error hover:bg-red-500/10"
                     >
                       Delete Role
                     </button>
@@ -424,7 +424,7 @@ export function RBAC() {
                                     {r.name}
                                     <button
                                       onClick={() => handleUnassignRole(u.id, r.id)}
-                                      className="ml-0.5 hover:text-red-400 text-[10px]"
+                                      className="ml-0.5 hover:text-status-text-error text-[10px]"
                                       title="Remove role"
                                     >
                                       ×
@@ -438,7 +438,7 @@ export function RBAC() {
                           </td>
                           <td className="px-4 py-3 text-center">
                             {u.is_admin && (
-                              <span className="px-2 py-0.5 rounded bg-red-500/15 text-red-400 text-xs">
+                              <span className="px-2 py-0.5 rounded bg-red-500/15 text-status-text-error text-xs">
                                 Yes
                               </span>
                             )}
@@ -500,7 +500,7 @@ export function RBAC() {
                         {perms.map((p) => (
                           <label
                             key={p.id}
-                            className={`flex items-center gap-1 px-2 py-0.5 rounded text-xs cursor-pointer transition-colors ${selectedPerms.includes(p.id) ? 'bg-blue-600/30 text-blue-300 border border-blue-500/30' : 'bg-surface-tertiary text-content-secondary border border-border hover:border-border-strong'}`}
+                            className={`flex items-center gap-1 px-2 py-0.5 rounded text-xs cursor-pointer transition-colors ${selectedPerms.includes(p.id) ? 'bg-blue-600/30 text-status-link border border-blue-500/30' : 'bg-surface-tertiary text-content-secondary border border-border hover:border-border-strong'}`}
                           >
                             <input
                               type="checkbox"
@@ -644,7 +644,7 @@ function Field({
   return (
     <div>
       <label className="block text-sm font-medium text-content-secondary mb-1.5">
-        {label} {required && <span className="text-red-400">*</span>}
+        {label} {required && <span className="text-status-text-error">*</span>}
       </label>
       {children}
     </div>

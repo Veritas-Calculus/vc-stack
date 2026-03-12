@@ -337,7 +337,7 @@ export function SessionReplay() {
   return (
     <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900">
       {/* Header */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-border px-6 py-4">
+      <div className="bg-surface-secondary border-b border-border px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
@@ -347,7 +347,7 @@ export function SessionReplay() {
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-content-primary">会话回放</h1>
+              <h1 className="text-xl font-bold text-content-primary">会话回放</h1>
               <p className="text-sm text-content-tertiary dark:text-content-secondary">
                 {session.username} @ {session.remote_host}:{session.remote_port} ·{' '}
                 {new Date(session.started_at).toLocaleString('zh-CN')}
@@ -357,7 +357,7 @@ export function SessionReplay() {
 
           <button
             onClick={exportSession}
-            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-surface-hover border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-600"
+            className="flex items-center gap-2 px-4 py-2 bg-surface-secondary border border-border rounded hover:bg-surface-hover"
           >
             <Download className="w-4 h-4" />
             导出
@@ -373,7 +373,7 @@ export function SessionReplay() {
       </div>
 
       {/* Controls */}
-      <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-border px-6 py-4">
+      <div className="bg-surface-secondary border-t border-border px-6 py-4">
         <div className="space-y-4">
           {/* Progress bar */}
           <div className="flex items-center gap-4">
@@ -436,7 +436,7 @@ export function SessionReplay() {
               <select
                 value={playbackSpeed}
                 onChange={(e) => setPlaybackSpeed(parseFloat(e.target.value))}
-                className="px-2 py-1 bg-white dark:bg-surface-hover border border-gray-300 dark:border-gray-600 rounded text-sm"
+                className="px-2 py-1 bg-surface-secondary border border-border rounded text-sm"
               >
                 <option value={0.5}>0.5x</option>
                 <option value={1}>1x</option>

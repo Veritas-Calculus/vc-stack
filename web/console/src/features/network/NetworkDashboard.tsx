@@ -135,7 +135,7 @@ export default function NetworkDashboard() {
                   : ns.status === 'creating'
                     ? 'bg-yellow-500/20 text-yellow-400'
                     : ns.status === 'error'
-                      ? 'bg-red-500/20 text-red-400'
+                      ? 'bg-red-500/20 text-status-text-error'
                       : 'bg-neutral-500/20 text-neutral-400'
               return (
                 <div key={ns.status} className={`px-3 py-2 rounded-lg ${variant} text-sm`}>

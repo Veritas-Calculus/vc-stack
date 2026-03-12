@@ -24,10 +24,10 @@ export function FileShares() {
 
   const statusBadge = (s: string) => {
     const c: Record<string, string> = {
-      available: 'bg-emerald-500/15 text-emerald-400',
+      available: 'bg-emerald-500/15 text-status-text-success',
       creating: 'bg-blue-500/15 text-accent',
-      in_use: 'bg-purple-500/15 text-purple-400',
-      error: 'bg-red-500/15 text-red-400'
+      in_use: 'bg-purple-500/15 text-status-purple',
+      error: 'bg-red-500/15 text-status-text-error'
     }
     return (
       <span
@@ -85,7 +85,7 @@ export function FileShares() {
       className: 'w-20 text-right',
       render: (r) => (
         <button
-          className="text-xs text-red-400 hover:underline"
+          className="text-xs text-status-text-error hover:underline"
           onClick={async () => {
             if (confirm('Delete?')) {
               await deleteFileShare(r.id)

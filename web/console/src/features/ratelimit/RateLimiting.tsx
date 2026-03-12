@@ -108,9 +108,9 @@ export function RateLimiting() {
   const scopeBadge = (s: string) => {
     const colors: Record<string, string> = {
       global: 'bg-blue-500/20 text-accent',
-      tenant: 'bg-purple-500/20 text-purple-400',
-      user: 'bg-emerald-500/20 text-emerald-400',
-      path: 'bg-amber-500/20 text-amber-400'
+      tenant: 'bg-purple-500/20 text-status-purple',
+      user: 'bg-emerald-500/20 text-status-text-success',
+      path: 'bg-amber-500/20 text-status-text-warning'
     }
     return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colors[s] || 'bg-gray-500/20 text-content-secondary'}`
   }
@@ -143,7 +143,7 @@ export function RateLimiting() {
           </p>
         </div>
         {status && (
-          <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+          <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-emerald-500/20 text-status-text-success border border-emerald-500/30">
             <span className="w-2 h-2 rounded-full mr-2 bg-emerald-400 animate-pulse"></span>Active
           </span>
         )}
@@ -179,19 +179,19 @@ export function RateLimiting() {
               {
                 label: 'Blocked',
                 value: status.blocked_requests.toLocaleString(),
-                color: 'text-red-400',
+                color: 'text-status-text-error',
                 icon: Icons.xCircle('w-5 h-5')
               },
               {
                 label: 'Block Rate',
                 value: `${status.block_rate}%`,
-                color: status.block_rate > 5 ? 'text-red-400' : 'text-emerald-400',
+                color: status.block_rate > 5 ? 'text-status-text-error' : 'text-status-text-success',
                 icon: Icons.chart('w-5 h-5')
               },
               {
                 label: 'Active Limiters',
                 value: status.active_limiters.toLocaleString(),
-                color: 'text-amber-400',
+                color: 'text-status-text-warning',
                 icon: Icons.bolt('w-5 h-5')
               }
             ].map((s) => (
@@ -259,7 +259,7 @@ export function RateLimiting() {
                 <div className="flex items-center justify-between">
                   <span className="text-content-secondary">Status</span>
                   <span
-                    className={`px-2 py-0.5 rounded text-xs font-medium ${status.adaptive.enabled ? 'bg-emerald-500/20 text-emerald-400' : 'bg-gray-500/20 text-content-secondary'}`}
+                    className={`px-2 py-0.5 rounded text-xs font-medium ${status.adaptive.enabled ? 'bg-emerald-500/20 text-status-text-success' : 'bg-gray-500/20 text-content-secondary'}`}
                   >
                     {status.adaptive.enabled ? 'Enabled' : 'Disabled'}
                   </span>
@@ -296,7 +296,7 @@ export function RateLimiting() {
                       .map((i) => (
                         <div key={i.client_ip} className="flex justify-between text-xs py-1">
                           <span className="text-content-secondary font-mono">{i.client_ip}</span>
-                          <span className="text-red-400">{i.count}</span>
+                          <span className="text-status-text-error">{i.count}</span>
                         </div>
                       ))}
                   </div>
@@ -308,7 +308,7 @@ export function RateLimiting() {
                         .map((p) => (
                           <div key={p.policy_name} className="flex justify-between text-xs py-1">
                             <span className="text-content-secondary">{p.policy_name}</span>
-                            <span className="text-amber-400">{p.count}</span>
+                            <span className="text-status-text-warning">{p.count}</span>
                           </div>
                         ))}
                   </div>
@@ -320,7 +320,7 @@ export function RateLimiting() {
                         .map((t) => (
                           <div key={t.tenant_id} className="flex justify-between text-xs py-1">
                             <span className="text-content-secondary">{t.tenant_id || '(anonymous)'}</span>
-                            <span className="text-purple-400">{t.count}</span>
+                            <span className="text-status-purple">{t.count}</span>
                           </div>
                         ))}
                   </div>
@@ -383,7 +383,7 @@ export function RateLimiting() {
                     <td className="px-4 py-3">
                       <button
                         onClick={() => togglePolicy(p)}
-                        className={`px-2 py-0.5 rounded text-xs font-medium cursor-pointer transition ${p.enabled ? 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30' : 'bg-gray-500/20 text-content-secondary hover:bg-gray-500/30'}`}
+                        className={`px-2 py-0.5 rounded text-xs font-medium cursor-pointer transition ${p.enabled ? 'bg-emerald-500/20 text-status-text-success hover:bg-emerald-500/30' : 'bg-gray-500/20 text-content-secondary hover:bg-gray-500/30'}`}
                       >
                         {p.enabled ? 'enabled' : 'disabled'}
                       </button>
@@ -391,7 +391,7 @@ export function RateLimiting() {
                     <td className="px-4 py-3">
                       <button
                         onClick={() => deletePolicy(p.id)}
-                        className="text-red-400 text-xs hover:text-red-300 transition"
+                        className="text-status-text-error text-xs hover:text-status-text-error transition"
                       >
                         Delete
                       </button>
@@ -413,7 +413,7 @@ export function RateLimiting() {
           <div className="bg-surface-tertiary border border-border rounded-xl overflow-hidden">
             {events.length === 0 ? (
               <div className="text-center py-12">
-                <div className="mb-3 text-emerald-400">{Icons.checkCircle('w-10 h-10')}</div>
+                <div className="mb-3 text-status-text-success">{Icons.checkCircle('w-10 h-10')}</div>
                 <p className="text-content-secondary">No rate limit violations</p>
                 <p className="text-content-tertiary text-sm mt-1">
                   All API requests are within configured limits
@@ -473,7 +473,7 @@ export function RateLimiting() {
                 <div className="flex justify-between">
                   <span className="text-content-secondary">Status</span>
                   <span
-                    className={`px-2 py-0.5 rounded text-xs font-medium ${(adaptive.config as Record<string, unknown>)?.enabled ? 'bg-emerald-500/20 text-emerald-400' : 'bg-gray-500/20 text-content-secondary'}`}
+                    className={`px-2 py-0.5 rounded text-xs font-medium ${(adaptive.config as Record<string, unknown>)?.enabled ? 'bg-emerald-500/20 text-status-text-success' : 'bg-gray-500/20 text-content-secondary'}`}
                   >
                     {(adaptive.config as Record<string, unknown>)?.enabled ? 'Enabled' : 'Disabled'}
                   </span>

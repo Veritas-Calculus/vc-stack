@@ -46,8 +46,8 @@ export function LoadBalancersL7() {
 
   const statusBadge = (s: string) => {
     const c: Record<string, string> = {
-      active: 'bg-emerald-500/15 text-emerald-400',
-      error: 'bg-red-500/15 text-red-400'
+      active: 'bg-emerald-500/15 text-status-text-success',
+      error: 'bg-red-500/15 text-status-text-error'
     }
     return (
       <span
@@ -88,7 +88,7 @@ export function LoadBalancersL7() {
       header: '',
       className: 'w-20 text-right',
       render: (r) => (
-        <button className="text-xs text-red-400 hover:underline" onClick={() => handleDelete(r.id)}>
+        <button className="text-xs text-status-text-error hover:underline" onClick={() => handleDelete(r.id)}>
           Delete
         </button>
       )

@@ -124,16 +124,16 @@ function Overview() {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {[
           { label: 'Zones', value: infra.zones, color: 'text-accent' },
-          { label: 'Clusters', value: infra.clusters, color: 'text-purple-400' },
+          { label: 'Clusters', value: infra.clusters, color: 'text-status-purple' },
           {
             label: 'Hosts',
             value: infra.hosts,
-            color: 'text-cyan-400',
+            color: 'text-status-cyan',
             sub: `${infra.hosts_up} up`
           },
-          { label: 'Total vCPUs', value: infra.total_vcpus, color: 'text-amber-400' },
-          { label: 'Total RAM', value: formatRAM(infra.total_ram_mb), color: 'text-emerald-400' },
-          { label: 'Total Disk', value: `${infra.total_disk_gb} GB`, color: 'text-indigo-400' }
+          { label: 'Total vCPUs', value: infra.total_vcpus, color: 'text-status-text-warning' },
+          { label: 'Total RAM', value: formatRAM(infra.total_ram_mb), color: 'text-status-text-success' },
+          { label: 'Total Disk', value: `${infra.total_disk_gb} GB`, color: 'text-status-indigo' }
         ].map((item) => (
           <div
             key={item.label}
@@ -191,7 +191,7 @@ function Overview() {
             </div>
             <div className="text-right mt-1">
               <span
-                className={`text-sm font-semibold ${bar.pct > 80 ? 'text-red-400' : bar.pct > 60 ? 'text-amber-400' : 'text-emerald-400'}`}
+                className={`text-sm font-semibold ${bar.pct > 80 ? 'text-status-text-error' : bar.pct > 60 ? 'text-status-text-warning' : 'text-status-text-success'}`}
               >
                 {bar.pct.toFixed(1)}%
               </span>
@@ -211,12 +211,12 @@ function Overview() {
               <div className="text-xs text-content-tertiary">Total</div>
             </div>
             <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3">
-              <div className="text-2xl font-bold text-emerald-400">{infra.hosts_up}</div>
-              <div className="text-xs text-emerald-400/60">Online</div>
+              <div className="text-2xl font-bold text-status-text-success">{infra.hosts_up}</div>
+              <div className="text-xs text-status-text-success/60">Online</div>
             </div>
             <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3">
-              <div className="text-2xl font-bold text-red-400">{infra.hosts_down}</div>
-              <div className="text-xs text-red-400/60">Offline</div>
+              <div className="text-2xl font-bold text-status-text-error">{infra.hosts_down}</div>
+              <div className="text-xs text-status-text-error/60">Offline</div>
             </div>
           </div>
         </div>
@@ -230,8 +230,8 @@ function Overview() {
               <div className="text-xs text-content-tertiary">Instances</div>
             </div>
             <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3">
-              <div className="text-xl font-bold text-emerald-400">{compute.active_instances}</div>
-              <div className="text-xs text-emerald-400/60">Active</div>
+              <div className="text-xl font-bold text-status-text-success">{compute.active_instances}</div>
+              <div className="text-xs text-status-text-success/60">Active</div>
             </div>
             <div className="rounded-lg bg-surface-tertiary p-3">
               <div className="text-xl font-bold text-content-primary">{storage.total_volumes}</div>
@@ -490,7 +490,7 @@ function Clusters() {
         header: 'Actions',
         render: (r) => (
           <button
-            className="btn btn-sm text-red-400 hover:text-red-300"
+            className="btn btn-sm text-status-text-error hover:text-status-text-error"
             onClick={async () => {
               if (!confirm(`Delete cluster "${r.name}"?`)) return
               try {
@@ -965,9 +965,9 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
                   <div
                     key={i}
                     className={`text-xs font-mono py-0.5 ${evt.status === 'error'
-                      ? 'text-red-400'
+                      ? 'text-status-text-error'
                       : evt.status === 'success' || evt.status === 'done'
-                        ? 'text-emerald-400'
+                        ? 'text-status-text-success'
                         : 'text-content-secondary'
                       }`}
                   >
@@ -1104,7 +1104,7 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
             </button>
           </div>
           {connectionTested && !connectionOk && connectionError && (
-            <p className="text-xs text-red-400 mt-1">{connectionError}</p>
+            <p className="text-xs text-status-text-error mt-1">{connectionError}</p>
           )}
           {connectionTested && connectionOk && (
             <p className="text-xs text-green-400 mt-1">
@@ -1516,7 +1516,7 @@ function StoragePoolManager({
       {
         key: 'actions', header: '', render: (r) => (
           <button
-            className="text-red-400 hover:text-red-300 text-xs"
+            className="text-status-text-error hover:text-status-text-error text-xs"
             onClick={(e) => { e.stopPropagation(); handleDelete(r) }}
           >
             Delete
@@ -1569,9 +1569,9 @@ function StoragePoolManager({
 function SummaryBox({ label, value, color }: { label: string; value: string | number; color: string }) {
   const colorMap: Record<string, string> = {
     blue: 'bg-blue-500/10 text-accent border-blue-500/20',
-    emerald: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-    amber: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-    purple: 'bg-purple-500/10 text-purple-400 border-purple-500/20'
+    emerald: 'bg-emerald-500/10 text-status-text-success border-emerald-500/20',
+    amber: 'bg-amber-500/10 text-status-text-warning border-amber-500/20',
+    purple: 'bg-purple-500/10 text-status-purple border-purple-500/20'
   }
   return (
     <div className={`rounded-xl border p-3 ${colorMap[color] || colorMap.blue}`}>
@@ -1636,7 +1636,7 @@ function AddPoolDialog({
           Add {scope === 'primary' ? 'Primary' : 'Secondary'} Storage Pool
         </h3>
 
-        {error && <div className="text-red-400 text-sm bg-red-500/10 rounded p-2">{error}</div>}
+        {error && <div className="text-status-text-error text-sm bg-red-500/10 rounded p-2">{error}</div>}
 
         <div className="grid grid-cols-2 gap-3">
           <div className="col-span-2">
@@ -1779,7 +1779,7 @@ function DBUsage() {
           </button>
         }
       />
-      {error && <div className="text-sm text-red-400">{error}</div>}
+      {error && <div className="text-sm text-status-text-error">{error}</div>}
       {health && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Database card */}

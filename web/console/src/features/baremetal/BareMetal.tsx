@@ -104,23 +104,23 @@ export function BareMetal() {
 
   const badge = (s: string) => {
     const m: Record<string, string> = {
-      available: 'bg-emerald-500/20 text-emerald-400',
+      available: 'bg-emerald-500/20 text-status-text-success',
       active: 'bg-blue-500/20 text-accent',
-      provisioning: 'bg-amber-500/20 text-amber-400',
-      maintenance: 'bg-orange-500/20 text-orange-400',
-      error: 'bg-red-500/20 text-red-400',
+      provisioning: 'bg-amber-500/20 text-status-text-warning',
+      maintenance: 'bg-orange-500/20 text-status-orange',
+      error: 'bg-red-500/20 text-status-text-error',
       decommissioned: 'bg-gray-500/20 text-content-secondary',
-      on: 'bg-emerald-500/20 text-emerald-400',
+      on: 'bg-emerald-500/20 text-status-text-success',
       off: 'bg-gray-500/20 text-content-secondary',
-      linux: 'bg-amber-500/20 text-amber-300',
-      windows: 'bg-blue-500/20 text-blue-300',
-      esxi: 'bg-cyan-500/20 text-cyan-300',
-      nvme: 'bg-purple-500/20 text-purple-400',
-      ssd: 'bg-cyan-500/20 text-cyan-400',
+      linux: 'bg-amber-500/20 text-status-text-warning',
+      windows: 'bg-blue-500/20 text-status-link',
+      esxi: 'bg-cyan-500/20 text-status-cyan',
+      nvme: 'bg-purple-500/20 text-status-purple',
+      ssd: 'bg-cyan-500/20 text-status-cyan',
       hdd: 'bg-gray-500/20 text-content-secondary',
-      completed: 'bg-emerald-500/20 text-emerald-400',
-      pending: 'bg-amber-500/20 text-amber-400',
-      failed: 'bg-red-500/20 text-red-400'
+      completed: 'bg-emerald-500/20 text-status-text-success',
+      pending: 'bg-amber-500/20 text-status-text-warning',
+      failed: 'bg-red-500/20 text-status-text-error'
     }
     return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-content-secondary'}`
   }
@@ -144,7 +144,7 @@ export function BareMetal() {
           </p>
         </div>
         {status && (
-          <span className="px-3 py-1 rounded-lg border border-emerald-500/30 text-emerald-400 text-sm">
+          <span className="px-3 py-1 rounded-lg border border-emerald-500/30 text-status-text-success text-sm">
             Operational
           </span>
         )}
@@ -180,7 +180,7 @@ export function BareMetal() {
                 label: 'Available',
                 value: String(status.available),
                 icon: Icons.checkCircle('w-4 h-4'),
-                color: 'text-emerald-400'
+                color: 'text-status-text-success'
               },
               {
                 label: 'Active',
@@ -192,13 +192,13 @@ export function BareMetal() {
                 label: 'CPU Cores',
                 value: String(status.total_cpu_cores),
                 icon: Icons.cpu('w-4 h-4'),
-                color: 'text-cyan-400'
+                color: 'text-status-cyan'
               },
               {
                 label: 'Storage',
                 value: `${status.total_storage_tb} TB`,
                 icon: Icons.drive('w-4 h-4'),
-                color: 'text-purple-400'
+                color: 'text-status-purple'
               }
             ].map((s) => (
               <div
@@ -389,7 +389,7 @@ export function BareMetal() {
                   {serverDetail.primary_ip && (
                     <div>
                       IP:{' '}
-                      <span className="font-mono text-emerald-400">{serverDetail.primary_ip}</span>
+                      <span className="font-mono text-status-text-success">{serverDetail.primary_ip}</span>
                     </div>
                   )}
                   <div>
@@ -406,11 +406,11 @@ export function BareMetal() {
                     {serverDetail.rack_unit}
                   </div>
                   <div>
-                    IPMI: <span className="font-mono text-cyan-400">{serverDetail.ipmi_ip}</span>
+                    IPMI: <span className="font-mono text-status-cyan">{serverDetail.ipmi_ip}</span>
                   </div>
                   {serverDetail.os_profile && (
                     <div>
-                      OS: <span className="text-amber-400">{serverDetail.os_profile}</span>
+                      OS: <span className="text-status-text-warning">{serverDetail.os_profile}</span>
                     </div>
                   )}
                 </div>

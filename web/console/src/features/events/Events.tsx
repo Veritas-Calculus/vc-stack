@@ -21,17 +21,17 @@ interface SystemEvent {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  success: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
-  failure: 'bg-red-500/15 text-red-400 border-red-500/30',
-  pending: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
-  error: 'bg-red-500/15 text-red-400 border-red-500/30'
+  success: 'bg-emerald-500/15 text-status-text-success border-emerald-500/30',
+  failure: 'bg-red-500/15 text-status-text-error border-red-500/30',
+  pending: 'bg-amber-500/15 text-status-text-warning border-amber-500/30',
+  error: 'bg-red-500/15 text-status-text-error border-red-500/30'
 }
 
 const TYPE_COLORS: Record<string, string> = {
-  create: 'text-emerald-400',
+  create: 'text-status-text-success',
   update: 'text-accent',
-  delete: 'text-red-400',
-  action: 'text-amber-400'
+  delete: 'text-status-text-error',
+  action: 'text-status-text-warning'
 }
 
 const RESOURCE_ABBREV: Record<string, string> = {
@@ -398,8 +398,8 @@ export function Events() {
               {/* Error Message */}
               {selectedEvent.error_message && (
                 <div className="rounded-lg bg-red-500/10 border border-red-500/30 p-4">
-                  <div className="text-red-400 text-xs font-medium mb-1">Error Message</div>
-                  <div className="text-red-300 text-sm font-mono">
+                  <div className="text-status-text-error text-xs font-medium mb-1">Error Message</div>
+                  <div className="text-status-text-error text-sm font-mono">
                     {selectedEvent.error_message}
                   </div>
                 </div>

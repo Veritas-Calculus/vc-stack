@@ -140,7 +140,7 @@ export default function PortForwarding() {
       key: 'internal',
       header: 'Internal Target',
       render: (r) => (
-        <span className="font-mono text-emerald-400">
+        <span className="font-mono text-status-text-success">
           {r.internal_ip}:{r.internal_port}
         </span>
       )
@@ -187,7 +187,7 @@ export default function PortForwarding() {
       />
 
       {error && (
-        <div className="p-3 bg-red-900/30 border border-red-800/50 rounded text-red-400 text-sm">
+        <div className="p-3 bg-red-900/30 border border-red-800/50 rounded text-status-text-error text-sm">
           {error}
         </div>
       )}
@@ -293,7 +293,7 @@ export default function PortForwarding() {
               {fipId ? getFipAddress(fipId) : '<FIP>'}:{extPort || '<port>'}
             </span>{' '}
             will be forwarded to{' '}
-            <span className="font-mono text-emerald-400">
+            <span className="font-mono text-status-text-success">
               {intIp || '<IP>'}:{intPort || '<port>'}
             </span>{' '}
             via OVN DNAT.

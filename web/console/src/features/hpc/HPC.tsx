@@ -71,7 +71,7 @@ export function HPC() {
           <div className="bg-gradient-to-r from-purple-600/20 via-blue-600/20 to-cyan-600/20 border border-white/10 rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 rounded-lg bg-purple-500/20">
-                {Icons.cpu('w-6 h-6 text-purple-400')}
+                {Icons.cpu('w-6 h-6 text-status-purple')}
               </div>
               <div>
                 <h2 className="text-lg font-semibold text-content-primary">HPC Platform</h2>
@@ -94,7 +94,7 @@ export function HPC() {
               {
                 label: 'Slurm Clusters',
                 value: status.slurm_clusters,
-                icon: Icons.server('w-5 h-5 text-orange-400'),
+                icon: Icons.server('w-5 h-5 text-status-orange'),
                 color: 'orange'
               },
               {
@@ -106,13 +106,13 @@ export function HPC() {
               {
                 label: 'Active Jobs',
                 value: status.active_jobs,
-                icon: Icons.bolt('w-5 h-5 text-cyan-400'),
+                icon: Icons.bolt('w-5 h-5 text-status-cyan'),
                 color: 'cyan'
               },
               {
                 label: 'GPU Pools',
                 value: status.gpu_pools,
-                icon: Icons.cpu('w-5 h-5 text-purple-400'),
+                icon: Icons.cpu('w-5 h-5 text-status-purple'),
                 color: 'purple'
               },
               {
@@ -158,7 +158,7 @@ export function HPC() {
             <QuickAction
               title="GPU Resources"
               description="GPU pool management, utilization monitoring, and NVLink topology"
-              icon={Icons.cpu('w-8 h-8 text-purple-400')}
+              icon={Icons.cpu('w-8 h-8 text-status-purple')}
               gradient="from-purple-600/20 to-purple-800/20"
               status="Active"
               onClick={() => navigate('/hpc/gpu')}
@@ -198,7 +198,7 @@ function QuickAction({
           <span
             className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${
               status === 'Active'
-                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                ? 'bg-emerald-500/10 text-status-text-success border border-emerald-500/30'
                 : 'bg-white/5 text-content-secondary border border-white/10'
             }`}
           >

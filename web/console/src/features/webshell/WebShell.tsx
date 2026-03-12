@@ -71,7 +71,7 @@ function TreeNode({ node, onPick, openMap, setOpenMap, query }: TreeNodeProps) {
   const host = node as CmdbHost
   return (
     <div className="ml-2 text-sm">
-      <button type="button" className="text-blue-300 hover:underline" onClick={() => onPick(host)}>
+      <button type="button" className="text-status-link hover:underline" onClick={() => onPick(host)}>
         {host.name}
       </button>
       <span className="text-content-tertiary">
@@ -591,7 +591,7 @@ export function WebShell() {
             <div className="bg-red-900/30 border-2 border-red-600 rounded-lg p-4 space-y-2">
               <div className="flex items-start gap-2">
                 <svg
-                  className="w-5 h-5 text-red-500 mt-0.5 shrink-0"
+                  className="w-5 h-5 text-status-text-error mt-0.5 shrink-0"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -604,14 +604,14 @@ export function WebShell() {
                   />
                 </svg>
                 <div className="flex-1">
-                  <div className="font-semibold text-red-400 mb-1">Connection Error</div>
-                  <div className="text-sm text-red-300">{error}</div>
+                  <div className="font-semibold text-status-text-error mb-1">Connection Error</div>
+                  <div className="text-sm text-status-text-error">{error}</div>
                 </div>
               </div>
               {error.includes('Authentication') || error.includes('authentication') ? (
                 <div className="mt-3 pt-3 border-t border-red-700/50">
-                  <div className="text-xs text-red-200 mb-2">Quick fix:</div>
-                  <ul className="text-xs text-red-300 space-y-1 ml-4">
+                  <div className="text-xs text-status-text-error mb-2">Quick fix:</div>
+                  <ul className="text-xs text-status-text-error space-y-1 ml-4">
                     <li>• Check if your password/key is correct</li>
                     <li>• Make sure the user account exists on the server</li>
                     <li>• Verify SSH key is in ~/.ssh/authorized_keys</li>

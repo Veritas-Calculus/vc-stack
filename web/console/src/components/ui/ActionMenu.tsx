@@ -51,7 +51,7 @@ export function ActionMenu({ actions }: { actions: Action[] }) {
                   setOpen(false)
                   a.onClick()
                 }}
-                className={`w-full text-left px-3 py-1.5 text-sm hover:bg-surface-hover ${a.danger ? 'text-rose-400' : 'text-content-primary'}`}
+                className={`w-full text-left px-3 py-1.5 text-sm hover:bg-surface-hover ${a.danger ? 'text-status-rose' : 'text-content-primary'}`}
               >
                 {a.label}
               </button>

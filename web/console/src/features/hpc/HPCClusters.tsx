@@ -101,13 +101,13 @@ export function HPCClusters() {
 
   const badge = (s: string) => {
     const m: Record<string, string> = {
-      active: 'bg-emerald-500/20 text-emerald-400',
-      ready: 'bg-emerald-500/20 text-emerald-400',
+      active: 'bg-emerald-500/20 text-status-text-success',
+      ready: 'bg-emerald-500/20 text-status-text-success',
       provisioning: 'bg-blue-500/20 text-accent animate-pulse',
       upgrading: 'bg-blue-500/20 text-accent',
-      pending: 'bg-amber-500/20 text-amber-400',
-      error: 'bg-red-500/20 text-red-400',
-      deleting: 'bg-red-500/20 text-red-400'
+      pending: 'bg-amber-500/20 text-status-text-warning',
+      error: 'bg-red-500/20 text-status-text-error',
+      deleting: 'bg-red-500/20 text-status-text-error'
     }
     return `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${m[s] || 'bg-gray-500/20 text-content-secondary'}`
   }
@@ -176,7 +176,7 @@ export function HPCClusters() {
           }}
           className={`px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition ${
             tab === 'slurm'
-              ? 'bg-orange-600/20 text-orange-400 border border-orange-500/30'
+              ? 'bg-orange-600/20 text-status-orange border border-orange-500/30'
               : 'text-content-tertiary hover:text-content-secondary'
           }`}
         >
@@ -220,9 +220,9 @@ export function HPCClusters() {
                         <div className="text-content-tertiary text-xs mt-0.5 flex items-center gap-2">
                           <span>K8s {c.kubernetes_version}</span>
                           <span className="text-content-tertiary">|</span>
-                          <span className="text-purple-400">{c.gpu_scheduler}</span>
-                          {c.enable_mpi && <span className="text-cyan-400">MPI</span>}
-                          {c.enable_rdma && <span className="text-orange-400">RDMA</span>}
+                          <span className="text-status-purple">{c.gpu_scheduler}</span>
+                          {c.enable_mpi && <span className="text-status-cyan">MPI</span>}
+                          {c.enable_rdma && <span className="text-status-orange">RDMA</span>}
                         </div>
                       </div>
                     </div>
@@ -239,7 +239,7 @@ export function HPCClusters() {
                           e.stopPropagation()
                           deleteCluster('k8s', c.id)
                         }}
-                        className="text-red-400 text-xs hover:text-red-300 opacity-0 group-hover:opacity-100 transition"
+                        className="text-status-text-error text-xs hover:text-status-text-error opacity-0 group-hover:opacity-100 transition"
                       >
                         Delete
                       </button>
@@ -259,7 +259,7 @@ export function HPCClusters() {
                 </h3>
                 <button
                   onClick={() => reconcile(selectedK8s.id)}
-                  className="px-3 py-1.5 bg-purple-600/20 text-purple-400 border border-purple-500/30 rounded-lg text-xs hover:bg-purple-600/30 transition"
+                  className="px-3 py-1.5 bg-purple-600/20 text-status-purple border border-purple-500/30 rounded-lg text-xs hover:bg-purple-600/30 transition"
                 >
                   Reconcile
                 </button>
@@ -308,7 +308,7 @@ export function HPCClusters() {
         <div className="space-y-4">
           {slurmClusters.length === 0 ? (
             <div className="bg-surface-tertiary border border-border rounded-xl text-center py-16">
-              <div className="mb-4 text-orange-400">{Icons.server('w-12 h-12 mx-auto')}</div>
+              <div className="mb-4 text-status-orange">{Icons.server('w-12 h-12 mx-auto')}</div>
               <p className="text-content-secondary text-lg">No Slurm clusters</p>
               <p className="text-content-tertiary text-sm mt-1">
                 Deploy a Slurm workload manager with slurmrestd
@@ -328,7 +328,7 @@ export function HPCClusters() {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-lg bg-orange-500/20 flex items-center justify-center text-orange-400">
+                      <div className="w-12 h-12 rounded-lg bg-orange-500/20 flex items-center justify-center text-status-orange">
                         {Icons.server('w-7 h-7')}
                       </div>
                       <div>
@@ -338,9 +338,9 @@ export function HPCClusters() {
                           <span className="text-content-tertiary">|</span>
                           <span>{c.compute_node_count} nodes</span>
                           {c.accounting_enabled && (
-                            <span className="text-emerald-400">Accounting</span>
+                            <span className="text-status-text-success">Accounting</span>
                           )}
-                          {c.fairshare_enabled && <span className="text-cyan-400">FairShare</span>}
+                          {c.fairshare_enabled && <span className="text-status-cyan">FairShare</span>}
                         </div>
                       </div>
                     </div>
@@ -355,7 +355,7 @@ export function HPCClusters() {
                           e.stopPropagation()
                           deleteCluster('slurm', c.id)
                         }}
-                        className="text-red-400 text-xs hover:text-red-300 opacity-0 group-hover:opacity-100 transition"
+                        className="text-status-text-error text-xs hover:text-status-text-error opacity-0 group-hover:opacity-100 transition"
                       >
                         Delete
                       </button>

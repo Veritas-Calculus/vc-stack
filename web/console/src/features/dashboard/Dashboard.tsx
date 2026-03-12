@@ -205,33 +205,33 @@ export function Dashboard() {
           {
             label: 'Clusters',
             value: d.infrastructure.clusters,
-            icon: Icons.server('w-5 h-5 text-purple-400'),
+            icon: Icons.server('w-5 h-5 text-status-purple'),
             link: `${prefix}/infrastructure/clusters`
           },
           {
             label: 'Hosts',
             value: d.infrastructure.hosts,
-            icon: Icons.cpu('w-5 h-5 text-cyan-400'),
+            icon: Icons.cpu('w-5 h-5 text-status-cyan'),
             sub: `${d.infrastructure.hosts_up} up`,
             link: `${prefix}/infrastructure/hosts`
           },
           {
             label: 'Instances',
             value: d.compute.total_instances,
-            icon: Icons.bolt('w-5 h-5 text-amber-400'),
+            icon: Icons.bolt('w-5 h-5 text-status-text-warning'),
             sub: `${d.compute.active_instances} active`,
             link: `${prefix}/compute/instances`
           },
           {
             label: 'Volumes',
             value: d.storage.total_volumes,
-            icon: Icons.drive('w-5 h-5 text-emerald-400'),
+            icon: Icons.drive('w-5 h-5 text-status-text-success'),
             link: `${prefix}/storage/volumes`
           },
           {
             label: 'Networks',
             value: d.network.total_networks,
-            icon: Icons.network('w-5 h-5 text-indigo-400'),
+            icon: Icons.network('w-5 h-5 text-status-indigo'),
             link: `${prefix}/network/vpc`
           }
         ].map((item) => (
@@ -270,7 +270,7 @@ export function Dashboard() {
           </div>
           <div className="text-right mt-1">
             <span
-              className={`text-sm font-semibold ${d.compute.cpu_usage_percent > 80 ? 'text-red-400' : d.compute.cpu_usage_percent > 60 ? 'text-amber-400' : 'text-emerald-400'}`}
+              className={`text-sm font-semibold ${d.compute.cpu_usage_percent > 80 ? 'text-status-text-error' : d.compute.cpu_usage_percent > 60 ? 'text-status-text-warning' : 'text-status-text-success'}`}
             >
               {d.compute.cpu_usage_percent.toFixed(1)}%
             </span>
@@ -293,7 +293,7 @@ export function Dashboard() {
           </div>
           <div className="text-right mt-1">
             <span
-              className={`text-sm font-semibold ${d.compute.ram_usage_percent > 80 ? 'text-red-400' : d.compute.ram_usage_percent > 60 ? 'text-amber-400' : 'text-accent'}`}
+              className={`text-sm font-semibold ${d.compute.ram_usage_percent > 80 ? 'text-status-text-error' : d.compute.ram_usage_percent > 60 ? 'text-status-text-warning' : 'text-accent'}`}
             >
               {d.compute.ram_usage_percent.toFixed(1)}%
             </span>
@@ -323,7 +323,7 @@ export function Dashboard() {
               {d.storage.total_volumes} volumes, {d.storage.total_snapshots} snapshots
             </span>
             {d.storage.total_size_gb > 0 && (
-              <span className="text-sm font-semibold text-purple-400">
+              <span className="text-sm font-semibold text-status-purple">
                 {((d.storage.used_size_gb / d.storage.total_size_gb) * 100).toFixed(1)}%
               </span>
             )}
@@ -415,7 +415,7 @@ export function Dashboard() {
           <div className="divide-y divide-border">
             {d.recent_alerts.length === 0 ? (
               <div className="px-4 py-6 text-center text-content-tertiary text-sm">
-                <span className="inline-block w-6 h-6 rounded-full bg-emerald-500/15 text-emerald-400 leading-6 text-xs font-bold">
+                <span className="inline-block w-6 h-6 rounded-full bg-emerald-500/15 text-status-text-success leading-6 text-xs font-bold">
                   OK
                 </span>
                 <p className="mt-1">No active alerts</p>

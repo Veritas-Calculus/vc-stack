@@ -153,7 +153,7 @@ export default function LoadBalancers() {
       case 'creating':
         return 'text-yellow-400'
       case 'error':
-        return 'text-red-400'
+        return 'text-status-text-error'
       default:
         return 'text-content-secondary'
     }
@@ -262,7 +262,7 @@ export default function LoadBalancers() {
       />
 
       {error && (
-        <div className="p-3 bg-red-900/30 border border-red-800/50 rounded text-red-400 text-sm">
+        <div className="p-3 bg-red-900/30 border border-red-800/50 rounded text-status-text-error text-sm">
           {error}
         </div>
       )}

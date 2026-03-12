@@ -176,20 +176,20 @@ export function HighAvailability() {
 
   const statusBadge = (s: string) => {
     const colors: Record<string, string> = {
-      completed: 'bg-emerald-500/20 text-emerald-400',
+      completed: 'bg-emerald-500/20 text-status-text-success',
       running: 'bg-blue-500/20 text-accent',
-      partial: 'bg-amber-500/20 text-amber-400',
-      failed: 'bg-red-500/20 text-red-400',
+      partial: 'bg-amber-500/20 text-status-text-warning',
+      failed: 'bg-red-500/20 text-status-text-error',
       pending: 'bg-gray-500/20 text-content-secondary',
-      fenced: 'bg-red-500/20 text-red-400',
-      released: 'bg-emerald-500/20 text-emerald-400',
+      fenced: 'bg-red-500/20 text-status-text-error',
+      released: 'bg-emerald-500/20 text-status-text-success',
       migrating: 'bg-blue-500/20 text-accent',
       skipped: 'bg-gray-500/20 text-content-secondary',
-      active: 'bg-emerald-500/20 text-emerald-400',
-      error: 'bg-red-500/20 text-red-400',
+      active: 'bg-emerald-500/20 text-status-text-success',
+      error: 'bg-red-500/20 text-status-text-error',
       building: 'bg-blue-500/20 text-accent',
       stopped: 'bg-gray-500/20 text-content-secondary',
-      rebuilding: 'bg-amber-500/20 text-amber-400'
+      rebuilding: 'bg-amber-500/20 text-status-text-warning'
     }
     return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colors[s] || 'bg-gray-500/20 text-content-secondary'}`
   }
@@ -236,7 +236,7 @@ export function HighAvailability() {
         {status && (
           <div className="flex items-center gap-3">
             <span
-              className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium ${status.ha_enabled ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}`}
+              className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium ${status.ha_enabled ? 'bg-emerald-500/20 text-status-text-success border border-emerald-500/30' : 'bg-red-500/20 text-status-text-error border border-red-500/30'}`}
             >
               <span
                 className={`w-2 h-2 rounded-full mr-2 ${status.ha_enabled ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'}`}
@@ -244,7 +244,7 @@ export function HighAvailability() {
               HA {status.ha_enabled ? 'Enabled' : 'Disabled'}
             </span>
             <span
-              className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium ${status.auto_fence ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-gray-500/20 text-content-secondary border border-gray-500/30'}`}
+              className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium ${status.auto_fence ? 'bg-amber-500/20 text-status-text-warning border border-amber-500/30' : 'bg-gray-500/20 text-content-secondary border border-gray-500/30'}`}
             >
               Auto-Fence {status.auto_fence ? 'ON' : 'OFF'}
             </span>
@@ -280,13 +280,13 @@ export function HighAvailability() {
               {
                 label: 'Hosts Up',
                 value: status.hosts?.up || 0,
-                color: 'text-emerald-400',
+                color: 'text-status-text-success',
                 icon: Icons.checkCircle('w-5 h-5')
               },
               {
                 label: 'Hosts Down',
                 value: status.hosts?.down || 0,
-                color: (status.hosts?.down || 0) > 0 ? 'text-red-400' : 'text-content-secondary',
+                color: (status.hosts?.down || 0) > 0 ? 'text-status-text-error' : 'text-content-secondary',
                 icon: Icons.xCircle('w-5 h-5')
               },
               {
@@ -298,7 +298,7 @@ export function HighAvailability() {
               {
                 label: 'Total Active VMs',
                 value: status.total_instances,
-                color: 'text-purple-400',
+                color: 'text-status-purple',
                 icon: Icons.desktopComputer('w-5 h-5')
               }
             ].map((s) => (
@@ -334,7 +334,7 @@ export function HighAvailability() {
           {/* Active Fencing Alerts */}
           {status.active_fencing && status.active_fencing.length > 0 && (
             <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-5">
-              <h3 className="text-sm font-semibold text-red-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-status-text-error uppercase tracking-wider mb-3 flex items-center gap-2">
                 {Icons.warning('w-4 h-4')} Active Fencing ({status.active_fencing.length})
               </h3>
               <div className="space-y-2">
@@ -349,7 +349,7 @@ export function HighAvailability() {
                     </div>
                     <button
                       onClick={() => unfenceHost(f.host_id)}
-                      className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded text-xs hover:bg-emerald-500/30 transition"
+                      className="px-3 py-1 bg-emerald-500/20 text-status-text-success rounded text-xs hover:bg-emerald-500/30 transition"
                     >
                       Unfence
                     </button>
@@ -379,8 +379,8 @@ export function HighAvailability() {
                       <span className="text-content-tertiary text-xs">{e.trigger}</span>
                     </div>
                     <div className="flex items-center gap-4 text-xs text-content-secondary">
-                      <span className="text-emerald-400">{e.evacuated} done</span>
-                      {e.failed > 0 && <span className="text-red-400">{e.failed} fail</span>}
+                      <span className="text-status-text-success">{e.evacuated} done</span>
+                      {e.failed > 0 && <span className="text-status-text-error">{e.failed} fail</span>}
                       {e.skipped > 0 && <span className="text-content-secondary">{e.skipped} skipped</span>}
                       <span>{formatTime(e.started_at)}</span>
                     </div>
@@ -410,7 +410,7 @@ export function HighAvailability() {
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-content-primary font-semibold text-lg">{p.name}</h3>
                   {p.enabled ? (
-                    <span className="text-emerald-400 text-xs bg-emerald-500/20 px-2 py-0.5 rounded">
+                    <span className="text-status-text-success text-xs bg-emerald-500/20 px-2 py-0.5 rounded">
                       ACTIVE
                     </span>
                   ) : (
@@ -440,7 +440,7 @@ export function HighAvailability() {
                 {!['default', 'critical', 'best-effort'].includes(p.name) && (
                   <button
                     onClick={() => deletePolicy(p.id)}
-                    className="text-red-400 text-xs hover:text-red-300 transition"
+                    className="text-status-text-error text-xs hover:text-status-text-error transition"
                   >
                     Delete
                   </button>
@@ -501,7 +501,7 @@ export function HighAvailability() {
                         className={`w-2 h-2 rounded-full inline-block ${inst.ha_enabled ? 'bg-emerald-400' : 'bg-gray-500'}`}
                       ></span>
                       <span
-                        className={`ml-2 ${inst.ha_enabled ? 'text-emerald-400' : 'text-content-tertiary'}`}
+                        className={`ml-2 ${inst.ha_enabled ? 'text-status-text-success' : 'text-content-tertiary'}`}
                       >
                         {inst.ha_enabled ? 'Protected' : 'Unprotected'}
                       </span>
@@ -516,7 +516,7 @@ export function HighAvailability() {
                     <td className="px-4 py-3">
                       <button
                         onClick={() => toggleInstanceHA(inst.instance_id, !inst.ha_enabled)}
-                        className={`px-3 py-1 rounded text-xs transition ${inst.ha_enabled ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30' : 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30'}`}
+                        className={`px-3 py-1 rounded text-xs transition ${inst.ha_enabled ? 'bg-red-500/20 text-status-text-error hover:bg-red-500/30' : 'bg-emerald-500/20 text-status-text-success hover:bg-emerald-500/30'}`}
                       >
                         {inst.ha_enabled ? 'Disable HA' : 'Enable HA'}
                       </button>
@@ -560,7 +560,7 @@ export function HighAvailability() {
                     <td className="px-4 py-3 text-content-primary font-medium">{e.source_host_name}</td>
                     <td className="px-4 py-3">
                       <span
-                        className={`px-2 py-0.5 rounded text-xs ${e.trigger === 'heartbeat_timeout' ? 'bg-red-500/20 text-red-400' : e.trigger === 'maintenance' ? 'bg-amber-500/20 text-amber-400' : 'bg-blue-500/20 text-accent'}`}
+                        className={`px-2 py-0.5 rounded text-xs ${e.trigger === 'heartbeat_timeout' ? 'bg-red-500/20 text-status-text-error' : e.trigger === 'maintenance' ? 'bg-amber-500/20 text-status-text-warning' : 'bg-blue-500/20 text-accent'}`}
                       >
                         {e.trigger}
                       </span>
@@ -569,8 +569,8 @@ export function HighAvailability() {
                       <span className={statusBadge(e.status)}>{e.status}</span>
                     </td>
                     <td className="px-4 py-3 text-content-secondary">
-                      <span className="text-emerald-400">{e.evacuated}</span>
-                      {e.failed > 0 && <span className="text-red-400 ml-1">/ {e.failed} fail</span>}
+                      <span className="text-status-text-success">{e.evacuated}</span>
+                      {e.failed > 0 && <span className="text-status-text-error ml-1">/ {e.failed} fail</span>}
                       {e.skipped > 0 && <span className="text-content-tertiary ml-1">/ {e.skipped}skipped</span>}
                       <span className="text-content-tertiary"> of {e.total_instances}</span>
                     </td>
@@ -620,13 +620,13 @@ export function HighAvailability() {
                 <div className="text-content-secondary text-xs">Total</div>
               </div>
               <div className="bg-emerald-500/10 rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold text-emerald-400">
+                <div className="text-2xl font-bold text-status-text-success">
                   {selectedEvac.event.evacuated}
                 </div>
                 <div className="text-content-secondary text-xs">Evacuated</div>
               </div>
               <div className="bg-red-500/10 rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold text-red-400">{selectedEvac.event.failed}</div>
+                <div className="text-2xl font-bold text-status-text-error">{selectedEvac.event.failed}</div>
                 <div className="text-content-secondary text-xs">Failed</div>
               </div>
               <div className="bg-gray-500/10 rounded-lg p-3 text-center">
@@ -657,7 +657,7 @@ export function HighAvailability() {
                       <span className={statusBadge(inst.status)}>{inst.status}</span>
                     </td>
                     <td className="px-4 py-3 text-content-secondary">{inst.dest_host_name || '—'}</td>
-                    <td className="px-4 py-3 text-red-400 text-xs">{inst.error_message || '—'}</td>
+                    <td className="px-4 py-3 text-status-text-error text-xs">{inst.error_message || '—'}</td>
                     <td className="px-4 py-3 text-content-secondary text-xs">
                       {inst.started_at && inst.completed_at
                         ? `${Math.round((new Date(inst.completed_at).getTime() - new Date(inst.started_at).getTime()) / 1000)}s`
@@ -714,7 +714,7 @@ export function HighAvailability() {
                       {f.status === 'fenced' && (
                         <button
                           onClick={() => unfenceHost(f.host_id)}
-                          className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded text-xs hover:bg-emerald-500/30 transition"
+                          className="px-3 py-1 bg-emerald-500/20 text-status-text-success rounded text-xs hover:bg-emerald-500/30 transition"
                         >
                           Unfence
                         </button>

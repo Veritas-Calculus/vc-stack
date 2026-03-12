@@ -70,15 +70,15 @@ export function SelfHealing() {
 
   const badge = (s: string) => {
     const m: Record<string, string> = {
-      healthy: 'bg-emerald-500/20 text-emerald-400',
-      warning: 'bg-amber-500/20 text-amber-400',
-      critical: 'bg-red-500/20 text-red-400',
+      healthy: 'bg-emerald-500/20 text-status-text-success',
+      warning: 'bg-amber-500/20 text-status-text-warning',
+      critical: 'bg-red-500/20 text-status-text-error',
       unknown: 'bg-gray-500/20 text-content-secondary',
-      success: 'bg-emerald-500/20 text-emerald-400',
-      failed: 'bg-red-500/20 text-red-400',
+      success: 'bg-emerald-500/20 text-status-text-success',
+      failed: 'bg-red-500/20 text-status-text-error',
       triggered: 'bg-blue-500/20 text-accent',
-      executing: 'bg-amber-500/20 text-amber-400',
-      escalated: 'bg-orange-500/20 text-orange-400'
+      executing: 'bg-amber-500/20 text-status-text-warning',
+      escalated: 'bg-orange-500/20 text-status-orange'
     }
     return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-content-secondary'}`
   }
@@ -103,11 +103,11 @@ export function SelfHealing() {
           {status && (
             <span className="text-sm text-content-secondary">
               Heal rate:{' '}
-              <span className="text-emerald-400 font-bold">{String(status.healing_rate_pct)}%</span>
+              <span className="text-status-text-success font-bold">{String(status.healing_rate_pct)}%</span>
             </span>
           )}
           {status && (
-            <span className="px-3 py-1 rounded-lg border border-emerald-500/30 text-emerald-400 text-sm">
+            <span className="px-3 py-1 rounded-lg border border-emerald-500/30 text-status-text-success text-sm">
               Active
             </span>
           )}
@@ -141,19 +141,19 @@ export function SelfHealing() {
                 label: 'Healthy',
                 value: String(status.healthy),
                 icon: Icons.checkCircle('w-4 h-4'),
-                color: 'text-emerald-400'
+                color: 'text-status-text-success'
               },
               {
                 label: 'Warning',
                 value: String(status.warning),
                 icon: Icons.warning('w-4 h-4'),
-                color: 'text-amber-400'
+                color: 'text-status-text-warning'
               },
               {
                 label: 'Critical',
                 value: String(status.critical),
-                icon: Icons.circleFilled('w-4 h-4 text-red-400'),
-                color: 'text-red-400'
+                icon: Icons.circleFilled('w-4 h-4 text-status-text-error'),
+                color: 'text-status-text-error'
               }
             ].map((s) => (
               <div
@@ -298,8 +298,8 @@ export function SelfHealing() {
                     <span className={badge(p.trigger_status as string)}>
                       {p.trigger_status as string}
                     </span>{' '}
-                    on <span className="text-cyan-400">{p.resource_type as string}</span> &rarr;{' '}
-                    <span className="text-amber-400">{p.action as string}</span>
+                    on <span className="text-status-cyan">{p.resource_type as string}</span> &rarr;{' '}
+                    <span className="text-status-text-warning">{p.action as string}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 text-xs text-content-secondary">
@@ -309,13 +309,13 @@ export function SelfHealing() {
                   </div>
                   {Boolean(p.escalate_action) && (
                     <div className="text-right">
-                      <div className="text-orange-400">
+                      <div className="text-status-orange">
                         Escalate after {String(p.escalate_after)} fails
                       </div>
                       <div>&rarr; {String(p.escalate_action)}</div>
                     </div>
                   )}
-                  <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400">
+                  <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-status-text-success">
                     P{p.priority as number}
                   </span>
                 </div>
@@ -347,8 +347,8 @@ export function SelfHealing() {
                     <div className="flex items-center gap-3">
                       <span className="text-xl">
                         {(e.status as string) === 'success'
-                          ? Icons.checkCircle('w-5 h-5 text-emerald-400')
-                          : Icons.xCircle('w-5 h-5 text-red-400')}
+                          ? Icons.checkCircle('w-5 h-5 text-status-text-success')
+                          : Icons.xCircle('w-5 h-5 text-status-text-error')}
                       </span>
                       <div>
                         <div className="text-content-primary font-medium">{e.policy_name as string}</div>

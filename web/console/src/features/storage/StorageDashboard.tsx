@@ -159,9 +159,9 @@ function SummaryCard({
 }) {
   const iconStyles: Record<string, string> = {
     disk: 'bg-blue-500/20 text-accent',
-    camera: 'bg-purple-500/20 text-purple-400',
-    database: 'bg-emerald-500/20 text-emerald-400',
-    layers: 'bg-amber-500/20 text-amber-400'
+    camera: 'bg-purple-500/20 text-status-purple',
+    database: 'bg-emerald-500/20 text-status-text-success',
+    layers: 'bg-amber-500/20 text-status-text-warning'
   }
   const iconLabels: Record<string, string> = {
     disk: 'VOL',

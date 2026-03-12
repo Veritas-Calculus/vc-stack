@@ -103,7 +103,7 @@ export function PublicIPs() {
                 </button>
               )}
               <button
-                className="text-red-400 hover:underline"
+                className="text-status-text-error hover:underline"
                 onClick={async () => {
                   await deleteFloatingIP(row.id)
                   setRows((prev) => prev.filter((x) => x.id !== row.id))

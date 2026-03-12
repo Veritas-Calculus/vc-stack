@@ -181,10 +181,10 @@ export function Orchestration() {
 
   const statusColor = (status: string) => {
     if (status.includes('COMPLETE') && !status.includes('DELETE'))
-      return 'bg-emerald-500/15 text-emerald-400'
+      return 'bg-emerald-500/15 text-status-text-success'
     if (status.includes('IN_PROGRESS')) return 'bg-blue-500/15 text-accent'
-    if (status.includes('FAILED')) return 'bg-red-500/15 text-red-400'
-    if (status.includes('ROLLBACK')) return 'bg-amber-500/15 text-amber-400'
+    if (status.includes('FAILED')) return 'bg-red-500/15 text-status-text-error'
+    if (status.includes('ROLLBACK')) return 'bg-amber-500/15 text-status-text-warning'
     if (status.includes('DELETE')) return 'bg-gray-500/15 text-content-secondary'
     return 'bg-gray-500/15 text-content-secondary'
   }
@@ -193,9 +193,9 @@ export function Orchestration() {
 
   const typeColor = (type: string) => {
     if (type.includes('Compute')) return 'bg-blue-500/15 text-accent'
-    if (type.includes('Network')) return 'bg-purple-500/15 text-purple-400'
-    if (type.includes('Storage') || type.includes('Volume')) return 'bg-amber-500/15 text-amber-400'
-    if (type.includes('DNS')) return 'bg-cyan-500/15 text-cyan-400'
+    if (type.includes('Network')) return 'bg-purple-500/15 text-status-purple'
+    if (type.includes('Storage') || type.includes('Volume')) return 'bg-amber-500/15 text-status-text-warning'
+    if (type.includes('DNS')) return 'bg-cyan-500/15 text-status-cyan'
     if (type.includes('ObjectStorage')) return 'bg-teal-500/15 text-teal-400'
     return 'bg-gray-500/15 text-content-secondary'
   }
@@ -203,9 +203,9 @@ export function Orchestration() {
   const catColor = (cat: string) => {
     const colors: Record<string, string> = {
       web: 'bg-blue-500/15 text-accent',
-      database: 'bg-amber-500/15 text-amber-400',
-      network: 'bg-purple-500/15 text-purple-400',
-      compute: 'bg-emerald-500/15 text-emerald-400'
+      database: 'bg-amber-500/15 text-status-text-warning',
+      network: 'bg-purple-500/15 text-status-purple',
+      compute: 'bg-emerald-500/15 text-status-text-success'
     }
     return colors[cat] || 'bg-gray-500/15 text-content-secondary'
   }
@@ -316,7 +316,7 @@ export function Orchestration() {
                           <td className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                             <button
                               onClick={() => handleDelete(s.id)}
-                              className="px-2 py-1 rounded text-xs text-content-secondary hover:text-red-400 hover:bg-red-500/10"
+                              className="px-2 py-1 rounded text-xs text-content-secondary hover:text-status-text-error hover:bg-red-500/10"
                             >
                               Delete
                             </button>
@@ -521,7 +521,7 @@ export function Orchestration() {
                           </button>
                           <button
                             onClick={() => handleDeleteTemplate(t.id)}
-                            className="px-2 py-1 rounded text-content-secondary hover:text-red-400 hover:bg-red-500/10"
+                            className="px-2 py-1 rounded text-content-secondary hover:text-status-text-error hover:bg-red-500/10"
                           >
                             Delete
                           </button>
@@ -717,7 +717,7 @@ function Field({
   return (
     <div>
       <label className="block text-sm font-medium text-content-secondary mb-1.5">
-        {label} {required && <span className="text-red-400">*</span>}
+        {label} {required && <span className="text-status-text-error">*</span>}
       </label>
       {children}
     </div>

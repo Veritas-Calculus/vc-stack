@@ -37,7 +37,7 @@ export function ManagedElasticsearch() {
       key: 'version',
       header: 'Version',
       render: (r) => (
-        <span className="text-xs bg-amber-500/15 text-amber-400 px-1.5 py-0.5 rounded">
+        <span className="text-xs bg-amber-500/15 text-status-text-warning px-1.5 py-0.5 rounded">
           v{r.version}
         </span>
       )
@@ -82,7 +82,7 @@ export function ManagedElasticsearch() {
       header: 'Status',
       render: (r) => (
         <span
-          className={`text-xs px-2 py-0.5 rounded-full ${r.status === 'available' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-zinc-600/20 text-zinc-400'}`}
+          className={`text-xs px-2 py-0.5 rounded-full ${r.status === 'available' ? 'bg-emerald-500/15 text-status-text-success' : 'bg-zinc-600/20 text-zinc-400'}`}
         >
           {r.status}
         </span>
@@ -94,7 +94,7 @@ export function ManagedElasticsearch() {
       className: 'w-20 text-right',
       render: (r) => (
         <button
-          className="text-xs text-red-400 hover:underline"
+          className="text-xs text-status-text-error hover:underline"
           onClick={async () => {
             if (confirm('Delete cluster?')) {
               await deleteESCluster(r.id)

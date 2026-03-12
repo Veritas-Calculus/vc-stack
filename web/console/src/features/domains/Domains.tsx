@@ -219,7 +219,7 @@ export function Domains() {
                 </div>
                 <div className="flex items-center gap-2">
                   <span
-                    className={`px-2 py-0.5 rounded text-xs ${selected.state === 'active' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}
+                    className={`px-2 py-0.5 rounded text-xs ${selected.state === 'active' ? 'bg-emerald-500/15 text-status-text-success' : 'bg-red-500/15 text-status-text-error'}`}
                   >
                     {selected.state}
                   </span>
@@ -232,7 +232,7 @@ export function Domains() {
                   {selected.name !== 'ROOT' && (
                     <button
                       onClick={() => handleDelete(selected.id)}
-                      className="px-2 py-1 rounded text-xs text-content-secondary hover:text-red-400 hover:bg-red-500/10"
+                      className="px-2 py-1 rounded text-xs text-content-secondary hover:text-status-text-error hover:bg-red-500/10"
                     >
                       Delete
                     </button>
@@ -347,7 +347,7 @@ function TreeItem({
         <span className="text-xs text-content-tertiary">{d.parent_id === null ? 'Root' : 'Sub'}</span>
         <span className="font-medium">{d.name}</span>
         {d.state !== 'active' && (
-          <span className="px-1 py-0.5 rounded text-[10px] bg-red-500/20 text-red-400">
+          <span className="px-1 py-0.5 rounded text-[10px] bg-red-500/20 text-status-text-error">
             disabled
           </span>
         )}

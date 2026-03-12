@@ -23,8 +23,8 @@ export function Invoices() {
     const c: Record<string, string> = {
       draft: 'bg-zinc-600/20 text-zinc-400',
       issued: 'bg-blue-500/15 text-accent',
-      paid: 'bg-emerald-500/15 text-emerald-400',
-      void: 'bg-red-500/15 text-red-400'
+      paid: 'bg-emerald-500/15 text-status-text-success',
+      void: 'bg-red-500/15 text-status-text-error'
     }
     return (
       <span
@@ -85,7 +85,7 @@ export function Invoices() {
           )}
           {r.status === 'issued' && (
             <button
-              className="text-xs text-emerald-400 hover:underline"
+              className="text-xs text-status-text-success hover:underline"
               onClick={async () => {
                 await payInvoice(r.id)
                 load()

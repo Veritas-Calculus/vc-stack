@@ -81,14 +81,14 @@ export function PlatformSettings() {
 
   const badge = (s: string) => {
     const m: Record<string, string> = {
-      up: 'bg-emerald-500/20 text-emerald-400',
-      down: 'bg-red-500/20 text-red-400',
-      draining: 'bg-amber-500/20 text-amber-400',
+      up: 'bg-emerald-500/20 text-status-text-success',
+      down: 'bg-red-500/20 text-status-text-error',
+      draining: 'bg-amber-500/20 text-status-text-warning',
       starting: 'bg-blue-500/20 text-accent',
-      active: 'bg-emerald-500/20 text-emerald-400',
-      paused: 'bg-amber-500/20 text-amber-400',
+      active: 'bg-emerald-500/20 text-status-text-success',
+      paused: 'bg-amber-500/20 text-status-text-warning',
       published: 'bg-blue-500/20 text-accent',
-      delivered: 'bg-emerald-500/20 text-emerald-400'
+      delivered: 'bg-emerald-500/20 text-status-text-success'
     }
     return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-content-secondary'}`
   }
@@ -142,22 +142,22 @@ export function PlatformSettings() {
                 {
                   label: 'Instances',
                   value: String(regStatus.total_instances),
-                  color: 'text-cyan-400'
+                  color: 'text-status-cyan'
                 },
                 {
                   label: 'Healthy',
                   value: String(regStatus.healthy_instances),
-                  color: 'text-emerald-400'
+                  color: 'text-status-text-success'
                 },
                 {
                   label: 'Unhealthy',
                   value: String(regStatus.unhealthy_instances),
-                  color: 'text-red-400'
+                  color: 'text-status-text-error'
                 },
                 {
                   label: 'Routes',
                   value: String(regStatus.registered_routes),
-                  color: 'text-amber-400'
+                  color: 'text-status-text-warning'
                 }
               ].map((s) => (
                 <div
@@ -194,7 +194,7 @@ export function PlatformSettings() {
                       </div>
                     </div>
                     <div className="text-sm">
-                      <span className="text-emerald-400">{String(svc.healthy)}</span>
+                      <span className="text-status-text-success">{String(svc.healthy)}</span>
                       <span className="text-content-tertiary"> / {String(svc.instances)}</span>
                     </div>
                   </div>
@@ -208,13 +208,13 @@ export function PlatformSettings() {
               </h3>
               {topology.map((region) => (
                 <div key={String((region as Record<string, unknown>).region)} className="mb-4">
-                  <div className="text-cyan-400 font-medium text-sm mb-2 flex items-center gap-1.5">
+                  <div className="text-status-cyan font-medium text-sm mb-2 flex items-center gap-1.5">
                     {Icons.globe('w-4 h-4')} {String((region as Record<string, unknown>).region)}
                   </div>
                   {((region as Record<string, unknown>).zones as Record<string, unknown>[])?.map(
                     (zone) => (
                       <div key={String(zone.zone)} className="ml-4 mb-2">
-                        <div className="text-amber-400 text-xs mb-1 flex items-center gap-1">
+                        <div className="text-status-text-warning text-xs mb-1 flex items-center gap-1">
                           {Icons.mapPin('w-3 h-3')} {String(zone.zone)}
                         </div>
                         {(zone.instances as Record<string, unknown>[])?.map((inst) => (
@@ -314,16 +314,16 @@ export function PlatformSettings() {
                     {cfgItems.map((item) => (
                       <tr key={String(item.id)} className="border-t border-border">
                         <td className="py-2 pr-4">
-                          <span className="text-cyan-400 font-mono text-xs">
+                          <span className="text-status-cyan font-mono text-xs">
                             {String(item.key)}
                           </span>
                           {Boolean(item.required) && (
-                            <span className="ml-1 text-red-400 text-xs">*</span>
+                            <span className="ml-1 text-status-text-error text-xs">*</span>
                           )}
                         </td>
                         <td className="py-2 pr-4 text-content-primary font-mono text-xs">
                           {item.encrypted ? (
-                            <span className="text-amber-400 inline-flex items-center gap-1">
+                            <span className="text-status-text-warning inline-flex items-center gap-1">
                               {Icons.lock('w-3 h-3')} ****
                             </span>
                           ) : (
@@ -334,9 +334,9 @@ export function PlatformSettings() {
                           <span
                             className={`px-2 py-0.5 rounded text-xs ${
                               String(item.value_type) === 'secret'
-                                ? 'bg-red-500/20 text-red-400'
+                                ? 'bg-red-500/20 text-status-text-error'
                                 : String(item.value_type) === 'bool'
-                                  ? 'bg-purple-500/20 text-purple-400'
+                                  ? 'bg-purple-500/20 text-status-purple'
                                   : String(item.value_type) === 'int'
                                     ? 'bg-blue-500/20 text-accent'
                                     : 'bg-gray-500/20 text-content-secondary'
@@ -441,14 +441,14 @@ export function PlatformSettings() {
                         <span className={badge(String(s.status))}>{String(s.status)}</span>
                         <span className="text-content-primary text-sm">{String(s.consumer)}</span>
                       </div>
-                      <span className="text-emerald-400 text-xs">
+                      <span className="text-status-text-success text-xs">
                         {String(s.delivered)} delivered
                       </span>
                     </div>
                     <div className="text-content-tertiary text-xs">
-                      Topic: <span className="text-cyan-400">{String(s.topic_name)}</span>
+                      Topic: <span className="text-status-cyan">{String(s.topic_name)}</span>
                       {Boolean(s.filter_expr) && (
-                        <span className="ml-2 text-amber-400">filter: {String(s.filter_expr)}</span>
+                        <span className="ml-2 text-status-text-warning">filter: {String(s.filter_expr)}</span>
                       )}
                     </div>
                   </div>

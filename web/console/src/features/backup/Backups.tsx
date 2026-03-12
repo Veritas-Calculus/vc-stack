@@ -69,9 +69,9 @@ export function Backups() {
   }
 
   const statusColor = (s: string) => {
-    if (s === 'ready') return 'bg-emerald-500/15 text-emerald-400'
+    if (s === 'ready') return 'bg-emerald-500/15 text-status-text-success'
     if (s === 'creating' || s === 'restoring') return 'bg-blue-500/15 text-accent'
-    if (s === 'error') return 'bg-red-500/15 text-red-400'
+    if (s === 'error') return 'bg-red-500/15 text-status-text-error'
     return 'bg-gray-500/15 text-content-secondary'
   }
 
@@ -162,7 +162,7 @@ export function Backups() {
                           </button>
                           <button
                             onClick={() => handleDelete(b.id)}
-                            className="px-2 py-1 rounded text-xs text-content-secondary hover:text-red-400 hover:bg-red-500/10"
+                            className="px-2 py-1 rounded text-xs text-content-secondary hover:text-status-text-error hover:bg-red-500/10"
                           >
                             Delete
                           </button>
@@ -197,7 +197,7 @@ export function Backups() {
                     <div className="flex justify-between">
                       <span className="text-content-tertiary">Status</span>
                       <span
-                        className={`px-2 py-0.5 rounded text-xs ${o.enabled ? 'bg-emerald-500/15 text-emerald-400' : 'bg-gray-500/15 text-content-secondary'}`}
+                        className={`px-2 py-0.5 rounded text-xs ${o.enabled ? 'bg-emerald-500/15 text-status-text-success' : 'bg-gray-500/15 text-content-secondary'}`}
                       >
                         {o.enabled ? 'Enabled' : 'Disabled'}
                       </span>

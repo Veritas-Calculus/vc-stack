@@ -53,7 +53,7 @@ export function FlowLogs() {
     loadConfigs()
   }
 
-  const actionColor = (a: string) => (a === 'ACCEPT' ? 'text-emerald-400' : 'text-red-400')
+  const actionColor = (a: string) => (a === 'ACCEPT' ? 'text-status-text-success' : 'text-status-text-error')
 
   return (
     <div className="space-y-3">
@@ -96,12 +96,12 @@ export function FlowLogs() {
                 </div>
                 <div className="flex items-center gap-2">
                   <span
-                    className={`text-xs px-2 py-0.5 rounded-full ${c.enabled ? 'bg-emerald-500/15 text-emerald-400' : 'bg-zinc-600/20 text-zinc-500'}`}
+                    className={`text-xs px-2 py-0.5 rounded-full ${c.enabled ? 'bg-emerald-500/15 text-status-text-success' : 'bg-zinc-600/20 text-zinc-500'}`}
                   >
                     {c.enabled ? 'Active' : 'Disabled'}
                   </span>
                   <button
-                    className="text-xs text-red-400 hover:underline"
+                    className="text-xs text-status-text-error hover:underline"
                     onClick={async () => {
                       await deleteFlowLogConfig(c.id)
                       loadConfigs()

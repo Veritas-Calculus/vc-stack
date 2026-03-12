@@ -75,7 +75,7 @@ export function ComponentMonitoring() {
         </div>
       </div>
 
-      {error && <div className="p-4 bg-red-100 text-red-700 rounded">{error}</div>}
+      {error && <div className="p-4 bg-status-error/10 text-status-text-error rounded">{error}</div>}
 
       {loading && <div className="text-center py-8">Loading metrics...</div>}
 
@@ -101,7 +101,7 @@ export function ComponentMonitoring() {
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <div className="text-sm text-content-tertiary">Errors</div>
-            <div className="text-2xl font-bold text-red-600">{latestMetric.error_count || 0}</div>
+            <div className="text-2xl font-bold text-status-text-error">{latestMetric.error_count || 0}</div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <div className="text-sm text-content-tertiary">Avg Response Time</div>
@@ -135,13 +135,13 @@ export function ComponentMonitoring() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {errors.slice(0, 10).map((err, idx) => (
                   <tr key={idx}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-content-primary">
                       {err._time ? new Date(err._time).toLocaleString() : 'N/A'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-content-primary">
                       {err.component}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-semibold">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-status-text-error font-semibold">
                       {err.error_count || 0}
                     </td>
                   </tr>

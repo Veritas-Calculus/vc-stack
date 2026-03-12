@@ -131,7 +131,7 @@ export function ServiceAccounts() {
       render: (row) => (
         <span
           className={`inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded-full ${
-            row.is_active ? 'bg-emerald-500/15 text-emerald-400' : 'bg-zinc-600/20 text-zinc-400'
+            row.is_active ? 'bg-emerald-500/15 text-status-text-success' : 'bg-zinc-600/20 text-zinc-400'
           }`}
         >
           <span
@@ -153,7 +153,7 @@ export function ServiceAccounts() {
         if (!row.expires_at) return <span className="text-xs text-zinc-500">Never</span>
         const isExpired = new Date(row.expires_at) < new Date()
         return (
-          <span className={`text-xs ${isExpired ? 'text-red-400' : 'text-zinc-400'}`}>
+          <span className={`text-xs ${isExpired ? 'text-status-text-error' : 'text-zinc-400'}`}>
             {formatDate(row.expires_at)}
             {isExpired && ' (expired)'}
           </span>
@@ -180,13 +180,13 @@ export function ServiceAccounts() {
             Rotate Key
           </button>
           <button
-            className="text-xs text-amber-400 hover:underline"
+            className="text-xs text-status-text-warning hover:underline"
             onClick={() => handleToggle(row.id, row.is_active)}
           >
             {row.is_active ? 'Disable' : 'Enable'}
           </button>
           <button
-            className="text-xs text-red-400 hover:underline"
+            className="text-xs text-status-text-error hover:underline"
             onClick={() => handleDelete(row.id)}
           >
             Delete
@@ -209,7 +209,7 @@ export function ServiceAccounts() {
       />
 
       {error && (
-        <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-2 rounded-lg text-sm">
+        <div className="bg-red-500/10 border border-red-500/30 text-status-text-error px-4 py-2 rounded-lg text-sm">
           {error}
           <button className="ml-2 underline" onClick={() => setError(null)}>
             Dismiss
@@ -300,7 +300,7 @@ export function ServiceAccounts() {
       >
         {secretModal && (
           <div className="space-y-4">
-            <div className="bg-amber-500/10 border border-amber-500/30 text-amber-300 px-3 py-2 rounded-lg text-sm">
+            <div className="bg-amber-500/10 border border-amber-500/30 text-status-text-warning px-3 py-2 rounded-lg text-sm">
               Save these credentials now. The Secret Key will not be shown again.
             </div>
             <div>
@@ -318,9 +318,9 @@ export function ServiceAccounts() {
               </div>
             </div>
             <div>
-              <label className="label text-amber-300">Secret Key (shown only once)</label>
+              <label className="label text-status-text-warning">Secret Key (shown only once)</label>
               <div className="flex items-center gap-2">
-                <code className="flex-1 bg-zinc-800 px-3 py-2 rounded font-mono text-sm text-amber-200 select-all break-all">
+                <code className="flex-1 bg-zinc-800 px-3 py-2 rounded font-mono text-sm text-status-text-warning select-all break-all">
                   {secretModal.secret_key}
                 </code>
                 <button

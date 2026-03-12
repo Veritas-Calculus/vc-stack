@@ -231,7 +231,7 @@ export function Federation() {
   const typeColor = (t: string) =>
     t === 'oidc'
       ? 'bg-blue-500/15 text-accent border-blue-500/30'
-      : 'bg-purple-500/15 text-purple-400 border-purple-500/30'
+      : 'bg-purple-500/15 text-status-purple border-purple-500/30'
 
   const tabs = [
     {
@@ -320,7 +320,7 @@ export function Federation() {
                           </span>
                           <span className="text-lg font-medium text-content-primary">{idp.name}</span>
                           {idp.is_enabled ? (
-                            <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 text-[10px] uppercase">
+                            <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-status-text-success text-[10px] uppercase">
                               Active
                             </span>
                           ) : (
@@ -337,7 +337,7 @@ export function Federation() {
                               e.stopPropagation()
                               handleToggleIDP(idp)
                             }}
-                            className={`px-2 py-1 rounded text-xs ${idp.is_enabled ? 'text-amber-400 hover:bg-amber-500/10' : 'text-emerald-400 hover:bg-emerald-500/10'}`}
+                            className={`px-2 py-1 rounded text-xs ${idp.is_enabled ? 'text-status-text-warning hover:bg-amber-500/10' : 'text-status-text-success hover:bg-emerald-500/10'}`}
                           >
                             {idp.is_enabled ? 'Disable' : 'Enable'}
                           </button>
@@ -346,7 +346,7 @@ export function Federation() {
                               e.stopPropagation()
                               handleDeleteIDP(idp.id)
                             }}
-                            className="px-2 py-1 rounded text-xs text-content-secondary hover:text-red-400 hover:bg-red-500/10"
+                            className="px-2 py-1 rounded text-xs text-content-secondary hover:text-status-text-error hover:bg-red-500/10"
                           >
                             Delete
                           </button>
@@ -357,7 +357,7 @@ export function Federation() {
                         {idp.auto_provision && (
                           <span className="text-accent">Auto-provision</span>
                         )}
-                        {idp.auto_link && <span className="text-cyan-400">Auto-link</span>}
+                        {idp.auto_link && <span className="text-status-cyan">Auto-link</span>}
                       </div>
                     </div>
                   ))}
@@ -390,7 +390,7 @@ export function Federation() {
                     </span>
                     <span className="text-xl font-semibold text-content-primary">{selectedIDP.name}</span>
                     {selectedIDP.is_enabled ? (
-                      <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 text-[10px] uppercase">
+                      <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-status-text-success text-[10px] uppercase">
                         Active
                       </span>
                     ) : (
@@ -487,7 +487,7 @@ export function Federation() {
                         className="flex items-center justify-between bg-surface-tertiary rounded-lg px-4 py-2.5"
                       >
                         <div className="flex items-center gap-3">
-                          <span className="px-2.5 py-1 rounded bg-purple-500/15 text-purple-400 border border-purple-500/30 text-xs font-mono">
+                          <span className="px-2.5 py-1 rounded bg-purple-500/15 text-status-purple border border-purple-500/30 text-xs font-mono">
                             {m.external_group}
                           </span>
                           <span className="text-content-tertiary text-xs">&rarr;</span>
@@ -497,7 +497,7 @@ export function Federation() {
                         </div>
                         <button
                           onClick={() => handleDeleteMapping(m.id)}
-                          className="text-xs text-content-tertiary hover:text-red-400"
+                          className="text-xs text-content-tertiary hover:text-status-text-error"
                         >
                           Remove
                         </button>
@@ -923,7 +923,7 @@ function Field({
   return (
     <div>
       <label className="block text-xs font-medium text-content-secondary mb-1">
-        {label} {required && <span className="text-red-400">*</span>}
+        {label} {required && <span className="text-status-text-error">*</span>}
       </label>
       {children}
     </div>
@@ -943,7 +943,7 @@ function Toggle({ label, enabled }: { label: string; enabled: boolean }) {
   return (
     <span className="flex items-center gap-1.5 text-xs">
       <span className={`w-2 h-2 rounded-full ${enabled ? 'bg-emerald-400' : 'bg-gray-600'}`} />
-      <span className={enabled ? 'text-emerald-400' : 'text-content-tertiary'}>{label}</span>
+      <span className={enabled ? 'text-status-text-success' : 'text-content-tertiary'}>{label}</span>
     </span>
   )
 }

@@ -318,7 +318,7 @@ export default function RouterManagement() {
       />
 
       {error && (
-        <div className="p-3 bg-red-900/30 border border-red-800/50 rounded text-red-400 text-sm">
+        <div className="p-3 bg-red-900/30 border border-red-800/50 rounded text-status-text-error text-sm">
           {error}
         </div>
       )}

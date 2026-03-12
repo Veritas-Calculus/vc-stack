@@ -166,24 +166,24 @@ export function ComplianceAudit() {
   const badge = (s: string) => {
     const m: Record<string, string> = {
       info: 'bg-blue-500/20 text-accent',
-      warning: 'bg-amber-500/20 text-amber-400',
-      critical: 'bg-red-500/20 text-red-400',
-      alert: 'bg-red-500/20 text-red-400',
-      success: 'bg-emerald-500/20 text-emerald-400',
-      failure: 'bg-red-500/20 text-red-400',
-      denied: 'bg-orange-500/20 text-orange-400',
-      compliant: 'bg-emerald-500/20 text-emerald-400',
-      non_compliant: 'bg-red-500/20 text-red-400',
-      partially_compliant: 'bg-amber-500/20 text-amber-400',
+      warning: 'bg-amber-500/20 text-status-text-warning',
+      critical: 'bg-red-500/20 text-status-text-error',
+      alert: 'bg-red-500/20 text-status-text-error',
+      success: 'bg-emerald-500/20 text-status-text-success',
+      failure: 'bg-red-500/20 text-status-text-error',
+      denied: 'bg-orange-500/20 text-status-orange',
+      compliant: 'bg-emerald-500/20 text-status-text-success',
+      non_compliant: 'bg-red-500/20 text-status-text-error',
+      partially_compliant: 'bg-amber-500/20 text-status-text-warning',
       not_assessed: 'bg-gray-500/20 text-content-secondary',
-      ready: 'bg-emerald-500/20 text-emerald-400',
+      ready: 'bg-emerald-500/20 text-status-text-success',
       generating: 'bg-blue-500/20 text-accent'
     }
     return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-content-secondary'}`
   }
 
   const scoreColor = (s: number) =>
-    s >= 80 ? 'text-emerald-400' : s >= 60 ? 'text-amber-400' : 'text-red-400'
+    s >= 80 ? 'text-status-text-success' : s >= 60 ? 'text-status-text-warning' : 'text-status-text-error'
 
   const tabs: { key: Tab; label: string }[] = [
     { key: 'overview', label: 'Overview' },
@@ -202,7 +202,7 @@ export function ComplianceAudit() {
           </p>
         </div>
         {status && (
-          <span className="px-3 py-1.5 rounded-lg text-sm font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+          <span className="px-3 py-1.5 rounded-lg text-sm font-medium bg-emerald-500/20 text-status-text-success border border-emerald-500/30">
             <span className="w-2 h-2 rounded-full mr-2 bg-emerald-400 animate-pulse inline-block"></span>
             Operational
           </span>
@@ -236,19 +236,19 @@ export function ComplianceAudit() {
                 label: 'Policies',
                 value: String(status.policies),
                 icon: Icons.shield('w-4 h-4'),
-                color: 'text-cyan-400'
+                color: 'text-status-cyan'
               },
               {
                 label: 'Frameworks',
                 value: String(status.frameworks),
                 icon: Icons.building('w-4 h-4'),
-                color: 'text-purple-400'
+                color: 'text-status-purple'
               },
               {
                 label: 'Reports',
                 value: String(status.reports),
                 icon: Icons.chart('w-4 h-4'),
-                color: 'text-amber-400'
+                color: 'text-status-text-warning'
               }
             ].map((s) => (
               <div
@@ -274,7 +274,7 @@ export function ComplianceAudit() {
               return (
                 <div className="flex items-center gap-6">
                   <div
-                    className={`text-4xl font-bold flex items-center gap-2 ${ci.intact ? 'text-emerald-400' : 'text-red-400'}`}
+                    className={`text-4xl font-bold flex items-center gap-2 ${ci.intact ? 'text-status-text-success' : 'text-status-text-error'}`}
                   >
                     {ci.intact ? (
                       <>{Icons.checkCircle('w-8 h-8')} VERIFIED</>
@@ -327,7 +327,7 @@ export function ComplianceAudit() {
                     </td>
                     <td className="px-4 py-3">
                       {p.alert_enabled ? (
-                        <span className="text-amber-400 text-xs inline-flex items-center gap-1">
+                        <span className="text-status-text-warning text-xs inline-flex items-center gap-1">
                           {Icons.bell('w-3 h-3')} on
                         </span>
                       ) : (
@@ -522,11 +522,11 @@ export function ComplianceAudit() {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400">
+                      <div className="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center text-status-purple">
                         {Icons.building('w-7 h-7')}
                       </div>
                       <div>
-                        <div className="text-content-primary font-semibold group-hover:text-purple-400 transition">
+                        <div className="text-content-primary font-semibold group-hover:text-status-purple transition">
                           {fw.name}{' '}
                           <span className="text-content-tertiary text-sm font-normal">v{fw.version}</span>
                         </div>
@@ -551,7 +551,7 @@ export function ComplianceAudit() {
                         {fw.score}%
                       </div>
                       {fw.enabled ? (
-                        <span className="flex items-center gap-1 text-emerald-400 text-xs"><span className="inline-block w-2 h-2 rounded-full bg-emerald-400"></span> active</span>
+                        <span className="flex items-center gap-1 text-status-text-success text-xs"><span className="inline-block w-2 h-2 rounded-full bg-emerald-400"></span> active</span>
                       ) : (
                         <span className="flex items-center gap-1 text-content-tertiary text-xs"><span className="inline-block w-2 h-2 rounded-full border border-gray-500"></span> disabled</span>
                       )}
@@ -607,11 +607,11 @@ export function ComplianceAudit() {
                     </div>
                     <div className="bg-surface-hover rounded-lg p-3 text-center">
                       <div className="text-content-tertiary text-xs mb-1">Passed</div>
-                      <div className="text-emerald-400 font-bold">{r.passed_controls}</div>
+                      <div className="text-status-text-success font-bold">{r.passed_controls}</div>
                     </div>
                     <div className="bg-surface-hover rounded-lg p-3 text-center">
                       <div className="text-content-tertiary text-xs mb-1">Failed</div>
-                      <div className="text-red-400 font-bold">{r.failed_controls}</div>
+                      <div className="text-status-text-error font-bold">{r.failed_controls}</div>
                     </div>
                   </div>
                   <div className="text-content-secondary text-xs">{r.summary}</div>

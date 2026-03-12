@@ -151,7 +151,7 @@ describe('ConfirmDialog', () => {
         onCancel={vi.fn()}
       />
     )
-    expect(container.querySelector('.text-red-400')).toBeInTheDocument()
+    expect(container.querySelector('.text-status-text-error')).toBeInTheDocument()
   })
 
   it('renders warning variant with amber icon', () => {
@@ -165,7 +165,7 @@ describe('ConfirmDialog', () => {
         onCancel={vi.fn()}
       />
     )
-    expect(container.querySelector('.text-amber-400')).toBeInTheDocument()
+    expect(container.querySelector('.text-status-text-warning')).toBeInTheDocument()
   })
 
   it('renders info variant with blue icon', () => {
@@ -179,6 +179,6 @@ describe('ConfirmDialog', () => {
         onCancel={vi.fn()}
       />
     )
-    expect(container.querySelector('.text-blue-400')).toBeInTheDocument()
+    expect(container.querySelector('.text-status-link')).toBeInTheDocument()
   })
 })

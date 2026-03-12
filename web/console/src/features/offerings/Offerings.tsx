@@ -221,7 +221,7 @@ function ComputeTable({
               <td className="px-4 py-3 text-right">
                 <button
                   onClick={() => onDelete(o.id)}
-                  className="text-xs text-content-tertiary hover:text-red-400 transition-colors"
+                  className="text-xs text-content-tertiary hover:text-status-text-error transition-colors"
                 >
                   Delete
                 </button>
@@ -274,7 +274,7 @@ function DiskTable({ data, onDelete }: { data: DiskOffering[]; onDelete: (id: nu
               <td className="px-4 py-3 text-right">
                 <button
                   onClick={() => onDelete(o.id)}
-                  className="text-xs text-content-tertiary hover:text-red-400 transition-colors"
+                  className="text-xs text-content-tertiary hover:text-status-text-error transition-colors"
                 >
                   Delete
                 </button>
@@ -314,7 +314,7 @@ function NetworkTable({
               <td className="px-4 py-3 text-content-primary font-medium">{o.name}</td>
               <td className="px-4 py-3 text-content-secondary text-xs">{o.display_text || '—'}</td>
               <td className="px-4 py-3 text-center">
-                <span className="px-2 py-0.5 rounded text-xs bg-purple-500/15 text-purple-400 border border-purple-500/20">
+                <span className="px-2 py-0.5 rounded text-xs bg-purple-500/15 text-status-purple border border-purple-500/20">
                   {o.guest_ip_type}
                 </span>
               </td>
@@ -329,7 +329,7 @@ function NetworkTable({
               </td>
               <td className="px-4 py-3 text-center">
                 {o.is_default && (
-                  <span className="px-2 py-0.5 rounded text-xs bg-emerald-500/15 text-emerald-400">
+                  <span className="px-2 py-0.5 rounded text-xs bg-emerald-500/15 text-status-text-success">
                     Default
                   </span>
                 )}
@@ -337,7 +337,7 @@ function NetworkTable({
               <td className="px-4 py-3 text-right">
                 <button
                   onClick={() => onDelete(o.id)}
-                  className="text-xs text-content-tertiary hover:text-red-400 transition-colors"
+                  className="text-xs text-content-tertiary hover:text-status-text-error transition-colors"
                 >
                   Delete
                 </button>
@@ -362,8 +362,8 @@ function StorageTypeBadge({ type }: { type: string }) {
   const colors: Record<string, string> = {
     shared: 'bg-gray-500/15 text-content-secondary border-gray-500/20',
     ssd: 'bg-blue-500/15 text-accent border-blue-500/20',
-    nvme: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20',
-    local: 'bg-amber-500/15 text-amber-400 border-amber-500/20'
+    nvme: 'bg-emerald-500/15 text-status-text-success border-emerald-500/20',
+    local: 'bg-amber-500/15 text-status-text-warning border-amber-500/20'
   }
   return (
     <span className={`px-2 py-0.5 rounded text-xs border ${colors[type] || colors.shared}`}>
@@ -375,7 +375,7 @@ function StorageTypeBadge({ type }: { type: string }) {
 function StatusBadge({ active }: { active: boolean }) {
   return (
     <span
-      className={`px-2 py-0.5 rounded text-xs ${active ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}
+      className={`px-2 py-0.5 rounded text-xs ${active ? 'bg-emerald-500/15 text-status-text-success' : 'bg-red-500/15 text-status-text-error'}`}
     >
       {active ? 'Active' : 'Disabled'}
     </span>

@@ -25,9 +25,9 @@ export function PreemptibleInstances() {
 
   const statusBadge = (s: string) => {
     const c: Record<string, string> = {
-      running: 'bg-emerald-500/15 text-emerald-400',
-      warning: 'bg-amber-500/15 text-amber-400',
-      terminated: 'bg-red-500/15 text-red-400'
+      running: 'bg-emerald-500/15 text-status-text-success',
+      warning: 'bg-amber-500/15 text-status-text-warning',
+      terminated: 'bg-red-500/15 text-status-text-error'
     }
     return (
       <span
@@ -82,7 +82,7 @@ export function PreemptibleInstances() {
       render: (r) =>
         r.status === 'running' ? (
           <button
-            className="text-xs text-red-400 hover:underline"
+            className="text-xs text-status-text-error hover:underline"
             onClick={async () => {
               await terminatePreemptible(r.instance_id, 'manual')
               load()

@@ -164,23 +164,23 @@ export function Kubernetes() {
 
   const badge = (s: string) => {
     const m: Record<string, string> = {
-      active: 'bg-emerald-500/20 text-emerald-400',
-      ready: 'bg-emerald-500/20 text-emerald-400',
-      established: 'bg-emerald-500/20 text-emerald-400',
+      active: 'bg-emerald-500/20 text-status-text-success',
+      ready: 'bg-emerald-500/20 text-status-text-success',
+      established: 'bg-emerald-500/20 text-status-text-success',
       provisioning: 'bg-blue-500/20 text-accent',
       upgrading: 'bg-blue-500/20 text-accent',
-      pending: 'bg-amber-500/20 text-amber-400',
-      draining: 'bg-amber-500/20 text-amber-400',
-      error: 'bg-red-500/20 text-red-400',
-      'not-ready': 'bg-red-500/20 text-red-400'
+      pending: 'bg-amber-500/20 text-status-text-warning',
+      draining: 'bg-amber-500/20 text-status-text-warning',
+      error: 'bg-red-500/20 text-status-text-error',
+      'not-ready': 'bg-red-500/20 text-status-text-error'
     }
     return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-content-secondary'}`
   }
 
   const roleBadge = (r: string) => {
     const m: Record<string, string> = {
-      'control-plane': 'bg-purple-500/20 text-purple-400',
-      worker: 'bg-cyan-500/20 text-cyan-400'
+      'control-plane': 'bg-purple-500/20 text-status-purple',
+      worker: 'bg-cyan-500/20 text-status-cyan'
     }
     return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[r] || 'bg-gray-500/20 text-content-secondary'}`
   }
@@ -203,7 +203,7 @@ export function Kubernetes() {
           </p>
         </div>
         {status && (
-          <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+          <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-emerald-500/20 text-status-text-success border border-emerald-500/30">
             <span className="w-2 h-2 rounded-full mr-2 bg-emerald-400 animate-pulse"></span>
             Operational
           </span>
@@ -224,19 +224,19 @@ export function Kubernetes() {
               label: 'Total Nodes',
               value: String(status.total_nodes),
               icon: Icons.desktopComputer('w-5 h-5'),
-              color: 'text-cyan-400'
+              color: 'text-status-cyan'
             },
             {
               label: 'Active Nodes',
               value: String(status.active_nodes),
               icon: Icons.checkCircle('w-5 h-5'),
-              color: 'text-emerald-400'
+              color: 'text-status-text-success'
             },
             {
               label: 'LoadBalancers',
               value: String(status.loadbalancers),
               icon: Icons.scaleBalance('w-5 h-5'),
-              color: 'text-purple-400'
+              color: 'text-status-purple'
             }
           ].map((s) => (
             <div key={s.label} className="bg-surface-tertiary border border-border rounded-xl p-5">
@@ -330,7 +330,7 @@ export function Kubernetes() {
                           e.stopPropagation()
                           deleteCluster(c.id)
                         }}
-                        className="text-red-400 text-xs hover:text-red-300 opacity-0 group-hover:opacity-100 transition"
+                        className="text-status-text-error text-xs hover:text-status-text-error opacity-0 group-hover:opacity-100 transition"
                       >
                         Delete
                       </button>
@@ -485,7 +485,7 @@ export function Kubernetes() {
                         <div className="text-content-primary font-medium">{lb.service_name}</div>
                         <div className="text-content-tertiary text-xs">{lb.namespace}</div>
                       </td>
-                      <td className="px-4 py-3 text-emerald-400 font-mono text-xs">
+                      <td className="px-4 py-3 text-status-text-success font-mono text-xs">
                         {lb.external_ip}
                       </td>
                       <td className="px-4 py-3 text-content-secondary">
@@ -502,7 +502,7 @@ export function Kubernetes() {
                       <td className="px-4 py-3">
                         <button
                           onClick={() => deleteLB(selectedCluster.id, lb.id)}
-                          className="text-red-400 text-xs hover:text-red-300"
+                          className="text-status-text-error text-xs hover:text-status-text-error"
                         >
                           Delete
                         </button>
@@ -544,32 +544,32 @@ export function Kubernetes() {
               </div>
               <span className="text-content-tertiary">&rarr;</span>
               <div className="text-center p-3 border border-purple-500/30 rounded-lg bg-purple-500/5 w-32">
-                <div className="text-lg mb-1 text-purple-400">{Icons.scaleBalance('w-5 h-5')}</div>
+                <div className="text-lg mb-1 text-status-purple">{Icons.scaleBalance('w-5 h-5')}</div>
                 <div className="text-content-primary font-medium text-xs">OVN LB</div>
                 <div className="text-content-tertiary text-xs">L4 Load Balancer</div>
               </div>
               <span className="text-content-tertiary">&rarr;</span>
               <div className="text-center p-3 border border-cyan-500/30 rounded-lg bg-cyan-500/5 w-32">
-                <div className="text-lg mb-1 text-cyan-400">{Icons.desktopComputer('w-5 h-5')}</div>
+                <div className="text-lg mb-1 text-status-cyan">{Icons.desktopComputer('w-5 h-5')}</div>
                 <div className="text-content-primary font-medium text-xs">NodePort</div>
                 <div className="text-content-tertiary text-xs">kube-proxy</div>
               </div>
               <span className="text-content-tertiary">&rarr;</span>
               <div className="text-center p-3 border border-emerald-500/30 rounded-lg bg-emerald-500/5 w-32">
-                <div className="text-lg mb-1 text-emerald-400">{Icons.network('w-5 h-5')}</div>
+                <div className="text-lg mb-1 text-status-text-success">{Icons.network('w-5 h-5')}</div>
                 <div className="text-content-primary font-medium text-xs">Calico CNI</div>
                 <div className="text-content-tertiary text-xs">{selectedCluster.calico_mode}</div>
               </div>
               <span className="text-content-tertiary">&rarr;</span>
               <div className="text-center p-3 border border-amber-500/30 rounded-lg bg-amber-500/5 w-32">
-                <div className="text-lg mb-1 text-amber-400">{Icons.cube('w-5 h-5')}</div>
+                <div className="text-lg mb-1 text-status-text-warning">{Icons.cube('w-5 h-5')}</div>
                 <div className="text-content-primary font-medium text-xs">Pod</div>
                 <div className="text-content-tertiary text-xs">{selectedCluster.pod_cidr}</div>
               </div>
             </div>
             {selectedCluster.bgp_enabled && (
               <div className="mt-4 pt-4 border-t border-border text-center text-xs text-content-secondary">
-                <span className="px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded">
+                <span className="px-2 py-1 bg-emerald-500/10 text-status-text-success rounded">
                   BGP Peering Active
                 </span>
                 <span className="ml-3">
@@ -662,7 +662,7 @@ export function Kubernetes() {
                     <td className="px-4 py-3 text-content-secondary">/{p.block_size}</td>
                     <td className="px-4 py-3">
                       {p.nat_outgoing ? (
-                        <span className="text-emerald-400 text-xs">enabled</span>
+                        <span className="text-status-text-success text-xs">enabled</span>
                       ) : (
                         <span className="text-content-tertiary text-xs">disabled</span>
                       )}
@@ -713,7 +713,7 @@ export function Kubernetes() {
                       </td>
                       <td className="px-4 py-3">
                         {p.bfd_enabled ? (
-                          <span className="text-emerald-400 text-xs">on</span>
+                          <span className="text-status-text-success text-xs">on</span>
                         ) : (
                           <span className="text-content-tertiary text-xs">off</span>
                         )}

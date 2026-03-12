@@ -15,9 +15,9 @@ export function StackDrift() {
 
     const statusBadge = (s: string) => {
         const c: Record<string, string> = {
-            active: 'bg-emerald-500/15 text-emerald-400',
+            active: 'bg-emerald-500/15 text-status-text-success',
             superseded: 'bg-zinc-600/20 text-zinc-400',
-            rolled_back: 'bg-amber-500/15 text-amber-400',
+            rolled_back: 'bg-amber-500/15 text-status-text-warning',
         }
         return <span className={`text-xs px-2 py-0.5 rounded-full ${c[s] ?? 'bg-zinc-600/20 text-zinc-400'}`}>{s}</span>
     }

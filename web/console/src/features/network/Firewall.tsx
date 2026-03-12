@@ -163,7 +163,7 @@ export default function FirewallManagement() {
           >
             {expanded === r.id ? 'Collapse' : 'Rules'}
           </button>
-          <button className="btn-secondary text-xs text-red-400" onClick={() => handleDelete(r.id)}>
+          <button className="btn-secondary text-xs text-status-text-error" onClick={() => handleDelete(r.id)}>
             Delete
           </button>
         </div>
@@ -350,7 +350,7 @@ export default function FirewallManagement() {
                   <td className="py-2 px-2">{rule.enabled ? 'Yes' : 'No'}</td>
                   <td className="py-2 px-2">
                     <button
-                      className="text-red-400 text-xs hover:underline"
+                      className="text-status-text-error text-xs hover:underline"
                       onClick={() => handleDeleteRule(expanded, rule.id)}
                     >
                       Delete

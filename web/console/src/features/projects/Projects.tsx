@@ -295,7 +295,7 @@ export function Projects() {
                       </select>
                       <button
                         onClick={() => handleRemoveMember(m.id)}
-                        className="text-xs text-content-tertiary hover:text-red-400 transition-colors"
+                        className="text-xs text-content-tertiary hover:text-status-text-error transition-colors"
                       >
                         Remove
                       </button>

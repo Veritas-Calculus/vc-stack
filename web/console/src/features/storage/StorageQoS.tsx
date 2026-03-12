@@ -30,8 +30,8 @@ export function StorageQoS() {
   const tierBadge = (t: string) => {
     const c: Record<string, string> = {
       standard: 'bg-zinc-600/20 text-zinc-400',
-      premium: 'bg-amber-500/15 text-amber-400',
-      ultra: 'bg-purple-500/15 text-purple-400'
+      premium: 'bg-amber-500/15 text-status-text-warning',
+      ultra: 'bg-purple-500/15 text-status-purple'
     }
     return (
       <span
@@ -75,7 +75,7 @@ export function StorageQoS() {
       className: 'w-20 text-right',
       render: (r) => (
         <button
-          className="text-xs text-red-400 hover:underline"
+          className="text-xs text-status-text-error hover:underline"
           onClick={async () => {
             await deleteStorageQoSPolicy(r.id)
             load()

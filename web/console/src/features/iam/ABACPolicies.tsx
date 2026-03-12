@@ -33,11 +33,11 @@ export function ABACPolicies() {
 
   const effectBadge = (e: string) =>
     e === 'allow' ? (
-      <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">
+      <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/15 text-status-text-success">
         allow
       </span>
     ) : (
-      <span className="text-xs px-2 py-0.5 rounded-full bg-red-500/15 text-red-400">deny</span>
+      <span className="text-xs px-2 py-0.5 rounded-full bg-red-500/15 text-status-text-error">deny</span>
     )
 
   const cols: Column<UIABACPolicy>[] = [
@@ -71,7 +71,7 @@ export function ABACPolicies() {
       key: 'enabled',
       header: 'Enabled',
       render: (r) => (
-        <span className={`text-xs ${r.enabled ? 'text-emerald-400' : 'text-zinc-600'}`}>
+        <span className={`text-xs ${r.enabled ? 'text-status-text-success' : 'text-zinc-600'}`}>
           {r.enabled ? 'Yes' : 'No'}
         </span>
       )
@@ -82,7 +82,7 @@ export function ABACPolicies() {
       className: 'w-20 text-right',
       render: (r) => (
         <button
-          className="text-xs text-red-400 hover:underline"
+          className="text-xs text-status-text-error hover:underline"
           onClick={async () => {
             await deleteABACPolicy(r.id)
             load()

@@ -69,7 +69,7 @@ export function MetricsDashboard() {
 
   const memPercent = sys.memory_percent ?? 0
   const memColor =
-    memPercent > 90 ? 'text-red-400' : memPercent > 70 ? 'text-amber-400' : 'text-emerald-400'
+    memPercent > 90 ? 'text-status-text-error' : memPercent > 70 ? 'text-status-text-warning' : 'text-status-text-success'
 
   return (
     <div className="space-y-5">
@@ -90,7 +90,7 @@ export function MetricsDashboard() {
           'Goroutines',
           sys.goroutines ?? '—',
           undefined,
-          (sys.goroutines ?? 0) > 1000 ? 'text-amber-400' : 'text-content-primary'
+          (sys.goroutines ?? 0) > 1000 ? 'text-status-text-warning' : 'text-content-primary'
         )}
         {metricCard(
           'Memory Usage',
@@ -151,7 +151,7 @@ export function MetricsDashboard() {
                     <td className="py-1.5 text-xs">
                       {m.error_rate !== undefined ? (
                         <span
-                          className={Number(m.error_rate) > 5 ? 'text-red-400' : 'text-emerald-400'}
+                          className={Number(m.error_rate) > 5 ? 'text-status-text-error' : 'text-status-text-success'}
                         >
                           {Number(m.error_rate).toFixed(1)}%
                         </span>

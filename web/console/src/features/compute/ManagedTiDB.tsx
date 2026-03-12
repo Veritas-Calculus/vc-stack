@@ -59,7 +59,7 @@ export function ManagedTiDB() {
             TiKV: {r.tikv_nodes} × {r.tikv_storage_gb}GB
           </div>
           <div>PD: {r.pd_nodes}</div>
-          {r.tiflash_nodes > 0 && <div className="text-purple-400">TiFlash: {r.tiflash_nodes}</div>}
+          {r.tiflash_nodes > 0 && <div className="text-status-purple">TiFlash: {r.tiflash_nodes}</div>}
         </div>
       )
     },
@@ -82,7 +82,7 @@ export function ManagedTiDB() {
       header: 'Status',
       render: (r) => (
         <span
-          className={`text-xs px-2 py-0.5 rounded-full ${r.status === 'available' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-zinc-600/20 text-zinc-400'}`}
+          className={`text-xs px-2 py-0.5 rounded-full ${r.status === 'available' ? 'bg-emerald-500/15 text-status-text-success' : 'bg-zinc-600/20 text-zinc-400'}`}
         >
           {r.status}
         </span>
@@ -94,7 +94,7 @@ export function ManagedTiDB() {
       className: 'w-20 text-right',
       render: (r) => (
         <button
-          className="text-xs text-red-400 hover:underline"
+          className="text-xs text-status-text-error hover:underline"
           onClick={async () => {
             if (confirm('Delete cluster?')) {
               await deleteTiDBCluster(r.id)

@@ -295,7 +295,7 @@ function NetworksPage() {
                   <div className="flex items-center gap-1">
                     <span className="text-content-secondary">{s.name}</span>
                     <span className="text-content-tertiary">({s.cidr})</span>
-                    {s.enable_dhcp && <span className="text-emerald-500">DHCP</span>}
+                    {s.enable_dhcp && <span className="text-status-text-success">DHCP</span>}
                   </div>
                   {stat && stat.total > 0 && (
                     <div className="flex items-center gap-1.5 mt-0.5">
@@ -335,7 +335,7 @@ function NetworksPage() {
             </span>
           )}
           {r.external && (
-            <span className="px-1.5 py-0.5 text-xs bg-purple-900/30 text-purple-400 rounded">
+            <span className="px-1.5 py-0.5 text-xs bg-purple-900/30 text-status-purple rounded">
               External
             </span>
           )}
@@ -647,7 +647,7 @@ function NetworksPage() {
                         ))}
                         <option value="__custom__">Custom...</option>
                       </select>
-                      <p className="text-xs text-emerald-400 mt-1">
+                      <p className="text-xs text-status-text-success mt-1">
                         {bridgeMappings.length} bridge mapping
                         {bridgeMappings.length > 1 ? 's' : ''} detected from OVN config
                       </p>
@@ -672,7 +672,7 @@ function NetworksPage() {
                         </button>
                       )}
                       {bridgeMappings.length === 0 && (
-                        <p className="text-xs text-amber-400 mt-1">
+                        <p className="text-xs text-status-text-warning mt-1">
                           No bridge mappings detected. Ensure bridge_mappings is configured.
                         </p>
                       )}
@@ -759,7 +759,7 @@ function NetworksPage() {
                     Auto
                   </button>
                 </div>
-                {cidrConflict && <p className="text-xs text-red-400 mt-1">{cidrConflict}</p>}
+                {cidrConflict && <p className="text-xs text-status-text-error mt-1">{cidrConflict}</p>}
                 {!cidrConflict && cidrInfo && (
                   <p className="text-xs text-content-secondary mt-1">
                     ~{cidrInfo.numHosts} hosts | GW: {cidrInfo.gateway}
@@ -776,7 +776,7 @@ function NetworksPage() {
                       type="button"
                       className={`text-xs px-2 py-0.5 rounded border transition-colors ${
                         cidr === tpl.cidr
-                          ? 'border-blue-500 bg-blue-500/20 text-blue-300'
+                          ? 'border-blue-500 bg-blue-500/20 text-status-link'
                           : 'border-gray-600 text-content-secondary hover:border-gray-500 hover:text-content-secondary'
                       }`}
                       onClick={() => setCidr(tpl.cidr)}
@@ -938,7 +938,7 @@ function NetworksPage() {
                 <div className="text-content-secondary">Zone</div>
                 <div className="text-content-primary">{zone || '-'}</div>
                 <div className="text-content-secondary">CIDR</div>
-                <div className={`text-content-primary ${cidrConflict ? 'text-red-400' : ''}`}>
+                <div className={`text-content-primary ${cidrConflict ? 'text-status-text-error' : ''}`}>
                   {cidr || '-'}
                 </div>
                 {cidrInfo && (
@@ -998,7 +998,7 @@ function NetworksPage() {
         {diagnoseData ? (
           <div className="space-y-3 max-h-[60vh] overflow-y-auto">
             {diagnoseData.error ? (
-              <div className="p-3 bg-red-900/30 text-red-400 rounded text-sm">
+              <div className="p-3 bg-red-900/30 text-status-text-error rounded text-sm">
                 {diagnoseData.error}
               </div>
             ) : (
@@ -1378,7 +1378,7 @@ function ACLPage() {
                           className={`px-1.5 py-0.5 rounded text-xs border ${
                             rule.direction === 'ingress'
                               ? 'bg-blue-500/15 text-accent border-blue-500/30'
-                              : 'bg-purple-500/15 text-purple-400 border-purple-500/30'
+                              : 'bg-purple-500/15 text-status-purple border-purple-500/30'
                           }`}
                         >
                           {rule.direction}
@@ -1387,7 +1387,7 @@ function ACLPage() {
                       <td className="py-1.5 pr-3">
                         <span
                           className={`text-xs font-medium ${
-                            rule.action === 'allow' ? 'text-emerald-400' : 'text-red-400'
+                            rule.action === 'allow' ? 'text-status-text-success' : 'text-status-text-error'
                           }`}
                         >
                           {rule.action.toUpperCase()}
@@ -1402,7 +1402,7 @@ function ACLPage() {
                       </td>
                       <td className="py-1.5 text-right">
                         <button
-                          className="text-xs text-red-400 hover:text-red-300"
+                          className="text-xs text-status-text-error hover:text-status-text-error"
                           onClick={() => handleDeleteRule(acl.id, rule.id)}
                         >
                           Delete

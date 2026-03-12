@@ -130,7 +130,7 @@ function FlavorsPage() {
       render: (row) => (
         <div className="flex justify-end">
           <button
-            className="text-red-400 hover:underline"
+            className="text-status-text-error hover:underline"
             onClick={async () => {
               try {
                 await deleteFlavor(row.id)
@@ -288,7 +288,7 @@ function KMSPage() {
       render: (row) => (
         <div className="flex justify-end">
           <button
-            className="text-red-400 hover:underline"
+            className="text-status-text-error hover:underline"
             onClick={async () => {
               if (projectId) {
                 await deleteSSHKey(projectId, row.id)
@@ -418,7 +418,7 @@ function InstanceVolumes() {
         Number(r.id) > 0 ? (
           <div className="flex justify-end">
             <button
-              className="text-red-400 hover:underline"
+              className="text-status-text-error hover:underline"
               onClick={async () => {
                 if (id) {
                   await detachVolumeFromInstance(id, r.id)

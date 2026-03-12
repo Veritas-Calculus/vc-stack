@@ -442,10 +442,10 @@ const apiDocs: ServiceDocs[] = [
 
 const METHOD_COLORS: Record<Method, { bg: string; text: string; border: string }> = {
   GET: { bg: 'bg-blue-500/15', text: 'text-accent', border: 'border-blue-500/30' },
-  POST: { bg: 'bg-emerald-500/15', text: 'text-emerald-400', border: 'border-emerald-500/30' },
-  PUT: { bg: 'bg-amber-500/15', text: 'text-amber-400', border: 'border-amber-500/30' },
-  PATCH: { bg: 'bg-orange-500/15', text: 'text-orange-400', border: 'border-orange-500/30' },
-  DELETE: { bg: 'bg-red-500/15', text: 'text-red-400', border: 'border-red-500/30' }
+  POST: { bg: 'bg-emerald-500/15', text: 'text-status-text-success', border: 'border-emerald-500/30' },
+  PUT: { bg: 'bg-amber-500/15', text: 'text-status-text-warning', border: 'border-amber-500/30' },
+  PATCH: { bg: 'bg-orange-500/15', text: 'text-status-orange', border: 'border-orange-500/30' },
+  DELETE: { bg: 'bg-red-500/15', text: 'text-status-text-error', border: 'border-red-500/30' }
 }
 
 export function Docs() {
@@ -748,7 +748,7 @@ function EndpointCard({
                       <tr key={i} className="border-t border-border/50">
                         <td className="px-3 py-2">
                           <code className="text-xs text-accent">{p.name}</code>
-                          {p.required && <span className="text-red-400 text-xs ml-1">*</span>}
+                          {p.required && <span className="text-status-text-error text-xs ml-1">*</span>}
                         </td>
                         <td className="px-3 py-2 text-xs text-content-tertiary">{p.type}</td>
                         <td className="px-3 py-2 text-xs text-content-secondary">{p.description}</td>
@@ -778,7 +778,7 @@ function EndpointCard({
               <h4 className="text-xs font-semibold text-content-secondary uppercase tracking-wider mb-2">
                 Response Example
               </h4>
-              <pre className="rounded-lg bg-surface-primary border border-border p-3 text-xs text-emerald-300 font-mono overflow-x-auto">
+              <pre className="rounded-lg bg-surface-primary border border-border p-3 text-xs text-status-text-success font-mono overflow-x-auto">
                 {endpoint.responseExample}
               </pre>
             </div>

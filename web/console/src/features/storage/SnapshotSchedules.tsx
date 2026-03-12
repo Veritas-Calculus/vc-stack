@@ -103,7 +103,7 @@ export function SnapshotSchedules() {
                   <span className="text-sm font-medium text-content-primary">{s.name}</span>
                 </div>
                 <span
-                  className={`px-2 py-0.5 rounded text-xs ${s.enabled ? 'bg-emerald-500/15 text-emerald-400' : 'bg-gray-500/15 text-content-secondary'}`}
+                  className={`px-2 py-0.5 rounded text-xs ${s.enabled ? 'bg-emerald-500/15 text-status-text-success' : 'bg-gray-500/15 text-content-secondary'}`}
                 >
                   {s.enabled ? 'Active' : 'Paused'}
                 </span>
@@ -143,7 +143,7 @@ export function SnapshotSchedules() {
                 </button>
                 <button
                   onClick={() => handleDelete(s.id)}
-                  className="px-2 py-1 rounded text-xs text-content-secondary hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                  className="px-2 py-1 rounded text-xs text-content-secondary hover:text-status-text-error hover:bg-red-500/10 transition-colors"
                 >
                   Delete
                 </button>

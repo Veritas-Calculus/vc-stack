@@ -193,12 +193,12 @@ export function KeyManagement() {
 
   const statusBadge = (s: string) => {
     const colors: Record<string, string> = {
-      active: 'bg-emerald-500/20 text-emerald-400',
+      active: 'bg-emerald-500/20 text-status-text-success',
       'pre-active': 'bg-blue-500/20 text-accent',
-      deactivated: 'bg-amber-500/20 text-amber-400',
-      destroyed: 'bg-red-500/20 text-red-400',
+      deactivated: 'bg-amber-500/20 text-status-text-warning',
+      destroyed: 'bg-red-500/20 text-status-text-error',
       expired: 'bg-gray-500/20 text-content-secondary',
-      compromised: 'bg-red-500/20 text-red-400'
+      compromised: 'bg-red-500/20 text-status-text-error'
     }
     return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colors[s] || 'bg-gray-500/20 text-content-secondary'}`
   }
@@ -232,7 +232,7 @@ export function KeyManagement() {
         </div>
         {status && (
           <span
-            className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium ${status.status === 'operational' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}`}
+            className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium ${status.status === 'operational' ? 'bg-emerald-500/20 text-status-text-success border border-emerald-500/30' : 'bg-red-500/20 text-status-text-error border border-red-500/30'}`}
           >
             <span
               className={`w-2 h-2 rounded-full mr-2 ${status.status === 'operational' ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'}`}
@@ -267,14 +267,14 @@ export function KeyManagement() {
                 label: 'Secrets',
                 value: status.secrets_total,
                 active: status.secrets_active,
-                color: 'text-purple-400',
+                color: 'text-status-purple',
                 icon: Icons.lock('w-5 h-5')
               },
               {
                 label: 'Active Secrets',
                 value: status.secrets_active,
                 active: undefined,
-                color: 'text-emerald-400',
+                color: 'text-status-text-success',
                 icon: Icons.checkCircle('w-5 h-5')
               },
               {
@@ -288,7 +288,7 @@ export function KeyManagement() {
                 label: 'Active Keys',
                 value: status.encryption_keys_active,
                 active: undefined,
-                color: 'text-amber-400',
+                color: 'text-status-text-warning',
                 icon: Icons.bolt('w-5 h-5')
               }
             ].map((s) => (
@@ -316,7 +316,7 @@ export function KeyManagement() {
               <div>
                 <span className="text-content-tertiary">Master Key:</span>{' '}
                 <span
-                  className={`ml-2 ${status.master_key_loaded ? 'text-emerald-400' : 'text-red-400'}`}
+                  className={`ml-2 ${status.master_key_loaded ? 'text-status-text-success' : 'text-status-text-error'}`}
                 >
                   {status.master_key_loaded ? 'Loaded' : 'Not loaded'}
                 </span>
@@ -334,7 +334,7 @@ export function KeyManagement() {
                 protect data:
               </p>
               <div className="flex items-center gap-2 py-2">
-                <span className="px-2 py-1 bg-purple-500/20 text-purple-400 rounded text-xs">
+                <span className="px-2 py-1 bg-purple-500/20 text-status-purple rounded text-xs">
                   Master Key (KEK)
                 </span>
                 <span className="text-content-tertiary">&rarr; encrypts &rarr;</span>
@@ -342,7 +342,7 @@ export function KeyManagement() {
                   Data Encryption Key (DEK)
                 </span>
                 <span className="text-content-tertiary">&rarr; encrypts &rarr;</span>
-                <span className="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded text-xs">
+                <span className="px-2 py-1 bg-emerald-500/20 text-status-text-success rounded text-xs">
                   Your Data
                 </span>
               </div>
@@ -370,7 +370,7 @@ export function KeyManagement() {
           <div className="bg-surface-tertiary border border-border rounded-xl overflow-hidden">
             {secrets.length === 0 ? (
               <div className="text-center py-12">
-                <div className="mb-3 text-purple-400">{Icons.lock('w-10 h-10')}</div>
+                <div className="mb-3 text-status-purple">{Icons.lock('w-10 h-10')}</div>
                 <p className="text-content-secondary">No secrets stored</p>
                 <p className="text-content-tertiary text-sm mt-1">
                   Store passwords, certificates, API keys, and other sensitive data
@@ -401,7 +401,7 @@ export function KeyManagement() {
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <span className="px-2 py-0.5 bg-purple-500/20 text-purple-400 rounded text-xs">
+                        <span className="px-2 py-0.5 bg-purple-500/20 text-status-purple rounded text-xs">
                           {sec.secret_type}
                         </span>
                       </td>
@@ -417,7 +417,7 @@ export function KeyManagement() {
                       <td className="px-4 py-3">
                         <button
                           onClick={() => deleteSecret(sec.id)}
-                          className="text-red-400 text-xs hover:text-red-300 transition"
+                          className="text-status-text-error text-xs hover:text-status-text-error transition"
                         >
                           Destroy
                         </button>
@@ -497,14 +497,14 @@ export function KeyManagement() {
                           {k.status === 'active' && (
                             <button
                               onClick={() => rotateKey(k.id)}
-                              className="text-amber-400 text-xs hover:text-amber-300 transition"
+                              className="text-status-text-warning text-xs hover:text-status-text-warning transition"
                             >
                               Rotate
                             </button>
                           )}
                           <button
                             onClick={() => deleteKey(k.id)}
-                            className="text-red-400 text-xs hover:text-red-300 transition"
+                            className="text-status-text-error text-xs hover:text-status-text-error transition"
                           >
                             Destroy
                           </button>
@@ -635,7 +635,7 @@ export function KeyManagement() {
               <div className="mt-4">
                 <label className="block text-sm text-content-secondary mb-1">Result</label>
                 <div className="relative">
-                  <pre className="bg-gray-900/60 border border-border rounded-lg p-4 text-sm text-emerald-400 font-mono overflow-x-auto max-h-48 whitespace-pre-wrap break-all">
+                  <pre className="bg-gray-900/60 border border-border rounded-lg p-4 text-sm text-status-text-success font-mono overflow-x-auto max-h-48 whitespace-pre-wrap break-all">
                     {cryptoResult}
                   </pre>
                   <button

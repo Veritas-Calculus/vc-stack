@@ -189,7 +189,7 @@ export function Login() {
             Use your account to access the console.
           </p>
           {error && (
-            <div className="rounded-md bg-red-500/10 border border-red-500/30 px-3 py-2 text-sm text-red-500">
+            <div className="rounded-md bg-red-500/10 border border-red-500/30 px-3 py-2 text-sm text-status-text-error">
               {error}
             </div>
           )}
@@ -299,7 +299,7 @@ export function Login() {
         </div>
 
         {error && (
-          <div className="rounded-md bg-red-500/10 border border-red-500/30 px-3 py-2 text-sm text-red-500">
+          <div className="rounded-md bg-red-500/10 border border-red-500/30 px-3 py-2 text-sm text-status-text-error">
             {error}
           </div>
         )}

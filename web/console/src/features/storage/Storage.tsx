@@ -136,7 +136,7 @@ function Volumes() {
             Resize
           </button>
           <button
-            className={`text-sm ${row.status === 'in-use' ? 'text-content-tertiary cursor-not-allowed' : 'text-red-400 hover:text-red-300'}`}
+            className={`text-sm ${row.status === 'in-use' ? 'text-content-tertiary cursor-not-allowed' : 'text-status-text-error hover:text-status-text-error'}`}
             disabled={row.status === 'in-use'}
             title={
               row.status === 'in-use'

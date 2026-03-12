@@ -74,7 +74,7 @@ export function MonitoringDashboard() {
         </div>
       </div>
 
-      {error && <div className="p-4 bg-red-100 text-red-700 rounded">{error}</div>}
+      {error && <div className="p-4 bg-status-error/10 text-status-text-error rounded">{error}</div>}
 
       {loading && <div className="text-center py-8">Loading metrics...</div>}
 

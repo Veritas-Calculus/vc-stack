@@ -23,9 +23,9 @@ export function GPUResources() {
         { key: 'model', header: 'GPU', render: (r) => <div><div className="font-medium">{r.model}</div><code className="text-xs text-zinc-500">{r.pci_addr}</code></div> },
         { key: 'vendor', header: 'Vendor', render: (r) => <span className="text-xs bg-green-500/15 text-green-400 px-1.5 py-0.5 rounded uppercase">{r.vendor}</span> },
         { key: 'vram_mb', header: 'VRAM', render: (r) => <span className="text-sm font-mono">{vramFmt(r.vram_mb)}</span> },
-        { key: 'mig_capable', header: 'MIG', render: (r) => <span className={`text-xs ${r.mig_capable ? 'text-emerald-400' : 'text-zinc-600'}`}>{r.mig_capable ? 'Yes' : 'No'}</span> },
+        { key: 'mig_capable', header: 'MIG', render: (r) => <span className={`text-xs ${r.mig_capable ? 'text-status-text-success' : 'text-zinc-600'}`}>{r.mig_capable ? 'Yes' : 'No'}</span> },
         { key: 'host_id', header: 'Host', render: (r) => <span className="text-xs text-zinc-400">Host #{r.host_id}</span> },
-        { key: 'status', header: 'Status', render: (r) => <span className={`text-xs px-2 py-0.5 rounded-full ${r.status === 'available' ? 'bg-emerald-500/15 text-emerald-400' : r.status === 'allocated' ? 'bg-blue-500/15 text-accent' : 'bg-zinc-600/20 text-zinc-400'}`}>{r.status}</span> },
+        { key: 'status', header: 'Status', render: (r) => <span className={`text-xs px-2 py-0.5 rounded-full ${r.status === 'available' ? 'bg-emerald-500/15 text-status-text-success' : r.status === 'allocated' ? 'bg-blue-500/15 text-accent' : 'bg-zinc-600/20 text-zinc-400'}`}>{r.status}</span> },
     ]
 
     const profCols: Column<UIGPUProfile>[] = [

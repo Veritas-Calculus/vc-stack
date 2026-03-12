@@ -27,12 +27,12 @@ interface SecurityGroup {
 
 const DIRECTION_COLORS: Record<string, string> = {
   ingress: 'bg-blue-500/15 text-accent border-blue-500/30',
-  egress: 'bg-purple-500/15 text-purple-400 border-purple-500/30'
+  egress: 'bg-purple-500/15 text-status-purple border-purple-500/30'
 }
 
 const PROTOCOL_COLORS: Record<string, string> = {
-  tcp: 'text-emerald-400',
-  udp: 'text-amber-400',
+  tcp: 'text-status-text-success',
+  udp: 'text-status-text-warning',
   icmp: 'text-accent'
 }
 
@@ -240,7 +240,7 @@ export function SecurityGroups() {
                             e.stopPropagation()
                             handleDelete(sg.id)
                           }}
-                          className="h-6 w-6 grid place-items-center rounded hover:bg-red-500/20 text-content-tertiary hover:text-red-400 transition-colors"
+                          className="h-6 w-6 grid place-items-center rounded hover:bg-red-500/20 text-content-tertiary hover:text-status-text-error transition-colors"
                           title="Delete"
                         >
                           <svg
@@ -517,7 +517,7 @@ function RulesTable({
             <td className="py-2.5 text-right">
               <button
                 onClick={() => onDeleteRule(rule.id)}
-                className="text-red-400 hover:text-red-300 text-xs"
+                className="text-status-text-error hover:text-status-text-error text-xs"
                 title="Delete rule"
               >
                 Delete

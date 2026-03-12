@@ -17,7 +17,7 @@ export function Policies() {
       render: (r) => (
         <div className="flex justify-end gap-2">
           <button
-            className="text-red-400 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+            className="text-status-text-error hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={() => removePolicy(r.id)}
             disabled={r.type === 'system'}
           >

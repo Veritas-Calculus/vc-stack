@@ -132,7 +132,7 @@ export function UsageBilling() {
                         <div className="text-content-primary font-medium">{t.name}</div>
                         <div className="text-xs text-content-tertiary font-mono">{t.resource_type}</div>
                       </td>
-                      <td className="px-4 py-3 text-emerald-400 font-mono font-semibold">
+                      <td className="px-4 py-3 text-status-text-success font-mono font-semibold">
                         ${t.rate.toFixed(2)}
                       </td>
                       <td className="px-4 py-3 text-content-secondary">{unitLabel(t.unit)}</td>
@@ -202,10 +202,10 @@ export function UsageBilling() {
                       >
                         <td className="px-4 py-3 text-content-primary font-medium">{b.period}</td>
                         <td className="px-4 py-3 text-content-secondary">#{b.account_id}</td>
-                        <td className="px-4 py-3 text-right text-emerald-400 font-mono">
+                        <td className="px-4 py-3 text-right text-status-text-success font-mono">
                           ${b.credit.toFixed(2)}
                         </td>
-                        <td className="px-4 py-3 text-right text-red-400 font-mono">
+                        <td className="px-4 py-3 text-right text-status-text-error font-mono">
                           ${b.usage.toFixed(2)}
                         </td>
                         <td className="px-4 py-3 text-right text-content-primary font-mono font-semibold">
@@ -213,7 +213,7 @@ export function UsageBilling() {
                         </td>
                         <td className="px-4 py-3">
                           <span
-                            className={`px-2 py-0.5 rounded text-xs ${b.state === 'enabled' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}
+                            className={`px-2 py-0.5 rounded text-xs ${b.state === 'enabled' ? 'bg-emerald-500/15 text-status-text-success' : 'bg-red-500/15 text-status-text-error'}`}
                           >
                             {b.state}
                           </span>

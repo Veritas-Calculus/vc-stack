@@ -50,9 +50,9 @@ export function VPCPeering() {
 
   const statusBadge = (s: string) => {
     const c: Record<string, string> = {
-      pending: 'bg-amber-500/15 text-amber-400',
-      active: 'bg-emerald-500/15 text-emerald-400',
-      rejected: 'bg-red-500/15 text-red-400',
+      pending: 'bg-amber-500/15 text-status-text-warning',
+      active: 'bg-emerald-500/15 text-status-text-success',
+      rejected: 'bg-red-500/15 text-status-text-error',
       deleted: 'bg-zinc-600/20 text-zinc-500'
     }
     return <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${c[s] ?? ''}`}>{s}</span>
@@ -87,7 +87,7 @@ export function VPCPeering() {
           {r.status === 'pending' && (
             <>
               <button
-                className="text-xs text-emerald-400 hover:underline"
+                className="text-xs text-status-text-success hover:underline"
                 onClick={async () => {
                   await acceptVPCPeering(r.id)
                   load()
@@ -96,7 +96,7 @@ export function VPCPeering() {
                 Accept
               </button>
               <button
-                className="text-xs text-red-400 hover:underline"
+                className="text-xs text-status-text-error hover:underline"
                 onClick={async () => {
                   await rejectVPCPeering(r.id)
                   load()

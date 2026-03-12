@@ -121,24 +121,24 @@ export function DataEncryption() {
 
   const statusBadge = (s: string) => {
     const m: Record<string, string> = {
-      pass: 'bg-emerald-500/20 text-emerald-400',
-      partial: 'bg-amber-500/20 text-amber-400',
-      warning: 'bg-amber-500/20 text-amber-400',
-      fail: 'bg-red-500/20 text-red-400',
-      active: 'bg-emerald-500/20 text-emerald-400',
-      revoked: 'bg-red-500/20 text-red-400',
+      pass: 'bg-emerald-500/20 text-status-text-success',
+      partial: 'bg-amber-500/20 text-status-text-warning',
+      warning: 'bg-amber-500/20 text-status-text-warning',
+      fail: 'bg-red-500/20 text-status-text-error',
+      active: 'bg-emerald-500/20 text-status-text-success',
+      revoked: 'bg-red-500/20 text-status-text-error',
       expired: 'bg-gray-500/20 text-content-secondary',
-      encrypted: 'bg-emerald-500/20 text-emerald-400',
-      error: 'bg-red-500/20 text-red-400'
+      encrypted: 'bg-emerald-500/20 text-status-text-success',
+      error: 'bg-red-500/20 text-status-text-error'
     }
     return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-content-secondary'}`
   }
 
   const certTypeBadge = (t: string) => {
     const m: Record<string, string> = {
-      ca: 'bg-purple-500/20 text-purple-400',
+      ca: 'bg-purple-500/20 text-status-purple',
       server: 'bg-blue-500/20 text-accent',
-      client: 'bg-cyan-500/20 text-cyan-400'
+      client: 'bg-cyan-500/20 text-status-cyan'
     }
     return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[t] || 'bg-gray-500/20 text-content-secondary'}`
   }
@@ -177,7 +177,7 @@ export function DataEncryption() {
         </div>
         {status && (
           <span
-            className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/30`}
+            className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-emerald-500/20 text-status-text-success border border-emerald-500/30`}
           >
             <span className="w-2 h-2 rounded-full mr-2 bg-emerald-400 animate-pulse"></span>
             Operational
@@ -209,14 +209,14 @@ export function DataEncryption() {
               {
                 label: 'Encrypted Volumes',
                 value: `${status.encrypted_volumes}/${status.total_volumes}`,
-                color: 'text-emerald-400',
+                color: 'text-status-text-success',
                 icon: Icons.lock('w-5 h-5')
               },
               {
                 label: 'Encryption %',
                 value: `${Number(status.encryption_pct || 0).toFixed(0)}%`,
                 color:
-                  Number(status.encryption_pct || 0) > 80 ? 'text-emerald-400' : 'text-amber-400',
+                  Number(status.encryption_pct || 0) > 80 ? 'text-status-text-success' : 'text-status-text-warning',
                 icon: Icons.chart('w-5 h-5')
               },
               {
@@ -228,7 +228,7 @@ export function DataEncryption() {
               {
                 label: 'Profiles',
                 value: String(status.encryption_profiles),
-                color: 'text-purple-400',
+                color: 'text-status-purple',
                 icon: Icons.shieldCheck('w-5 h-5')
               }
             ].map((s) => (
@@ -270,7 +270,7 @@ export function DataEncryption() {
                 </div>
                 <div className="flex items-center justify-between py-1">
                   <span className="text-content-secondary">Key Management</span>
-                  <span className="text-emerald-400 font-mono text-xs">KMS (AES-256-GCM)</span>
+                  <span className="text-status-text-success font-mono text-xs">KMS (AES-256-GCM)</span>
                 </div>
               </div>
             </div>
@@ -281,7 +281,7 @@ export function DataEncryption() {
               <div className="space-y-3 text-sm">
                 <div className="flex items-center justify-between py-1">
                   <span className="text-content-secondary">Status</span>
-                  <span className={status.mtls_enabled ? 'text-emerald-400' : 'text-amber-400'}>
+                  <span className={status.mtls_enabled ? 'text-status-text-success' : 'text-status-text-warning'}>
                     {status.mtls_enabled ? 'Enabled' : 'Disabled'}
                   </span>
                 </div>
@@ -296,7 +296,7 @@ export function DataEncryption() {
                 <div className="flex items-center justify-between py-1">
                   <span className="text-content-secondary">Expired</span>
                   <span
-                    className={Number(status.expired_certs) > 0 ? 'text-red-400' : 'text-content-primary'}
+                    className={Number(status.expired_certs) > 0 ? 'text-status-text-error' : 'text-content-primary'}
                   >
                     {String(status.expired_certs)}
                   </span>
@@ -317,13 +317,13 @@ export function DataEncryption() {
               </div>
               <span className="text-content-tertiary text-xl">&rarr;</span>
               <div className="text-center p-3 border border-gray-600 rounded-lg">
-                <div className="mb-1 text-purple-400">{Icons.lock('w-5 h-5')}</div>
+                <div className="mb-1 text-status-purple">{Icons.lock('w-5 h-5')}</div>
                 <div className="text-content-primary font-medium">Data Encryption Key</div>
                 <div className="text-xs">Per-volume DEK</div>
               </div>
               <span className="text-content-tertiary text-xl">&rarr;</span>
               <div className="text-center p-3 border border-gray-600 rounded-lg">
-                <div className="mb-1 text-emerald-400">{Icons.drive('w-5 h-5')}</div>
+                <div className="mb-1 text-status-text-success">{Icons.drive('w-5 h-5')}</div>
                 <div className="text-content-primary font-medium">LUKS2 Volume</div>
                 <div className="text-xs">AES-XTS encrypted</div>
               </div>
@@ -388,7 +388,7 @@ export function DataEncryption() {
                       {!p.is_default && (
                         <button
                           onClick={() => deleteProfile(p.id)}
-                          className="text-red-400 text-xs hover:text-red-300 transition"
+                          className="text-status-text-error text-xs hover:text-status-text-error transition"
                         >
                           Delete
                         </button>
@@ -523,7 +523,7 @@ export function DataEncryption() {
                       <td className="px-4 py-3 text-content-secondary text-xs">{ct.issuer}</td>
                       <td className="px-4 py-3">
                         <span
-                          className={`text-xs ${daysLeft < 30 ? 'text-red-400' : daysLeft < 90 ? 'text-amber-400' : 'text-content-secondary'}`}
+                          className={`text-xs ${daysLeft < 30 ? 'text-status-text-error' : daysLeft < 90 ? 'text-status-text-warning' : 'text-content-secondary'}`}
                         >
                           {formatDate(ct.not_after)}
                           <br />
@@ -537,7 +537,7 @@ export function DataEncryption() {
                         {ct.cert_type !== 'ca' && ct.status === 'active' && (
                           <button
                             onClick={() => revokeCert(ct.id)}
-                            className="text-red-400 text-xs hover:text-red-300 transition"
+                            className="text-status-text-error text-xs hover:text-status-text-error transition"
                           >
                             Revoke
                           </button>
@@ -571,7 +571,7 @@ export function DataEncryption() {
         <div className="space-y-6">
           <div className="bg-surface-tertiary border border-border rounded-xl p-6 text-center">
             <div
-              className={`text-6xl font-bold mb-2 ${compliance.overall_score >= 80 ? 'text-emerald-400' : compliance.overall_score >= 50 ? 'text-amber-400' : 'text-red-400'}`}
+              className={`text-6xl font-bold mb-2 ${compliance.overall_score >= 80 ? 'text-status-text-success' : compliance.overall_score >= 50 ? 'text-status-text-warning' : 'text-status-text-error'}`}
             >
               {compliance.overall_score}
             </div>
@@ -596,10 +596,10 @@ export function DataEncryption() {
                   className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg ${ch.status === 'pass' ? 'bg-emerald-500/20' : ch.status === 'fail' ? 'bg-red-500/20' : 'bg-amber-500/20'}`}
                 >
                   {ch.status === 'pass'
-                    ? Icons.checkCircle('w-4 h-4 text-emerald-400')
+                    ? Icons.checkCircle('w-4 h-4 text-status-text-success')
                     : ch.status === 'fail'
-                      ? Icons.xCircle('w-4 h-4 text-red-400')
-                      : Icons.warning('w-4 h-4 text-amber-400')}
+                      ? Icons.xCircle('w-4 h-4 text-status-text-error')
+                      : Icons.warning('w-4 h-4 text-status-text-warning')}
                 </div>
                 <div className="flex-1">
                   <div className="text-content-primary font-medium">{ch.name}</div>

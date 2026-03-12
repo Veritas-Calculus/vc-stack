@@ -44,11 +44,23 @@
   --accent-color-hover: #409cff;
   --accent-subtle: rgba(10, 132, 255, 0.12);
 
-  /* ── Status ── */
+  /* ── Status (bg pill fills) ── */
   --status-success: #30d158;
   --status-warning: #ff9f0a;
   --status-error: #ff453a;
   --status-info: #0a84ff;
+
+  /* ── Status Text (readable on dark bg) ── */
+  --text-success: #34d399;
+  --text-warning: #fbbf24;
+  --text-error: #f87171;
+  --text-info: #38bdf8;
+  --text-link: #60a5fa;
+  --text-cyan: #22d3ee;
+  --text-purple: #c084fc;
+  --text-indigo: #818cf8;
+  --text-orange: #fb923c;
+  --text-rose: #fb7185;
 
   /* ── Icon ── */
   --icon-muted: rgba(255, 255, 255, 0.4);
@@ -107,11 +119,23 @@ html.light {
   --accent-color-hover: #0066cc;
   --accent-subtle: rgba(0, 122, 255, 0.08);
 
-  /* ── Status (same values; explicit for clarity) ── */
+  /* ── Status (bg pill fills) ── */
   --status-success: #34c759;
   --status-warning: #ff9500;
   --status-error: #ff3b30;
   --status-info: #007aff;
+
+  /* ── Status Text (readable on light bg) ── */
+  --text-success: #16a34a;
+  --text-warning: #d97706;
+  --text-error: #dc2626;
+  --text-info: #0284c7;
+  --text-link: #2563eb;
+  --text-cyan: #0891b2;
+  --text-purple: #9333ea;
+  --text-indigo: #4f46e5;
+  --text-orange: #ea580c;
+  --text-rose: #e11d48;
 
   /* ── Icon ── */
   --icon-muted: rgba(0, 0, 0, 0.35);

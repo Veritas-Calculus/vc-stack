@@ -94,8 +94,8 @@ export function AlertRules() {
 
   const severityBadge = (s: string) => {
     const colors: Record<string, string> = {
-      critical: 'bg-red-500/15 text-red-400',
-      warning: 'bg-amber-500/15 text-amber-400',
+      critical: 'bg-red-500/15 text-status-text-error',
+      warning: 'bg-amber-500/15 text-status-text-warning',
       info: 'bg-blue-500/15 text-accent'
     }
     return (
@@ -109,9 +109,9 @@ export function AlertRules() {
 
   const stateBadge = (s: string) => {
     const colors: Record<string, string> = {
-      ok: 'bg-emerald-500/15 text-emerald-400',
-      firing: 'bg-red-500/15 text-red-400',
-      pending: 'bg-amber-500/15 text-amber-400'
+      ok: 'bg-emerald-500/15 text-status-text-success',
+      firing: 'bg-red-500/15 text-status-text-error',
+      pending: 'bg-amber-500/15 text-status-text-warning'
     }
     return (
       <span
@@ -155,13 +155,13 @@ export function AlertRules() {
       render: (r) => (
         <div className="flex justify-end gap-2">
           <button
-            className="text-xs text-amber-400 hover:underline"
+            className="text-xs text-status-text-warning hover:underline"
             onClick={() => handleToggle(r.id, r.enabled)}
           >
             {r.enabled ? 'Disable' : 'Enable'}
           </button>
           <button
-            className="text-xs text-red-400 hover:underline"
+            className="text-xs text-status-text-error hover:underline"
             onClick={() => handleDelete(r.id)}
           >
             Delete

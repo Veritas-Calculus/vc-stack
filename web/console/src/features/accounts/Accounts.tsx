@@ -17,9 +17,9 @@ interface User {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  active: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
+  active: 'bg-emerald-500/15 text-status-text-success border-emerald-500/30',
   inactive: 'bg-gray-500/15 text-content-secondary border-gray-500/30',
-  suspended: 'bg-red-500/15 text-red-400 border-red-500/30'
+  suspended: 'bg-red-500/15 text-status-text-error border-red-500/30'
 }
 
 export function Accounts() {
@@ -208,7 +208,7 @@ export function Accounts() {
                   </td>
                   <td className="px-4 py-3">
                     {user.is_admin ? (
-                      <span className="px-2 py-0.5 rounded-full text-xs bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                      <span className="px-2 py-0.5 rounded-full text-xs bg-amber-500/15 text-status-text-warning border border-amber-500/30">
                         Admin
                       </span>
                     ) : (
@@ -226,7 +226,7 @@ export function Accounts() {
                             user.status === 'active' ? 'suspended' : 'active'
                           )
                         }}
-                        className={`px-2 py-1 rounded text-xs ${user.status === 'active' ? 'text-amber-400 hover:bg-amber-500/10' : 'text-emerald-400 hover:bg-emerald-500/10'}`}
+                        className={`px-2 py-1 rounded text-xs ${user.status === 'active' ? 'text-status-text-warning hover:bg-amber-500/10' : 'text-status-text-success hover:bg-emerald-500/10'}`}
                         title={user.status === 'active' ? 'Suspend' : 'Activate'}
                       >
                         {user.status === 'active' ? 'Suspend' : 'Activate'}
@@ -236,7 +236,7 @@ export function Accounts() {
                           e.stopPropagation()
                           handleDelete(user.id)
                         }}
-                        className="px-2 py-1 rounded text-xs text-red-400 hover:bg-red-500/10"
+                        className="px-2 py-1 rounded text-xs text-status-text-error hover:bg-red-500/10"
                       >
                         Delete
                       </button>
@@ -348,7 +348,7 @@ export function Accounts() {
                       selectedUser.status === 'active' ? 'suspended' : 'active'
                     )
                   }
-                  className={`px-3 py-2 rounded-lg text-sm border ${selectedUser.status === 'active' ? 'border-amber-500/30 text-amber-400 hover:bg-amber-500/10' : 'border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10'}`}
+                  className={`px-3 py-2 rounded-lg text-sm border ${selectedUser.status === 'active' ? 'border-amber-500/30 text-status-text-warning hover:bg-amber-500/10' : 'border-emerald-500/30 text-status-text-success hover:bg-emerald-500/10'}`}
                 >
                   {selectedUser.status === 'active' ? 'Suspend' : 'Activate'}
                 </button>
@@ -360,7 +360,7 @@ export function Accounts() {
                 </button>
                 <button
                   onClick={() => handleDelete(selectedUser.id)}
-                  className="px-3 py-2 rounded-lg text-sm border border-red-500/30 text-red-400 hover:bg-red-500/10"
+                  className="px-3 py-2 rounded-lg text-sm border border-red-500/30 text-status-text-error hover:bg-red-500/10"
                 >
                   Delete
                 </button>

@@ -74,7 +74,7 @@ export function DeletionProgress({ instanceIds, onComplete, onClose }: DeletionP
       case 'completed':
         return 'text-green-400'
       case 'failed':
-        return 'text-red-400'
+        return 'text-status-text-error'
       case 'processing':
         return 'text-accent'
       case 'pending':
@@ -100,7 +100,7 @@ export function DeletionProgress({ instanceIds, onComplete, onClose }: DeletionP
       case 'failed':
         return (
           <svg
-            className="w-5 h-5 text-red-400"
+            className="w-5 h-5 text-status-text-error"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -206,7 +206,7 @@ export function DeletionProgress({ instanceIds, onComplete, onClose }: DeletionP
                     {state.status.toUpperCase()}
                   </span>
                 </div>
-                {state.message && <p className="text-xs text-red-400 mt-1">{state.message}</p>}
+                {state.message && <p className="text-xs text-status-text-error mt-1">{state.message}</p>}
                 {state.retryCount !== undefined && state.retryCount > 0 && (
                   <p className="text-xs text-yellow-400 mt-1">
                     Retry {state.retryCount}/{state.maxRetries}
@@ -222,7 +222,7 @@ export function DeletionProgress({ instanceIds, onComplete, onClose }: DeletionP
           <div className="pt-4 border-t border-border">
             <div className="flex items-center justify-between text-sm">
               <span className="text-green-400">Completed: {completedCount}</span>
-              {failedCount > 0 && <span className="text-red-400">Failed: {failedCount}</span>}
+              {failedCount > 0 && <span className="text-status-text-error">Failed: {failedCount}</span>}
             </div>
           </div>
         )}

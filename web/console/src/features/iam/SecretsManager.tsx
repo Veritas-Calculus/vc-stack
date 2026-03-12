@@ -71,7 +71,7 @@ export function SecretsManager() {
       render: (r) => (
         <div className="flex justify-end gap-2">
           <button
-            className="text-xs text-amber-400 hover:underline"
+            className="text-xs text-status-text-warning hover:underline"
             onClick={async () => {
               await rotateSecret(r.id)
               load()
@@ -80,7 +80,7 @@ export function SecretsManager() {
             Rotate
           </button>
           <button
-            className="text-xs text-red-400 hover:underline"
+            className="text-xs text-status-text-error hover:underline"
             onClick={async () => {
               if (confirm('Delete?')) {
                 await deleteSecret(r.id)

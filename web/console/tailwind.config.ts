@@ -36,7 +36,18 @@ export default {
           success: 'var(--status-success)',
           warning: 'var(--status-warning)',
           error: 'var(--status-error)',
-          info: 'var(--status-info)'
+          info: 'var(--status-info)',
+          // Text-level tokens (theme-adaptive readability)
+          link: 'var(--text-link)',
+          cyan: 'var(--text-cyan)',
+          purple: 'var(--text-purple)',
+          indigo: 'var(--text-indigo)',
+          orange: 'var(--text-orange)',
+          rose: 'var(--text-rose)',
+          'text-success': 'var(--text-success)',
+          'text-warning': 'var(--text-warning)',
+          'text-error': 'var(--text-error)',
+          'text-info': 'var(--text-info)'
         },
         // ── Legacy palettes (kept for backward compat during migration) ──
         oxide: {

@@ -101,8 +101,8 @@ export function ServiceCatalog() {
   }
 
   const provisionBadge = (type: string) => {
-    if (type === 'instant') return 'bg-emerald-500/20 text-emerald-400'
-    if (type === 'approval_required') return 'bg-amber-500/20 text-amber-400'
+    if (type === 'instant') return 'bg-emerald-500/20 text-status-text-success'
+    if (type === 'approval_required') return 'bg-amber-500/20 text-status-text-warning'
     return 'bg-gray-500/20 text-content-secondary'
   }
 
@@ -180,7 +180,7 @@ export function ServiceCatalog() {
                     <div className="flex items-center gap-2">
                       <h3 className="text-content-primary font-bold">{item.display_name}</h3>
                       {item.featured && (
-                        <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-400">
+                        <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-500/20 text-status-text-warning">
                           Featured
                         </span>
                       )}
@@ -189,7 +189,7 @@ export function ServiceCatalog() {
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="text-lg font-bold text-emerald-400">
+                  <div className="text-lg font-bold text-status-text-success">
                     {formatPrice(item.price_amount, item.price_unit)}
                   </div>
                   <div className="flex items-center gap-2 text-xs">
@@ -249,7 +249,7 @@ export function ServiceCatalog() {
             <div className="grid grid-cols-3 gap-4">
               <div className="bg-surface-hover rounded-lg p-4">
                 <h4 className="text-xs text-content-tertiary uppercase mb-2">Pricing</h4>
-                <div className="text-xl font-bold text-emerald-400">
+                <div className="text-xl font-bold text-status-text-success">
                   {formatPrice(selectedItem.price_amount, selectedItem.price_unit)}
                 </div>
               </div>
@@ -303,7 +303,7 @@ export function ServiceCatalog() {
               <h3 className="text-content-primary font-bold text-lg mb-1">{item.display_name}</h3>
               <p className="text-content-secondary text-sm mb-4 line-clamp-2">{item.description}</p>
               <div className="flex items-center justify-between">
-                <span className="text-emerald-400 font-bold">
+                <span className="text-status-text-success font-bold">
                   {formatPrice(item.price_amount, item.price_unit)}
                 </span>
                 <span className="text-content-tertiary text-xs">{item.deployments} deployed</span>
@@ -338,11 +338,11 @@ export function ServiceCatalog() {
                     const st = req.status as string
                     const stColor =
                       st === 'completed'
-                        ? 'text-emerald-400 bg-emerald-500/20'
+                        ? 'text-status-text-success bg-emerald-500/20'
                         : st === 'pending'
-                          ? 'text-amber-400 bg-amber-500/20'
+                          ? 'text-status-text-warning bg-amber-500/20'
                           : st === 'rejected'
-                            ? 'text-red-400 bg-red-500/20'
+                            ? 'text-status-text-error bg-red-500/20'
                             : 'text-content-secondary bg-gray-500/20'
                     return (
                       <tr key={req.id as string} className="border-t border-border">

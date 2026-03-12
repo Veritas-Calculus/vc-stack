@@ -138,7 +138,7 @@ export default function Migrations() {
                     </div>
                   )}
                   {m.error_message && (
-                    <div className="text-xs text-red-400 mt-1">{m.error_message}</div>
+                    <div className="text-xs text-status-text-error mt-1">{m.error_message}</div>
                   )}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
@@ -147,7 +147,7 @@ export default function Migrations() {
                   </span>
                   {['queued', 'preparing', 'migrating'].includes(m.status) && (
                     <button
-                      className="text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded bg-red-900/20"
+                      className="text-xs text-status-text-error hover:text-status-text-error px-2 py-1 rounded bg-red-900/20"
                       onClick={() => cancelMigration(m.uuid)}
                     >
                       Cancel

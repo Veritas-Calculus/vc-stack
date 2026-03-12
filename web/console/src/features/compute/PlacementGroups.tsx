@@ -36,7 +36,7 @@ export function PlacementGroups() {
   const stratBadge = (s: string) => {
     const c: Record<string, string> = {
       'anti-affinity': 'bg-blue-500/15 text-accent',
-      affinity: 'bg-purple-500/15 text-purple-400',
+      affinity: 'bg-purple-500/15 text-status-purple',
       'soft-anti-affinity': 'bg-zinc-600/20 text-zinc-400'
     }
     return (
@@ -62,7 +62,7 @@ export function PlacementGroups() {
       className: 'w-20 text-right',
       render: (r) => (
         <button
-          className="text-xs text-red-400 hover:underline"
+          className="text-xs text-status-text-error hover:underline"
           onClick={async () => {
             await deletePlacementGroup(r.id)
             load()

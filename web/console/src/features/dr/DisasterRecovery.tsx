@@ -153,26 +153,26 @@ export function DisasterRecovery() {
 
   const badge = (s: string) => {
     const m: Record<string, string> = {
-      active: 'bg-emerald-500/20 text-emerald-400',
+      active: 'bg-emerald-500/20 text-status-text-success',
       primary: 'bg-blue-500/20 text-accent',
-      warm_standby: 'bg-amber-500/20 text-amber-400',
+      warm_standby: 'bg-amber-500/20 text-status-text-warning',
       cold_standby: 'bg-gray-500/20 text-content-secondary',
-      offline: 'bg-red-500/20 text-red-400',
-      failover_active: 'bg-purple-500/20 text-purple-400',
-      degraded: 'bg-orange-500/20 text-orange-400',
-      critical: 'bg-red-500/20 text-red-400',
-      high: 'bg-orange-500/20 text-orange-400',
-      medium: 'bg-amber-500/20 text-amber-400',
+      offline: 'bg-red-500/20 text-status-text-error',
+      failover_active: 'bg-purple-500/20 text-status-purple',
+      degraded: 'bg-orange-500/20 text-status-orange',
+      critical: 'bg-red-500/20 text-status-text-error',
+      high: 'bg-orange-500/20 text-status-orange',
+      medium: 'bg-amber-500/20 text-status-text-warning',
       low: 'bg-gray-500/20 text-content-secondary',
-      completed: 'bg-emerald-500/20 text-emerald-400',
-      failed: 'bg-red-500/20 text-red-400',
+      completed: 'bg-emerald-500/20 text-status-text-success',
+      failed: 'bg-red-500/20 text-status-text-error',
       running: 'bg-blue-500/20 text-accent',
       sync: 'bg-blue-500/20 text-accent',
-      async: 'bg-cyan-500/20 text-cyan-400',
-      scheduled: 'bg-purple-500/20 text-purple-400',
-      failover: 'bg-red-500/20 text-red-400',
-      failback: 'bg-emerald-500/20 text-emerald-400',
-      switchover: 'bg-amber-500/20 text-amber-400'
+      async: 'bg-cyan-500/20 text-status-cyan',
+      scheduled: 'bg-purple-500/20 text-status-purple',
+      failover: 'bg-red-500/20 text-status-text-error',
+      failback: 'bg-emerald-500/20 text-status-text-success',
+      switchover: 'bg-amber-500/20 text-status-text-warning'
     }
     return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-content-secondary'}`
   }
@@ -240,21 +240,21 @@ export function DisasterRecovery() {
                 label: 'Active Plans',
                 value: String(status.active_plans),
                 icon: Icons.pencil('w-5 h-5'),
-                color: 'text-cyan-400',
+                color: 'text-status-cyan',
                 sub: 'RPO/RTO monitored'
               },
               {
                 label: 'Protected Resources',
                 value: String(status.protected_resources),
                 icon: Icons.shieldCheck('w-5 h-5'),
-                color: 'text-emerald-400',
+                color: 'text-status-text-success',
                 sub: 'replicated'
               },
               {
                 label: 'Failover Events',
                 value: String(status.failover_events),
                 icon: Icons.bolt('w-5 h-5'),
-                color: 'text-amber-400',
+                color: 'text-status-text-warning',
                 sub: 'total'
               }
             ].map((s) => (
@@ -314,7 +314,7 @@ export function DisasterRecovery() {
             {plans.length > 0 && (
               <div className="flex items-center justify-center gap-2 mt-4 text-content-secondary">
                 <span className="text-sm">{siteForId(plans[0].source_site_id)}</span>
-                <span className="text-cyan-400">
+                <span className="text-status-cyan">
                   &rarr;&rarr;&rarr; {plans[0].replication_type} replication &rarr;&rarr;&rarr;
                 </span>
                 <span className="text-sm">{siteForId(plans[0].target_site_id)}</span>
@@ -358,8 +358,8 @@ export function DisasterRecovery() {
                     <td className="px-4 py-3">
                       <span className={badge(p.priority)}>{p.priority}</span>
                     </td>
-                    <td className="px-4 py-3 text-cyan-400 font-mono">{p.rpo_minutes}m</td>
-                    <td className="px-4 py-3 text-amber-400 font-mono">{p.rto_minutes}m</td>
+                    <td className="px-4 py-3 text-status-cyan font-mono">{p.rpo_minutes}m</td>
+                    <td className="px-4 py-3 text-status-text-warning font-mono">{p.rto_minutes}m</td>
                     <td className="px-4 py-3">
                       <span className={badge(p.replication_type)}>{p.replication_type}</span>
                     </td>
@@ -447,11 +447,11 @@ export function DisasterRecovery() {
               <div className="grid grid-cols-5 gap-4 mb-3">
                 <div className="bg-surface-hover rounded-lg p-3 text-center">
                   <div className="text-content-tertiary text-xs mb-1">RPO Target</div>
-                  <div className="text-cyan-400 font-bold text-lg">{p.rpo_minutes}m</div>
+                  <div className="text-status-cyan font-bold text-lg">{p.rpo_minutes}m</div>
                 </div>
                 <div className="bg-surface-hover rounded-lg p-3 text-center">
                   <div className="text-content-tertiary text-xs mb-1">RTO Target</div>
-                  <div className="text-amber-400 font-bold text-lg">{p.rto_minutes}m</div>
+                  <div className="text-status-text-warning font-bold text-lg">{p.rto_minutes}m</div>
                 </div>
                 <div className="bg-surface-hover rounded-lg p-3 text-center">
                   <div className="text-content-tertiary text-xs mb-1">Replication</div>
@@ -459,12 +459,12 @@ export function DisasterRecovery() {
                 </div>
                 <div className="bg-surface-hover rounded-lg p-3 text-center">
                   <div className="text-content-tertiary text-xs mb-1">Protected</div>
-                  <div className="text-emerald-400 font-bold text-lg">{p.protected_count}</div>
+                  <div className="text-status-text-success font-bold text-lg">{p.protected_count}</div>
                 </div>
                 <div className="bg-surface-hover rounded-lg p-3 text-center">
                   <div className="text-content-tertiary text-xs mb-1">Current Lag</div>
                   <div
-                    className={`font-bold text-lg ${p.replication_lag_seconds < 30 ? 'text-emerald-400' : p.replication_lag_seconds < 60 ? 'text-amber-400' : 'text-red-400'}`}
+                    className={`font-bold text-lg ${p.replication_lag_seconds < 30 ? 'text-status-text-success' : p.replication_lag_seconds < 60 ? 'text-status-text-warning' : 'text-status-text-error'}`}
                   >
                     {p.replication_lag_seconds}s
                   </div>
@@ -519,7 +519,7 @@ export function DisasterRecovery() {
                     <div className="bg-surface-hover rounded-lg p-3 text-center">
                       <div className="text-content-tertiary text-xs mb-1">RPO Achieved</div>
                       <div
-                        className={`font-bold flex items-center gap-1 ${d.rpo_met ? 'text-emerald-400' : 'text-red-400'}`}
+                        className={`font-bold flex items-center gap-1 ${d.rpo_met ? 'text-status-text-success' : 'text-status-text-error'}`}
                       >
                         {d.rpo_achieved_minutes}m{' '}
                         {d.rpo_met ? Icons.checkCircle('w-4 h-4') : Icons.xCircle('w-4 h-4')}
@@ -528,7 +528,7 @@ export function DisasterRecovery() {
                     <div className="bg-surface-hover rounded-lg p-3 text-center">
                       <div className="text-content-tertiary text-xs mb-1">RTO Achieved</div>
                       <div
-                        className={`font-bold flex items-center gap-1 ${d.rto_met ? 'text-emerald-400' : 'text-red-400'}`}
+                        className={`font-bold flex items-center gap-1 ${d.rto_met ? 'text-status-text-success' : 'text-status-text-error'}`}
                       >
                         {d.rto_achieved_minutes}m{' '}
                         {d.rto_met ? Icons.checkCircle('w-4 h-4') : Icons.xCircle('w-4 h-4')}

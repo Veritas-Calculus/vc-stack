@@ -156,7 +156,7 @@ export default function QoSManagement() {
           className={`text-xs px-1.5 py-0.5 rounded ${
             r.direction === 'egress'
               ? 'bg-blue-900/30 text-accent'
-              : 'bg-purple-900/30 text-purple-400'
+              : 'bg-purple-900/30 text-status-purple'
           }`}
         >
           {r.direction === 'egress' ? 'Egress (Upload)' : 'Ingress (Download)'}
@@ -168,7 +168,7 @@ export default function QoSManagement() {
       header: 'Max Bandwidth',
       render: (r) => (
         <div>
-          <span className="font-mono text-emerald-400">{formatBandwidth(r.max_kbps)}</span>
+          <span className="font-mono text-status-text-success">{formatBandwidth(r.max_kbps)}</span>
           {r.max_burst_kb > 0 && (
             <span className="text-xs text-content-tertiary ml-1">
               (burst: {formatBandwidth(r.max_burst_kb)})
@@ -242,7 +242,7 @@ export default function QoSManagement() {
       />
 
       {error && (
-        <div className="p-3 bg-red-900/30 border border-red-800/50 rounded text-red-400 text-sm">
+        <div className="p-3 bg-red-900/30 border border-red-800/50 rounded text-status-text-error text-sm">
           {error}
         </div>
       )}
@@ -308,7 +308,7 @@ export default function QoSManagement() {
                 placeholder="e.g.: 100000 (100 Mbps)"
               />
               {maxKbps && (
-                <p className="text-xs text-emerald-400 mt-1">
+                <p className="text-xs text-status-text-success mt-1">
                   {formatBandwidth(parseInt(maxKbps) || 0)}
                 </p>
               )}
@@ -382,7 +382,7 @@ export default function QoSManagement() {
                 onChange={(e) => setEditKbps(e.target.value)}
               />
               {editKbps && (
-                <p className="text-xs text-emerald-400 mt-1">
+                <p className="text-xs text-status-text-success mt-1">
                   {formatBandwidth(parseInt(editKbps) || 0)}
                 </p>
               )}

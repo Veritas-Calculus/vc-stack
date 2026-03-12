@@ -199,7 +199,7 @@ export default function ConsoleViewer() {
                 Reboot
               </button>
               <button
-                className="btn-secondary text-rose-300 flex items-center gap-1.5"
+                className="btn-secondary text-status-rose flex items-center gap-1.5"
                 onClick={handleStop}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -287,13 +287,13 @@ export default function ConsoleViewer() {
                   height="24"
                   viewBox="0 0 24 24"
                   fill="currentColor"
-                  className="text-emerald-400"
+                  className="text-status-text-success"
                 >
                   <path d="M8 5v14l11-7z" />
                 </svg>
               </div>
               <div>
-                <p className="text-emerald-400 text-lg font-medium">Starting Instance…</p>
+                <p className="text-status-text-success text-lg font-medium">Starting Instance…</p>
                 <p className="text-content-tertiary text-sm mt-1">Waiting for the VM to boot up</p>
               </div>
               <div className="flex items-center justify-center gap-1">
@@ -337,7 +337,7 @@ export default function ConsoleViewer() {
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
-                  className="text-rose-400"
+                  className="text-status-rose"
                 >
                   <circle cx="12" cy="12" r="10" />
                   <line x1="15" y1="9" x2="9" y2="15" />
@@ -345,7 +345,7 @@ export default function ConsoleViewer() {
                 </svg>
               </div>
               <div>
-                <p className="text-rose-400 text-lg font-medium">Connection Failed</p>
+                <p className="text-status-rose text-lg font-medium">Connection Failed</p>
                 {errMsg && <p className="text-content-tertiary text-sm mt-1">{errMsg}</p>}
               </div>
               <div className="flex items-center justify-center gap-3">

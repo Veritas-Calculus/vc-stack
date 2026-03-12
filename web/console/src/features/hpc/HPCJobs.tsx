@@ -87,10 +87,10 @@ export function HPCJobs() {
   const statusBadge = (s: string) => {
     const m: Record<string, string> = {
       pending: 'bg-gray-500/20 text-content-secondary',
-      queued: 'bg-amber-500/20 text-amber-400',
+      queued: 'bg-amber-500/20 text-status-text-warning',
       running: 'bg-blue-500/20 text-accent animate-pulse',
-      completed: 'bg-emerald-500/20 text-emerald-400',
-      failed: 'bg-red-500/20 text-red-400',
+      completed: 'bg-emerald-500/20 text-status-text-success',
+      failed: 'bg-red-500/20 text-status-text-error',
       cancelled: 'bg-gray-500/20 text-content-tertiary'
     }
     return `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${m[s] || 'bg-gray-500/20 text-content-secondary'}`
@@ -99,7 +99,7 @@ export function HPCJobs() {
   const schedulerBadge = (s: string) => {
     const m: Record<string, string> = {
       kubernetes: 'bg-blue-500/15 text-accent border border-blue-500/30',
-      slurm: 'bg-orange-500/15 text-orange-400 border border-orange-500/30'
+      slurm: 'bg-orange-500/15 text-status-orange border border-orange-500/30'
     }
     return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-content-secondary'}`
   }
@@ -150,18 +150,18 @@ export function HPCJobs() {
             color: 'text-accent',
             dot: 'bg-blue-400 animate-pulse'
           },
-          { label: 'Queued', value: queuedCount, color: 'text-amber-400', dot: 'bg-amber-400' },
+          { label: 'Queued', value: queuedCount, color: 'text-status-text-warning', dot: 'bg-amber-400' },
           {
             label: 'Completed',
             value: completedCount,
-            color: 'text-emerald-400',
+            color: 'text-status-text-success',
             dot: 'bg-emerald-400'
           },
-          { label: 'Failed', value: failedCount, color: 'text-red-400', dot: 'bg-red-400' },
+          { label: 'Failed', value: failedCount, color: 'text-status-text-error', dot: 'bg-red-400' },
           {
             label: 'GPUs In Use',
             value: totalGPUsUsed,
-            color: 'text-purple-400',
+            color: 'text-status-purple',
             dot: 'bg-purple-400'
           }
         ].map((s) => (
@@ -256,13 +256,13 @@ export function HPCJobs() {
                       </span>
                       <span title="Memory">{Math.round(job.memory_mb / 1024)}GB</span>
                       {job.gpus > 0 && (
-                        <span className="text-purple-400 font-medium" title="GPUs">
+                        <span className="text-status-purple font-medium" title="GPUs">
                           {Icons.cpu('w-3.5 h-3.5 inline')} {job.gpus} GPU{job.gpus > 1 ? 's' : ''}
-                          {job.gpu_type && <span className="text-purple-300"> {job.gpu_type}</span>}
+                          {job.gpu_type && <span className="text-status-purple"> {job.gpu_type}</span>}
                         </span>
                       )}
                       {job.nodes > 1 && (
-                        <span className="text-cyan-400" title="Nodes">
+                        <span className="text-status-cyan" title="Nodes">
                           {job.nodes} nodes
                         </span>
                       )}
@@ -294,7 +294,7 @@ export function HPCJobs() {
                             e.stopPropagation()
                             cancelJob(job.id)
                           }}
-                          className="text-red-400 hover:text-red-300 text-xs transition"
+                          className="text-status-text-error hover:text-status-text-error text-xs transition"
                           title="Cancel"
                         >
                           {Icons.xMark('w-4 h-4')}
@@ -347,7 +347,7 @@ export function HPCJobs() {
           {selectedJob.image && (
             <div className="mt-3 bg-surface-hover rounded-lg p-3">
               <div className="text-content-tertiary text-xs mb-1">Container Image</div>
-              <div className="text-cyan-400 font-mono text-xs">{selectedJob.image}</div>
+              <div className="text-status-cyan font-mono text-xs">{selectedJob.image}</div>
             </div>
           )}
           {selectedJob.script && (
@@ -468,7 +468,7 @@ function SubmitJobModal({
                     scheduler === s
                       ? s === 'kubernetes'
                         ? 'bg-blue-600/20 border-blue-500/40 text-accent'
-                        : 'bg-orange-600/20 border-orange-500/40 text-orange-400'
+                        : 'bg-orange-600/20 border-orange-500/40 text-status-orange'
                       : 'bg-surface-hover border-gray-600/30 text-content-tertiary hover:text-content-secondary'
                   }`}
                 >

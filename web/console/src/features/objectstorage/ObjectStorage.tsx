@@ -138,8 +138,8 @@ export function ObjectStorage() {
 
   const aclColor = (acl: string) => {
     if (acl === 'private') return 'bg-gray-500/15 text-content-secondary'
-    if (acl === 'public-read') return 'bg-amber-500/15 text-amber-400'
-    if (acl === 'public-read-write') return 'bg-red-500/15 text-red-400'
+    if (acl === 'public-read') return 'bg-amber-500/15 text-status-text-warning'
+    if (acl === 'public-read-write') return 'bg-red-500/15 text-status-text-error'
     return 'bg-blue-500/15 text-accent'
   }
 
@@ -300,7 +300,7 @@ export function ObjectStorage() {
                           </td>
                           <td className="px-4 py-3 text-center">
                             {b.versioning ? (
-                              <span className="px-2 py-0.5 rounded text-xs bg-emerald-500/15 text-emerald-400">
+                              <span className="px-2 py-0.5 rounded text-xs bg-emerald-500/15 text-status-text-success">
                                 On
                               </span>
                             ) : (
@@ -312,7 +312,7 @@ export function ObjectStorage() {
                           <td className="px-4 py-3 text-right">
                             <button
                               onClick={() => handleDeleteBucket(b.id)}
-                              className="px-2 py-1 rounded text-xs text-content-secondary hover:text-red-400 hover:bg-red-500/10"
+                              className="px-2 py-1 rounded text-xs text-content-secondary hover:text-status-text-error hover:bg-red-500/10"
                             >
                               Delete
                             </button>
@@ -353,7 +353,7 @@ export function ObjectStorage() {
                           </td>
                           <td className="px-4 py-3 text-content-secondary text-xs">{c.rgw_user || '—'}</td>
                           <td className="px-4 py-3">
-                            <span className="px-2 py-0.5 rounded text-xs bg-emerald-500/15 text-emerald-400">
+                            <span className="px-2 py-0.5 rounded text-xs bg-emerald-500/15 text-status-text-success">
                               {c.status}
                             </span>
                           </td>
@@ -363,7 +363,7 @@ export function ObjectStorage() {
                           <td className="px-4 py-3 text-right">
                             <button
                               onClick={() => handleDeleteCredential(c.id)}
-                              className="px-2 py-1 rounded text-xs text-content-secondary hover:text-red-400 hover:bg-red-500/10"
+                              className="px-2 py-1 rounded text-xs text-content-secondary hover:text-status-text-error hover:bg-red-500/10"
                             >
                               Revoke
                             </button>
@@ -454,7 +454,7 @@ export function ObjectStorage() {
         <Modal title="New S3 Access Key Created" onClose={() => setNewSecret(null)}>
           <div className="space-y-4">
             <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/30">
-              <p className="text-sm text-amber-300">
+              <p className="text-sm text-status-text-warning">
                 Save these credentials now. The secret key will not be shown again.
               </p>
             </div>
@@ -552,7 +552,7 @@ function Field({
   return (
     <div>
       <label className="block text-sm font-medium text-content-secondary mb-1.5">
-        {label} {required && <span className="text-red-400">*</span>}
+        {label} {required && <span className="text-status-text-error">*</span>}
       </label>
       {children}
     </div>

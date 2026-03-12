@@ -273,7 +273,7 @@ export function Instances() {
         <span className="font-mono text-xs">
           {r.ip_address || ''}
           {r.floating_ip && (
-            <span className="ml-1 text-emerald-400" title="Floating IP">
+            <span className="ml-1 text-status-text-success" title="Floating IP">
               ({r.floating_ip})
             </span>
           )}
@@ -479,7 +479,7 @@ export function Instances() {
                 </svg>
               </button>
               <button
-                className="icon-btn text-rose-300"
+                className="icon-btn text-status-rose"
                 aria-label="Destroy instance"
                 title="Destroy instance"
                 onClick={async () => {
@@ -508,7 +508,7 @@ export function Instances() {
                 </svg>
               </button>
               <button
-                className="icon-btn text-rose-500"
+                className="icon-btn text-status-rose"
                 aria-label="Force delete (orphaned VMs)"
                 title="Force delete - removes database records for VMs stuck in 'deleting' state"
                 onClick={async () => {

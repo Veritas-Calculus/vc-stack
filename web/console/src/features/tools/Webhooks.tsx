@@ -221,13 +221,13 @@ export function Webhooks() {
                   </button>
                   <button
                     onClick={() => handleToggle(wh)}
-                    className="px-2 py-1 rounded text-xs text-content-secondary hover:text-amber-400 hover:bg-amber-500/10"
+                    className="px-2 py-1 rounded text-xs text-content-secondary hover:text-status-text-warning hover:bg-amber-500/10"
                   >
                     {wh.enabled ? 'Pause' : 'Resume'}
                   </button>
                   <button
                     onClick={() => handleDelete(wh.id)}
-                    className="px-2 py-1 rounded text-xs text-content-secondary hover:text-red-400 hover:bg-red-500/10"
+                    className="px-2 py-1 rounded text-xs text-content-secondary hover:text-status-text-error hover:bg-red-500/10"
                   >
                     Delete
                   </button>

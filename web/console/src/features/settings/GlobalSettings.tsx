@@ -286,7 +286,7 @@ function SettingRow({
               </span>
             )}
             {isModified && (
-              <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/20">
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-500/20 text-status-text-warning border border-amber-500/20">
                 modified
               </span>
             )}
@@ -351,7 +351,7 @@ function SettingRow({
             {isModified && !setting.read_only && (
               <button
                 onClick={onReset}
-                className="px-2 py-1 rounded text-xs text-content-tertiary hover:text-amber-400 hover:bg-amber-500/10 transition-colors"
+                className="px-2 py-1 rounded text-xs text-content-tertiary hover:text-status-text-warning hover:bg-amber-500/10 transition-colors"
                 title={`Reset to: ${setting.default_value}`}
               >
                 Reset
@@ -368,7 +368,7 @@ function ValueDisplay({ value, dataType }: { value: string; dataType: string }) 
   if (dataType === 'boolean') {
     return (
       <span
-        className={`px-2 py-0.5 rounded text-xs font-medium ${value === 'true' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-gray-500/15 text-content-secondary'}`}
+        className={`px-2 py-0.5 rounded text-xs font-medium ${value === 'true' ? 'bg-emerald-500/15 text-status-text-success' : 'bg-gray-500/15 text-content-secondary'}`}
       >
         {value}
       </span>
