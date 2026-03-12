@@ -126,7 +126,7 @@ export default function Migrations() {
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-400">
                     <span className="font-mono">{m.source_host_name || 'unknown'}</span>
-                    <span className="text-blue-400">→</span>
+                    <span className="text-blue-400">-></span>
                     <span className="font-mono">{m.dest_host_name || 'unknown'}</span>
                   </div>
                   {(m.status === 'migrating' || m.status === 'preparing') && (

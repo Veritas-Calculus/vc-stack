@@ -4,7 +4,7 @@ const shortcuts = [
   {
     section: 'Navigation',
     items: [
-      { keys: ['⌘', 'K'], description: 'Open command palette' },
+      { keys: ['Cmd', 'K'], description: 'Open command palette' },
       { keys: ['G', 'D'], description: 'Go to Dashboard' },
       { keys: ['G', 'I'], description: 'Go to Instances' },
       { keys: ['G', 'V'], description: 'Go to Volumes' },

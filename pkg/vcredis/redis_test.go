@@ -9,7 +9,7 @@ import (
 func testLogger() *zap.Logger { return zap.NewNop() }
 
 func TestConfigValidation(t *testing.T) {
-	// Neither addr nor sentinel_addrs set → should fail.
+	// Neither addr nor sentinel_addrs set -> should fail.
 	cfg := Config{}
 	_, err := NewManager(cfg, testLogger())
 	if err == nil {

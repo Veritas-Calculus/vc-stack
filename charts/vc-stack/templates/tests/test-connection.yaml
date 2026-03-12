@@ -18,10 +18,10 @@ spec:
           RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
             http://{{ include "vc-stack.fullname" . }}-management:{{ .Values.management.service.port }}/api/identity/health)
           if [ "$RESPONSE" = "200" ]; then
-            echo "✅ Health check passed (HTTP $RESPONSE)"
+            echo "[PASS] Health check passed (HTTP $RESPONSE)"
             exit 0
           else
-            echo "❌ Health check failed (HTTP $RESPONSE)"
+            echo "[FAIL] Health check failed (HTTP $RESPONSE)"
             exit 1
           fi
   restartPolicy: Never

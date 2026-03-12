@@ -153,7 +153,7 @@ func TestBuildUserSyncPlan(t *testing.T) {
 		t.Errorf("expected cluster_id=sc-sync, got %s", plan.ClusterID)
 	}
 
-	// alice exists → update, bob is new → add, charlie suspended → skip
+	// alice exists -> update, bob is new -> add, charlie suspended -> skip
 	if len(plan.UsersToAdd) != 1 {
 		t.Errorf("expected 1 user to add, got %d", len(plan.UsersToAdd))
 	}
@@ -168,7 +168,7 @@ func TestBuildUserSyncPlan(t *testing.T) {
 		t.Errorf("expected alice to be updated, got %s", plan.UsersToUpdate[0].Name)
 	}
 
-	// old-user not in mappings → remove
+	// old-user not in mappings -> remove
 	if len(plan.UsersToRemove) != 1 {
 		t.Errorf("expected 1 user to remove, got %d", len(plan.UsersToRemove))
 	}
@@ -176,12 +176,12 @@ func TestBuildUserSyncPlan(t *testing.T) {
 		t.Errorf("expected old-user to be removed, got %s", plan.UsersToRemove[0])
 	}
 
-	// Both alice and bob map to proj-ml → 1 unique account
+	// Both alice and bob map to proj-ml -> 1 unique account
 	if len(plan.AccountsToAdd) != 1 {
 		t.Errorf("expected 1 account, got %d", len(plan.AccountsToAdd))
 	}
 
-	// alice has 2 partitions → 2 assocs, bob has no partition → 1 assoc
+	// alice has 2 partitions -> 2 assocs, bob has no partition -> 1 assoc
 	if plan.AssocChanges != 3 {
 		t.Errorf("expected 3 association changes, got %d", plan.AssocChanges)
 	}

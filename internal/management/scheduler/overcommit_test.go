@@ -36,7 +36,7 @@ func setupOvercommitService(t *testing.T, db *gorm.DB, oc OvercommitConfig) *Ser
 func TestOvercommit_CPURatio(t *testing.T) {
 	db := setupOvercommitDB(t)
 
-	// Host with 4 cores, 3 allocated → 1 free physical core.
+	// Host with 4 cores, 3 allocated -> 1 free physical core.
 	seedHosts(t, db, []models.Host{
 		{
 			UUID: "host-1", Name: "node-1", Hostname: "n1", IPAddress: "10.0.0.1",
@@ -48,7 +48,7 @@ func TestOvercommit_CPURatio(t *testing.T) {
 
 	t.Run("no overcommit rejects", func(t *testing.T) {
 		svc := setupOvercommitService(t, db, OvercommitConfig{CPURatio: 1.0, RAMRatio: 1.0, DiskRatio: 1.0})
-		// Need 4 vCPUs but only 1 free → should fail.
+		// Need 4 vCPUs but only 1 free -> should fail.
 		host, _ := svc.selectHost(ScheduleRequest{VCPUs: 4, RAMMB: 1024, DiskGB: 10})
 		if host != nil {
 			t.Error("expected nil host without overcommit")
@@ -57,7 +57,7 @@ func TestOvercommit_CPURatio(t *testing.T) {
 
 	t.Run("4x overcommit allows", func(t *testing.T) {
 		svc := setupOvercommitService(t, db, OvercommitConfig{CPURatio: 4.0, RAMRatio: 1.0, DiskRatio: 1.0})
-		// Effective capacity: 4 * 4.0 = 16 vCPUs, 3 allocated → 13 free. Need 4 → OK.
+		// Effective capacity: 4 * 4.0 = 16 vCPUs, 3 allocated -> 13 free. Need 4 -> OK.
 		host, resp := svc.selectHost(ScheduleRequest{VCPUs: 4, RAMMB: 1024, DiskGB: 10})
 		if host == nil {
 			t.Fatalf("expected host with 4x CPU overcommit, got nil: %s", resp.Reason)
@@ -91,7 +91,7 @@ func TestOvercommit_RAMRatio(t *testing.T) {
 
 	t.Run("1.5x overcommit allows", func(t *testing.T) {
 		svc := setupOvercommitService(t, db, OvercommitConfig{CPURatio: 1.0, RAMRatio: 1.5, DiskRatio: 1.0})
-		// Effective RAM: 8192 * 1.5 = 12288 MB. 7000 allocated → 5288 free. Need 4096 → OK.
+		// Effective RAM: 8192 * 1.5 = 12288 MB. 7000 allocated -> 5288 free. Need 4096 -> OK.
 		host, resp := svc.selectHost(ScheduleRequest{VCPUs: 1, RAMMB: 4096, DiskGB: 10})
 		if host == nil {
 			t.Fatalf("expected host with 1.5x RAM overcommit, got nil: %s", resp.Reason)

@@ -369,7 +369,7 @@ export function GPUResources() {
                     key={i}
                     className="px-2 py-1 bg-purple-500/10 text-purple-400 text-xs rounded font-mono"
                   >
-                    GPU{pair.gpu0} ↔ GPU{pair.gpu1}
+                    GPU{pair.gpu0} - GPU{pair.gpu1}
                   </span>
                 ))}
               </div>

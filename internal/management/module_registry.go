@@ -177,7 +177,7 @@ func (r *ModuleRegistry) topologicalSort() ([]ModuleDescriptor, error) {
 
 	// Kahn's algorithm.
 	inDegree := make(map[string]int)
-	dependents := make(map[string][]string) // dep → list of modules that depend on it
+	dependents := make(map[string][]string) // dep -> list of modules that depend on it
 	for _, d := range r.descriptors {
 		if _, ok := inDegree[d.Name]; !ok {
 			inDegree[d.Name] = 0

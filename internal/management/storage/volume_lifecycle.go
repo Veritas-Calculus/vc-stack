@@ -74,7 +74,7 @@ func (s *Service) attachVolume(c *gin.Context) {
 		}
 	}
 
-	// State transition: available → attaching.
+	// State transition: available -> attaching.
 	if err := s.transitionVolume(&volume, "attaching"); err != nil {
 		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return
@@ -135,7 +135,7 @@ func (s *Service) detachVolume(c *gin.Context) {
 	}
 	_ = c.ShouldBindJSON(&req)
 
-	// State transition: in-use → detaching.
+	// State transition: in-use -> detaching.
 	if err := s.transitionVolume(&volume, "detaching"); err != nil {
 		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return
@@ -326,7 +326,7 @@ func (s *Service) provisionVolumeBackend(volume *models.Volume, offering *models
 		s.logger.Info("provisioning volume from snapshot",
 			zap.Uint("volume_id", volume.ID),
 			zap.Uint("snapshot_id", *snapID))
-		// In production: rbd clone pool/snap@snap → pool/imageName && rbd flatten
+		// In production: rbd clone pool/snap@snap -> pool/imageName && rbd flatten
 		provErr = nil // placeholder — real RBD call in compute node
 	} else if imageID != nil {
 		// Copy from image (RBD copy).
@@ -444,7 +444,7 @@ func (s *Service) cloneVolume(c *gin.Context) {
 		return
 	}
 
-	// In production: rbd deep-copy pool/src → pool/clone
+	// In production: rbd deep-copy pool/src -> pool/clone
 	go func() {
 		s.logger.Info("cloning volume",
 			zap.Uint("source", srcVolume.ID),

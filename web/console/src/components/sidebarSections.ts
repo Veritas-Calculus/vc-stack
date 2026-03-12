@@ -2,8 +2,8 @@
  * Sidebar navigation sections — extracted from Layout.tsx for clarity.
  *
  * Groups follow a CloudStack-inspired hierarchy:
- *   Dashboard → Compute → Storage → Network → Images →
- *   Infrastructure → Security → Service Offerings → Administration
+ *   Dashboard -> Compute -> Storage -> Network -> Images ->
+ *   Infrastructure -> Security -> Service Offerings -> Administration
  */
 
 export type LinkItem = { type: 'link'; to: string; label: string }

@@ -352,7 +352,7 @@ func (s *Service) evacuateHostInternal(hostUUID, hostName, trigger string) {
 		var haCfg InstanceHAConfig
 		err := s.db.Where("instance_id = ?", inst.ID).First(&haCfg).Error
 		if err != nil {
-			// No HA config → use default (HA enabled, priority 0).
+			// No HA config -> use default (HA enabled, priority 0).
 			targets = append(targets, evacuationTarget{
 				InstanceID:   inst.ID,
 				InstanceName: inst.Name,

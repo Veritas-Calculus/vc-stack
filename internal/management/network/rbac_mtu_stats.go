@@ -88,7 +88,7 @@ func (s *Service) createNetworkRBACPolicy(c *gin.Context) {
 		return
 	}
 
-	s.emitNetworkAudit("rbac_policy.create", policy.ID, req.NetworkID+" → "+req.TargetTenant)
+	s.emitNetworkAudit("rbac_policy.create", policy.ID, req.NetworkID+" -> "+req.TargetTenant)
 	c.JSON(http.StatusCreated, gin.H{"rbac_policy": policy})
 }
 

@@ -165,10 +165,10 @@ func TestVolumeStateMachine_ValidTransitions(t *testing.T) {
 		vol := &models.Volume{Status: tc.from}
 		err := svc.transitionVolume(vol, tc.to)
 		if tc.valid && err != nil {
-			t.Errorf("%s → %s should be valid, got error: %v", tc.from, tc.to, err)
+			t.Errorf("%s -> %s should be valid, got error: %v", tc.from, tc.to, err)
 		}
 		if !tc.valid && err == nil {
-			t.Errorf("%s → %s should be invalid, got no error", tc.from, tc.to)
+			t.Errorf("%s -> %s should be invalid, got no error", tc.from, tc.to)
 		}
 	}
 }

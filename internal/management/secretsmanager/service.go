@@ -116,7 +116,7 @@ func (s *Service) PutValue(id uint, newValue string) (*SecretVersion, error) {
 
 	var v SecretVersion
 	return &v, s.db.Transaction(func(tx *gorm.DB) error {
-		// Mark current → previous
+		// Mark current -> previous
 		tx.Model(&SecretVersion{}).Where("secret_id = ? AND status = ?", id, "current").Update("status", "previous")
 		// Create new
 		newVer := sec.VersionID + 1

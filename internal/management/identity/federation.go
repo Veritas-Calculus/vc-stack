@@ -270,7 +270,7 @@ func (s *Service) handleOIDCCallback(c *gin.Context, provider *IdentityProvider)
 		return
 	}
 
-	// 4. Apply group → role mappings.
+	// 4. Apply group -> role mappings.
 	if len(userInfo.Groups) > 0 {
 		s.applyGroupRoleMappings(provider, user, userInfo.Groups)
 	}

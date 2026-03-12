@@ -369,7 +369,7 @@ function TreeItem({
 function QuotaCard({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-lg border border-oxide-700 bg-oxide-800/50 p-3 text-center">
-      <div className="text-lg font-semibold text-white">{value === 0 ? '∞' : value}</div>
+      <div className="text-lg font-semibold text-white">{value === 0 ? 'Unlimited' : value}</div>
       <div className="text-xs text-gray-500">{label}</div>
     </div>
   )

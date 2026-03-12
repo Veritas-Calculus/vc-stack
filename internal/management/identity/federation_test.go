@@ -493,7 +493,7 @@ func TestGroupRoleMappingApplication(t *testing.T) {
 	}
 	svc.db.Create(idp)
 
-	// Create mapping: "devops" → viewer role.
+	// Create mapping: "devops" -> viewer role.
 	mapping := &IDPRoleMapping{
 		ProviderID:    idp.ID,
 		ExternalGroup: "devops",

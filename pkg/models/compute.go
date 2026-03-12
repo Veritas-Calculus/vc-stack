@@ -97,10 +97,10 @@ func (Instance) TableName() string {
 }
 
 // Volume represents a block storage volume.
-// Status lifecycle: creating → available → attaching → in-use → detaching → available
+// Status lifecycle: creating -> available -> attaching -> in-use -> detaching -> available
 //
-//	creating → error
-//	available → deleting → deleted
+//	creating -> error
+//	available -> deleting -> deleted
 type Volume struct {
 	ID               uint          `gorm:"primaryKey" json:"id"`
 	Name             string        `gorm:"not null" json:"name"`

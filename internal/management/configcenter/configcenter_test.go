@@ -134,7 +134,7 @@ func TestUpdateItem(t *testing.T) {
 	}
 	h := history[0].(map[string]interface{})
 	if h["old_value"] != "info" || h["new_value"] != "debug" {
-		t.Error("expected info → debug")
+		t.Error("expected info -> debug")
 	}
 }
 

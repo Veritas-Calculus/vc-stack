@@ -25,7 +25,7 @@ const (
 )
 
 // IsAirgapped returns true if the platform is running in airgap mode.
-// Detection order: env var → marker file.
+// Detection order: env var -> marker file.
 func IsAirgapped() bool {
 	if v := os.Getenv(EnvAirgapMode); v == "true" || v == "1" {
 		return true

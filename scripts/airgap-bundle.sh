@@ -34,16 +34,16 @@ cd "$ROOT_DIR"
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o "$BUNDLE_DIR/bin/vc-management" ./cmd/vc-management/
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o "$BUNDLE_DIR/bin/vc-compute" ./cmd/vc-compute/
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o "$BUNDLE_DIR/bin/vcctl" ./cmd/vcctl/
-echo "  ✓ 3 binaries built"
+echo "  [OK] 3 binaries built"
 
 # ── 2. Frontend assets ────────────────────────────────────────
 echo "[2/5] Building frontend..."
 if [ -d "$ROOT_DIR/web/console" ]; then
   cd "$ROOT_DIR/web/console"
-  npm run build 2>/dev/null || echo "  ⚠ Frontend build skipped (missing deps)"
+  npm run build 2>/dev/null || echo "  [WARN] Frontend build skipped (missing deps)"
   if [ -d dist ]; then
     cp -r dist/ "$ROOT_DIR/$BUNDLE_DIR/web/"
-    echo "  ✓ Frontend assets copied"
+    echo "  [OK] Frontend assets copied"
   fi
 fi
 
@@ -52,16 +52,16 @@ echo "[3/5] Collecting configs and migrations..."
 cd "$ROOT_DIR"
 cp -r configs/ "$BUNDLE_DIR/configs/" 2>/dev/null || true
 cp -r migrations/ "$BUNDLE_DIR/migrations/" 2>/dev/null || true
-echo "  ✓ Configs and migrations copied"
+echo "  [OK] Configs and migrations copied"
 
 # ── 4. OS images (if available) ───────────────────────────────
 echo "[4/5] Collecting OS images..."
 IMAGE_DIR="/var/lib/vc-stack/images"
 if [ -d "$IMAGE_DIR" ]; then
   cp "$IMAGE_DIR"/*.{qcow2,raw,iso} "$BUNDLE_DIR/images/" 2>/dev/null || true
-  echo "  ✓ OS images copied from $IMAGE_DIR"
+  echo "  [OK] OS images copied from $IMAGE_DIR"
 else
-  echo "  ⚠ No OS images found at $IMAGE_DIR (skipped)"
+  echo "  [WARN] No OS images found at $IMAGE_DIR (skipped)"
 fi
 
 # ── 5. Create manifest ────────────────────────────────────────
@@ -79,7 +79,7 @@ cat > "$BUNDLE_DIR/manifest.json" <<EOF
   "os_images": []
 }
 EOF
-echo "  ✓ Manifest generated"
+echo "  [OK] Manifest generated"
 
 # ── Package ───────────────────────────────────────────────────
 echo ""

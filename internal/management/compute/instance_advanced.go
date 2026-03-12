@@ -14,8 +14,8 @@ import (
 )
 
 // ── Suspend / Resume (C4.1) ─────────────────────────────────
-// POST /instances/:id/suspend  → QEMU savevm (state to disk)
-// POST /instances/:id/resume   → QEMU loadvm
+// POST /instances/:id/suspend  -> QEMU savevm (state to disk)
+// POST /instances/:id/resume   -> QEMU loadvm
 
 func (s *Service) suspendInstance(c *gin.Context) {
 	id := c.Param("id")
@@ -94,8 +94,8 @@ func (s *Service) resumeInstance(c *gin.Context) {
 }
 
 // ── Shelve / Unshelve (C4.2) ────────────────────────────────
-// POST /instances/:id/shelve   → snapshot root disk, release compute resources
-// POST /instances/:id/unshelve → restore from snapshot, acquire compute resources
+// POST /instances/:id/shelve   -> snapshot root disk, release compute resources
+// POST /instances/:id/unshelve -> restore from snapshot, acquire compute resources
 
 func (s *Service) shelveInstance(c *gin.Context) {
 	id := c.Param("id")
@@ -185,8 +185,8 @@ func (s *Service) unshelveInstance(c *gin.Context) {
 }
 
 // ── ISO Attach / Detach (C4.3) ──────────────────────────────
-// POST   /instances/:id/iso  → attach ISO as CDROM
-// DELETE /instances/:id/iso  → eject CDROM
+// POST   /instances/:id/iso  -> attach ISO as CDROM
+// DELETE /instances/:id/iso  -> eject CDROM
 
 func (s *Service) attachISO(c *gin.Context) {
 	id := c.Param("id")

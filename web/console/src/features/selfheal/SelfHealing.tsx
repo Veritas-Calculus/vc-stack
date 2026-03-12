@@ -226,7 +226,7 @@ export function SelfHealing() {
                 <div key={p.id as string} className="bg-gray-700/20 rounded-lg p-3">
                   <div className="text-white text-sm font-medium mb-1">{p.name as string}</div>
                   <div className="text-xs text-gray-500">
-                    {p.resource_type as string} → {p.action as string}
+                    {p.resource_type as string} -> {p.action as string}
                   </div>
                   <div className="text-xs text-gray-500 mt-1">
                     P{p.priority as number} • {p.cooldown_min as number}m cooldown
@@ -298,7 +298,7 @@ export function SelfHealing() {
                     <span className={badge(p.trigger_status as string)}>
                       {p.trigger_status as string}
                     </span>{' '}
-                    on <span className="text-cyan-400">{p.resource_type as string}</span> →{' '}
+                    on <span className="text-cyan-400">{p.resource_type as string}</span> ->{' '}
                     <span className="text-amber-400">{p.action as string}</span>
                   </div>
                 </div>
@@ -312,7 +312,7 @@ export function SelfHealing() {
                       <div className="text-orange-400">
                         Escalate after {String(p.escalate_after)} fails
                       </div>
-                      <div>→ {String(p.escalate_action)}</div>
+                      <div>-> {String(p.escalate_action)}</div>
                     </div>
                   )}
                   <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400">

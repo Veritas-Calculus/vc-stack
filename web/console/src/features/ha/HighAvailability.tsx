@@ -381,7 +381,7 @@ export function HighAvailability() {
                     <div className="flex items-center gap-4 text-xs text-gray-400">
                       <span className="text-emerald-400">{e.evacuated} done</span>
                       {e.failed > 0 && <span className="text-red-400">{e.failed} fail</span>}
-                      {e.skipped > 0 && <span className="text-gray-400">{e.skipped} ⊘</span>}
+                      {e.skipped > 0 && <span className="text-gray-400">{e.skipped} skipped</span>}
                       <span>{formatTime(e.started_at)}</span>
                     </div>
                   </div>
@@ -571,7 +571,7 @@ export function HighAvailability() {
                     <td className="px-4 py-3 text-gray-300">
                       <span className="text-emerald-400">{e.evacuated}</span>
                       {e.failed > 0 && <span className="text-red-400 ml-1">/ {e.failed} fail</span>}
-                      {e.skipped > 0 && <span className="text-gray-500 ml-1">/ {e.skipped}⊘</span>}
+                      {e.skipped > 0 && <span className="text-gray-500 ml-1">/ {e.skipped}skipped</span>}
                       <span className="text-gray-500"> of {e.total_instances}</span>
                     </td>
                     <td className="px-4 py-3 text-gray-400 text-xs">{formatTime(e.started_at)}</td>
@@ -580,7 +580,7 @@ export function HighAvailability() {
                         ? `${Math.round((new Date(e.completed_at).getTime() - new Date(e.started_at).getTime()) / 1000)}s`
                         : '—'}
                     </td>
-                    <td className="px-4 py-3 text-blue-400 text-xs">Details →</td>
+                    <td className="px-4 py-3 text-blue-400 text-xs">Details -></td>
                   </tr>
                 ))}
               </tbody>

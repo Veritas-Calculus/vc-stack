@@ -50,7 +50,7 @@ func (i *IPAM) Allocate(subnet *Subnet, portID string) (string, error) {
 	}
 
 	// Batch-load all allocated IPs for this subnet in a single query,
-	// instead of checking each candidate IP individually (O(n) → O(1) DB queries).
+	// instead of checking each candidate IP individually (O(n) -> O(1) DB queries).
 	var allocations []IPAllocation
 	i.db.Where("subnet_id = ?", subnet.ID).Find(&allocations)
 	allocated := make(map[string]struct{}, len(allocations))

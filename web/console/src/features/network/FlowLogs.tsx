@@ -178,7 +178,7 @@ export function FlowLogs() {
                     <span className="text-zinc-300">
                       {f.src_ip}:{f.src_port}
                     </span>
-                    <span className="text-zinc-600">→</span>
+                    <span className="text-zinc-600">-></span>
                     <span className="text-zinc-300">
                       {f.dst_ip}:{f.dst_port}
                     </span>

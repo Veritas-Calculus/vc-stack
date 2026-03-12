@@ -153,7 +153,7 @@ fi
 echo "[entrypoint] Starting vc-compute..."
 
 # ------------------------------------------------------------------
-# 7. Cloud-init metadata service DNAT (169.254.169.254 → local proxy)
+# 7. Cloud-init metadata service DNAT (169.254.169.254 -> local proxy)
 # ------------------------------------------------------------------
 METADATA_PORT="${VC_METADATA_PORT:-8082}"
 if command -v iptables >/dev/null 2>&1; then
@@ -169,7 +169,7 @@ if command -v iptables >/dev/null 2>&1; then
     # Allow hairpin traffic (so DNAT to localhost works from external sources).
     sysctl -w net.ipv4.conf.all.route_localnet=1 >/dev/null 2>&1 || true
 
-    echo "[entrypoint] Metadata DNAT: 169.254.169.254:80 → 127.0.0.1:${METADATA_PORT}"
+    echo "[entrypoint] Metadata DNAT: 169.254.169.254:80 -> 127.0.0.1:${METADATA_PORT}"
 else
     echo "[entrypoint] WARNING: iptables not available, metadata service DNAT not configured"
 fi

@@ -349,7 +349,7 @@ func TestListInstanceActions_HTTP(t *testing.T) {
 	}
 }
 
-// ── C2.4 Snapshot → Volume ────────────────────────────────
+// ── C2.4 Snapshot -> Volume ────────────────────────────────
 
 func TestCreateVolumeFromSnapshot(t *testing.T) {
 	svc, db := setupTestService(t)

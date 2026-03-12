@@ -62,14 +62,14 @@ type ServiceAccount struct {
 	Policies []Policy `gorm:"many2many:service_account_policies;" json:"policies,omitempty"`
 }
 
-// ServiceAccountRole is the join table for service_account ↔ role.
+// ServiceAccountRole is the join table for service_account <-> role.
 type ServiceAccountRole struct {
 	ServiceAccountID uint      `gorm:"primaryKey" json:"service_account_id"`
 	RoleID           uint      `gorm:"primaryKey" json:"role_id"`
 	CreatedAt        time.Time `json:"created_at"`
 }
 
-// ServiceAccountPolicy is the join table for service_account ↔ policy.
+// ServiceAccountPolicy is the join table for service_account <-> policy.
 type ServiceAccountPolicy struct {
 	ServiceAccountID uint      `gorm:"primaryKey" json:"service_account_id"`
 	PolicyID         uint      `gorm:"primaryKey" json:"policy_id"`
@@ -607,8 +607,8 @@ func parseUserID(v interface{}) (uint, bool) {
 // either JWT Bearer tokens or VC-HMAC-SHA256 API key signatures.
 //
 // The middleware checks the Authorization header:
-//   - "Bearer {token}" → standard JWT auth
-//   - "VC-HMAC-SHA256 AccessKeyId=..., Timestamp=..., Signature=..." → API key auth
+//   - "Bearer {token}" -> standard JWT auth
+//   - "VC-HMAC-SHA256 AccessKeyId=..., Timestamp=..., Signature=..." -> API key auth
 func (s *Service) APIKeyAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")

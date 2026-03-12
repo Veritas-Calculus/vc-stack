@@ -1,8 +1,8 @@
 -- Migration 009: Fix zone/cluster/host architecture
 -- 1. Create infra_clusters table
--- 2. Fix hosts.zone_id and hosts.cluster_id types (uint → varchar to match infra_zones.id)
+-- 2. Fix hosts.zone_id and hosts.cluster_id types (uint -> varchar to match infra_zones.id)
 -- 3. Drop unused hosts.pod_id
--- 4. Fix hosts.management_port default (8091 → 8081)
+-- 4. Fix hosts.management_port default (8091 -> 8081)
 -- 5. Clean up zombie hosts (down for >1 day with no recent heartbeat)
 
 BEGIN;
@@ -19,12 +19,12 @@ CREATE TABLE IF NOT EXISTS infra_clusters (
     updated_at      TIMESTAMPTZ
 );
 
--- 2. Fix hosts.zone_id type: integer → varchar(36)
+-- 2. Fix hosts.zone_id type: integer -> varchar(36)
 -- Drop old column and re-add with correct type
 ALTER TABLE hosts DROP COLUMN IF EXISTS zone_id;
 ALTER TABLE hosts ADD COLUMN zone_id VARCHAR(36);
 
--- 3. Fix hosts.cluster_id type: integer → varchar(36) + add FK
+-- 3. Fix hosts.cluster_id type: integer -> varchar(36) + add FK
 ALTER TABLE hosts DROP COLUMN IF EXISTS cluster_id;
 ALTER TABLE hosts ADD COLUMN cluster_id VARCHAR(36);
 

@@ -976,7 +976,7 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
                     {evt.message}
                   </div>
                 ))}
-                {deploying && <div className="text-xs text-blue-400 animate-pulse py-0.5">▋</div>}
+                {deploying && <div className="text-xs text-blue-400 animate-pulse py-0.5">...</div>}
               </div>
 
               {/* Done actions */}

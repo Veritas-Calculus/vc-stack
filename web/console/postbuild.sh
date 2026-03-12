@@ -28,7 +28,7 @@ if [ -f "$DIST_DIR/novnc.html" ]; then
         # Linux
         sed -i "s|/assets/novnc.js|/assets/$NOVNC_FILENAME|g" "$DIST_DIR/novnc.html"
     fi
-    echo "✓ 已更新 novnc.html 中的引用"
+    echo "[OK] 已更新 novnc.html 中的引用"
 else
     echo "警告: 未找到 $DIST_DIR/novnc.html"
 fi

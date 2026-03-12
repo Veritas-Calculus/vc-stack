@@ -93,7 +93,7 @@ func TestVMConfig_WithDriveRateLimit_NoDrives(t *testing.T) {
 	cfg := &VMConfig{}
 	// Should not panic when Drives is empty.
 	cfg.WithDriveRateLimit(100, 100)
-	// No drives → no rate limiter to set.
+	// No drives -> no rate limiter to set.
 }
 
 func TestVMConfig_Chaining(t *testing.T) {

@@ -138,7 +138,7 @@ func TestVRN_Roundtrip(t *testing.T) {
 			}
 			roundtrip := parsed.String()
 			if roundtrip != s {
-				t.Errorf("roundtrip failed: %q → %q", s, roundtrip)
+				t.Errorf("roundtrip failed: %q -> %q", s, roundtrip)
 			}
 		})
 	}

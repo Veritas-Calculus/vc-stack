@@ -72,7 +72,7 @@ func AllVRN() VRN {
 // String returns the canonical string representation of the VRN.
 func (v VRN) String() string {
 	projectPart := v.ProjectID
-	// Global resources: project is empty → empty segment
+	// Global resources: project is empty -> empty segment
 	return fmt.Sprintf("%s:%s:%s:%s:%s/%s",
 		VRNPrefix, v.Partition, v.Service, projectPart, v.ResourceType, v.ResourceID)
 }
@@ -137,7 +137,7 @@ func ParseVRN(s string) (VRN, error) {
 }
 
 // splitResource splits "type/id" into separate components.
-// Handles wildcards: "*" → ("*", "*"), "type/*" → ("type", "*").
+// Handles wildcards: "*" -> ("*", "*"), "type/*" -> ("type", "*").
 func splitResource(s string) (string, string, error) {
 	if s == "*" || s == "*/*" {
 		return "*", "*", nil

@@ -79,7 +79,7 @@ func (s *Service) rebuildInstance(c *gin.Context) {
 		instance.RootDiskGB = req.RootDiskGB
 	}
 
-	// Execute rebuild asynchronously: stop → delete VM → create VM.
+	// Execute rebuild asynchronously: stop -> delete VM -> create VM.
 	go s.executeRebuild(context.Background(), &instance, &instance.Flavor, &newImage)
 
 	s.emitEvent("action", instance.UUID, "rebuild", "initiated", "", map[string]interface{}{
@@ -371,8 +371,8 @@ func (s *Service) unlockInstance(c *gin.Context) {
 }
 
 // ── Pause / Unpause (C2.2) ──────────────────────────────────
-// POST /instances/:id/pause   → QMP stop (freeze in memory)
-// POST /instances/:id/unpause → QMP cont
+// POST /instances/:id/pause   -> QMP stop (freeze in memory)
+// POST /instances/:id/unpause -> QMP cont
 
 func (s *Service) pauseInstance(c *gin.Context) {
 	id := c.Param("id")
@@ -421,8 +421,8 @@ func (s *Service) unpauseInstance(c *gin.Context) {
 }
 
 // ── Rescue / Unrescue (C2.1) ────────────────────────────────
-// POST /instances/:id/rescue   → boot from rescue image, original disk as secondary
-// POST /instances/:id/unrescue → reboot back into original OS
+// POST /instances/:id/rescue   -> boot from rescue image, original disk as secondary
+// POST /instances/:id/unrescue -> reboot back into original OS
 
 func (s *Service) rescueInstance(c *gin.Context) {
 	id := c.Param("id")
@@ -566,7 +566,7 @@ func (s *Service) listInstanceActions(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"actions": events, "instance_id": id})
 }
 
-// ── Snapshot → Volume (C2.4) ────────────────────────────────
+// ── Snapshot -> Volume (C2.4) ────────────────────────────────
 // POST /snapshots/:id/create-volume
 // Creates a new volume from a snapshot.
 
@@ -626,9 +626,9 @@ func (s *Service) createVolumeFromSnapshot(c *gin.Context) {
 }
 
 // ── NIC Hotplug (C2.5) ──────────────────────────────────────
-// POST   /instances/:id/interfaces  → attach a new NIC
-// DELETE /instances/:id/interfaces/:portId → detach a NIC
-// GET    /instances/:id/interfaces  → list attached NICs
+// POST   /instances/:id/interfaces  -> attach a new NIC
+// DELETE /instances/:id/interfaces/:portId -> detach a NIC
+// GET    /instances/:id/interfaces  -> list attached NICs
 
 type InterfaceInfo struct {
 	PortID     string `json:"port_id"`

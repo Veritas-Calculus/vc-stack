@@ -315,13 +315,13 @@ export function DataEncryption() {
                 <div className="text-white font-medium">Master Key (KEK)</div>
                 <div className="text-xs">KMS-managed</div>
               </div>
-              <span className="text-gray-500 text-xl">→</span>
+              <span className="text-gray-500 text-xl">-></span>
               <div className="text-center p-3 border border-gray-600 rounded-lg">
                 <div className="mb-1 text-purple-400">{Icons.lock('w-5 h-5')}</div>
                 <div className="text-white font-medium">Data Encryption Key</div>
                 <div className="text-xs">Per-volume DEK</div>
               </div>
-              <span className="text-gray-500 text-xl">→</span>
+              <span className="text-gray-500 text-xl">-></span>
               <div className="text-center p-3 border border-gray-600 rounded-lg">
                 <div className="mb-1 text-emerald-400">{Icons.drive('w-5 h-5')}</div>
                 <div className="text-white font-medium">LUKS2 Volume</div>

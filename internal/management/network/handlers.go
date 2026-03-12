@@ -451,7 +451,7 @@ func (s *Service) autoSetExternalGateway(router *Router, lrName string, network 
 	router.EnableSNAT = true
 	_ = s.db.Save(router).Error
 
-	// Configure SNAT: internal CIDR → external gateway IP.
+	// Configure SNAT: internal CIDR -> external gateway IP.
 	if err := s.driver.SetRouterSNAT(lrName, true, subnet.CIDR, gatewayIP); err != nil {
 		s.logger.Warn("auto SNAT setup failed",
 			zap.Error(err), zap.String("router", lrName))

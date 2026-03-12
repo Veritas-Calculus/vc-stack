@@ -285,7 +285,7 @@ export function Events() {
                     {evt.source_ip || '—'}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <button className="text-blue-400 hover:text-blue-300 text-xs">View →</button>
+                    <button className="text-blue-400 hover:text-blue-300 text-xs">View -></button>
                   </td>
                 </tr>
               ))

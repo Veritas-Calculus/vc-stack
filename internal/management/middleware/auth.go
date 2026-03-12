@@ -233,7 +233,7 @@ func RequirePermission(resource, action string) gin.HandlerFunc {
 	}
 }
 
-// legacyToNew is a package-level cache of old→new permission mappings.
+// legacyToNew is a package-level cache of old->new permission mappings.
 // Initialized lazily on first use.
 var legacyToNew map[string]string
 
@@ -273,7 +273,7 @@ func matchPermission(perms interface{}, resource, action, required, newFormat st
 				}
 				// Check if the claim is in new format and matches vc:service:* wildcard.
 				if len(ps) > 3 && ps[:3] == "vc:" {
-					// Parse vc:service:Action → allow vc:service:*
+					// Parse vc:service:Action -> allow vc:service:*
 					parts := splitVCAction(ps)
 					if parts != "" && parts == resource {
 						return true
@@ -347,8 +347,8 @@ type ResourceSpec struct {
 // ResourceFromParam creates a ResourceSpec that extracts the resource ID
 // from a URL parameter. Example:
 //
-//	ResourceFromParam("id", "compute")         → extracts :id for compute/instance
-//	ResourceFromParam("volume_id", "volume")   → extracts :volume_id for storage/volume
+//	ResourceFromParam("id", "compute")         -> extracts :id for compute/instance
+//	ResourceFromParam("volume_id", "volume")   -> extracts :volume_id for storage/volume
 func ResourceFromParam(paramName, permResource string) ResourceSpec {
 	return ResourceSpec{
 		ParamName:    paramName,
@@ -425,10 +425,10 @@ func RequireAction(action string, spec ResourceSpec) gin.HandlerFunc {
 // Supports vc:service:* wildcards.
 func matchActionInClaims(perms interface{}, action string) bool {
 	// Extract service from action for wildcard matching.
-	// vc:compute:CreateInstance → service = compute
+	// vc:compute:CreateInstance -> service = compute
 	var serviceWildcard string
 	if len(action) > 3 && action[:3] == "vc:" {
-		parts := splitLegacy(action[3:]) // "compute:CreateInstance" → ["compute", "CreateInstance"]
+		parts := splitLegacy(action[3:]) // "compute:CreateInstance" -> ["compute", "CreateInstance"]
 		if parts[0] != "" {
 			serviceWildcard = "vc:" + parts[0] + ":*"
 		}
@@ -519,7 +519,7 @@ func resourceTypeForPerm(spec ResourceSpec) string {
 	return spec.PermResource
 }
 
-// newToLeg is a package-level cache of new→legacy permission mappings.
+// newToLeg is a package-level cache of new->legacy permission mappings.
 var newToLeg map[string]string
 
 func initNewToLegacy() {

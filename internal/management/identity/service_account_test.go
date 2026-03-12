@@ -216,13 +216,13 @@ func TestComputeHMAC(t *testing.T) {
 		t.Error("expected same HMAC for identical inputs")
 	}
 
-	// Different key → different signature.
+	// Different key -> different signature.
 	sig3 := computeHMAC("different-key", akid, ts, method, path)
 	if sig1 == sig3 {
 		t.Error("expected different HMAC for different keys")
 	}
 
-	// Different path → different signature.
+	// Different path -> different signature.
 	sig4 := computeHMAC(key, akid, ts, method, "/api/v1/volumes")
 	if sig1 == sig4 {
 		t.Error("expected different HMAC for different paths")

@@ -189,7 +189,7 @@ export function Dashboard() {
           onClick={fetchDashboard}
           className="px-3 py-1.5 rounded-lg border border-oxide-700 bg-oxide-800 text-gray-300 hover:bg-oxide-700 text-sm transition-colors"
         >
-          ↻ Refresh
+          Refresh
         </button>
       </div>
 
@@ -305,7 +305,7 @@ export function Dashboard() {
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-medium text-gray-300">Storage Usage</h3>
             <span className="text-xs text-gray-500">
-              {d.storage.used_size_gb} GB / {d.storage.total_size_gb || '∞'} GB
+              {d.storage.used_size_gb} GB / {d.storage.total_size_gb || 'Unlimited'} GB
             </span>
           </div>
           <div className="w-full h-3 rounded-full bg-oxide-800 overflow-hidden">
@@ -368,7 +368,7 @@ export function Dashboard() {
               onClick={() => navigate('/events')}
               className="text-xs text-blue-400 hover:text-blue-300"
             >
-              View All →
+              View All ->
             </button>
           </div>
           <div className="divide-y divide-oxide-800/30">
@@ -409,7 +409,7 @@ export function Dashboard() {
               onClick={() => navigate('/notifications')}
               className="text-xs text-blue-400 hover:text-blue-300"
             >
-              View All →
+              View All ->
             </button>
           </div>
           <div className="divide-y divide-oxide-800/30">

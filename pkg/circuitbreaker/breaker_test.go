@@ -75,11 +75,11 @@ func TestBreakerClosesAfterHalfOpenSuccess(t *testing.T) {
 		ResetTimeout:     50 * time.Millisecond,
 	})
 
-	// Trip → Open.
+	// Trip -> Open.
 	_ = cb.Execute(func() error { return errTest })
 	_ = cb.Execute(func() error { return errTest })
 
-	// Wait → Half-Open.
+	// Wait -> Half-Open.
 	time.Sleep(60 * time.Millisecond)
 
 	// 2 successes should close.
@@ -98,14 +98,14 @@ func TestBreakerReopensOnHalfOpenFailure(t *testing.T) {
 		ResetTimeout:     50 * time.Millisecond,
 	})
 
-	// Trip → Open.
+	// Trip -> Open.
 	_ = cb.Execute(func() error { return errTest })
 	_ = cb.Execute(func() error { return errTest })
 
-	// Wait → Half-Open.
+	// Wait -> Half-Open.
 	time.Sleep(60 * time.Millisecond)
 
-	// Failure in half-open → back to Open.
+	// Failure in half-open -> back to Open.
 	_ = cb.Execute(func() error { return errTest })
 
 	if cb.State() != StateOpen {

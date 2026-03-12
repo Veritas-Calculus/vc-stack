@@ -85,7 +85,7 @@ func VersionsHandler() gin.HandlerFunc {
 }
 
 // extractVersion pulls the version segment from a URL path.
-// e.g. "/api/v1/instances" → "v1".
+// e.g. "/api/v1/instances" -> "v1".
 func extractVersion(path string) string {
 	parts := strings.Split(strings.TrimLeft(path, "/"), "/")
 	for i, p := range parts {

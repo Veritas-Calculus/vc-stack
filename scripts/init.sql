@@ -3,11 +3,11 @@
 -- needed before GORM AutoMigrate runs.
 --
 -- ALL TABLE creation is handled by GORM AutoMigrate in the Go services:
---   - Identity tables (users, roles, projects, etc.)  → identity/service.go
---   - Compute tables (instances, flavors, volumes)    → compute/service.go
---   - Network tables (net_networks, net_subnets, etc) → network/service.go
---   - Quota tables (quota_sets, quota_usage)          → quota/service.go
---   - Event/Metadata tables                           → event/service.go, metadata/service.go
+--   - Identity tables (users, roles, projects, etc.)  -> identity/service.go
+--   - Compute tables (instances, flavors, volumes)    -> compute/service.go
+--   - Network tables (net_networks, net_subnets, etc) -> network/service.go
+--   - Quota tables (quota_sets, quota_usage)          -> quota/service.go
+--   - Event/Metadata tables                           -> event/service.go, metadata/service.go
 --
 -- DO NOT define tables here that are managed by GORM AutoMigrate.
 -- Doing so risks type mismatches (e.g., SERIAL vs BIGSERIAL primary keys).

@@ -334,7 +334,7 @@ func TestEvaluatePoliciesWithContext_BoolAndNull(t *testing.T) {
 			want: true,
 		},
 		{
-			name: "Null — MFA missing (tag doesn't exist → null)",
+			name: "Null — MFA missing (tag doesn't exist -> null)",
 			cond: map[string]interface{}{
 				"Null": map[string]interface{}{
 					"vc:RequestTag/mfa_verified": "false",

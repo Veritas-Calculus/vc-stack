@@ -218,7 +218,7 @@ func TestGenerateSlug(t *testing.T) {
 		{"  Hello  World  ", "hello-world"}, // spaces collapse to single hyphens
 		{"UPPERCASE", "uppercase"},
 		{"a/b\\c", "a-b-c"},
-		{"---", ""}, // All hyphens → empty → random
+		{"---", ""}, // All hyphens -> empty -> random
 	}
 	for _, tt := range tests {
 		got := GenerateSlug(tt.input)

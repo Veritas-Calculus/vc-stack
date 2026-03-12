@@ -13,11 +13,11 @@ import (
 )
 
 // Registry tracks running Firecracker microVM processes.
-// It maintains an in-memory map of VM ID → Client, and supports
+// It maintains an in-memory map of VM ID -> Client, and supports
 // recovery on service restart by scanning PID files.
 type Registry struct {
 	mu      sync.RWMutex
-	clients map[uint]*Client // VM DB ID → Client
+	clients map[uint]*Client // VM DB ID -> Client
 	logger  *zap.Logger
 
 	// Configuration for socket/pid paths.
@@ -137,7 +137,7 @@ func (r *Registry) RecoverRunning() []uint {
 			continue
 		}
 
-		// Extract VM ID from filename: fc-123.pid → 123
+		// Extract VM ID from filename: fc-123.pid -> 123
 		idStr := strings.TrimPrefix(strings.TrimSuffix(entry.Name(), ".pid"), "fc-")
 		id, err := strconv.ParseUint(idStr, 10, 32)
 		if err != nil {

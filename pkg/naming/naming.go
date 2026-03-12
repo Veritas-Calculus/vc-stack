@@ -145,7 +145,7 @@ var prefixMap = map[string]string{
 // ── ID Generation ───────────────────────────────────────────
 
 // GenerateID creates a prefixed resource ID: "{prefix}-{12hex}".
-// Example: GenerateID("i") → "i-7fa3b2c4d5e6"
+// Example: GenerateID("i") -> "i-7fa3b2c4d5e6"
 func GenerateID(prefix string) string {
 	b := make([]byte, 6) // 6 bytes = 12 hex chars
 	if _, err := rand.Read(b); err != nil {
@@ -291,8 +291,8 @@ func ValidateName(name string, mode NameMode) error {
 // ── Slug Generation ─────────────────────────────────────────
 
 // GenerateSlug converts a display name into a DNS-safe slug.
-// Example: "Web Server 01" → "web-server-01"
-// Example: "生产环境 DB" → "db" (non-ASCII stripped, fallback)
+// Example: "Web Server 01" -> "web-server-01"
+// Example: "生产环境 DB" -> "db" (non-ASCII stripped, fallback)
 func GenerateSlug(name string) string {
 	// Lowercase.
 	slug := strings.ToLower(name)
@@ -339,7 +339,7 @@ func GenerateSlug(name string) string {
 }
 
 // GenerateAutoName creates a short human-readable name for a resource.
-// Example: GenerateAutoName("vm") → "vm-7fa3b2"
+// Example: GenerateAutoName("vm") -> "vm-7fa3b2"
 func GenerateAutoName(prefix string) string {
 	b := make([]byte, 3) // 3 bytes = 6 hex chars
 	if _, err := rand.Read(b); err != nil {

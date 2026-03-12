@@ -10,7 +10,7 @@ import (
 // Policy Conditions (P4)
 //
 // AWS-style conditions that can be added to policy statements.
-// A condition block is a map of operator → key → values.
+// A condition block is a map of operator -> key -> values.
 //
 // Example policy with conditions:
 //
@@ -52,14 +52,14 @@ type RequestContext struct {
 	UserID string
 	// ProjectID is the current project/tenant ID.
 	ProjectID string
-	// Tags holds request tags or resource tags (key→value).
+	// Tags holds request tags or resource tags (key->value).
 	Tags map[string]string
 	// Extra holds additional custom context values.
 	Extra map[string]string
 }
 
 // ConditionBlock represents a single condition block from a policy statement.
-// Structure: operator → conditionKey → conditionValues
+// Structure: operator -> conditionKey -> conditionValues
 // Example: {"IpAddress": {"vc:SourceIp": ["10.0.0.0/8"]}}
 type ConditionBlock map[string]map[string]interface{}
 

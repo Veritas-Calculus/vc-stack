@@ -13,7 +13,7 @@ export function Login() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Step management: 'credentials' → 'project'
+  // Step management: 'credentials' -> 'project'
   const [step, setStep] = useState<LoginStep>('credentials')
   const [projects, setProjects] = useState<UIProject[]>([])
   const [projectsLoading, setProjectsLoading] = useState(false)

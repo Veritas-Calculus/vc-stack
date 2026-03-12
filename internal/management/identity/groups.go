@@ -34,21 +34,21 @@ type Group struct {
 	Policies []Policy `gorm:"many2many:group_policies;" json:"policies,omitempty"`
 }
 
-// GroupUser is the join table for group ↔ user.
+// GroupUser is the join table for group <-> user.
 type GroupUser struct {
 	GroupID   uint      `gorm:"primaryKey" json:"group_id"`
 	UserID    uint      `gorm:"primaryKey" json:"user_id"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// GroupRole is the join table for group ↔ role.
+// GroupRole is the join table for group <-> role.
 type GroupRole struct {
 	GroupID   uint      `gorm:"primaryKey" json:"group_id"`
 	RoleID    uint      `gorm:"primaryKey" json:"role_id"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// GroupPolicy is the join table for group ↔ policy.
+// GroupPolicy is the join table for group <-> policy.
 type GroupPolicy struct {
 	GroupID   uint      `gorm:"primaryKey" json:"group_id"`
 	PolicyID  uint      `gorm:"primaryKey" json:"policy_id"`
@@ -63,7 +63,7 @@ type GroupPolicy struct {
 // Even if a role grants vc:compute:*, if the boundary only allows
 // vc:compute:ListInstances, the effective permission is only List.
 //
-// Boundary evaluation: effective = identity_policies ∩ boundary
+// Boundary evaluation: effective = identity_policies AND boundary
 // ──────────────────────────────────────────────────────────────────────
 
 // PermissionBoundary attaches a boundary policy to an entity.
@@ -204,7 +204,7 @@ func (s *Service) ListUserGroups(userID uint) ([]Group, error) {
 }
 
 // ──────────────────────────────────────────────────────────────────────
-// Group ↔ Role / Policy
+// Group <-> Role / Policy
 // ──────────────────────────────────────────────────────────────────────
 
 // AttachRoleToGroup attaches a role to a group.
@@ -318,7 +318,7 @@ func (s *Service) DeletePermissionBoundary(entityType string, entityID uint) err
 // considering: user roles, user policies, group roles, group policies,
 // and permission boundaries.
 //
-// effective = (user_perms ∪ group_perms) ∩ boundary_perms
+// effective = (user_perms | group_perms) & boundary_perms
 func (s *Service) EffectivePermissions(userID uint) ([]string, []Policy, error) {
 	// 1. Collect user's direct permissions.
 	var user User

@@ -1,5 +1,5 @@
 // Package circuitbreaker provides a reusable circuit breaker for protecting
-// remote service calls (Management → Compute, Gateway → Scheduler, etc.).
+// remote service calls (Management -> Compute, Gateway -> Scheduler, etc.).
 //
 // It follows the standard three-state model:
 //   - Closed: requests flow normally, failures are counted.

@@ -381,7 +381,7 @@ func (s *Service) stopFirecrackerVM(ctx context.Context, instance *FirecrackerIn
 	// Get the client from the registry.
 	client, ok := s.fcRegistry.Get(instance.ID)
 	if ok && client.IsRunning() {
-		// Graceful stop: SendCtrlAltDel → wait 10s → SIGKILL.
+		// Graceful stop: SendCtrlAltDel -> wait 10s -> SIGKILL.
 		if err := client.Stop(ctx, 10*time.Second); err != nil {
 			s.logger.Warn("Graceful stop failed, force killing", zap.Error(err))
 			_ = client.Kill()

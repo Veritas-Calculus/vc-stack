@@ -453,10 +453,10 @@ func TestRetryAfterCalculation(t *testing.T) {
 		rpm      int
 		expected int
 	}{
-		{60, 2},  // 60/min → 1 req/sec → retry after 2s
-		{120, 1}, // 120/min → 0.5s → retry after 1s (+ 1)
-		{600, 1}, // 600/min → 0.1s → 1s floor
-		{0, 60},  // 0 rpm → 60s default
+		{60, 2},  // 60/min -> 1 req/sec -> retry after 2s
+		{120, 1}, // 120/min -> 0.5s -> retry after 1s (+ 1)
+		{600, 1}, // 600/min -> 0.1s -> 1s floor
+		{0, 60},  // 0 rpm -> 60s default
 	}
 
 	for _, tt := range tests {

@@ -5,8 +5,8 @@
 //
 // Architecture follows AWS/OpenStack patterns:
 //
-//	Master Key (KEK) ← encrypts → DEK ← encrypts → Your Data
-//	Global Limit → Tenant Override → User Override → Per-Path Override
+//	Master Key (KEK) ← encrypts -> DEK ← encrypts -> Your Data
+//	Global Limit -> Tenant Override -> User Override -> Per-Path Override
 package ratelimit
 
 import (
@@ -267,7 +267,7 @@ func (s *Service) findMatchingPolicy(path, method, tenantID, userID string) *Rat
 	s.policyMu.RLock()
 	defer s.policyMu.RUnlock()
 
-	// Priority order: user → tenant → path → global (highest priority number first).
+	// Priority order: user -> tenant -> path -> global (highest priority number first).
 	for i := range s.policies {
 		p := &s.policies[i]
 		switch p.Scope {

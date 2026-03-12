@@ -485,7 +485,7 @@ function InstanceVolumes() {
               placeholder="Enter available volume ID"
             />
             <p className="text-xs text-muted mt-1">
-              Attach an existing available volume by its ID. You can find IDs on the Storage →
+              Attach an existing available volume by its ID. You can find IDs on the Storage ->
               Volumes page.
             </p>
           </div>

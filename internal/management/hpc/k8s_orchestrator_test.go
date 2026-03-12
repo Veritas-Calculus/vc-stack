@@ -52,7 +52,7 @@ func TestBuildComponentsForCluster(t *testing.T) {
 			gpuPools:       nil,
 			wantScheduler:  "kueue",
 			wantMPI:        false,
-			wantNCCL:       true, // multi-GPU → NCCL
+			wantNCCL:       true, // multi-GPU -> NCCL
 			wantRDMA:       false,
 			wantMonitoring: true,
 		},
@@ -369,7 +369,7 @@ func TestJobManifestGeneration(t *testing.T) {
 	json.Unmarshal(w.Body.Bytes(), &cr)
 	clusterID := cr["cluster"].(map[string]interface{})["id"].(string)
 
-	// Submit a single-node job → Volcano
+	// Submit a single-node job -> Volcano
 	jobBody, _ := json.Marshal(map[string]interface{}{
 		"name":       "single-gpu-job",
 		"scheduler":  "kubernetes",
@@ -399,7 +399,7 @@ func TestJobManifestGeneration(t *testing.T) {
 		t.Errorf("expected kind=VolcanoJob for single-node, got %v", manResp["kind"])
 	}
 
-	// Submit a multi-node MPI job → MPIJob
+	// Submit a multi-node MPI job -> MPIJob
 	mpiBody, _ := json.Marshal(map[string]interface{}{
 		"name":       "distributed-train",
 		"scheduler":  "kubernetes",

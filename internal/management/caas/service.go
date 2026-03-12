@@ -90,7 +90,7 @@ type KubernetesNode struct {
 func (KubernetesNode) TableName() string { return "k8s_nodes" }
 
 // KubernetesLB represents a LoadBalancer service exposed via OVN/Floating IP.
-// CloudStack-style: allocate Floating IP → OVN LB rule → forward to NodePorts.
+// CloudStack-style: allocate Floating IP -> OVN LB rule -> forward to NodePorts.
 type KubernetesLB struct {
 	ID          string `json:"id" gorm:"primaryKey;type:varchar(36)"`
 	ClusterID   string `json:"cluster_id" gorm:"not null;index"`

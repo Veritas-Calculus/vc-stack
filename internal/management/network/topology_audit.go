@@ -105,7 +105,7 @@ func (s *Service) getNetworkTopology(c *gin.Context) {
 		}
 	}
 
-	// 4. Router interfaces (router → subnet connections).
+	// 4. Router interfaces (router -> subnet connections).
 	var ris []RouterInterface
 	s.db.Find(&ris)
 	for _, ri := range ris {

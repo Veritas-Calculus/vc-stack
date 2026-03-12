@@ -194,7 +194,7 @@ func TestHealthHandler_NoServices(t *testing.T) {
 	req := httptest.NewRequest("GET", "/health", nil)
 	router.ServeHTTP(w, req)
 
-	// No services → all healthy (vacuously true).
+	// No services -> all healthy (vacuously true).
 	if w.Code != http.StatusOK {
 		t.Errorf("status = %d, want %d", w.Code, http.StatusOK)
 	}
