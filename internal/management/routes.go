@@ -22,7 +22,6 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	// ── Phase 1: Global middleware ────────────────────────────────────
 	router.Use(apiversion.Middleware())
 	router.Use(apidocs.VersionMiddleware())
-	router.GET("/api/versions", apiversion.VersionsHandler())
 	router.Use(middleware.RequestTracing(s.logger))
 
 	// ── Phase 2: API docs (public, no auth) ──────────────────────────
@@ -37,16 +36,24 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	}
 
 	// ── Phase 4: Module routes via interface ──────────────────────────
-	// Modules that are specially handled above or below are skipped.
-	skipModules := map[string]bool{
-		"gateway": true, // handled in phase 3 (middleware) and phase 5 (proxy)
-		"apidocs": true, // handled in phase 2
+	// Only NEW modules (N7-N9) that have no legacy route wiring are auto-routed
+	// here. Existing core modules have their routes set up via their own
+	// initialisation paths and must NOT be re-registered.
+	autoRouteModules := map[string]bool{
+		"redis":         true,
+		"natgateway":    true,
+		"abac":          true,
+		"tidb":          true,
+		"elasticsearch": true,
+		"invoice":       true,
+		"stackdrift":    true,
+		"gpuscheduler":  true,
 	}
 
 	// Sort module names for deterministic route registration order.
 	names := make([]string, 0, len(s.modules))
 	for name := range s.modules {
-		if skipModules[name] {
+		if !autoRouteModules[name] {
 			continue
 		}
 		names = append(names, name)

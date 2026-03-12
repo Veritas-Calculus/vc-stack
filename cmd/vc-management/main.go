@@ -237,7 +237,7 @@ func main() {
 	if otelEndpoint != "" {
 		router.Use(telemetry.GinMiddleware("vc-management"))
 	}
-	router.GET("/metrics", metrics.Handler())
+	// Note: /metrics is registered by the monitoring module via SetupRoutes.
 	mgmtSvc.SetupRoutes(router)
 
 	// Serve frontend Web Console.

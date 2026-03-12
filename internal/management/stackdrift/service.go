@@ -203,7 +203,7 @@ func (s *Service) GetDepGraph(stackID uint) ([]DepNode, error) {
 // ──────────────────────────────────────────────────────────────────────
 
 func (s *Service) SetupRoutes(router *gin.Engine) {
-	api := router.Group("/api/v1/stacks")
+	api := router.Group("/api/v1/stack-drift")
 	api.Use(middleware.AuthMiddleware(s.jwtSecret, s.logger))
 	{
 		api.GET("/:id/versions", s.handleListVersions)
