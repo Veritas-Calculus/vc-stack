@@ -127,20 +127,20 @@ export function DataEncryption() {
       fail: 'bg-red-500/20 text-red-400',
       active: 'bg-emerald-500/20 text-emerald-400',
       revoked: 'bg-red-500/20 text-red-400',
-      expired: 'bg-gray-500/20 text-gray-400',
+      expired: 'bg-gray-500/20 text-content-secondary',
       encrypted: 'bg-emerald-500/20 text-emerald-400',
       error: 'bg-red-500/20 text-red-400'
     }
-    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-gray-400'}`
+    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-content-secondary'}`
   }
 
   const certTypeBadge = (t: string) => {
     const m: Record<string, string> = {
       ca: 'bg-purple-500/20 text-purple-400',
-      server: 'bg-blue-500/20 text-blue-400',
+      server: 'bg-blue-500/20 text-accent',
       client: 'bg-cyan-500/20 text-cyan-400'
     }
-    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[t] || 'bg-gray-500/20 text-gray-400'}`
+    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[t] || 'bg-gray-500/20 text-content-secondary'}`
   }
 
   const formatDate = (d?: string) => (d ? new Date(d).toLocaleDateString() : '—')
@@ -161,8 +161,8 @@ export function DataEncryption() {
   if (loading && !status)
     return (
       <div className="p-8">
-        <h1 className="text-2xl font-bold text-white mb-2">Data Encryption</h1>
-        <p className="text-gray-400">Loading...</p>
+        <h1 className="text-2xl font-bold text-content-primary mb-2">Data Encryption</h1>
+        <p className="text-content-secondary">Loading...</p>
       </div>
     )
 
@@ -170,8 +170,8 @@ export function DataEncryption() {
     <div className="p-8 max-w-[1400px] mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Data Encryption</h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-content-primary">Data Encryption</h1>
+          <p className="text-content-secondary text-sm mt-1">
             Volume encryption (LUKS2) and service mTLS management
           </p>
         </div>
@@ -186,16 +186,16 @@ export function DataEncryption() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 border-b border-gray-700/50">
+      <div className="flex gap-1 mb-6 border-b border-border/50">
         {tabs.map((t) => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${tab === t.key ? 'text-blue-400 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-400' : 'text-gray-400 hover:text-gray-300'}`}
+            className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${tab === t.key ? 'text-accent after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-400' : 'text-content-secondary hover:text-content-secondary'}`}
           >
             {t.label}
             {'count' in t && t.count !== undefined && (
-              <span className="ml-2 px-1.5 py-0.5 bg-gray-700/60 rounded text-xs">{t.count}</span>
+              <span className="ml-2 px-1.5 py-0.5 bg-surface-hover/60 rounded text-xs">{t.count}</span>
             )}
           </button>
         ))}
@@ -222,7 +222,7 @@ export function DataEncryption() {
               {
                 label: 'mTLS Certs',
                 value: String(status.mtls_certificates),
-                color: 'text-blue-400',
+                color: 'text-accent',
                 icon: Icons.shield('w-5 h-5')
               },
               {
@@ -234,9 +234,9 @@ export function DataEncryption() {
             ].map((s) => (
               <div
                 key={s.label}
-                className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5"
+                className="bg-surface-tertiary border border-border rounded-xl p-5"
               >
-                <div className="flex items-center gap-2 text-gray-400 text-sm mb-2">
+                <div className="flex items-center gap-2 text-content-secondary text-sm mb-2">
                   <span>{s.icon}</span> {s.label}
                 </div>
                 <div className={`text-3xl font-bold ${s.color}`}>{s.value}</div>
@@ -245,58 +245,58 @@ export function DataEncryption() {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5">
-              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">
+            <div className="bg-surface-tertiary border border-border rounded-xl p-5">
+              <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider mb-4">
                 At-Rest Encryption
               </h3>
               <div className="space-y-3 text-sm">
                 <div className="flex items-center justify-between py-1">
-                  <span className="text-gray-400">Default Cipher</span>
-                  <span className="text-white font-mono text-xs">
+                  <span className="text-content-secondary">Default Cipher</span>
+                  <span className="text-content-primary font-mono text-xs">
                     {String(status.default_cipher)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-1">
-                  <span className="text-gray-400">Key Size</span>
-                  <span className="text-white font-mono text-xs">
+                  <span className="text-content-secondary">Key Size</span>
+                  <span className="text-content-primary font-mono text-xs">
                     {String(status.default_key_size)}-bit
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-1">
-                  <span className="text-gray-400">LUKS Version</span>
-                  <span className="text-white font-mono text-xs">
+                  <span className="text-content-secondary">LUKS Version</span>
+                  <span className="text-content-primary font-mono text-xs">
                     LUKS{String(status.luks_version)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-1">
-                  <span className="text-gray-400">Key Management</span>
+                  <span className="text-content-secondary">Key Management</span>
                   <span className="text-emerald-400 font-mono text-xs">KMS (AES-256-GCM)</span>
                 </div>
               </div>
             </div>
-            <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5">
-              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">
+            <div className="bg-surface-tertiary border border-border rounded-xl p-5">
+              <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider mb-4">
                 In-Transit Encryption (mTLS)
               </h3>
               <div className="space-y-3 text-sm">
                 <div className="flex items-center justify-between py-1">
-                  <span className="text-gray-400">Status</span>
+                  <span className="text-content-secondary">Status</span>
                   <span className={status.mtls_enabled ? 'text-emerald-400' : 'text-amber-400'}>
                     {status.mtls_enabled ? 'Enabled' : 'Disabled'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-1">
-                  <span className="text-gray-400">Active Certificates</span>
-                  <span className="text-white">{String(status.mtls_certificates)}</span>
+                  <span className="text-content-secondary">Active Certificates</span>
+                  <span className="text-content-primary">{String(status.mtls_certificates)}</span>
                 </div>
                 <div className="flex items-center justify-between py-1">
-                  <span className="text-gray-400">Revoked</span>
-                  <span className="text-white">{String(status.revoked_certs)}</span>
+                  <span className="text-content-secondary">Revoked</span>
+                  <span className="text-content-primary">{String(status.revoked_certs)}</span>
                 </div>
                 <div className="flex items-center justify-between py-1">
-                  <span className="text-gray-400">Expired</span>
+                  <span className="text-content-secondary">Expired</span>
                   <span
-                    className={Number(status.expired_certs) > 0 ? 'text-red-400' : 'text-white'}
+                    className={Number(status.expired_certs) > 0 ? 'text-red-400' : 'text-content-primary'}
                   >
                     {String(status.expired_certs)}
                   </span>
@@ -305,26 +305,26 @@ export function DataEncryption() {
             </div>
           </div>
 
-          <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5">
-            <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-3">
+          <div className="bg-surface-tertiary border border-border rounded-xl p-5">
+            <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider mb-3">
               Envelope Encryption Architecture
             </h3>
-            <div className="flex items-center gap-4 text-sm text-gray-400 justify-center py-4">
+            <div className="flex items-center gap-4 text-sm text-content-secondary justify-center py-4">
               <div className="text-center p-3 border border-gray-600 rounded-lg">
-                <div className="mb-1 text-blue-400">{Icons.key('w-5 h-5')}</div>
-                <div className="text-white font-medium">Master Key (KEK)</div>
+                <div className="mb-1 text-accent">{Icons.key('w-5 h-5')}</div>
+                <div className="text-content-primary font-medium">Master Key (KEK)</div>
                 <div className="text-xs">KMS-managed</div>
               </div>
-              <span className="text-gray-500 text-xl">&rarr;</span>
+              <span className="text-content-tertiary text-xl">&rarr;</span>
               <div className="text-center p-3 border border-gray-600 rounded-lg">
                 <div className="mb-1 text-purple-400">{Icons.lock('w-5 h-5')}</div>
-                <div className="text-white font-medium">Data Encryption Key</div>
+                <div className="text-content-primary font-medium">Data Encryption Key</div>
                 <div className="text-xs">Per-volume DEK</div>
               </div>
-              <span className="text-gray-500 text-xl">&rarr;</span>
+              <span className="text-content-tertiary text-xl">&rarr;</span>
               <div className="text-center p-3 border border-gray-600 rounded-lg">
                 <div className="mb-1 text-emerald-400">{Icons.drive('w-5 h-5')}</div>
-                <div className="text-white font-medium">LUKS2 Volume</div>
+                <div className="text-content-primary font-medium">LUKS2 Volume</div>
                 <div className="text-xs">AES-XTS encrypted</div>
               </div>
             </div>
@@ -338,15 +338,15 @@ export function DataEncryption() {
           <div className="flex justify-end">
             <button
               onClick={() => setShowCreateProfile(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-500 transition"
+              className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition"
             >
               + Create Profile
             </button>
           </div>
-          <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl overflow-hidden">
+          <div className="bg-surface-tertiary border border-border rounded-xl overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="bg-gray-700/30">
-                <tr className="text-left text-gray-400 text-xs uppercase">
+              <thead className="bg-surface-hover">
+                <tr className="text-left text-content-secondary text-xs uppercase">
                   <th className="px-4 py-3">Name</th>
                   <th className="px-4 py-3">Provider</th>
                   <th className="px-4 py-3">Cipher</th>
@@ -360,25 +360,25 @@ export function DataEncryption() {
                 {profiles.map((p) => (
                   <tr
                     key={p.id}
-                    className="border-t border-gray-700/30 hover:bg-gray-700/20 transition"
+                    className="border-t border-border hover:bg-surface-hover transition"
                   >
                     <td className="px-4 py-3">
-                      <div className="text-white font-medium">
+                      <div className="text-content-primary font-medium">
                         {p.name}
                         {p.is_default && (
-                          <span className="ml-2 px-1.5 py-0.5 bg-blue-500/20 text-blue-400 rounded text-xs">
+                          <span className="ml-2 px-1.5 py-0.5 bg-blue-500/20 text-accent rounded text-xs">
                             default
                           </span>
                         )}
                       </div>
                       {p.description && (
-                        <div className="text-gray-500 text-xs">{p.description}</div>
+                        <div className="text-content-tertiary text-xs">{p.description}</div>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-gray-300 font-mono text-xs">{p.provider}</td>
-                    <td className="px-4 py-3 text-gray-300 font-mono text-xs">{p.cipher}</td>
-                    <td className="px-4 py-3 text-white">{p.key_size}-bit</td>
-                    <td className="px-4 py-3 text-gray-300 text-xs">{p.control_location}</td>
+                    <td className="px-4 py-3 text-content-secondary font-mono text-xs">{p.provider}</td>
+                    <td className="px-4 py-3 text-content-secondary font-mono text-xs">{p.cipher}</td>
+                    <td className="px-4 py-3 text-content-primary">{p.key_size}-bit</td>
+                    <td className="px-4 py-3 text-content-secondary text-xs">{p.control_location}</td>
                     <td className="px-4 py-3">
                       <span className={statusBadge(p.enabled ? 'active' : 'expired')}>
                         {p.enabled ? 'enabled' : 'disabled'}
@@ -419,19 +419,19 @@ export function DataEncryption() {
       {/* Encrypted Volumes */}
       {tab === 'volumes' && (
         <div className="space-y-4">
-          <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl overflow-hidden">
+          <div className="bg-surface-tertiary border border-border rounded-xl overflow-hidden">
             {encVolumes.length === 0 ? (
               <div className="text-center py-12">
-                <div className="mb-3 text-gray-500">{Icons.unlock('w-10 h-10')}</div>
-                <p className="text-gray-400">No encrypted volumes</p>
-                <p className="text-gray-500 text-sm mt-1">
+                <div className="mb-3 text-content-tertiary">{Icons.unlock('w-10 h-10')}</div>
+                <p className="text-content-secondary">No encrypted volumes</p>
+                <p className="text-content-tertiary text-sm mt-1">
                   Enable encryption on volumes through the Storage page or API
                 </p>
               </div>
             ) : (
               <table className="w-full text-sm">
-                <thead className="bg-gray-700/30">
-                  <tr className="text-left text-gray-400 text-xs uppercase">
+                <thead className="bg-surface-hover">
+                  <tr className="text-left text-content-secondary text-xs uppercase">
                     <th className="px-4 py-3">Volume</th>
                     <th className="px-4 py-3">Profile</th>
                     <th className="px-4 py-3">Cipher</th>
@@ -446,19 +446,19 @@ export function DataEncryption() {
                   {encVolumes.map((v) => (
                     <tr
                       key={v.id}
-                      className="border-t border-gray-700/30 hover:bg-gray-700/20 transition"
+                      className="border-t border-border hover:bg-surface-hover transition"
                     >
                       <td className="px-4 py-3">
-                        <div className="text-white font-medium">
+                        <div className="text-content-primary font-medium">
                           {v.volume_name || `vol-${v.volume_id}`}
                         </div>
-                        <div className="text-gray-500 text-xs">{v.volume_size_gb || '—'} GB</div>
+                        <div className="text-content-tertiary text-xs">{v.volume_size_gb || '—'} GB</div>
                       </td>
-                      <td className="px-4 py-3 text-gray-300 text-xs">{v.profile?.name || '—'}</td>
-                      <td className="px-4 py-3 text-gray-300 font-mono text-xs">{v.cipher}</td>
-                      <td className="px-4 py-3 text-white">{v.key_size}-bit</td>
-                      <td className="px-4 py-3 text-gray-300">v{v.luks_version}</td>
-                      <td className="px-4 py-3 text-gray-400 font-mono text-xs">
+                      <td className="px-4 py-3 text-content-secondary text-xs">{v.profile?.name || '—'}</td>
+                      <td className="px-4 py-3 text-content-secondary font-mono text-xs">{v.cipher}</td>
+                      <td className="px-4 py-3 text-content-primary">{v.key_size}-bit</td>
+                      <td className="px-4 py-3 text-content-secondary">v{v.luks_version}</td>
+                      <td className="px-4 py-3 text-content-secondary font-mono text-xs">
                         {v.kms_key_id ? v.kms_key_id.slice(0, 12) + '...' : '—'}
                       </td>
                       <td className="px-4 py-3">
@@ -466,7 +466,7 @@ export function DataEncryption() {
                           {v.encryption_status}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-gray-400 text-xs">
+                      <td className="px-4 py-3 text-content-secondary text-xs">
                         {formatDate(v.created_at)}
                       </td>
                     </tr>
@@ -484,15 +484,15 @@ export function DataEncryption() {
           <div className="flex justify-end">
             <button
               onClick={() => setShowIssueCert(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-500 transition"
+              className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition"
             >
               + Issue Certificate
             </button>
           </div>
-          <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl overflow-hidden">
+          <div className="bg-surface-tertiary border border-border rounded-xl overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="bg-gray-700/30">
-                <tr className="text-left text-gray-400 text-xs uppercase">
+              <thead className="bg-surface-hover">
+                <tr className="text-left text-content-secondary text-xs uppercase">
                   <th className="px-4 py-3">Service</th>
                   <th className="px-4 py-3">Type</th>
                   <th className="px-4 py-3">Common Name</th>
@@ -508,22 +508,22 @@ export function DataEncryption() {
                   return (
                     <tr
                       key={ct.id}
-                      className="border-t border-gray-700/30 hover:bg-gray-700/20 transition"
+                      className="border-t border-border hover:bg-surface-hover transition"
                     >
                       <td className="px-4 py-3">
-                        <div className="text-white font-medium">{ct.service_name}</div>
-                        <div className="text-gray-500 text-xs font-mono">
+                        <div className="text-content-primary font-medium">{ct.service_name}</div>
+                        <div className="text-content-tertiary text-xs font-mono">
                           {ct.serial_number?.slice(0, 16)}...
                         </div>
                       </td>
                       <td className="px-4 py-3">
                         <span className={certTypeBadge(ct.cert_type)}>{ct.cert_type}</span>
                       </td>
-                      <td className="px-4 py-3 text-gray-300 text-xs">{ct.common_name}</td>
-                      <td className="px-4 py-3 text-gray-400 text-xs">{ct.issuer}</td>
+                      <td className="px-4 py-3 text-content-secondary text-xs">{ct.common_name}</td>
+                      <td className="px-4 py-3 text-content-secondary text-xs">{ct.issuer}</td>
                       <td className="px-4 py-3">
                         <span
-                          className={`text-xs ${daysLeft < 30 ? 'text-red-400' : daysLeft < 90 ? 'text-amber-400' : 'text-gray-300'}`}
+                          className={`text-xs ${daysLeft < 30 ? 'text-red-400' : daysLeft < 90 ? 'text-amber-400' : 'text-content-secondary'}`}
                         >
                           {formatDate(ct.not_after)}
                           <br />
@@ -569,16 +569,16 @@ export function DataEncryption() {
       {/* Compliance */}
       {tab === 'compliance' && compliance && (
         <div className="space-y-6">
-          <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-6 text-center">
+          <div className="bg-surface-tertiary border border-border rounded-xl p-6 text-center">
             <div
               className={`text-6xl font-bold mb-2 ${compliance.overall_score >= 80 ? 'text-emerald-400' : compliance.overall_score >= 50 ? 'text-amber-400' : 'text-red-400'}`}
             >
               {compliance.overall_score}
             </div>
-            <div className="text-gray-400 text-sm">
+            <div className="text-content-secondary text-sm">
               of {compliance.max_score} — Compliance Score
             </div>
-            <div className="mt-4 h-3 bg-gray-700 rounded-full overflow-hidden max-w-md mx-auto">
+            <div className="mt-4 h-3 bg-surface-hover rounded-full overflow-hidden max-w-md mx-auto">
               <div
                 className={`h-full rounded-full transition-all duration-1000 ${compliance.overall_score >= 80 ? 'bg-gradient-to-r from-emerald-500 to-emerald-400' : compliance.overall_score >= 50 ? 'bg-gradient-to-r from-amber-500 to-amber-400' : 'bg-gradient-to-r from-red-500 to-red-400'}`}
                 style={{ width: `${compliance.overall_score}%` }}
@@ -590,7 +590,7 @@ export function DataEncryption() {
             {compliance.checks.map((ch, i) => (
               <div
                 key={i}
-                className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5 flex items-center gap-4"
+                className="bg-surface-tertiary border border-border rounded-xl p-5 flex items-center gap-4"
               >
                 <div
                   className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg ${ch.status === 'pass' ? 'bg-emerald-500/20' : ch.status === 'fail' ? 'bg-red-500/20' : 'bg-amber-500/20'}`}
@@ -602,12 +602,12 @@ export function DataEncryption() {
                       : Icons.warning('w-4 h-4 text-amber-400')}
                 </div>
                 <div className="flex-1">
-                  <div className="text-white font-medium">{ch.name}</div>
-                  <div className="text-gray-400 text-sm">{ch.description}</div>
+                  <div className="text-content-primary font-medium">{ch.name}</div>
+                  <div className="text-content-secondary text-sm">{ch.description}</div>
                 </div>
                 <div className="text-right">
                   <span className={statusBadge(ch.status)}>{ch.status}</span>
-                  <div className="text-gray-500 text-xs mt-1">{ch.standard}</div>
+                  <div className="text-content-tertiary text-xs mt-1">{ch.standard}</div>
                 </div>
               </div>
             ))}
@@ -636,27 +636,27 @@ function CreateProfileModal({
       onClick={onClose}
     >
       <div
-        className="bg-gray-800 border border-gray-700 rounded-xl p-6 w-[520px]"
+        className="bg-gray-800 border border-border rounded-xl p-6 w-[520px]"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-lg font-semibold text-white mb-4">Create Encryption Profile</h2>
+        <h2 className="text-lg font-semibold text-content-primary mb-4">Create Encryption Profile</h2>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Name</label>
+            <label className="block text-sm text-content-secondary mb-1">Name</label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+              className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
               placeholder="e.g. high-security-luks2"
             />
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Provider</label>
+              <label className="block text-sm text-content-secondary mb-1">Provider</label>
               <select
                 value={provider}
                 onChange={(e) => setProvider(e.target.value)}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
               >
                 <option value="luks2">LUKS2</option>
                 <option value="luks">LUKS1</option>
@@ -664,11 +664,11 @@ function CreateProfileModal({
               </select>
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Cipher</label>
+              <label className="block text-sm text-content-secondary mb-1">Cipher</label>
               <select
                 value={cipher}
                 onChange={(e) => setCipher(e.target.value)}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
               >
                 <option value="aes-xts-plain64">aes-xts-plain64</option>
                 <option value="aes-cbc-essiv:sha256">aes-cbc-essiv</option>
@@ -676,11 +676,11 @@ function CreateProfileModal({
               </select>
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Key Size</label>
+              <label className="block text-sm text-content-secondary mb-1">Key Size</label>
               <select
                 value={keySize}
                 onChange={(e) => setKeySize(Number(e.target.value))}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
               >
                 <option value={128}>128-bit</option>
                 <option value={256}>256-bit</option>
@@ -689,18 +689,18 @@ function CreateProfileModal({
             </div>
           </div>
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Description</label>
+            <label className="block text-sm text-content-secondary mb-1">Description</label>
             <input
               value={desc}
               onChange={(e) => setDesc(e.target.value)}
-              className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+              className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
             />
           </div>
         </div>
         <div className="flex justify-end gap-3 mt-6">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-400 hover:text-white text-sm transition"
+            className="px-4 py-2 text-content-secondary hover:text-content-primary text-sm transition"
           >
             Cancel
           </button>
@@ -709,7 +709,7 @@ function CreateProfileModal({
               onSubmit({ name, provider, cipher, key_size: keySize, description: desc })
             }
             disabled={!name}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-500 transition disabled:opacity-50"
+            className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition disabled:opacity-50"
           >
             Create
           </button>
@@ -737,59 +737,59 @@ function IssueCertModal({
       onClick={onClose}
     >
       <div
-        className="bg-gray-800 border border-gray-700 rounded-xl p-6 w-[520px]"
+        className="bg-gray-800 border border-border rounded-xl p-6 w-[520px]"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-lg font-semibold text-white mb-4">Issue mTLS Certificate</h2>
+        <h2 className="text-lg font-semibold text-content-primary mb-4">Issue mTLS Certificate</h2>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Service Name</label>
+              <label className="block text-sm text-content-secondary mb-1">Service Name</label>
               <input
                 value={serviceName}
                 onChange={(e) => setServiceName(e.target.value)}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
                 placeholder="e.g. vc-compute-node-1"
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Common Name</label>
+              <label className="block text-sm text-content-secondary mb-1">Common Name</label>
               <input
                 value={cn}
                 onChange={(e) => setCN(e.target.value)}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
                 placeholder="e.g. compute-1.local"
               />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Type</label>
+              <label className="block text-sm text-content-secondary mb-1">Type</label>
               <select
                 value={certType}
                 onChange={(e) => setCertType(e.target.value)}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
               >
                 <option value="server">Server</option>
                 <option value="client">Client</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Valid Days</label>
+              <label className="block text-sm text-content-secondary mb-1">Valid Days</label>
               <input
                 type="number"
                 value={validDays}
                 onChange={(e) => setValidDays(Number(e.target.value))}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
               />
             </div>
           </div>
           <div>
-            <label className="block text-sm text-gray-400 mb-1">SANs (comma-separated)</label>
+            <label className="block text-sm text-content-secondary mb-1">SANs (comma-separated)</label>
             <input
               value={sans}
               onChange={(e) => setSANs(e.target.value)}
-              className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+              className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
               placeholder="e.g. compute-1, 10.0.0.5"
             />
           </div>
@@ -797,7 +797,7 @@ function IssueCertModal({
         <div className="flex justify-end gap-3 mt-6">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-400 hover:text-white text-sm transition"
+            className="px-4 py-2 text-content-secondary hover:text-content-primary text-sm transition"
           >
             Cancel
           </button>
@@ -812,7 +812,7 @@ function IssueCertModal({
               })
             }
             disabled={!serviceName || !cn}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-500 transition disabled:opacity-50"
+            className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition disabled:opacity-50"
           >
             Issue Certificate
           </button>

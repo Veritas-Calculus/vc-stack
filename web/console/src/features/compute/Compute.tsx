@@ -272,7 +272,7 @@ function KMSPage() {
             {truncateMiddle(row.publicKey, 28, 16)}
           </span>
           <button
-            className="text-blue-400 hover:underline text-xs shrink-0"
+            className="text-accent hover:underline text-xs shrink-0"
             onClick={() => navigator.clipboard.writeText(row.publicKey)}
             title="Copy full key"
           >

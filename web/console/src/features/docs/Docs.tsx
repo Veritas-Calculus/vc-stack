@@ -441,7 +441,7 @@ const apiDocs: ServiceDocs[] = [
 ]
 
 const METHOD_COLORS: Record<Method, { bg: string; text: string; border: string }> = {
-  GET: { bg: 'bg-blue-500/15', text: 'text-blue-400', border: 'border-blue-500/30' },
+  GET: { bg: 'bg-blue-500/15', text: 'text-accent', border: 'border-blue-500/30' },
   POST: { bg: 'bg-emerald-500/15', text: 'text-emerald-400', border: 'border-emerald-500/30' },
   PUT: { bg: 'bg-amber-500/15', text: 'text-amber-400', border: 'border-amber-500/30' },
   PATCH: { bg: 'bg-orange-500/15', text: 'text-orange-400', border: 'border-orange-500/30' },
@@ -514,8 +514,8 @@ export function Docs() {
     <div>
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white">API Documentation</h1>
-        <p className="text-sm text-gray-400 mt-1">
+        <h1 className="text-2xl font-bold text-content-primary">API Documentation</h1>
+        <p className="text-sm text-content-secondary mt-1">
           VC Stack REST API Reference — {apiDocs.length} services, {totalEndpoints} endpoints
         </p>
       </div>
@@ -524,7 +524,7 @@ export function Docs() {
       <div className="mb-5">
         <div className="relative">
           <svg
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-content-tertiary"
             width="16"
             height="16"
             viewBox="0 0 24 24"
@@ -541,7 +541,7 @@ export function Docs() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-oxide-700 bg-oxide-800 text-gray-200 text-sm outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
             placeholder="Search endpoints (e.g. instances, POST, security-groups)..."
           />
         </div>
@@ -553,16 +553,16 @@ export function Docs() {
           {allFilteredDocs.map((doc) => (
             <div
               key={doc.name}
-              className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur overflow-hidden"
+              className="rounded-xl border border-border bg-surface-secondary backdrop-blur overflow-hidden"
             >
-              <div className="px-4 py-3 border-b border-oxide-800 bg-oxide-900/80 flex items-center gap-2">
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-oxide-700 text-gray-400">
+              <div className="px-4 py-3 border-b border-border bg-surface-secondary flex items-center gap-2">
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-surface-hover text-content-secondary">
                   {doc.icon}
                 </span>
-                <h3 className="text-sm font-medium text-white">{doc.name}</h3>
-                <span className="text-xs text-gray-500">— {doc.endpoints.length} matches</span>
+                <h3 className="text-sm font-medium text-content-primary">{doc.name}</h3>
+                <span className="text-xs text-content-tertiary">— {doc.endpoints.length} matches</span>
               </div>
-              <div className="divide-y divide-oxide-800/30">
+              <div className="divide-y divide-border">
                 {doc.endpoints.map((ep, i) => (
                   <EndpointRow key={i} endpoint={ep} onTryIt={handleTryIt} />
                 ))}
@@ -570,7 +570,7 @@ export function Docs() {
             </div>
           ))}
           {allFilteredDocs.length === 0 && (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12 text-content-tertiary">
               No endpoints match "{searchQuery}"
             </div>
           )}
@@ -579,9 +579,9 @@ export function Docs() {
         <div className="grid grid-cols-12 gap-6">
           {/* Sidebar */}
           <div className="col-span-12 lg:col-span-3">
-            <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur overflow-hidden">
-              <div className="px-4 py-3 border-b border-oxide-800 bg-oxide-900/80">
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            <div className="rounded-xl border border-border bg-surface-secondary backdrop-blur overflow-hidden">
+              <div className="px-4 py-3 border-b border-border bg-surface-secondary">
+                <h3 className="text-xs font-semibold text-content-secondary uppercase tracking-wider">
                   Services
                 </h3>
               </div>
@@ -595,16 +595,16 @@ export function Docs() {
                     }}
                     className={`w-full text-left px-4 py-2.5 flex items-center gap-2.5 transition-colors text-sm ${
                       activeService === doc.name
-                        ? 'bg-blue-500/10 text-blue-400 border-l-2 border-l-blue-500'
-                        : 'text-gray-400 hover:bg-oxide-800/50 hover:text-gray-200 border-l-2 border-l-transparent'
+                        ? 'bg-blue-500/10 text-accent border-l-2 border-l-blue-500'
+                        : 'text-content-secondary hover:bg-surface-tertiary hover:text-content-primary border-l-2 border-l-transparent'
                     }`}
                   >
-                    <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-oxide-700 text-gray-400">
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-surface-hover text-content-secondary">
                       {doc.icon}
                     </span>
                     <div>
                       <div className="font-medium">{doc.name}</div>
-                      <div className="text-xs text-gray-500">{doc.endpoints.length} endpoints</div>
+                      <div className="text-xs text-content-tertiary">{doc.endpoints.length} endpoints</div>
                     </div>
                   </button>
                 ))}
@@ -617,12 +617,12 @@ export function Docs() {
             {activeDocs && (
               <div className="space-y-4">
                 <div className="flex items-center gap-3 mb-4">
-                  <span className="px-2 py-1 rounded text-xs font-mono bg-oxide-700 text-gray-300">
+                  <span className="px-2 py-1 rounded text-xs font-mono bg-surface-hover text-content-secondary">
                     {activeDocs.icon}
                   </span>
                   <div>
-                    <h2 className="text-xl font-semibold text-white">{activeDocs.name} API</h2>
-                    <p className="text-sm text-gray-400">{activeDocs.description}</p>
+                    <h2 className="text-xl font-semibold text-content-primary">{activeDocs.name} API</h2>
+                    <p className="text-sm text-content-secondary">{activeDocs.description}</p>
                   </div>
                 </div>
 
@@ -657,22 +657,22 @@ function EndpointRow({
 }) {
   const mc = METHOD_COLORS[endpoint.method]
   return (
-    <div className="px-4 py-3 flex items-center gap-3 hover:bg-oxide-800/30 transition-colors group">
+    <div className="px-4 py-3 flex items-center gap-3 hover:bg-surface-tertiary transition-colors group">
       <span
         className={`px-2 py-0.5 rounded text-xs font-mono font-bold ${mc.bg} ${mc.text} border ${mc.border} w-16 text-center`}
       >
         {endpoint.method}
       </span>
       <div className="flex-1 min-w-0">
-        <code className="text-sm text-gray-200 break-all">{endpoint.path}</code>
+        <code className="text-sm text-content-primary break-all">{endpoint.path}</code>
         {endpoint.description && (
-          <div className="text-xs text-gray-500 mt-0.5">{endpoint.description}</div>
+          <div className="text-xs text-content-tertiary mt-0.5">{endpoint.description}</div>
         )}
       </div>
       {endpoint.method === 'GET' && !endpoint.path.includes(':') && (
         <button
           onClick={() => onTryIt(endpoint.method, endpoint.path)}
-          className="opacity-0 group-hover:opacity-100 px-2 py-1 rounded text-xs bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-all"
+          className="opacity-0 group-hover:opacity-100 px-2 py-1 rounded text-xs bg-blue-500/20 text-accent hover:bg-blue-500/30 transition-all"
         >
           Try It
         </button>
@@ -701,20 +701,20 @@ function EndpointCard({
 
   return (
     <div
-      className={`rounded-xl border ${expanded ? 'border-oxide-600 bg-oxide-900/80' : 'border-oxide-800 bg-oxide-900/50'} backdrop-blur overflow-hidden transition-all`}
+      className={`rounded-xl border ${expanded ? 'border-border-strong bg-surface-secondary' : 'border-border bg-surface-secondary'} backdrop-blur overflow-hidden transition-all`}
     >
       <button
         onClick={onToggle}
-        className="w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-oxide-800/30 transition-colors"
+        className="w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-surface-tertiary transition-colors"
       >
         <span
           className={`px-2 py-0.5 rounded text-xs font-mono font-bold ${mc.bg} ${mc.text} border ${mc.border} w-16 text-center shrink-0`}
         >
           {endpoint.method}
         </span>
-        <code className="text-sm text-gray-200 flex-1 break-all">{endpoint.path}</code>
+        <code className="text-sm text-content-primary flex-1 break-all">{endpoint.path}</code>
         <svg
-          className={`w-4 h-4 text-gray-500 transition-transform ${expanded ? 'rotate-180' : ''}`}
+          className={`w-4 h-4 text-content-tertiary transition-transform ${expanded ? 'rotate-180' : ''}`}
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -725,19 +725,19 @@ function EndpointCard({
       </button>
 
       {expanded && (
-        <div className="px-4 pb-4 border-t border-oxide-800/50 pt-3 space-y-4">
-          {endpoint.description && <p className="text-sm text-gray-400">{endpoint.description}</p>}
+        <div className="px-4 pb-4 border-t border-border/50 pt-3 space-y-4">
+          {endpoint.description && <p className="text-sm text-content-secondary">{endpoint.description}</p>}
 
           {/* Params */}
           {endpoint.params && endpoint.params.length > 0 && (
             <div>
-              <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+              <h4 className="text-xs font-semibold text-content-secondary uppercase tracking-wider mb-2">
                 Parameters
               </h4>
-              <div className="rounded-lg border border-oxide-800 overflow-hidden">
+              <div className="rounded-lg border border-border overflow-hidden">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-oxide-900/80 text-gray-500 text-xs">
+                    <tr className="bg-surface-secondary text-content-tertiary text-xs">
                       <th className="text-left px-3 py-2 font-medium">Name</th>
                       <th className="text-left px-3 py-2 font-medium">Type</th>
                       <th className="text-left px-3 py-2 font-medium">Description</th>
@@ -745,13 +745,13 @@ function EndpointCard({
                   </thead>
                   <tbody>
                     {endpoint.params.map((p, i) => (
-                      <tr key={i} className="border-t border-oxide-800/50">
+                      <tr key={i} className="border-t border-border/50">
                         <td className="px-3 py-2">
-                          <code className="text-xs text-blue-400">{p.name}</code>
+                          <code className="text-xs text-accent">{p.name}</code>
                           {p.required && <span className="text-red-400 text-xs ml-1">*</span>}
                         </td>
-                        <td className="px-3 py-2 text-xs text-gray-500">{p.type}</td>
-                        <td className="px-3 py-2 text-xs text-gray-400">{p.description}</td>
+                        <td className="px-3 py-2 text-xs text-content-tertiary">{p.type}</td>
+                        <td className="px-3 py-2 text-xs text-content-secondary">{p.description}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -763,10 +763,10 @@ function EndpointCard({
           {/* Body Example */}
           {endpoint.bodyExample && (
             <div>
-              <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+              <h4 className="text-xs font-semibold text-content-secondary uppercase tracking-wider mb-2">
                 Request Body
               </h4>
-              <pre className="rounded-lg bg-oxide-950 border border-oxide-800 p-3 text-xs text-gray-300 font-mono overflow-x-auto">
+              <pre className="rounded-lg bg-surface-primary border border-border p-3 text-xs text-content-secondary font-mono overflow-x-auto">
                 {endpoint.bodyExample}
               </pre>
             </div>
@@ -775,10 +775,10 @@ function EndpointCard({
           {/* Response Example */}
           {endpoint.responseExample && (
             <div>
-              <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+              <h4 className="text-xs font-semibold text-content-secondary uppercase tracking-wider mb-2">
                 Response Example
               </h4>
-              <pre className="rounded-lg bg-oxide-950 border border-oxide-800 p-3 text-xs text-emerald-300 font-mono overflow-x-auto">
+              <pre className="rounded-lg bg-surface-primary border border-border p-3 text-xs text-emerald-300 font-mono overflow-x-auto">
                 {endpoint.responseExample}
               </pre>
             </div>
@@ -787,14 +787,14 @@ function EndpointCard({
           {/* Try It */}
           {canTryIt && (
             <div>
-              <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+              <h4 className="text-xs font-semibold text-content-secondary uppercase tracking-wider mb-2">
                 Try It
               </h4>
               <div className="flex gap-2">
                 <button
                   onClick={() => onTryIt(endpoint.method, endpoint.path)}
                   disabled={tryItLoading}
-                  className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-medium transition-colors flex items-center gap-2"
+                  className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-content-primary text-sm font-medium transition-colors flex items-center gap-2"
                 >
                   {tryItLoading ? (
                     <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -807,7 +807,7 @@ function EndpointCard({
                 </button>
               </div>
               {tryItResult !== null && (
-                <pre className="mt-3 rounded-lg bg-oxide-950 border border-oxide-800 p-3 text-xs text-gray-300 font-mono overflow-x-auto max-h-64 overflow-y-auto">
+                <pre className="mt-3 rounded-lg bg-surface-primary border border-border p-3 text-xs text-content-secondary font-mono overflow-x-auto max-h-64 overflow-y-auto">
                   {tryItResult}
                 </pre>
               )}
@@ -821,7 +821,7 @@ function EndpointCard({
                 const curl = `curl -X ${endpoint.method} ${window.location.origin}${endpoint.path} -H "Authorization: Bearer <token>"`
                 navigator.clipboard.writeText(curl)
               }}
-              className="text-xs text-gray-500 hover:text-gray-300 flex items-center gap-1.5 transition-colors"
+              className="text-xs text-content-tertiary hover:text-content-secondary flex items-center gap-1.5 transition-colors"
             >
               <svg
                 width="12"

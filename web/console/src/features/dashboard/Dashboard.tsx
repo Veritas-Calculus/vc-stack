@@ -127,7 +127,7 @@ export function Dashboard() {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <div className="w-8 h-8 border-3 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-gray-400 text-sm">Loading dashboard...</p>
+          <p className="text-content-secondary text-sm">Loading dashboard...</p>
         </div>
       </div>
     )
@@ -182,12 +182,12 @@ export function Dashboard() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-          <p className="text-sm text-gray-400 mt-1">System overview and resource utilization</p>
+          <h1 className="text-2xl font-bold text-content-primary">Dashboard</h1>
+          <p className="text-sm text-content-secondary mt-1">System overview and resource utilization</p>
         </div>
         <button
           onClick={fetchDashboard}
-          className="px-3 py-1.5 rounded-lg border border-oxide-700 bg-oxide-800 text-gray-300 hover:bg-oxide-700 text-sm transition-colors"
+          className="px-3 py-1.5 rounded-lg border border-border bg-surface-tertiary text-content-secondary hover:bg-surface-hover text-sm transition-colors"
         >
           Refresh
         </button>
@@ -199,7 +199,7 @@ export function Dashboard() {
           {
             label: 'Zones',
             value: d.infrastructure.zones,
-            icon: Icons.globe('w-5 h-5 text-blue-400'),
+            icon: Icons.globe('w-5 h-5 text-accent'),
             link: `${prefix}/infrastructure/zones`
           },
           {
@@ -238,16 +238,16 @@ export function Dashboard() {
           <button
             key={item.label}
             onClick={() => item.link && navigate(item.link)}
-            className="rounded-xl border border-oxide-800 bg-oxide-900/60 backdrop-blur p-4 text-left hover:bg-oxide-800/60 hover:border-oxide-700 transition-all group"
+            className="rounded-xl border border-border bg-surface-secondary backdrop-blur p-4 text-left hover:bg-surface-tertiary hover:border-border transition-all group"
           >
             <div className="flex items-center justify-between mb-2">
               {item.icon}
-              <span className="text-2xl font-bold text-white group-hover:text-blue-400 transition-colors">
+              <span className="text-2xl font-bold text-content-primary group-hover:text-accent transition-colors">
                 {item.value}
               </span>
             </div>
-            <div className="text-xs text-gray-400">{item.label}</div>
-            {item.sub && <div className="text-xs text-gray-500 mt-0.5">{item.sub}</div>}
+            <div className="text-xs text-content-secondary">{item.label}</div>
+            {item.sub && <div className="text-xs text-content-tertiary mt-0.5">{item.sub}</div>}
           </button>
         ))}
       </div>
@@ -255,14 +255,14 @@ export function Dashboard() {
       {/* Resource Usage */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
         {/* CPU Usage */}
-        <div className="rounded-xl border border-oxide-800 bg-oxide-900/60 backdrop-blur p-5">
+        <div className="rounded-xl border border-border bg-surface-secondary backdrop-blur p-5">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-medium text-gray-300">CPU Usage</h3>
-            <span className="text-xs text-gray-500">
+            <h3 className="text-sm font-medium text-content-secondary">CPU Usage</h3>
+            <span className="text-xs text-content-tertiary">
               {d.compute.used_vcpus} / {d.compute.total_vcpus} vCPUs
             </span>
           </div>
-          <div className="w-full h-3 rounded-full bg-oxide-800 overflow-hidden">
+          <div className="w-full h-3 rounded-full bg-surface-tertiary overflow-hidden">
             <div
               className={`h-full rounded-full transition-all duration-700 ${d.compute.cpu_usage_percent > 80 ? 'bg-red-500' : d.compute.cpu_usage_percent > 60 ? 'bg-amber-500' : 'bg-emerald-500'}`}
               style={{ width: `${Math.min(100, d.compute.cpu_usage_percent)}%` }}
@@ -278,14 +278,14 @@ export function Dashboard() {
         </div>
 
         {/* RAM Usage */}
-        <div className="rounded-xl border border-oxide-800 bg-oxide-900/60 backdrop-blur p-5">
+        <div className="rounded-xl border border-border bg-surface-secondary backdrop-blur p-5">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-medium text-gray-300">Memory Usage</h3>
-            <span className="text-xs text-gray-500">
+            <h3 className="text-sm font-medium text-content-secondary">Memory Usage</h3>
+            <span className="text-xs text-content-tertiary">
               {formatRAM(d.compute.used_ram_mb)} / {formatRAM(d.compute.total_ram_mb)}
             </span>
           </div>
-          <div className="w-full h-3 rounded-full bg-oxide-800 overflow-hidden">
+          <div className="w-full h-3 rounded-full bg-surface-tertiary overflow-hidden">
             <div
               className={`h-full rounded-full transition-all duration-700 ${d.compute.ram_usage_percent > 80 ? 'bg-red-500' : d.compute.ram_usage_percent > 60 ? 'bg-amber-500' : 'bg-blue-500'}`}
               style={{ width: `${Math.min(100, d.compute.ram_usage_percent)}%` }}
@@ -293,7 +293,7 @@ export function Dashboard() {
           </div>
           <div className="text-right mt-1">
             <span
-              className={`text-sm font-semibold ${d.compute.ram_usage_percent > 80 ? 'text-red-400' : d.compute.ram_usage_percent > 60 ? 'text-amber-400' : 'text-blue-400'}`}
+              className={`text-sm font-semibold ${d.compute.ram_usage_percent > 80 ? 'text-red-400' : d.compute.ram_usage_percent > 60 ? 'text-amber-400' : 'text-accent'}`}
             >
               {d.compute.ram_usage_percent.toFixed(1)}%
             </span>
@@ -301,14 +301,14 @@ export function Dashboard() {
         </div>
 
         {/* Storage Usage */}
-        <div className="rounded-xl border border-oxide-800 bg-oxide-900/60 backdrop-blur p-5">
+        <div className="rounded-xl border border-border bg-surface-secondary backdrop-blur p-5">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-medium text-gray-300">Storage Usage</h3>
-            <span className="text-xs text-gray-500">
+            <h3 className="text-sm font-medium text-content-secondary">Storage Usage</h3>
+            <span className="text-xs text-content-tertiary">
               {d.storage.used_size_gb} GB / {d.storage.total_size_gb || 'Unlimited'} GB
             </span>
           </div>
-          <div className="w-full h-3 rounded-full bg-oxide-800 overflow-hidden">
+          <div className="w-full h-3 rounded-full bg-surface-tertiary overflow-hidden">
             {d.storage.total_size_gb > 0 && (
               <div
                 className="h-full rounded-full bg-purple-500 transition-all duration-700"
@@ -319,7 +319,7 @@ export function Dashboard() {
             )}
           </div>
           <div className="flex justify-between mt-1">
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-content-tertiary">
               {d.storage.total_volumes} volumes, {d.storage.total_snapshots} snapshots
             </span>
             {d.storage.total_size_gb > 0 && (
@@ -349,11 +349,11 @@ export function Dashboard() {
         ].map((item) => (
           <div
             key={item.label}
-            className="rounded-xl border border-oxide-800 bg-oxide-900/60 backdrop-blur p-4"
+            className="rounded-xl border border-border bg-surface-secondary backdrop-blur p-4"
           >
-            <div className="text-xl font-bold text-white mb-1">{item.value}</div>
-            <div className="text-xs text-gray-300">{item.label}</div>
-            <div className="text-xs text-gray-500">{item.desc}</div>
+            <div className="text-xl font-bold text-content-primary mb-1">{item.value}</div>
+            <div className="text-xs text-content-secondary">{item.label}</div>
+            <div className="text-xs text-content-tertiary">{item.desc}</div>
           </div>
         ))}
       </div>
@@ -361,40 +361,40 @@ export function Dashboard() {
       {/* Recent Events */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Events */}
-        <div className="rounded-xl border border-oxide-800 bg-oxide-900/60 backdrop-blur overflow-hidden">
-          <div className="px-4 py-3 border-b border-oxide-800 bg-oxide-900/80 flex items-center justify-between">
-            <h3 className="text-sm font-medium text-gray-300">Recent Events</h3>
+        <div className="rounded-xl border border-border bg-surface-secondary backdrop-blur overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-surface-secondary flex items-center justify-between">
+            <h3 className="text-sm font-medium text-content-secondary">Recent Events</h3>
             <button
               onClick={() => navigate('/events')}
-              className="text-xs text-blue-400 hover:text-blue-300"
+              className="text-xs text-accent hover:text-accent-hover"
             >
               View All &rarr;
             </button>
           </div>
-          <div className="divide-y divide-oxide-800/30">
+          <div className="divide-y divide-border">
             {d.recent_events.length === 0 ? (
-              <div className="px-4 py-6 text-center text-gray-500 text-sm">No recent events</div>
+              <div className="px-4 py-6 text-center text-content-tertiary text-sm">No recent events</div>
             ) : (
               d.recent_events.slice(0, 8).map((evt) => (
                 <div
                   key={evt.id}
-                  className="px-4 py-2.5 flex items-center justify-between hover:bg-oxide-800/30 transition-colors"
+                  className="px-4 py-2.5 flex items-center justify-between hover:bg-surface-tertiary transition-colors"
                 >
                   <div className="flex items-center gap-2.5">
                     <span
                       className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[evt.status] || 'bg-gray-500'}`}
                     />
-                    <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-oxide-700 text-gray-400">
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-surface-hover text-content-secondary">
                       {RESOURCE_ABBREV[evt.resource_type] ||
                         evt.resource_type.slice(0, 3).toUpperCase()}
                     </span>
                     <div>
-                      <span className="text-sm text-gray-200 capitalize">{evt.action}</span>
-                      <span className="text-sm text-gray-500"> · </span>
-                      <span className="text-sm text-gray-400 capitalize">{evt.resource_type}</span>
+                      <span className="text-sm text-content-primary capitalize">{evt.action}</span>
+                      <span className="text-sm text-content-tertiary"> · </span>
+                      <span className="text-sm text-content-secondary capitalize">{evt.resource_type}</span>
                     </div>
                   </div>
-                  <span className="text-xs text-gray-500">{relativeTime(evt.timestamp)}</span>
+                  <span className="text-xs text-content-tertiary">{relativeTime(evt.timestamp)}</span>
                 </div>
               ))
             )}
@@ -402,19 +402,19 @@ export function Dashboard() {
         </div>
 
         {/* Alerts */}
-        <div className="rounded-xl border border-oxide-800 bg-oxide-900/60 backdrop-blur overflow-hidden">
-          <div className="px-4 py-3 border-b border-oxide-800 bg-oxide-900/80 flex items-center justify-between">
-            <h3 className="text-sm font-medium text-gray-300">Recent Alerts</h3>
+        <div className="rounded-xl border border-border bg-surface-secondary backdrop-blur overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-surface-secondary flex items-center justify-between">
+            <h3 className="text-sm font-medium text-content-secondary">Recent Alerts</h3>
             <button
               onClick={() => navigate('/notifications')}
-              className="text-xs text-blue-400 hover:text-blue-300"
+              className="text-xs text-accent hover:text-accent-hover"
             >
               View All &rarr;
             </button>
           </div>
-          <div className="divide-y divide-oxide-800/30">
+          <div className="divide-y divide-border">
             {d.recent_alerts.length === 0 ? (
-              <div className="px-4 py-6 text-center text-gray-500 text-sm">
+              <div className="px-4 py-6 text-center text-content-tertiary text-sm">
                 <span className="inline-block w-6 h-6 rounded-full bg-emerald-500/15 text-emerald-400 leading-6 text-xs font-bold">
                   OK
                 </span>
@@ -424,15 +424,15 @@ export function Dashboard() {
               d.recent_alerts.slice(0, 8).map((alert) => (
                 <div
                   key={alert.id}
-                  className="px-4 py-2.5 flex items-center justify-between hover:bg-oxide-800/30 transition-colors"
+                  className="px-4 py-2.5 flex items-center justify-between hover:bg-surface-tertiary transition-colors"
                 >
                   <div className="flex items-center gap-2.5">
                     <span
                       className={`w-1.5 h-1.5 rounded-full ${alert.level === 'critical' ? 'bg-red-500' : alert.level === 'warning' ? 'bg-amber-500' : 'bg-blue-500'}`}
                     />
-                    <span className="text-sm text-gray-200">{alert.message}</span>
+                    <span className="text-sm text-content-primary">{alert.message}</span>
                   </div>
-                  <span className="text-xs text-gray-500">{relativeTime(alert.timestamp)}</span>
+                  <span className="text-xs text-content-tertiary">{relativeTime(alert.timestamp)}</span>
                 </div>
               ))
             )}

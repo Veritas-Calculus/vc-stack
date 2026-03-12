@@ -29,7 +29,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 const TYPE_COLORS: Record<string, string> = {
   create: 'text-emerald-400',
-  update: 'text-blue-400',
+  update: 'text-accent',
   delete: 'text-red-400',
   action: 'text-amber-400'
 }
@@ -119,14 +119,14 @@ export function Events() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Events</h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <h1 className="text-2xl font-bold text-content-primary">Events</h1>
+          <p className="text-sm text-content-secondary mt-1">
             System events and audit trail — {total} total events
           </p>
         </div>
         <button
           onClick={fetchEvents}
-          className="px-4 py-2 rounded-lg border border-oxide-700 bg-oxide-800 text-gray-200 hover:bg-oxide-700 transition-colors text-sm flex items-center gap-2"
+          className="px-4 py-2 rounded-lg border border-border bg-surface-tertiary text-content-primary hover:bg-surface-hover transition-colors text-sm flex items-center gap-2"
         >
           <svg
             width="14"
@@ -154,7 +154,7 @@ export function Events() {
             setFilterType(e.target.value)
             setPage(1)
           }}
-          className="px-3 py-1.5 rounded-lg border border-oxide-700 bg-oxide-800 text-gray-200 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          className="px-3 py-1.5 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
         >
           <option value="">All Actions</option>
           <option value="create">Create</option>
@@ -170,7 +170,7 @@ export function Events() {
             setFilterResource(e.target.value)
             setPage(1)
           }}
-          className="px-3 py-1.5 rounded-lg border border-oxide-700 bg-oxide-800 text-gray-200 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          className="px-3 py-1.5 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
         >
           <option value="">All Resources</option>
           <option value="instance">Instance</option>
@@ -189,7 +189,7 @@ export function Events() {
             setFilterStatus(e.target.value)
             setPage(1)
           }}
-          className="px-3 py-1.5 rounded-lg border border-oxide-700 bg-oxide-800 text-gray-200 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          className="px-3 py-1.5 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
         >
           <option value="">All Statuses</option>
           <option value="success">Success</option>
@@ -204,7 +204,7 @@ export function Events() {
               setFilterStatus('')
               setPage(1)
             }}
-            className="px-3 py-1.5 rounded-lg border border-oxide-600 text-gray-400 hover:text-white hover:border-oxide-500 text-sm transition-colors"
+            className="px-3 py-1.5 rounded-lg border border-border-strong text-content-secondary hover:text-content-primary hover:border-oxide-500 text-sm transition-colors"
           >
             Clear Filters
           </button>
@@ -212,22 +212,22 @@ export function Events() {
       </div>
 
       {/* Events Table */}
-      <div className="rounded-xl border border-oxide-800 overflow-hidden bg-oxide-900/50 backdrop-blur">
+      <div className="rounded-xl border border-border overflow-hidden bg-surface-secondary backdrop-blur">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-oxide-800 bg-oxide-900/80">
-              <th className="text-left px-4 py-3 text-gray-400 font-medium">Time</th>
-              <th className="text-left px-4 py-3 text-gray-400 font-medium">Resource</th>
-              <th className="text-left px-4 py-3 text-gray-400 font-medium">Action</th>
-              <th className="text-left px-4 py-3 text-gray-400 font-medium">Status</th>
-              <th className="text-left px-4 py-3 text-gray-400 font-medium">Source IP</th>
-              <th className="text-right px-4 py-3 text-gray-400 font-medium">Details</th>
+            <tr className="border-b border-border bg-surface-secondary">
+              <th className="text-left px-4 py-3 text-content-secondary font-medium">Time</th>
+              <th className="text-left px-4 py-3 text-content-secondary font-medium">Resource</th>
+              <th className="text-left px-4 py-3 text-content-secondary font-medium">Action</th>
+              <th className="text-left px-4 py-3 text-content-secondary font-medium">Status</th>
+              <th className="text-left px-4 py-3 text-content-secondary font-medium">Source IP</th>
+              <th className="text-right px-4 py-3 text-content-secondary font-medium">Details</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={6} className="text-center py-12 text-gray-500">
+                <td colSpan={6} className="text-center py-12 text-content-tertiary">
                   <div className="flex items-center justify-center gap-2">
                     <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
                     Loading events...
@@ -236,7 +236,7 @@ export function Events() {
               </tr>
             ) : events.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center py-12 text-gray-500">
+                <td colSpan={6} className="text-center py-12 text-content-tertiary">
                   No events found
                 </td>
               </tr>
@@ -244,23 +244,23 @@ export function Events() {
               events.map((evt) => (
                 <tr
                   key={evt.id}
-                  className="border-b border-oxide-800/50 hover:bg-oxide-800/30 transition-colors cursor-pointer"
+                  className="border-b border-border/50 hover:bg-surface-tertiary transition-colors cursor-pointer"
                   onClick={() => setSelectedEvent(evt)}
                 >
                   <td className="px-4 py-3">
-                    <div className="text-gray-200">{relativeTime(evt.timestamp)}</div>
-                    <div className="text-xs text-gray-500">{formatTimestamp(evt.timestamp)}</div>
+                    <div className="text-content-primary">{relativeTime(evt.timestamp)}</div>
+                    <div className="text-xs text-content-tertiary">{formatTimestamp(evt.timestamp)}</div>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-oxide-700 text-gray-400">
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-surface-hover text-content-secondary">
                         {RESOURCE_ABBREV[evt.resource_type] ||
                           evt.resource_type.slice(0, 3).toUpperCase()}
                       </span>
                       <div>
-                        <div className="text-gray-200 capitalize">{evt.resource_type}</div>
+                        <div className="text-content-primary capitalize">{evt.resource_type}</div>
                         {evt.resource_id && (
-                          <div className="text-xs text-gray-500 font-mono">
+                          <div className="text-xs text-content-tertiary font-mono">
                             {evt.resource_id.substring(0, 8)}...
                           </div>
                         )}
@@ -269,23 +269,23 @@ export function Events() {
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`font-medium capitalize ${TYPE_COLORS[evt.event_type] || TYPE_COLORS[evt.action] || 'text-gray-300'}`}
+                      className={`font-medium capitalize ${TYPE_COLORS[evt.event_type] || TYPE_COLORS[evt.action] || 'text-content-secondary'}`}
                     >
                       {evt.action}
                     </span>
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`px-2 py-0.5 rounded-full text-xs border ${STATUS_COLORS[evt.status] || 'bg-gray-500/15 text-gray-400 border-gray-500/30'}`}
+                      className={`px-2 py-0.5 rounded-full text-xs border ${STATUS_COLORS[evt.status] || 'bg-gray-500/15 text-content-secondary border-gray-500/30'}`}
                     >
                       {evt.status}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-gray-400 font-mono text-xs">
+                  <td className="px-4 py-3 text-content-secondary font-mono text-xs">
                     {evt.source_ip || '—'}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <button className="text-blue-400 hover:text-blue-300 text-xs">View &rarr;</button>
+                    <button className="text-accent hover:text-accent-hover text-xs">View &rarr;</button>
                   </td>
                 </tr>
               ))
@@ -295,15 +295,15 @@ export function Events() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-oxide-800 bg-oxide-900/80">
-            <div className="text-sm text-gray-400">
+          <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-surface-secondary">
+            <div className="text-sm text-content-secondary">
               Showing {(page - 1) * limit + 1}–{Math.min(page * limit, total)} of {total}
             </div>
             <div className="flex gap-1">
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
-                className="px-3 py-1 rounded border border-oxide-700 text-gray-300 text-sm hover:bg-oxide-700 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="px-3 py-1 rounded border border-border text-content-secondary text-sm hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 ‹ Prev
               </button>
@@ -314,7 +314,7 @@ export function Events() {
                   <button
                     key={pageNum}
                     onClick={() => setPage(pageNum)}
-                    className={`px-3 py-1 rounded border text-sm ${page === pageNum ? 'border-blue-500 bg-blue-500/20 text-blue-400' : 'border-oxide-700 text-gray-300 hover:bg-oxide-700'}`}
+                    className={`px-3 py-1 rounded border text-sm ${page === pageNum ? 'border-blue-500 bg-blue-500/20 text-accent' : 'border-border text-content-secondary hover:bg-surface-hover'}`}
                   >
                     {pageNum}
                   </button>
@@ -323,7 +323,7 @@ export function Events() {
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page >= totalPages}
-                className="px-3 py-1 rounded border border-oxide-700 text-gray-300 text-sm hover:bg-oxide-700 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="px-3 py-1 rounded border border-border text-content-secondary text-sm hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Next ›
               </button>
@@ -339,12 +339,12 @@ export function Events() {
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => setSelectedEvent(null)}
           />
-          <div className="relative w-full max-w-lg bg-oxide-900 border-l border-oxide-700 shadow-2xl overflow-y-auto animate-slide-in-right">
-            <div className="sticky top-0 bg-oxide-900/95 backdrop-blur border-b border-oxide-800 px-6 py-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-white">Event Details</h2>
+          <div className="relative w-full max-w-lg bg-surface-secondary border-l border-border shadow-2xl overflow-y-auto animate-slide-in-right">
+            <div className="sticky top-0 bg-surface-secondary/95 backdrop-blur border-b border-border px-6 py-4 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-content-primary">Event Details</h2>
               <button
                 onClick={() => setSelectedEvent(null)}
-                className="h-8 w-8 rounded-lg border border-oxide-700 hover:bg-oxide-800 grid place-items-center text-gray-300"
+                className="h-8 w-8 rounded-lg border border-border hover:bg-surface-tertiary grid place-items-center text-content-secondary"
               >
                 &times;
               </button>
@@ -352,13 +352,13 @@ export function Events() {
             <div className="px-6 py-5 space-y-5">
               {/* Status Badge */}
               <div className="flex items-center gap-3">
-                <span className="px-2 py-1 rounded text-xs font-mono bg-oxide-700 text-gray-300">
+                <span className="px-2 py-1 rounded text-xs font-mono bg-surface-hover text-content-secondary">
                   {RESOURCE_ABBREV[selectedEvent.resource_type] ||
                     selectedEvent.resource_type.slice(0, 3).toUpperCase()}
                 </span>
                 <div>
                   <span
-                    className={`px-2.5 py-1 rounded-full text-xs font-medium border ${STATUS_COLORS[selectedEvent.status] || 'bg-gray-500/15 text-gray-400 border-gray-500/30'}`}
+                    className={`px-2.5 py-1 rounded-full text-xs font-medium border ${STATUS_COLORS[selectedEvent.status] || 'bg-gray-500/15 text-content-secondary border-gray-500/30'}`}
                   >
                     {selectedEvent.status}
                   </span>
@@ -382,11 +382,11 @@ export function Events() {
                 ].map(([label, value]) => (
                   <div
                     key={label}
-                    className="flex justify-between py-2 border-b border-oxide-800/50"
+                    className="flex justify-between py-2 border-b border-border/50"
                   >
-                    <span className="text-gray-400 text-sm">{label}</span>
+                    <span className="text-content-secondary text-sm">{label}</span>
                     <span
-                      className="text-gray-200 text-sm font-mono text-right max-w-[60%] truncate"
+                      className="text-content-primary text-sm font-mono text-right max-w-[60%] truncate"
                       title={String(value || '')}
                     >
                       {value || '—'}
@@ -408,8 +408,8 @@ export function Events() {
               {/* Details JSON */}
               {selectedEvent.details && Object.keys(selectedEvent.details).length > 0 && (
                 <div>
-                  <div className="text-gray-400 text-xs font-medium mb-2">Details</div>
-                  <pre className="rounded-lg bg-oxide-950 border border-oxide-800 p-4 text-xs text-gray-300 font-mono overflow-x-auto max-h-64">
+                  <div className="text-content-secondary text-xs font-medium mb-2">Details</div>
+                  <pre className="rounded-lg bg-surface-primary border border-border p-4 text-xs text-content-secondary font-mono overflow-x-auto max-h-64">
                     {JSON.stringify(selectedEvent.details, null, 2)}
                   </pre>
                 </div>

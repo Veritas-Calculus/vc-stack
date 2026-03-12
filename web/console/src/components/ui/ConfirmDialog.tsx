@@ -131,7 +131,7 @@ export function ConfirmDialog({
         className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
         onClick={onCancel}
       />
-      <div className="relative w-full max-w-md rounded-2xl border border-oxide-700 bg-oxide-900 shadow-2xl animate-scale-in">
+      <div className="relative w-full max-w-md rounded-2xl border border-border bg-surface-elevated shadow-2xl animate-scale-in backdrop-blur-xl">
         {/* Header */}
         <div className="p-6 pb-4">
           <div className="flex items-start gap-4">
@@ -141,8 +141,8 @@ export function ConfirmDialog({
               {v.icon}
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-white">{title}</h3>
-              <p className="text-sm text-gray-400 mt-1 leading-relaxed">{message}</p>
+              <h3 className="text-lg font-semibold text-content-primary">{title}</h3>
+              <p className="text-sm text-content-secondary mt-1 leading-relaxed">{message}</p>
             </div>
           </div>
         </div>
@@ -150,10 +150,10 @@ export function ConfirmDialog({
         {/* Typing confirmation */}
         {requireTyping && (
           <div className="px-6 pb-4">
-            <div className="p-3 rounded-xl bg-oxide-800/50 border border-oxide-700">
-              <p className="text-xs text-gray-400 mb-2">
+            <div className="p-3 rounded-xl bg-surface-tertiary border border-border">
+              <p className="text-xs text-content-secondary mb-2">
                 Type{' '}
-                <span className="font-mono text-white font-semibold px-1.5 py-0.5 rounded bg-oxide-700">
+                <span className="font-mono text-content-primary font-semibold px-1.5 py-0.5 rounded bg-surface-inset">
                   {confirmText}
                 </span>{' '}
                 to confirm:
@@ -164,7 +164,7 @@ export function ConfirmDialog({
                 value={typed}
                 onChange={(e) => setTyped(e.target.value)}
                 placeholder={confirmText}
-                className="w-full px-3 py-2 rounded-lg bg-oxide-900 border border-oxide-600 text-sm text-white placeholder-gray-600 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500/30 font-mono"
+                className="w-full px-3 py-2 rounded-lg bg-surface-primary border border-border text-sm text-content-primary placeholder-content-placeholder focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500/30 font-mono"
                 autoComplete="off"
                 spellCheck={false}
               />
@@ -176,7 +176,7 @@ export function ConfirmDialog({
         <div className="px-6 pb-6 flex justify-end gap-2">
           <button
             onClick={onCancel}
-            className="px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-oxide-800 transition-colors"
+            className="px-4 py-2 rounded-lg text-sm font-medium text-content-secondary hover:text-content-primary hover:bg-surface-hover transition-colors"
           >
             {cancelLabel}
           </button>

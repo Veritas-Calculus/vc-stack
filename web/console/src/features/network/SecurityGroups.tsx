@@ -26,14 +26,14 @@ interface SecurityGroup {
 }
 
 const DIRECTION_COLORS: Record<string, string> = {
-  ingress: 'bg-blue-500/15 text-blue-400 border-blue-500/30',
+  ingress: 'bg-blue-500/15 text-accent border-blue-500/30',
   egress: 'bg-purple-500/15 text-purple-400 border-purple-500/30'
 }
 
 const PROTOCOL_COLORS: Record<string, string> = {
   tcp: 'text-emerald-400',
   udp: 'text-amber-400',
-  icmp: 'text-blue-400'
+  icmp: 'text-accent'
 }
 
 export function SecurityGroups() {
@@ -160,14 +160,14 @@ export function SecurityGroups() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Security Groups</h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <h1 className="text-2xl font-bold text-content-primary">Security Groups</h1>
+          <p className="text-sm text-content-secondary mt-1">
             Manage firewall rules for your instances — {securityGroups.length} groups
           </p>
         </div>
         <button
           onClick={() => setShowCreate(true)}
-          className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-colors flex items-center gap-2"
+          className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium transition-colors flex items-center gap-2"
         >
           <svg
             width="14"
@@ -186,21 +186,21 @@ export function SecurityGroups() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left panel: Security Groups list */}
         <div className="lg:col-span-1">
-          <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur overflow-hidden">
-            <div className="px-4 py-3 border-b border-oxide-800 bg-oxide-900/80">
-              <h2 className="text-sm font-medium text-gray-300">Security Groups</h2>
+          <div className="rounded-xl border border-border bg-surface-secondary backdrop-blur overflow-hidden">
+            <div className="px-4 py-3 border-b border-border bg-surface-secondary">
+              <h2 className="text-sm font-medium text-content-secondary">Security Groups</h2>
             </div>
-            <div className="divide-y divide-oxide-800/50">
+            <div className="divide-y divide-border/50">
               {loading ? (
-                <div className="px-4 py-8 text-center text-gray-500">
+                <div className="px-4 py-8 text-center text-content-tertiary">
                   <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
                   Loading...
                 </div>
               ) : securityGroups.length === 0 ? (
-                <div className="px-4 py-8 text-center text-gray-500">
+                <div className="px-4 py-8 text-center text-content-tertiary">
                   <div className="w-8 h-8 rounded-lg bg-blue-500/15 flex items-center justify-center mb-1">
                     <svg
-                      className="w-4 h-4 text-blue-400"
+                      className="w-4 h-4 text-accent"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -220,19 +220,19 @@ export function SecurityGroups() {
                   <button
                     key={sg.id}
                     onClick={() => setSelectedSG(sg)}
-                    className={`w-full text-left px-4 py-3 hover:bg-oxide-800/50 transition-colors ${selectedSG?.id === sg.id ? 'bg-oxide-800/70 border-l-2 border-l-blue-500' : ''}`}
+                    className={`w-full text-left px-4 py-3 hover:bg-surface-tertiary transition-colors ${selectedSG?.id === sg.id ? 'bg-surface-tertiary/70 border-l-2 border-l-blue-500' : ''}`}
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="text-sm font-medium text-gray-200">{sg.name}</div>
+                        <div className="text-sm font-medium text-content-primary">{sg.name}</div>
                         {sg.description && (
-                          <div className="text-xs text-gray-500 mt-0.5 truncate max-w-48">
+                          <div className="text-xs text-content-tertiary mt-0.5 truncate max-w-48">
                             {sg.description}
                           </div>
                         )}
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-content-tertiary">
                           {(sg.rules || []).length} rules
                         </span>
                         <button
@@ -240,7 +240,7 @@ export function SecurityGroups() {
                             e.stopPropagation()
                             handleDelete(sg.id)
                           }}
-                          className="h-6 w-6 grid place-items-center rounded hover:bg-red-500/20 text-gray-500 hover:text-red-400 transition-colors"
+                          className="h-6 w-6 grid place-items-center rounded hover:bg-red-500/20 text-content-tertiary hover:text-red-400 transition-colors"
                           title="Delete"
                         >
                           <svg
@@ -266,17 +266,17 @@ export function SecurityGroups() {
         {/* Right panel: Rules */}
         <div className="lg:col-span-2">
           {selectedSG ? (
-            <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur overflow-hidden">
-              <div className="px-4 py-3 border-b border-oxide-800 bg-oxide-900/80 flex items-center justify-between">
+            <div className="rounded-xl border border-border bg-surface-secondary backdrop-blur overflow-hidden">
+              <div className="px-4 py-3 border-b border-border bg-surface-secondary flex items-center justify-between">
                 <div>
-                  <h2 className="text-sm font-medium text-white">{selectedSG.name}</h2>
-                  <p className="text-xs text-gray-500 mt-0.5">
+                  <h2 className="text-sm font-medium text-content-primary">{selectedSG.name}</h2>
+                  <p className="text-xs text-content-tertiary mt-0.5">
                     ID: <span className="font-mono">{selectedSG.id}</span>
                   </p>
                 </div>
                 <button
                   onClick={() => setShowAddRule(true)}
-                  className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium transition-colors flex items-center gap-1.5"
+                  className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-xs font-medium transition-colors flex items-center gap-1.5"
                 >
                   <svg
                     width="12"
@@ -294,7 +294,7 @@ export function SecurityGroups() {
 
               {/* Ingress Rules */}
               <div className="p-4">
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <h3 className="text-xs font-semibold text-content-secondary uppercase tracking-wider mb-3 flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-blue-500" />
                   Ingress Rules (Inbound)
                 </h3>
@@ -305,11 +305,11 @@ export function SecurityGroups() {
                 />
               </div>
 
-              <div className="border-t border-oxide-800/50" />
+              <div className="border-t border-border/50" />
 
               {/* Egress Rules */}
               <div className="p-4">
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <h3 className="text-xs font-semibold text-content-secondary uppercase tracking-wider mb-3 flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-purple-500" />
                   Egress Rules (Outbound)
                 </h3>
@@ -336,26 +336,26 @@ export function SecurityGroups() {
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => setShowCreate(false)}
           />
-          <div className="relative w-full max-w-md bg-oxide-900 rounded-xl border border-oxide-700 shadow-2xl p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">Create Security Group</h2>
+          <div className="relative w-full max-w-md bg-surface-secondary rounded-xl border border-border shadow-2xl p-6">
+            <h2 className="text-lg font-semibold text-content-primary mb-4">Create Security Group</h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Name</label>
+                <label className="block text-sm text-content-secondary mb-1">Name</label>
                 <input
                   type="text"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-oxide-700 bg-oxide-800 text-gray-200 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
                   placeholder="my-security-group"
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Description</label>
+                <label className="block text-sm text-content-secondary mb-1">Description</label>
                 <input
                   type="text"
                   value={newDesc}
                   onChange={(e) => setNewDesc(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-oxide-700 bg-oxide-800 text-gray-200 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
                   placeholder="Allow web traffic"
                 />
               </div>
@@ -363,13 +363,13 @@ export function SecurityGroups() {
             <div className="flex justify-end gap-2 mt-6">
               <button
                 onClick={() => setShowCreate(false)}
-                className="px-4 py-2 rounded-lg border border-oxide-700 text-gray-300 text-sm hover:bg-oxide-800"
+                className="px-4 py-2 rounded-lg border border-border text-content-secondary text-sm hover:bg-surface-tertiary"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreate}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium"
+                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium"
               >
                 Create
               </button>
@@ -385,28 +385,28 @@ export function SecurityGroups() {
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => setShowAddRule(false)}
           />
-          <div className="relative w-full max-w-lg bg-oxide-900 rounded-xl border border-oxide-700 shadow-2xl p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">
-              Add Rule to <span className="text-blue-400">{selectedSG.name}</span>
+          <div className="relative w-full max-w-lg bg-surface-secondary rounded-xl border border-border shadow-2xl p-6">
+            <h2 className="text-lg font-semibold text-content-primary mb-4">
+              Add Rule to <span className="text-accent">{selectedSG.name}</span>
             </h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Direction</label>
+                <label className="block text-sm text-content-secondary mb-1">Direction</label>
                 <select
                   value={ruleDirection}
                   onChange={(e) => setRuleDirection(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-oxide-700 bg-oxide-800 text-gray-200 text-sm outline-none"
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm outline-none"
                 >
                   <option value="ingress">Ingress (Inbound)</option>
                   <option value="egress">Egress (Outbound)</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Protocol</label>
+                <label className="block text-sm text-content-secondary mb-1">Protocol</label>
                 <select
                   value={ruleProtocol}
                   onChange={(e) => setRuleProtocol(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-oxide-700 bg-oxide-800 text-gray-200 text-sm outline-none"
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm outline-none"
                 >
                   <option value="tcp">TCP</option>
                   <option value="udp">UDP</option>
@@ -416,34 +416,34 @@ export function SecurityGroups() {
               {ruleProtocol !== 'icmp' && (
                 <>
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">Port Min</label>
+                    <label className="block text-sm text-content-secondary mb-1">Port Min</label>
                     <input
                       type="number"
                       value={rulePortMin}
                       onChange={(e) => setRulePortMin(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg border border-oxide-700 bg-oxide-800 text-gray-200 text-sm outline-none"
+                      className="w-full px-3 py-2 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm outline-none"
                       placeholder="22"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">Port Max</label>
+                    <label className="block text-sm text-content-secondary mb-1">Port Max</label>
                     <input
                       type="number"
                       value={rulePortMax}
                       onChange={(e) => setRulePortMax(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg border border-oxide-700 bg-oxide-800 text-gray-200 text-sm outline-none"
+                      className="w-full px-3 py-2 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm outline-none"
                       placeholder="22"
                     />
                   </div>
                 </>
               )}
               <div className={ruleProtocol === 'icmp' ? 'col-span-2' : 'col-span-2'}>
-                <label className="block text-sm text-gray-400 mb-1">Remote IP Prefix (CIDR)</label>
+                <label className="block text-sm text-content-secondary mb-1">Remote IP Prefix (CIDR)</label>
                 <input
                   type="text"
                   value={ruleRemoteIP}
                   onChange={(e) => setRuleRemoteIP(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-oxide-700 bg-oxide-800 text-gray-200 text-sm outline-none"
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm outline-none"
                   placeholder="0.0.0.0/0"
                 />
               </div>
@@ -451,13 +451,13 @@ export function SecurityGroups() {
             <div className="flex justify-end gap-2 mt-6">
               <button
                 onClick={() => setShowAddRule(false)}
-                className="px-4 py-2 rounded-lg border border-oxide-700 text-gray-300 text-sm hover:bg-oxide-800"
+                className="px-4 py-2 rounded-lg border border-border text-content-secondary text-sm hover:bg-surface-tertiary"
               >
                 Cancel
               </button>
               <button
                 onClick={handleAddRule}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium"
+                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium"
               >
                 Add Rule
               </button>
@@ -479,13 +479,13 @@ function RulesTable({
   onDeleteRule: (id: string) => void
 }) {
   if (rules.length === 0) {
-    return <div className="text-center py-4 text-gray-500 text-sm">No rules configured</div>
+    return <div className="text-center py-4 text-content-tertiary text-sm">No rules configured</div>
   }
 
   return (
     <table className="w-full text-sm">
       <thead>
-        <tr className="text-gray-500 text-xs">
+        <tr className="text-content-tertiary text-xs">
           <th className="text-left py-2 pr-3 font-medium">Direction</th>
           <th className="text-left py-2 pr-3 font-medium">Protocol</th>
           <th className="text-left py-2 pr-3 font-medium">Port Range</th>
@@ -495,7 +495,7 @@ function RulesTable({
       </thead>
       <tbody>
         {rules.map((rule) => (
-          <tr key={rule.id} className="border-t border-oxide-800/30">
+          <tr key={rule.id} className="border-t border-border">
             <td className="py-2.5 pr-3">
               <span
                 className={`px-2 py-0.5 rounded-full text-xs border ${DIRECTION_COLORS[rule.direction] || ''}`}
@@ -505,13 +505,13 @@ function RulesTable({
             </td>
             <td className="py-2.5 pr-3">
               <span
-                className={`font-mono text-xs font-medium uppercase ${PROTOCOL_COLORS[rule.protocol] || 'text-gray-300'}`}
+                className={`font-mono text-xs font-medium uppercase ${PROTOCOL_COLORS[rule.protocol] || 'text-content-secondary'}`}
               >
                 {rule.protocol}
               </span>
             </td>
-            <td className="py-2.5 pr-3 font-mono text-gray-300 text-xs">{portRange(rule)}</td>
-            <td className="py-2.5 pr-3 font-mono text-gray-400 text-xs">
+            <td className="py-2.5 pr-3 font-mono text-content-secondary text-xs">{portRange(rule)}</td>
+            <td className="py-2.5 pr-3 font-mono text-content-secondary text-xs">
               {rule.remote_ip_prefix || '0.0.0.0/0'}
             </td>
             <td className="py-2.5 text-right">

@@ -298,7 +298,7 @@ export function Instances() {
       render: (r) => (
         <div className="flex justify-end">
           <button
-            className="text-blue-400 hover:underline"
+            className="text-accent hover:underline"
             title="View instance disks"
             onClick={(e) => {
               e.stopPropagation()

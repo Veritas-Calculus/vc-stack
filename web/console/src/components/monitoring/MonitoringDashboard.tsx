@@ -61,13 +61,13 @@ export function MonitoringDashboard() {
           </select>
           <button
             onClick={runAnalysis}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="px-4 py-2 bg-blue-500 text-content-primary rounded hover:bg-blue-600"
           >
             Analyze Performance
           </button>
           <button
             onClick={loadMetrics}
-            className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+            className="px-4 py-2 bg-gray-500 text-content-primary rounded hover:bg-gray-600"
           >
             Refresh
           </button>
@@ -83,7 +83,7 @@ export function MonitoringDashboard() {
           <div className="p-4 bg-yellow-50 border border-yellow-200 rounded">
             <h3 className="text-lg font-semibold mb-2">Issues Detected</h3>
             {analysis.issues.length === 0 ? (
-              <p className="text-gray-600">No issues detected</p>
+              <p className="text-content-tertiary">No issues detected</p>
             ) : (
               <ul className="list-disc list-inside space-y-1">
                 {analysis.issues.map((issue, idx) => (
@@ -97,7 +97,7 @@ export function MonitoringDashboard() {
           <div className="p-4 bg-blue-50 border border-blue-200 rounded">
             <h3 className="text-lg font-semibold mb-2">Recommendations</h3>
             {analysis.recommendations.length === 0 ? (
-              <p className="text-gray-600">No recommendations</p>
+              <p className="text-content-tertiary">No recommendations</p>
             ) : (
               <ul className="list-disc list-inside space-y-1">
                 {analysis.recommendations.map((rec, idx) => (
@@ -114,7 +114,7 @@ export function MonitoringDashboard() {
       <div className="grid grid-cols-1 gap-6">
         <div className="bg-white p-6 rounded-lg shadow">
           <h2 className="text-xl font-semibold mb-4">System Metrics</h2>
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-content-tertiary">
             {systemMetrics.length > 0 ? (
               <div className="space-y-2">
                 <p>
@@ -133,7 +133,7 @@ export function MonitoringDashboard() {
 
         <div className="bg-white p-6 rounded-lg shadow">
           <h2 className="text-xl font-semibold mb-4">HTTP Request Metrics</h2>
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-content-tertiary">
             {httpMetrics.length > 0 ? (
               <div className="space-y-2">
                 <p>

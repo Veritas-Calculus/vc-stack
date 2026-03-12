@@ -250,7 +250,7 @@ export default function NetworkTopology() {
               <Badge variant="default">{selected.type}</Badge>
             </div>
             <button
-              className="text-xs text-neutral-400 hover:text-white"
+              className="text-xs text-neutral-400 hover:text-content-primary"
               onClick={() => setSelected(null)}
             >
               Close

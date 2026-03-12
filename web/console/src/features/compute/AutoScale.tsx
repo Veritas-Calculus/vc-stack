@@ -101,7 +101,7 @@ export function AutoScale() {
             />
           </div>
           <span className="text-xs text-zinc-500">{r.max_size}</span>
-          <span className="text-xs text-white ml-1">
+          <span className="text-xs text-content-primary ml-1">
             {r.current_size}/{r.desired_capacity}
           </span>
         </div>

@@ -155,7 +155,7 @@ export default function LoadBalancers() {
       case 'error':
         return 'text-red-400'
       default:
-        return 'text-gray-400'
+        return 'text-content-secondary'
     }
   }
 
@@ -164,7 +164,7 @@ export default function LoadBalancers() {
     {
       key: 'vip',
       header: 'VIP',
-      render: (r) => <span className="font-mono text-blue-400">{r.vip}</span>
+      render: (r) => <span className="font-mono text-accent">{r.vip}</span>
     },
     {
       key: 'protocol',
@@ -183,16 +183,16 @@ export default function LoadBalancers() {
       header: 'Backends',
       render: (r) => {
         if (!r.backends || r.backends.length === 0)
-          return <span className="text-gray-500 text-xs">None</span>
+          return <span className="text-content-tertiary text-xs">None</span>
         return (
           <div className="space-y-0.5">
             {r.backends.slice(0, 3).map((b, i) => (
-              <div key={i} className="text-xs font-mono text-gray-300">
+              <div key={i} className="text-xs font-mono text-content-secondary">
                 {b}
               </div>
             ))}
             {r.backends.length > 3 && (
-              <span className="text-xs text-gray-500">+{r.backends.length - 3} more</span>
+              <span className="text-xs text-content-tertiary">+{r.backends.length - 3} more</span>
             )}
           </div>
         )
@@ -202,7 +202,7 @@ export default function LoadBalancers() {
       key: 'health_check',
       header: 'Health Check',
       render: (r) => (
-        <span className={r.health_check ? 'text-green-400 text-xs' : 'text-gray-500 text-xs'}>
+        <span className={r.health_check ? 'text-green-400 text-xs' : 'text-content-tertiary text-xs'}>
           {r.health_check ? 'Enabled' : 'Disabled'}
         </span>
       )
@@ -313,7 +313,7 @@ export default function LoadBalancers() {
                 onChange={(e) => setLbVip(e.target.value)}
                 placeholder="10.0.0.100:80"
               />
-              <p className="text-xs text-gray-400 mt-1">Format: IP:Port or IP</p>
+              <p className="text-xs text-content-secondary mt-1">Format: IP:Port or IP</p>
             </div>
           </div>
           <div>
@@ -337,7 +337,7 @@ export default function LoadBalancers() {
               rows={4}
               placeholder={'10.0.0.2:80\n10.0.0.3:80\n10.0.0.4:80'}
             />
-            <p className="text-xs text-gray-400 mt-1">One backend per line (IP:Port format)</p>
+            <p className="text-xs text-content-secondary mt-1">One backend per line (IP:Port format)</p>
           </div>
         </div>
       </Modal>
@@ -371,10 +371,10 @@ export default function LoadBalancers() {
               rows={6}
               placeholder={'10.0.0.2:80\n10.0.0.3:80'}
             />
-            <p className="text-xs text-gray-400 mt-1">One backend per line (IP:Port)</p>
+            <p className="text-xs text-content-secondary mt-1">One backend per line (IP:Port)</p>
           </div>
-          <div className="p-3 bg-blue-900/20 border border-blue-800/30 rounded text-sm text-gray-300">
-            Current VIP: <span className="font-mono text-blue-400">{selectedLb?.vip}</span> |
+          <div className="p-3 bg-blue-900/20 border border-blue-800/30 rounded text-sm text-content-secondary">
+            Current VIP: <span className="font-mono text-accent">{selectedLb?.vip}</span> |
             Protocol: <span className="uppercase">{selectedLb?.protocol}</span>
           </div>
         </div>
@@ -410,7 +410,7 @@ export default function LoadBalancers() {
               <option value="dp_hash">Source IP Hash (dp_hash)</option>
               <option value="dst_ip">Destination IP (dst_ip)</option>
             </select>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-content-secondary mt-1">
               dp_hash distributes based on source IP for session persistence. dst_ip distributes
               based on destination IP.
             </p>

@@ -74,8 +74,8 @@ export function HPC() {
                 {Icons.cpu('w-6 h-6 text-purple-400')}
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-white">HPC Platform</h2>
-                <p className="text-sm text-gray-400">
+                <h2 className="text-lg font-semibold text-content-primary">HPC Platform</h2>
+                <p className="text-sm text-content-secondary">
                   Status: <span className="text-green-400 font-medium">{status.status}</span>
                 </p>
               </div>
@@ -88,7 +88,7 @@ export function HPC() {
               {
                 label: 'K8s Clusters',
                 value: status.kubernetes_clusters,
-                icon: Icons.kubernetes('w-5 h-5 text-blue-400'),
+                icon: Icons.kubernetes('w-5 h-5 text-accent'),
                 color: 'blue'
               },
               {
@@ -128,11 +128,11 @@ export function HPC() {
               >
                 <div className="flex items-center gap-2 mb-2">
                   {stat.icon}
-                  <span className="text-xs text-gray-500 uppercase tracking-wider">
+                  <span className="text-xs text-content-tertiary uppercase tracking-wider">
                     {stat.label}
                   </span>
                 </div>
-                <p className="text-2xl font-bold text-white">{stat.value}</p>
+                <p className="text-2xl font-bold text-content-primary">{stat.value}</p>
               </div>
             ))}
           </div>
@@ -142,7 +142,7 @@ export function HPC() {
             <QuickAction
               title="HPC Clusters"
               description="Manage GPU-aware K8s clusters (Volcano, Kueue) and Slurm clusters"
-              icon={Icons.kubernetes('w-8 h-8 text-blue-400')}
+              icon={Icons.kubernetes('w-8 h-8 text-accent')}
               gradient="from-blue-600/20 to-blue-800/20"
               status="Active"
               onClick={() => navigate('/hpc/clusters')}
@@ -193,13 +193,13 @@ function QuickAction({
       <div className="flex items-start gap-4">
         <div className="p-3 rounded-xl bg-black/20">{icon}</div>
         <div className="flex-1 min-w-0">
-          <h3 className="text-base font-semibold text-white mb-1">{title}</h3>
-          <p className="text-sm text-gray-400 mb-3">{description}</p>
+          <h3 className="text-base font-semibold text-content-primary mb-1">{title}</h3>
+          <p className="text-sm text-content-secondary mb-3">{description}</p>
           <span
             className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${
               status === 'Active'
                 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                : 'bg-white/5 text-gray-400 border border-white/10'
+                : 'bg-white/5 text-content-secondary border border-white/10'
             }`}
           >
             {status === 'Active' && (

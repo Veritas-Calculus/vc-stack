@@ -76,11 +76,11 @@ export function DeletionProgress({ instanceIds, onComplete, onClose }: DeletionP
       case 'failed':
         return 'text-red-400'
       case 'processing':
-        return 'text-blue-400'
+        return 'text-accent'
       case 'pending':
         return 'text-yellow-400'
       default:
-        return 'text-gray-400'
+        return 'text-content-secondary'
     }
   }
 
@@ -115,7 +115,7 @@ export function DeletionProgress({ instanceIds, onComplete, onClose }: DeletionP
         )
       case 'processing':
         return (
-          <svg className="w-5 h-5 text-blue-400 animate-spin" fill="none" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-accent animate-spin" fill="none" viewBox="0 0 24 24">
             <circle
               className="opacity-25"
               cx="12"
@@ -150,7 +150,7 @@ export function DeletionProgress({ instanceIds, onComplete, onClose }: DeletionP
       default:
         return (
           <svg
-            className="w-5 h-5 text-gray-400 animate-pulse"
+            className="w-5 h-5 text-content-secondary animate-pulse"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -175,13 +175,13 @@ export function DeletionProgress({ instanceIds, onComplete, onClose }: DeletionP
       <div className="space-y-4">
         {/* Progress bar */}
         <div className="space-y-2">
-          <div className="flex justify-between text-sm text-gray-400">
+          <div className="flex justify-between text-sm text-content-secondary">
             <span>Progress</span>
             <span>
               {completedCount + failedCount} / {instanceIds.length}
             </span>
           </div>
-          <div className="w-full bg-gray-700 rounded-full h-2">
+          <div className="w-full bg-surface-hover rounded-full h-2">
             <div
               className="bg-blue-500 h-2 rounded-full transition-all duration-300"
               style={{ width: `${progress}%` }}
@@ -199,7 +199,7 @@ export function DeletionProgress({ instanceIds, onComplete, onClose }: DeletionP
               <div className="flex-shrink-0 mt-0.5">{getStatusIcon(state.status)}</div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-gray-200">
+                  <span className="text-sm font-medium text-content-primary">
                     Instance {state.instanceId}
                   </span>
                   <span className={`text-xs font-semibold ${getStatusColor(state.status)}`}>
@@ -219,7 +219,7 @@ export function DeletionProgress({ instanceIds, onComplete, onClose }: DeletionP
 
         {/* Summary */}
         {!polling && (
-          <div className="pt-4 border-t border-gray-700">
+          <div className="pt-4 border-t border-border">
             <div className="flex items-center justify-between text-sm">
               <span className="text-green-400">Completed: {completedCount}</span>
               {failedCount > 0 && <span className="text-red-400">Failed: {failedCount}</span>}
@@ -231,7 +231,7 @@ export function DeletionProgress({ instanceIds, onComplete, onClose }: DeletionP
         {!polling && (
           <button
             onClick={onClose}
-            className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+            className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-content-primary rounded-lg transition-colors"
           >
             Close
           </button>

@@ -245,7 +245,7 @@ export default function RouterManagement() {
       key: 'external_gateway',
       header: 'External Gateway',
       render: (r) => (
-        <span className={r.external_gateway_network_id ? 'text-green-400' : 'text-gray-500'}>
+        <span className={r.external_gateway_network_id ? 'text-green-400' : 'text-content-tertiary'}>
           {getNetworkName(r.external_gateway_network_id)}
         </span>
       )
@@ -254,7 +254,7 @@ export default function RouterManagement() {
       key: 'snat',
       header: 'SNAT',
       render: (r) => (
-        <span className={r.enable_snat ? 'text-green-400' : 'text-gray-500'}>
+        <span className={r.enable_snat ? 'text-green-400' : 'text-content-tertiary'}>
           {r.enable_snat ? 'Enabled' : 'Disabled'}
         </span>
       )
@@ -262,7 +262,7 @@ export default function RouterManagement() {
     {
       key: 'status',
       header: 'Status',
-      render: (r) => <span className="text-xs text-gray-300">{r.status || 'ACTIVE'}</span>
+      render: (r) => <span className="text-xs text-content-secondary">{r.status || 'ACTIVE'}</span>
     },
     {
       key: 'actions',
@@ -386,7 +386,7 @@ export default function RouterManagement() {
                 </option>
               ))}
             </select>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-content-secondary mt-1">
               Select an external network to enable internet access for connected tenant networks
             </p>
           </div>
@@ -399,7 +399,7 @@ export default function RouterManagement() {
             />
             <label htmlFor="enable-snat" className="label m-0 cursor-pointer">
               Enable SNAT
-              <span className="text-xs text-gray-400 ml-2">
+              <span className="text-xs text-content-secondary ml-2">
                 (for private network internet access)
               </span>
             </label>
@@ -458,7 +458,7 @@ export default function RouterManagement() {
               ))}
             </select>
           </div>
-          <div className="p-3 bg-blue-900/20 border border-blue-800/30 rounded text-sm text-gray-300">
+          <div className="p-3 bg-blue-900/20 border border-blue-800/30 rounded text-sm text-content-secondary">
             <p>
               After setting gateway, internal networks connected to this router can access the
               internet.
@@ -489,8 +489,8 @@ export default function RouterManagement() {
       >
         <div className="space-y-4">
           {/* Add Interface */}
-          <div className="p-4 bg-oxide-900 rounded border border-oxide-800">
-            <h3 className="text-sm font-semibold text-gray-200 mb-3">Add Interface</h3>
+          <div className="p-4 bg-surface-secondary rounded border border-border">
+            <h3 className="text-sm font-semibold text-content-primary mb-3">Add Interface</h3>
             <div className="flex gap-2">
               <select
                 className="input flex-1"
@@ -519,9 +519,9 @@ export default function RouterManagement() {
 
           {/* Connected Interfaces */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-200 mb-3">Connected Interfaces</h3>
+            <h3 className="text-sm font-semibold text-content-primary mb-3">Connected Interfaces</h3>
             {routerInterfaces.length === 0 ? (
-              <p className="text-gray-500 text-sm">No interfaces connected</p>
+              <p className="text-content-tertiary text-sm">No interfaces connected</p>
             ) : (
               <div className="space-y-2">
                 {routerInterfaces.map((iface) => {
@@ -530,13 +530,13 @@ export default function RouterManagement() {
                   return (
                     <div
                       key={iface.id}
-                      className="flex items-center justify-between p-3 bg-oxide-900 rounded border border-oxide-800"
+                      className="flex items-center justify-between p-3 bg-surface-secondary rounded border border-border"
                     >
                       <div>
-                        <div className="text-sm font-medium text-gray-200">
+                        <div className="text-sm font-medium text-content-primary">
                           {subnet?.cidr || iface.subnet_id}
                         </div>
-                        <div className="text-xs text-gray-400">
+                        <div className="text-xs text-content-secondary">
                           Network: {network?.name || 'Unknown'} • IP: {iface.ip_address}
                         </div>
                       </div>

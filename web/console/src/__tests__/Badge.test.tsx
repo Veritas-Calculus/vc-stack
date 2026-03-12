@@ -35,7 +35,7 @@ describe('Badge', () => {
   it('uses default styling when no variant', () => {
     const { container } = render(<Badge>stopped</Badge>)
     const badge = container.firstChild as HTMLElement
-    expect(badge.className).toContain('oxide')
+    expect(badge.className).toContain('surface')
     expect(badge.className).not.toContain('emerald')
     expect(badge.className).not.toContain('rose')
   })

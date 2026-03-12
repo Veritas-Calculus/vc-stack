@@ -25,7 +25,7 @@ export function GPUResources() {
         { key: 'vram_mb', header: 'VRAM', render: (r) => <span className="text-sm font-mono">{vramFmt(r.vram_mb)}</span> },
         { key: 'mig_capable', header: 'MIG', render: (r) => <span className={`text-xs ${r.mig_capable ? 'text-emerald-400' : 'text-zinc-600'}`}>{r.mig_capable ? 'Yes' : 'No'}</span> },
         { key: 'host_id', header: 'Host', render: (r) => <span className="text-xs text-zinc-400">Host #{r.host_id}</span> },
-        { key: 'status', header: 'Status', render: (r) => <span className={`text-xs px-2 py-0.5 rounded-full ${r.status === 'available' ? 'bg-emerald-500/15 text-emerald-400' : r.status === 'allocated' ? 'bg-blue-500/15 text-blue-400' : 'bg-zinc-600/20 text-zinc-400'}`}>{r.status}</span> },
+        { key: 'status', header: 'Status', render: (r) => <span className={`text-xs px-2 py-0.5 rounded-full ${r.status === 'available' ? 'bg-emerald-500/15 text-emerald-400' : r.status === 'allocated' ? 'bg-blue-500/15 text-accent' : 'bg-zinc-600/20 text-zinc-400'}`}>{r.status}</span> },
     ]
 
     const profCols: Column<UIGPUProfile>[] = [

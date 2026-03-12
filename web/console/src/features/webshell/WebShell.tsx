@@ -43,13 +43,13 @@ function TreeNode({ node, onPick, openMap, setOpenMap, query }: TreeNodeProps) {
       <div className="ml-2">
         <button
           type="button"
-          className="text-left text-sm text-gray-200 hover:underline"
+          className="text-left text-sm text-content-primary hover:underline"
           onClick={() => setOpenMap(group.id, !isOpen)}
         >
           {isOpen ? '-' : '+'} {group.name}
         </button>
         {isOpen && (
-          <div className="ml-4 border-l border-oxide-800 pl-2">
+          <div className="ml-4 border-l border-border pl-2">
             {group.children
               .filter((child) => matchNode(child, query))
               .map((child) => (
@@ -74,7 +74,7 @@ function TreeNode({ node, onPick, openMap, setOpenMap, query }: TreeNodeProps) {
       <button type="button" className="text-blue-300 hover:underline" onClick={() => onPick(host)}>
         {host.name}
       </button>
-      <span className="text-gray-500">
+      <span className="text-content-tertiary">
         {' '}
         — {host.address}
         {host.defaultUser ? ` (${host.defaultUser})` : ''}
@@ -448,7 +448,7 @@ export function WebShell() {
         <PageHeader title="WebShell" subtitle="SSH terminal access to remote hosts" />
         <button
           onClick={() => (window.location.href = '/webshell/sessions')}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center gap-2"
+          className="px-4 py-2 bg-blue-600 text-content-primary rounded hover:bg-blue-700 flex items-center gap-2"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -467,8 +467,8 @@ export function WebShell() {
           {/* CMDB Browser */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <div className="text-sm font-medium text-gray-200">CMDB</div>
-              <span className="text-xs text-gray-500">Select a host</span>
+              <div className="text-sm font-medium text-content-primary">CMDB</div>
+              <span className="text-xs text-content-tertiary">Select a host</span>
             </div>
             <input
               className="input w-full mb-2"
@@ -476,7 +476,7 @@ export function WebShell() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
-            <div className="max-h-56 overflow-auto rounded border border-oxide-800 p-2 bg-oxide-950">
+            <div className="max-h-56 overflow-auto rounded border border-border p-2 bg-surface-primary">
               {filteredTree.map((node) => (
                 <TreeNode
                   key={node.id}
@@ -533,7 +533,7 @@ export function WebShell() {
           {/* Auth Method */}
           <div>
             <label className="label">Auth Method</label>
-            <div className="flex items-center gap-4 text-sm text-gray-200">
+            <div className="flex items-center gap-4 text-sm text-content-primary">
               <label className="inline-flex items-center gap-2">
                 <input
                   type="radio"
@@ -573,13 +573,13 @@ export function WebShell() {
             <div>
               <label className="label">SSH Private Key</label>
               <input
-                className="input w-full file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:bg-oxide-700 file:text-gray-200"
+                className="input w-full file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:bg-surface-hover file:text-content-primary"
                 type="file"
                 onChange={handleKeyFileChange}
                 disabled={connected}
               />
               {keyName && (
-                <div className="text-xs text-gray-500 mt-1">
+                <div className="text-xs text-content-tertiary mt-1">
                   Selected: {keyName} {keyContent ? `(${keyContent.length} bytes)` : '(loading...)'}
                 </div>
               )}
@@ -617,7 +617,7 @@ export function WebShell() {
                     <li>• Verify SSH key is in ~/.ssh/authorized_keys</li>
                   </ul>
                   <button
-                    className="mt-3 text-xs bg-red-700 hover:bg-red-600 text-white px-3 py-1.5 rounded"
+                    className="mt-3 text-xs bg-red-700 hover:bg-red-600 text-content-primary px-3 py-1.5 rounded"
                     onClick={() => {
                       setError('')
                       if (authMethod === 'password') {
@@ -662,7 +662,7 @@ export function WebShell() {
 
         {/* Terminal */}
         <div className="card p-0 overflow-hidden">
-          <div ref={terminalElRef} className="h-[600px] w-full bg-oxide-950 p-2" />
+          <div ref={terminalElRef} className="h-[600px] w-full bg-surface-primary p-2" />
         </div>
       </div>
     </div>

@@ -75,8 +75,8 @@ export function SnapshotSchedules() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white">Snapshot Schedules</h1>
-        <p className="text-sm text-gray-400 mt-1">
+        <h1 className="text-2xl font-bold text-content-primary">Snapshot Schedules</h1>
+        <p className="text-sm text-content-secondary mt-1">
           Automated snapshot policies — {schedules.length} schedules
         </p>
       </div>
@@ -95,55 +95,55 @@ export function SnapshotSchedules() {
           {schedules.map((s) => (
             <div
               key={s.id}
-              className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur overflow-hidden hover:border-oxide-700 transition-colors"
+              className="rounded-xl border border-border bg-surface-secondary backdrop-blur overflow-hidden hover:border-border transition-colors"
             >
-              <div className="px-4 py-3 border-b border-oxide-800/50 flex items-center justify-between">
+              <div className="px-4 py-3 border-b border-border/50 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-blue-500 inline-block" />
-                  <span className="text-sm font-medium text-white">{s.name}</span>
+                  <span className="text-sm font-medium text-content-primary">{s.name}</span>
                 </div>
                 <span
-                  className={`px-2 py-0.5 rounded text-xs ${s.enabled ? 'bg-emerald-500/15 text-emerald-400' : 'bg-gray-500/15 text-gray-400'}`}
+                  className={`px-2 py-0.5 rounded text-xs ${s.enabled ? 'bg-emerald-500/15 text-emerald-400' : 'bg-gray-500/15 text-content-secondary'}`}
                 >
                   {s.enabled ? 'Active' : 'Paused'}
                 </span>
               </div>
               <div className="px-4 py-3 space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Volume</span>
-                  <span className="text-gray-300">{s.volume?.name || `#${s.volume_id}`}</span>
+                  <span className="text-content-tertiary">Volume</span>
+                  <span className="text-content-secondary">{s.volume?.name || `#${s.volume_id}`}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Interval</span>
-                  <span className="text-gray-300">{intervalLabel(s.interval_hours)}</span>
+                  <span className="text-content-tertiary">Interval</span>
+                  <span className="text-content-secondary">{intervalLabel(s.interval_hours)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Retention</span>
-                  <span className="text-gray-300">{s.max_snapshots} snapshots</span>
+                  <span className="text-content-tertiary">Retention</span>
+                  <span className="text-content-secondary">{s.max_snapshots} snapshots</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Timezone</span>
-                  <span className="text-gray-300 text-xs">{s.timezone}</span>
+                  <span className="text-content-tertiary">Timezone</span>
+                  <span className="text-content-secondary text-xs">{s.timezone}</span>
                 </div>
                 {s.last_run_at && (
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Last run</span>
-                    <span className="text-gray-400 text-xs">
+                    <span className="text-content-tertiary">Last run</span>
+                    <span className="text-content-secondary text-xs">
                       {new Date(s.last_run_at).toLocaleString()}
                     </span>
                   </div>
                 )}
               </div>
-              <div className="px-4 py-2 border-t border-oxide-800/50 flex justify-end gap-2">
+              <div className="px-4 py-2 border-t border-border/50 flex justify-end gap-2">
                 <button
                   onClick={() => handleToggle(s.id, s.enabled)}
-                  className="px-2 py-1 rounded text-xs text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 transition-colors"
+                  className="px-2 py-1 rounded text-xs text-content-secondary hover:text-accent hover:bg-blue-500/10 transition-colors"
                 >
                   {s.enabled ? 'Pause' : 'Resume'}
                 </button>
                 <button
                   onClick={() => handleDelete(s.id)}
-                  className="px-2 py-1 rounded text-xs text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                  className="px-2 py-1 rounded text-xs text-content-secondary hover:text-red-400 hover:bg-red-500/10 transition-colors"
                 >
                   Delete
                 </button>

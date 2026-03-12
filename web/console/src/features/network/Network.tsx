@@ -266,10 +266,10 @@ function NetworksPage() {
         }
         return (
           <span className="text-xs">
-            <span className="font-medium text-blue-400">
+            <span className="font-medium text-accent">
               {typeLabels[type] || type.toUpperCase()}
             </span>
-            {r.segmentation_id && <span className="text-gray-400 ml-1">({r.segmentation_id})</span>}
+            {r.segmentation_id && <span className="text-content-secondary ml-1">({r.segmentation_id})</span>}
           </span>
         )
       }
@@ -277,7 +277,7 @@ function NetworksPage() {
     {
       key: 'status',
       header: 'State',
-      render: (r) => <span className="text-xs text-gray-300">{r.status ?? 'active'}</span>
+      render: (r) => <span className="text-xs text-content-secondary">{r.status ?? 'active'}</span>
     },
     { key: 'description', header: 'Description' },
     {
@@ -285,7 +285,7 @@ function NetworksPage() {
       header: 'Subnets',
       render: (r) => {
         const netSubnets = subnets.filter((s) => s.network_id === r.id)
-        if (netSubnets.length === 0) return <span className="text-xs text-gray-500">-</span>
+        if (netSubnets.length === 0) return <span className="text-xs text-content-tertiary">-</span>
         return (
           <div className="space-y-1">
             {netSubnets.map((s) => {
@@ -293,13 +293,13 @@ function NetworksPage() {
               return (
                 <div key={s.id} className="text-xs">
                   <div className="flex items-center gap-1">
-                    <span className="text-gray-300">{s.name}</span>
-                    <span className="text-gray-500">({s.cidr})</span>
+                    <span className="text-content-secondary">{s.name}</span>
+                    <span className="text-content-tertiary">({s.cidr})</span>
                     {s.enable_dhcp && <span className="text-emerald-500">DHCP</span>}
                   </div>
                   {stat && stat.total > 0 && (
                     <div className="flex items-center gap-1.5 mt-0.5">
-                      <div className="flex-1 h-1.5 bg-gray-700 rounded-full overflow-hidden max-w-[80px]">
+                      <div className="flex-1 h-1.5 bg-surface-hover rounded-full overflow-hidden max-w-[80px]">
                         <div
                           className={`h-full rounded-full transition-all ${
                             stat.percent > 90
@@ -311,7 +311,7 @@ function NetworksPage() {
                           style={{ width: `${Math.min(stat.percent, 100)}%` }}
                         />
                       </div>
-                      <span className="text-gray-500">
+                      <span className="text-content-tertiary">
                         {stat.allocated}/{stat.total}
                       </span>
                     </div>
@@ -544,15 +544,15 @@ function NetworksPage() {
                 }}
                 className={`flex items-center gap-1.5 text-xs font-medium ${
                   step === s.n
-                    ? 'text-blue-400'
+                    ? 'text-accent'
                     : step > s.n
-                      ? 'text-gray-300 cursor-pointer hover:text-blue-300'
-                      : 'text-gray-500 cursor-default'
+                      ? 'text-content-secondary cursor-pointer hover:text-accent-hover'
+                      : 'text-content-tertiary cursor-default'
                 }`}
               >
                 <span
                   className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold ${
-                    step >= s.n ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400'
+                    step >= s.n ? 'bg-blue-600 text-content-primary' : 'bg-surface-hover text-content-secondary'
                   }`}
                 >
                   {s.n}
@@ -560,7 +560,7 @@ function NetworksPage() {
                 {s.label}
               </button>
               {i < 2 && (
-                <div className={`flex-1 h-px ${step > s.n ? 'bg-blue-600' : 'bg-gray-700'}`} />
+                <div className={`flex-1 h-px ${step > s.n ? 'bg-blue-600' : 'bg-surface-hover'}`} />
               )}
             </span>
           ))}
@@ -592,7 +592,7 @@ function NetworksPage() {
                   <option value="geneve">Geneve (Tunnel)</option>
                   <option value="local">Local</option>
                 </select>
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-xs text-content-secondary mt-1">
                   {networkType === 'vxlan' && 'Self-service overlay network, supports multi-node'}
                   {networkType === 'vlan' && 'Requires physical network and VLAN ID (1-4094)'}
                   {networkType === 'flat' && 'Direct connection to physical network'}
@@ -662,7 +662,7 @@ function NetworksPage() {
                       />
                       {bridgeMappings.length > 0 && (
                         <button
-                          className="text-xs text-blue-400 hover:text-blue-300 mt-1"
+                          className="text-xs text-accent hover:text-accent-hover mt-1"
                           onClick={() => {
                             setCustomPhysicalNetwork(false)
                             setPhysicalNetwork('')
@@ -691,7 +691,7 @@ function NetworksPage() {
                       value={segmentationId}
                       onChange={(e) => setSegmentationId(e.target.value)}
                     />
-                    <p className="text-xs text-gray-400 mt-1">VLAN tag (1-4094)</p>
+                    <p className="text-xs text-content-secondary mt-1">VLAN tag (1-4094)</p>
                   </div>
                 )}
               </div>
@@ -706,7 +706,7 @@ function NetworksPage() {
                   value={segmentationId}
                   onChange={(e) => setSegmentationId(e.target.value)}
                 />
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-xs text-content-secondary mt-1">
                   {networkType === 'vxlan' ? 'VNI (VXLAN Network Identifier)' : 'Tunnel key'} -
                   leave empty for auto
                 </p>
@@ -722,7 +722,7 @@ function NetworksPage() {
                   value={mtu}
                   onChange={(e) => setMtu(e.target.value)}
                 />
-                <p className="text-xs text-gray-400 mt-1">1450 for overlay, 1500 for provider</p>
+                <p className="text-xs text-content-secondary mt-1">1450 for overlay, 1500 for provider</p>
               </div>
             </div>
           </div>
@@ -761,7 +761,7 @@ function NetworksPage() {
                 </div>
                 {cidrConflict && <p className="text-xs text-red-400 mt-1">{cidrConflict}</p>}
                 {!cidrConflict && cidrInfo && (
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-content-secondary mt-1">
                     ~{cidrInfo.numHosts} hosts | GW: {cidrInfo.gateway}
                   </p>
                 )}
@@ -777,7 +777,7 @@ function NetworksPage() {
                       className={`text-xs px-2 py-0.5 rounded border transition-colors ${
                         cidr === tpl.cidr
                           ? 'border-blue-500 bg-blue-500/20 text-blue-300'
-                          : 'border-gray-600 text-gray-400 hover:border-gray-500 hover:text-gray-300'
+                          : 'border-gray-600 text-content-secondary hover:border-gray-500 hover:text-content-secondary'
                       }`}
                       onClick={() => setCidr(tpl.cidr)}
                     >
@@ -825,7 +825,7 @@ function NetworksPage() {
                 />
                 <label htmlFor="network-shared" className="label m-0 cursor-pointer">
                   Shared Network
-                  <span className="text-xs text-gray-400 ml-2">
+                  <span className="text-xs text-content-secondary ml-2">
                     (accessible by multiple tenants)
                   </span>
                 </label>
@@ -839,7 +839,7 @@ function NetworksPage() {
                 />
                 <label htmlFor="network-external" className="label m-0 cursor-pointer">
                   External Network
-                  <span className="text-xs text-gray-400 ml-2">(for floating IPs)</span>
+                  <span className="text-xs text-content-secondary ml-2">(for floating IPs)</span>
                 </label>
               </div>
             </div>
@@ -849,14 +849,14 @@ function NetworksPage() {
         {/* Step 3: DHCP & Review */}
         {step === 3 && (
           <div className="space-y-3">
-            <div className="space-y-3 border-b border-gray-700 pb-3">
+            <div className="space-y-3 border-b border-border pb-3">
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
                   checked={enableDhcp}
                   onChange={(e) => setEnableDhcp(e.target.checked)}
                 />
-                <h3 className="text-sm font-semibold text-gray-200">Enable DHCP</h3>
+                <h3 className="text-sm font-semibold text-content-primary">Enable DHCP</h3>
               </div>
               {enableDhcp && (
                 <>
@@ -926,44 +926,44 @@ function NetworksPage() {
             </div>
 
             {/* Review Card */}
-            <div className="p-3 bg-gray-800/50 border border-gray-700 rounded-lg">
-              <h4 className="text-xs font-semibold text-gray-300 uppercase tracking-wide mb-2">
+            <div className="p-3 bg-gray-800/50 border border-border rounded-lg">
+              <h4 className="text-xs font-semibold text-content-secondary uppercase tracking-wide mb-2">
                 Network Preview
               </h4>
               <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                <div className="col-span-2 font-medium text-white">
+                <div className="col-span-2 font-medium text-content-primary">
                   {name || '(unnamed)'}{' '}
-                  <span className="text-xs text-gray-400">({networkType})</span>
+                  <span className="text-xs text-content-secondary">({networkType})</span>
                 </div>
-                <div className="text-gray-400">Zone</div>
-                <div className="text-gray-200">{zone || '-'}</div>
-                <div className="text-gray-400">CIDR</div>
-                <div className={`text-gray-200 ${cidrConflict ? 'text-red-400' : ''}`}>
+                <div className="text-content-secondary">Zone</div>
+                <div className="text-content-primary">{zone || '-'}</div>
+                <div className="text-content-secondary">CIDR</div>
+                <div className={`text-content-primary ${cidrConflict ? 'text-red-400' : ''}`}>
                   {cidr || '-'}
                 </div>
                 {cidrInfo && (
                   <>
-                    <div className="text-gray-400">Gateway</div>
-                    <div className="text-gray-200">{gateway || cidrInfo.gateway}</div>
-                    <div className="text-gray-400">DHCP Pool</div>
-                    <div className="text-gray-200">
+                    <div className="text-content-secondary">Gateway</div>
+                    <div className="text-content-primary">{gateway || cidrInfo.gateway}</div>
+                    <div className="text-content-secondary">DHCP Pool</div>
+                    <div className="text-content-primary">
                       {allocationStart || cidrInfo.allocationStart} &mdash;{' '}
                       {allocationEnd || cidrInfo.allocationEnd}
                     </div>
-                    <div className="text-gray-400">Hosts</div>
-                    <div className="text-gray-200">~{cidrInfo.numHosts.toLocaleString()}</div>
+                    <div className="text-content-secondary">Hosts</div>
+                    <div className="text-content-primary">~{cidrInfo.numHosts.toLocaleString()}</div>
                   </>
                 )}
                 {(dns1 || dns2) && (
                   <>
-                    <div className="text-gray-400">DNS</div>
-                    <div className="text-gray-200">{[dns1, dns2].filter(Boolean).join(', ')}</div>
+                    <div className="text-content-secondary">DNS</div>
+                    <div className="text-content-primary">{[dns1, dns2].filter(Boolean).join(', ')}</div>
                   </>
                 )}
                 {(networkType === 'vlan' || networkType === 'flat') && physicalNetwork && (
                   <>
-                    <div className="text-gray-400">Provider</div>
-                    <div className="text-gray-200">
+                    <div className="text-content-secondary">Provider</div>
+                    <div className="text-content-primary">
                       {physicalNetwork}
                       {networkType === 'vlan' && segmentationId && ` (VLAN ${segmentationId})`}
                     </div>
@@ -975,7 +975,7 @@ function NetworksPage() {
             <div className="flex items-center gap-2">
               <input type="checkbox" checked={start} onChange={(e) => setStart(e.target.checked)} />
               <label className="label m-0">Activate Network Immediately</label>
-              <span className="text-xs text-gray-400">(create in SDN backend)</span>
+              <span className="text-xs text-content-secondary">(create in SDN backend)</span>
             </div>
           </div>
         )}
@@ -1006,10 +1006,10 @@ function NetworksPage() {
                 {/* Network DB Info */}
                 {diagnoseData.network && (
                   <div>
-                    <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
+                    <h4 className="text-xs font-semibold text-content-secondary uppercase tracking-wider mb-1">
                       Network
                     </h4>
-                    <div className="p-2 bg-gray-800/50 rounded text-xs font-mono text-gray-300 overflow-x-auto">
+                    <div className="p-2 bg-gray-800/50 rounded text-xs font-mono text-content-secondary overflow-x-auto">
                       <div>ID: {diagnoseData.network.id}</div>
                       <div>Status: {diagnoseData.network.status}</div>
                       <div>CIDR: {diagnoseData.network.cidr}</div>
@@ -1020,10 +1020,10 @@ function NetworksPage() {
                 {/* OVN State */}
                 {diagnoseData.ovn && (
                   <div>
-                    <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
+                    <h4 className="text-xs font-semibold text-content-secondary uppercase tracking-wider mb-1">
                       OVN State
                     </h4>
-                    <pre className="p-2 bg-gray-800/50 rounded text-xs font-mono text-gray-300 overflow-x-auto whitespace-pre-wrap">
+                    <pre className="p-2 bg-gray-800/50 rounded text-xs font-mono text-content-secondary overflow-x-auto whitespace-pre-wrap">
                       {JSON.stringify(diagnoseData.ovn, null, 2)}
                     </pre>
                   </div>
@@ -1031,10 +1031,10 @@ function NetworksPage() {
                 {/* Subnets */}
                 {diagnoseData.subnets && (
                   <div>
-                    <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
+                    <h4 className="text-xs font-semibold text-content-secondary uppercase tracking-wider mb-1">
                       Subnets ({(diagnoseData.subnets as unknown[]).length})
                     </h4>
-                    <pre className="p-2 bg-gray-800/50 rounded text-xs font-mono text-gray-300 overflow-x-auto whitespace-pre-wrap">
+                    <pre className="p-2 bg-gray-800/50 rounded text-xs font-mono text-content-secondary overflow-x-auto whitespace-pre-wrap">
                       {JSON.stringify(diagnoseData.subnets, null, 2)}
                     </pre>
                   </div>
@@ -1042,10 +1042,10 @@ function NetworksPage() {
                 {/* Expected OVN Names */}
                 {diagnoseData.expected && (
                   <div>
-                    <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
+                    <h4 className="text-xs font-semibold text-content-secondary uppercase tracking-wider mb-1">
                       Expected OVN Objects
                     </h4>
-                    <pre className="p-2 bg-gray-800/50 rounded text-xs font-mono text-gray-300 overflow-x-auto whitespace-pre-wrap">
+                    <pre className="p-2 bg-gray-800/50 rounded text-xs font-mono text-content-secondary overflow-x-auto whitespace-pre-wrap">
                       {JSON.stringify(diagnoseData.expected, null, 2)}
                     </pre>
                   </div>
@@ -1054,7 +1054,7 @@ function NetworksPage() {
             )}
           </div>
         ) : (
-          <div className="text-center py-8 text-gray-500">Loading diagnostics...</div>
+          <div className="text-center py-8 text-content-tertiary">Loading diagnostics...</div>
         )}
       </Modal>
     </div>
@@ -1068,7 +1068,7 @@ function VPNPage() {
         subtitle="Site-to-site and client VPN"
         actions={<button className="btn-primary">Create VPN</button>}
       />
-      <div className="card p-4 text-gray-300">No VPNs</div>
+      <div className="card p-4 text-content-secondary">No VPNs</div>
     </div>
   )
 }
@@ -1319,18 +1319,18 @@ function ACLPage() {
         }
       />
 
-      {loading && <div className="text-gray-400 text-sm">Loading...</div>}
+      {loading && <div className="text-content-secondary text-sm">Loading...</div>}
 
       {acls.length === 0 && !loading && (
-        <div className="card p-6 text-center text-gray-400">No Network ACLs</div>
+        <div className="card p-6 text-center text-content-secondary">No Network ACLs</div>
       )}
 
       {acls.map((acl) => (
         <div key={acl.id} className="card">
-          <div className="flex items-center justify-between p-4 border-b border-gray-700">
+          <div className="flex items-center justify-between p-4 border-b border-border">
             <div>
-              <h3 className="font-medium text-gray-200">{acl.name}</h3>
-              {acl.description && <p className="text-xs text-gray-400 mt-0.5">{acl.description}</p>}
+              <h3 className="font-medium text-content-primary">{acl.name}</h3>
+              {acl.description && <p className="text-xs text-content-secondary mt-0.5">{acl.description}</p>}
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -1355,11 +1355,11 @@ function ACLPage() {
           </div>
           <div className="p-4">
             {!acl.rules || acl.rules.length === 0 ? (
-              <p className="text-sm text-gray-500">No rules</p>
+              <p className="text-sm text-content-tertiary">No rules</p>
             ) : (
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-left text-gray-400 text-xs border-b border-gray-700">
+                  <tr className="text-left text-content-secondary text-xs border-b border-border">
                     <th className="pb-2 pr-3">#</th>
                     <th className="pb-2 pr-3">Direction</th>
                     <th className="pb-2 pr-3">Action</th>
@@ -1371,13 +1371,13 @@ function ACLPage() {
                 </thead>
                 <tbody>
                   {acl.rules.map((rule) => (
-                    <tr key={rule.id} className="border-b border-gray-800 text-gray-300">
-                      <td className="py-1.5 pr-3 text-gray-500">{rule.number}</td>
+                    <tr key={rule.id} className="border-b border-gray-800 text-content-secondary">
+                      <td className="py-1.5 pr-3 text-content-tertiary">{rule.number}</td>
                       <td className="py-1.5 pr-3">
                         <span
                           className={`px-1.5 py-0.5 rounded text-xs border ${
                             rule.direction === 'ingress'
-                              ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
+                              ? 'bg-blue-500/15 text-accent border-blue-500/30'
                               : 'bg-purple-500/15 text-purple-400 border-purple-500/30'
                           }`}
                         >

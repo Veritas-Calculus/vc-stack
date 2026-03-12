@@ -97,14 +97,14 @@ export function Domains() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Domains</h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <h1 className="text-2xl font-bold text-content-primary">Domains</h1>
+          <p className="text-sm text-content-secondary mt-1">
             Multi-tenant domain hierarchy — {flat.length} domains
           </p>
         </div>
         <button
           onClick={() => setShowCreate(true)}
-          className="px-4 py-2 rounded-lg text-sm bg-blue-600 text-white hover:bg-blue-500 font-medium"
+          className="px-4 py-2 rounded-lg text-sm bg-blue-600 text-content-primary hover:bg-blue-500 font-medium"
         >
           Create Domain
         </button>
@@ -118,27 +118,27 @@ export function Domains() {
         >
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
           <div
-            className="relative rounded-xl border border-oxide-700 bg-oxide-900 p-6 w-full max-w-md shadow-2xl"
+            className="relative rounded-xl border border-border bg-surface-secondary p-6 w-full max-w-md shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-lg font-semibold text-white mb-4">Create Domain</h3>
+            <h3 className="text-lg font-semibold text-content-primary mb-4">Create Domain</h3>
             <div className="space-y-3">
               <div>
-                <label className="block text-xs text-gray-400 mb-1">Name</label>
+                <label className="block text-xs text-content-secondary mb-1">Name</label>
                 <input
                   value={createName}
                   onChange={(e) => setCreateName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-oxide-600 bg-oxide-800 text-gray-200 text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 rounded-lg border border-border-strong bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500"
                   placeholder="e.g., Engineering"
                   autoFocus
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-400 mb-1">Parent Domain</label>
+                <label className="block text-xs text-content-secondary mb-1">Parent Domain</label>
                 <select
                   value={createParent ?? ''}
                   onChange={(e) => setCreateParent(e.target.value ? Number(e.target.value) : null)}
-                  className="w-full px-3 py-2 rounded-lg border border-oxide-600 bg-oxide-800 text-gray-200 text-sm"
+                  className="w-full px-3 py-2 rounded-lg border border-border-strong bg-surface-tertiary text-content-primary text-sm"
                 >
                   <option value="">— Root level —</option>
                   {flat.map((d) => (
@@ -150,11 +150,11 @@ export function Domains() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs text-gray-400 mb-1">Description</label>
+                <label className="block text-xs text-content-secondary mb-1">Description</label>
                 <input
                   value={createDesc}
                   onChange={(e) => setCreateDesc(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-oxide-600 bg-oxide-800 text-gray-200 text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 rounded-lg border border-border-strong bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500"
                   placeholder="Optional description"
                 />
               </div>
@@ -162,14 +162,14 @@ export function Domains() {
             <div className="flex justify-end gap-2 mt-5">
               <button
                 onClick={() => setShowCreate(false)}
-                className="px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white"
+                className="px-4 py-2 rounded-lg text-sm text-content-secondary hover:text-content-primary"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreate}
                 disabled={!createName}
-                className="px-4 py-2 rounded-lg text-sm bg-blue-600 text-white hover:bg-blue-500 disabled:opacity-50"
+                className="px-4 py-2 rounded-lg text-sm bg-blue-600 text-content-primary hover:bg-blue-500 disabled:opacity-50"
               >
                 Create
               </button>
@@ -181,9 +181,9 @@ export function Domains() {
       <div className="grid grid-cols-12 gap-6">
         {/* Tree View */}
         <div className="col-span-12 lg:col-span-4">
-          <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur overflow-hidden">
-            <div className="px-4 py-3 border-b border-oxide-800 bg-oxide-900/80">
-              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+          <div className="rounded-xl border border-border bg-surface-secondary backdrop-blur overflow-hidden">
+            <div className="px-4 py-3 border-b border-border bg-surface-secondary">
+              <h3 className="text-xs font-semibold text-content-secondary uppercase tracking-wider">
                 Domain Tree
               </h3>
             </div>
@@ -193,7 +193,7 @@ export function Domains() {
                   <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
                 </div>
               ) : tree.length === 0 ? (
-                <div className="text-center py-8 text-gray-500 text-sm">No domains</div>
+                <div className="text-center py-8 text-content-tertiary text-sm">No domains</div>
               ) : (
                 tree.map((node) => (
                   <TreeItem
@@ -211,11 +211,11 @@ export function Domains() {
         {/* Detail Panel */}
         <div className="col-span-12 lg:col-span-8">
           {selected ? (
-            <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur overflow-hidden">
-              <div className="px-6 py-4 border-b border-oxide-800 bg-oxide-900/80 flex items-center justify-between">
+            <div className="rounded-xl border border-border bg-surface-secondary backdrop-blur overflow-hidden">
+              <div className="px-6 py-4 border-b border-border bg-surface-secondary flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg font-semibold text-white">{selected.name}</h2>
-                  <p className="text-xs text-gray-500 font-mono">{selected.path}</p>
+                  <h2 className="text-lg font-semibold text-content-primary">{selected.name}</h2>
+                  <p className="text-xs text-content-tertiary font-mono">{selected.path}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <span
@@ -225,14 +225,14 @@ export function Domains() {
                   </span>
                   <button
                     onClick={() => handleToggleState(selected)}
-                    className="px-2 py-1 rounded text-xs text-gray-400 hover:text-blue-400 hover:bg-blue-500/10"
+                    className="px-2 py-1 rounded text-xs text-content-secondary hover:text-accent hover:bg-blue-500/10"
                   >
                     {selected.state === 'active' ? 'Disable' : 'Enable'}
                   </button>
                   {selected.name !== 'ROOT' && (
                     <button
                       onClick={() => handleDelete(selected.id)}
-                      className="px-2 py-1 rounded text-xs text-gray-400 hover:text-red-400 hover:bg-red-500/10"
+                      className="px-2 py-1 rounded text-xs text-content-secondary hover:text-red-400 hover:bg-red-500/10"
                     >
                       Delete
                     </button>
@@ -241,14 +241,14 @@ export function Domains() {
               </div>
 
               {selected.description && (
-                <div className="px-6 py-3 border-b border-oxide-800/50">
-                  <p className="text-sm text-gray-400">{selected.description}</p>
+                <div className="px-6 py-3 border-b border-border/50">
+                  <p className="text-sm text-content-secondary">{selected.description}</p>
                 </div>
               )}
 
               {/* Quota Limits */}
               <div className="px-6 py-4">
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                <h3 className="text-xs font-semibold text-content-secondary uppercase tracking-wider mb-3">
                   Quota Limits
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -261,17 +261,17 @@ export function Domains() {
               </div>
 
               {/* Metadata */}
-              <div className="px-6 py-4 border-t border-oxide-800/50">
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+              <div className="px-6 py-4 border-t border-border/50">
+                <h3 className="text-xs font-semibold text-content-secondary uppercase tracking-wider mb-2">
                   Details
                 </h3>
                 <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div className="text-gray-500">ID</div>
-                  <div className="text-gray-300 font-mono">{selected.id}</div>
-                  <div className="text-gray-500">Level</div>
-                  <div className="text-gray-300">{selected.level}</div>
-                  <div className="text-gray-500">Created</div>
-                  <div className="text-gray-300">
+                  <div className="text-content-tertiary">ID</div>
+                  <div className="text-content-secondary font-mono">{selected.id}</div>
+                  <div className="text-content-tertiary">Level</div>
+                  <div className="text-content-secondary">{selected.level}</div>
+                  <div className="text-content-tertiary">Created</div>
+                  <div className="text-content-secondary">
                     {new Date(selected.created_at).toLocaleString()}
                   </div>
                 </div>
@@ -309,7 +309,7 @@ function TreeItem({
     <div>
       <button
         onClick={() => onSelect(d)}
-        className={`w-full text-left px-3 py-2 rounded-lg flex items-center gap-2 text-sm transition-colors ${isSelected ? 'bg-blue-500/10 text-blue-400' : 'text-gray-300 hover:bg-oxide-800/50'}`}
+        className={`w-full text-left px-3 py-2 rounded-lg flex items-center gap-2 text-sm transition-colors ${isSelected ? 'bg-blue-500/10 text-accent' : 'text-content-secondary hover:bg-surface-tertiary'}`}
         style={{ paddingLeft: `${depth * 16 + 12}px` }}
       >
         {hasChildren && (
@@ -318,7 +318,7 @@ function TreeItem({
               e.stopPropagation()
               setExpanded(!expanded)
             }}
-            className="text-gray-500 hover:text-gray-300 text-xs w-4"
+            className="text-content-tertiary hover:text-content-secondary text-xs w-4"
           >
             {expanded ? (
               <svg
@@ -344,7 +344,7 @@ function TreeItem({
           </button>
         )}
         {!hasChildren && <span className="w-4" />}
-        <span className="text-xs text-gray-500">{d.parent_id === null ? 'Root' : 'Sub'}</span>
+        <span className="text-xs text-content-tertiary">{d.parent_id === null ? 'Root' : 'Sub'}</span>
         <span className="font-medium">{d.name}</span>
         {d.state !== 'active' && (
           <span className="px-1 py-0.5 rounded text-[10px] bg-red-500/20 text-red-400">
@@ -368,9 +368,9 @@ function TreeItem({
 
 function QuotaCard({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-lg border border-oxide-700 bg-oxide-800/50 p-3 text-center">
-      <div className="text-lg font-semibold text-white">{value === 0 ? 'Unlimited' : value}</div>
-      <div className="text-xs text-gray-500">{label}</div>
+    <div className="rounded-lg border border-border bg-surface-tertiary p-3 text-center">
+      <div className="text-lg font-semibold text-content-primary">{value === 0 ? 'Unlimited' : value}</div>
+      <div className="text-xs text-content-tertiary">{label}</div>
     </div>
   )
 }

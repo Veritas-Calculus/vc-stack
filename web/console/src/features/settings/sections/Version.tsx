@@ -5,9 +5,9 @@ export function SettingsVersion() {
   return (
     <section className="card p-4 space-y-2">
       <h2 className="text-lg font-semibold">Version</h2>
-      <div className="text-sm text-gray-300">Version: {version}</div>
-      <div className="text-sm text-gray-300">Commit: {commit}</div>
-      <div className="text-sm text-gray-300">Build Time: {buildTime}</div>
+      <div className="text-sm text-content-secondary">Version: {version}</div>
+      <div className="text-sm text-content-secondary">Commit: {commit}</div>
+      <div className="text-sm text-content-secondary">Build Time: {buildTime}</div>
     </section>
   )
 }

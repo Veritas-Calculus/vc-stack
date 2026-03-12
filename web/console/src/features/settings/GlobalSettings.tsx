@@ -103,8 +103,8 @@ export function GlobalSettings() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white">Global Settings</h1>
-        <p className="text-sm text-gray-400 mt-1">
+        <h1 className="text-2xl font-bold text-content-primary">Global Settings</h1>
+        <p className="text-sm text-content-secondary mt-1">
           System-wide configuration — {settings.length} settings across {categories.length}{' '}
           categories
         </p>
@@ -113,7 +113,7 @@ export function GlobalSettings() {
       <div className="mb-5">
         <div className="relative">
           <svg
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-content-tertiary"
             width="16"
             height="16"
             viewBox="0 0 24 24"
@@ -128,7 +128,7 @@ export function GlobalSettings() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-oxide-700 bg-oxide-800 text-gray-200 text-sm outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500"
             placeholder="Search settings by key or description..."
           />
         </div>
@@ -136,9 +136,9 @@ export function GlobalSettings() {
 
       <div className="grid grid-cols-12 gap-6">
         <div className="col-span-12 lg:col-span-3">
-          <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur overflow-hidden">
-            <div className="px-4 py-3 border-b border-oxide-800 bg-oxide-900/80">
-              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+          <div className="rounded-xl border border-border bg-surface-secondary backdrop-blur overflow-hidden">
+            <div className="px-4 py-3 border-b border-border bg-surface-secondary">
+              <h3 className="text-xs font-semibold text-content-secondary uppercase tracking-wider">
                 Categories
               </h3>
             </div>
@@ -151,8 +151,8 @@ export function GlobalSettings() {
                     onClick={() => setActiveCategory(cat)}
                     className={`w-full text-left px-4 py-2.5 flex items-center justify-between transition-colors text-sm ${
                       activeCategory === cat
-                        ? 'bg-blue-500/10 text-blue-400 border-l-2 border-l-blue-500'
-                        : 'text-gray-400 hover:bg-oxide-800/50 hover:text-gray-200 border-l-2 border-l-transparent'
+                        ? 'bg-blue-500/10 text-accent border-l-2 border-l-blue-500'
+                        : 'text-content-secondary hover:bg-surface-tertiary hover:text-content-primary border-l-2 border-l-transparent'
                     }`}
                   >
                     <div className="flex items-center gap-2">
@@ -161,7 +161,7 @@ export function GlobalSettings() {
                       />
                       <span>{cat}</span>
                     </div>
-                    <span className="text-xs text-gray-500">{count}</span>
+                    <span className="text-xs text-content-tertiary">{count}</span>
                   </button>
                 )
               })}
@@ -175,23 +175,23 @@ export function GlobalSettings() {
               <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
             </div>
           ) : settings.length === 0 ? (
-            <div className="text-center py-16 text-gray-500">
+            <div className="text-center py-16 text-content-tertiary">
               {searchQuery ? `No settings match "${searchQuery}"` : 'No settings found'}
             </div>
           ) : activeCategory === 'All' ? (
             Object.entries(grouped).map(([category, items]) => (
               <div
                 key={category}
-                className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur overflow-hidden"
+                className="rounded-xl border border-border bg-surface-secondary backdrop-blur overflow-hidden"
               >
-                <div className="px-4 py-3 border-b border-oxide-800 bg-oxide-900/80 flex items-center gap-2">
+                <div className="px-4 py-3 border-b border-border bg-surface-secondary flex items-center gap-2">
                   <span
                     className={`w-2 h-2 rounded-full ${CATEGORY_COLORS[category] || 'bg-gray-400'}`}
                   />
-                  <h3 className="text-sm font-medium text-white">{category}</h3>
-                  <span className="text-xs text-gray-500">{items.length} settings</span>
+                  <h3 className="text-sm font-medium text-content-primary">{category}</h3>
+                  <span className="text-xs text-content-tertiary">{items.length} settings</span>
                 </div>
-                <div className="divide-y divide-oxide-800/30">
+                <div className="divide-y divide-border">
                   {items.map((s) => (
                     <SettingRow
                       key={s.key}
@@ -214,14 +214,14 @@ export function GlobalSettings() {
               </div>
             ))
           ) : (
-            <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur overflow-hidden">
-              <div className="px-4 py-3 border-b border-oxide-800 bg-oxide-900/80 flex items-center gap-2">
+            <div className="rounded-xl border border-border bg-surface-secondary backdrop-blur overflow-hidden">
+              <div className="px-4 py-3 border-b border-border bg-surface-secondary flex items-center gap-2">
                 <span
                   className={`w-2 h-2 rounded-full ${CATEGORY_COLORS[activeCategory] || 'bg-gray-400'}`}
                 />
-                <h3 className="text-sm font-medium text-white">{activeCategory}</h3>
+                <h3 className="text-sm font-medium text-content-primary">{activeCategory}</h3>
               </div>
-              <div className="divide-y divide-oxide-800/30">
+              <div className="divide-y divide-border">
                 {settings.map((s) => (
                   <SettingRow
                     key={s.key}
@@ -275,13 +275,13 @@ function SettingRow({
   const shortKey = setting.key.split('.').slice(1).join('.')
 
   return (
-    <div className="px-4 py-3 hover:bg-oxide-800/20 transition-colors">
+    <div className="px-4 py-3 hover:bg-surface-tertiary/20 transition-colors">
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <code className="text-sm text-gray-200 font-mono">{shortKey}</code>
+            <code className="text-sm text-content-primary font-mono">{shortKey}</code>
             {setting.read_only && (
-              <span className="px-1.5 py-0.5 rounded text-[10px] bg-gray-500/20 text-gray-400 border border-gray-500/20">
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-gray-500/20 text-content-secondary border border-gray-500/20">
                 readonly
               </span>
             )}
@@ -290,12 +290,12 @@ function SettingRow({
                 modified
               </span>
             )}
-            <span className="px-1.5 py-0.5 rounded text-[10px] bg-oxide-700 text-gray-400">
+            <span className="px-1.5 py-0.5 rounded text-[10px] bg-surface-hover text-content-secondary">
               {setting.data_type}
             </span>
           </div>
           {setting.description && (
-            <p className="text-xs text-gray-500 mt-0.5">{setting.description}</p>
+            <p className="text-xs text-content-tertiary mt-0.5">{setting.description}</p>
           )}
         </div>
 
@@ -305,7 +305,7 @@ function SettingRow({
               <select
                 value={editValue}
                 onChange={(e) => onChangeValue(e.target.value)}
-                className="px-2 py-1 rounded border border-oxide-600 bg-oxide-800 text-gray-200 text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                className="px-2 py-1 rounded border border-border-strong bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500"
               >
                 <option value="true">true</option>
                 <option value="false">false</option>
@@ -315,7 +315,7 @@ function SettingRow({
                 type={setting.data_type === 'integer' ? 'number' : 'text'}
                 value={editValue}
                 onChange={(e) => onChangeValue(e.target.value)}
-                className="w-48 px-2 py-1 rounded border border-oxide-600 bg-oxide-800 text-gray-200 text-sm font-mono outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-48 px-2 py-1 rounded border border-border-strong bg-surface-tertiary text-content-primary text-sm font-mono outline-none focus:ring-1 focus:ring-blue-500"
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') onSave()
@@ -326,13 +326,13 @@ function SettingRow({
             <button
               onClick={onSave}
               disabled={saving}
-              className="px-2 py-1 rounded text-xs bg-blue-600 text-white hover:bg-blue-500 disabled:opacity-50"
+              className="px-2 py-1 rounded text-xs bg-blue-600 text-content-primary hover:bg-blue-500 disabled:opacity-50"
             >
               {saving ? '...' : 'Save'}
             </button>
             <button
               onClick={onCancelEdit}
-              className="px-2 py-1 rounded text-xs text-gray-400 hover:text-gray-200"
+              className="px-2 py-1 rounded text-xs text-content-secondary hover:text-content-primary"
             >
               Cancel
             </button>
@@ -343,7 +343,7 @@ function SettingRow({
             {!setting.read_only && (
               <button
                 onClick={onStartEdit}
-                className="px-2 py-1 rounded text-xs text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 transition-colors"
+                className="px-2 py-1 rounded text-xs text-content-secondary hover:text-accent hover:bg-blue-500/10 transition-colors"
               >
                 Edit
               </button>
@@ -351,7 +351,7 @@ function SettingRow({
             {isModified && !setting.read_only && (
               <button
                 onClick={onReset}
-                className="px-2 py-1 rounded text-xs text-gray-500 hover:text-amber-400 hover:bg-amber-500/10 transition-colors"
+                className="px-2 py-1 rounded text-xs text-content-tertiary hover:text-amber-400 hover:bg-amber-500/10 transition-colors"
                 title={`Reset to: ${setting.default_value}`}
               >
                 Reset
@@ -368,11 +368,11 @@ function ValueDisplay({ value, dataType }: { value: string; dataType: string }) 
   if (dataType === 'boolean') {
     return (
       <span
-        className={`px-2 py-0.5 rounded text-xs font-medium ${value === 'true' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-gray-500/15 text-gray-400'}`}
+        className={`px-2 py-0.5 rounded text-xs font-medium ${value === 'true' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-gray-500/15 text-content-secondary'}`}
       >
         {value}
       </span>
     )
   }
-  return <span className="text-sm text-gray-300 font-mono">{value || '—'}</span>
+  return <span className="text-sm text-content-secondary font-mono">{value || '—'}</span>
 }

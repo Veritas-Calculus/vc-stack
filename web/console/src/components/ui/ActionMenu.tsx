@@ -21,7 +21,7 @@ export function ActionMenu({ actions }: { actions: Action[] }) {
     <div className="relative" ref={ref}>
       <button
         type="button"
-        className="px-2 h-7 inline-flex items-center rounded-md border border-oxide-700 bg-oxide-900 hover:bg-oxide-800 text-gray-200"
+        className="px-2 h-7 inline-flex items-center rounded-md border border-border bg-surface-secondary hover:bg-surface-hover text-content-primary"
         aria-label="Actions"
         onClick={(e) => {
           const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
@@ -41,7 +41,7 @@ export function ActionMenu({ actions }: { actions: Action[] }) {
         createPortal(
           <div
             style={{ position: 'fixed', top: pos.y + 4, left: pos.x - 144 }}
-            className="z-50 w-36 rounded-md border border-oxide-700 bg-oxide-900 shadow-card py-1"
+            className="z-50 w-36 rounded-lg border border-border bg-surface-elevated shadow-glass-sm backdrop-blur-xl py-1 animate-scale-in"
           >
             {actions.map((a, i) => (
               <button
@@ -51,7 +51,7 @@ export function ActionMenu({ actions }: { actions: Action[] }) {
                   setOpen(false)
                   a.onClick()
                 }}
-                className={`w-full text-left px-3 py-1.5 text-sm hover:bg-oxide-800 ${a.danger ? 'text-rose-300' : 'text-gray-200'}`}
+                className={`w-full text-left px-3 py-1.5 text-sm hover:bg-surface-hover ${a.danger ? 'text-rose-400' : 'text-content-primary'}`}
               >
                 {a.label}
               </button>

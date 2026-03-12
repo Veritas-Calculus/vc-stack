@@ -65,21 +65,21 @@ export function FlameGraphViewer() {
           <button
             onClick={() => generateFlameGraph('cpu')}
             disabled={loading}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-300"
+            className="px-4 py-2 bg-blue-500 text-content-primary rounded hover:bg-blue-600 disabled:bg-gray-300"
           >
             {loading && profileType === 'cpu' ? 'Generating...' : 'Generate CPU Flamegraph'}
           </button>
           <button
             onClick={() => generateFlameGraph('heap')}
             disabled={loading}
-            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-300"
+            className="px-4 py-2 bg-green-500 text-content-primary rounded hover:bg-green-600 disabled:bg-gray-300"
           >
             {loading && profileType === 'heap' ? 'Generating...' : 'Generate Heap Flamegraph'}
           </button>
           <button
             onClick={() => generateFlameGraph('goroutine')}
             disabled={loading}
-            className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 disabled:bg-gray-300"
+            className="px-4 py-2 bg-purple-500 text-content-primary rounded hover:bg-purple-600 disabled:bg-gray-300"
           >
             {loading && profileType === 'goroutine'
               ? 'Generating...'
@@ -99,7 +99,7 @@ export function FlameGraphViewer() {
             <a
               href={svgUrl}
               download
-              className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+              className="px-4 py-2 bg-gray-500 text-content-primary rounded hover:bg-gray-600"
             >
               Download SVG
             </a>

@@ -137,10 +137,10 @@ export function ObjectStorage() {
   }
 
   const aclColor = (acl: string) => {
-    if (acl === 'private') return 'bg-gray-500/15 text-gray-400'
+    if (acl === 'private') return 'bg-gray-500/15 text-content-secondary'
     if (acl === 'public-read') return 'bg-amber-500/15 text-amber-400'
     if (acl === 'public-read-write') return 'bg-red-500/15 text-red-400'
-    return 'bg-blue-500/15 text-blue-400'
+    return 'bg-blue-500/15 text-accent'
   }
 
   const filteredBuckets = buckets.filter(
@@ -157,21 +157,21 @@ export function ObjectStorage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Object Storage</h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <h1 className="text-2xl font-bold text-content-primary">Object Storage</h1>
+          <p className="text-sm text-content-secondary mt-1">
             S3-compatible object storage powered by Ceph RGW
           </p>
         </div>
         <div className="flex gap-2">
           <button
             onClick={handleCreateCredential}
-            className="px-4 py-2 rounded-lg border border-oxide-700 bg-oxide-900 hover:bg-oxide-800 text-white text-sm font-medium transition-colors"
+            className="px-4 py-2 rounded-lg border border-border bg-surface-secondary hover:bg-surface-tertiary text-content-primary text-sm font-medium transition-colors"
           >
             Generate Access Key
           </button>
           <button
             onClick={() => setShowCreateBucket(true)}
-            className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-colors"
+            className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium transition-colors"
           >
             Create Bucket
           </button>
@@ -179,16 +179,16 @@ export function ObjectStorage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 border-b border-oxide-800 pb-px">
+      <div className="flex gap-1 mb-6 border-b border-border pb-px">
         {tabs.map((t) => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${tab === t.key ? 'bg-oxide-800 text-white border-b-2 border-blue-500' : 'text-gray-400 hover:text-white hover:bg-oxide-800/50'}`}
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${tab === t.key ? 'bg-surface-tertiary text-content-primary border-b-2 border-blue-500' : 'text-content-secondary hover:text-content-primary hover:bg-surface-tertiary'}`}
           >
             {t.label}
             {t.count !== undefined && (
-              <span className="ml-1.5 px-1.5 py-0.5 rounded text-[10px] bg-oxide-700 text-gray-400">
+              <span className="ml-1.5 px-1.5 py-0.5 rounded text-[10px] bg-surface-hover text-content-secondary">
                 {t.count}
               </span>
             )}
@@ -214,13 +214,13 @@ export function ObjectStorage() {
               </div>
 
               {/* RGW Status */}
-              <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 p-4">
-                <h3 className="text-sm font-medium text-gray-300 mb-3">Ceph RGW Backend</h3>
+              <div className="rounded-xl border border-border bg-surface-secondary p-4">
+                <h3 className="text-sm font-medium text-content-secondary mb-3">Ceph RGW Backend</h3>
                 <div className="flex items-center gap-3">
                   <div
                     className={`w-3 h-3 rounded-full ${stats.rgw_connected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`}
                   />
-                  <span className="text-sm text-gray-200">
+                  <span className="text-sm text-content-primary">
                     {stats.rgw_connected
                       ? `Connected — ${stats.rgw_endpoint}`
                       : 'Development Mode (no RGW backend)'}
@@ -229,22 +229,22 @@ export function ObjectStorage() {
               </div>
 
               {/* S3 Endpoint Info */}
-              <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 p-4">
-                <h3 className="text-sm font-medium text-gray-300 mb-3">S3 API Endpoint</h3>
+              <div className="rounded-xl border border-border bg-surface-secondary p-4">
+                <h3 className="text-sm font-medium text-content-secondary mb-3">S3 API Endpoint</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Endpoint</span>
-                    <code className="text-gray-300 bg-oxide-800 px-2 py-0.5 rounded text-xs">
+                    <span className="text-content-tertiary">Endpoint</span>
+                    <code className="text-content-secondary bg-surface-tertiary px-2 py-0.5 rounded text-xs">
                       {stats.rgw_endpoint || 'http://rgw.example.com:7480'}
                     </code>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Protocol</span>
-                    <span className="text-gray-300">S3 v4 (AWS Signature)</span>
+                    <span className="text-content-tertiary">Protocol</span>
+                    <span className="text-content-secondary">S3 v4 (AWS Signature)</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Backend</span>
-                    <span className="text-gray-300">Ceph RADOS Gateway</span>
+                    <span className="text-content-tertiary">Backend</span>
+                    <span className="text-content-secondary">Ceph RADOS Gateway</span>
                   </div>
                 </div>
               </div>
@@ -260,16 +260,16 @@ export function ObjectStorage() {
                   placeholder="Search buckets..."
                   value={searchFilter}
                   onChange={(e) => setSearchFilter(e.target.value)}
-                  className="w-full max-w-sm px-3 py-2 rounded-lg bg-oxide-900 border border-oxide-700 text-sm text-gray-200 placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                  className="w-full max-w-sm px-3 py-2 rounded-lg bg-surface-secondary border border-border text-sm text-content-primary placeholder-content-placeholder focus:border-blue-500 focus:outline-none"
                 />
               </div>
               {filteredBuckets.length === 0 ? (
                 <EmptyState title="No buckets" />
               ) : (
-                <div className="rounded-xl border border-oxide-800 overflow-hidden">
+                <div className="rounded-xl border border-border overflow-hidden">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-oxide-900/80 text-gray-400 text-xs uppercase tracking-wider">
+                      <tr className="bg-surface-secondary text-content-secondary text-xs uppercase tracking-wider">
                         <th className="px-4 py-3 text-left">Bucket Name</th>
                         <th className="px-4 py-3 text-left">Region</th>
                         <th className="px-4 py-3 text-left">ACL</th>
@@ -279,23 +279,23 @@ export function ObjectStorage() {
                         <th className="px-4 py-3 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-oxide-800/50">
+                    <tbody className="divide-y divide-border/50">
                       {filteredBuckets.map((b) => (
-                        <tr key={b.id} className="hover:bg-oxide-800/30 transition-colors">
+                        <tr key={b.id} className="hover:bg-surface-tertiary transition-colors">
                           <td className="px-4 py-3">
-                            <div className="font-medium text-white font-mono text-xs">{b.name}</div>
-                            {b.tags && <div className="text-xs text-gray-500 mt-0.5">{b.tags}</div>}
+                            <div className="font-medium text-content-primary font-mono text-xs">{b.name}</div>
+                            {b.tags && <div className="text-xs text-content-tertiary mt-0.5">{b.tags}</div>}
                           </td>
-                          <td className="px-4 py-3 text-gray-400">{b.region}</td>
+                          <td className="px-4 py-3 text-content-secondary">{b.region}</td>
                           <td className="px-4 py-3">
                             <span className={`px-2 py-0.5 rounded text-xs ${aclColor(b.acl)}`}>
                               {aclLabel(b.acl)}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-center text-gray-300">
+                          <td className="px-4 py-3 text-center text-content-secondary">
                             {b.object_count.toLocaleString()}
                           </td>
-                          <td className="px-4 py-3 text-right text-gray-300">
+                          <td className="px-4 py-3 text-right text-content-secondary">
                             {formatBytes(b.size_bytes)}
                           </td>
                           <td className="px-4 py-3 text-center">
@@ -304,7 +304,7 @@ export function ObjectStorage() {
                                 On
                               </span>
                             ) : (
-                              <span className="px-2 py-0.5 rounded text-xs bg-gray-500/15 text-gray-500">
+                              <span className="px-2 py-0.5 rounded text-xs bg-gray-500/15 text-content-tertiary">
                                 Off
                               </span>
                             )}
@@ -312,7 +312,7 @@ export function ObjectStorage() {
                           <td className="px-4 py-3 text-right">
                             <button
                               onClick={() => handleDeleteBucket(b.id)}
-                              className="px-2 py-1 rounded text-xs text-gray-400 hover:text-red-400 hover:bg-red-500/10"
+                              className="px-2 py-1 rounded text-xs text-content-secondary hover:text-red-400 hover:bg-red-500/10"
                             >
                               Delete
                             </button>
@@ -332,10 +332,10 @@ export function ObjectStorage() {
               {credentials.length === 0 ? (
                 <EmptyState title="No access keys" />
               ) : (
-                <div className="rounded-xl border border-oxide-800 overflow-hidden">
+                <div className="rounded-xl border border-border overflow-hidden">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-oxide-900/80 text-gray-400 text-xs uppercase tracking-wider">
+                      <tr className="bg-surface-secondary text-content-secondary text-xs uppercase tracking-wider">
                         <th className="px-4 py-3 text-left">Access Key</th>
                         <th className="px-4 py-3 text-left">Secret Key</th>
                         <th className="px-4 py-3 text-left">RGW User</th>
@@ -344,26 +344,26 @@ export function ObjectStorage() {
                         <th className="px-4 py-3 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-oxide-800/50">
+                    <tbody className="divide-y divide-border/50">
                       {credentials.map((c) => (
-                        <tr key={c.id} className="hover:bg-oxide-800/30 transition-colors">
-                          <td className="px-4 py-3 font-mono text-xs text-white">{c.access_key}</td>
-                          <td className="px-4 py-3 font-mono text-xs text-gray-500">
+                        <tr key={c.id} className="hover:bg-surface-tertiary transition-colors">
+                          <td className="px-4 py-3 font-mono text-xs text-content-primary">{c.access_key}</td>
+                          <td className="px-4 py-3 font-mono text-xs text-content-tertiary">
                             {c.secret_key}
                           </td>
-                          <td className="px-4 py-3 text-gray-400 text-xs">{c.rgw_user || '—'}</td>
+                          <td className="px-4 py-3 text-content-secondary text-xs">{c.rgw_user || '—'}</td>
                           <td className="px-4 py-3">
                             <span className="px-2 py-0.5 rounded text-xs bg-emerald-500/15 text-emerald-400">
                               {c.status}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-gray-500 text-xs">
+                          <td className="px-4 py-3 text-content-tertiary text-xs">
                             {new Date(c.created_at).toLocaleDateString()}
                           </td>
                           <td className="px-4 py-3 text-right">
                             <button
                               onClick={() => handleDeleteCredential(c.id)}
-                              className="px-2 py-1 rounded text-xs text-gray-400 hover:text-red-400 hover:bg-red-500/10"
+                              className="px-2 py-1 rounded text-xs text-content-secondary hover:text-red-400 hover:bg-red-500/10"
                             >
                               Revoke
                             </button>
@@ -391,7 +391,7 @@ export function ObjectStorage() {
                 onChange={(e) => setBucketName(e.target.value.toLowerCase())}
                 className="input-field font-mono"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-content-tertiary mt-1">
                 3-63 chars, lowercase letters, numbers, hyphens, dots only
               </p>
             </Field>
@@ -424,23 +424,23 @@ export function ObjectStorage() {
                 id="versioning"
                 checked={bucketVersioning}
                 onChange={(e) => setBucketVersioning(e.target.checked)}
-                className="rounded border-oxide-700"
+                className="rounded border-border"
               />
-              <label htmlFor="versioning" className="text-sm text-gray-300">
+              <label htmlFor="versioning" className="text-sm text-content-secondary">
                 Enable Object Versioning
               </label>
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <button
                 onClick={() => setShowCreateBucket(false)}
-                className="px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-oxide-800"
+                className="px-4 py-2 rounded-lg text-sm text-content-secondary hover:text-content-primary hover:bg-surface-tertiary"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreateBucket}
                 disabled={!bucketName || bucketName.length < 3}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Create Bucket
               </button>
@@ -460,12 +460,12 @@ export function ObjectStorage() {
             </div>
             <Field label="Access Key">
               <div className="flex items-center gap-2">
-                <code className="flex-1 px-3 py-2 rounded-lg bg-oxide-800 text-sm text-white font-mono">
+                <code className="flex-1 px-3 py-2 rounded-lg bg-surface-tertiary text-sm text-content-primary font-mono">
                   {newSecret.access_key}
                 </code>
                 <button
                   onClick={() => navigator.clipboard.writeText(newSecret.access_key)}
-                  className="px-3 py-2 rounded-lg border border-oxide-700 text-xs text-gray-300 hover:bg-oxide-800"
+                  className="px-3 py-2 rounded-lg border border-border text-xs text-content-secondary hover:bg-surface-tertiary"
                 >
                   Copy
                 </button>
@@ -473,12 +473,12 @@ export function ObjectStorage() {
             </Field>
             <Field label="Secret Key">
               <div className="flex items-center gap-2">
-                <code className="flex-1 px-3 py-2 rounded-lg bg-oxide-800 text-sm text-white font-mono break-all">
+                <code className="flex-1 px-3 py-2 rounded-lg bg-surface-tertiary text-sm text-content-primary font-mono break-all">
                   {newSecret.secret_key}
                 </code>
                 <button
                   onClick={() => navigator.clipboard.writeText(newSecret.secret_key)}
-                  className="px-3 py-2 rounded-lg border border-oxide-700 text-xs text-gray-300 hover:bg-oxide-800"
+                  className="px-3 py-2 rounded-lg border border-border text-xs text-content-secondary hover:bg-surface-tertiary"
                 >
                   Copy
                 </button>
@@ -487,7 +487,7 @@ export function ObjectStorage() {
             <div className="flex justify-end pt-2">
               <button
                 onClick={() => setNewSecret(null)}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium"
+                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium"
               >
                 Done
               </button>
@@ -503,9 +503,9 @@ export function ObjectStorage() {
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 p-4">
-      <div className="text-xs text-gray-500 uppercase tracking-wider">{label}</div>
-      <div className="text-2xl font-bold text-white mt-1">{value}</div>
+    <div className="rounded-xl border border-border bg-surface-secondary p-4">
+      <div className="text-xs text-content-tertiary uppercase tracking-wider">{label}</div>
+      <div className="text-2xl font-bold text-content-primary mt-1">{value}</div>
     </div>
   )
 }
@@ -525,12 +525,12 @@ function Modal({
       onClick={onClose}
     >
       <div
-        className="bg-oxide-900 border border-oxide-700 rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-6"
+        className="bg-surface-secondary border border-border rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-6"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-semibold text-white">{title}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white text-xl leading-none">
+          <h2 className="text-lg font-semibold text-content-primary">{title}</h2>
+          <button onClick={onClose} className="text-content-secondary hover:text-content-primary text-xl leading-none">
             ×
           </button>
         </div>
@@ -551,7 +551,7 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-300 mb-1.5">
+      <label className="block text-sm font-medium text-content-secondary mb-1.5">
         {label} {required && <span className="text-red-400">*</span>}
       </label>
       {children}

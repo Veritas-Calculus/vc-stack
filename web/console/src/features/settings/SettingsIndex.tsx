@@ -24,7 +24,7 @@ export function SettingsIndex() {
               <Link
                 key={it.to}
                 to={it.to}
-                className={`block rounded px-3 py-2 text-sm ${active ? 'bg-oxide-800 text-white' : 'text-gray-300 hover:bg-oxide-800'}`}
+                className={`block rounded px-3 py-2 text-sm ${active ? 'bg-surface-tertiary text-content-primary' : 'text-content-secondary hover:bg-surface-tertiary'}`}
               >
                 {it.label}
               </Link>

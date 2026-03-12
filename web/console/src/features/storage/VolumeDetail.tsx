@@ -92,7 +92,7 @@ export default function VolumeDetail() {
   }, [load])
 
   if (loading || !volume) {
-    return <div className="p-6 text-center text-gray-400">Loading volume details...</div>
+    return <div className="p-6 text-center text-content-secondary">Loading volume details...</div>
   }
 
   const attachCols: Column<Attachment>[] = [
@@ -189,8 +189,8 @@ export default function VolumeDetail() {
             onClick={() => setTab(t.id)}
             className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px ${
               tab === t.id
-                ? 'border-blue-500 text-blue-400'
-                : 'border-transparent text-gray-500 hover:text-gray-300'
+                ? 'border-blue-500 text-accent'
+                : 'border-transparent text-content-tertiary hover:text-content-secondary'
             }`}
           >
             {t.label}
@@ -230,12 +230,12 @@ export default function VolumeDetail() {
           </div>
           {volume.metadata && Object.keys(volume.metadata).length > 0 && (
             <div className="mt-4 pt-4 border-t border-[var(--border-primary,#2a2a4a)]">
-              <h4 className="text-xs font-semibold text-gray-400 mb-2 uppercase">Metadata</h4>
+              <h4 className="text-xs font-semibold text-content-secondary mb-2 uppercase">Metadata</h4>
               <div className="flex flex-wrap gap-2">
                 {Object.entries(volume.metadata).map(([k, v]) => (
                   <span
                     key={k}
-                    className="text-xs bg-gray-800 border border-gray-700 rounded px-2 py-0.5"
+                    className="text-xs bg-gray-800 border border-border rounded px-2 py-0.5"
                   >
                     {k}={v}
                   </span>
@@ -281,8 +281,8 @@ export default function VolumeDetail() {
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <span className="text-gray-500 text-xs">{label}</span>
-      <div className="text-gray-200 text-sm mt-0.5">{value}</div>
+      <span className="text-content-tertiary text-xs">{label}</span>
+      <div className="text-content-primary text-sm mt-0.5">{value}</div>
     </div>
   )
 }

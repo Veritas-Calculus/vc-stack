@@ -24,7 +24,7 @@ export function Roles() {
       render: (r) => (
         <div className="flex justify-end gap-2">
           <button
-            className="text-blue-400 hover:underline"
+            className="text-accent hover:underline"
             onClick={() => {
               setSelectedRole(r.id)
               setPolicyModalOpen(true)
@@ -114,7 +114,7 @@ export function Roles() {
               <div key={p.id} className="flex items-center justify-between p-2 border rounded">
                 <div>
                   <div className="font-medium">{p.name}</div>
-                  <div className="text-xs text-gray-500">{p.type}</div>
+                  <div className="text-xs text-content-tertiary">{p.type}</div>
                 </div>
                 <button
                   className={`btn-sm ${isAttached ? 'btn-danger' : 'btn-secondary'}`}

@@ -81,22 +81,22 @@ export function UsageBilling() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white">Usage & Billing</h1>
-        <p className="text-sm text-gray-400 mt-1">
+        <h1 className="text-2xl font-bold text-content-primary">Usage & Billing</h1>
+        <p className="text-sm text-content-secondary mt-1">
           Resource metering, tariffs, and billing management
         </p>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 border-b border-oxide-800 pb-px">
+      <div className="flex gap-1 mb-6 border-b border-border pb-px">
         {tabs.map((t) => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${tab === t.key ? 'bg-oxide-800 text-white border-b-2 border-blue-500' : 'text-gray-400 hover:text-white hover:bg-oxide-800/50'}`}
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${tab === t.key ? 'bg-surface-tertiary text-content-primary border-b-2 border-blue-500' : 'text-content-secondary hover:text-content-primary hover:bg-surface-tertiary'}`}
           >
             {t.label}
-            <span className="ml-1.5 px-1.5 py-0.5 rounded text-[10px] bg-oxide-700 text-gray-400">
+            <span className="ml-1.5 px-1.5 py-0.5 rounded text-[10px] bg-surface-hover text-content-secondary">
               {t.count}
             </span>
           </button>
@@ -111,10 +111,10 @@ export function UsageBilling() {
         <>
           {/* Tariffs Tab */}
           {tab === 'tariffs' && (
-            <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur overflow-hidden">
+            <div className="rounded-xl border border-border bg-surface-secondary backdrop-blur overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-oxide-800 text-gray-400 text-xs uppercase tracking-wider">
+                  <tr className="border-b border-border text-content-secondary text-xs uppercase tracking-wider">
                     <th className="px-4 py-3 text-left">Resource</th>
                     <th className="px-4 py-3 text-left">Rate</th>
                     <th className="px-4 py-3 text-left">Unit</th>
@@ -126,18 +126,18 @@ export function UsageBilling() {
                   {tariffs.map((t) => (
                     <tr
                       key={t.id}
-                      className="border-b border-oxide-800/50 hover:bg-oxide-800/30 transition-colors"
+                      className="border-b border-border/50 hover:bg-surface-tertiary transition-colors"
                     >
                       <td className="px-4 py-3">
-                        <div className="text-white font-medium">{t.name}</div>
-                        <div className="text-xs text-gray-500 font-mono">{t.resource_type}</div>
+                        <div className="text-content-primary font-medium">{t.name}</div>
+                        <div className="text-xs text-content-tertiary font-mono">{t.resource_type}</div>
                       </td>
                       <td className="px-4 py-3 text-emerald-400 font-mono font-semibold">
                         ${t.rate.toFixed(2)}
                       </td>
-                      <td className="px-4 py-3 text-gray-400">{unitLabel(t.unit)}</td>
-                      <td className="px-4 py-3 text-gray-400">{t.currency}</td>
-                      <td className="px-4 py-3 text-gray-500 text-xs">
+                      <td className="px-4 py-3 text-content-secondary">{unitLabel(t.unit)}</td>
+                      <td className="px-4 py-3 text-content-secondary">{t.currency}</td>
+                      <td className="px-4 py-3 text-content-tertiary text-xs">
                         {new Date(t.effective_on).toLocaleDateString()}
                       </td>
                     </tr>
@@ -145,7 +145,7 @@ export function UsageBilling() {
                 </tbody>
               </table>
               {tariffs.length === 0 && (
-                <div className="text-center py-8 text-gray-500">No tariffs configured</div>
+                <div className="text-center py-8 text-content-tertiary">No tariffs configured</div>
               )}
             </div>
           )}
@@ -162,13 +162,13 @@ export function UsageBilling() {
                 {usageSummary.map((u, i) => (
                   <div
                     key={i}
-                    className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur p-5 hover:border-oxide-700 transition-colors"
+                    className="rounded-xl border border-border bg-surface-secondary backdrop-blur p-5 hover:border-border transition-colors"
                   >
-                    <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">
+                    <div className="text-xs text-content-tertiary uppercase tracking-wider mb-1">
                       {u.resource_type.replace(/_/g, ' ')}
                     </div>
-                    <div className="text-2xl font-bold text-white">{u.total_usage.toFixed(1)}</div>
-                    <div className="text-xs text-gray-400">{unitLabel(u.unit)}</div>
+                    <div className="text-2xl font-bold text-content-primary">{u.total_usage.toFixed(1)}</div>
+                    <div className="text-xs text-content-secondary">{unitLabel(u.unit)}</div>
                   </div>
                 ))}
               </div>
@@ -182,10 +182,10 @@ export function UsageBilling() {
                 subtitle="Billing summaries will appear when credits are applied"
               />
             ) : (
-              <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur overflow-hidden">
+              <div className="rounded-xl border border-border bg-surface-secondary backdrop-blur overflow-hidden">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-oxide-800 text-gray-400 text-xs uppercase tracking-wider">
+                    <tr className="border-b border-border text-content-secondary text-xs uppercase tracking-wider">
                       <th className="px-4 py-3 text-left">Period</th>
                       <th className="px-4 py-3 text-left">Account</th>
                       <th className="px-4 py-3 text-right">Credit</th>
@@ -198,17 +198,17 @@ export function UsageBilling() {
                     {billingSummaries.map((b) => (
                       <tr
                         key={b.id}
-                        className="border-b border-oxide-800/50 hover:bg-oxide-800/30 transition-colors"
+                        className="border-b border-border/50 hover:bg-surface-tertiary transition-colors"
                       >
-                        <td className="px-4 py-3 text-white font-medium">{b.period}</td>
-                        <td className="px-4 py-3 text-gray-400">#{b.account_id}</td>
+                        <td className="px-4 py-3 text-content-primary font-medium">{b.period}</td>
+                        <td className="px-4 py-3 text-content-secondary">#{b.account_id}</td>
                         <td className="px-4 py-3 text-right text-emerald-400 font-mono">
                           ${b.credit.toFixed(2)}
                         </td>
                         <td className="px-4 py-3 text-right text-red-400 font-mono">
                           ${b.usage.toFixed(2)}
                         </td>
-                        <td className="px-4 py-3 text-right text-white font-mono font-semibold">
+                        <td className="px-4 py-3 text-right text-content-primary font-mono font-semibold">
                           ${b.balance.toFixed(2)}
                         </td>
                         <td className="px-4 py-3">

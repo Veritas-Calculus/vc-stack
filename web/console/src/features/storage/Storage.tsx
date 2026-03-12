@@ -93,7 +93,7 @@ function Volumes() {
         <div className="flex items-center gap-2">
           <a
             href={`volumes/${r.id}`}
-            className="text-blue-400 hover:text-blue-300 hover:underline"
+            className="text-accent hover:text-accent-hover hover:underline"
             onClick={(e) => {
               e.preventDefault()
               window.location.hash = `volumes/${r.id}`
@@ -119,13 +119,13 @@ function Volumes() {
       render: (row) => (
         <div className="flex gap-2">
           <button
-            className="text-blue-400 hover:text-blue-300 text-sm"
+            className="text-accent hover:text-accent-hover text-sm"
             onClick={() => handleClone(row)}
           >
             Clone
           </button>
           <button
-            className="text-blue-400 hover:text-blue-300 text-sm"
+            className="text-accent hover:text-accent-hover text-sm"
             onClick={() => {
               setResizeVolumeId(row.id)
               setResizeCurrentSize(row.sizeGiB)
@@ -136,7 +136,7 @@ function Volumes() {
             Resize
           </button>
           <button
-            className={`text-sm ${row.status === 'in-use' ? 'text-gray-500 cursor-not-allowed' : 'text-red-400 hover:text-red-300'}`}
+            className={`text-sm ${row.status === 'in-use' ? 'text-content-tertiary cursor-not-allowed' : 'text-red-400 hover:text-red-300'}`}
             disabled={row.status === 'in-use'}
             title={
               row.status === 'in-use'
@@ -306,7 +306,7 @@ function Volumes() {
                 setResizeNewSize(e.target.value ? Number(e.target.value) : resizeCurrentSize)
               }
             />
-            <p className="text-xs text-gray-400 mt-1">New size must be larger than current size</p>
+            <p className="text-xs text-content-secondary mt-1">New size must be larger than current size</p>
           </div>
         </div>
       </Modal>

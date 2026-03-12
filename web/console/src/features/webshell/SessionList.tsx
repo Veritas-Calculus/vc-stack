@@ -149,7 +149,7 @@ export function SessionList() {
       case 'active':
         return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
       case 'closed':
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+        return 'bg-gray-100 text-gray-800 dark:bg-surface-hover dark:text-content-secondary'
       case 'connection_failed':
       case 'auth_failed':
         return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
@@ -165,13 +165,13 @@ export function SessionList() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">WebShell 会话记录</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">查看和管理所有SSH会话记录</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-content-primary">WebShell 会话记录</h1>
+          <p className="text-sm text-content-tertiary dark:text-content-secondary mt-1">查看和管理所有SSH会话记录</p>
         </div>
 
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+          className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-surface-hover"
         >
           <Filter className="w-4 h-4" />
           筛选
@@ -180,10 +180,10 @@ export function SessionList() {
 
       {/* Filters */}
       {showFilters && (
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 space-y-4">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-border space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-content-secondary mb-1">
                 <User className="w-4 h-4 inline mr-1" />
                 用户名
               </label>
@@ -192,12 +192,12 @@ export function SessionList() {
                 value={usernameFilter}
                 onChange={(e) => setUsernameFilter(e.target.value)}
                 placeholder="搜索用户名..."
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-content-primary"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-content-secondary mb-1">
                 <Server className="w-4 h-4 inline mr-1" />
                 远程主机
               </label>
@@ -206,18 +206,18 @@ export function SessionList() {
                 value={hostFilter}
                 onChange={(e) => setHostFilter(e.target.value)}
                 placeholder="搜索主机地址..."
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-content-primary"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-content-secondary mb-1">
                 状态
               </label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-content-primary"
               >
                 <option value="all">全部</option>
                 <option value="active">活动中</option>
@@ -236,7 +236,7 @@ export function SessionList() {
                 setHostFilter('')
                 setStatusFilter('all')
               }}
-              className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              className="px-4 py-2 text-sm text-content-tertiary dark:text-content-secondary hover:text-gray-900 dark:hover:text-content-primary"
             >
               清空筛选
             </button>
@@ -245,8 +245,8 @@ export function SessionList() {
       )}
 
       {/* Stats */}
-      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-border">
+        <div className="flex items-center justify-between text-sm text-content-tertiary dark:text-content-secondary">
           <span>共 {total} 条会话记录</span>
           <span>
             第 {page} / {totalPages} 页
@@ -255,35 +255,35 @@ export function SessionList() {
       </div>
 
       {/* Sessions Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-border overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-gray-500 dark:text-gray-400">加载中...</div>
+          <div className="p-8 text-center text-content-tertiary dark:text-content-secondary">加载中...</div>
         ) : sessions.length === 0 ? (
-          <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+          <div className="p-8 text-center text-content-tertiary dark:text-content-secondary">
             <Terminal className="w-12 h-12 mx-auto mb-3 opacity-50" />
             <p>暂无会话记录</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+              <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-border">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-content-tertiary dark:text-content-secondary uppercase tracking-wider">
                     会话信息
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-content-tertiary dark:text-content-secondary uppercase tracking-wider">
                     远程主机
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-content-tertiary dark:text-content-secondary uppercase tracking-wider">
                     时间
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-content-tertiary dark:text-content-secondary uppercase tracking-wider">
                     流量
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-content-tertiary dark:text-content-secondary uppercase tracking-wider">
                     状态
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-right text-xs font-medium text-content-tertiary dark:text-content-secondary uppercase tracking-wider">
                     操作
                   </th>
                 </tr>
@@ -294,15 +294,15 @@ export function SessionList() {
                     <td className="px-4 py-4">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <User className="w-4 h-4 text-gray-400" />
-                          <span className="font-medium text-gray-900 dark:text-white">
+                          <User className="w-4 h-4 text-content-secondary" />
+                          <span className="font-medium text-gray-900 dark:text-content-primary">
                             {session.username}
                           </span>
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                        <div className="text-xs text-content-tertiary dark:text-content-secondary font-mono">
                           {session.session_id.substring(0, 16)}...
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                        <div className="text-xs text-content-tertiary dark:text-content-secondary">
                           {session.client_ip && `来自 ${session.client_ip}`}
                         </div>
                       </div>
@@ -311,12 +311,12 @@ export function SessionList() {
                     <td className="px-4 py-4">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <Server className="w-4 h-4 text-gray-400" />
-                          <span className="text-sm font-medium text-gray-900 dark:text-white">
+                          <Server className="w-4 h-4 text-content-secondary" />
+                          <span className="text-sm font-medium text-gray-900 dark:text-content-primary">
                             {session.remote_user}@{session.remote_host}:{session.remote_port}
                           </span>
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                        <div className="text-xs text-content-tertiary dark:text-content-secondary">
                           {session.auth_method === 'password' ? '密码认证' : 'SSH密钥认证'}
                         </div>
                       </div>
@@ -324,12 +324,12 @@ export function SessionList() {
 
                     <td className="px-4 py-4">
                       <div className="space-y-1 text-sm">
-                        <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                        <div className="flex items-center gap-2 text-content-tertiary dark:text-content-secondary">
                           <Clock className="w-4 h-4" />
                           {formatDate(session.started_at)}
                         </div>
                         {session.ended_at && (
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                          <div className="text-xs text-content-tertiary dark:text-content-secondary">
                             持续 {formatDuration(session.duration_seconds)}
                           </div>
                         )}
@@ -338,10 +338,10 @@ export function SessionList() {
 
                     <td className="px-4 py-4">
                       <div className="space-y-1 text-xs">
-                        <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+                        <div className="flex items-center gap-1 text-content-tertiary dark:text-content-secondary">
                           <HardDrive className="w-3 h-3" />↑ {formatBytes(session.bytes_sent)}
                         </div>
-                        <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+                        <div className="flex items-center gap-1 text-content-tertiary dark:text-content-secondary">
                           <HardDrive className="w-3 h-3" />↓ {formatBytes(session.bytes_received)}
                         </div>
                       </div>
@@ -361,14 +361,14 @@ export function SessionList() {
                           onClick={() =>
                             (window.location.href = `/webshell/replay/${session.session_id}`)
                           }
-                          className="p-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded"
+                          className="p-2 text-blue-600 hover:text-blue-700 dark:text-accent dark:hover:text-accent-hover hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded"
                           title="回放"
                         >
                           <Play className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => exportSession(session)}
-                          className="p-2 text-gray-600 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded"
+                          className="p-2 text-content-tertiary hover:text-gray-700 dark:text-content-secondary dark:hover:text-content-secondary hover:bg-gray-50 dark:hover:bg-surface-hover rounded"
                           title="导出"
                         >
                           <Download className="w-4 h-4" />
@@ -389,7 +389,7 @@ export function SessionList() {
           <button
             onClick={() => setPage(Math.max(1, page - 1))}
             disabled={page === 1}
-            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
+            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-content-secondary bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-surface-hover"
           >
             上一页
           </button>
@@ -413,8 +413,8 @@ export function SessionList() {
                   onClick={() => setPage(pageNum)}
                   className={`px-3 py-1 text-sm font-medium rounded ${
                     page === pageNum
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+                      ? 'bg-blue-600 text-content-primary'
+                      : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-content-secondary border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-surface-hover'
                   }`}
                 >
                   {pageNum}
@@ -426,7 +426,7 @@ export function SessionList() {
           <button
             onClick={() => setPage(Math.min(totalPages, page + 1))}
             disabled={page === totalPages}
-            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
+            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-content-secondary bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-surface-hover"
           >
             下一页
           </button>

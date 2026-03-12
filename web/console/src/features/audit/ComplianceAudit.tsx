@@ -165,7 +165,7 @@ export function ComplianceAudit() {
 
   const badge = (s: string) => {
     const m: Record<string, string> = {
-      info: 'bg-blue-500/20 text-blue-400',
+      info: 'bg-blue-500/20 text-accent',
       warning: 'bg-amber-500/20 text-amber-400',
       critical: 'bg-red-500/20 text-red-400',
       alert: 'bg-red-500/20 text-red-400',
@@ -175,11 +175,11 @@ export function ComplianceAudit() {
       compliant: 'bg-emerald-500/20 text-emerald-400',
       non_compliant: 'bg-red-500/20 text-red-400',
       partially_compliant: 'bg-amber-500/20 text-amber-400',
-      not_assessed: 'bg-gray-500/20 text-gray-400',
+      not_assessed: 'bg-gray-500/20 text-content-secondary',
       ready: 'bg-emerald-500/20 text-emerald-400',
-      generating: 'bg-blue-500/20 text-blue-400'
+      generating: 'bg-blue-500/20 text-accent'
     }
-    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-gray-400'}`
+    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-content-secondary'}`
   }
 
   const scoreColor = (s: number) =>
@@ -196,8 +196,8 @@ export function ComplianceAudit() {
     <div className="p-8 max-w-[1400px] mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Compliance & Audit</h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-content-primary">Compliance & Audit</h1>
+          <p className="text-content-secondary text-sm mt-1">
             Tamper-proof audit trails, compliance frameworks & reporting
           </p>
         </div>
@@ -209,12 +209,12 @@ export function ComplianceAudit() {
         )}
       </div>
 
-      <div className="flex gap-1 mb-6 bg-gray-800/40 p-1 rounded-lg w-fit">
+      <div className="flex gap-1 mb-6 bg-surface-tertiary p-1 rounded-lg w-fit">
         {tabs.map((t) => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition ${tab === t.key ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200'}`}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition ${tab === t.key ? 'bg-surface-hover text-content-primary' : 'text-content-secondary hover:text-content-primary'}`}
           >
             {t.label}
           </button>
@@ -230,7 +230,7 @@ export function ComplianceAudit() {
                 label: 'Audit Logs',
                 value: String(status.total_logs),
                 icon: Icons.pencil('w-4 h-4'),
-                color: 'text-blue-400'
+                color: 'text-accent'
               },
               {
                 label: 'Policies',
@@ -253,9 +253,9 @@ export function ComplianceAudit() {
             ].map((s) => (
               <div
                 key={s.label}
-                className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5"
+                className="bg-surface-tertiary border border-border rounded-xl p-5"
               >
-                <div className="flex items-center gap-2 text-gray-400 text-sm mb-2">
+                <div className="flex items-center gap-2 text-content-secondary text-sm mb-2">
                   <span>{s.icon}</span> {s.label}
                 </div>
                 <div className={`text-3xl font-bold ${s.color}`}>{s.value}</div>
@@ -264,8 +264,8 @@ export function ComplianceAudit() {
           </div>
 
           {/* Chain integrity */}
-          <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-6">
-            <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4 flex items-center gap-2">
+          <div className="bg-surface-tertiary border border-border rounded-xl p-6">
+            <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider mb-4 flex items-center gap-2">
               {Icons.link('w-4 h-4')} Audit Chain Integrity
             </h3>
             {(() => {
@@ -282,9 +282,9 @@ export function ComplianceAudit() {
                       <>{Icons.warning('w-8 h-8')} COMPROMISED</>
                     )}
                   </div>
-                  <div className="text-sm text-gray-400">
+                  <div className="text-sm text-content-secondary">
                     <div>{String(ci.verified)} entries verified</div>
-                    <div className="text-xs mt-1 text-gray-500">{String(ci.message)}</div>
+                    <div className="text-xs mt-1 text-content-tertiary">{String(ci.message)}</div>
                   </div>
                 </div>
               )
@@ -292,15 +292,15 @@ export function ComplianceAudit() {
           </div>
 
           {/* Policies */}
-          <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl overflow-hidden">
-            <div className="px-5 py-3 border-b border-gray-700/30">
-              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+          <div className="bg-surface-tertiary border border-border rounded-xl overflow-hidden">
+            <div className="px-5 py-3 border-b border-border">
+              <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider">
                 Audit Policies ({policies.length})
               </h3>
             </div>
             <table className="w-full text-sm">
-              <thead className="bg-gray-700/30">
-                <tr className="text-left text-gray-400 text-xs uppercase">
+              <thead className="bg-surface-hover">
+                <tr className="text-left text-content-secondary text-xs uppercase">
                   <th className="px-4 py-3">Name</th>
                   <th className="px-4 py-3">Pattern</th>
                   <th className="px-4 py-3">Category</th>
@@ -314,15 +314,15 @@ export function ComplianceAudit() {
                 {policies.map((p) => (
                   <tr
                     key={p.id}
-                    className="border-t border-gray-700/30 hover:bg-gray-700/20 transition"
+                    className="border-t border-border hover:bg-surface-hover transition"
                   >
-                    <td className="px-4 py-3 text-white font-medium">{p.name}</td>
-                    <td className="px-4 py-3 text-gray-300 font-mono text-xs">{p.event_pattern}</td>
-                    <td className="px-4 py-3 text-gray-300 text-xs">{p.category}</td>
+                    <td className="px-4 py-3 text-content-primary font-medium">{p.name}</td>
+                    <td className="px-4 py-3 text-content-secondary font-mono text-xs">{p.event_pattern}</td>
+                    <td className="px-4 py-3 text-content-secondary text-xs">{p.category}</td>
                     <td className="px-4 py-3">
                       <span className={badge(p.severity)}>{p.severity}</span>
                     </td>
-                    <td className="px-4 py-3 text-gray-300 text-xs">
+                    <td className="px-4 py-3 text-content-secondary text-xs">
                       {p.retention_days}d ({Math.round(p.retention_days / 365)}y)
                     </td>
                     <td className="px-4 py-3">
@@ -331,7 +331,7 @@ export function ComplianceAudit() {
                           {Icons.bell('w-3 h-3')} on
                         </span>
                       ) : (
-                        <span className="text-gray-500 text-xs">off</span>
+                        <span className="text-content-tertiary text-xs">off</span>
                       )}
                     </td>
                     <td className="px-4 py-3">
@@ -356,7 +356,7 @@ export function ComplianceAudit() {
             <select
               value={logFilter.category}
               onChange={(e) => setLogFilter((p) => ({ ...p, category: e.target.value }))}
-              className="bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+              className="bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
             >
               <option value="">All Categories</option>
               {[
@@ -375,7 +375,7 @@ export function ComplianceAudit() {
             <select
               value={logFilter.severity}
               onChange={(e) => setLogFilter((p) => ({ ...p, severity: e.target.value }))}
-              className="bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+              className="bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
             >
               <option value="">All Severities</option>
               {['info', 'warning', 'critical', 'alert'].map((s) => (
@@ -384,12 +384,12 @@ export function ComplianceAudit() {
                 </option>
               ))}
             </select>
-            <span className="text-gray-500 text-sm ml-auto">{logs.length} entries</span>
+            <span className="text-content-tertiary text-sm ml-auto">{logs.length} entries</span>
           </div>
-          <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl overflow-hidden">
+          <div className="bg-surface-tertiary border border-border rounded-xl overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="bg-gray-700/30">
-                <tr className="text-left text-gray-400 text-xs uppercase">
+              <thead className="bg-surface-hover">
+                <tr className="text-left text-content-secondary text-xs uppercase">
                   <th className="px-4 py-3">Seq</th>
                   <th className="px-4 py-3">Time</th>
                   <th className="px-4 py-3">Event</th>
@@ -404,27 +404,27 @@ export function ComplianceAudit() {
                 {logs.map((l) => (
                   <tr
                     key={l.id}
-                    className="border-t border-gray-700/30 hover:bg-gray-700/20 transition"
+                    className="border-t border-border hover:bg-surface-hover transition"
                   >
-                    <td className="px-4 py-3 text-gray-500 text-xs">#{l.sequence}</td>
-                    <td className="px-4 py-3 text-gray-300 text-xs">
+                    <td className="px-4 py-3 text-content-tertiary text-xs">#{l.sequence}</td>
+                    <td className="px-4 py-3 text-content-secondary text-xs">
                       {new Date(l.timestamp).toLocaleString()}
                     </td>
                     <td className="px-4 py-3">
-                      <div className="text-white text-xs font-medium">{l.event_type}</div>
-                      <div className="text-gray-500 text-xs">{l.category}</div>
+                      <div className="text-content-primary text-xs font-medium">{l.event_type}</div>
+                      <div className="text-content-tertiary text-xs">{l.category}</div>
                     </td>
                     <td className="px-4 py-3">
                       <span className={badge(l.severity)}>{l.severity}</span>
                     </td>
-                    <td className="px-4 py-3 text-gray-300 text-xs">
+                    <td className="px-4 py-3 text-content-secondary text-xs">
                       {l.actor_name || l.actor_type}
                     </td>
-                    <td className="px-4 py-3 text-gray-300 text-xs">{l.action}</td>
+                    <td className="px-4 py-3 text-content-secondary text-xs">{l.action}</td>
                     <td className="px-4 py-3">
                       <span className={badge(l.result)}>{l.result}</span>
                     </td>
-                    <td className="px-4 py-3 text-gray-500 font-mono text-xs" title={l.hash}>
+                    <td className="px-4 py-3 text-content-tertiary font-mono text-xs" title={l.hash}>
                       {l.hash?.slice(0, 12)}…
                     </td>
                   </tr>
@@ -432,7 +432,7 @@ export function ComplianceAudit() {
               </tbody>
             </table>
             {logs.length === 0 && (
-              <div className="text-center py-12 text-gray-500">No audit logs found</div>
+              <div className="text-center py-12 text-content-tertiary">No audit logs found</div>
             )}
           </div>
         </div>
@@ -444,7 +444,7 @@ export function ComplianceAudit() {
           <div className="flex justify-end gap-3">
             <button
               onClick={runAssessment}
-              className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-500 transition flex items-center gap-1.5"
+              className="px-4 py-2 bg-purple-600 text-content-primary rounded-lg text-sm hover:bg-purple-500 transition flex items-center gap-1.5"
             >
               {Icons.search('w-4 h-4')} Run Assessment
             </button>
@@ -454,30 +454,30 @@ export function ComplianceAudit() {
             <div className="space-y-4">
               <button
                 onClick={() => setSelectedFW(null)}
-                className="text-sm text-gray-400 hover:text-white transition"
+                className="text-sm text-content-secondary hover:text-content-primary transition"
               >
                 ← Back to Frameworks
               </button>
-              <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5">
+              <div className="bg-surface-tertiary border border-border rounded-xl p-5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-lg font-bold text-white">
+                    <h3 className="text-lg font-bold text-content-primary">
                       {selectedFW.name}{' '}
-                      <span className="text-gray-500 text-sm font-normal">
+                      <span className="text-content-tertiary text-sm font-normal">
                         v{selectedFW.version}
                       </span>
                     </h3>
-                    <p className="text-gray-400 text-sm">{selectedFW.description}</p>
+                    <p className="text-content-secondary text-sm">{selectedFW.description}</p>
                   </div>
                   <div className={`text-4xl font-bold ${scoreColor(selectedFW.score)}`}>
                     {selectedFW.score}%
                   </div>
                 </div>
               </div>
-              <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl overflow-hidden">
+              <div className="bg-surface-tertiary border border-border rounded-xl overflow-hidden">
                 <table className="w-full text-sm">
-                  <thead className="bg-gray-700/30">
-                    <tr className="text-left text-gray-400 text-xs uppercase">
+                  <thead className="bg-surface-hover">
+                    <tr className="text-left text-content-secondary text-xs uppercase">
                       <th className="px-4 py-3">Control</th>
                       <th className="px-4 py-3">Name</th>
                       <th className="px-4 py-3">Category</th>
@@ -490,20 +490,20 @@ export function ComplianceAudit() {
                     {controls.map((c) => (
                       <tr
                         key={c.id}
-                        className="border-t border-gray-700/30 hover:bg-gray-700/20 transition"
+                        className="border-t border-border hover:bg-surface-hover transition"
                       >
-                        <td className="px-4 py-3 text-white font-mono font-medium">
+                        <td className="px-4 py-3 text-content-primary font-mono font-medium">
                           {c.control_id}
                         </td>
-                        <td className="px-4 py-3 text-gray-300">{c.name}</td>
-                        <td className="px-4 py-3 text-gray-400 text-xs">{c.category}</td>
+                        <td className="px-4 py-3 text-content-secondary">{c.name}</td>
+                        <td className="px-4 py-3 text-content-secondary text-xs">{c.category}</td>
                         <td className="px-4 py-3">
                           <span className={badge(c.status)}>{c.status.replace('_', ' ')}</span>
                         </td>
-                        <td className="px-4 py-3 text-gray-400 text-xs max-w-[300px] truncate">
+                        <td className="px-4 py-3 text-content-secondary text-xs max-w-[300px] truncate">
                           {c.evidence || '—'}
                         </td>
-                        <td className="px-4 py-3 text-gray-500 text-xs">
+                        <td className="px-4 py-3 text-content-tertiary text-xs">
                           {c.last_assessed ? new Date(c.last_assessed).toLocaleDateString() : '—'}
                         </td>
                       </tr>
@@ -518,7 +518,7 @@ export function ComplianceAudit() {
                 <div
                   key={fw.id}
                   onClick={() => loadControls(fw)}
-                  className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5 cursor-pointer hover:border-purple-500/40 transition group"
+                  className="bg-surface-tertiary border border-border rounded-xl p-5 cursor-pointer hover:border-purple-500/40 transition group"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -526,20 +526,20 @@ export function ComplianceAudit() {
                         {Icons.building('w-7 h-7')}
                       </div>
                       <div>
-                        <div className="text-white font-semibold group-hover:text-purple-400 transition">
+                        <div className="text-content-primary font-semibold group-hover:text-purple-400 transition">
                           {fw.name}{' '}
-                          <span className="text-gray-500 text-sm font-normal">v{fw.version}</span>
+                          <span className="text-content-tertiary text-sm font-normal">v{fw.version}</span>
                         </div>
-                        <div className="text-gray-500 text-xs mt-0.5">{fw.description}</div>
+                        <div className="text-content-tertiary text-xs mt-0.5">{fw.description}</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-6">
                       <div className="text-right text-xs">
-                        <div className="text-gray-400">
+                        <div className="text-content-secondary">
                           {fw.compliant_controls}/{fw.total_controls} controls
                         </div>
                         <div className="mt-1">
-                          <div className="w-24 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                          <div className="w-24 h-1.5 bg-surface-hover rounded-full overflow-hidden">
                             <div
                               className="h-full rounded-full bg-emerald-500 transition-all"
                               style={{ width: `${fw.score}%` }}
@@ -553,7 +553,7 @@ export function ComplianceAudit() {
                       {fw.enabled ? (
                         <span className="flex items-center gap-1 text-emerald-400 text-xs"><span className="inline-block w-2 h-2 rounded-full bg-emerald-400"></span> active</span>
                       ) : (
-                        <span className="flex items-center gap-1 text-gray-500 text-xs"><span className="inline-block w-2 h-2 rounded-full border border-gray-500"></span> disabled</span>
+                        <span className="flex items-center gap-1 text-content-tertiary text-xs"><span className="inline-block w-2 h-2 rounded-full border border-gray-500"></span> disabled</span>
                       )}
                     </div>
                   </div>
@@ -570,27 +570,27 @@ export function ComplianceAudit() {
           <div className="flex justify-end">
             <button
               onClick={generateReport}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-500 transition flex items-center gap-1.5"
+              className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition flex items-center gap-1.5"
             >
               {Icons.chart('w-4 h-4')} Generate Report
             </button>
           </div>
           {reports.length === 0 ? (
-            <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl text-center py-16">
-              <div className="mb-4 text-gray-500">{Icons.chart('w-12 h-12')}</div>
-              <p className="text-gray-400 text-lg">No compliance reports generated</p>
-              <p className="text-gray-500 text-sm mt-1">
+            <div className="bg-surface-tertiary border border-border rounded-xl text-center py-16">
+              <div className="mb-4 text-content-tertiary">{Icons.chart('w-12 h-12')}</div>
+              <p className="text-content-secondary text-lg">No compliance reports generated</p>
+              <p className="text-content-tertiary text-sm mt-1">
                 Generate a report to assess your compliance posture
               </p>
             </div>
           ) : (
             <div className="grid gap-4">
               {reports.map((r) => (
-                <div key={r.id} className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5">
+                <div key={r.id} className="bg-surface-tertiary border border-border rounded-xl p-5">
                   <div className="flex items-center justify-between mb-3">
                     <div>
-                      <div className="text-white font-semibold">{r.name}</div>
-                      <div className="text-gray-500 text-xs mt-0.5">
+                      <div className="text-content-primary font-semibold">{r.name}</div>
+                      <div className="text-content-tertiary text-xs mt-0.5">
                         {r.type} • {new Date(r.period_start).toLocaleDateString()} —{' '}
                         {new Date(r.period_end).toLocaleDateString()}
                       </div>
@@ -601,20 +601,20 @@ export function ComplianceAudit() {
                     </div>
                   </div>
                   <div className="grid grid-cols-3 gap-4 mb-3">
-                    <div className="bg-gray-700/30 rounded-lg p-3 text-center">
-                      <div className="text-gray-500 text-xs mb-1">Total</div>
-                      <div className="text-white font-bold">{r.total_controls}</div>
+                    <div className="bg-surface-hover rounded-lg p-3 text-center">
+                      <div className="text-content-tertiary text-xs mb-1">Total</div>
+                      <div className="text-content-primary font-bold">{r.total_controls}</div>
                     </div>
-                    <div className="bg-gray-700/30 rounded-lg p-3 text-center">
-                      <div className="text-gray-500 text-xs mb-1">Passed</div>
+                    <div className="bg-surface-hover rounded-lg p-3 text-center">
+                      <div className="text-content-tertiary text-xs mb-1">Passed</div>
                       <div className="text-emerald-400 font-bold">{r.passed_controls}</div>
                     </div>
-                    <div className="bg-gray-700/30 rounded-lg p-3 text-center">
-                      <div className="text-gray-500 text-xs mb-1">Failed</div>
+                    <div className="bg-surface-hover rounded-lg p-3 text-center">
+                      <div className="text-content-tertiary text-xs mb-1">Failed</div>
                       <div className="text-red-400 font-bold">{r.failed_controls}</div>
                     </div>
                   </div>
-                  <div className="text-gray-400 text-xs">{r.summary}</div>
+                  <div className="text-content-secondary text-xs">{r.summary}</div>
                 </div>
               ))}
             </div>

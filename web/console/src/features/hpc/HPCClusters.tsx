@@ -103,13 +103,13 @@ export function HPCClusters() {
     const m: Record<string, string> = {
       active: 'bg-emerald-500/20 text-emerald-400',
       ready: 'bg-emerald-500/20 text-emerald-400',
-      provisioning: 'bg-blue-500/20 text-blue-400 animate-pulse',
-      upgrading: 'bg-blue-500/20 text-blue-400',
+      provisioning: 'bg-blue-500/20 text-accent animate-pulse',
+      upgrading: 'bg-blue-500/20 text-accent',
       pending: 'bg-amber-500/20 text-amber-400',
       error: 'bg-red-500/20 text-red-400',
       deleting: 'bg-red-500/20 text-red-400'
     }
-    return `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${m[s] || 'bg-gray-500/20 text-gray-400'}`
+    return `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${m[s] || 'bg-gray-500/20 text-content-secondary'}`
   }
 
   const gpuBar = (total: number, allocated: number) => {
@@ -117,13 +117,13 @@ export function HPCClusters() {
     const pct = Math.round((allocated / total) * 100)
     return (
       <div className="flex items-center gap-2">
-        <div className="w-24 h-2 bg-gray-700 rounded-full overflow-hidden">
+        <div className="w-24 h-2 bg-surface-hover rounded-full overflow-hidden">
           <div
             className={`h-full rounded-full transition-all ${pct > 80 ? 'bg-red-500' : pct > 50 ? 'bg-amber-500' : 'bg-emerald-500'}`}
             style={{ width: `${pct}%` }}
           />
         </div>
-        <span className="text-xs text-gray-400">
+        <span className="text-xs text-content-secondary">
           {allocated}/{total}
         </span>
       </div>
@@ -133,8 +133,8 @@ export function HPCClusters() {
   if (loading) {
     return (
       <div className="p-8">
-        <h1 className="text-2xl font-bold text-white mb-2">HPC Clusters</h1>
-        <p className="text-gray-400">Loading...</p>
+        <h1 className="text-2xl font-bold text-content-primary mb-2">HPC Clusters</h1>
+        <p className="text-content-secondary">Loading...</p>
       </div>
     )
   }
@@ -143,15 +143,15 @@ export function HPCClusters() {
     <div className="p-8 max-w-[1400px] mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">HPC Clusters</h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-content-primary">HPC Clusters</h1>
+          <p className="text-content-secondary text-sm mt-1">
             GPU-accelerated Kubernetes and Slurm workload manager clusters
           </p>
         </div>
       </div>
 
       {/* Tab Switcher */}
-      <div className="flex items-center gap-1 bg-gray-800/60 border border-gray-700/40 rounded-lg p-1 mb-6 w-fit">
+      <div className="flex items-center gap-1 bg-surface-tertiary border border-border rounded-lg p-1 mb-6 w-fit">
         <button
           onClick={() => {
             setTab('k8s')
@@ -161,8 +161,8 @@ export function HPCClusters() {
           }}
           className={`px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition ${
             tab === 'k8s'
-              ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
-              : 'text-gray-500 hover:text-gray-300'
+              ? 'bg-blue-600/20 text-accent border border-blue-500/30'
+              : 'text-content-tertiary hover:text-content-secondary'
           }`}
         >
           {Icons.kubernetes('w-4 h-4')} Kubernetes ({k8sClusters.length})
@@ -177,7 +177,7 @@ export function HPCClusters() {
           className={`px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition ${
             tab === 'slurm'
               ? 'bg-orange-600/20 text-orange-400 border border-orange-500/30'
-              : 'text-gray-500 hover:text-gray-300'
+              : 'text-content-tertiary hover:text-content-secondary'
           }`}
         >
           {Icons.server('w-4 h-4')} Slurm ({slurmClusters.length})
@@ -188,10 +188,10 @@ export function HPCClusters() {
       {tab === 'k8s' && (
         <div className="space-y-4">
           {k8sClusters.length === 0 ? (
-            <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl text-center py-16">
-              <div className="mb-4 text-blue-400">{Icons.kubernetes('w-12 h-12 mx-auto')}</div>
-              <p className="text-gray-400 text-lg">No HPC Kubernetes clusters</p>
-              <p className="text-gray-500 text-sm mt-1">
+            <div className="bg-surface-tertiary border border-border rounded-xl text-center py-16">
+              <div className="mb-4 text-accent">{Icons.kubernetes('w-12 h-12 mx-auto')}</div>
+              <p className="text-content-secondary text-lg">No HPC Kubernetes clusters</p>
+              <p className="text-content-tertiary text-sm mt-1">
                 Create a GPU-aware cluster with Volcano or Kueue
               </p>
             </div>
@@ -204,22 +204,22 @@ export function HPCClusters() {
                     setSelectedK8s(selectedK8s?.id === c.id ? null : c)
                     viewComponents(c.id)
                   }}
-                  className={`bg-gray-800/60 border rounded-xl p-5 cursor-pointer transition group ${
+                  className={`bg-surface-tertiary border rounded-xl p-5 cursor-pointer transition group ${
                     selectedK8s?.id === c.id
                       ? 'border-blue-500/40'
-                      : 'border-gray-700/40 hover:border-blue-500/20'
+                      : 'border-border hover:border-blue-500/20'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">
+                      <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center text-accent">
                         {Icons.kubernetes('w-7 h-7')}
                       </div>
                       <div>
-                        <div className="text-white font-semibold text-lg">{c.name}</div>
-                        <div className="text-gray-500 text-xs mt-0.5 flex items-center gap-2">
+                        <div className="text-content-primary font-semibold text-lg">{c.name}</div>
+                        <div className="text-content-tertiary text-xs mt-0.5 flex items-center gap-2">
                           <span>K8s {c.kubernetes_version}</span>
-                          <span className="text-gray-600">|</span>
+                          <span className="text-content-tertiary">|</span>
                           <span className="text-purple-400">{c.gpu_scheduler}</span>
                           {c.enable_mpi && <span className="text-cyan-400">MPI</span>}
                           {c.enable_rdma && <span className="text-orange-400">RDMA</span>}
@@ -227,7 +227,7 @@ export function HPCClusters() {
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
-                      <div className="text-right text-xs text-gray-400">
+                      <div className="text-right text-xs text-content-secondary">
                         <div>
                           {c.control_plane_count} CP + {c.worker_count} Workers
                         </div>
@@ -252,9 +252,9 @@ export function HPCClusters() {
 
           {/* K8s Detail Panel */}
           {selectedK8s && (
-            <div className="bg-gray-800/60 border border-blue-500/30 rounded-xl p-6 space-y-4">
+            <div className="bg-surface-tertiary border border-blue-500/30 rounded-xl p-6 space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-white">
+                <h3 className="text-lg font-semibold text-content-primary">
                   {selectedK8s.name} — HPC Components
                 </h3>
                 <button
@@ -291,8 +291,8 @@ export function HPCClusters() {
                             className={`w-2 h-2 rounded-full ${comp.status === 'ready' ? 'bg-emerald-400' : comp.status === 'pending' ? 'bg-amber-400' : 'bg-red-400'}`}
                           />
                         </div>
-                        <div className="text-white text-sm font-mono">{comp.name}</div>
-                        <div className="text-gray-500 text-xs mt-0.5">v{comp.version}</div>
+                        <div className="text-content-primary text-sm font-mono">{comp.name}</div>
+                        <div className="text-content-tertiary text-xs mt-0.5">v{comp.version}</div>
                       </div>
                     )
                   })}
@@ -307,10 +307,10 @@ export function HPCClusters() {
       {tab === 'slurm' && (
         <div className="space-y-4">
           {slurmClusters.length === 0 ? (
-            <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl text-center py-16">
+            <div className="bg-surface-tertiary border border-border rounded-xl text-center py-16">
               <div className="mb-4 text-orange-400">{Icons.server('w-12 h-12 mx-auto')}</div>
-              <p className="text-gray-400 text-lg">No Slurm clusters</p>
-              <p className="text-gray-500 text-sm mt-1">
+              <p className="text-content-secondary text-lg">No Slurm clusters</p>
+              <p className="text-content-tertiary text-sm mt-1">
                 Deploy a Slurm workload manager with slurmrestd
               </p>
             </div>
@@ -320,10 +320,10 @@ export function HPCClusters() {
                 <div
                   key={c.id}
                   onClick={() => setSelectedSlurm(selectedSlurm?.id === c.id ? null : c)}
-                  className={`bg-gray-800/60 border rounded-xl p-5 cursor-pointer transition group ${
+                  className={`bg-surface-tertiary border rounded-xl p-5 cursor-pointer transition group ${
                     selectedSlurm?.id === c.id
                       ? 'border-orange-500/40'
-                      : 'border-gray-700/40 hover:border-orange-500/20'
+                      : 'border-border hover:border-orange-500/20'
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -332,10 +332,10 @@ export function HPCClusters() {
                         {Icons.server('w-7 h-7')}
                       </div>
                       <div>
-                        <div className="text-white font-semibold text-lg">{c.name}</div>
-                        <div className="text-gray-500 text-xs mt-0.5 flex items-center gap-2">
+                        <div className="text-content-primary font-semibold text-lg">{c.name}</div>
+                        <div className="text-content-tertiary text-xs mt-0.5 flex items-center gap-2">
                           <span>Slurm {c.slurm_version}</span>
-                          <span className="text-gray-600">|</span>
+                          <span className="text-content-tertiary">|</span>
                           <span>{c.compute_node_count} nodes</span>
                           {c.accounting_enabled && (
                             <span className="text-emerald-400">Accounting</span>
@@ -345,7 +345,7 @@ export function HPCClusters() {
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
-                      <div className="text-right text-xs text-gray-400">
+                      <div className="text-right text-xs text-content-secondary">
                         <div>{c.compute_node_count} compute nodes</div>
                         <div className="mt-1">{gpuBar(c.total_gpus, c.allocated_gpus)}</div>
                       </div>
@@ -362,7 +362,7 @@ export function HPCClusters() {
                     </div>
                   </div>
                   {c.api_endpoint && (
-                    <div className="mt-3 pt-3 border-t border-gray-700/30 text-xs text-gray-400">
+                    <div className="mt-3 pt-3 border-t border-border text-xs text-content-secondary">
                       <span className="font-mono">
                         {Icons.antenna('w-3 h-3 inline mr-1')}
                         {c.api_endpoint}
@@ -376,8 +376,8 @@ export function HPCClusters() {
 
           {/* Slurm Detail */}
           {selectedSlurm && (
-            <div className="bg-gray-800/60 border border-orange-500/30 rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">
+            <div className="bg-surface-tertiary border border-orange-500/30 rounded-xl p-6">
+              <h3 className="text-lg font-semibold text-content-primary mb-4">
                 {selectedSlurm.name} — Details
               </h3>
               <div className="grid grid-cols-3 gap-4 text-sm">
@@ -389,9 +389,9 @@ export function HPCClusters() {
                   { l: 'Accounting', v: selectedSlurm.accounting_enabled ? 'Enabled' : 'Disabled' },
                   { l: 'FairShare', v: selectedSlurm.fairshare_enabled ? 'Enabled' : 'Disabled' }
                 ].map((i) => (
-                  <div key={i.l} className="bg-gray-700/30 rounded-lg p-3">
-                    <div className="text-gray-500 text-xs mb-1">{i.l}</div>
-                    <div className="text-white font-mono text-xs">{i.v}</div>
+                  <div key={i.l} className="bg-surface-hover rounded-lg p-3">
+                    <div className="text-content-tertiary text-xs mb-1">{i.l}</div>
+                    <div className="text-content-primary font-mono text-xs">{i.v}</div>
                   </div>
                 ))}
               </div>

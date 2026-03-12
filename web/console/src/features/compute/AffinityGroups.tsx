@@ -65,14 +65,14 @@ export function AffinityGroups() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Affinity Groups</h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <h1 className="text-2xl font-bold text-content-primary">Affinity Groups</h1>
+          <p className="text-sm text-content-secondary mt-1">
             VM placement constraints — {groups.length} groups
           </p>
         </div>
         <button
           onClick={() => setShowCreate(true)}
-          className="px-4 py-2 rounded-lg text-sm bg-blue-600 text-white hover:bg-blue-500 font-medium"
+          className="px-4 py-2 rounded-lg text-sm bg-blue-600 text-content-primary hover:bg-blue-500 font-medium"
         >
           Create Group
         </button>
@@ -86,51 +86,51 @@ export function AffinityGroups() {
         >
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
           <div
-            className="relative rounded-xl border border-oxide-700 bg-oxide-900 p-6 w-full max-w-md shadow-2xl"
+            className="relative rounded-xl border border-border bg-surface-secondary p-6 w-full max-w-md shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-lg font-semibold text-white mb-4">Create Affinity Group</h3>
+            <h3 className="text-lg font-semibold text-content-primary mb-4">Create Affinity Group</h3>
             <div className="space-y-3">
               <div>
-                <label className="block text-xs text-gray-400 mb-1">Name</label>
+                <label className="block text-xs text-content-secondary mb-1">Name</label>
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   autoFocus
-                  className="w-full px-3 py-2 rounded-lg border border-oxide-600 bg-oxide-800 text-gray-200 text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 rounded-lg border border-border-strong bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-400 mb-1">Type</label>
+                <label className="block text-xs text-content-secondary mb-1">Type</label>
                 <select
                   value={agType}
                   onChange={(e) => setAgType(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-oxide-600 bg-oxide-800 text-gray-200 text-sm"
+                  className="w-full px-3 py-2 rounded-lg border border-border-strong bg-surface-tertiary text-content-primary text-sm"
                 >
                   <option value="host-anti-affinity">Host Anti-Affinity (spread VMs)</option>
                   <option value="host-affinity">Host Affinity (group VMs)</option>
                 </select>
               </div>
               <div>
-                <label className="block text-xs text-gray-400 mb-1">Description</label>
+                <label className="block text-xs text-content-secondary mb-1">Description</label>
                 <input
                   value={desc}
                   onChange={(e) => setDesc(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-oxide-600 bg-oxide-800 text-gray-200 text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 rounded-lg border border-border-strong bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
             </div>
             <div className="flex justify-end gap-2 mt-5">
               <button
                 onClick={() => setShowCreate(false)}
-                className="px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white"
+                className="px-4 py-2 rounded-lg text-sm text-content-secondary hover:text-content-primary"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreate}
                 disabled={!name}
-                className="px-4 py-2 rounded-lg text-sm bg-blue-600 text-white hover:bg-blue-500 disabled:opacity-50"
+                className="px-4 py-2 rounded-lg text-sm bg-blue-600 text-content-primary hover:bg-blue-500 disabled:opacity-50"
               >
                 Create
               </button>
@@ -150,38 +150,38 @@ export function AffinityGroups() {
           {groups.map((g) => (
             <div
               key={g.id}
-              className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur overflow-hidden hover:border-oxide-700 transition-colors"
+              className="rounded-xl border border-border bg-surface-secondary backdrop-blur overflow-hidden hover:border-border transition-colors"
             >
-              <div className="px-4 py-3 border-b border-oxide-800/50 flex items-center justify-between">
+              <div className="px-4 py-3 border-b border-border/50 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span
                     className={`w-2 h-2 rounded-full inline-block ${g.type === 'host-affinity' ? 'bg-amber-400' : 'bg-blue-400'}`}
                   />
-                  <span className="text-sm font-medium text-white">{g.name}</span>
+                  <span className="text-sm font-medium text-content-primary">{g.name}</span>
                 </div>
                 <span
-                  className={`px-2 py-0.5 rounded text-xs ${g.type === 'host-affinity' ? 'bg-amber-500/15 text-amber-400' : 'bg-blue-500/15 text-blue-400'}`}
+                  className={`px-2 py-0.5 rounded text-xs ${g.type === 'host-affinity' ? 'bg-amber-500/15 text-amber-400' : 'bg-blue-500/15 text-accent'}`}
                 >
                   {g.type}
                 </span>
               </div>
               <div className="px-4 py-3 space-y-2 text-sm">
-                {g.description && <p className="text-gray-400">{g.description}</p>}
+                {g.description && <p className="text-content-secondary">{g.description}</p>}
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Members</span>
-                  <span className="text-gray-300">{g.members?.length ?? 0} instances</span>
+                  <span className="text-content-tertiary">Members</span>
+                  <span className="text-content-secondary">{g.members?.length ?? 0} instances</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Created</span>
-                  <span className="text-gray-400 text-xs">
+                  <span className="text-content-tertiary">Created</span>
+                  <span className="text-content-secondary text-xs">
                     {new Date(g.created_at).toLocaleDateString()}
                   </span>
                 </div>
               </div>
-              <div className="px-4 py-2 border-t border-oxide-800/50 flex justify-end">
+              <div className="px-4 py-2 border-t border-border/50 flex justify-end">
                 <button
                   onClick={() => handleDelete(g.id)}
-                  className="px-2 py-1 rounded text-xs text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                  className="px-2 py-1 rounded text-xs text-content-secondary hover:text-red-400 hover:bg-red-500/10 transition-colors"
                 >
                   Delete
                 </button>

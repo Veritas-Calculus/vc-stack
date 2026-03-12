@@ -182,32 +182,32 @@ export function Orchestration() {
   const statusColor = (status: string) => {
     if (status.includes('COMPLETE') && !status.includes('DELETE'))
       return 'bg-emerald-500/15 text-emerald-400'
-    if (status.includes('IN_PROGRESS')) return 'bg-blue-500/15 text-blue-400'
+    if (status.includes('IN_PROGRESS')) return 'bg-blue-500/15 text-accent'
     if (status.includes('FAILED')) return 'bg-red-500/15 text-red-400'
     if (status.includes('ROLLBACK')) return 'bg-amber-500/15 text-amber-400'
-    if (status.includes('DELETE')) return 'bg-gray-500/15 text-gray-400'
-    return 'bg-gray-500/15 text-gray-400'
+    if (status.includes('DELETE')) return 'bg-gray-500/15 text-content-secondary'
+    return 'bg-gray-500/15 text-content-secondary'
   }
 
   const typeShort = (type: string) => type.split('::').pop() || type
 
   const typeColor = (type: string) => {
-    if (type.includes('Compute')) return 'bg-blue-500/15 text-blue-400'
+    if (type.includes('Compute')) return 'bg-blue-500/15 text-accent'
     if (type.includes('Network')) return 'bg-purple-500/15 text-purple-400'
     if (type.includes('Storage') || type.includes('Volume')) return 'bg-amber-500/15 text-amber-400'
     if (type.includes('DNS')) return 'bg-cyan-500/15 text-cyan-400'
     if (type.includes('ObjectStorage')) return 'bg-teal-500/15 text-teal-400'
-    return 'bg-gray-500/15 text-gray-400'
+    return 'bg-gray-500/15 text-content-secondary'
   }
 
   const catColor = (cat: string) => {
     const colors: Record<string, string> = {
-      web: 'bg-blue-500/15 text-blue-400',
+      web: 'bg-blue-500/15 text-accent',
       database: 'bg-amber-500/15 text-amber-400',
       network: 'bg-purple-500/15 text-purple-400',
       compute: 'bg-emerald-500/15 text-emerald-400'
     }
-    return colors[cat] || 'bg-gray-500/15 text-gray-400'
+    return colors[cat] || 'bg-gray-500/15 text-content-secondary'
   }
 
   const tabs = [
@@ -219,14 +219,14 @@ export function Orchestration() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Orchestration</h1>
-          <p className="text-sm text-gray-400 mt-1">Template-based infrastructure orchestration</p>
+          <h1 className="text-2xl font-bold text-content-primary">Orchestration</h1>
+          <p className="text-sm text-content-secondary mt-1">Template-based infrastructure orchestration</p>
         </div>
         <div className="flex gap-2">
           {tab === 'templates' && (
             <button
               onClick={() => setShowCreateTemplate(true)}
-              className="px-4 py-2 rounded-lg border border-oxide-700 bg-oxide-900 hover:bg-oxide-800 text-white text-sm font-medium transition-colors"
+              className="px-4 py-2 rounded-lg border border-border bg-surface-secondary hover:bg-surface-tertiary text-content-primary text-sm font-medium transition-colors"
             >
               Save Template
             </button>
@@ -236,7 +236,7 @@ export function Orchestration() {
               setStackTemplate('')
               setShowCreate(true)
             }}
-            className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-colors"
+            className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium transition-colors"
           >
             Launch Stack
           </button>
@@ -244,7 +244,7 @@ export function Orchestration() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 border-b border-oxide-800 pb-px">
+      <div className="flex gap-1 mb-6 border-b border-border pb-px">
         {tabs.map((t) => (
           <button
             key={t.key}
@@ -252,10 +252,10 @@ export function Orchestration() {
               setTab(t.key)
               setSelectedStack(null)
             }}
-            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${tab === t.key ? 'bg-oxide-800 text-white border-b-2 border-blue-500' : 'text-gray-400 hover:text-white hover:bg-oxide-800/50'}`}
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${tab === t.key ? 'bg-surface-tertiary text-content-primary border-b-2 border-blue-500' : 'text-content-secondary hover:text-content-primary hover:bg-surface-tertiary'}`}
           >
             {t.label}
-            <span className="ml-1.5 px-1.5 py-0.5 rounded text-[10px] bg-oxide-700 text-gray-400">
+            <span className="ml-1.5 px-1.5 py-0.5 rounded text-[10px] bg-surface-hover text-content-secondary">
               {t.count}
             </span>
           </button>
@@ -274,10 +274,10 @@ export function Orchestration() {
               {stacks.length === 0 ? (
                 <EmptyState title="No stacks" />
               ) : (
-                <div className="rounded-xl border border-oxide-800 overflow-hidden">
+                <div className="rounded-xl border border-border overflow-hidden">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-oxide-900/80 text-gray-400 text-xs uppercase tracking-wider">
+                      <tr className="bg-surface-secondary text-content-secondary text-xs uppercase tracking-wider">
                         <th className="px-4 py-3 text-left">Stack Name</th>
                         <th className="px-4 py-3 text-left">Status</th>
                         <th className="px-4 py-3 text-center">Resources</th>
@@ -286,16 +286,16 @@ export function Orchestration() {
                         <th className="px-4 py-3 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-oxide-800/50">
+                    <tbody className="divide-y divide-border/50">
                       {stacks.map((s) => (
                         <tr
                           key={s.id}
-                          className="hover:bg-oxide-800/30 transition-colors cursor-pointer"
+                          className="hover:bg-surface-tertiary transition-colors cursor-pointer"
                           onClick={() => setSelectedStack(s)}
                         >
                           <td className="px-4 py-3">
-                            <div className="font-medium text-white">{s.name}</div>
-                            {s.tags && <div className="text-xs text-gray-500 mt-0.5">{s.tags}</div>}
+                            <div className="font-medium text-content-primary">{s.name}</div>
+                            {s.tags && <div className="text-xs text-content-tertiary mt-0.5">{s.tags}</div>}
                           </td>
                           <td className="px-4 py-3">
                             <span
@@ -304,19 +304,19 @@ export function Orchestration() {
                               {s.status}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-center text-gray-300">
+                          <td className="px-4 py-3 text-center text-content-secondary">
                             {s.resource_count}
                           </td>
-                          <td className="px-4 py-3 text-gray-400 text-xs max-w-[200px] truncate">
+                          <td className="px-4 py-3 text-content-secondary text-xs max-w-[200px] truncate">
                             {s.template_description || s.description}
                           </td>
-                          <td className="px-4 py-3 text-gray-500 text-xs">
+                          <td className="px-4 py-3 text-content-tertiary text-xs">
                             {new Date(s.created_at).toLocaleString()}
                           </td>
                           <td className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                             <button
                               onClick={() => handleDelete(s.id)}
-                              className="px-2 py-1 rounded text-xs text-gray-400 hover:text-red-400 hover:bg-red-500/10"
+                              className="px-2 py-1 rounded text-xs text-content-secondary hover:text-red-400 hover:bg-red-500/10"
                             >
                               Delete
                             </button>
@@ -335,14 +335,14 @@ export function Orchestration() {
             <div>
               <button
                 onClick={() => setSelectedStack(null)}
-                className="text-sm text-gray-400 hover:text-white mb-4 flex items-center gap-1"
+                className="text-sm text-content-secondary hover:text-content-primary mb-4 flex items-center gap-1"
               >
                 ← Back to Stacks
               </button>
 
-              <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 p-5 mb-6">
+              <div className="rounded-xl border border-border bg-surface-secondary p-5 mb-6">
                 <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-lg font-semibold text-white">{selectedStack.name}</h2>
+                  <h2 className="text-lg font-semibold text-content-primary">{selectedStack.name}</h2>
                   <span
                     className={`px-3 py-1 rounded text-xs font-medium ${statusColor(selectedStack.status)}`}
                   >
@@ -351,52 +351,52 @@ export function Orchestration() {
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                   <div>
-                    <span className="text-gray-500">Description</span>
-                    <div className="text-gray-300 mt-0.5">
+                    <span className="text-content-tertiary">Description</span>
+                    <div className="text-content-secondary mt-0.5">
                       {selectedStack.template_description || selectedStack.description || '—'}
                     </div>
                   </div>
                   <div>
-                    <span className="text-gray-500">Resources</span>
-                    <div className="text-gray-300 mt-0.5">{selectedStack.resource_count}</div>
+                    <span className="text-content-tertiary">Resources</span>
+                    <div className="text-content-secondary mt-0.5">{selectedStack.resource_count}</div>
                   </div>
                   <div>
-                    <span className="text-gray-500">Timeout</span>
-                    <div className="text-gray-300 mt-0.5">{selectedStack.timeout_mins} min</div>
+                    <span className="text-content-tertiary">Timeout</span>
+                    <div className="text-content-secondary mt-0.5">{selectedStack.timeout_mins} min</div>
                   </div>
                   <div>
-                    <span className="text-gray-500">Created</span>
-                    <div className="text-gray-300 mt-0.5">
+                    <span className="text-content-tertiary">Created</span>
+                    <div className="text-content-secondary mt-0.5">
                       {new Date(selectedStack.created_at).toLocaleString()}
                     </div>
                   </div>
                 </div>
                 {selectedStack.status_reason && (
-                  <div className="mt-3 text-xs text-gray-500">{selectedStack.status_reason}</div>
+                  <div className="mt-3 text-xs text-content-tertiary">{selectedStack.status_reason}</div>
                 )}
               </div>
 
               {/* Detail Tabs */}
-              <div className="flex gap-1 mb-4 border-b border-oxide-800 pb-px">
+              <div className="flex gap-1 mb-4 border-b border-border pb-px">
                 <button
                   onClick={() => setDetailTab('resources')}
-                  className={`px-3 py-1.5 text-sm rounded-t ${detailTab === 'resources' ? 'bg-oxide-800 text-white border-b-2 border-blue-500' : 'text-gray-400 hover:text-white'}`}
+                  className={`px-3 py-1.5 text-sm rounded-t ${detailTab === 'resources' ? 'bg-surface-tertiary text-content-primary border-b-2 border-blue-500' : 'text-content-secondary hover:text-content-primary'}`}
                 >
                   Resources ({resources.length})
                 </button>
                 <button
                   onClick={() => setDetailTab('events')}
-                  className={`px-3 py-1.5 text-sm rounded-t ${detailTab === 'events' ? 'bg-oxide-800 text-white border-b-2 border-blue-500' : 'text-gray-400 hover:text-white'}`}
+                  className={`px-3 py-1.5 text-sm rounded-t ${detailTab === 'events' ? 'bg-surface-tertiary text-content-primary border-b-2 border-blue-500' : 'text-content-secondary hover:text-content-primary'}`}
                 >
                   Events ({events.length})
                 </button>
               </div>
 
               {detailTab === 'resources' && (
-                <div className="rounded-xl border border-oxide-800 overflow-hidden">
+                <div className="rounded-xl border border-border overflow-hidden">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-oxide-900/80 text-gray-400 text-xs uppercase tracking-wider">
+                      <tr className="bg-surface-secondary text-content-secondary text-xs uppercase tracking-wider">
                         <th className="px-4 py-2.5 text-left">Logical ID</th>
                         <th className="px-4 py-2.5 text-left">Type</th>
                         <th className="px-4 py-2.5 text-left">Status</th>
@@ -404,10 +404,10 @@ export function Orchestration() {
                         <th className="px-4 py-2.5 text-left">Dependencies</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-oxide-800/50">
+                    <tbody className="divide-y divide-border/50">
                       {resources.map((r) => (
-                        <tr key={r.id} className="hover:bg-oxide-800/30 transition-colors">
-                          <td className="px-4 py-2.5 font-medium text-white">{r.logical_id}</td>
+                        <tr key={r.id} className="hover:bg-surface-tertiary transition-colors">
+                          <td className="px-4 py-2.5 font-medium text-content-primary">{r.logical_id}</td>
                           <td className="px-4 py-2.5">
                             <span className={`px-2 py-0.5 rounded text-xs ${typeColor(r.type)}`}>
                               {typeShort(r.type)}
@@ -420,10 +420,10 @@ export function Orchestration() {
                               {r.status}
                             </span>
                           </td>
-                          <td className="px-4 py-2.5 font-mono text-xs text-gray-500">
+                          <td className="px-4 py-2.5 font-mono text-xs text-content-tertiary">
                             {r.physical_id || '—'}
                           </td>
-                          <td className="px-4 py-2.5 text-xs text-gray-500">
+                          <td className="px-4 py-2.5 text-xs text-content-tertiary">
                             {r.depends_on || '—'}
                           </td>
                         </tr>
@@ -434,10 +434,10 @@ export function Orchestration() {
               )}
 
               {detailTab === 'events' && (
-                <div className="rounded-xl border border-oxide-800 overflow-hidden">
+                <div className="rounded-xl border border-border overflow-hidden">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-oxide-900/80 text-gray-400 text-xs uppercase tracking-wider">
+                      <tr className="bg-surface-secondary text-content-secondary text-xs uppercase tracking-wider">
                         <th className="px-4 py-2.5 text-left">Time</th>
                         <th className="px-4 py-2.5 text-left">Resource</th>
                         <th className="px-4 py-2.5 text-left">Type</th>
@@ -446,13 +446,13 @@ export function Orchestration() {
                         <th className="px-4 py-2.5 text-left">Reason</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-oxide-800/50">
+                    <tbody className="divide-y divide-border/50">
                       {events.map((e) => (
-                        <tr key={e.id} className="hover:bg-oxide-800/30 transition-colors">
-                          <td className="px-4 py-2.5 text-xs text-gray-500">
+                        <tr key={e.id} className="hover:bg-surface-tertiary transition-colors">
+                          <td className="px-4 py-2.5 text-xs text-content-tertiary">
                             {new Date(e.timestamp).toLocaleTimeString()}
                           </td>
-                          <td className="px-4 py-2.5 text-white">{e.logical_id}</td>
+                          <td className="px-4 py-2.5 text-content-primary">{e.logical_id}</td>
                           <td className="px-4 py-2.5">
                             <span
                               className={`px-2 py-0.5 rounded text-xs ${typeColor(e.resource_type)}`}
@@ -460,7 +460,7 @@ export function Orchestration() {
                               {typeShort(e.resource_type)}
                             </span>
                           </td>
-                          <td className="px-4 py-2.5 text-gray-300">{e.event_type}</td>
+                          <td className="px-4 py-2.5 text-content-secondary">{e.event_type}</td>
                           <td className="px-4 py-2.5">
                             <span
                               className={`px-2 py-0.5 rounded text-xs ${statusColor(e.status)}`}
@@ -468,7 +468,7 @@ export function Orchestration() {
                               {e.status}
                             </span>
                           </td>
-                          <td className="px-4 py-2.5 text-xs text-gray-500 max-w-[200px] truncate">
+                          <td className="px-4 py-2.5 text-xs text-content-tertiary max-w-[200px] truncate">
                             {e.status_reason}
                           </td>
                         </tr>
@@ -490,24 +490,24 @@ export function Orchestration() {
                   {templates.map((t) => (
                     <div
                       key={t.id}
-                      className="rounded-xl border border-oxide-800 bg-oxide-900/50 p-4 hover:border-oxide-600 transition-colors"
+                      className="rounded-xl border border-border bg-surface-secondary p-4 hover:border-border-strong transition-colors"
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-medium text-white">{t.name}</h3>
+                        <h3 className="font-medium text-content-primary">{t.name}</h3>
                         {t.category && (
                           <span className={`px-2 py-0.5 rounded text-xs ${catColor(t.category)}`}>
                             {t.category}
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-gray-400 mb-3 line-clamp-2">
+                      <p className="text-xs text-content-secondary mb-3 line-clamp-2">
                         {t.description || 'No description'}
                       </p>
                       <div className="flex items-center justify-between text-xs">
                         <div className="flex items-center gap-2">
-                          <span className="text-gray-500">v{t.version}</span>
+                          <span className="text-content-tertiary">v{t.version}</span>
                           {t.is_public && (
-                            <span className="px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400">
+                            <span className="px-1.5 py-0.5 rounded bg-blue-500/15 text-accent">
                               Public
                             </span>
                           )}
@@ -515,13 +515,13 @@ export function Orchestration() {
                         <div className="flex gap-1">
                           <button
                             onClick={() => handleLaunchFromTemplate(t)}
-                            className="px-2 py-1 rounded text-blue-400 hover:bg-blue-500/10"
+                            className="px-2 py-1 rounded text-accent hover:bg-blue-500/10"
                           >
                             Launch
                           </button>
                           <button
                             onClick={() => handleDeleteTemplate(t.id)}
-                            className="px-2 py-1 rounded text-gray-400 hover:text-red-400 hover:bg-red-500/10"
+                            className="px-2 py-1 rounded text-content-secondary hover:text-red-400 hover:bg-red-500/10"
                           >
                             Delete
                           </button>
@@ -579,14 +579,14 @@ export function Orchestration() {
             <div className="flex justify-end gap-2 pt-2">
               <button
                 onClick={() => setShowCreate(false)}
-                className="px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-oxide-800"
+                className="px-4 py-2 rounded-lg text-sm text-content-secondary hover:text-content-primary hover:bg-surface-tertiary"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreate}
                 disabled={!stackName || !stackTemplate}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Launch Stack
               </button>
@@ -645,23 +645,23 @@ export function Orchestration() {
                 id="tpl-public"
                 checked={tplPublic}
                 onChange={(e) => setTplPublic(e.target.checked)}
-                className="rounded border-oxide-700"
+                className="rounded border-border"
               />
-              <label htmlFor="tpl-public" className="text-sm text-gray-300">
+              <label htmlFor="tpl-public" className="text-sm text-content-secondary">
                 Make Public
               </label>
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <button
                 onClick={() => setShowCreateTemplate(false)}
-                className="px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-oxide-800"
+                className="px-4 py-2 rounded-lg text-sm text-content-secondary hover:text-content-primary hover:bg-surface-tertiary"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreateTemplate}
                 disabled={!tplName || !tplContent}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Save Template
               </button>
@@ -690,12 +690,12 @@ function Modal({
       onClick={onClose}
     >
       <div
-        className="bg-oxide-900 border border-oxide-700 rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-6 max-h-[85vh] overflow-y-auto"
+        className="bg-surface-secondary border border-border rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-6 max-h-[85vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-semibold text-white">{title}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white text-xl leading-none">
+          <h2 className="text-lg font-semibold text-content-primary">{title}</h2>
+          <button onClick={onClose} className="text-content-secondary hover:text-content-primary text-xl leading-none">
             ×
           </button>
         </div>
@@ -716,7 +716,7 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-300 mb-1.5">
+      <label className="block text-sm font-medium text-content-secondary mb-1.5">
         {label} {required && <span className="text-red-400">*</span>}
       </label>
       {children}

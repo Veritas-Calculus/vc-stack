@@ -174,7 +174,7 @@ export function ServiceAccounts() {
       render: (row) => (
         <div className="flex justify-end gap-2">
           <button
-            className="text-xs text-blue-400 hover:underline"
+            className="text-xs text-accent hover:underline"
             onClick={() => handleRotate(row.id)}
           >
             Rotate Key

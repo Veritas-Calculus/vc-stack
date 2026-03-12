@@ -44,7 +44,7 @@ export default function StorageDashboard() {
   }, [])
 
   if (loading) {
-    return <div className="p-6 text-center text-gray-400">Loading storage dashboard...</div>
+    return <div className="p-6 text-center text-content-secondary">Loading storage dashboard...</div>
   }
 
   const totalVols = summary?.volumes ?? 0
@@ -82,7 +82,7 @@ export default function StorageDashboard() {
       {/* Status Distribution */}
       {totalVols > 0 && (
         <div className="bg-[var(--card-bg,#1a1a2e)] border border-[var(--border-primary,#2a2a4a)] rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-gray-300 mb-3">Volume Status Distribution</h3>
+          <h3 className="text-sm font-semibold text-content-secondary mb-3">Volume Status Distribution</h3>
           <div className="flex rounded-full overflow-hidden h-5 bg-gray-800">
             {statusItems.map((s, i) => (
               <div
@@ -96,7 +96,7 @@ export default function StorageDashboard() {
               />
             ))}
           </div>
-          <div className="flex gap-4 mt-2 text-xs text-gray-400">
+          <div className="flex gap-4 mt-2 text-xs text-content-secondary">
             {statusItems.map((s, i) => (
               <span key={i} className="flex items-center gap-1">
                 <span
@@ -113,7 +113,7 @@ export default function StorageDashboard() {
       {/* Disk Offerings */}
       {offerings.length > 0 && (
         <div className="bg-[var(--card-bg,#1a1a2e)] border border-[var(--border-primary,#2a2a4a)] rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-gray-300 mb-3">
+          <h3 className="text-sm font-semibold text-content-secondary mb-3">
             Storage Classes (Disk Offerings)
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -123,13 +123,13 @@ export default function StorageDashboard() {
                 className="border border-[var(--border-secondary,#333)] rounded-lg p-3 hover:border-blue-500/50 transition-colors"
               >
                 <div className="flex justify-between items-start mb-2">
-                  <span className="font-medium text-gray-200 text-sm">{o.name}</span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 uppercase">
+                  <span className="font-medium text-content-primary text-sm">{o.name}</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/20 text-accent uppercase">
                     {o.storage_type}
                   </span>
                 </div>
-                {o.display_text && <p className="text-xs text-gray-500 mb-2">{o.display_text}</p>}
-                <div className="grid grid-cols-2 gap-1 text-xs text-gray-400">
+                {o.display_text && <p className="text-xs text-content-tertiary mb-2">{o.display_text}</p>}
+                <div className="grid grid-cols-2 gap-1 text-xs text-content-secondary">
                   {o.disk_size_gb > 0 && <span>Size: {o.disk_size_gb} GB</span>}
                   {o.is_custom && <span>Custom Size</span>}
                   {o.max_iops > 0 && (
@@ -158,7 +158,7 @@ function SummaryCard({
   value: string | number
 }) {
   const iconStyles: Record<string, string> = {
-    disk: 'bg-blue-500/20 text-blue-400',
+    disk: 'bg-blue-500/20 text-accent',
     camera: 'bg-purple-500/20 text-purple-400',
     database: 'bg-emerald-500/20 text-emerald-400',
     layers: 'bg-amber-500/20 text-amber-400'
@@ -171,12 +171,12 @@ function SummaryCard({
   }
   return (
     <div className="bg-[var(--card-bg,#1a1a2e)] border border-[var(--border-primary,#2a2a4a)] rounded-xl p-4 flex items-center gap-3">
-      <span className={`w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold ${iconStyles[icon] || 'bg-gray-500/20 text-gray-400'}`}>
+      <span className={`w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold ${iconStyles[icon] || 'bg-gray-500/20 text-content-secondary'}`}>
         {iconLabels[icon] || icon}
       </span>
       <div>
-        <div className="text-lg font-bold text-gray-100">{value}</div>
-        <div className="text-xs text-gray-500">{label}</div>
+        <div className="text-lg font-bold text-content-primary">{value}</div>
+        <div className="text-xs text-content-tertiary">{label}</div>
       </div>
     </div>
   )

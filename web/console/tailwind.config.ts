@@ -6,6 +6,39 @@ export default {
   theme: {
     extend: {
       colors: {
+        // ── Semantic tokens (CSS variable-backed, theme-aware) ──
+        surface: {
+          primary: 'var(--surface-primary)',
+          secondary: 'var(--surface-secondary)',
+          tertiary: 'var(--surface-tertiary)',
+          elevated: 'var(--surface-elevated)',
+          hover: 'var(--surface-hover)',
+          active: 'var(--surface-active)',
+          inset: 'var(--surface-inset)'
+        },
+        content: {
+          primary: 'var(--content-primary)',
+          secondary: 'var(--content-secondary)',
+          tertiary: 'var(--content-tertiary)',
+          placeholder: 'var(--content-placeholder)',
+          inverse: 'var(--content-inverse)'
+        },
+        border: {
+          DEFAULT: 'var(--border-default)',
+          strong: 'var(--border-strong)'
+        },
+        accent: {
+          DEFAULT: 'var(--accent-color)',
+          hover: 'var(--accent-color-hover)',
+          subtle: 'var(--accent-subtle)'
+        },
+        status: {
+          success: 'var(--status-success)',
+          warning: 'var(--status-warning)',
+          error: 'var(--status-error)',
+          info: 'var(--status-info)'
+        },
+        // ── Legacy palettes (kept for backward compat during migration) ──
         oxide: {
           50: '#f6f7fb',
           100: '#e9edf6',
@@ -19,7 +52,6 @@ export default {
           900: '#1c2537',
           950: '#121827'
         },
-        // Apple-inspired accent palette
         apple: {
           blue: '#0A84FF',
           indigo: '#5E5CE6',

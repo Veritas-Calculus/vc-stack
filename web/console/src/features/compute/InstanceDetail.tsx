@@ -166,7 +166,7 @@ export default function InstanceDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, instanceId])
 
-  if (loading) return <div className="p-8 text-center text-gray-500">Loading instance...</div>
+  if (loading) return <div className="p-8 text-center text-content-tertiary">Loading instance...</div>
   if (error && !inst) return <div className="p-8 text-center text-red-400">{error}</div>
   if (!inst) return <div className="p-8 text-center text-red-400">Instance not found</div>
 
@@ -437,8 +437,8 @@ export default function InstanceDetail() {
             onClick={() => setTab(t.key)}
             className={`px-4 py-2 text-sm transition-colors border-b-2 -mb-px ${
               tab === t.key
-                ? 'border-blue-500 text-blue-400'
-                : 'border-transparent text-gray-400 hover:text-gray-200'
+                ? 'border-blue-500 text-accent'
+                : 'border-transparent text-content-secondary hover:text-content-primary'
             }`}
           >
             {t.label}
@@ -450,19 +450,19 @@ export default function InstanceDetail() {
       {tab === 'overview' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="p-4 rounded-lg bg-white/5 border border-white/10 space-y-3">
-            <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+            <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider">
               Instance
             </h3>
             <InfoRow label="Status">{statusBadge()}</InfoRow>
             <InfoRow label="Power">{powerBadge()}</InfoRow>
             <InfoRow label="IP Address">
-              <span className="font-mono text-blue-400">{inst.ip_address || '-'}</span>
+              <span className="font-mono text-accent">{inst.ip_address || '-'}</span>
             </InfoRow>
             <InfoRow label="Floating IP">
               <span className="font-mono text-emerald-400">{inst.floating_ip || '-'}</span>
             </InfoRow>
             <InfoRow label="Host">
-              <span className="font-mono text-xs text-gray-400">{inst.host_id || '-'}</span>
+              <span className="font-mono text-xs text-content-secondary">{inst.host_id || '-'}</span>
             </InfoRow>
             <InfoRow label="Created">
               {inst.created_at ? new Date(inst.created_at).toLocaleString() : '-'}
@@ -472,7 +472,7 @@ export default function InstanceDetail() {
             </InfoRow>
           </div>
           <div className="p-4 rounded-lg bg-white/5 border border-white/10 space-y-3">
-            <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+            <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider">
               Resources
             </h3>
             <InfoRow label="Flavor">{inst.flavor?.name || `ID ${inst.flavor_id ?? '-'}`}</InfoRow>
@@ -492,26 +492,26 @@ export default function InstanceDetail() {
       {tab === 'network' && (
         <div className="space-y-4">
           <div className="p-4 rounded-lg bg-white/5 border border-white/10 space-y-3">
-            <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+            <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider">
               IP Addresses
             </h3>
             <InfoRow label="Private IP">
-              <span className="font-mono text-blue-400">{inst.ip_address || '-'}</span>
+              <span className="font-mono text-accent">{inst.ip_address || '-'}</span>
             </InfoRow>
             <InfoRow label="Floating IP">
               <span className="font-mono text-emerald-400">{inst.floating_ip || '-'}</span>
             </InfoRow>
           </div>
           <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-            <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-3">
+            <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider mb-3">
               Network Interfaces
             </h3>
             {interfaces.length === 0 ? (
-              <div className="text-center py-6 text-gray-500">No network interfaces attached</div>
+              <div className="text-center py-6 text-content-tertiary">No network interfaces attached</div>
             ) : (
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-left text-gray-400 border-b border-white/10">
+                  <tr className="text-left text-content-secondary border-b border-white/10">
                     <th className="py-2 px-3">Port ID</th>
                     <th className="py-2 px-3">MAC Address</th>
                     <th className="py-2 px-3">IP Address</th>
@@ -526,10 +526,10 @@ export default function InstanceDetail() {
                         {iface.port_id.slice(0, 12)}...
                       </td>
                       <td className="py-2 px-3 font-mono text-xs">{iface.mac_address}</td>
-                      <td className="py-2 px-3 font-mono text-blue-400">
+                      <td className="py-2 px-3 font-mono text-accent">
                         {iface.ip_address || '-'}
                       </td>
-                      <td className="py-2 px-3 font-mono text-xs text-gray-400">
+                      <td className="py-2 px-3 font-mono text-xs text-content-secondary">
                         {iface.network_id ? iface.network_id.slice(0, 12) + '...' : '-'}
                       </td>
                       <td className="py-2 px-3">
@@ -553,11 +553,11 @@ export default function InstanceDetail() {
       {tab === 'volumes' && (
         <div className="space-y-2">
           {volumes.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">No volumes attached</div>
+            <div className="text-center py-8 text-content-tertiary">No volumes attached</div>
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-gray-400 border-b border-white/10">
+                <tr className="text-left text-content-secondary border-b border-white/10">
                   <th className="py-2 px-3">Name</th>
                   <th className="py-2 px-3">Size</th>
                   <th className="py-2 px-3">Status</th>
@@ -574,7 +574,7 @@ export default function InstanceDetail() {
                         {v.status}
                       </Badge>
                     </td>
-                    <td className="py-2 px-3 font-mono text-xs text-gray-400">{v.rbd || '-'}</td>
+                    <td className="py-2 px-3 font-mono text-xs text-content-secondary">{v.rbd || '-'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -586,11 +586,11 @@ export default function InstanceDetail() {
       {tab === 'actions' && (
         <div className="space-y-2">
           {actions.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">No action history</div>
+            <div className="text-center py-8 text-content-tertiary">No action history</div>
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-gray-400 border-b border-white/10">
+                <tr className="text-left text-content-secondary border-b border-white/10">
                   <th className="py-2 px-3">Time</th>
                   <th className="py-2 px-3">Action</th>
                   <th className="py-2 px-3">Status</th>
@@ -600,7 +600,7 @@ export default function InstanceDetail() {
               <tbody>
                 {actions.map((a, i) => (
                   <tr key={a.id || i} className="border-b border-white/5 hover:bg-white/5">
-                    <td className="py-2 px-3 text-xs text-gray-400 whitespace-nowrap">
+                    <td className="py-2 px-3 text-xs text-content-secondary whitespace-nowrap">
                       {a.created_at ? new Date(a.created_at).toLocaleString() : '-'}
                     </td>
                     <td className="py-2 px-3 font-medium">{a.action}</td>
@@ -617,7 +617,7 @@ export default function InstanceDetail() {
                         {a.status}
                       </Badge>
                     </td>
-                    <td className="py-2 px-3 text-xs text-gray-400 max-w-xs truncate">
+                    <td className="py-2 px-3 text-xs text-content-secondary max-w-xs truncate">
                       {a.error_message ||
                         a.message ||
                         (a.details ? JSON.stringify(a.details) : '-')}
@@ -632,25 +632,25 @@ export default function InstanceDetail() {
 
       {tab === 'metadata' && (
         <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-          <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-3">
+          <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider mb-3">
             Metadata
           </h3>
           {inst.metadata && Object.keys(inst.metadata).length > 0 ? (
             <div className="space-y-1">
               {Object.entries(inst.metadata).map(([k, v]) => (
                 <div key={k} className="flex gap-2 text-sm">
-                  <span className="font-mono text-blue-400 min-w-[140px]">{k}</span>
-                  <span className="text-gray-300">{String(v)}</span>
+                  <span className="font-mono text-accent min-w-[140px]">{k}</span>
+                  <span className="text-content-secondary">{String(v)}</span>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-gray-500 text-sm">No metadata</div>
+            <div className="text-content-tertiary text-sm">No metadata</div>
           )}
           {inst.user_data && (
             <div className="mt-4">
-              <h4 className="text-sm font-semibold text-gray-400 mb-1">User Data</h4>
-              <pre className="text-xs bg-black/30 rounded p-3 overflow-auto max-h-48 text-gray-300">
+              <h4 className="text-sm font-semibold text-content-secondary mb-1">User Data</h4>
+              <pre className="text-xs bg-black/30 rounded p-3 overflow-auto max-h-48 text-content-secondary">
                 {inst.user_data}
               </pre>
             </div>
@@ -661,7 +661,7 @@ export default function InstanceDetail() {
       {tab === 'monitoring' && (
         <div className="space-y-4">
           {!metrics ? (
-            <div className="text-center py-8 text-gray-500">Loading metrics...</div>
+            <div className="text-center py-8 text-content-tertiary">Loading metrics...</div>
           ) : (
             <>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -723,7 +723,7 @@ export default function InstanceDetail() {
       {tab === 'diagnostics' && (
         <div className="space-y-4">
           {!diagnostics ? (
-            <div className="text-center py-8 text-gray-500">Running diagnostics...</div>
+            <div className="text-center py-8 text-content-tertiary">Running diagnostics...</div>
           ) : (
             <>
               {/* Health Score */}
@@ -740,8 +740,8 @@ export default function InstanceDetail() {
                   {diagnostics.health_score}
                 </div>
                 <div>
-                  <div className="text-sm text-gray-400">Health Score</div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-sm text-content-secondary">Health Score</div>
+                  <div className="text-xs text-content-tertiary">
                     Checked at {new Date(diagnostics.checked_at).toLocaleTimeString()}
                   </div>
                 </div>
@@ -759,7 +759,7 @@ export default function InstanceDetail() {
               {/* Checks */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="p-4 rounded-lg bg-white/5 border border-white/10 space-y-2">
-                  <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+                  <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider">
                     Compute Node
                   </h3>
                   <DiagRow label="Reachable" ok={diagnostics.node_reachable} />
@@ -769,7 +769,7 @@ export default function InstanceDetail() {
                   <InfoRow label="Latency">{diagnostics.node_latency_ms}ms</InfoRow>
                 </div>
                 <div className="p-4 rounded-lg bg-white/5 border border-white/10 space-y-2">
-                  <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+                  <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider">
                     Virtual Machine
                   </h3>
                   <DiagRow label="VM Found" ok={diagnostics.vm_found} />
@@ -781,7 +781,7 @@ export default function InstanceDetail() {
                   </InfoRow>
                 </div>
                 <div className="p-4 rounded-lg bg-white/5 border border-white/10 space-y-2">
-                  <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+                  <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider">
                     Network
                   </h3>
                   <InfoRow label="Ports Allocated">{diagnostics.ports_allocated}</InfoRow>
@@ -800,7 +800,7 @@ export default function InstanceDetail() {
                   </InfoRow>
                 </div>
                 <div className="p-4 rounded-lg bg-white/5 border border-white/10 space-y-2">
-                  <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+                  <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider">
                     Storage
                   </h3>
                   <InfoRow label="Root Disk">
@@ -928,7 +928,7 @@ export default function InstanceDetail() {
         }
       >
         <div className="space-y-3">
-          <div className="p-3 bg-blue-900/20 border border-blue-800/30 rounded text-sm text-gray-300">
+          <div className="p-3 bg-blue-900/20 border border-blue-800/30 rounded text-sm text-content-secondary">
             Snapshots the root disk and registers as a bootable image. The instance stays running.
           </div>
           <div>
@@ -958,27 +958,27 @@ export default function InstanceDetail() {
 function InfoRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between text-sm">
-      <span className="text-gray-400">{label}</span>
-      <span className="text-gray-200">{children}</span>
+      <span className="text-content-secondary">{label}</span>
+      <span className="text-content-primary">{children}</span>
     </div>
   )
 }
 
 const colorMap: Record<string, string> = {
-  blue: 'from-blue-500/20 to-blue-600/5 border-blue-500/30 text-blue-400',
+  blue: 'from-blue-500/20 to-blue-600/5 border-blue-500/30 text-accent',
   purple: 'from-purple-500/20 to-purple-600/5 border-purple-500/30 text-purple-400',
   emerald: 'from-emerald-500/20 to-emerald-600/5 border-emerald-500/30 text-emerald-400',
   amber: 'from-amber-500/20 to-amber-600/5 border-amber-500/30 text-amber-400',
   sky: 'from-sky-500/20 to-sky-600/5 border-sky-500/30 text-sky-400',
   rose: 'from-rose-500/20 to-rose-600/5 border-rose-500/30 text-rose-400',
   teal: 'from-teal-500/20 to-teal-600/5 border-teal-500/30 text-teal-400',
-  gray: 'from-gray-500/20 to-gray-600/5 border-gray-500/30 text-gray-400'
+  gray: 'from-gray-500/20 to-gray-600/5 border-gray-500/30 text-content-secondary'
 }
 
 function MetricCard({ label, value, color }: { label: string; value: string; color: string }) {
   return (
     <div className={`p-4 rounded-lg bg-gradient-to-br border ${colorMap[color] || colorMap.gray}`}>
-      <div className="text-xs uppercase tracking-wider text-gray-400 mb-1">{label}</div>
+      <div className="text-xs uppercase tracking-wider text-content-secondary mb-1">{label}</div>
       <div className="text-lg font-semibold">{value}</div>
     </div>
   )
@@ -987,7 +987,7 @@ function MetricCard({ label, value, color }: { label: string; value: string; col
 function DiagRow({ label, ok }: { label: string; ok: boolean }) {
   return (
     <div className="flex items-center justify-between text-sm">
-      <span className="text-gray-400">{label}</span>
+      <span className="text-content-secondary">{label}</span>
       <span className={ok ? 'text-emerald-400' : 'text-red-400'}>{ok ? 'OK' : 'FAIL'}</span>
     </div>
   )

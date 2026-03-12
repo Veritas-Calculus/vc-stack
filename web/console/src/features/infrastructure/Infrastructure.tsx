@@ -123,7 +123,7 @@ function Overview() {
       {/* Top counters */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {[
-          { label: 'Zones', value: infra.zones, color: 'text-blue-400' },
+          { label: 'Zones', value: infra.zones, color: 'text-accent' },
           { label: 'Clusters', value: infra.clusters, color: 'text-purple-400' },
           {
             label: 'Hosts',
@@ -137,11 +137,11 @@ function Overview() {
         ].map((item) => (
           <div
             key={item.label}
-            className="rounded-xl border border-oxide-800 bg-oxide-900/60 backdrop-blur p-4"
+            className="rounded-xl border border-border bg-surface-secondary backdrop-blur p-4"
           >
             <div className={`text-2xl font-bold ${item.color}`}>{item.value}</div>
-            <div className="text-xs text-gray-500 mt-0.5">{item.label}</div>
-            {item.sub && <div className="text-xs text-gray-600 mt-0.5">{item.sub}</div>}
+            <div className="text-xs text-content-tertiary mt-0.5">{item.label}</div>
+            {item.sub && <div className="text-xs text-content-tertiary mt-0.5">{item.sub}</div>}
           </div>
         ))}
       </div>
@@ -174,16 +174,16 @@ function Overview() {
         ].map((bar) => (
           <div
             key={bar.label}
-            className="rounded-xl border border-oxide-800 bg-oxide-900/60 backdrop-blur p-5"
+            className="rounded-xl border border-border bg-surface-secondary backdrop-blur p-5"
           >
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-medium text-gray-300">{bar.label}</h3>
-              <span className="text-xs text-gray-500">
+              <h3 className="text-sm font-medium text-content-secondary">{bar.label}</h3>
+              <span className="text-xs text-content-tertiary">
                 {bar.formatVal ? bar.formatVal(bar.used) : bar.used} /{' '}
                 {bar.formatVal ? bar.formatVal(bar.total) : bar.total} {!bar.formatVal && bar.unit}
               </span>
             </div>
-            <div className="w-full h-3 rounded-full bg-oxide-800 overflow-hidden">
+            <div className="w-full h-3 rounded-full bg-surface-tertiary overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all duration-700 ${bar.pct > 80 ? 'bg-red-500' : bar.pct > 60 ? 'bg-amber-500' : 'bg-emerald-500'}`}
                 style={{ width: `${Math.min(100, bar.pct)}%` }}
@@ -203,12 +203,12 @@ function Overview() {
       {/* Host status + Workload cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Host status */}
-        <div className="rounded-xl border border-oxide-800 bg-oxide-900/60 backdrop-blur p-5">
-          <h3 className="text-sm font-medium text-gray-300 mb-4">Host Status</h3>
+        <div className="rounded-xl border border-border bg-surface-secondary backdrop-blur p-5">
+          <h3 className="text-sm font-medium text-content-secondary mb-4">Host Status</h3>
           <div className="grid grid-cols-3 gap-3 text-center">
-            <div className="rounded-lg bg-oxide-800/50 p-3">
-              <div className="text-2xl font-bold text-white">{infra.hosts}</div>
-              <div className="text-xs text-gray-500">Total</div>
+            <div className="rounded-lg bg-surface-tertiary p-3">
+              <div className="text-2xl font-bold text-content-primary">{infra.hosts}</div>
+              <div className="text-xs text-content-tertiary">Total</div>
             </div>
             <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3">
               <div className="text-2xl font-bold text-emerald-400">{infra.hosts_up}</div>
@@ -222,24 +222,24 @@ function Overview() {
         </div>
 
         {/* Workload summary */}
-        <div className="rounded-xl border border-oxide-800 bg-oxide-900/60 backdrop-blur p-5">
-          <h3 className="text-sm font-medium text-gray-300 mb-4">Workload Summary</h3>
+        <div className="rounded-xl border border-border bg-surface-secondary backdrop-blur p-5">
+          <h3 className="text-sm font-medium text-content-secondary mb-4">Workload Summary</h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-            <div className="rounded-lg bg-oxide-800/50 p-3">
-              <div className="text-xl font-bold text-white">{compute.total_instances}</div>
-              <div className="text-xs text-gray-500">Instances</div>
+            <div className="rounded-lg bg-surface-tertiary p-3">
+              <div className="text-xl font-bold text-content-primary">{compute.total_instances}</div>
+              <div className="text-xs text-content-tertiary">Instances</div>
             </div>
             <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3">
               <div className="text-xl font-bold text-emerald-400">{compute.active_instances}</div>
               <div className="text-xs text-emerald-400/60">Active</div>
             </div>
-            <div className="rounded-lg bg-oxide-800/50 p-3">
-              <div className="text-xl font-bold text-white">{storage.total_volumes}</div>
-              <div className="text-xs text-gray-500">Volumes</div>
+            <div className="rounded-lg bg-surface-tertiary p-3">
+              <div className="text-xl font-bold text-content-primary">{storage.total_volumes}</div>
+              <div className="text-xs text-content-tertiary">Volumes</div>
             </div>
-            <div className="rounded-lg bg-oxide-800/50 p-3">
-              <div className="text-xl font-bold text-white">{storage.total_snapshots}</div>
-              <div className="text-xs text-gray-500">Snapshots</div>
+            <div className="rounded-lg bg-surface-tertiary p-3">
+              <div className="text-xl font-bold text-content-primary">{storage.total_snapshots}</div>
+              <div className="text-xs text-content-tertiary">Snapshots</div>
             </div>
           </div>
         </div>
@@ -800,11 +800,11 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
   return (
     <div className="space-y-4">
       {/* Tab Bar */}
-      <div className="flex gap-1 bg-oxide-900 rounded-lg p-1">
+      <div className="flex gap-1 bg-surface-secondary rounded-lg p-1">
         {(['script', 'ssh', 'manual'] as const).map((t) => (
           <button
             key={t}
-            className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${tab === t ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-gray-200'
+            className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${tab === t ? 'bg-blue-600 text-content-primary' : 'text-content-secondary hover:text-content-primary'
               }`}
             onClick={() => setTab(t)}
           >
@@ -816,7 +816,7 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
       {/* Common: Zone / Cluster / Port */}
       <div className="grid grid-cols-3 gap-3">
         <div>
-          <label className="text-xs text-gray-400 block mb-1">Zone</label>
+          <label className="text-xs text-content-secondary block mb-1">Zone</label>
           <select
             className="input w-full text-sm"
             value={zoneId}
@@ -831,7 +831,7 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
           </select>
         </div>
         <div>
-          <label className="text-xs text-gray-400 block mb-1">Cluster ID</label>
+          <label className="text-xs text-content-secondary block mb-1">Cluster ID</label>
           <input
             className="input w-full text-sm"
             placeholder="Optional"
@@ -840,7 +840,7 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
           />
         </div>
         <div>
-          <label className="text-xs text-gray-400 block mb-1">Agent Port</label>
+          <label className="text-xs text-content-secondary block mb-1">Agent Port</label>
           <input
             className="input w-full text-sm"
             value={port}
@@ -851,23 +851,23 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
 
       {tab === 'script' && (
         <div className="space-y-3">
-          <p className="text-sm text-gray-300">
-            Run this command on the target node as <code className="text-blue-400">root</code>:
+          <p className="text-sm text-content-secondary">
+            Run this command on the target node as <code className="text-accent">root</code>:
           </p>
           <div className="relative">
-            <pre className="bg-oxide-950 border border-oxide-800 rounded-lg p-3 pr-20 text-xs text-green-400 font-mono overflow-x-auto whitespace-pre-wrap break-all">
+            <pre className="bg-surface-primary border border-border rounded-lg p-3 pr-20 text-xs text-green-400 font-mono overflow-x-auto whitespace-pre-wrap break-all">
               {curlCommand}
             </pre>
             <button
-              className="absolute top-2 right-2 px-3 py-1 text-xs rounded bg-oxide-700 hover:bg-oxide-600 text-gray-300 transition-colors"
+              className="absolute top-2 right-2 px-3 py-1 text-xs rounded bg-surface-hover hover:bg-oxide-600 text-content-secondary transition-colors"
               onClick={handleCopy}
             >
               {copied ? 'Copied!' : 'Copy'}
             </button>
           </div>
-          <div className="text-xs text-gray-500 space-y-1">
+          <div className="text-xs text-content-tertiary space-y-1">
             <p>The script will automatically:</p>
-            <ol className="list-decimal list-inside space-y-0.5 text-gray-400">
+            <ol className="list-decimal list-inside space-y-0.5 text-content-secondary">
               <li>Detect your OS (Debian/Ubuntu/RHEL)</li>
               <li>Install qemu-kvm, libvirt, and dependencies</li>
               <li>Download vc-compute from this controller</li>
@@ -880,12 +880,12 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
 
       {tab === 'ssh' && (
         <div className="space-y-3">
-          <p className="text-sm text-gray-300">Install vc-compute remotely via SSH:</p>
+          <p className="text-sm text-content-secondary">Install vc-compute remotely via SSH:</p>
           {!deploying && !deployDone && (
             <>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-gray-400 block mb-1">Host IP *</label>
+                  <label className="text-xs text-content-secondary block mb-1">Host IP *</label>
                   <input
                     className="input w-full text-sm"
                     placeholder="192.168.1.100"
@@ -894,7 +894,7 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-400 block mb-1">SSH Port</label>
+                  <label className="text-xs text-content-secondary block mb-1">SSH Port</label>
                   <input
                     className="input w-full text-sm"
                     value={sshPort}
@@ -902,7 +902,7 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-400 block mb-1">Username</label>
+                  <label className="text-xs text-content-secondary block mb-1">Username</label>
                   <input
                     className="input w-full text-sm"
                     value={sshUser}
@@ -910,7 +910,7 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-400 block mb-1">Password *</label>
+                  <label className="text-xs text-content-secondary block mb-1">Password *</label>
                   <input
                     className="input w-full text-sm"
                     type="password"
@@ -934,11 +934,11 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
                 {stepLabels.map((label, i) => {
                   const stepNum = i + 1
                   const latest = deploySteps.filter((s) => s.step === stepNum).pop()
-                  let color = 'bg-oxide-700 text-gray-500'
-                  if (latest?.status === 'running') color = 'bg-blue-600 text-white animate-pulse'
+                  let color = 'bg-surface-hover text-content-tertiary'
+                  if (latest?.status === 'running') color = 'bg-blue-600 text-content-primary animate-pulse'
                   else if (latest?.status === 'success' || latest?.status === 'done')
-                    color = 'bg-emerald-600 text-white'
-                  else if (latest?.status === 'error') color = 'bg-red-600 text-white'
+                    color = 'bg-emerald-600 text-content-primary'
+                  else if (latest?.status === 'error') color = 'bg-red-600 text-content-primary'
 
                   return (
                     <div key={stepNum} className="flex flex-col items-center gap-1">
@@ -951,7 +951,7 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
                             ? 'ERR'
                             : stepNum}
                       </div>
-                      <span className="text-[10px] text-gray-500 text-center leading-tight w-16">
+                      <span className="text-[10px] text-content-tertiary text-center leading-tight w-16">
                         {label}
                       </span>
                     </div>
@@ -960,7 +960,7 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
               </div>
 
               {/* Log messages */}
-              <div className="bg-oxide-950 border border-oxide-800 rounded-lg p-3 max-h-48 overflow-y-auto">
+              <div className="bg-surface-primary border border-border rounded-lg p-3 max-h-48 overflow-y-auto">
                 {deploySteps.map((evt, i) => (
                   <div
                     key={i}
@@ -968,16 +968,16 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
                       ? 'text-red-400'
                       : evt.status === 'success' || evt.status === 'done'
                         ? 'text-emerald-400'
-                        : 'text-gray-400'
+                        : 'text-content-secondary'
                       }`}
                   >
-                    <span className="text-gray-600 mr-2">
+                    <span className="text-content-tertiary mr-2">
                       [{evt.step}/{evt.total}]
                     </span>
                     {evt.message}
                   </div>
                 ))}
-                {deploying && <div className="text-xs text-blue-400 animate-pulse py-0.5">...</div>}
+                {deploying && <div className="text-xs text-accent animate-pulse py-0.5">...</div>}
               </div>
 
               {/* Done actions */}
@@ -1008,12 +1008,12 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
 
       {tab === 'manual' && (
         <div className="space-y-3">
-          <p className="text-sm text-gray-300">
+          <p className="text-sm text-content-secondary">
             Register a host that already has vc-compute installed:
           </p>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-gray-400 block mb-1">IP Address *</label>
+              <label className="text-xs text-content-secondary block mb-1">IP Address *</label>
               <input
                 className="input w-full text-sm"
                 placeholder="192.168.1.100"
@@ -1022,7 +1022,7 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
               />
             </div>
             <div>
-              <label className="text-xs text-gray-400 block mb-1">Hostname *</label>
+              <label className="text-xs text-content-secondary block mb-1">Hostname *</label>
               <input
                 className="input w-full text-sm"
                 placeholder="node-01"
@@ -1031,7 +1031,7 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
               />
             </div>
             <div>
-              <label className="text-xs text-gray-400 block mb-1">CPU Cores</label>
+              <label className="text-xs text-content-secondary block mb-1">CPU Cores</label>
               <input
                 className="input w-full text-sm"
                 type="number"
@@ -1041,7 +1041,7 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
               />
             </div>
             <div>
-              <label className="text-xs text-gray-400 block mb-1">RAM (MB)</label>
+              <label className="text-xs text-content-secondary block mb-1">RAM (MB)</label>
               <input
                 className="input w-full text-sm"
                 type="number"
@@ -1051,7 +1051,7 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
               />
             </div>
             <div>
-              <label className="text-xs text-gray-400 block mb-1">Disk (GB)</label>
+              <label className="text-xs text-content-secondary block mb-1">Disk (GB)</label>
               <input
                 className="input w-full text-sm"
                 type="number"
@@ -1379,9 +1379,9 @@ function Hosts() {
           </div>
         }
       >
-        <p className="text-sm text-gray-300">
+        <p className="text-sm text-content-secondary">
           Are you sure you want to delete{' '}
-          <span className="font-semibold text-white">{selectedIds.size}</span> selected host(s)?
+          <span className="font-semibold text-content-primary">{selectedIds.size}</span> selected host(s)?
           This action cannot be undone.
         </p>
       </Modal>
@@ -1485,7 +1485,7 @@ function StoragePoolManager({
   }[] = [
       {
         key: 'name', header: 'Name', render: (r) => (
-          <span className="font-medium text-gray-100">
+          <span className="font-medium text-content-primary">
             {r.name}
             {r.is_default && <span className="ml-2"><Badge variant="info">default</Badge></span>}
           </span>
@@ -1509,7 +1509,7 @@ function StoragePoolManager({
       },
       {
         key: 'capacity', header: 'Capacity', render: (r) => (
-          <span className="text-xs text-gray-400">{r.used_capacity_gb} / {r.total_capacity_gb} GB</span>
+          <span className="text-xs text-content-secondary">{r.used_capacity_gb} / {r.total_capacity_gb} GB</span>
         )
       },
       { key: 'volume_count', header: 'Volumes' },
@@ -1568,7 +1568,7 @@ function StoragePoolManager({
 
 function SummaryBox({ label, value, color }: { label: string; value: string | number; color: string }) {
   const colorMap: Record<string, string> = {
-    blue: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+    blue: 'bg-blue-500/10 text-accent border-blue-500/20',
     emerald: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
     amber: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
     purple: 'bg-purple-500/10 text-purple-400 border-purple-500/20'
@@ -1632,7 +1632,7 @@ function AddPoolDialog({
         className="bg-[var(--card-bg,#1a1a2e)] border border-[var(--border-primary,#2a2a4a)] rounded-xl p-6 w-full max-w-lg space-y-4"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="text-lg font-semibold text-gray-100">
+        <h3 className="text-lg font-semibold text-content-primary">
           Add {scope === 'primary' ? 'Primary' : 'Secondary'} Storage Pool
         </h3>
 
@@ -1640,12 +1640,12 @@ function AddPoolDialog({
 
         <div className="grid grid-cols-2 gap-3">
           <div className="col-span-2">
-            <label className="block text-xs text-gray-400 mb-1">Pool Name</label>
+            <label className="block text-xs text-content-secondary mb-1">Pool Name</label>
             <input className="input w-full" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. ssd-pool" />
           </div>
 
           <div>
-            <label className="block text-xs text-gray-400 mb-1">Backend</label>
+            <label className="block text-xs text-content-secondary mb-1">Backend</label>
             <select className="select w-full" value={backend} onChange={(e) => setBackend(e.target.value)}>
               <option value="ceph">Ceph</option>
               <option value="local">Local</option>
@@ -1654,7 +1654,7 @@ function AddPoolDialog({
           </div>
 
           <div>
-            <label className="block text-xs text-gray-400 mb-1">Pool Type</label>
+            <label className="block text-xs text-content-secondary mb-1">Pool Type</label>
             <select className="select w-full" value={poolType} onChange={(e) => setPoolType(e.target.value)}>
               <option value="replicated">Replicated</option>
               <option value="erasure_coded">Erasure Coded</option>
@@ -1662,23 +1662,23 @@ function AddPoolDialog({
           </div>
 
           <div>
-            <label className="block text-xs text-gray-400 mb-1">Replica Count</label>
+            <label className="block text-xs text-content-secondary mb-1">Replica Count</label>
             <input className="input w-full" type="number" min={1} max={5} value={replicaCount} onChange={(e) => setReplicaCount(Number(e.target.value))} />
           </div>
 
           <div>
-            <label className="block text-xs text-gray-400 mb-1">Total Capacity (GB)</label>
+            <label className="block text-xs text-content-secondary mb-1">Total Capacity (GB)</label>
             <input className="input w-full" type="number" min={0} value={totalCapGB} onChange={(e) => setTotalCapGB(Number(e.target.value))} />
           </div>
 
           {backend === 'ceph' && (
             <>
               <div>
-                <label className="block text-xs text-gray-400 mb-1">CRUSH Rule</label>
+                <label className="block text-xs text-content-secondary mb-1">CRUSH Rule</label>
                 <input className="input w-full" value={crushRule} onChange={(e) => setCrushRule(e.target.value)} placeholder="e.g. ssd_rule" />
               </div>
               <div>
-                <label className="block text-xs text-gray-400 mb-1">PG Count</label>
+                <label className="block text-xs text-content-secondary mb-1">PG Count</label>
                 <input className="input w-full" type="number" min={1} value={pgCount} onChange={(e) => setPgCount(Number(e.target.value))} />
               </div>
             </>
@@ -1686,7 +1686,7 @@ function AddPoolDialog({
 
           <div className="col-span-2 flex items-center gap-2">
             <input type="checkbox" id="is-default" checked={isDefault} onChange={(e) => setIsDefault(e.target.checked)} />
-            <label htmlFor="is-default" className="text-sm text-gray-300">Set as default pool</label>
+            <label htmlFor="is-default" className="text-sm text-content-secondary">Set as default pool</label>
           </div>
         </div>
 
@@ -1784,7 +1784,7 @@ function DBUsage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Database card */}
           <div className="card p-4 space-y-3">
-            <h3 className="text-sm font-medium text-gray-300 uppercase tracking-wide">
+            <h3 className="text-sm font-medium text-content-secondary uppercase tracking-wide">
               Database (PostgreSQL)
             </h3>
             <div className="flex items-center gap-2">
@@ -1795,29 +1795,29 @@ function DBUsage() {
                 {health.db?.status ?? 'unknown'}
               </span>
             </div>
-            <p className="text-xs text-gray-400">{health.db?.message}</p>
+            <p className="text-xs text-content-secondary">{health.db?.message}</p>
             <div className="grid grid-cols-2 gap-2 text-sm">
-              <div className="bg-oxide-900 rounded p-2">
-                <div className="text-xs text-gray-500">Latency</div>
+              <div className="bg-surface-secondary rounded p-2">
+                <div className="text-xs text-content-tertiary">Latency</div>
                 <div className="font-mono">{health.db?.latency_ms ?? '-'} ms</div>
               </div>
-              <div className="bg-oxide-900 rounded p-2">
-                <div className="text-xs text-gray-500">Open Connections</div>
+              <div className="bg-surface-secondary rounded p-2">
+                <div className="text-xs text-content-tertiary">Open Connections</div>
                 <div className="font-mono">{health.db?.open ?? '-'}</div>
               </div>
-              <div className="bg-oxide-900 rounded p-2">
-                <div className="text-xs text-gray-500">In Use</div>
+              <div className="bg-surface-secondary rounded p-2">
+                <div className="text-xs text-content-tertiary">In Use</div>
                 <div className="font-mono">{health.db?.inUse ?? '-'}</div>
               </div>
-              <div className="bg-oxide-900 rounded p-2">
-                <div className="text-xs text-gray-500">Idle</div>
+              <div className="bg-surface-secondary rounded p-2">
+                <div className="text-xs text-content-tertiary">Idle</div>
                 <div className="font-mono">{health.db?.idle ?? '-'}</div>
               </div>
             </div>
           </div>
           {/* Service card */}
           <div className="card p-4 space-y-3">
-            <h3 className="text-sm font-medium text-gray-300 uppercase tracking-wide">
+            <h3 className="text-sm font-medium text-content-secondary uppercase tracking-wide">
               Management Service
             </h3>
             <div className="flex items-center gap-2">
@@ -1827,23 +1827,23 @@ function DBUsage() {
               <span className="text-sm font-semibold capitalize">{health.status}</span>
             </div>
             <div className="grid grid-cols-2 gap-2 text-sm">
-              <div className="bg-oxide-900 rounded p-2">
-                <div className="text-xs text-gray-500">Uptime</div>
+              <div className="bg-surface-secondary rounded p-2">
+                <div className="text-xs text-content-tertiary">Uptime</div>
                 <div className="font-mono">{fmtUptime(health.uptime)}</div>
               </div>
-              <div className="bg-oxide-900 rounded p-2">
-                <div className="text-xs text-gray-500">Last Check</div>
+              <div className="bg-surface-secondary rounded p-2">
+                <div className="text-xs text-content-tertiary">Last Check</div>
                 <div className="font-mono text-xs">
                   {new Date(health.timestamp).toLocaleTimeString()}
                 </div>
               </div>
             </div>
-            <p className="text-xs text-gray-500">Auto-refreshes every 30 seconds</p>
+            <p className="text-xs text-content-tertiary">Auto-refreshes every 30 seconds</p>
           </div>
         </div>
       )}
       {!health && !loading && !error && (
-        <div className="card p-4 text-gray-400 text-sm">No health data available</div>
+        <div className="card p-4 text-content-secondary text-sm">No health data available</div>
       )}
     </div>
   )

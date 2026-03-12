@@ -214,7 +214,7 @@ export default function ConsoleViewer() {
 
       {/* Main console area */}
       <div
-        className="border border-oxide-800 rounded-lg overflow-hidden relative bg-black"
+        className="border border-border rounded-lg overflow-hidden relative bg-black"
         style={{ minHeight: '70vh' }}
       >
         {/* Loading state */}
@@ -222,7 +222,7 @@ export default function ConsoleViewer() {
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center space-y-3">
               <div className="w-8 h-8 border-2 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto" />
-              <p className="text-gray-400 text-sm">Checking instance status…</p>
+              <p className="text-content-secondary text-sm">Checking instance status…</p>
             </div>
           </div>
         )}
@@ -241,20 +241,20 @@ export default function ConsoleViewer() {
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
-                  className="text-gray-500"
+                  className="text-content-tertiary"
                 >
                   <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
                   <line x1="12" y1="2" x2="12" y2="12" />
                 </svg>
               </div>
               <div>
-                <p className="text-gray-300 text-lg font-medium">Instance is Stopped</p>
-                <p className="text-gray-500 text-sm mt-1">
+                <p className="text-content-secondary text-lg font-medium">Instance is Stopped</p>
+                <p className="text-content-tertiary text-sm mt-1">
                   Start the instance to access the console
                 </p>
               </div>
               <button
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-white font-medium transition-all
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-content-primary font-medium transition-all
                            bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400
                            shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30"
                 onClick={handleStart}
@@ -266,7 +266,7 @@ export default function ConsoleViewer() {
               </button>
               <div>
                 <button
-                  className="text-gray-500 hover:text-gray-300 text-sm underline"
+                  className="text-content-tertiary hover:text-content-secondary text-sm underline"
                   onClick={() => nav(-1)}
                 >
                   ← Return to instances
@@ -294,7 +294,7 @@ export default function ConsoleViewer() {
               </div>
               <div>
                 <p className="text-emerald-400 text-lg font-medium">Starting Instance…</p>
-                <p className="text-gray-500 text-sm mt-1">Waiting for the VM to boot up</p>
+                <p className="text-content-tertiary text-sm mt-1">Waiting for the VM to boot up</p>
               </div>
               <div className="flex items-center justify-center gap-1">
                 <span
@@ -319,7 +319,7 @@ export default function ConsoleViewer() {
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center space-y-3">
               <div className="w-8 h-8 border-2 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto" />
-              <p className="text-blue-400 text-sm">Connecting to console…</p>
+              <p className="text-accent text-sm">Connecting to console…</p>
             </div>
           </div>
         )}
@@ -346,12 +346,12 @@ export default function ConsoleViewer() {
               </div>
               <div>
                 <p className="text-rose-400 text-lg font-medium">Connection Failed</p>
-                {errMsg && <p className="text-gray-500 text-sm mt-1">{errMsg}</p>}
+                {errMsg && <p className="text-content-tertiary text-sm mt-1">{errMsg}</p>}
               </div>
               <div className="flex items-center justify-center gap-3">
                 {isRunning && (
                   <button
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm transition-colors"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm transition-colors"
                     onClick={handleReconnect}
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -362,7 +362,7 @@ export default function ConsoleViewer() {
                 )}
                 {!isRunning && (
                   <button
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm transition-colors"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-content-primary text-sm transition-colors"
                     onClick={handleStart}
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -372,7 +372,7 @@ export default function ConsoleViewer() {
                   </button>
                 )}
                 <button
-                  className="text-gray-500 hover:text-gray-300 text-sm"
+                  className="text-content-tertiary hover:text-content-secondary text-sm"
                   onClick={() => nav(-1)}
                 >
                   ← Back

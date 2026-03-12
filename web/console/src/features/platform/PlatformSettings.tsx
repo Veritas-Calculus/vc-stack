@@ -84,13 +84,13 @@ export function PlatformSettings() {
       up: 'bg-emerald-500/20 text-emerald-400',
       down: 'bg-red-500/20 text-red-400',
       draining: 'bg-amber-500/20 text-amber-400',
-      starting: 'bg-blue-500/20 text-blue-400',
+      starting: 'bg-blue-500/20 text-accent',
       active: 'bg-emerald-500/20 text-emerald-400',
       paused: 'bg-amber-500/20 text-amber-400',
-      published: 'bg-blue-500/20 text-blue-400',
+      published: 'bg-blue-500/20 text-accent',
       delivered: 'bg-emerald-500/20 text-emerald-400'
     }
-    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-gray-400'}`
+    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-content-secondary'}`
   }
 
   const tabIcons: Record<Tab, JSX.Element> = {
@@ -108,19 +108,19 @@ export function PlatformSettings() {
     <div className="p-8 max-w-[1400px] mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Platform Settings</h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-content-primary">Platform Settings</h1>
+          <p className="text-content-secondary text-sm mt-1">
             Service discovery, configuration management, and event infrastructure
           </p>
         </div>
       </div>
 
-      <div className="flex gap-1 mb-6 bg-gray-800/40 p-1 rounded-lg w-fit">
+      <div className="flex gap-1 mb-6 bg-surface-tertiary p-1 rounded-lg w-fit">
         {tabs.map((t) => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition flex items-center gap-2 ${tab === t.key ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200'}`}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition flex items-center gap-2 ${tab === t.key ? 'bg-surface-hover text-content-primary' : 'text-content-secondary hover:text-content-primary'}`}
           >
             {tabIcons[t.key]}
             {t.label}
@@ -137,7 +137,7 @@ export function PlatformSettings() {
                 {
                   label: 'Services',
                   value: String(regStatus.unique_services),
-                  color: 'text-white'
+                  color: 'text-content-primary'
                 },
                 {
                   label: 'Instances',
@@ -162,9 +162,9 @@ export function PlatformSettings() {
               ].map((s) => (
                 <div
                   key={s.label}
-                  className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-4"
+                  className="bg-surface-tertiary border border-border rounded-xl p-4"
                 >
-                  <div className="text-gray-400 text-xs mb-2">{s.label}</div>
+                  <div className="text-content-secondary text-xs mb-2">{s.label}</div>
                   <div className={`text-3xl font-bold ${s.color}`}>{s.value}</div>
                 </div>
               ))}
@@ -172,38 +172,38 @@ export function PlatformSettings() {
           )}
 
           <div className="grid grid-cols-2 gap-6">
-            <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-6">
-              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">
+            <div className="bg-surface-tertiary border border-border rounded-xl p-6">
+              <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider mb-4">
                 Registered Services
               </h3>
               <div className="space-y-3">
                 {services.map((svc) => (
                   <div
                     key={String(svc.service_name)}
-                    className="flex items-center justify-between bg-gray-700/20 rounded-lg p-3"
+                    className="flex items-center justify-between bg-surface-hover rounded-lg p-3"
                   >
                     <div className="flex items-center gap-3">
                       <div
                         className={`w-3 h-3 rounded-full ${Number(svc.healthy) === Number(svc.instances) ? 'bg-emerald-400' : 'bg-amber-400'}`}
                       ></div>
                       <div>
-                        <div className="text-white font-medium">{String(svc.service_name)}</div>
-                        <div className="text-gray-500 text-xs">
+                        <div className="text-content-primary font-medium">{String(svc.service_name)}</div>
+                        <div className="text-content-tertiary text-xs">
                           {String(svc.instances)} instance(s)
                         </div>
                       </div>
                     </div>
                     <div className="text-sm">
                       <span className="text-emerald-400">{String(svc.healthy)}</span>
-                      <span className="text-gray-500"> / {String(svc.instances)}</span>
+                      <span className="text-content-tertiary"> / {String(svc.instances)}</span>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-6">
-              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">
+            <div className="bg-surface-tertiary border border-border rounded-xl p-6">
+              <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider mb-4">
                 Topology
               </h3>
               {topology.map((region) => (
@@ -220,13 +220,13 @@ export function PlatformSettings() {
                         {(zone.instances as Record<string, unknown>[])?.map((inst) => (
                           <div
                             key={String(inst.id)}
-                            className="ml-4 flex items-center gap-2 text-xs text-gray-400 py-0.5"
+                            className="ml-4 flex items-center gap-2 text-xs text-content-secondary py-0.5"
                           >
                             <span className={badge(String(inst.status))}>
                               {String(inst.status)}
                             </span>
-                            <span className="text-white">{String(inst.service_name)}</span>
-                            <span className="text-gray-600">
+                            <span className="text-content-primary">{String(inst.service_name)}</span>
+                            <span className="text-content-tertiary">
                               {String(inst.host)}:{String(inst.port)}
                             </span>
                           </div>
@@ -266,20 +266,20 @@ export function PlatformSettings() {
               ].map((s) => (
                 <div
                   key={s.label}
-                  className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-4"
+                  className="bg-surface-tertiary border border-border rounded-xl p-4"
                 >
-                  <div className="flex items-center gap-2 text-gray-400 text-xs mb-2">
+                  <div className="flex items-center gap-2 text-content-secondary text-xs mb-2">
                     <span>{s.icon}</span> {s.label}
                   </div>
-                  <div className="text-3xl font-bold text-white">{s.value}</div>
+                  <div className="text-3xl font-bold text-content-primary">{s.value}</div>
                 </div>
               ))}
             </div>
           )}
 
           <div className="grid grid-cols-[240px_1fr] gap-6">
-            <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-4">
-              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-3">
+            <div className="bg-surface-tertiary border border-border rounded-xl p-4">
+              <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider mb-3">
                 Namespaces
               </h3>
               <div className="space-y-1">
@@ -287,23 +287,23 @@ export function PlatformSettings() {
                   <button
                     key={String(ns.name)}
                     onClick={() => setSelectedNs(String(ns.name))}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition ${selectedNs === String(ns.name) ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30' : 'text-gray-400 hover:bg-gray-700/30'}`}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition ${selectedNs === String(ns.name) ? 'bg-blue-600/20 text-accent border border-blue-500/30' : 'text-content-secondary hover:bg-surface-hover'}`}
                   >
                     <div className="font-medium">{String(ns.name)}</div>
-                    <div className="text-xs text-gray-500">{String(ns.item_count)} items</div>
+                    <div className="text-xs text-content-tertiary">{String(ns.item_count)} items</div>
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-4">
-              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-3">
+            <div className="bg-surface-tertiary border border-border rounded-xl p-4">
+              <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider mb-3">
                 {selectedNs || 'Select namespace'}
               </h3>
               {cfgItems.length > 0 ? (
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="text-gray-500 text-xs">
+                    <tr className="text-content-tertiary text-xs">
                       <th className="text-left pb-2 pr-4">Key</th>
                       <th className="text-left pb-2 pr-4">Value</th>
                       <th className="text-left pb-2 pr-4">Type</th>
@@ -312,7 +312,7 @@ export function PlatformSettings() {
                   </thead>
                   <tbody>
                     {cfgItems.map((item) => (
-                      <tr key={String(item.id)} className="border-t border-gray-700/30">
+                      <tr key={String(item.id)} className="border-t border-border">
                         <td className="py-2 pr-4">
                           <span className="text-cyan-400 font-mono text-xs">
                             {String(item.key)}
@@ -321,7 +321,7 @@ export function PlatformSettings() {
                             <span className="ml-1 text-red-400 text-xs">*</span>
                           )}
                         </td>
-                        <td className="py-2 pr-4 text-white font-mono text-xs">
+                        <td className="py-2 pr-4 text-content-primary font-mono text-xs">
                           {item.encrypted ? (
                             <span className="text-amber-400 inline-flex items-center gap-1">
                               {Icons.lock('w-3 h-3')} ****
@@ -338,20 +338,20 @@ export function PlatformSettings() {
                                 : String(item.value_type) === 'bool'
                                   ? 'bg-purple-500/20 text-purple-400'
                                   : String(item.value_type) === 'int'
-                                    ? 'bg-blue-500/20 text-blue-400'
-                                    : 'bg-gray-500/20 text-gray-400'
+                                    ? 'bg-blue-500/20 text-accent'
+                                    : 'bg-gray-500/20 text-content-secondary'
                             }`}
                           >
                             {String(item.value_type)}
                           </span>
                         </td>
-                        <td className="py-2 text-gray-500">v{String(item.version)}</td>
+                        <td className="py-2 text-content-tertiary">v{String(item.version)}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               ) : (
-                <p className="text-gray-500 text-sm">Select a namespace to view config items</p>
+                <p className="text-content-tertiary text-sm">Select a namespace to view config items</p>
               )}
             </div>
           </div>
@@ -392,31 +392,31 @@ export function PlatformSettings() {
               ].map((s) => (
                 <div
                   key={s.label}
-                  className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-4"
+                  className="bg-surface-tertiary border border-border rounded-xl p-4"
                 >
-                  <div className="flex items-center gap-2 text-gray-400 text-xs mb-2">
+                  <div className="flex items-center gap-2 text-content-secondary text-xs mb-2">
                     <span>{s.icon}</span> {s.label}
                   </div>
-                  <div className="text-3xl font-bold text-white">{s.value}</div>
+                  <div className="text-3xl font-bold text-content-primary">{s.value}</div>
                 </div>
               ))}
             </div>
           )}
 
           <div className="grid grid-cols-2 gap-6">
-            <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-6">
-              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <div className="bg-surface-tertiary border border-border rounded-xl p-6">
+              <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider mb-4 flex items-center gap-2">
                 {Icons.megaphone('w-4 h-4')} Topics
               </h3>
               <div className="space-y-3">
                 {topics.map((t) => (
-                  <div key={String(t.id)} className="bg-gray-700/20 rounded-lg p-3">
+                  <div key={String(t.id)} className="bg-surface-hover rounded-lg p-3">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-white font-medium text-sm">{String(t.name)}</span>
-                      <span className="text-gray-500 text-xs">{String(t.event_count)} events</span>
+                      <span className="text-content-primary font-medium text-sm">{String(t.name)}</span>
+                      <span className="text-content-tertiary text-xs">{String(t.event_count)} events</span>
                     </div>
-                    <div className="text-gray-500 text-xs">{String(t.description)}</div>
-                    <div className="flex gap-3 mt-1 text-xs text-gray-600">
+                    <div className="text-content-tertiary text-xs">{String(t.description)}</div>
+                    <div className="flex gap-3 mt-1 text-xs text-content-tertiary">
                       <span className="inline-flex items-center gap-1">
                         {Icons.clock('w-3 h-3')} {String(t.retention_hours)}h retention
                       </span>
@@ -429,23 +429,23 @@ export function PlatformSettings() {
               </div>
             </div>
 
-            <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-6">
-              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <div className="bg-surface-tertiary border border-border rounded-xl p-6">
+              <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider mb-4 flex items-center gap-2">
                 {Icons.link('w-4 h-4')} Subscriptions
               </h3>
               <div className="space-y-3">
                 {subs.map((s) => (
-                  <div key={String(s.id)} className="bg-gray-700/20 rounded-lg p-3">
+                  <div key={String(s.id)} className="bg-surface-hover rounded-lg p-3">
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">
                         <span className={badge(String(s.status))}>{String(s.status)}</span>
-                        <span className="text-white text-sm">{String(s.consumer)}</span>
+                        <span className="text-content-primary text-sm">{String(s.consumer)}</span>
                       </div>
                       <span className="text-emerald-400 text-xs">
                         {String(s.delivered)} delivered
                       </span>
                     </div>
-                    <div className="text-gray-500 text-xs">
+                    <div className="text-content-tertiary text-xs">
                       Topic: <span className="text-cyan-400">{String(s.topic_name)}</span>
                       {Boolean(s.filter_expr) && (
                         <span className="ml-2 text-amber-400">filter: {String(s.filter_expr)}</span>

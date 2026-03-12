@@ -7,7 +7,7 @@ import { ActionMenu } from '@/components/ui/ActionMenu'
 export function Notifications() {
   const { notices, markNotice } = useDataStore()
   const cols: Column<Notice>[] = [
-    { key: 'time', header: 'Time', className: 'text-gray-400' },
+    { key: 'time', header: 'Time', className: 'text-content-secondary' },
     { key: 'resource', header: 'Resource' },
     { key: 'type', header: 'Type' },
     {

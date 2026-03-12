@@ -92,8 +92,8 @@ export default function Migrations() {
             onClick={() => setFilter(f)}
             className={`px-3 py-1 text-xs rounded-full transition-colors ${
               filter === f
-                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/50'
-                : 'bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10'
+                ? 'bg-blue-500/20 text-accent border border-blue-500/50'
+                : 'bg-white/5 text-content-secondary border border-white/10 hover:bg-surface-hover'
             }`}
           >
             {filterLabels[f]}
@@ -102,9 +102,9 @@ export default function Migrations() {
       </div>
 
       {loading ? (
-        <div className="text-center py-8 text-gray-500">Loading migrations...</div>
+        <div className="text-center py-8 text-content-tertiary">Loading migrations...</div>
       ) : migrations.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
+        <div className="text-center py-12 text-content-tertiary">
           <div className="text-lg mb-1">No migrations found</div>
           <div className="text-sm">
             Migrations appear here when an instance is migrated between hosts
@@ -120,13 +120,13 @@ export default function Migrations() {
               <div className="flex items-start justify-between gap-4">
                 <div className="space-y-2 flex-1">
                   <div className="flex items-center gap-3">
-                    <span className="font-medium text-gray-200">{m.instance_name}</span>
+                    <span className="font-medium text-content-primary">{m.instance_name}</span>
                     <Badge variant={statusVariant[m.status] ?? 'default'}>{m.status}</Badge>
                     <Badge variant="default">{m.migration_type}</Badge>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-400">
+                  <div className="flex items-center gap-2 text-sm text-content-secondary">
                     <span className="font-mono">{m.source_host_name || 'unknown'}</span>
-                    <span className="text-blue-400">&rarr;</span>
+                    <span className="text-accent">&rarr;</span>
                     <span className="font-mono">{m.dest_host_name || 'unknown'}</span>
                   </div>
                   {(m.status === 'migrating' || m.status === 'preparing') && (
@@ -142,7 +142,7 @@ export default function Migrations() {
                   )}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-content-tertiary">
                     {new Date(m.created_at).toLocaleString()}
                   </span>
                   {['queued', 'preparing', 'migrating'].includes(m.status) && (

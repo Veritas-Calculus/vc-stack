@@ -170,7 +170,7 @@ export function DNSManagement() {
     if (s === 'ACTIVE') return 'bg-emerald-500/15 text-emerald-400'
     if (s === 'PENDING') return 'bg-amber-500/15 text-amber-400'
     if (s === 'ERROR') return 'bg-red-500/15 text-red-400'
-    return 'bg-gray-500/15 text-gray-400'
+    return 'bg-gray-500/15 text-content-secondary'
   }
 
   const recordTypes = ['A', 'AAAA', 'CNAME', 'MX', 'TXT', 'SRV', 'NS', 'PTR', 'SPF']
@@ -188,29 +188,29 @@ export function DNSManagement() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">DNS</h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <h1 className="text-2xl font-bold text-content-primary">DNS</h1>
+          <p className="text-sm text-content-secondary mt-1">
             DNS as a Service — Manage zones and record sets
           </p>
         </div>
         <button
           onClick={() => setShowCreateZone(true)}
-          className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-colors"
+          className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium transition-colors"
         >
           Create Zone
         </button>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 border-b border-oxide-800 pb-px">
+      <div className="flex gap-1 mb-6 border-b border-border pb-px">
         {tabs.map((t) => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${tab === t.key ? 'bg-oxide-800 text-white border-b-2 border-blue-500' : 'text-gray-400 hover:text-white hover:bg-oxide-800/50'}`}
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${tab === t.key ? 'bg-surface-tertiary text-content-primary border-b-2 border-blue-500' : 'text-content-secondary hover:text-content-primary hover:bg-surface-tertiary'}`}
           >
             {t.label}
-            <span className="ml-1.5 px-1.5 py-0.5 rounded text-[10px] bg-oxide-700 text-gray-400">
+            <span className="ml-1.5 px-1.5 py-0.5 rounded text-[10px] bg-surface-hover text-content-secondary">
               {t.count}
             </span>
           </button>
@@ -233,16 +233,16 @@ export function DNSManagement() {
                   placeholder="Search zones..."
                   value={searchFilter}
                   onChange={(e) => setSearchFilter(e.target.value)}
-                  className="w-full max-w-sm px-3 py-2 rounded-lg bg-oxide-900 border border-oxide-700 text-sm text-gray-200 placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                  className="w-full max-w-sm px-3 py-2 rounded-lg bg-surface-secondary border border-border text-sm text-content-primary placeholder-content-placeholder focus:border-blue-500 focus:outline-none"
                 />
               </div>
               {filteredZones.length === 0 ? (
                 <EmptyState title="No DNS zones" />
               ) : (
-                <div className="rounded-xl border border-oxide-800 overflow-hidden">
+                <div className="rounded-xl border border-border overflow-hidden">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-oxide-900/80 text-gray-400 text-xs uppercase tracking-wider">
+                      <tr className="bg-surface-secondary text-content-secondary text-xs uppercase tracking-wider">
                         <th className="px-4 py-3 text-left">Zone Name</th>
                         <th className="px-4 py-3 text-left">Type</th>
                         <th className="px-4 py-3 text-left">Status</th>
@@ -252,24 +252,24 @@ export function DNSManagement() {
                         <th className="px-4 py-3 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-oxide-800/50">
+                    <tbody className="divide-y divide-border/50">
                       {filteredZones.map((z) => (
                         <tr
                           key={z.id}
-                          className={`hover:bg-oxide-800/30 transition-colors cursor-pointer ${selectedZone?.id === z.id ? 'bg-oxide-800/50' : ''}`}
+                          className={`hover:bg-surface-tertiary transition-colors cursor-pointer ${selectedZone?.id === z.id ? 'bg-surface-tertiary' : ''}`}
                           onClick={() => {
                             setSelectedZone(z)
                             setTab('records')
                           }}
                         >
                           <td className="px-4 py-3">
-                            <div className="font-medium text-white">{z.name}</div>
+                            <div className="font-medium text-content-primary">{z.name}</div>
                             {z.description && (
-                              <div className="text-xs text-gray-500 mt-0.5">{z.description}</div>
+                              <div className="text-xs text-content-tertiary mt-0.5">{z.description}</div>
                             )}
                           </td>
                           <td className="px-4 py-3">
-                            <span className="px-2 py-0.5 rounded text-xs bg-oxide-700 text-gray-300">
+                            <span className="px-2 py-0.5 rounded text-xs bg-surface-hover text-content-secondary">
                               {z.type}
                             </span>
                           </td>
@@ -280,11 +280,11 @@ export function DNSManagement() {
                               {z.status}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-center text-gray-300">
+                          <td className="px-4 py-3 text-center text-content-secondary">
                             {z.recordset_count}
                           </td>
-                          <td className="px-4 py-3 font-mono text-xs text-gray-400">{z.serial}</td>
-                          <td className="px-4 py-3 text-gray-400">{z.ttl}s</td>
+                          <td className="px-4 py-3 font-mono text-xs text-content-secondary">{z.serial}</td>
+                          <td className="px-4 py-3 text-content-secondary">{z.ttl}s</td>
                           <td className="px-4 py-3 text-right">
                             <div
                               className="flex gap-1 justify-end"
@@ -292,14 +292,14 @@ export function DNSManagement() {
                             >
                               <button
                                 onClick={() => handleExportZone(z.id)}
-                                className="px-2 py-1 rounded text-xs text-gray-400 hover:text-blue-400 hover:bg-blue-500/10"
+                                className="px-2 py-1 rounded text-xs text-content-secondary hover:text-accent hover:bg-blue-500/10"
                                 title="Export BIND format"
                               >
                                 Export
                               </button>
                               <button
                                 onClick={() => handleDeleteZone(z.id)}
-                                className="px-2 py-1 rounded text-xs text-gray-400 hover:text-red-400 hover:bg-red-500/10"
+                                className="px-2 py-1 rounded text-xs text-content-secondary hover:text-red-400 hover:bg-red-500/10"
                               >
                                 Delete
                               </button>
@@ -322,10 +322,10 @@ export function DNSManagement() {
               ) : (
                 <>
                   {/* Zone info header */}
-                  <div className="mb-4 p-4 rounded-xl border border-oxide-800 bg-oxide-900/50 flex items-center justify-between">
+                  <div className="mb-4 p-4 rounded-xl border border-border bg-surface-secondary flex items-center justify-between">
                     <div>
-                      <h2 className="text-lg font-semibold text-white">{selectedZone.name}</h2>
-                      <p className="text-xs text-gray-400 mt-1">
+                      <h2 className="text-lg font-semibold text-content-primary">{selectedZone.name}</h2>
+                      <p className="text-xs text-content-secondary mt-1">
                         Serial: <span className="font-mono">{selectedZone.serial}</span> · TTL:{' '}
                         {selectedZone.ttl}s · Email: {selectedZone.email || '—'}
                       </p>
@@ -334,7 +334,7 @@ export function DNSManagement() {
                       <select
                         value={typeFilter}
                         onChange={(e) => setTypeFilter(e.target.value)}
-                        className="px-3 py-1.5 rounded-lg bg-oxide-900 border border-oxide-700 text-sm text-gray-200"
+                        className="px-3 py-1.5 rounded-lg bg-surface-secondary border border-border text-sm text-content-primary"
                       >
                         <option value="">All Types</option>
                         {recordTypes.map((t) => (
@@ -346,7 +346,7 @@ export function DNSManagement() {
                       </select>
                       <button
                         onClick={() => setShowCreateRecord(true)}
-                        className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-colors"
+                        className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium transition-colors"
                       >
                         Add Record
                       </button>
@@ -356,10 +356,10 @@ export function DNSManagement() {
                   {records.length === 0 ? (
                     <EmptyState title="No records" />
                   ) : (
-                    <div className="rounded-xl border border-oxide-800 overflow-hidden">
+                    <div className="rounded-xl border border-border overflow-hidden">
                       <table className="w-full text-sm">
                         <thead>
-                          <tr className="bg-oxide-900/80 text-gray-400 text-xs uppercase tracking-wider">
+                          <tr className="bg-surface-secondary text-content-secondary text-xs uppercase tracking-wider">
                             <th className="px-4 py-3 text-left">Name</th>
                             <th className="px-4 py-3 text-left">Type</th>
                             <th className="px-4 py-3 text-left">Data</th>
@@ -368,15 +368,15 @@ export function DNSManagement() {
                             <th className="px-4 py-3 text-right">Actions</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-oxide-800/50">
+                        <tbody className="divide-y divide-border/50">
                           {records.map((r) => (
-                            <tr key={r.id} className="hover:bg-oxide-800/30 transition-colors">
-                              <td className="px-4 py-3 font-mono text-xs text-white">{r.name}</td>
+                            <tr key={r.id} className="hover:bg-surface-tertiary transition-colors">
+                              <td className="px-4 py-3 font-mono text-xs text-content-primary">{r.name}</td>
                               <td className="px-4 py-3">
                                 <span
                                   className={`px-2 py-0.5 rounded text-xs font-medium ${
                                     r.type === 'A' || r.type === 'AAAA'
-                                      ? 'bg-blue-500/15 text-blue-400'
+                                      ? 'bg-blue-500/15 text-accent'
                                       : r.type === 'CNAME'
                                         ? 'bg-purple-500/15 text-purple-400'
                                         : r.type === 'MX'
@@ -384,20 +384,20 @@ export function DNSManagement() {
                                           : r.type === 'TXT' || r.type === 'SPF'
                                             ? 'bg-yellow-500/15 text-yellow-400'
                                             : r.type === 'SOA' || r.type === 'NS'
-                                              ? 'bg-gray-500/15 text-gray-400'
+                                              ? 'bg-gray-500/15 text-content-secondary'
                                               : 'bg-teal-500/15 text-teal-400'
                                   }`}
                                 >
                                   {r.type}
                                 </span>
                               </td>
-                              <td className="px-4 py-3 font-mono text-xs text-gray-300 max-w-xs truncate">
+                              <td className="px-4 py-3 font-mono text-xs text-content-secondary max-w-xs truncate">
                                 {r.priority > 0 && (
-                                  <span className="text-gray-500 mr-1">{r.priority}</span>
+                                  <span className="text-content-tertiary mr-1">{r.priority}</span>
                                 )}
                                 {r.records}
                               </td>
-                              <td className="px-4 py-3 text-gray-400">
+                              <td className="px-4 py-3 text-content-secondary">
                                 {r.ttl ?? selectedZone.ttl}s
                               </td>
                               <td className="px-4 py-3">
@@ -414,7 +414,7 @@ export function DNSManagement() {
                                 ) && (
                                   <button
                                     onClick={() => handleDeleteRecord(r.zone_id, r.id)}
-                                    className="px-2 py-1 rounded text-xs text-gray-400 hover:text-red-400 hover:bg-red-500/10"
+                                    className="px-2 py-1 rounded text-xs text-content-secondary hover:text-red-400 hover:bg-red-500/10"
                                   >
                                     Delete
                                   </button>
@@ -475,14 +475,14 @@ export function DNSManagement() {
             <div className="flex justify-end gap-2 pt-2">
               <button
                 onClick={() => setShowCreateZone(false)}
-                className="px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-oxide-800"
+                className="px-4 py-2 rounded-lg text-sm text-content-secondary hover:text-content-primary hover:bg-surface-tertiary"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreateZone}
                 disabled={!zoneName}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Create Zone
               </button>
@@ -556,14 +556,14 @@ export function DNSManagement() {
             <div className="flex justify-end gap-2 pt-2">
               <button
                 onClick={() => setShowCreateRecord(false)}
-                className="px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-oxide-800"
+                className="px-4 py-2 rounded-lg text-sm text-content-secondary hover:text-content-primary hover:bg-surface-tertiary"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreateRecord}
                 disabled={!recordName || !recordData}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Add Record
               </button>
@@ -592,12 +592,12 @@ function Modal({
       onClick={onClose}
     >
       <div
-        className="bg-oxide-900 border border-oxide-700 rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-6"
+        className="bg-surface-secondary border border-border rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-6"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-semibold text-white">{title}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white text-xl leading-none">
+          <h2 className="text-lg font-semibold text-content-primary">{title}</h2>
+          <button onClick={onClose} className="text-content-secondary hover:text-content-primary text-xl leading-none">
             ×
           </button>
         </div>
@@ -618,7 +618,7 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-300 mb-1.5">
+      <label className="block text-sm font-medium text-content-secondary mb-1.5">
         {label} {required && <span className="text-red-400">*</span>}
       </label>
       {children}

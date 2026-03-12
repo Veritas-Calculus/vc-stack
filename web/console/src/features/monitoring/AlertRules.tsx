@@ -96,7 +96,7 @@ export function AlertRules() {
     const colors: Record<string, string> = {
       critical: 'bg-red-500/15 text-red-400',
       warning: 'bg-amber-500/15 text-amber-400',
-      info: 'bg-blue-500/15 text-blue-400'
+      info: 'bg-blue-500/15 text-accent'
     }
     return (
       <span

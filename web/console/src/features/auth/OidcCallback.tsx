@@ -22,7 +22,7 @@ export function OidcCallback() {
   }, [params, navigate, login])
 
   return (
-    <div className="min-h-screen grid place-items-center bg-oxide-950 text-gray-300">
+    <div className="min-h-screen grid place-items-center bg-surface-primary text-content-secondary">
       <div className="p-4">Completing sign-in…</div>
     </div>
   )

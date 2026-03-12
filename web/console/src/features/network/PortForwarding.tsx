@@ -122,7 +122,7 @@ export default function PortForwarding() {
       key: 'floating_ip',
       header: 'Floating IP',
       render: (r) => (
-        <span className="font-mono text-blue-400">{getFipAddress(r.floating_ip_id)}</span>
+        <span className="font-mono text-accent">{getFipAddress(r.floating_ip_id)}</span>
       )
     },
     {
@@ -133,7 +133,7 @@ export default function PortForwarding() {
     {
       key: 'direction',
       header: '',
-      render: () => <span className="text-gray-500">&rarr;</span>,
+      render: () => <span className="text-content-tertiary">&rarr;</span>,
       className: 'w-8 text-center'
     },
     {
@@ -153,7 +153,7 @@ export default function PortForwarding() {
     {
       key: 'description',
       header: 'Description',
-      render: (r) => <span className="text-gray-400 text-xs">{r.description || '-'}</span>
+      render: (r) => <span className="text-content-secondary text-xs">{r.description || '-'}</span>
     },
     {
       key: 'actions',
@@ -287,9 +287,9 @@ export default function PortForwarding() {
               placeholder="Optional"
             />
           </div>
-          <div className="p-3 bg-blue-900/20 border border-blue-800/30 rounded text-sm text-gray-300">
+          <div className="p-3 bg-blue-900/20 border border-blue-800/30 rounded text-sm text-content-secondary">
             Traffic to{' '}
-            <span className="font-mono text-blue-400">
+            <span className="font-mono text-accent">
               {fipId ? getFipAddress(fipId) : '<FIP>'}:{extPort || '<port>'}
             </span>{' '}
             will be forwarded to{' '}

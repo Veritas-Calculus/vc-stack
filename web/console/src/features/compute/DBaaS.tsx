@@ -63,7 +63,7 @@ export function DBaaS() {
   const statusBadge = (s: string) => {
     const c: Record<string, string> = {
       available: 'bg-emerald-500/15 text-emerald-400',
-      provisioning: 'bg-blue-500/15 text-blue-400',
+      provisioning: 'bg-blue-500/15 text-accent',
       stopped: 'bg-zinc-600/20 text-zinc-500',
       error: 'bg-red-500/15 text-red-400',
       deleting: 'bg-amber-500/15 text-amber-400'
@@ -139,7 +139,7 @@ export function DBaaS() {
       render: (r) => (
         <div className="flex justify-end gap-2">
           <button
-            className="text-xs text-blue-400 hover:underline"
+            className="text-xs text-accent hover:underline"
             onClick={async () => {
               await addDBReplica(r.id, `${r.name}-replica-${Date.now()}`)
               load()

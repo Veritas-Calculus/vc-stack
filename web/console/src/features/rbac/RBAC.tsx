@@ -142,7 +142,7 @@ export function RBAC() {
     const colors: Record<string, string> = {
       admin: 'bg-red-500/15 text-red-400 border-red-500/30',
       operator: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
-      member: 'bg-blue-500/15 text-blue-400 border-blue-500/30',
+      member: 'bg-blue-500/15 text-accent border-blue-500/30',
       viewer: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
     }
     return colors[name] || 'bg-purple-500/15 text-purple-400 border-purple-500/30'
@@ -150,7 +150,7 @@ export function RBAC() {
 
   const resourceColor = (resource: string) => {
     const colors: Record<string, string> = {
-      compute: 'text-blue-400',
+      compute: 'text-accent',
       volume: 'text-amber-400',
       snapshot: 'text-amber-300',
       network: 'text-purple-400',
@@ -167,12 +167,12 @@ export function RBAC() {
       role: 'text-red-300',
       policy: 'text-red-300',
       project: 'text-orange-400',
-      host: 'text-gray-400',
-      cluster: 'text-gray-300',
-      flavor: 'text-gray-300',
+      host: 'text-content-secondary',
+      cluster: 'text-content-secondary',
+      flavor: 'text-content-secondary',
       image: 'text-green-400'
     }
-    return colors[resource] || 'text-gray-400'
+    return colors[resource] || 'text-content-secondary'
   }
 
   const tabs = [
@@ -185,8 +185,8 @@ export function RBAC() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Access Control (RBAC)</h1>
-          <p className="text-sm text-gray-400 mt-1">Manage roles, permissions, and user access</p>
+          <h1 className="text-2xl font-bold text-content-primary">Access Control (RBAC)</h1>
+          <p className="text-sm text-content-secondary mt-1">Manage roles, permissions, and user access</p>
         </div>
         <div className="flex gap-2">
           {tab === 'roles' && (
@@ -195,7 +195,7 @@ export function RBAC() {
                 setSelectedPerms([])
                 setShowCreateRole(true)
               }}
-              className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-colors"
+              className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium transition-colors"
             >
               Create Role
             </button>
@@ -203,7 +203,7 @@ export function RBAC() {
           {tab === 'assignments' && (
             <button
               onClick={() => setShowAssign(true)}
-              className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-colors"
+              className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium transition-colors"
             >
               Assign Role
             </button>
@@ -212,7 +212,7 @@ export function RBAC() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 border-b border-oxide-800 pb-px">
+      <div className="flex gap-1 mb-6 border-b border-border pb-px">
         {tabs.map((t) => (
           <button
             key={t.key}
@@ -220,10 +220,10 @@ export function RBAC() {
               setTab(t.key)
               setSelectedRole(null)
             }}
-            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${tab === t.key ? 'bg-oxide-800 text-white border-b-2 border-blue-500' : 'text-gray-400 hover:text-white hover:bg-oxide-800/50'}`}
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${tab === t.key ? 'bg-surface-tertiary text-content-primary border-b-2 border-blue-500' : 'text-content-secondary hover:text-content-primary hover:bg-surface-tertiary'}`}
           >
             {t.label}
-            <span className="ml-1.5 px-1.5 py-0.5 rounded text-[10px] bg-oxide-700 text-gray-400">
+            <span className="ml-1.5 px-1.5 py-0.5 rounded text-[10px] bg-surface-hover text-content-secondary">
               {t.count}
             </span>
           </button>
@@ -247,7 +247,7 @@ export function RBAC() {
                     <div
                       key={role.id}
                       onClick={() => setSelectedRole(role)}
-                      className="rounded-xl border border-oxide-800 bg-oxide-900/50 p-5 hover:border-oxide-600 transition-colors cursor-pointer"
+                      className="rounded-xl border border-border bg-surface-secondary p-5 hover:border-border-strong transition-colors cursor-pointer"
                     >
                       <div className="flex items-center justify-between mb-3">
                         <span
@@ -256,13 +256,13 @@ export function RBAC() {
                           {role.name}
                         </span>
                         {sysRoles.includes(role.name) && (
-                          <span className="text-[10px] text-gray-500 uppercase tracking-wider">
+                          <span className="text-[10px] text-content-tertiary uppercase tracking-wider">
                             System
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-gray-400 mb-4 line-clamp-2">{role.description}</p>
-                      <div className="flex items-center justify-between text-xs text-gray-500">
+                      <p className="text-xs text-content-secondary mb-4 line-clamp-2">{role.description}</p>
+                      <div className="flex items-center justify-between text-xs text-content-tertiary">
                         <span>{role.permission_count} permissions</span>
                         <span>{role.user_count} users</span>
                       </div>
@@ -278,12 +278,12 @@ export function RBAC() {
             <div>
               <button
                 onClick={() => setSelectedRole(null)}
-                className="text-sm text-gray-400 hover:text-white mb-4 flex items-center gap-1"
+                className="text-sm text-content-secondary hover:text-content-primary mb-4 flex items-center gap-1"
               >
                 ← Back to Roles
               </button>
 
-              <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 p-5 mb-6">
+              <div className="rounded-xl border border-border bg-surface-secondary p-5 mb-6">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <span
@@ -292,56 +292,56 @@ export function RBAC() {
                       {selectedRole.name}
                     </span>
                     {sysRoles.includes(selectedRole.name) && (
-                      <span className="text-xs text-gray-500 uppercase">System Role</span>
+                      <span className="text-xs text-content-tertiary uppercase">System Role</span>
                     )}
                   </div>
                   {!sysRoles.includes(selectedRole.name) && (
                     <button
                       onClick={() => handleDeleteRole(selectedRole.id)}
-                      className="px-3 py-1 rounded text-xs text-gray-400 hover:text-red-400 hover:bg-red-500/10"
+                      className="px-3 py-1 rounded text-xs text-content-secondary hover:text-red-400 hover:bg-red-500/10"
                     >
                       Delete Role
                     </button>
                   )}
                 </div>
-                <p className="text-sm text-gray-400 mb-4">{selectedRole.description}</p>
-                <div className="flex gap-4 text-xs text-gray-500">
+                <p className="text-sm text-content-secondary mb-4">{selectedRole.description}</p>
+                <div className="flex gap-4 text-xs text-content-tertiary">
                   <span>{selectedRole.permission_count} permissions</span>
                   <span>{selectedRole.user_count} users</span>
                 </div>
               </div>
 
               {/* Permissions on this role */}
-              <h3 className="text-sm font-medium text-gray-300 mb-3">Assigned Permissions</h3>
+              <h3 className="text-sm font-medium text-content-secondary mb-3">Assigned Permissions</h3>
               {selectedRole.permissions?.length > 0 ? (
-                <div className="rounded-xl border border-oxide-800 overflow-hidden">
+                <div className="rounded-xl border border-border overflow-hidden">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-oxide-900/80 text-gray-400 text-xs uppercase tracking-wider">
+                      <tr className="bg-surface-secondary text-content-secondary text-xs uppercase tracking-wider">
                         <th className="px-4 py-2.5 text-left">Permission</th>
                         <th className="px-4 py-2.5 text-left">Resource</th>
                         <th className="px-4 py-2.5 text-left">Action</th>
                         <th className="px-4 py-2.5 text-left">Description</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-oxide-800/50">
+                    <tbody className="divide-y divide-border/50">
                       {selectedRole.permissions.map((p) => (
-                        <tr key={p.id} className="hover:bg-oxide-800/30 transition-colors">
-                          <td className="px-4 py-2 font-mono text-xs text-white">{p.name}</td>
+                        <tr key={p.id} className="hover:bg-surface-tertiary transition-colors">
+                          <td className="px-4 py-2 font-mono text-xs text-content-primary">{p.name}</td>
                           <td
                             className={`px-4 py-2 text-xs font-medium ${resourceColor(p.resource)}`}
                           >
                             {p.resource}
                           </td>
-                          <td className="px-4 py-2 text-xs text-gray-300">{p.action}</td>
-                          <td className="px-4 py-2 text-xs text-gray-500">{p.description}</td>
+                          <td className="px-4 py-2 text-xs text-content-secondary">{p.action}</td>
+                          <td className="px-4 py-2 text-xs text-content-tertiary">{p.description}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
               ) : (
-                <p className="text-sm text-gray-500">No permissions assigned</p>
+                <p className="text-sm text-content-tertiary">No permissions assigned</p>
               )}
             </div>
           )}
@@ -358,29 +358,29 @@ export function RBAC() {
                     .map(([resource, perms]) => (
                       <div
                         key={resource}
-                        className="rounded-xl border border-oxide-800 overflow-hidden"
+                        className="rounded-xl border border-border overflow-hidden"
                       >
-                        <div className="bg-oxide-900/80 px-4 py-2.5 flex items-center justify-between">
+                        <div className="bg-surface-secondary px-4 py-2.5 flex items-center justify-between">
                           <span className={`text-sm font-medium ${resourceColor(resource)}`}>
                             {resource.replace(/_/g, ' ')}
                           </span>
-                          <span className="text-[10px] text-gray-500">
+                          <span className="text-[10px] text-content-tertiary">
                             {perms.length} permissions
                           </span>
                         </div>
-                        <div className="divide-y divide-oxide-800/50">
+                        <div className="divide-y divide-border/50">
                           {perms.map((p) => (
                             <div
                               key={p.id}
-                              className="px-4 py-2 flex items-center justify-between hover:bg-oxide-800/20"
+                              className="px-4 py-2 flex items-center justify-between hover:bg-surface-tertiary/20"
                             >
                               <div className="flex items-center gap-3">
-                                <span className="font-mono text-xs text-white w-40">{p.name}</span>
-                                <span className="px-2 py-0.5 rounded bg-oxide-700 text-xs text-gray-300">
+                                <span className="font-mono text-xs text-content-primary w-40">{p.name}</span>
+                                <span className="px-2 py-0.5 rounded bg-surface-hover text-xs text-content-secondary">
                                   {p.action}
                                 </span>
                               </div>
-                              <span className="text-xs text-gray-500">{p.description}</span>
+                              <span className="text-xs text-content-tertiary">{p.description}</span>
                             </div>
                           ))}
                         </div>
@@ -397,10 +397,10 @@ export function RBAC() {
               {users.length === 0 ? (
                 <EmptyState title="No users" />
               ) : (
-                <div className="rounded-xl border border-oxide-800 overflow-hidden">
+                <div className="rounded-xl border border-border overflow-hidden">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-oxide-900/80 text-gray-400 text-xs uppercase tracking-wider">
+                      <tr className="bg-surface-secondary text-content-secondary text-xs uppercase tracking-wider">
                         <th className="px-4 py-3 text-left">User</th>
                         <th className="px-4 py-3 text-left">Email</th>
                         <th className="px-4 py-3 text-left">Roles</th>
@@ -408,11 +408,11 @@ export function RBAC() {
                         <th className="px-4 py-3 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-oxide-800/50">
+                    <tbody className="divide-y divide-border/50">
                       {users.map((u) => (
-                        <tr key={u.id} className="hover:bg-oxide-800/30 transition-colors">
-                          <td className="px-4 py-3 font-medium text-white">{u.username}</td>
-                          <td className="px-4 py-3 text-gray-400 text-xs">{u.email}</td>
+                        <tr key={u.id} className="hover:bg-surface-tertiary transition-colors">
+                          <td className="px-4 py-3 font-medium text-content-primary">{u.username}</td>
+                          <td className="px-4 py-3 text-content-secondary text-xs">{u.email}</td>
                           <td className="px-4 py-3">
                             <div className="flex flex-wrap gap-1">
                               {u.roles?.length > 0 ? (
@@ -432,7 +432,7 @@ export function RBAC() {
                                   </span>
                                 ))
                               ) : (
-                                <span className="text-xs text-gray-600">No roles</span>
+                                <span className="text-xs text-content-tertiary">No roles</span>
                               )}
                             </div>
                           </td>
@@ -449,7 +449,7 @@ export function RBAC() {
                                 setAssignUserId(u.id)
                                 setShowAssign(true)
                               }}
-                              className="px-2 py-1 rounded text-xs text-blue-400 hover:bg-blue-500/10"
+                              className="px-2 py-1 rounded text-xs text-accent hover:bg-blue-500/10"
                             >
                               + Assign
                             </button>
@@ -488,7 +488,7 @@ export function RBAC() {
               />
             </Field>
             <Field label="Permissions">
-              <div className="max-h-60 overflow-y-auto border border-oxide-700 rounded-lg p-2 space-y-2">
+              <div className="max-h-60 overflow-y-auto border border-border rounded-lg p-2 space-y-2">
                 {Object.entries(permGroups)
                   .sort(([a], [b]) => a.localeCompare(b))
                   .map(([resource, perms]) => (
@@ -500,7 +500,7 @@ export function RBAC() {
                         {perms.map((p) => (
                           <label
                             key={p.id}
-                            className={`flex items-center gap-1 px-2 py-0.5 rounded text-xs cursor-pointer transition-colors ${selectedPerms.includes(p.id) ? 'bg-blue-600/30 text-blue-300 border border-blue-500/30' : 'bg-oxide-800 text-gray-400 border border-oxide-700 hover:border-oxide-600'}`}
+                            className={`flex items-center gap-1 px-2 py-0.5 rounded text-xs cursor-pointer transition-colors ${selectedPerms.includes(p.id) ? 'bg-blue-600/30 text-blue-300 border border-blue-500/30' : 'bg-surface-tertiary text-content-secondary border border-border hover:border-border-strong'}`}
                           >
                             <input
                               type="checkbox"
@@ -521,19 +521,19 @@ export function RBAC() {
                     </div>
                   ))}
               </div>
-              <div className="text-xs text-gray-500 mt-1">{selectedPerms.length} selected</div>
+              <div className="text-xs text-content-tertiary mt-1">{selectedPerms.length} selected</div>
             </Field>
             <div className="flex justify-end gap-2 pt-2">
               <button
                 onClick={() => setShowCreateRole(false)}
-                className="px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-oxide-800"
+                className="px-4 py-2 rounded-lg text-sm text-content-secondary hover:text-content-primary hover:bg-surface-tertiary"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreateRole}
                 disabled={!roleName}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium disabled:opacity-50"
+                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium disabled:opacity-50"
               >
                 Create Role
               </button>
@@ -583,14 +583,14 @@ export function RBAC() {
             <div className="flex justify-end gap-2 pt-2">
               <button
                 onClick={() => setShowAssign(false)}
-                className="px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-oxide-800"
+                className="px-4 py-2 rounded-lg text-sm text-content-secondary hover:text-content-primary hover:bg-surface-tertiary"
               >
                 Cancel
               </button>
               <button
                 onClick={handleAssignRole}
                 disabled={!assignUserId || !assignRoleId}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium disabled:opacity-50"
+                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium disabled:opacity-50"
               >
                 Assign Role
               </button>
@@ -617,12 +617,12 @@ function Modal({
       onClick={onClose}
     >
       <div
-        className="bg-oxide-900 border border-oxide-700 rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-6 max-h-[85vh] overflow-y-auto"
+        className="bg-surface-secondary border border-border rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-6 max-h-[85vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-semibold text-white">{title}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white text-xl leading-none">
+          <h2 className="text-lg font-semibold text-content-primary">{title}</h2>
+          <button onClick={onClose} className="text-content-secondary hover:text-content-primary text-xl leading-none">
             ×
           </button>
         </div>
@@ -643,7 +643,7 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-300 mb-1.5">
+      <label className="block text-sm font-medium text-content-secondary mb-1.5">
         {label} {required && <span className="text-red-400">*</span>}
       </label>
       {children}

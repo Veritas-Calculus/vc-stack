@@ -76,15 +76,15 @@ export function AutoScale() {
 
   const stateColor = (s: string) => {
     if (s === 'enabled') return 'bg-emerald-500/15 text-emerald-400'
-    if (s === 'scaling') return 'bg-blue-500/15 text-blue-400'
-    return 'bg-gray-500/15 text-gray-400'
+    if (s === 'scaling') return 'bg-blue-500/15 text-accent'
+    return 'bg-gray-500/15 text-content-secondary'
   }
 
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white">Auto Scale</h1>
-        <p className="text-sm text-gray-400 mt-1">
+        <h1 className="text-2xl font-bold text-content-primary">Auto Scale</h1>
+        <p className="text-sm text-content-secondary mt-1">
           VM group auto-scaling management — {groups.length} groups
         </p>
       </div>
@@ -106,40 +106,40 @@ export function AutoScale() {
               <div
                 key={g.id}
                 onClick={() => loadPolicies(g)}
-                className={`rounded-xl border bg-oxide-900/50 overflow-hidden cursor-pointer transition-colors ${selectedGroup?.id === g.id ? 'border-blue-500/50 ring-1 ring-blue-500/30' : 'border-oxide-800 hover:border-oxide-700'}`}
+                className={`rounded-xl border bg-surface-secondary overflow-hidden cursor-pointer transition-colors ${selectedGroup?.id === g.id ? 'border-blue-500/50 ring-1 ring-blue-500/30' : 'border-border hover:border-border'}`}
               >
                 <div className="px-4 py-3 flex items-center justify-between">
                   <div>
-                    <div className="text-sm font-medium text-white">{g.name}</div>
-                    <div className="text-xs text-gray-500">Flavor #{g.flavor_id}</div>
+                    <div className="text-sm font-medium text-content-primary">{g.name}</div>
+                    <div className="text-xs text-content-tertiary">Flavor #{g.flavor_id}</div>
                   </div>
                   <span className={`px-2 py-0.5 rounded text-xs ${stateColor(g.state)}`}>
                     {g.state}
                   </span>
                 </div>
-                <div className="px-4 py-3 border-t border-oxide-800/50 grid grid-cols-3 gap-3 text-center text-xs">
+                <div className="px-4 py-3 border-t border-border/50 grid grid-cols-3 gap-3 text-center text-xs">
                   <div>
-                    <div className="text-gray-500">Current</div>
-                    <div className="text-lg font-bold text-white">{g.current}</div>
+                    <div className="text-content-tertiary">Current</div>
+                    <div className="text-lg font-bold text-content-primary">{g.current}</div>
                   </div>
                   <div>
-                    <div className="text-gray-500">Min / Max</div>
-                    <div className="text-lg font-bold text-gray-400">
+                    <div className="text-content-tertiary">Min / Max</div>
+                    <div className="text-lg font-bold text-content-secondary">
                       {g.min_instances} / {g.max_instances}
                     </div>
                   </div>
                   <div>
-                    <div className="text-gray-500">Cooldown</div>
-                    <div className="text-lg font-bold text-gray-400">{g.cooldown_sec}s</div>
+                    <div className="text-content-tertiary">Cooldown</div>
+                    <div className="text-lg font-bold text-content-secondary">{g.cooldown_sec}s</div>
                   </div>
                 </div>
-                <div className="px-4 py-2 border-t border-oxide-800/50 flex justify-end">
+                <div className="px-4 py-2 border-t border-border/50 flex justify-end">
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
                       handleDelete(g.id)
                     }}
-                    className="px-2 py-1 rounded text-xs text-gray-400 hover:text-red-400 hover:bg-red-500/10"
+                    className="px-2 py-1 rounded text-xs text-content-secondary hover:text-red-400 hover:bg-red-500/10"
                   >
                     Delete
                   </button>
@@ -151,40 +151,40 @@ export function AutoScale() {
           {/* Policy detail panel */}
           <div className="w-1/2">
             {selectedGroup ? (
-              <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 overflow-hidden">
-                <div className="px-5 py-4 border-b border-oxide-800">
-                  <h3 className="text-sm font-semibold text-white">
+              <div className="rounded-xl border border-border bg-surface-secondary overflow-hidden">
+                <div className="px-5 py-4 border-b border-border">
+                  <h3 className="text-sm font-semibold text-content-primary">
                     Policies for {selectedGroup.name}
                   </h3>
-                  <p className="text-xs text-gray-500 mt-0.5">
+                  <p className="text-xs text-content-tertiary mt-0.5">
                     {policies.length} policies configured
                   </p>
                 </div>
                 {policies.length === 0 ? (
-                  <div className="p-8 text-center text-gray-500 text-sm">
+                  <div className="p-8 text-center text-content-tertiary text-sm">
                     No scaling policies defined
                   </div>
                 ) : (
-                  <div className="divide-y divide-oxide-800/50">
+                  <div className="divide-y divide-border/50">
                     {policies.map((p) => (
-                      <div key={p.id} className="px-5 py-3 hover:bg-oxide-800/20">
+                      <div key={p.id} className="px-5 py-3 hover:bg-surface-tertiary/20">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm text-white font-medium">{p.name}</span>
+                          <span className="text-sm text-content-primary font-medium">{p.name}</span>
                           <span
                             className={`px-2 py-0.5 rounded text-xs ${p.action === 'scale_up' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-amber-500/15 text-amber-400'}`}
                           >
                             {p.action === 'scale_up' ? '↑ Scale Up' : '↓ Scale Down'}
                           </span>
                         </div>
-                        <div className="text-xs text-gray-400">
+                        <div className="text-xs text-content-secondary">
                           When{' '}
-                          <span className="text-gray-300 font-mono">
+                          <span className="text-content-secondary font-mono">
                             {p.metric.replace(/_/g, ' ')}
                           </span>{' '}
-                          <span className="text-gray-300">{p.operator}</span>{' '}
-                          <span className="text-white font-semibold">{p.threshold}%</span> for{' '}
-                          <span className="text-gray-300">{p.duration}s</span> &rarr; adjust by{' '}
-                          <span className="text-white font-semibold">{p.adjust_by}</span>
+                          <span className="text-content-secondary">{p.operator}</span>{' '}
+                          <span className="text-content-primary font-semibold">{p.threshold}%</span> for{' '}
+                          <span className="text-content-secondary">{p.duration}s</span> &rarr; adjust by{' '}
+                          <span className="text-content-primary font-semibold">{p.adjust_by}</span>
                         </div>
                       </div>
                     ))}
@@ -192,7 +192,7 @@ export function AutoScale() {
                 )}
               </div>
             ) : (
-              <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 p-8 text-center text-gray-500 text-sm">
+              <div className="rounded-xl border border-border bg-surface-secondary p-8 text-center text-content-tertiary text-sm">
                 Select a group to view policies
               </div>
             )}

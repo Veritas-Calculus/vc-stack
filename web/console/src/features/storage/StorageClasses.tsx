@@ -112,8 +112,8 @@ export default function StorageClasses() {
       header: 'Name',
       render: (r) => (
         <div>
-          <span className="font-medium text-gray-200">{r.name}</span>
-          {r.display_text && <p className="text-xs text-gray-500 mt-0.5">{r.display_text}</p>}
+          <span className="font-medium text-content-primary">{r.name}</span>
+          {r.display_text && <p className="text-xs text-content-tertiary mt-0.5">{r.display_text}</p>}
         </div>
       )
     },
@@ -126,7 +126,7 @@ export default function StorageClasses() {
       key: 'disk_size_gb',
       header: 'Size',
       render: (r) =>
-        r.is_custom ? <span className="text-gray-400 text-xs">Custom</span> : `${r.disk_size_gb} GB`
+        r.is_custom ? <span className="text-content-secondary text-xs">Custom</span> : `${r.disk_size_gb} GB`
     },
     {
       key: 'max_iops',
@@ -138,7 +138,7 @@ export default function StorageClasses() {
             {r.max_iops}
           </span>
         ) : (
-          <span className="text-gray-500">-</span>
+          <span className="text-content-tertiary">-</span>
         )
     },
     {
@@ -251,7 +251,7 @@ export default function StorageClasses() {
               checked={isCustom}
               onChange={(e) => setIsCustom(e.target.checked)}
             />
-            <label htmlFor="is_custom" className="text-sm text-gray-300">
+            <label htmlFor="is_custom" className="text-sm text-content-secondary">
               Allow custom size
             </label>
           </div>

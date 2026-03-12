@@ -59,7 +59,7 @@ export function ContainerRegistry() {
       header: 'Repository',
       render: (r) => (
         <button
-          className="text-blue-400 hover:underline font-medium"
+          className="text-accent hover:underline font-medium"
           onClick={() => openDetail(r.id)}
         >
           {r.name}
@@ -190,7 +190,7 @@ export function ContainerRegistry() {
             {detailRepo.tags.map((tag) => (
               <div key={tag.id} className="flex items-center justify-between px-5 py-2">
                 <div>
-                  <code className="text-sm text-blue-400">{tag.tag}</code>
+                  <code className="text-sm text-accent">{tag.tag}</code>
                   <span className="ml-2 text-xs text-zinc-500">{tag.architecture}</span>
                 </div>
                 <div className="text-right">

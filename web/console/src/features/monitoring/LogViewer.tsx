@@ -32,7 +32,7 @@ export function LogViewer() {
   const levelColor = (l: string) => {
     const colors: Record<string, string> = {
       debug: 'text-zinc-500',
-      info: 'text-blue-400',
+      info: 'text-accent',
       warn: 'text-amber-400',
       error: 'text-red-400',
       fatal: 'text-red-500 font-bold'
@@ -104,7 +104,7 @@ export function LogViewer() {
           </span>
           <div className="flex gap-2">
             <button
-              className="text-xs text-zinc-400 hover:text-white disabled:opacity-30"
+              className="text-xs text-zinc-400 hover:text-content-primary disabled:opacity-30"
               disabled={(filters.offset ?? 0) === 0}
               onClick={() =>
                 setFilters((f) => ({
@@ -116,7 +116,7 @@ export function LogViewer() {
               Prev
             </button>
             <button
-              className="text-xs text-zinc-400 hover:text-white disabled:opacity-30"
+              className="text-xs text-zinc-400 hover:text-content-primary disabled:opacity-30"
               disabled={(filters.offset ?? 0) + (filters.limit ?? 100) >= total}
               onClick={() =>
                 setFilters((f) => ({ ...f, offset: (f.offset ?? 0) + (f.limit ?? 100) }))

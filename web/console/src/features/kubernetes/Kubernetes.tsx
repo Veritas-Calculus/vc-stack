@@ -167,14 +167,14 @@ export function Kubernetes() {
       active: 'bg-emerald-500/20 text-emerald-400',
       ready: 'bg-emerald-500/20 text-emerald-400',
       established: 'bg-emerald-500/20 text-emerald-400',
-      provisioning: 'bg-blue-500/20 text-blue-400',
-      upgrading: 'bg-blue-500/20 text-blue-400',
+      provisioning: 'bg-blue-500/20 text-accent',
+      upgrading: 'bg-blue-500/20 text-accent',
       pending: 'bg-amber-500/20 text-amber-400',
       draining: 'bg-amber-500/20 text-amber-400',
       error: 'bg-red-500/20 text-red-400',
       'not-ready': 'bg-red-500/20 text-red-400'
     }
-    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-gray-400'}`
+    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-content-secondary'}`
   }
 
   const roleBadge = (r: string) => {
@@ -182,14 +182,14 @@ export function Kubernetes() {
       'control-plane': 'bg-purple-500/20 text-purple-400',
       worker: 'bg-cyan-500/20 text-cyan-400'
     }
-    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[r] || 'bg-gray-500/20 text-gray-400'}`
+    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[r] || 'bg-gray-500/20 text-content-secondary'}`
   }
 
   if (loading && !status)
     return (
       <div className="p-8">
-        <h1 className="text-2xl font-bold text-white mb-2">Kubernetes</h1>
-        <p className="text-gray-400">Loading...</p>
+        <h1 className="text-2xl font-bold text-content-primary mb-2">Kubernetes</h1>
+        <p className="text-content-secondary">Loading...</p>
       </div>
     )
 
@@ -197,8 +197,8 @@ export function Kubernetes() {
     <div className="p-8 max-w-[1400px] mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Container as a Service</h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-content-primary">Container as a Service</h1>
+          <p className="text-content-secondary text-sm mt-1">
             Managed Kubernetes with Calico CNI + OVN/OVS networking
           </p>
         </div>
@@ -218,7 +218,7 @@ export function Kubernetes() {
               label: 'Clusters',
               value: String(status.clusters),
               icon: Icons.kubernetes('w-5 h-5'),
-              color: 'text-blue-400'
+              color: 'text-accent'
             },
             {
               label: 'Total Nodes',
@@ -239,8 +239,8 @@ export function Kubernetes() {
               color: 'text-purple-400'
             }
           ].map((s) => (
-            <div key={s.label} className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5">
-              <div className="flex items-center gap-2 text-gray-400 text-sm mb-2">
+            <div key={s.label} className="bg-surface-tertiary border border-border rounded-xl p-5">
+              <div className="flex items-center gap-2 text-content-secondary text-sm mb-2">
                 <span>{s.icon}</span> {s.label}
               </div>
               <div className={`text-3xl font-bold ${s.color}`}>{s.value}</div>
@@ -256,7 +256,7 @@ export function Kubernetes() {
             setTab('clusters')
             fetchClusters()
           }}
-          className="mb-4 text-sm text-gray-400 hover:text-white transition flex items-center gap-1"
+          className="mb-4 text-sm text-content-secondary hover:text-content-primary transition flex items-center gap-1"
         >
           ← Back to Clusters
         </button>
@@ -268,16 +268,16 @@ export function Kubernetes() {
           <div className="flex justify-end">
             <button
               onClick={() => setShowCreate(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-500 transition"
+              className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition"
             >
               + Create Cluster
             </button>
           </div>
           {clusters.length === 0 ? (
-            <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl text-center py-16">
-              <div className="mb-4 text-blue-400">{Icons.kubernetes('w-12 h-12')}</div>
-              <p className="text-gray-400 text-lg">No Kubernetes clusters</p>
-              <p className="text-gray-500 text-sm mt-1">
+            <div className="bg-surface-tertiary border border-border rounded-xl text-center py-16">
+              <div className="mb-4 text-accent">{Icons.kubernetes('w-12 h-12')}</div>
+              <p className="text-content-secondary text-lg">No Kubernetes clusters</p>
+              <p className="text-content-tertiary text-sm mt-1">
                 Create a managed cluster with Calico networking
               </p>
             </div>
@@ -287,25 +287,25 @@ export function Kubernetes() {
                 <div
                   key={c.id}
                   onClick={() => openCluster(c)}
-                  className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5 cursor-pointer hover:border-blue-500/40 transition group"
+                  className="bg-surface-tertiary border border-border rounded-xl p-5 cursor-pointer hover:border-blue-500/40 transition group"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">
+                      <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center text-accent">
                         {Icons.kubernetes('w-7 h-7')}
                       </div>
                       <div>
-                        <div className="text-white font-semibold text-lg group-hover:text-blue-400 transition">
+                        <div className="text-content-primary font-semibold text-lg group-hover:text-accent transition">
                           {c.name}
                         </div>
-                        <div className="text-gray-500 text-xs mt-0.5">
+                        <div className="text-content-tertiary text-xs mt-0.5">
                           Kubernetes {c.kubernetes_version} • {c.cni_provider} {c.cni_version} •{' '}
                           {c.calico_mode} mode
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
-                      <div className="text-right text-xs text-gray-400">
+                      <div className="text-right text-xs text-content-secondary">
                         <div>
                           {c.control_plane_count} CP + {c.worker_count} Workers
                         </div>
@@ -337,7 +337,7 @@ export function Kubernetes() {
                     </div>
                   </div>
                   {c.api_endpoint && (
-                    <div className="mt-3 pt-3 border-t border-gray-700/30 flex items-center gap-6 text-xs text-gray-400">
+                    <div className="mt-3 pt-3 border-t border-border flex items-center gap-6 text-xs text-content-secondary">
                       <span className="inline-flex items-center gap-1">
                         {Icons.antenna('w-3 h-3')} {c.api_endpoint}
                       </span>
@@ -362,14 +362,14 @@ export function Kubernetes() {
       {/* Cluster Detail */}
       {tab === 'detail' && selectedCluster && (
         <div className="space-y-6">
-          <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-6">
+          <div className="bg-surface-tertiary border border-border rounded-xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  {Icons.kubernetes('w-6 h-6 text-blue-400')} {selectedCluster.name}{' '}
+                <h2 className="text-xl font-bold text-content-primary flex items-center gap-2">
+                  {Icons.kubernetes('w-6 h-6 text-accent')} {selectedCluster.name}{' '}
                   <span className={badge(selectedCluster.status)}>{selectedCluster.status}</span>
                 </h2>
-                <p className="text-gray-400 text-sm mt-1">
+                <p className="text-content-secondary text-sm mt-1">
                   K8s {selectedCluster.kubernetes_version} • {selectedCluster.cni_provider}{' '}
                   {selectedCluster.cni_version} ({selectedCluster.calico_mode})
                 </p>
@@ -379,7 +379,7 @@ export function Kubernetes() {
                   setTab('networking')
                   fetchClusterDetail(selectedCluster.id)
                 }}
-                className="px-3 py-1.5 bg-gray-700 text-gray-300 rounded-lg text-sm hover:bg-gray-600 transition flex items-center gap-1.5"
+                className="px-3 py-1.5 bg-surface-hover text-content-secondary rounded-lg text-sm hover:bg-gray-600 transition flex items-center gap-1.5"
               >
                 {Icons.globe('w-4 h-4')} Networking
               </button>
@@ -394,24 +394,24 @@ export function Kubernetes() {
                   v: `${selectedCluster.cluster_dns} (${selectedCluster.dns_domain})`
                 }
               ].map((i) => (
-                <div key={i.l} className="bg-gray-700/30 rounded-lg p-3">
-                  <div className="text-gray-500 text-xs mb-1">{i.l}</div>
-                  <div className="text-white font-mono text-xs">{i.v || '—'}</div>
+                <div key={i.l} className="bg-surface-hover rounded-lg p-3">
+                  <div className="text-content-tertiary text-xs mb-1">{i.l}</div>
+                  <div className="text-content-primary font-mono text-xs">{i.v || '—'}</div>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Nodes table */}
-          <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl overflow-hidden">
-            <div className="px-5 py-3 border-b border-gray-700/30 flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+          <div className="bg-surface-tertiary border border-border rounded-xl overflow-hidden">
+            <div className="px-5 py-3 border-b border-border flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider">
                 Nodes ({nodes.length})
               </h3>
             </div>
             <table className="w-full text-sm">
-              <thead className="bg-gray-700/30">
-                <tr className="text-left text-gray-400 text-xs uppercase">
+              <thead className="bg-surface-hover">
+                <tr className="text-left text-content-secondary text-xs uppercase">
                   <th className="px-4 py-3">Name</th>
                   <th className="px-4 py-3">Role</th>
                   <th className="px-4 py-3">IP</th>
@@ -425,16 +425,16 @@ export function Kubernetes() {
                 {nodes.map((n) => (
                   <tr
                     key={n.id}
-                    className="border-t border-gray-700/30 hover:bg-gray-700/20 transition"
+                    className="border-t border-border hover:bg-surface-hover transition"
                   >
-                    <td className="px-4 py-3 text-white font-medium">{n.name}</td>
+                    <td className="px-4 py-3 text-content-primary font-medium">{n.name}</td>
                     <td className="px-4 py-3">
                       <span className={roleBadge(n.role)}>{n.role}</span>
                     </td>
-                    <td className="px-4 py-3 text-gray-300 font-mono text-xs">{n.ip_address}</td>
-                    <td className="px-4 py-3 text-gray-400 font-mono text-xs">{n.pod_cidr}</td>
-                    <td className="px-4 py-3 text-gray-300 text-xs">{n.flavor_name}</td>
-                    <td className="px-4 py-3 text-gray-300 text-xs">v{n.k8s_version}</td>
+                    <td className="px-4 py-3 text-content-secondary font-mono text-xs">{n.ip_address}</td>
+                    <td className="px-4 py-3 text-content-secondary font-mono text-xs">{n.pod_cidr}</td>
+                    <td className="px-4 py-3 text-content-secondary text-xs">{n.flavor_name}</td>
+                    <td className="px-4 py-3 text-content-secondary text-xs">v{n.k8s_version}</td>
                     <td className="px-4 py-3">
                       <span className={badge(n.status)}>{n.status}</span>
                     </td>
@@ -445,26 +445,26 @@ export function Kubernetes() {
           </div>
 
           {/* LoadBalancers */}
-          <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl overflow-hidden">
-            <div className="px-5 py-3 border-b border-gray-700/30 flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+          <div className="bg-surface-tertiary border border-border rounded-xl overflow-hidden">
+            <div className="px-5 py-3 border-b border-border flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider">
                 LoadBalancers ({lbs.length})
               </h3>
               <button
                 onClick={() => setShowCreateLB(true)}
-                className="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-500 transition"
+                className="px-3 py-1 bg-blue-600 text-content-primary rounded text-xs hover:bg-blue-500 transition"
               >
                 + Create LB
               </button>
             </div>
             {lbs.length === 0 ? (
-              <div className="text-center py-8 text-gray-500 text-sm">
+              <div className="text-center py-8 text-content-tertiary text-sm">
                 No LoadBalancer services. Expose K8s services via OVN Floating IP.
               </div>
             ) : (
               <table className="w-full text-sm">
-                <thead className="bg-gray-700/30">
-                  <tr className="text-left text-gray-400 text-xs uppercase">
+                <thead className="bg-surface-hover">
+                  <tr className="text-left text-content-secondary text-xs uppercase">
                     <th className="px-4 py-3">Service</th>
                     <th className="px-4 py-3">External IP</th>
                     <th className="px-4 py-3">Port</th>
@@ -479,21 +479,21 @@ export function Kubernetes() {
                   {lbs.map((lb) => (
                     <tr
                       key={lb.id}
-                      className="border-t border-gray-700/30 hover:bg-gray-700/20 transition"
+                      className="border-t border-border hover:bg-surface-hover transition"
                     >
                       <td className="px-4 py-3">
-                        <div className="text-white font-medium">{lb.service_name}</div>
-                        <div className="text-gray-500 text-xs">{lb.namespace}</div>
+                        <div className="text-content-primary font-medium">{lb.service_name}</div>
+                        <div className="text-content-tertiary text-xs">{lb.namespace}</div>
                       </td>
                       <td className="px-4 py-3 text-emerald-400 font-mono text-xs">
                         {lb.external_ip}
                       </td>
-                      <td className="px-4 py-3 text-gray-300">
+                      <td className="px-4 py-3 text-content-secondary">
                         {lb.protocol}/{lb.external_port}
                       </td>
-                      <td className="px-4 py-3 text-gray-400 text-xs">{lb.node_port}</td>
-                      <td className="px-4 py-3 text-gray-300 text-xs">{lb.algorithm}</td>
-                      <td className="px-4 py-3 text-gray-400 font-mono text-xs">
+                      <td className="px-4 py-3 text-content-secondary text-xs">{lb.node_port}</td>
+                      <td className="px-4 py-3 text-content-secondary text-xs">{lb.algorithm}</td>
+                      <td className="px-4 py-3 text-content-secondary font-mono text-xs">
                         {lb.ovn_lb_name}
                       </td>
                       <td className="px-4 py-3">
@@ -522,53 +522,53 @@ export function Kubernetes() {
           <div className="flex items-center gap-3 mb-2">
             <button
               onClick={() => setTab('detail')}
-              className="text-sm text-gray-400 hover:text-white transition"
+              className="text-sm text-content-secondary hover:text-content-primary transition"
             >
               ← Back to {selectedCluster.name}
             </button>
           </div>
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+          <h2 className="text-xl font-bold text-content-primary flex items-center gap-2">
             {Icons.globe('w-5 h-5')} Networking — {selectedCluster.name}
           </h2>
 
           {/* Network Architecture Diagram */}
-          <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-6">
-            <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">
+          <div className="bg-surface-tertiary border border-border rounded-xl p-6">
+            <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider mb-4">
               Network Architecture
             </h3>
             <div className="flex items-center justify-center gap-3 py-4 text-sm">
               <div className="text-center p-3 border border-blue-500/30 rounded-lg bg-blue-500/5 w-32">
-                <div className="text-lg mb-1 text-blue-400">{Icons.globe('w-5 h-5')}</div>
-                <div className="text-white font-medium text-xs">External</div>
-                <div className="text-gray-500 text-xs">Floating IP</div>
+                <div className="text-lg mb-1 text-accent">{Icons.globe('w-5 h-5')}</div>
+                <div className="text-content-primary font-medium text-xs">External</div>
+                <div className="text-content-tertiary text-xs">Floating IP</div>
               </div>
-              <span className="text-gray-500">&rarr;</span>
+              <span className="text-content-tertiary">&rarr;</span>
               <div className="text-center p-3 border border-purple-500/30 rounded-lg bg-purple-500/5 w-32">
                 <div className="text-lg mb-1 text-purple-400">{Icons.scaleBalance('w-5 h-5')}</div>
-                <div className="text-white font-medium text-xs">OVN LB</div>
-                <div className="text-gray-500 text-xs">L4 Load Balancer</div>
+                <div className="text-content-primary font-medium text-xs">OVN LB</div>
+                <div className="text-content-tertiary text-xs">L4 Load Balancer</div>
               </div>
-              <span className="text-gray-500">&rarr;</span>
+              <span className="text-content-tertiary">&rarr;</span>
               <div className="text-center p-3 border border-cyan-500/30 rounded-lg bg-cyan-500/5 w-32">
                 <div className="text-lg mb-1 text-cyan-400">{Icons.desktopComputer('w-5 h-5')}</div>
-                <div className="text-white font-medium text-xs">NodePort</div>
-                <div className="text-gray-500 text-xs">kube-proxy</div>
+                <div className="text-content-primary font-medium text-xs">NodePort</div>
+                <div className="text-content-tertiary text-xs">kube-proxy</div>
               </div>
-              <span className="text-gray-500">&rarr;</span>
+              <span className="text-content-tertiary">&rarr;</span>
               <div className="text-center p-3 border border-emerald-500/30 rounded-lg bg-emerald-500/5 w-32">
                 <div className="text-lg mb-1 text-emerald-400">{Icons.network('w-5 h-5')}</div>
-                <div className="text-white font-medium text-xs">Calico CNI</div>
-                <div className="text-gray-500 text-xs">{selectedCluster.calico_mode}</div>
+                <div className="text-content-primary font-medium text-xs">Calico CNI</div>
+                <div className="text-content-tertiary text-xs">{selectedCluster.calico_mode}</div>
               </div>
-              <span className="text-gray-500">&rarr;</span>
+              <span className="text-content-tertiary">&rarr;</span>
               <div className="text-center p-3 border border-amber-500/30 rounded-lg bg-amber-500/5 w-32">
                 <div className="text-lg mb-1 text-amber-400">{Icons.cube('w-5 h-5')}</div>
-                <div className="text-white font-medium text-xs">Pod</div>
-                <div className="text-gray-500 text-xs">{selectedCluster.pod_cidr}</div>
+                <div className="text-content-primary font-medium text-xs">Pod</div>
+                <div className="text-content-tertiary text-xs">{selectedCluster.pod_cidr}</div>
               </div>
             </div>
             {selectedCluster.bgp_enabled && (
-              <div className="mt-4 pt-4 border-t border-gray-700/30 text-center text-xs text-gray-400">
+              <div className="mt-4 pt-4 border-t border-border text-center text-xs text-content-secondary">
                 <span className="px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded">
                   BGP Peering Active
                 </span>
@@ -582,8 +582,8 @@ export function Kubernetes() {
 
           {/* CNI Config */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5">
-              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-3">
+            <div className="bg-surface-tertiary border border-border rounded-xl p-5">
+              <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider mb-3">
                 Calico CNI Configuration
               </h3>
               <div className="space-y-2 text-sm">
@@ -604,14 +604,14 @@ export function Kubernetes() {
                   }
                 ].map((i) => (
                   <div key={i.l} className="flex justify-between py-1">
-                    <span className="text-gray-400">{i.l}</span>
-                    <span className="text-white font-mono text-xs">{i.v}</span>
+                    <span className="text-content-secondary">{i.l}</span>
+                    <span className="text-content-primary font-mono text-xs">{i.v}</span>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5">
-              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-3">
+            <div className="bg-surface-tertiary border border-border rounded-xl p-5">
+              <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider mb-3">
                 Cluster Network
               </h3>
               <div className="space-y-2 text-sm">
@@ -624,8 +624,8 @@ export function Kubernetes() {
                   { l: 'LB Network', v: selectedCluster.lb_network_id || 'default external' }
                 ].map((i) => (
                   <div key={i.l} className="flex justify-between py-1">
-                    <span className="text-gray-400">{i.l}</span>
-                    <span className="text-white font-mono text-xs">{i.v}</span>
+                    <span className="text-content-secondary">{i.l}</span>
+                    <span className="text-content-primary font-mono text-xs">{i.v}</span>
                   </div>
                 ))}
               </div>
@@ -633,15 +633,15 @@ export function Kubernetes() {
           </div>
 
           {/* IP Pools */}
-          <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl overflow-hidden">
-            <div className="px-5 py-3 border-b border-gray-700/30">
-              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+          <div className="bg-surface-tertiary border border-border rounded-xl overflow-hidden">
+            <div className="px-5 py-3 border-b border-border">
+              <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider">
                 Calico IP Pools ({pools.length})
               </h3>
             </div>
             <table className="w-full text-sm">
-              <thead className="bg-gray-700/30">
-                <tr className="text-left text-gray-400 text-xs uppercase">
+              <thead className="bg-surface-hover">
+                <tr className="text-left text-content-secondary text-xs uppercase">
                   <th className="px-4 py-3">Name</th>
                   <th className="px-4 py-3">CIDR</th>
                   <th className="px-4 py-3">Encapsulation</th>
@@ -654,17 +654,17 @@ export function Kubernetes() {
                 {pools.map((p) => (
                   <tr
                     key={p.id}
-                    className="border-t border-gray-700/30 hover:bg-gray-700/20 transition"
+                    className="border-t border-border hover:bg-surface-hover transition"
                   >
-                    <td className="px-4 py-3 text-white font-medium">{p.name}</td>
-                    <td className="px-4 py-3 text-gray-300 font-mono text-xs">{p.cidr}</td>
-                    <td className="px-4 py-3 text-gray-300 text-xs">{p.encapsulation}</td>
-                    <td className="px-4 py-3 text-gray-300">/{p.block_size}</td>
+                    <td className="px-4 py-3 text-content-primary font-medium">{p.name}</td>
+                    <td className="px-4 py-3 text-content-secondary font-mono text-xs">{p.cidr}</td>
+                    <td className="px-4 py-3 text-content-secondary text-xs">{p.encapsulation}</td>
+                    <td className="px-4 py-3 text-content-secondary">/{p.block_size}</td>
                     <td className="px-4 py-3">
                       {p.nat_outgoing ? (
                         <span className="text-emerald-400 text-xs">enabled</span>
                       ) : (
-                        <span className="text-gray-500 text-xs">disabled</span>
+                        <span className="text-content-tertiary text-xs">disabled</span>
                       )}
                     </td>
                     <td className="px-4 py-3">
@@ -680,15 +680,15 @@ export function Kubernetes() {
 
           {/* BGP Peers */}
           {selectedCluster.bgp_enabled && (
-            <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl overflow-hidden">
-              <div className="px-5 py-3 border-b border-gray-700/30">
-                <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+            <div className="bg-surface-tertiary border border-border rounded-xl overflow-hidden">
+              <div className="px-5 py-3 border-b border-border">
+                <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider">
                   BGP Peers ({bgpPeers.length})
                 </h3>
               </div>
               <table className="w-full text-sm">
-                <thead className="bg-gray-700/30">
-                  <tr className="text-left text-gray-400 text-xs uppercase">
+                <thead className="bg-surface-hover">
+                  <tr className="text-left text-content-secondary text-xs uppercase">
                     <th className="px-4 py-3">Name</th>
                     <th className="px-4 py-3">Peer IP</th>
                     <th className="px-4 py-3">Peer ASN</th>
@@ -702,20 +702,20 @@ export function Kubernetes() {
                   {bgpPeers.map((p) => (
                     <tr
                       key={p.id}
-                      className="border-t border-gray-700/30 hover:bg-gray-700/20 transition"
+                      className="border-t border-border hover:bg-surface-hover transition"
                     >
-                      <td className="px-4 py-3 text-white font-medium">{p.name}</td>
-                      <td className="px-4 py-3 text-gray-300 font-mono text-xs">{p.peer_ip}</td>
-                      <td className="px-4 py-3 text-gray-300">AS {p.peer_asn}</td>
-                      <td className="px-4 py-3 text-gray-300">AS {p.node_asn}</td>
-                      <td className="px-4 py-3 text-gray-400 text-xs">
+                      <td className="px-4 py-3 text-content-primary font-medium">{p.name}</td>
+                      <td className="px-4 py-3 text-content-secondary font-mono text-xs">{p.peer_ip}</td>
+                      <td className="px-4 py-3 text-content-secondary">AS {p.peer_asn}</td>
+                      <td className="px-4 py-3 text-content-secondary">AS {p.node_asn}</td>
+                      <td className="px-4 py-3 text-content-secondary text-xs">
                         KA:{p.keep_alive}s HT:{p.hold_time}s
                       </td>
                       <td className="px-4 py-3">
                         {p.bfd_enabled ? (
                           <span className="text-emerald-400 text-xs">on</span>
                         ) : (
-                          <span className="text-gray-500 text-xs">off</span>
+                          <span className="text-content-tertiary text-xs">off</span>
                         )}
                       </td>
                       <td className="px-4 py-3">
@@ -791,27 +791,27 @@ function CreateClusterModal({
       onClick={onClose}
     >
       <div
-        className="bg-gray-800 border border-gray-700 rounded-xl p-6 w-[600px] max-h-[80vh] overflow-y-auto"
+        className="bg-gray-800 border border-border rounded-xl p-6 w-[600px] max-h-[80vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-lg font-semibold text-white mb-4">Create Kubernetes Cluster</h2>
+        <h2 className="text-lg font-semibold text-content-primary mb-4">Create Kubernetes Cluster</h2>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Cluster Name</label>
+              <label className="block text-sm text-content-secondary mb-1">Cluster Name</label>
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
                 placeholder="e.g. production-k8s"
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">K8s Version</label>
+              <label className="block text-sm text-content-secondary mb-1">K8s Version</label>
               <select
                 value={version}
                 onChange={(e) => setVersion(e.target.value)}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
               >
                 <option value="1.30">1.30</option>
                 <option value="1.29">1.29</option>
@@ -821,14 +821,14 @@ function CreateClusterModal({
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Calico Mode</label>
+              <label className="block text-sm text-content-secondary mb-1">Calico Mode</label>
               <select
                 value={calicoMode}
                 onChange={(e) => {
                   setCalicoMode(e.target.value)
                   if (e.target.value === 'bgp') setBGPEnabled(true)
                 }}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
               >
                 <option value="overlay">Overlay (VXLAN)</option>
                 <option value="bgp">BGP (Direct)</option>
@@ -836,22 +836,22 @@ function CreateClusterModal({
               </select>
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Control Planes</label>
+              <label className="block text-sm text-content-secondary mb-1">Control Planes</label>
               <select
                 value={cpCount}
                 onChange={(e) => setCPCount(Number(e.target.value))}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
               >
                 <option value={1}>1</option>
                 <option value={3}>3 (HA)</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Workers</label>
+              <label className="block text-sm text-content-secondary mb-1">Workers</label>
               <select
                 value={workerCount}
                 onChange={(e) => setWorkerCount(Number(e.target.value))}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
               >
                 <option value={1}>1</option>
                 <option value={2}>2</option>
@@ -862,24 +862,24 @@ function CreateClusterModal({
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Pod CIDR</label>
+              <label className="block text-sm text-content-secondary mb-1">Pod CIDR</label>
               <input
                 value={podCIDR}
                 onChange={(e) => setPodCIDR(e.target.value)}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm font-mono focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm font-mono focus:border-blue-500 outline-none"
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Service CIDR</label>
+              <label className="block text-sm text-content-secondary mb-1">Service CIDR</label>
               <input
                 value={svcCIDR}
                 onChange={(e) => setSvcCIDR(e.target.value)}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm font-mono focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm font-mono focus:border-blue-500 outline-none"
               />
             </div>
           </div>
           <div className="flex items-center gap-6">
-            <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+            <label className="flex items-center gap-2 text-sm text-content-secondary cursor-pointer">
               <input
                 type="checkbox"
                 checked={haEnabled}
@@ -888,7 +888,7 @@ function CreateClusterModal({
               />{' '}
               HA (Multi-Master)
             </label>
-            <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+            <label className="flex items-center gap-2 text-sm text-content-secondary cursor-pointer">
               <input
                 type="checkbox"
                 checked={bgpEnabled}
@@ -899,23 +899,23 @@ function CreateClusterModal({
             </label>
           </div>
           {bgpEnabled && (
-            <div className="grid grid-cols-2 gap-4 p-3 bg-gray-700/20 rounded-lg border border-gray-600/50">
+            <div className="grid grid-cols-2 gap-4 p-3 bg-surface-hover rounded-lg border border-gray-600/50">
               <div>
-                <label className="block text-sm text-gray-400 mb-1">OVN Router ASN</label>
+                <label className="block text-sm text-content-secondary mb-1">OVN Router ASN</label>
                 <input
                   type="number"
                   value={bgpPeerASN}
                   onChange={(e) => setBGPPeerASN(Number(e.target.value))}
-                  className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm font-mono focus:border-blue-500 outline-none"
+                  className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm font-mono focus:border-blue-500 outline-none"
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Calico Node ASN</label>
+                <label className="block text-sm text-content-secondary mb-1">Calico Node ASN</label>
                 <input
                   type="number"
                   value={bgpNodeASN}
                   onChange={(e) => setBGPNodeASN(Number(e.target.value))}
-                  className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm font-mono focus:border-blue-500 outline-none"
+                  className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm font-mono focus:border-blue-500 outline-none"
                 />
               </div>
             </div>
@@ -924,7 +924,7 @@ function CreateClusterModal({
         <div className="flex justify-end gap-3 mt-6">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-400 hover:text-white text-sm transition"
+            className="px-4 py-2 text-content-secondary hover:text-content-primary text-sm transition"
           >
             Cancel
           </button>
@@ -945,7 +945,7 @@ function CreateClusterModal({
               })
             }
             disabled={!name}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-500 transition disabled:opacity-50"
+            className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition disabled:opacity-50"
           >
             Create Cluster
           </button>
@@ -974,58 +974,58 @@ function CreateLBModal({
       onClick={onClose}
     >
       <div
-        className="bg-gray-800 border border-gray-700 rounded-xl p-6 w-[480px]"
+        className="bg-gray-800 border border-border rounded-xl p-6 w-[480px]"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-lg font-semibold text-white mb-4">Create LoadBalancer</h2>
-        <p className="text-gray-400 text-xs mb-4">
+        <h2 className="text-lg font-semibold text-content-primary mb-4">Create LoadBalancer</h2>
+        <p className="text-content-secondary text-xs mb-4">
           Allocates a Floating IP via OVN and forwards traffic to NodePorts
         </p>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Service Name</label>
+              <label className="block text-sm text-content-secondary mb-1">Service Name</label>
               <input
                 value={svcName}
                 onChange={(e) => setSvcName(e.target.value)}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
                 placeholder="nginx-svc"
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Namespace</label>
+              <label className="block text-sm text-content-secondary mb-1">Namespace</label>
               <input
                 value={ns}
                 onChange={(e) => setNS(e.target.value)}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
               />
             </div>
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">External Port</label>
+              <label className="block text-sm text-content-secondary mb-1">External Port</label>
               <input
                 type="number"
                 value={extPort}
                 onChange={(e) => setExtPort(Number(e.target.value))}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">NodePort</label>
+              <label className="block text-sm text-content-secondary mb-1">NodePort</label>
               <input
                 type="number"
                 value={nodePort}
                 onChange={(e) => setNodePort(Number(e.target.value))}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Protocol</label>
+              <label className="block text-sm text-content-secondary mb-1">Protocol</label>
               <select
                 value={protocol}
                 onChange={(e) => setProtocol(e.target.value)}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
               >
                 <option>TCP</option>
                 <option>UDP</option>
@@ -1036,7 +1036,7 @@ function CreateLBModal({
         <div className="flex justify-end gap-3 mt-6">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-400 hover:text-white text-sm transition"
+            className="px-4 py-2 text-content-secondary hover:text-content-primary text-sm transition"
           >
             Cancel
           </button>
@@ -1051,7 +1051,7 @@ function CreateLBModal({
               })
             }
             disabled={!svcName}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-500 transition disabled:opacity-50"
+            className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition disabled:opacity-50"
           >
             Create LB
           </button>

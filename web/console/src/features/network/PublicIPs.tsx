@@ -81,7 +81,7 @@ export function PublicIPs() {
       {
         key: 'attached',
         header: 'Attached To',
-        render: (row) => <span className="text-xs text-gray-300">{attachedLabel(row)}</span>
+        render: (row) => <span className="text-xs text-content-secondary">{attachedLabel(row)}</span>
       },
       {
         key: 'id',
@@ -91,7 +91,7 @@ export function PublicIPs() {
           <div className="flex justify-end">
             <div className="flex gap-3 items-center">
               {row.status === 'available' ? (
-                <button className="text-blue-400 hover:underline" onClick={() => openAssoc(row.id)}>
+                <button className="text-accent hover:underline" onClick={() => openAssoc(row.id)}>
                   Associate
                 </button>
               ) : (
@@ -196,7 +196,7 @@ export function PublicIPs() {
               ))}
             </select>
           </div>
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-content-secondary">
             IP will be auto-allocated from the selected network's first subnet pool.
           </p>
         </div>
@@ -264,7 +264,7 @@ export function PublicIPs() {
                 ))}
             </select>
           </div>
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-content-secondary">
             Select a VM port to map this Public IP to. The first fixed IP on the port will be used.
           </p>
         </div>

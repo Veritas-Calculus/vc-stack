@@ -24,7 +24,7 @@ const shortcuts = [
   {
     section: 'Tables',
     items: [
-      { keys: ['↑', '↓'], description: 'Navigate rows' },
+      { keys: ['\u2191', '\u2193'], description: 'Navigate rows' },
       { keys: ['Enter'], description: 'Open selected item' },
       { keys: ['/'], description: 'Focus search' }
     ]
@@ -61,13 +61,13 @@ export function KeyboardShortcuts() {
         className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
         onClick={() => setOpen(false)}
       />
-      <div className="relative w-full max-w-lg rounded-2xl border border-oxide-700 bg-oxide-900 shadow-2xl animate-scale-in overflow-hidden">
+      <div className="relative w-full max-w-lg rounded-2xl border border-border bg-surface-elevated shadow-2xl animate-scale-in overflow-hidden backdrop-blur-xl">
         {/* Header */}
-        <div className="px-5 py-4 border-b border-oxide-800 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-white">Keyboard Shortcuts</h2>
+        <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+          <h2 className="text-base font-semibold text-content-primary">Keyboard Shortcuts</h2>
           <button
             onClick={() => setOpen(false)}
-            className="text-gray-400 hover:text-white text-xl leading-none"
+            className="text-content-tertiary hover:text-content-primary text-xl leading-none transition-colors"
           >
             ×
           </button>
@@ -77,24 +77,24 @@ export function KeyboardShortcuts() {
         <div className="p-5 max-h-[60vh] overflow-y-auto space-y-5">
           {shortcuts.map((section) => (
             <div key={section.section}>
-              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+              <h3 className="text-xs font-semibold text-content-tertiary uppercase tracking-wider mb-2">
                 {section.section}
               </h3>
               <div className="space-y-1">
                 {section.items.map((item) => (
                   <div
                     key={item.description}
-                    className="flex items-center justify-between py-1.5 px-2 rounded-lg hover:bg-oxide-800/50"
+                    className="flex items-center justify-between py-1.5 px-2 rounded-lg hover:bg-surface-hover"
                   >
-                    <span className="text-sm text-gray-300">{item.description}</span>
+                    <span className="text-sm text-content-secondary">{item.description}</span>
                     <div className="flex items-center gap-1">
                       {item.keys.map((key, i) => (
                         <span key={i}>
-                          <kbd className="inline-flex items-center justify-center min-w-[24px] px-1.5 py-0.5 rounded text-[11px] font-mono font-medium text-gray-300 bg-oxide-800 border border-oxide-600 shadow-sm">
+                          <kbd className="inline-flex items-center justify-center min-w-[24px] px-1.5 py-0.5 rounded text-[11px] font-mono font-medium text-content-secondary bg-surface-tertiary border border-border shadow-sm">
                             {key}
                           </kbd>
                           {i < item.keys.length - 1 && (
-                            <span className="text-gray-600 mx-0.5">+</span>
+                            <span className="text-content-tertiary mx-0.5">+</span>
                           )}
                         </span>
                       ))}
@@ -107,10 +107,10 @@ export function KeyboardShortcuts() {
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3 border-t border-oxide-800 text-center">
-          <p className="text-xs text-gray-600">
+        <div className="px-5 py-3 border-t border-border text-center">
+          <p className="text-xs text-content-tertiary">
             Press{' '}
-            <kbd className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-oxide-800 border border-oxide-700 text-gray-400">
+            <kbd className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-surface-tertiary border border-border text-content-secondary">
               ?
             </kbd>{' '}
             to toggle this panel

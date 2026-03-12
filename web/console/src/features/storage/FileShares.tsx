@@ -25,7 +25,7 @@ export function FileShares() {
   const statusBadge = (s: string) => {
     const c: Record<string, string> = {
       available: 'bg-emerald-500/15 text-emerald-400',
-      creating: 'bg-blue-500/15 text-blue-400',
+      creating: 'bg-blue-500/15 text-accent',
       in_use: 'bg-purple-500/15 text-purple-400',
       error: 'bg-red-500/15 text-red-400'
     }

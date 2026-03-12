@@ -367,9 +367,9 @@ export function CommandPalette() {
         className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
         onClick={() => setOpen(false)}
       />
-      <div className="relative w-full max-w-xl rounded-2xl border border-oxide-700 bg-oxide-900 shadow-2xl animate-scale-in overflow-hidden">
+      <div className="relative w-full max-w-xl rounded-2xl border border-border bg-surface-elevated shadow-2xl animate-scale-in overflow-hidden backdrop-blur-xl">
         {/* Search input */}
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-oxide-800">
+        <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
           <svg
             width="18"
             height="18"
@@ -378,7 +378,7 @@ export function CommandPalette() {
             stroke="currentColor"
             strokeWidth="2"
             strokeLinecap="round"
-            className="text-gray-500 shrink-0"
+            className="text-content-tertiary shrink-0"
           >
             <circle cx="11" cy="11" r="8" />
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -393,11 +393,11 @@ export function CommandPalette() {
             }}
             onKeyDown={handleKeyDown}
             placeholder="Search pages, resources..."
-            className="flex-1 bg-transparent text-white text-sm placeholder-gray-500 focus:outline-none"
+            className="flex-1 bg-transparent text-content-primary text-sm placeholder-content-placeholder focus:outline-none"
             autoComplete="off"
             spellCheck={false}
           />
-          <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-mono text-gray-500 bg-oxide-800 border border-oxide-700">
+          <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-mono text-content-tertiary bg-surface-tertiary border border-border">
             ESC
           </kbd>
         </div>
@@ -405,18 +405,17 @@ export function CommandPalette() {
         {/* Results */}
         <div ref={listRef} className="max-h-80 overflow-y-auto py-2">
           {results.length === 0 ? (
-            <div className="px-4 py-8 text-center text-sm text-gray-500">
-              No results for "{query}"
+            <div className="px-4 py-8 text-center text-sm text-content-tertiary">
+              No results for &quot;{query}&quot;
             </div>
           ) : (
             results.map((r, i) => (
               <button
                 key={r.id}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
-                  i === selectedIndex
-                    ? 'bg-blue-600/15 text-white'
-                    : 'text-gray-300 hover:bg-oxide-800/50'
-                }`}
+                className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${i === selectedIndex
+                    ? 'bg-accent-subtle text-content-primary'
+                    : 'text-content-secondary hover:bg-surface-hover'
+                  }`}
                 onClick={() => {
                   navigate(r.path)
                   setOpen(false)
@@ -428,11 +427,11 @@ export function CommandPalette() {
                 </span>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium truncate">{r.title}</div>
-                  {r.subtitle && <div className="text-xs text-gray-500 truncate">{r.subtitle}</div>}
+                  {r.subtitle && <div className="text-xs text-content-tertiary truncate">{r.subtitle}</div>}
                 </div>
                 {i === selectedIndex && (
-                  <kbd className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-mono text-gray-500 bg-oxide-800 border border-oxide-700">
-                    ↵
+                  <kbd className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-mono text-content-tertiary bg-surface-tertiary border border-border">
+                    &#x23CE;
                   </kbd>
                 )}
               </button>
@@ -441,21 +440,21 @@ export function CommandPalette() {
         </div>
 
         {/* Footer */}
-        <div className="px-4 py-2 border-t border-oxide-800 flex items-center gap-4 text-[10px] text-gray-600">
+        <div className="px-4 py-2 border-t border-border flex items-center gap-4 text-[10px] text-content-tertiary">
           <span className="flex items-center gap-1">
-            <kbd className="px-1 py-0.5 rounded bg-oxide-800 border border-oxide-700 font-mono">
-              ↑↓
+            <kbd className="px-1 py-0.5 rounded bg-surface-tertiary border border-border font-mono">
+              &#x2191;&#x2193;
             </kbd>
             Navigate
           </span>
           <span className="flex items-center gap-1">
-            <kbd className="px-1 py-0.5 rounded bg-oxide-800 border border-oxide-700 font-mono">
-              ↵
+            <kbd className="px-1 py-0.5 rounded bg-surface-tertiary border border-border font-mono">
+              &#x23CE;
             </kbd>
             Open
           </span>
           <span className="flex items-center gap-1">
-            <kbd className="px-1 py-0.5 rounded bg-oxide-800 border border-oxide-700 font-mono">
+            <kbd className="px-1 py-0.5 rounded bg-surface-tertiary border border-border font-mono">
               esc
             </kbd>
             Close

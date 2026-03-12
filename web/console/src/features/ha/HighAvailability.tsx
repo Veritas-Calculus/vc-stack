@@ -177,21 +177,21 @@ export function HighAvailability() {
   const statusBadge = (s: string) => {
     const colors: Record<string, string> = {
       completed: 'bg-emerald-500/20 text-emerald-400',
-      running: 'bg-blue-500/20 text-blue-400',
+      running: 'bg-blue-500/20 text-accent',
       partial: 'bg-amber-500/20 text-amber-400',
       failed: 'bg-red-500/20 text-red-400',
-      pending: 'bg-gray-500/20 text-gray-400',
+      pending: 'bg-gray-500/20 text-content-secondary',
       fenced: 'bg-red-500/20 text-red-400',
       released: 'bg-emerald-500/20 text-emerald-400',
-      migrating: 'bg-blue-500/20 text-blue-400',
-      skipped: 'bg-gray-500/20 text-gray-400',
+      migrating: 'bg-blue-500/20 text-accent',
+      skipped: 'bg-gray-500/20 text-content-secondary',
       active: 'bg-emerald-500/20 text-emerald-400',
       error: 'bg-red-500/20 text-red-400',
-      building: 'bg-blue-500/20 text-blue-400',
-      stopped: 'bg-gray-500/20 text-gray-400',
+      building: 'bg-blue-500/20 text-accent',
+      stopped: 'bg-gray-500/20 text-content-secondary',
       rebuilding: 'bg-amber-500/20 text-amber-400'
     }
-    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colors[s] || 'bg-gray-500/20 text-gray-400'}`
+    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colors[s] || 'bg-gray-500/20 text-content-secondary'}`
   }
 
   const formatTime = (t?: string) => {
@@ -218,8 +218,8 @@ export function HighAvailability() {
   if (loading && !status) {
     return (
       <div className="p-8">
-        <h1 className="text-2xl font-bold text-white mb-2">High Availability</h1>
-        <p className="text-gray-400">Loading...</p>
+        <h1 className="text-2xl font-bold text-content-primary mb-2">High Availability</h1>
+        <p className="text-content-secondary">Loading...</p>
       </div>
     )
   }
@@ -228,8 +228,8 @@ export function HighAvailability() {
     <div className="p-8 max-w-[1400px] mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">High Availability</h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-content-primary">High Availability</h1>
+          <p className="text-content-secondary text-sm mt-1">
             Node fencing, VM evacuation, and HA policy management
           </p>
         </div>
@@ -244,7 +244,7 @@ export function HighAvailability() {
               HA {status.ha_enabled ? 'Enabled' : 'Disabled'}
             </span>
             <span
-              className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium ${status.auto_fence ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'}`}
+              className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium ${status.auto_fence ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-gray-500/20 text-content-secondary border border-gray-500/30'}`}
             >
               Auto-Fence {status.auto_fence ? 'ON' : 'OFF'}
             </span>
@@ -253,7 +253,7 @@ export function HighAvailability() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 border-b border-gray-700/50">
+      <div className="flex gap-1 mb-6 border-b border-border/50">
         {tabs.map((t) => (
           <button
             key={t.key}
@@ -261,11 +261,11 @@ export function HighAvailability() {
               setTab(t.key)
               setSelectedEvac(null)
             }}
-            className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${tab === t.key ? 'text-blue-400 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-400' : 'text-gray-400 hover:text-gray-300'}`}
+            className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${tab === t.key ? 'text-accent after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-400' : 'text-content-secondary hover:text-content-secondary'}`}
           >
             {t.label}
             {t.count !== null && (
-              <span className="ml-2 px-1.5 py-0.5 bg-gray-700/60 rounded text-xs">{t.count}</span>
+              <span className="ml-2 px-1.5 py-0.5 bg-surface-hover/60 rounded text-xs">{t.count}</span>
             )}
           </button>
         ))}
@@ -286,13 +286,13 @@ export function HighAvailability() {
               {
                 label: 'Hosts Down',
                 value: status.hosts?.down || 0,
-                color: (status.hosts?.down || 0) > 0 ? 'text-red-400' : 'text-gray-400',
+                color: (status.hosts?.down || 0) > 0 ? 'text-red-400' : 'text-content-secondary',
                 icon: Icons.xCircle('w-5 h-5')
               },
               {
                 label: 'Protected VMs',
                 value: status.protected_instances,
-                color: 'text-blue-400',
+                color: 'text-accent',
                 icon: Icons.shieldCheck('w-5 h-5')
               },
               {
@@ -304,9 +304,9 @@ export function HighAvailability() {
             ].map((s) => (
               <div
                 key={s.label}
-                className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5"
+                className="bg-surface-tertiary border border-border rounded-xl p-5"
               >
-                <div className="flex items-center gap-2 text-gray-400 text-sm mb-2">
+                <div className="flex items-center gap-2 text-content-secondary text-sm mb-2">
                   <span>{s.icon}</span> {s.label}
                 </div>
                 <div className={`text-3xl font-bold ${s.color}`}>{s.value}</div>
@@ -315,18 +315,18 @@ export function HighAvailability() {
           </div>
 
           {/* Config */}
-          <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5">
-            <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-3">
+          <div className="bg-surface-tertiary border border-border rounded-xl p-5">
+            <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider mb-3">
               Configuration
             </h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <span className="text-gray-500">Heartbeat Timeout:</span>{' '}
-                <span className="text-white ml-2">{status.heartbeat_timeout}</span>
+                <span className="text-content-tertiary">Heartbeat Timeout:</span>{' '}
+                <span className="text-content-primary ml-2">{status.heartbeat_timeout}</span>
               </div>
               <div>
-                <span className="text-gray-500">Monitor Interval:</span>{' '}
-                <span className="text-white ml-2">{status.monitor_interval}</span>
+                <span className="text-content-tertiary">Monitor Interval:</span>{' '}
+                <span className="text-content-primary ml-2">{status.monitor_interval}</span>
               </div>
             </div>
           </div>
@@ -344,8 +344,8 @@ export function HighAvailability() {
                     className="flex items-center justify-between py-2 px-3 bg-red-500/5 rounded-lg"
                   >
                     <div>
-                      <span className="text-white font-medium">{f.host_name}</span>
-                      <span className="text-gray-400 text-sm ml-3">{f.reason}</span>
+                      <span className="text-content-primary font-medium">{f.host_name}</span>
+                      <span className="text-content-secondary text-sm ml-3">{f.reason}</span>
                     </div>
                     <button
                       onClick={() => unfenceHost(f.host_id)}
@@ -360,28 +360,28 @@ export function HighAvailability() {
           )}
 
           {/* Recent Evacuations */}
-          <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5">
-            <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-3">
+          <div className="bg-surface-tertiary border border-border rounded-xl p-5">
+            <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider mb-3">
               Recent Evacuations
             </h3>
             {!status.recent_evacuations || status.recent_evacuations.length === 0 ? (
-              <p className="text-gray-500 text-sm">No evacuations recorded</p>
+              <p className="text-content-tertiary text-sm">No evacuations recorded</p>
             ) : (
               <div className="space-y-2">
                 {status.recent_evacuations.map((e) => (
                   <div
                     key={e.uuid}
-                    className="flex items-center justify-between py-2 px-3 bg-gray-700/20 rounded-lg"
+                    className="flex items-center justify-between py-2 px-3 bg-surface-hover rounded-lg"
                   >
                     <div className="flex items-center gap-3">
                       <span className={statusBadge(e.status)}>{e.status}</span>
-                      <span className="text-white text-sm">{e.source_host_name}</span>
-                      <span className="text-gray-500 text-xs">{e.trigger}</span>
+                      <span className="text-content-primary text-sm">{e.source_host_name}</span>
+                      <span className="text-content-tertiary text-xs">{e.trigger}</span>
                     </div>
-                    <div className="flex items-center gap-4 text-xs text-gray-400">
+                    <div className="flex items-center gap-4 text-xs text-content-secondary">
                       <span className="text-emerald-400">{e.evacuated} done</span>
                       {e.failed > 0 && <span className="text-red-400">{e.failed} fail</span>}
-                      {e.skipped > 0 && <span className="text-gray-400">{e.skipped} skipped</span>}
+                      {e.skipped > 0 && <span className="text-content-secondary">{e.skipped} skipped</span>}
                       <span>{formatTime(e.started_at)}</span>
                     </div>
                   </div>
@@ -398,7 +398,7 @@ export function HighAvailability() {
           <div className="flex justify-end">
             <button
               onClick={() => setShowCreatePolicy(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-500 transition"
+              className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition"
             >
               + Create Policy
             </button>
@@ -406,35 +406,35 @@ export function HighAvailability() {
 
           <div className="grid grid-cols-3 gap-4">
             {policies.map((p) => (
-              <div key={p.id} className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5">
+              <div key={p.id} className="bg-surface-tertiary border border-border rounded-xl p-5">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-white font-semibold text-lg">{p.name}</h3>
+                  <h3 className="text-content-primary font-semibold text-lg">{p.name}</h3>
                   {p.enabled ? (
                     <span className="text-emerald-400 text-xs bg-emerald-500/20 px-2 py-0.5 rounded">
                       ACTIVE
                     </span>
                   ) : (
-                    <span className="text-gray-400 text-xs bg-gray-500/20 px-2 py-0.5 rounded">
+                    <span className="text-content-secondary text-xs bg-gray-500/20 px-2 py-0.5 rounded">
                       DISABLED
                     </span>
                   )}
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-sm mb-4">
                   <div>
-                    <span className="text-gray-500">Priority:</span>{' '}
-                    <span className="text-white ml-1">{p.priority}</span>
+                    <span className="text-content-tertiary">Priority:</span>{' '}
+                    <span className="text-content-primary ml-1">{p.priority}</span>
                   </div>
                   <div>
-                    <span className="text-gray-500">Max Restarts:</span>{' '}
-                    <span className="text-white ml-1">{p.max_restarts}</span>
+                    <span className="text-content-tertiary">Max Restarts:</span>{' '}
+                    <span className="text-content-primary ml-1">{p.max_restarts}</span>
                   </div>
                   <div>
-                    <span className="text-gray-500">Window:</span>{' '}
-                    <span className="text-white ml-1">{p.restart_window}s</span>
+                    <span className="text-content-tertiary">Window:</span>{' '}
+                    <span className="text-content-primary ml-1">{p.restart_window}s</span>
                   </div>
                   <div>
-                    <span className="text-gray-500">Delay:</span>{' '}
-                    <span className="text-white ml-1">{p.restart_delay}s</span>
+                    <span className="text-content-tertiary">Delay:</span>{' '}
+                    <span className="text-content-primary ml-1">{p.restart_delay}s</span>
                   </div>
                 </div>
                 {!['default', 'critical', 'best-effort'].includes(p.name) && (
@@ -446,7 +446,7 @@ export function HighAvailability() {
                   </button>
                 )}
                 {['default', 'critical', 'best-effort'].includes(p.name) && (
-                  <span className="text-gray-600 text-xs">Built-in policy</span>
+                  <span className="text-content-tertiary text-xs">Built-in policy</span>
                 )}
               </div>
             ))}
@@ -460,19 +460,19 @@ export function HighAvailability() {
 
       {/* Protected Instances Tab */}
       {tab === 'instances' && (
-        <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl overflow-hidden">
+        <div className="bg-surface-tertiary border border-border rounded-xl overflow-hidden">
           {instances.length === 0 ? (
             <div className="text-center py-12">
-              <div className="mb-3 text-gray-500">{Icons.shieldCheck('w-10 h-10')}</div>
-              <p className="text-gray-400">No HA-configured instances</p>
-              <p className="text-gray-500 text-sm mt-1">
+              <div className="mb-3 text-content-tertiary">{Icons.shieldCheck('w-10 h-10')}</div>
+              <p className="text-content-secondary">No HA-configured instances</p>
+              <p className="text-content-tertiary text-sm mt-1">
                 Enable HA on instances to protect them from host failures
               </p>
             </div>
           ) : (
             <table className="w-full text-sm">
-              <thead className="bg-gray-700/30">
-                <tr className="text-left text-gray-400 text-xs uppercase">
+              <thead className="bg-surface-hover">
+                <tr className="text-left text-content-secondary text-xs uppercase">
                   <th className="px-4 py-3">Instance</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3">HA</th>
@@ -486,9 +486,9 @@ export function HighAvailability() {
                 {instances.map((inst) => (
                   <tr
                     key={inst.id}
-                    className="border-t border-gray-700/30 hover:bg-gray-700/20 transition"
+                    className="border-t border-border hover:bg-surface-hover transition"
                   >
-                    <td className="px-4 py-3 text-white font-medium">
+                    <td className="px-4 py-3 text-content-primary font-medium">
                       {inst.instance_name || `Instance #${inst.instance_id}`}
                     </td>
                     <td className="px-4 py-3">
@@ -501,16 +501,16 @@ export function HighAvailability() {
                         className={`w-2 h-2 rounded-full inline-block ${inst.ha_enabled ? 'bg-emerald-400' : 'bg-gray-500'}`}
                       ></span>
                       <span
-                        className={`ml-2 ${inst.ha_enabled ? 'text-emerald-400' : 'text-gray-500'}`}
+                        className={`ml-2 ${inst.ha_enabled ? 'text-emerald-400' : 'text-content-tertiary'}`}
                       >
                         {inst.ha_enabled ? 'Protected' : 'Unprotected'}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-300">{inst.priority}</td>
-                    <td className="px-4 py-3 text-gray-300">
+                    <td className="px-4 py-3 text-content-secondary">{inst.priority}</td>
+                    <td className="px-4 py-3 text-content-secondary">
                       {inst.restart_count} / {inst.max_restarts}
                     </td>
-                    <td className="px-4 py-3 text-gray-400 text-xs">
+                    <td className="px-4 py-3 text-content-secondary text-xs">
                       {formatTime(inst.last_restart)}
                     </td>
                     <td className="px-4 py-3">
@@ -531,16 +531,16 @@ export function HighAvailability() {
 
       {/* Evacuations Tab */}
       {tab === 'evacuations' && !selectedEvac && (
-        <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl overflow-hidden">
+        <div className="bg-surface-tertiary border border-border rounded-xl overflow-hidden">
           {evacuations.length === 0 ? (
             <div className="text-center py-12">
-              <div className="mb-3 text-gray-500">{Icons.cube('w-10 h-10')}</div>
-              <p className="text-gray-400">No evacuation events</p>
+              <div className="mb-3 text-content-tertiary">{Icons.cube('w-10 h-10')}</div>
+              <p className="text-content-secondary">No evacuation events</p>
             </div>
           ) : (
             <table className="w-full text-sm">
-              <thead className="bg-gray-700/30">
-                <tr className="text-left text-gray-400 text-xs uppercase">
+              <thead className="bg-surface-hover">
+                <tr className="text-left text-content-secondary text-xs uppercase">
                   <th className="px-4 py-3">Source Host</th>
                   <th className="px-4 py-3">Trigger</th>
                   <th className="px-4 py-3">Status</th>
@@ -554,13 +554,13 @@ export function HighAvailability() {
                 {evacuations.map((e) => (
                   <tr
                     key={e.id}
-                    className="border-t border-gray-700/30 hover:bg-gray-700/20 transition cursor-pointer"
+                    className="border-t border-border hover:bg-surface-hover transition cursor-pointer"
                     onClick={() => viewEvacDetails(e)}
                   >
-                    <td className="px-4 py-3 text-white font-medium">{e.source_host_name}</td>
+                    <td className="px-4 py-3 text-content-primary font-medium">{e.source_host_name}</td>
                     <td className="px-4 py-3">
                       <span
-                        className={`px-2 py-0.5 rounded text-xs ${e.trigger === 'heartbeat_timeout' ? 'bg-red-500/20 text-red-400' : e.trigger === 'maintenance' ? 'bg-amber-500/20 text-amber-400' : 'bg-blue-500/20 text-blue-400'}`}
+                        className={`px-2 py-0.5 rounded text-xs ${e.trigger === 'heartbeat_timeout' ? 'bg-red-500/20 text-red-400' : e.trigger === 'maintenance' ? 'bg-amber-500/20 text-amber-400' : 'bg-blue-500/20 text-accent'}`}
                       >
                         {e.trigger}
                       </span>
@@ -568,19 +568,19 @@ export function HighAvailability() {
                     <td className="px-4 py-3">
                       <span className={statusBadge(e.status)}>{e.status}</span>
                     </td>
-                    <td className="px-4 py-3 text-gray-300">
+                    <td className="px-4 py-3 text-content-secondary">
                       <span className="text-emerald-400">{e.evacuated}</span>
                       {e.failed > 0 && <span className="text-red-400 ml-1">/ {e.failed} fail</span>}
-                      {e.skipped > 0 && <span className="text-gray-500 ml-1">/ {e.skipped}skipped</span>}
-                      <span className="text-gray-500"> of {e.total_instances}</span>
+                      {e.skipped > 0 && <span className="text-content-tertiary ml-1">/ {e.skipped}skipped</span>}
+                      <span className="text-content-tertiary"> of {e.total_instances}</span>
                     </td>
-                    <td className="px-4 py-3 text-gray-400 text-xs">{formatTime(e.started_at)}</td>
-                    <td className="px-4 py-3 text-gray-400 text-xs">
+                    <td className="px-4 py-3 text-content-secondary text-xs">{formatTime(e.started_at)}</td>
+                    <td className="px-4 py-3 text-content-secondary text-xs">
                       {e.completed_at
                         ? `${Math.round((new Date(e.completed_at).getTime() - new Date(e.started_at).getTime()) / 1000)}s`
                         : '—'}
                     </td>
-                    <td className="px-4 py-3 text-blue-400 text-xs">Details &rarr;</td>
+                    <td className="px-4 py-3 text-accent text-xs">Details &rarr;</td>
                   </tr>
                 ))}
               </tbody>
@@ -594,17 +594,17 @@ export function HighAvailability() {
         <div className="space-y-4">
           <button
             onClick={() => setSelectedEvac(null)}
-            className="text-sm text-gray-400 hover:text-white transition"
+            className="text-sm text-content-secondary hover:text-content-primary transition"
           >
             ← Back to Evacuations
           </button>
-          <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5">
+          <div className="bg-surface-tertiary border border-border rounded-xl p-5">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-white font-semibold text-lg">
+                <h3 className="text-content-primary font-semibold text-lg">
                   {selectedEvac.event.source_host_name}
                 </h3>
-                <p className="text-gray-400 text-sm">
+                <p className="text-content-secondary text-sm">
                   {selectedEvac.event.trigger} • {formatTime(selectedEvac.event.started_at)}
                 </p>
               </div>
@@ -613,33 +613,33 @@ export function HighAvailability() {
               </span>
             </div>
             <div className="grid grid-cols-4 gap-4 text-sm mb-4">
-              <div className="bg-gray-700/20 rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold text-white">
+              <div className="bg-surface-hover rounded-lg p-3 text-center">
+                <div className="text-2xl font-bold text-content-primary">
                   {selectedEvac.event.total_instances}
                 </div>
-                <div className="text-gray-400 text-xs">Total</div>
+                <div className="text-content-secondary text-xs">Total</div>
               </div>
               <div className="bg-emerald-500/10 rounded-lg p-3 text-center">
                 <div className="text-2xl font-bold text-emerald-400">
                   {selectedEvac.event.evacuated}
                 </div>
-                <div className="text-gray-400 text-xs">Evacuated</div>
+                <div className="text-content-secondary text-xs">Evacuated</div>
               </div>
               <div className="bg-red-500/10 rounded-lg p-3 text-center">
                 <div className="text-2xl font-bold text-red-400">{selectedEvac.event.failed}</div>
-                <div className="text-gray-400 text-xs">Failed</div>
+                <div className="text-content-secondary text-xs">Failed</div>
               </div>
               <div className="bg-gray-500/10 rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold text-gray-400">{selectedEvac.event.skipped}</div>
-                <div className="text-gray-400 text-xs">Skipped</div>
+                <div className="text-2xl font-bold text-content-secondary">{selectedEvac.event.skipped}</div>
+                <div className="text-content-secondary text-xs">Skipped</div>
               </div>
             </div>
           </div>
 
-          <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl overflow-hidden">
+          <div className="bg-surface-tertiary border border-border rounded-xl overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="bg-gray-700/30">
-                <tr className="text-left text-gray-400 text-xs uppercase">
+              <thead className="bg-surface-hover">
+                <tr className="text-left text-content-secondary text-xs uppercase">
                   <th className="px-4 py-3">Instance</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3">Destination</th>
@@ -649,16 +649,16 @@ export function HighAvailability() {
               </thead>
               <tbody>
                 {selectedEvac.instances.map((inst) => (
-                  <tr key={inst.id} className="border-t border-gray-700/30">
-                    <td className="px-4 py-3 text-white">
+                  <tr key={inst.id} className="border-t border-border">
+                    <td className="px-4 py-3 text-content-primary">
                       {inst.instance_name || `#${inst.instance_id}`}
                     </td>
                     <td className="px-4 py-3">
                       <span className={statusBadge(inst.status)}>{inst.status}</span>
                     </td>
-                    <td className="px-4 py-3 text-gray-300">{inst.dest_host_name || '—'}</td>
+                    <td className="px-4 py-3 text-content-secondary">{inst.dest_host_name || '—'}</td>
                     <td className="px-4 py-3 text-red-400 text-xs">{inst.error_message || '—'}</td>
-                    <td className="px-4 py-3 text-gray-400 text-xs">
+                    <td className="px-4 py-3 text-content-secondary text-xs">
                       {inst.started_at && inst.completed_at
                         ? `${Math.round((new Date(inst.completed_at).getTime() - new Date(inst.started_at).getTime()) / 1000)}s`
                         : '—'}
@@ -673,16 +673,16 @@ export function HighAvailability() {
 
       {/* Fencing Tab */}
       {tab === 'fencing' && (
-        <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl overflow-hidden">
+        <div className="bg-surface-tertiary border border-border rounded-xl overflow-hidden">
           {fencingEvents.length === 0 ? (
             <div className="text-center py-12">
-              <div className="mb-3 text-gray-500">{Icons.lock('w-10 h-10')}</div>
-              <p className="text-gray-400">No fencing events</p>
+              <div className="mb-3 text-content-tertiary">{Icons.lock('w-10 h-10')}</div>
+              <p className="text-content-secondary">No fencing events</p>
             </div>
           ) : (
             <table className="w-full text-sm">
-              <thead className="bg-gray-700/30">
-                <tr className="text-left text-gray-400 text-xs uppercase">
+              <thead className="bg-surface-hover">
+                <tr className="text-left text-content-secondary text-xs uppercase">
                   <th className="px-4 py-3">Host</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3">Method</th>
@@ -697,19 +697,19 @@ export function HighAvailability() {
                 {fencingEvents.map((f) => (
                   <tr
                     key={f.id}
-                    className="border-t border-gray-700/30 hover:bg-gray-700/20 transition"
+                    className="border-t border-border hover:bg-surface-hover transition"
                   >
-                    <td className="px-4 py-3 text-white font-medium">{f.host_name}</td>
+                    <td className="px-4 py-3 text-content-primary font-medium">{f.host_name}</td>
                     <td className="px-4 py-3">
                       <span className={statusBadge(f.status)}>{f.status}</span>
                     </td>
-                    <td className="px-4 py-3 text-gray-300">{f.method}</td>
-                    <td className="px-4 py-3 text-gray-400 text-xs max-w-[200px] truncate">
+                    <td className="px-4 py-3 text-content-secondary">{f.method}</td>
+                    <td className="px-4 py-3 text-content-secondary text-xs max-w-[200px] truncate">
                       {f.reason}
                     </td>
-                    <td className="px-4 py-3 text-gray-400">{f.fenced_by}</td>
-                    <td className="px-4 py-3 text-gray-400 text-xs">{formatTime(f.fenced_at)}</td>
-                    <td className="px-4 py-3 text-gray-400 text-xs">{formatTime(f.released_at)}</td>
+                    <td className="px-4 py-3 text-content-secondary">{f.fenced_by}</td>
+                    <td className="px-4 py-3 text-content-secondary text-xs">{formatTime(f.fenced_at)}</td>
+                    <td className="px-4 py-3 text-content-secondary text-xs">{formatTime(f.released_at)}</td>
                     <td className="px-4 py-3">
                       {f.status === 'fenced' && (
                         <button
@@ -749,46 +749,46 @@ function CreatePolicyModal({
       onClick={onClose}
     >
       <div
-        className="bg-gray-800 border border-gray-700 rounded-xl p-6 w-[480px]"
+        className="bg-gray-800 border border-border rounded-xl p-6 w-[480px]"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-lg font-semibold text-white mb-4">Create HA Policy</h2>
+        <h2 className="text-lg font-semibold text-content-primary mb-4">Create HA Policy</h2>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Name</label>
+            <label className="block text-sm text-content-secondary mb-1">Name</label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+              className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
               placeholder="e.g. database-tier"
             />
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Priority</label>
+              <label className="block text-sm text-content-secondary mb-1">Priority</label>
               <input
                 type="number"
                 value={priority}
                 onChange={(e) => setPriority(parseInt(e.target.value) || 0)}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Max Restarts</label>
+              <label className="block text-sm text-content-secondary mb-1">Max Restarts</label>
               <input
                 type="number"
                 value={maxRestarts}
                 onChange={(e) => setMaxRestarts(parseInt(e.target.value) || 3)}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Window (s)</label>
+              <label className="block text-sm text-content-secondary mb-1">Window (s)</label>
               <input
                 type="number"
                 value={restartWindow}
                 onChange={(e) => setRestartWindow(parseInt(e.target.value) || 3600)}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
               />
             </div>
           </div>
@@ -796,7 +796,7 @@ function CreatePolicyModal({
         <div className="flex justify-end gap-3 mt-6">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-400 hover:text-white text-sm transition"
+            className="px-4 py-2 text-content-secondary hover:text-content-primary text-sm transition"
           >
             Cancel
           </button>
@@ -811,7 +811,7 @@ function CreatePolicyModal({
               })
             }
             disabled={!name}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-500 transition disabled:opacity-50"
+            className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition disabled:opacity-50"
           >
             Create
           </button>

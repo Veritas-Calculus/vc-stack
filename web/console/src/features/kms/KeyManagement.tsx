@@ -194,13 +194,13 @@ export function KeyManagement() {
   const statusBadge = (s: string) => {
     const colors: Record<string, string> = {
       active: 'bg-emerald-500/20 text-emerald-400',
-      'pre-active': 'bg-blue-500/20 text-blue-400',
+      'pre-active': 'bg-blue-500/20 text-accent',
       deactivated: 'bg-amber-500/20 text-amber-400',
       destroyed: 'bg-red-500/20 text-red-400',
-      expired: 'bg-gray-500/20 text-gray-400',
+      expired: 'bg-gray-500/20 text-content-secondary',
       compromised: 'bg-red-500/20 text-red-400'
     }
-    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colors[s] || 'bg-gray-500/20 text-gray-400'}`
+    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colors[s] || 'bg-gray-500/20 text-content-secondary'}`
   }
 
   const formatTime = (t?: string) => (t ? new Date(t).toLocaleString() : '—')
@@ -215,8 +215,8 @@ export function KeyManagement() {
   if (loading && !status) {
     return (
       <div className="p-8">
-        <h1 className="text-2xl font-bold text-white mb-2">Key Management</h1>
-        <p className="text-gray-400">Loading...</p>
+        <h1 className="text-2xl font-bold text-content-primary mb-2">Key Management</h1>
+        <p className="text-content-secondary">Loading...</p>
       </div>
     )
   }
@@ -225,8 +225,8 @@ export function KeyManagement() {
     <div className="p-8 max-w-[1400px] mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Key Management Service</h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-content-primary">Key Management Service</h1>
+          <p className="text-content-secondary text-sm mt-1">
             Secret storage, encryption key lifecycle, and data encryption
           </p>
         </div>
@@ -243,16 +243,16 @@ export function KeyManagement() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 border-b border-gray-700/50">
+      <div className="flex gap-1 mb-6 border-b border-border/50">
         {tabs.map((t) => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${tab === t.key ? 'text-blue-400 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-400' : 'text-gray-400 hover:text-gray-300'}`}
+            className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${tab === t.key ? 'text-accent after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-400' : 'text-content-secondary hover:text-content-secondary'}`}
           >
             {t.label}
             {t.count !== null && (
-              <span className="ml-2 px-1.5 py-0.5 bg-gray-700/60 rounded text-xs">{t.count}</span>
+              <span className="ml-2 px-1.5 py-0.5 bg-surface-hover/60 rounded text-xs">{t.count}</span>
             )}
           </button>
         ))}
@@ -281,7 +281,7 @@ export function KeyManagement() {
                 label: 'Encryption Keys',
                 value: status.encryption_keys_total,
                 active: status.encryption_keys_active,
-                color: 'text-blue-400',
+                color: 'text-accent',
                 icon: Icons.key('w-5 h-5')
               },
               {
@@ -294,9 +294,9 @@ export function KeyManagement() {
             ].map((s) => (
               <div
                 key={s.label}
-                className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5"
+                className="bg-surface-tertiary border border-border rounded-xl p-5"
               >
-                <div className="flex items-center gap-2 text-gray-400 text-sm mb-2">
+                <div className="flex items-center gap-2 text-content-secondary text-sm mb-2">
                   <span>{s.icon}</span> {s.label}
                 </div>
                 <div className={`text-3xl font-bold ${s.color}`}>{s.value}</div>
@@ -304,17 +304,17 @@ export function KeyManagement() {
             ))}
           </div>
 
-          <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5">
-            <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-3">
+          <div className="bg-surface-tertiary border border-border rounded-xl p-5">
+            <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider mb-3">
               Configuration
             </h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <span className="text-gray-500">Algorithm:</span>{' '}
-                <span className="text-white ml-2">{status.algorithm}</span>
+                <span className="text-content-tertiary">Algorithm:</span>{' '}
+                <span className="text-content-primary ml-2">{status.algorithm}</span>
               </div>
               <div>
-                <span className="text-gray-500">Master Key:</span>{' '}
+                <span className="text-content-tertiary">Master Key:</span>{' '}
                 <span
                   className={`ml-2 ${status.master_key_loaded ? 'text-emerald-400' : 'text-red-400'}`}
                 >
@@ -324,31 +324,31 @@ export function KeyManagement() {
             </div>
           </div>
 
-          <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5">
-            <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-3">
+          <div className="bg-surface-tertiary border border-border rounded-xl p-5">
+            <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider mb-3">
               Envelope Encryption
             </h3>
-            <div className="text-sm text-gray-400 space-y-2">
+            <div className="text-sm text-content-secondary space-y-2">
               <p>
-                KMS uses <span className="text-white font-medium">envelope encryption</span> to
+                KMS uses <span className="text-content-primary font-medium">envelope encryption</span> to
                 protect data:
               </p>
               <div className="flex items-center gap-2 py-2">
                 <span className="px-2 py-1 bg-purple-500/20 text-purple-400 rounded text-xs">
                   Master Key (KEK)
                 </span>
-                <span className="text-gray-500">&rarr; encrypts &rarr;</span>
-                <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs">
+                <span className="text-content-tertiary">&rarr; encrypts &rarr;</span>
+                <span className="px-2 py-1 bg-blue-500/20 text-accent rounded text-xs">
                   Data Encryption Key (DEK)
                 </span>
-                <span className="text-gray-500">&rarr; encrypts &rarr;</span>
+                <span className="text-content-tertiary">&rarr; encrypts &rarr;</span>
                 <span className="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded text-xs">
                   Your Data
                 </span>
               </div>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-content-tertiary">
                 Generate a DEK with{' '}
-                <code className="bg-gray-700/60 px-1 rounded">/api/v1/kms/generate-dek</code>,
+                <code className="bg-surface-hover/60 px-1 rounded">/api/v1/kms/generate-dek</code>,
                 encrypt your data locally, then store only the wrapped DEK.
               </p>
             </div>
@@ -362,24 +362,24 @@ export function KeyManagement() {
           <div className="flex justify-end">
             <button
               onClick={() => setShowCreateSecret(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-500 transition"
+              className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition"
             >
               + Store Secret
             </button>
           </div>
-          <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl overflow-hidden">
+          <div className="bg-surface-tertiary border border-border rounded-xl overflow-hidden">
             {secrets.length === 0 ? (
               <div className="text-center py-12">
                 <div className="mb-3 text-purple-400">{Icons.lock('w-10 h-10')}</div>
-                <p className="text-gray-400">No secrets stored</p>
-                <p className="text-gray-500 text-sm mt-1">
+                <p className="text-content-secondary">No secrets stored</p>
+                <p className="text-content-tertiary text-sm mt-1">
                   Store passwords, certificates, API keys, and other sensitive data
                 </p>
               </div>
             ) : (
               <table className="w-full text-sm">
-                <thead className="bg-gray-700/30">
-                  <tr className="text-left text-gray-400 text-xs uppercase">
+                <thead className="bg-surface-hover">
+                  <tr className="text-left text-content-secondary text-xs uppercase">
                     <th className="px-4 py-3">Name</th>
                     <th className="px-4 py-3">Type</th>
                     <th className="px-4 py-3">Algorithm</th>
@@ -392,11 +392,11 @@ export function KeyManagement() {
                   {secrets.map((sec) => (
                     <tr
                       key={sec.id}
-                      className="border-t border-gray-700/30 hover:bg-gray-700/20 transition"
+                      className="border-t border-border hover:bg-surface-hover transition"
                     >
                       <td className="px-4 py-3">
-                        <div className="text-white font-medium">{sec.name}</div>
-                        <div className="text-gray-500 text-xs font-mono">
+                        <div className="text-content-primary font-medium">{sec.name}</div>
+                        <div className="text-content-tertiary text-xs font-mono">
                           {sec.uuid.slice(0, 8)}...
                         </div>
                       </td>
@@ -405,13 +405,13 @@ export function KeyManagement() {
                           {sec.secret_type}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-gray-300">
+                      <td className="px-4 py-3 text-content-secondary">
                         {sec.algorithm ? `${sec.algorithm.toUpperCase()}-${sec.bit_length}` : '—'}
                       </td>
                       <td className="px-4 py-3">
                         <span className={statusBadge(sec.status)}>{sec.status}</span>
                       </td>
-                      <td className="px-4 py-3 text-gray-400 text-xs">
+                      <td className="px-4 py-3 text-content-secondary text-xs">
                         {formatTime(sec.created_at)}
                       </td>
                       <td className="px-4 py-3">
@@ -440,24 +440,24 @@ export function KeyManagement() {
           <div className="flex justify-end">
             <button
               onClick={() => setShowCreateKey(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-500 transition"
+              className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition"
             >
               + Create Key
             </button>
           </div>
-          <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl overflow-hidden">
+          <div className="bg-surface-tertiary border border-border rounded-xl overflow-hidden">
             {keys.length === 0 ? (
               <div className="text-center py-12">
-                <div className="mb-3 text-blue-400">{Icons.key('w-10 h-10')}</div>
-                <p className="text-gray-400">No encryption keys</p>
-                <p className="text-gray-500 text-sm mt-1">
+                <div className="mb-3 text-accent">{Icons.key('w-10 h-10')}</div>
+                <p className="text-content-secondary">No encryption keys</p>
+                <p className="text-content-tertiary text-sm mt-1">
                   Create keys for envelope encryption and data protection
                 </p>
               </div>
             ) : (
               <table className="w-full text-sm">
-                <thead className="bg-gray-700/30">
-                  <tr className="text-left text-gray-400 text-xs uppercase">
+                <thead className="bg-surface-hover">
+                  <tr className="text-left text-content-secondary text-xs uppercase">
                     <th className="px-4 py-3">Name</th>
                     <th className="px-4 py-3">Algorithm</th>
                     <th className="px-4 py-3">Status</th>
@@ -471,25 +471,25 @@ export function KeyManagement() {
                   {keys.map((k) => (
                     <tr
                       key={k.id}
-                      className="border-t border-gray-700/30 hover:bg-gray-700/20 transition"
+                      className="border-t border-border hover:bg-surface-hover transition"
                     >
                       <td className="px-4 py-3">
-                        <div className="text-white font-medium">{k.name}</div>
-                        <div className="text-gray-500 text-xs font-mono">
+                        <div className="text-content-primary font-medium">{k.name}</div>
+                        <div className="text-content-tertiary text-xs font-mono">
                           {k.uuid.slice(0, 8)}...
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-gray-300">
+                      <td className="px-4 py-3 text-content-secondary">
                         {k.algorithm.toUpperCase()}-{k.bit_length}-{k.mode.toUpperCase()}
                       </td>
                       <td className="px-4 py-3">
                         <span className={statusBadge(k.status)}>{k.status}</span>
                       </td>
-                      <td className="px-4 py-3 text-gray-300">{k.usage_count.toLocaleString()}</td>
-                      <td className="px-4 py-3 text-gray-400 text-xs">
+                      <td className="px-4 py-3 text-content-secondary">{k.usage_count.toLocaleString()}</td>
+                      <td className="px-4 py-3 text-content-secondary text-xs">
                         {k.rotated_at ? formatTime(k.rotated_at) : '—'}
                       </td>
-                      <td className="px-4 py-3 text-gray-400 text-xs">
+                      <td className="px-4 py-3 text-content-secondary text-xs">
                         {formatTime(k.created_at)}
                       </td>
                       <td className="px-4 py-3">
@@ -525,8 +525,8 @@ export function KeyManagement() {
       {/* Encrypt / Decrypt Tab */}
       {tab === 'encrypt' && (
         <div className="space-y-6">
-          <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-6">
-            <h3 className="text-white font-semibold text-lg mb-4">Data Encryption / Decryption</h3>
+          <div className="bg-surface-tertiary border border-border rounded-xl p-6">
+            <h3 className="text-content-primary font-semibold text-lg mb-4">Data Encryption / Decryption</h3>
 
             {/* Mode Selector */}
             <div className="flex gap-2 mb-4">
@@ -537,7 +537,7 @@ export function KeyManagement() {
                     setCryptoMode(m)
                     setCryptoResult('')
                   }}
-                  className={`px-4 py-2 rounded-lg text-sm transition ${cryptoMode === m ? 'bg-blue-600 text-white' : 'bg-gray-700/50 text-gray-400 hover:text-white'}`}
+                  className={`px-4 py-2 rounded-lg text-sm transition ${cryptoMode === m ? 'bg-blue-600 text-content-primary' : 'bg-surface-hover/50 text-content-secondary hover:text-content-primary'}`}
                 >
                   {m === 'encrypt' ? (
                     <>
@@ -564,11 +564,11 @@ export function KeyManagement() {
 
             {/* Key Selector */}
             <div className="mb-4">
-              <label className="block text-sm text-gray-400 mb-1">Encryption Key</label>
+              <label className="block text-sm text-content-secondary mb-1">Encryption Key</label>
               <select
                 value={selectedKeyId}
                 onChange={(e) => setSelectedKeyId(e.target.value)}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
               >
                 <option value="">Select a key...</option>
                 {keys
@@ -588,22 +588,22 @@ export function KeyManagement() {
             {/* Input */}
             {cryptoMode === 'encrypt' && (
               <div className="mb-4">
-                <label className="block text-sm text-gray-400 mb-1">Plaintext</label>
+                <label className="block text-sm text-content-secondary mb-1">Plaintext</label>
                 <textarea
                   value={plaintext}
                   onChange={(e) => setPlaintext(e.target.value)}
-                  className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm h-24 font-mono focus:border-blue-500 outline-none"
+                  className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm h-24 font-mono focus:border-blue-500 outline-none"
                   placeholder="Enter text to encrypt..."
                 />
               </div>
             )}
             {cryptoMode === 'decrypt' && (
               <div className="mb-4">
-                <label className="block text-sm text-gray-400 mb-1">Ciphertext (base64)</label>
+                <label className="block text-sm text-content-secondary mb-1">Ciphertext (base64)</label>
                 <textarea
                   value={ciphertext}
                   onChange={(e) => setCiphertext(e.target.value)}
-                  className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm h-24 font-mono focus:border-blue-500 outline-none"
+                  className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm h-24 font-mono focus:border-blue-500 outline-none"
                   placeholder="Paste base64-encoded ciphertext..."
                 />
               </div>
@@ -621,7 +621,7 @@ export function KeyManagement() {
                 (cryptoMode === 'encrypt' && !plaintext) ||
                 (cryptoMode === 'decrypt' && !ciphertext)
               }
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-500 transition disabled:opacity-50"
+              className="px-6 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition disabled:opacity-50"
             >
               {cryptoMode === 'encrypt'
                 ? 'Encrypt'
@@ -633,14 +633,14 @@ export function KeyManagement() {
             {/* Result */}
             {cryptoResult && (
               <div className="mt-4">
-                <label className="block text-sm text-gray-400 mb-1">Result</label>
+                <label className="block text-sm text-content-secondary mb-1">Result</label>
                 <div className="relative">
-                  <pre className="bg-gray-900/60 border border-gray-700 rounded-lg p-4 text-sm text-emerald-400 font-mono overflow-x-auto max-h-48 whitespace-pre-wrap break-all">
+                  <pre className="bg-gray-900/60 border border-border rounded-lg p-4 text-sm text-emerald-400 font-mono overflow-x-auto max-h-48 whitespace-pre-wrap break-all">
                     {cryptoResult}
                   </pre>
                   <button
                     onClick={() => navigator.clipboard.writeText(cryptoResult)}
-                    className="absolute top-2 right-2 px-2 py-1 bg-gray-700 rounded text-xs text-gray-300 hover:bg-gray-600 transition"
+                    className="absolute top-2 right-2 px-2 py-1 bg-surface-hover rounded text-xs text-content-secondary hover:bg-gray-600 transition"
                   >
                     Copy
                   </button>
@@ -672,26 +672,26 @@ function CreateSecretModal({
       onClick={onClose}
     >
       <div
-        className="bg-gray-800 border border-gray-700 rounded-xl p-6 w-[520px]"
+        className="bg-gray-800 border border-border rounded-xl p-6 w-[520px]"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-lg font-semibold text-white mb-4">Store Secret</h2>
+        <h2 className="text-lg font-semibold text-content-primary mb-4">Store Secret</h2>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Name</label>
+            <label className="block text-sm text-content-secondary mb-1">Name</label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+              className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
               placeholder="e.g. db-password"
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Type</label>
+            <label className="block text-sm text-content-secondary mb-1">Type</label>
             <select
               value={secretType}
               onChange={(e) => setSecretType(e.target.value)}
-              className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+              className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
             >
               <option value="opaque">Opaque</option>
               <option value="passphrase">Passphrase</option>
@@ -703,36 +703,36 @@ function CreateSecretModal({
           </div>
           {secretType !== 'symmetric' && (
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Payload</label>
+              <label className="block text-sm text-content-secondary mb-1">Payload</label>
               <textarea
                 value={payload}
                 onChange={(e) => setPayload(e.target.value)}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm h-24 font-mono focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm h-24 font-mono focus:border-blue-500 outline-none"
                 placeholder="Paste secret value..."
               />
-              <p className="text-gray-500 text-xs mt-1">
+              <p className="text-content-tertiary text-xs mt-1">
                 The value will be base64-encoded and encrypted before storage.
               </p>
             </div>
           )}
           {secretType === 'symmetric' && (
-            <p className="text-gray-500 text-sm bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+            <p className="text-content-tertiary text-sm bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
               A 256-bit symmetric key will be auto-generated.
             </p>
           )}
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Description (optional)</label>
+            <label className="block text-sm text-content-secondary mb-1">Description (optional)</label>
             <input
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+              className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
             />
           </div>
         </div>
         <div className="flex justify-end gap-3 mt-6">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-400 hover:text-white text-sm transition"
+            className="px-4 py-2 text-content-secondary hover:text-content-primary text-sm transition"
           >
             Cancel
           </button>
@@ -745,7 +745,7 @@ function CreateSecretModal({
               onSubmit(data)
             }}
             disabled={!name}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-500 transition disabled:opacity-50"
+            className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition disabled:opacity-50"
           >
             Store Secret
           </button>
@@ -772,26 +772,26 @@ function CreateKeyModal({
       onClick={onClose}
     >
       <div
-        className="bg-gray-800 border border-gray-700 rounded-xl p-6 w-[480px]"
+        className="bg-gray-800 border border-border rounded-xl p-6 w-[480px]"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-lg font-semibold text-white mb-4">Create Encryption Key</h2>
+        <h2 className="text-lg font-semibold text-content-primary mb-4">Create Encryption Key</h2>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Name</label>
+            <label className="block text-sm text-content-secondary mb-1">Name</label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+              className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
               placeholder="e.g. volume-encryption-key"
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Key Size</label>
+            <label className="block text-sm text-content-secondary mb-1">Key Size</label>
             <select
               value={bitLength}
               onChange={(e) => setBitLength(parseInt(e.target.value))}
-              className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+              className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
             >
               <option value={128}>AES-128 (128 bits)</option>
               <option value={192}>AES-192 (192 bits)</option>
@@ -799,18 +799,18 @@ function CreateKeyModal({
             </select>
           </div>
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Description (optional)</label>
+            <label className="block text-sm text-content-secondary mb-1">Description (optional)</label>
             <input
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+              className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
             />
           </div>
         </div>
         <div className="flex justify-end gap-3 mt-6">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-400 hover:text-white text-sm transition"
+            className="px-4 py-2 text-content-secondary hover:text-content-primary text-sm transition"
           >
             Cancel
           </button>
@@ -819,7 +819,7 @@ function CreateKeyModal({
               onSubmit({ name, algorithm: 'aes', bit_length: bitLength, mode: 'gcm', description })
             }
             disabled={!name}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-500 transition disabled:opacity-50"
+            className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition disabled:opacity-50"
           >
             Create Key
           </button>

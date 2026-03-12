@@ -86,22 +86,22 @@ export function HPCJobs() {
 
   const statusBadge = (s: string) => {
     const m: Record<string, string> = {
-      pending: 'bg-gray-500/20 text-gray-400',
+      pending: 'bg-gray-500/20 text-content-secondary',
       queued: 'bg-amber-500/20 text-amber-400',
-      running: 'bg-blue-500/20 text-blue-400 animate-pulse',
+      running: 'bg-blue-500/20 text-accent animate-pulse',
       completed: 'bg-emerald-500/20 text-emerald-400',
       failed: 'bg-red-500/20 text-red-400',
-      cancelled: 'bg-gray-500/20 text-gray-500'
+      cancelled: 'bg-gray-500/20 text-content-tertiary'
     }
-    return `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${m[s] || 'bg-gray-500/20 text-gray-400'}`
+    return `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${m[s] || 'bg-gray-500/20 text-content-secondary'}`
   }
 
   const schedulerBadge = (s: string) => {
     const m: Record<string, string> = {
-      kubernetes: 'bg-blue-500/15 text-blue-400 border border-blue-500/30',
+      kubernetes: 'bg-blue-500/15 text-accent border border-blue-500/30',
       slurm: 'bg-orange-500/15 text-orange-400 border border-orange-500/30'
     }
-    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-gray-400'}`
+    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-content-secondary'}`
   }
 
   const formatDuration = (start: string | null, end: string | null) => {
@@ -128,14 +128,14 @@ export function HPCJobs() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">HPC Job Queue</h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-content-primary">HPC Job Queue</h1>
+          <p className="text-content-secondary text-sm mt-1">
             Unified job management across Kubernetes and Slurm schedulers
           </p>
         </div>
         <button
           onClick={() => setShowSubmit(true)}
-          className="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg text-sm font-medium hover:from-purple-500 hover:to-blue-500 transition-all shadow-lg shadow-purple-500/20"
+          className="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-content-primary rounded-lg text-sm font-medium hover:from-purple-500 hover:to-blue-500 transition-all shadow-lg shadow-purple-500/20"
         >
           + Submit Job
         </button>
@@ -147,7 +147,7 @@ export function HPCJobs() {
           {
             label: 'Running',
             value: runningCount,
-            color: 'text-blue-400',
+            color: 'text-accent',
             dot: 'bg-blue-400 animate-pulse'
           },
           { label: 'Queued', value: queuedCount, color: 'text-amber-400', dot: 'bg-amber-400' },
@@ -165,10 +165,10 @@ export function HPCJobs() {
             dot: 'bg-purple-400'
           }
         ].map((s) => (
-          <div key={s.label} className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-4">
+          <div key={s.label} className="bg-surface-tertiary border border-border rounded-xl p-4">
             <div className="flex items-center gap-2 mb-1">
               <span className={`w-2 h-2 rounded-full ${s.dot}`} />
-              <span className="text-xs text-gray-500 uppercase tracking-wider">{s.label}</span>
+              <span className="text-xs text-content-tertiary uppercase tracking-wider">{s.label}</span>
             </div>
             <div className={`text-2xl font-bold ${s.color}`}>{s.value}</div>
           </div>
@@ -177,7 +177,7 @@ export function HPCJobs() {
 
       {/* Filters */}
       <div className="flex items-center gap-3 mb-4">
-        <div className="flex items-center gap-1 bg-gray-800/60 border border-gray-700/40 rounded-lg p-1">
+        <div className="flex items-center gap-1 bg-surface-tertiary border border-border rounded-lg p-1">
           {(['all', 'running', 'queued', 'completed', 'failed', 'cancelled'] as FilterStatus[]).map(
             (s) => (
               <button
@@ -185,8 +185,8 @@ export function HPCJobs() {
                 onClick={() => setFilterStatus(s)}
                 className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${
                   filterStatus === s
-                    ? 'bg-white/10 text-white'
-                    : 'text-gray-500 hover:text-gray-300'
+                    ? 'bg-white/10 text-content-primary'
+                    : 'text-content-tertiary hover:text-content-secondary'
                 }`}
               >
                 {s === 'all' ? 'All' : s.charAt(0).toUpperCase() + s.slice(1)}
@@ -194,15 +194,15 @@ export function HPCJobs() {
             )
           )}
         </div>
-        <div className="flex items-center gap-1 bg-gray-800/60 border border-gray-700/40 rounded-lg p-1">
+        <div className="flex items-center gap-1 bg-surface-tertiary border border-border rounded-lg p-1">
           {(['all', 'kubernetes', 'slurm'] as FilterScheduler[]).map((s) => (
             <button
               key={s}
               onClick={() => setFilterScheduler(s)}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${
                 filterScheduler === s
-                  ? 'bg-white/10 text-white'
-                  : 'text-gray-500 hover:text-gray-300'
+                  ? 'bg-white/10 text-content-primary'
+                  : 'text-content-tertiary hover:text-content-secondary'
               }`}
             >
               {s === 'all' ? 'All Schedulers' : s === 'kubernetes' ? 'Kubernetes' : 'Slurm'}
@@ -210,21 +210,21 @@ export function HPCJobs() {
           ))}
         </div>
         <div className="flex-1" />
-        <span className="text-xs text-gray-500">{filteredJobs.length} jobs</span>
+        <span className="text-xs text-content-tertiary">{filteredJobs.length} jobs</span>
       </div>
 
       {/* Jobs Table */}
-      <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl overflow-hidden">
+      <div className="bg-surface-tertiary border border-border rounded-xl overflow-hidden">
         {filteredJobs.length === 0 ? (
           <div className="text-center py-16">
-            <div className="mb-4 text-gray-600">{Icons.clock('w-12 h-12 mx-auto')}</div>
-            <p className="text-gray-400 text-lg">No jobs found</p>
-            <p className="text-gray-500 text-sm mt-1">Submit a job to get started</p>
+            <div className="mb-4 text-content-tertiary">{Icons.clock('w-12 h-12 mx-auto')}</div>
+            <p className="text-content-secondary text-lg">No jobs found</p>
+            <p className="text-content-tertiary text-sm mt-1">Submit a job to get started</p>
           </div>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-gray-700/30">
-              <tr className="text-left text-gray-400 text-xs uppercase">
+            <thead className="bg-surface-hover">
+              <tr className="text-left text-content-secondary text-xs uppercase">
                 <th className="px-4 py-3">Job</th>
                 <th className="px-4 py-3">Scheduler</th>
                 <th className="px-4 py-3">Resources</th>
@@ -237,12 +237,12 @@ export function HPCJobs() {
               {filteredJobs.map((job) => (
                 <tr
                   key={job.id}
-                  className="border-t border-gray-700/30 hover:bg-gray-700/20 transition cursor-pointer"
+                  className="border-t border-border hover:bg-surface-hover transition cursor-pointer"
                   onClick={() => setSelectedJob(selectedJob?.id === job.id ? null : job)}
                 >
                   <td className="px-4 py-3">
-                    <div className="text-white font-medium">{job.name}</div>
-                    <div className="text-gray-500 text-xs mt-0.5 font-mono">
+                    <div className="text-content-primary font-medium">{job.name}</div>
+                    <div className="text-content-tertiary text-xs mt-0.5 font-mono">
                       {job.id.slice(0, 12)}...
                     </div>
                   </td>
@@ -250,9 +250,9 @@ export function HPCJobs() {
                     <span className={schedulerBadge(job.scheduler)}>{job.scheduler}</span>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-3 text-xs text-gray-300">
+                    <div className="flex items-center gap-3 text-xs text-content-secondary">
                       <span title="CPUs">
-                        {Icons.cpu('w-3.5 h-3.5 inline text-gray-500')} {job.cpus}
+                        {Icons.cpu('w-3.5 h-3.5 inline text-content-tertiary')} {job.cpus}
                       </span>
                       <span title="Memory">{Math.round(job.memory_mb / 1024)}GB</span>
                       {job.gpus > 0 && (
@@ -268,7 +268,7 @@ export function HPCJobs() {
                       )}
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-gray-400 text-xs font-mono">
+                  <td className="px-4 py-3 text-content-secondary text-xs font-mono">
                     {formatDuration(job.started_at, job.completed_at)}
                   </td>
                   <td className="px-4 py-3">
@@ -281,7 +281,7 @@ export function HPCJobs() {
                           e.stopPropagation()
                           viewManifest(job)
                         }}
-                        className="text-gray-400 hover:text-white text-xs transition"
+                        className="text-content-secondary hover:text-content-primary text-xs transition"
                         title="View manifest"
                       >
                         {Icons.folder('w-4 h-4')}
@@ -311,13 +311,13 @@ export function HPCJobs() {
 
       {/* Job Detail Panel */}
       {selectedJob && (
-        <div className="mt-4 bg-gray-800/60 border border-gray-700/40 rounded-xl p-6">
+        <div className="mt-4 bg-surface-tertiary border border-border rounded-xl p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+            <h3 className="text-lg font-semibold text-content-primary flex items-center gap-2">
               {selectedJob.name}
               <span className={statusBadge(selectedJob.status)}>{selectedJob.status}</span>
             </h3>
-            <button onClick={() => setSelectedJob(null)} className="text-gray-500 hover:text-white">
+            <button onClick={() => setSelectedJob(null)} className="text-content-tertiary hover:text-content-primary">
               {Icons.xMark('w-5 h-5')}
             </button>
           </div>
@@ -338,22 +338,22 @@ export function HPCJobs() {
               },
               { l: 'Nodes', v: String(selectedJob.nodes) }
             ].map((i) => (
-              <div key={i.l} className="bg-gray-700/30 rounded-lg p-3">
-                <div className="text-gray-500 text-xs mb-1">{i.l}</div>
-                <div className="text-white font-mono text-xs">{i.v}</div>
+              <div key={i.l} className="bg-surface-hover rounded-lg p-3">
+                <div className="text-content-tertiary text-xs mb-1">{i.l}</div>
+                <div className="text-content-primary font-mono text-xs">{i.v}</div>
               </div>
             ))}
           </div>
           {selectedJob.image && (
-            <div className="mt-3 bg-gray-700/30 rounded-lg p-3">
-              <div className="text-gray-500 text-xs mb-1">Container Image</div>
+            <div className="mt-3 bg-surface-hover rounded-lg p-3">
+              <div className="text-content-tertiary text-xs mb-1">Container Image</div>
               <div className="text-cyan-400 font-mono text-xs">{selectedJob.image}</div>
             </div>
           )}
           {selectedJob.script && (
-            <div className="mt-3 bg-gray-900/50 rounded-lg p-4 border border-gray-700/30">
-              <div className="text-gray-500 text-xs mb-2">Script</div>
-              <pre className="text-gray-300 text-xs font-mono whitespace-pre-wrap">
+            <div className="mt-3 bg-gray-900/50 rounded-lg p-4 border border-border">
+              <div className="text-content-tertiary text-xs mb-2">Script</div>
+              <pre className="text-content-secondary text-xs font-mono whitespace-pre-wrap">
                 {selectedJob.script}
               </pre>
             </div>
@@ -384,19 +384,19 @@ export function HPCJobs() {
           onClick={() => setShowManifest(false)}
         >
           <div
-            className="bg-gray-800 border border-gray-700 rounded-xl p-6 w-[700px] max-h-[80vh] overflow-y-auto"
+            className="bg-gray-800 border border-border rounded-xl p-6 w-[700px] max-h-[80vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-white">Job Manifest</h2>
+              <h2 className="text-lg font-semibold text-content-primary">Job Manifest</h2>
               <button
                 onClick={() => setShowManifest(false)}
-                className="text-gray-500 hover:text-white"
+                className="text-content-tertiary hover:text-content-primary"
               >
                 {Icons.xMark('w-5 h-5')}
               </button>
             </div>
-            <pre className="bg-gray-900 rounded-lg p-4 text-xs font-mono text-gray-300 overflow-auto max-h-[60vh] whitespace-pre-wrap">
+            <pre className="bg-gray-900 rounded-lg p-4 text-xs font-mono text-content-secondary overflow-auto max-h-[60vh] whitespace-pre-wrap">
               {manifestData}
             </pre>
           </div>
@@ -442,8 +442,8 @@ function SubmitJobModal({
   }
 
   const inputClass =
-    'w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 transition'
-  const labelClass = 'block text-xs text-gray-400 mb-1'
+    'w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:outline-none focus:border-blue-500 transition'
+  const labelClass = 'block text-xs text-content-secondary mb-1'
 
   return (
     <div
@@ -451,10 +451,10 @@ function SubmitJobModal({
       onClick={onClose}
     >
       <div
-        className="bg-gray-800 border border-gray-700 rounded-xl p-6 w-[640px] max-h-[85vh] overflow-y-auto"
+        className="bg-gray-800 border border-border rounded-xl p-6 w-[640px] max-h-[85vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-lg font-semibold text-white mb-5">Submit HPC Job</h2>
+        <h2 className="text-lg font-semibold text-content-primary mb-5">Submit HPC Job</h2>
         <div className="space-y-4">
           {/* Scheduler Toggle */}
           <div>
@@ -467,9 +467,9 @@ function SubmitJobModal({
                   className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition border ${
                     scheduler === s
                       ? s === 'kubernetes'
-                        ? 'bg-blue-600/20 border-blue-500/40 text-blue-400'
+                        ? 'bg-blue-600/20 border-blue-500/40 text-accent'
                         : 'bg-orange-600/20 border-orange-500/40 text-orange-400'
-                      : 'bg-gray-700/30 border-gray-600/30 text-gray-500 hover:text-gray-300'
+                      : 'bg-surface-hover border-gray-600/30 text-content-tertiary hover:text-content-secondary'
                   }`}
                 >
                   {s === 'kubernetes' ? 'Kubernetes (Volcano/MPI)' : 'Slurm'}
@@ -526,8 +526,8 @@ function SubmitJobModal({
           </div>
 
           {/* Resources */}
-          <div className="border-t border-gray-700/30 pt-4">
-            <h3 className="text-xs text-gray-400 uppercase tracking-wider mb-3">Resources</h3>
+          <div className="border-t border-border pt-4">
+            <h3 className="text-xs text-content-secondary uppercase tracking-wider mb-3">Resources</h3>
             <div className="grid grid-cols-4 gap-3">
               <div>
                 <label className={labelClass}>CPUs</label>
@@ -599,17 +599,17 @@ function SubmitJobModal({
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-700/30">
+        <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-border">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-400 hover:text-white text-sm transition"
+            className="px-4 py-2 text-content-secondary hover:text-content-primary text-sm transition"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={!name || !clusterId || !script}
-            className="px-5 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg text-sm font-medium hover:from-purple-500 hover:to-blue-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-5 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-content-primary rounded-lg text-sm font-medium hover:from-purple-500 hover:to-blue-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Submit Job
           </button>

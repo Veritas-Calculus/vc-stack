@@ -14,28 +14,65 @@
   --header-h: 52px;
   --radius: 12px;
 
-  /* Dark-mode surfaces */
+  /* Glass surfaces */
   --glass-bg: rgba(28, 37, 55, 0.72);
   --glass-bg-sidebar: rgba(28, 37, 55, 0.88);
   --glass-border: rgba(255, 255, 255, 0.06);
 
-  /* Semantic tokens – dark */
-  --color-bg-primary: #0f1724;
-  --color-bg-secondary: rgba(28, 37, 55, 0.5);
-  --color-bg-tertiary: rgba(255, 255, 255, 0.04);
-  --color-bg-elevated: rgba(28, 37, 55, 0.72);
-  --color-bg-hover: rgba(255, 255, 255, 0.06);
-  --color-border: rgba(255, 255, 255, 0.06);
-  --color-border-strong: rgba(255, 255, 255, 0.1);
-  --color-text-primary: #f5f5f7;
-  --color-text-secondary: #a1a1a6;
-  --color-text-tertiary: #6e6e73;
-  --color-text-muted: rgba(255, 255, 255, 0.4);
-  --color-icon-muted: rgba(255, 255, 255, 0.4);
-  --color-icon-hover: rgba(255, 255, 255, 0.8);
-  --color-accent: #0a84ff;
-  --color-accent-hover: #409cff;
+  /* ── Semantic Surface Tokens ── */
+  --surface-primary: #0f1724;
+  --surface-secondary: #1c2537;
+  --surface-tertiary: #232d3f;
+  --surface-elevated: rgba(28, 37, 55, 0.85);
+  --surface-hover: rgba(255, 255, 255, 0.06);
+  --surface-active: rgba(10, 132, 255, 0.12);
+  --surface-inset: rgba(0, 0, 0, 0.2);
+
+  /* ── Text / Content ── */
+  --content-primary: #f5f5f7;
+  --content-secondary: #a1a1a6;
+  --content-tertiary: #6e6e73;
+  --content-placeholder: #48484a;
+  --content-inverse: #1d1d1f;
+
+  /* ── Borders ── */
+  --border-default: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.12);
+
+  /* ── Accent ── */
+  --accent-color: #0a84ff;
+  --accent-color-hover: #409cff;
+  --accent-subtle: rgba(10, 132, 255, 0.12);
+
+  /* ── Status ── */
+  --status-success: #30d158;
+  --status-warning: #ff9f0a;
+  --status-error: #ff453a;
+  --status-info: #0a84ff;
+
+  /* ── Icon ── */
+  --icon-muted: rgba(255, 255, 255, 0.4);
+  --icon-hover: rgba(255, 255, 255, 0.8);
+
+  /* ── Misc ── */
   --progress-bg: rgba(255, 255, 255, 0.08);
+
+  /* Legacy aliases (backward compat – will be removed in P5) */
+  --color-bg-primary: var(--surface-primary);
+  --color-bg-secondary: var(--surface-secondary);
+  --color-bg-tertiary: var(--surface-tertiary);
+  --color-bg-elevated: var(--surface-elevated);
+  --color-bg-hover: var(--surface-hover);
+  --color-border: var(--border-default);
+  --color-border-strong: var(--border-strong);
+  --color-text-primary: var(--content-primary);
+  --color-text-secondary: var(--content-secondary);
+  --color-text-tertiary: var(--content-tertiary);
+  --color-text-muted: var(--icon-muted);
+  --color-icon-muted: var(--icon-muted);
+  --color-icon-hover: var(--icon-hover);
+  --color-accent: var(--accent-color);
+  --color-accent-hover: var(--accent-color-hover);
 }
 
 html.light {
@@ -45,21 +82,42 @@ html.light {
   --glass-bg-sidebar: rgba(246, 248, 252, 0.92);
   --glass-border: rgba(0, 0, 0, 0.08);
 
-  --color-bg-primary: #f5f5f7;
-  --color-bg-secondary: #ffffff;
-  --color-bg-tertiary: #f5f5f7;
-  --color-bg-elevated: rgba(255, 255, 255, 0.8);
-  --color-bg-hover: rgba(0, 0, 0, 0.04);
-  --color-border: rgba(0, 0, 0, 0.08);
-  --color-border-strong: rgba(0, 0, 0, 0.12);
-  --color-text-primary: #1d1d1f;
-  --color-text-secondary: #6e6e73;
-  --color-text-tertiary: #86868b;
-  --color-text-muted: rgba(0, 0, 0, 0.35);
-  --color-icon-muted: rgba(0, 0, 0, 0.35);
-  --color-icon-hover: rgba(0, 0, 0, 0.7);
-  --color-accent: #007aff;
-  --color-accent-hover: #0066cc;
+  /* ── Semantic Surface Tokens ── */
+  --surface-primary: #f5f5f7;
+  --surface-secondary: #ffffff;
+  --surface-tertiary: #f0f0f5;
+  --surface-elevated: rgba(255, 255, 255, 0.95);
+  --surface-hover: rgba(0, 0, 0, 0.04);
+  --surface-active: rgba(0, 122, 255, 0.08);
+  --surface-inset: rgba(0, 0, 0, 0.03);
+
+  /* ── Text / Content ── */
+  --content-primary: #1d1d1f;
+  --content-secondary: #6e6e73;
+  --content-tertiary: #86868b;
+  --content-placeholder: #aeaeb2;
+  --content-inverse: #f5f5f7;
+
+  /* ── Borders ── */
+  --border-default: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.12);
+
+  /* ── Accent ── */
+  --accent-color: #007aff;
+  --accent-color-hover: #0066cc;
+  --accent-subtle: rgba(0, 122, 255, 0.08);
+
+  /* ── Status (same values; explicit for clarity) ── */
+  --status-success: #34c759;
+  --status-warning: #ff9500;
+  --status-error: #ff3b30;
+  --status-info: #007aff;
+
+  /* ── Icon ── */
+  --icon-muted: rgba(0, 0, 0, 0.35);
+  --icon-hover: rgba(0, 0, 0, 0.7);
+
+  /* ── Misc ── */
   --progress-bg: rgba(0, 0, 0, 0.06);
 }
 
@@ -71,7 +129,8 @@ html {
 }
 
 body {
-  @apply bg-oxide-950 text-gray-100;
+  background-color: var(--surface-primary);
+  color: var(--content-primary);
   font-family:
     'Inter',
     -apple-system,
@@ -281,244 +340,14 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   LIGHT MODE — Comprehensive Overrides
-   Apple-style: clean whites, subtle shadows, deep contrast text
+   LIGHT MODE — Essential Global Overrides
+   Only structural/element-level rules that can't use Tailwind utilities
    ═══════════════════════════════════════════════════════════════ */
 
+/* ── Body ─────────────────────────────────────────────────── */
 html.light body {
-  background-color: #f5f5f7;
-  color: #1d1d1f;
-}
-
-/* ── Background overrides ─────────────────────────────────── */
-html.light .bg-oxide-950 {
-  background-color: #f5f5f7 !important;
-}
-
-html.light .bg-oxide-900,
-html.light .bg-oxide-900\/70,
-html.light .bg-oxide-900\/80,
-html.light .bg-oxide-900\/60,
-html.light .bg-oxide-900\/40 {
-  background-color: #ffffff !important;
-}
-
-html.light .bg-oxide-800,
-html.light .bg-oxide-800\/60,
-html.light .bg-oxide-800\/40,
-html.light .bg-oxide-800\/30 {
-  background-color: #f5f5f7 !important;
-}
-
-html.light .bg-oxide-700,
-html.light .bg-oxide-700\/20,
-html.light .bg-oxide-700\/30 {
-  background-color: #e8e8ed !important;
-}
-
-/* Gray bg overrides */
-html.light .bg-gray-800\/60,
-html.light .bg-gray-800\/40,
-html.light .bg-gray-800\/30 {
-  background-color: #ffffff !important;
-}
-
-html.light .bg-gray-700\/20,
-html.light .bg-gray-700\/30 {
-  background-color: #f5f5f7 !important;
-}
-
-html.light .bg-gray-700 {
-  background-color: #e8e8ed !important;
-}
-
-/* Hover bg overrides */
-html.light .hover\:bg-oxide-800:hover,
-html.light .hover\:bg-oxide-800\/60:hover,
-html.light .hover\:bg-oxide-800\/30:hover,
-html.light .hover\:bg-oxide-900\/40:hover,
-html.light .hover\:bg-oxide-700:hover {
-  background-color: #f0f0f5 !important;
-}
-
-html.light .hover\:bg-white\/\[0\.06\]:hover {
-  background-color: rgba(0, 0, 0, 0.04) !important;
-}
-
-/* ── Border overrides ─────────────────────────────────────── */
-html.light .border-oxide-800,
-html.light .border-oxide-800\/30,
-html.light .border-oxide-700,
-html.light .border-oxide-700\/40 {
-  border-color: #e5e5ea !important;
-}
-
-html.light .border-gray-700\/40,
-html.light .border-gray-700\/30 {
-  border-color: #e5e5ea !important;
-}
-
-html.light .border-white\/\[0\.06\],
-html.light .border-white\/\[0\.08\] {
-  border-color: #e5e5ea !important;
-}
-
-html.light .divide-oxide-800 > :not([hidden]) ~ :not([hidden]),
-html.light .divide-oxide-800\/30 > :not([hidden]) ~ :not([hidden]) {
-  border-color: #e5e5ea !important;
-}
-
-/* ── Text/Content overrides ───────────────────────────────── */
-html.light .text-white {
-  color: #1d1d1f !important;
-}
-
-html.light .text-white\/90 {
-  color: #1d1d1f !important;
-}
-
-html.light .text-white\/80 {
-  color: #1d1d1f !important;
-}
-
-html.light .text-white\/70 {
-  color: #3a3a3c !important;
-}
-
-html.light .text-white\/55 {
-  color: #6e6e73 !important;
-}
-
-html.light .text-white\/40 {
-  color: rgba(0, 0, 0, 0.4) !important;
-}
-
-html.light .text-white\/25 {
-  color: rgba(0, 0, 0, 0.2) !important;
-}
-
-html.light .text-gray-100 {
-  color: #1d1d1f !important;
-}
-
-html.light .text-gray-200 {
-  color: #1d1d1f !important;
-}
-
-html.light .text-gray-300 {
-  color: #424245 !important;
-}
-
-html.light .text-gray-400 {
-  color: #6e6e73 !important;
-}
-
-html.light .text-gray-500 {
-  color: #86868b !important;
-}
-
-/* ── Accent colors – Apple light palette ──────────────────── */
-html.light .text-cyan-400 {
-  color: #00a5c4 !important;
-}
-
-html.light .text-emerald-400 {
-  color: #28a745 !important;
-}
-
-html.light .text-amber-400 {
-  color: #d97706 !important;
-}
-
-html.light .text-red-400 {
-  color: #ff3b30 !important;
-}
-
-html.light .text-blue-400 {
-  color: #007aff !important;
-}
-
-html.light .text-purple-400 {
-  color: #af52de !important;
-}
-
-html.light .text-indigo-400 {
-  color: #5856d6 !important;
-}
-
-/* ── Hover text overrides ─────────────────────────────────── */
-html.light .hover\:text-white:hover,
-html.light .hover\:text-white\/80:hover {
-  color: #1d1d1f !important;
-}
-
-html.light .hover\:text-blue-400:hover {
-  color: #007aff !important;
-}
-
-html.light .hover\:text-blue-300:hover {
-  color: #0066cc !important;
-}
-
-html.light .group:hover .group-hover\:text-blue-400 {
-  color: #007aff !important;
-}
-
-/* ── Opacity / icon color overrides ───────────────────────── */
-html.light .opacity-40 {
-  opacity: 0.5 !important;
-}
-
-/* ── Shadows – Apple light mode ───────────────────────────── */
-html.light .shadow-card,
-html.light .shadow-glass-sm {
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.06),
-    0 1px 2px rgba(0, 0, 0, 0.04) !important;
-}
-
-/* ── Header ───────────────────────────────────────────────── */
-html.light header {
-  background-color: rgba(255, 255, 255, 0.8) !important;
-  backdrop-filter: blur(20px) saturate(1.4) !important;
-  border-color: #e5e5ea !important;
-}
-
-/* ── Sidebar ──────────────────────────────────────────────── */
-html.light aside,
-html.light nav {
-  background-color: rgba(246, 248, 252, 0.95) !important;
-  border-color: #e5e5ea !important;
-}
-
-/* ── Inputs in light mode ─────────────────────────────────── */
-html.light .input,
-html.light .input-field,
-html.light input[type='text'],
-html.light input[type='password'],
-html.light input[type='email'],
-html.light input[type='search'],
-html.light input[type='number'],
-html.light textarea,
-html.light select {
-  background-color: #ffffff !important;
-  border-color: #d2d2d7 !important;
-  color: #1d1d1f !important;
-}
-
-html.light .input:focus,
-html.light .input-field:focus,
-html.light input:focus,
-html.light textarea:focus,
-html.light select:focus {
-  border-color: #007aff !important;
-}
-
-html.light .input::placeholder,
-html.light .input-field::placeholder,
-html.light input::placeholder,
-html.light textarea::placeholder {
-  color: #86868b !important;
+  background-color: var(--surface-primary);
+  color: var(--content-primary);
 }
 
 /* ── Selection ────────────────────────────────────────────── */
@@ -536,95 +365,48 @@ html.light ::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.2);
 }
 
-/* ── Progress bar bg ──────────────────────────────────────── */
-html.light .bg-oxide-800.overflow-hidden,
-html.light .rounded-full.bg-oxide-800 {
-  background-color: #e5e5ea !important;
+/* ── Header ───────────────────────────────────────────────── */
+html.light header {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(20px) saturate(1.4) !important;
+  border-color: var(--border-default) !important;
 }
 
-/* ── Specific component fixes ─────────────────────────────── */
-
-/* Dashboard resource badge (VM, Vol, etc.) */
-html.light .bg-oxide-700.text-gray-400 {
-  background-color: #e5e5ea !important;
-  color: #6e6e73 !important;
+/* ── Sidebar ──────────────────────────────────────────────── */
+html.light aside,
+html.light nav {
+  background-color: rgba(246, 248, 252, 0.95) !important;
+  border-color: var(--border-default) !important;
 }
 
-/* Cards with backdrop-blur in light mode should be white with subtle shadow */
-html.light [class*='rounded-xl'][class*='border'][class*='bg-oxide-900'] {
-  background-color: #ffffff !important;
-  border-color: #e5e5ea !important;
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.06),
-    0 1px 2px rgba(0, 0, 0, 0.04);
-}
-
-/* Table cells bg */
-html.light .bg-oxide-900\/70 {
-  background-color: #fafafa !important;
-}
-
-/* Status badges / green active pill */
-html.light .bg-emerald-500\/15 {
-  background-color: rgba(52, 199, 89, 0.12) !important;
-}
-
-/* Light mode button overrides */
-html.light .bg-white\/\[0\.04\] {
-  background-color: rgba(0, 0, 0, 0.03) !important;
-}
-
-html.light .bg-white\/\[0\.06\] {
-  background-color: rgba(0, 0, 0, 0.04) !important;
-}
-
-html.light .hover\:bg-white\/\[0\.08\]:hover {
-  background-color: rgba(0, 0, 0, 0.06) !important;
-}
-
-html.light .hover\:bg-white\/\[0\.1\]:hover,
-html.light .hover\:bg-white\/10:hover {
-  background-color: rgba(0, 0, 0, 0.06) !important;
-}
-
-/* Gradient on the user avatar stays consistent */
-html.light .bg-gradient-to-br.from-apple-blue.to-apple-purple {
-  color: #ffffff !important;
-}
-
-/* ── Modal / Dialog ───────────────────────────────────────── */
-html.light .bg-oxide-900.rounded-lg,
-html.light .bg-oxide-900.rounded-xl {
-  background-color: #ffffff !important;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
-}
-
-/* ── Tag / Chip ───────────────────────────────────────────── */
-html.light .bg-oxide-800.text-gray-300,
-html.light .bg-oxide-800\/60.text-gray-300 {
-  background-color: #e8e8ed !important;
-  color: #424245 !important;
-}
-
-/* ── Login Page ───────────────────────────────────────────── */
-html.light .min-h-screen.bg-oxide-950 {
-  background-color: #f5f5f7 !important;
-}
-
-html.light .bg-oxide-800.shadow-card {
-  background-color: #ffffff !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
-}
-
-html.light .bg-oxide-900.border-oxide-700 {
+/* ── Inputs ───────────────────────────────────────────────── */
+html.light .input,
+html.light .input-field,
+html.light input[type='text'],
+html.light input[type='password'],
+html.light input[type='email'],
+html.light input[type='search'],
+html.light input[type='number'],
+html.light textarea,
+html.light select {
   background-color: #ffffff !important;
   border-color: #d2d2d7 !important;
+  color: var(--content-primary) !important;
 }
 
-/* Login text colors */
-html.light .text-gray-100.space-y-4,
-html.light .space-y-4.text-gray-100 {
-  color: #1d1d1f !important;
+html.light .input:focus,
+html.light .input-field:focus,
+html.light input:focus,
+html.light textarea:focus,
+html.light select:focus {
+  border-color: var(--accent-color) !important;
+}
+
+html.light .input::placeholder,
+html.light .input-field::placeholder,
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: var(--content-placeholder) !important;
 }
 
 /* ── btn-primary stays white text in ALL themes ───────────── */
@@ -634,74 +416,28 @@ html.light .btn-primary:active {
   color: #ffffff !important;
 }
 
-/* ── Plus/Create button text stays white ──────────────────── */
 html.light button[class*='btn-primary'] {
   color: #ffffff !important;
 }
 
-/* ── Specific override: inline white/40 icon buttons ──────── */
-html.light button[class*='text-white/40'],
-html.light button[class*='text-white\\/40'],
-html.light [class*='text-white/40'] {
-  color: rgba(0, 0, 0, 0.4) !important;
+/* ── Gradient avatar stays white text ─────────────────────── */
+html.light .bg-gradient-to-br.from-apple-blue.to-apple-purple {
+  color: #ffffff !important;
 }
 
-html.light button[class*='text-white/40']:hover,
-html.light [class*='text-white/40']:hover {
-  color: rgba(0, 0, 0, 0.7) !important;
-}
-
-/* ── Sidebar logo text visible in light mode ──────────────── */
-html.light a[class*='text-white/90'],
-html.light a[class*='text-white\\/90'] {
-  color: #1d1d1f !important;
-}
-
-/* ── Flyout menu shadow in light mode ─────────────────────── */
+/* ── Dropdown menu ────────────────────────────────────────── */
 html.light .dropdown-menu {
   background: rgba(255, 255, 255, 0.95);
-  border-color: rgba(0, 0, 0, 0.06);
+  border-color: var(--border-default);
   box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.12),
     0 0 0 1px rgba(0, 0, 0, 0.04);
 }
 
-/* ── DataTable ────────────────────────────────────────────── */
-html.light .border-oxide-800 > table {
-  border-color: #e5e5ea;
-}
-
-html.light thead.bg-oxide-900\/70 {
-  background-color: #fafafa !important;
-}
-
-html.light tbody tr.border-t.border-oxide-800 {
-  border-color: #e5e5ea !important;
-}
-
-/* ── Status pills ─────────────────────────────────────────── */
-html.light .bg-emerald-500 {
-  background-color: #34c759 !important;
-}
-
-html.light .bg-red-500 {
-  background-color: #ff3b30 !important;
-}
-
-html.light .bg-amber-500 {
-  background-color: #ff9500 !important;
-}
-
-/* ── Settings / panel bg ──────────────────────────────────── */
-html.light .bg-oxide-900\/50 {
-  background-color: #ffffff !important;
-}
-
-/* ── Misc bg utility combos used in components ────────────── */
-html.light .bg-oxide-900.border {
-  background-color: #ffffff !important;
-}
-
-html.light .bg-oxide-800.border {
-  background-color: #f5f5f7 !important;
+/* ── Shadows ──────────────────────────────────────────────── */
+html.light .shadow-card,
+html.light .shadow-glass-sm {
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.06),
+    0 1px 2px rgba(0, 0, 0, 0.04) !important;
 }

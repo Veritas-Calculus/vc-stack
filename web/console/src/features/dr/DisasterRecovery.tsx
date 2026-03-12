@@ -154,27 +154,27 @@ export function DisasterRecovery() {
   const badge = (s: string) => {
     const m: Record<string, string> = {
       active: 'bg-emerald-500/20 text-emerald-400',
-      primary: 'bg-blue-500/20 text-blue-400',
+      primary: 'bg-blue-500/20 text-accent',
       warm_standby: 'bg-amber-500/20 text-amber-400',
-      cold_standby: 'bg-gray-500/20 text-gray-400',
+      cold_standby: 'bg-gray-500/20 text-content-secondary',
       offline: 'bg-red-500/20 text-red-400',
       failover_active: 'bg-purple-500/20 text-purple-400',
       degraded: 'bg-orange-500/20 text-orange-400',
       critical: 'bg-red-500/20 text-red-400',
       high: 'bg-orange-500/20 text-orange-400',
       medium: 'bg-amber-500/20 text-amber-400',
-      low: 'bg-gray-500/20 text-gray-400',
+      low: 'bg-gray-500/20 text-content-secondary',
       completed: 'bg-emerald-500/20 text-emerald-400',
       failed: 'bg-red-500/20 text-red-400',
-      running: 'bg-blue-500/20 text-blue-400',
-      sync: 'bg-blue-500/20 text-blue-400',
+      running: 'bg-blue-500/20 text-accent',
+      sync: 'bg-blue-500/20 text-accent',
       async: 'bg-cyan-500/20 text-cyan-400',
       scheduled: 'bg-purple-500/20 text-purple-400',
       failover: 'bg-red-500/20 text-red-400',
       failback: 'bg-emerald-500/20 text-emerald-400',
       switchover: 'bg-amber-500/20 text-amber-400'
     }
-    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-gray-400'}`
+    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-gray-500/20 text-content-secondary'}`
   }
 
   const tabs: { key: Tab; label: string }[] = [
@@ -191,33 +191,33 @@ export function DisasterRecovery() {
     <div className="p-8 max-w-[1400px] mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Disaster Recovery</h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-content-primary">Disaster Recovery</h1>
+          <p className="text-content-secondary text-sm mt-1">
             Cross-site replication, RPO/RTO management, failover orchestration
           </p>
         </div>
         <div className="flex gap-2">
           <button
             onClick={doFailover}
-            className="px-3 py-1.5 bg-red-600 text-white rounded-lg text-sm hover:bg-red-500 transition flex items-center gap-1"
+            className="px-3 py-1.5 bg-red-600 text-content-primary rounded-lg text-sm hover:bg-red-500 transition flex items-center gap-1"
           >
             {Icons.bolt('w-4 h-4')} Failover
           </button>
           <button
             onClick={doFailback}
-            className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-500 transition"
+            className="px-3 py-1.5 bg-emerald-600 text-content-primary rounded-lg text-sm hover:bg-emerald-500 transition"
           >
             Failback
           </button>
         </div>
       </div>
 
-      <div className="flex gap-1 mb-6 bg-gray-800/40 p-1 rounded-lg w-fit">
+      <div className="flex gap-1 mb-6 bg-surface-tertiary p-1 rounded-lg w-fit">
         {tabs.map((t) => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition ${tab === t.key ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-gray-200'}`}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition ${tab === t.key ? 'bg-surface-hover text-content-primary' : 'text-content-secondary hover:text-content-primary'}`}
           >
             {t.label}
           </button>
@@ -233,7 +233,7 @@ export function DisasterRecovery() {
                 label: 'DR Sites',
                 value: `${status.healthy_sites}/${status.sites}`,
                 icon: Icons.building('w-5 h-5'),
-                color: 'text-blue-400',
+                color: 'text-accent',
                 sub: 'healthy'
               },
               {
@@ -260,27 +260,27 @@ export function DisasterRecovery() {
             ].map((s) => (
               <div
                 key={s.label}
-                className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5"
+                className="bg-surface-tertiary border border-border rounded-xl p-5"
               >
-                <div className="flex items-center gap-2 text-gray-400 text-sm mb-2">
+                <div className="flex items-center gap-2 text-content-secondary text-sm mb-2">
                   <span>{s.icon}</span> {s.label}
                 </div>
                 <div className={`text-3xl font-bold ${s.color}`}>{s.value}</div>
-                <div className="text-gray-500 text-xs mt-1">{s.sub}</div>
+                <div className="text-content-tertiary text-xs mt-1">{s.sub}</div>
               </div>
             ))}
           </div>
 
           {/* Site topology */}
-          <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-6">
-            <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4 flex items-center gap-2">
+          <div className="bg-surface-tertiary border border-border rounded-xl p-6">
+            <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider mb-4 flex items-center gap-2">
               {Icons.globe('w-4 h-4')} Site Topology
             </h3>
             <div className="flex items-center justify-center gap-8 flex-wrap">
               {sites.map((site) => (
                 <div
                   key={site.id}
-                  className={`bg-gray-700/30 border rounded-xl p-5 min-w-[200px] text-center ${site.status === 'active' ? 'border-emerald-500/40' : site.status === 'failover_active' ? 'border-purple-500/40' : 'border-red-500/40'}`}
+                  className={`bg-surface-hover border rounded-xl p-5 min-w-[200px] text-center ${site.status === 'active' ? 'border-emerald-500/40' : site.status === 'failover_active' ? 'border-purple-500/40' : 'border-red-500/40'}`}
                 >
                   <div className="mb-2">
                     {site.type === 'primary'
@@ -289,15 +289,15 @@ export function DisasterRecovery() {
                         ? Icons.flame('w-8 h-8')
                         : Icons.snowflake('w-8 h-8')}
                   </div>
-                  <div className="text-white font-semibold text-lg">{site.name}</div>
-                  <div className="text-gray-400 text-xs mb-2">{site.location}</div>
+                  <div className="text-content-primary font-semibold text-lg">{site.name}</div>
+                  <div className="text-content-secondary text-xs mb-2">{site.location}</div>
                   <span className={badge(site.status)}>{site.status}</span>
-                  <div className="mt-3 text-xs text-gray-400">
+                  <div className="mt-3 text-xs text-content-secondary">
                     <div>
                       Storage: {site.storage_used_gb}/{site.storage_total_gb} GB
                     </div>
                     <div className="mt-1">
-                      <div className="w-full h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                      <div className="w-full h-1.5 bg-surface-hover rounded-full overflow-hidden">
                         <div
                           className="h-full bg-blue-500 rounded-full"
                           style={{
@@ -312,13 +312,13 @@ export function DisasterRecovery() {
             </div>
             {/* Replication arrows */}
             {plans.length > 0 && (
-              <div className="flex items-center justify-center gap-2 mt-4 text-gray-400">
+              <div className="flex items-center justify-center gap-2 mt-4 text-content-secondary">
                 <span className="text-sm">{siteForId(plans[0].source_site_id)}</span>
                 <span className="text-cyan-400">
                   &rarr;&rarr;&rarr; {plans[0].replication_type} replication &rarr;&rarr;&rarr;
                 </span>
                 <span className="text-sm">{siteForId(plans[0].target_site_id)}</span>
-                <span className="text-xs text-gray-500 ml-4">
+                <span className="text-xs text-content-tertiary ml-4">
                   lag: {plans[0].replication_lag_seconds}s
                 </span>
               </div>
@@ -326,15 +326,15 @@ export function DisasterRecovery() {
           </div>
 
           {/* Active plans summary */}
-          <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl overflow-hidden">
-            <div className="px-5 py-3 border-b border-gray-700/30">
-              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+          <div className="bg-surface-tertiary border border-border rounded-xl overflow-hidden">
+            <div className="px-5 py-3 border-b border-border">
+              <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider">
                 DR Plans
               </h3>
             </div>
             <table className="w-full text-sm">
-              <thead className="bg-gray-700/30">
-                <tr className="text-left text-gray-400 text-xs uppercase">
+              <thead className="bg-surface-hover">
+                <tr className="text-left text-content-secondary text-xs uppercase">
                   <th className="px-4 py-3">Plan</th>
                   <th className="px-4 py-3">Priority</th>
                   <th className="px-4 py-3">RPO</th>
@@ -349,11 +349,11 @@ export function DisasterRecovery() {
                 {plans.map((p) => (
                   <tr
                     key={p.id}
-                    className="border-t border-gray-700/30 hover:bg-gray-700/20 transition"
+                    className="border-t border-border hover:bg-surface-hover transition"
                   >
                     <td className="px-4 py-3">
-                      <div className="text-white font-medium">{p.name}</div>
-                      <div className="text-gray-500 text-xs">{p.description}</div>
+                      <div className="text-content-primary font-medium">{p.name}</div>
+                      <div className="text-content-tertiary text-xs">{p.description}</div>
                     </td>
                     <td className="px-4 py-3">
                       <span className={badge(p.priority)}>{p.priority}</span>
@@ -363,8 +363,8 @@ export function DisasterRecovery() {
                     <td className="px-4 py-3">
                       <span className={badge(p.replication_type)}>{p.replication_type}</span>
                     </td>
-                    <td className="px-4 py-3 text-white">{p.protected_count} resources</td>
-                    <td className="px-4 py-3 text-gray-300 font-mono text-xs">
+                    <td className="px-4 py-3 text-content-primary">{p.protected_count} resources</td>
+                    <td className="px-4 py-3 text-content-secondary font-mono text-xs">
                       {p.replication_lag_seconds}s
                     </td>
                     <td className="px-4 py-3">
@@ -384,7 +384,7 @@ export function DisasterRecovery() {
           {sites.map((site) => (
             <div
               key={site.id}
-              className={`bg-gray-800/60 border rounded-xl p-5 ${site.healthy ? 'border-gray-700/40' : 'border-red-500/40'}`}
+              className={`bg-surface-tertiary border rounded-xl p-5 ${site.healthy ? 'border-border' : 'border-red-500/40'}`}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -398,20 +398,20 @@ export function DisasterRecovery() {
                         : Icons.snowflake('w-4 h-4')}
                   </div>
                   <div>
-                    <div className="text-white font-bold text-lg">{site.name}</div>
-                    <div className="text-gray-400 text-sm">
+                    <div className="text-content-primary font-bold text-lg">{site.name}</div>
+                    <div className="text-content-secondary text-sm">
                       {site.location} • {site.endpoint}
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="text-right text-xs">
-                    <div className="text-gray-400">Storage</div>
-                    <div className="text-white font-bold">
+                    <div className="text-content-secondary">Storage</div>
+                    <div className="text-content-primary font-bold">
                       {site.storage_used_gb} / {site.storage_total_gb} GB
                     </div>
                     <div className="mt-1 w-32">
-                      <div className="w-full h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                      <div className="w-full h-1.5 bg-surface-hover rounded-full overflow-hidden">
                         <div
                           className="h-full bg-blue-500 rounded-full"
                           style={{
@@ -436,33 +436,33 @@ export function DisasterRecovery() {
       {tab === 'plans' && (
         <div className="grid gap-4">
           {plans.map((p) => (
-            <div key={p.id} className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5">
+            <div key={p.id} className="bg-surface-tertiary border border-border rounded-xl p-5">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <div className="text-white font-bold text-lg">{p.name}</div>
-                  <div className="text-gray-400 text-sm">{p.description}</div>
+                  <div className="text-content-primary font-bold text-lg">{p.name}</div>
+                  <div className="text-content-secondary text-sm">{p.description}</div>
                 </div>
                 <span className={badge(p.priority)}>{p.priority}</span>
               </div>
               <div className="grid grid-cols-5 gap-4 mb-3">
-                <div className="bg-gray-700/30 rounded-lg p-3 text-center">
-                  <div className="text-gray-500 text-xs mb-1">RPO Target</div>
+                <div className="bg-surface-hover rounded-lg p-3 text-center">
+                  <div className="text-content-tertiary text-xs mb-1">RPO Target</div>
                   <div className="text-cyan-400 font-bold text-lg">{p.rpo_minutes}m</div>
                 </div>
-                <div className="bg-gray-700/30 rounded-lg p-3 text-center">
-                  <div className="text-gray-500 text-xs mb-1">RTO Target</div>
+                <div className="bg-surface-hover rounded-lg p-3 text-center">
+                  <div className="text-content-tertiary text-xs mb-1">RTO Target</div>
                   <div className="text-amber-400 font-bold text-lg">{p.rto_minutes}m</div>
                 </div>
-                <div className="bg-gray-700/30 rounded-lg p-3 text-center">
-                  <div className="text-gray-500 text-xs mb-1">Replication</div>
-                  <div className="text-white font-bold">{p.replication_type}</div>
+                <div className="bg-surface-hover rounded-lg p-3 text-center">
+                  <div className="text-content-tertiary text-xs mb-1">Replication</div>
+                  <div className="text-content-primary font-bold">{p.replication_type}</div>
                 </div>
-                <div className="bg-gray-700/30 rounded-lg p-3 text-center">
-                  <div className="text-gray-500 text-xs mb-1">Protected</div>
+                <div className="bg-surface-hover rounded-lg p-3 text-center">
+                  <div className="text-content-tertiary text-xs mb-1">Protected</div>
                   <div className="text-emerald-400 font-bold text-lg">{p.protected_count}</div>
                 </div>
-                <div className="bg-gray-700/30 rounded-lg p-3 text-center">
-                  <div className="text-gray-500 text-xs mb-1">Current Lag</div>
+                <div className="bg-surface-hover rounded-lg p-3 text-center">
+                  <div className="text-content-tertiary text-xs mb-1">Current Lag</div>
                   <div
                     className={`font-bold text-lg ${p.replication_lag_seconds < 30 ? 'text-emerald-400' : p.replication_lag_seconds < 60 ? 'text-amber-400' : 'text-red-400'}`}
                   >
@@ -470,7 +470,7 @@ export function DisasterRecovery() {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-4 text-xs text-gray-400 mt-2">
+              <div className="flex items-center gap-4 text-xs text-content-secondary mt-2">
                 <span>Source: {siteForId(p.source_site_id)}</span>
                 <span>&rarr;</span>
                 <span>Target: {siteForId(p.target_site_id)}</span>
@@ -491,33 +491,33 @@ export function DisasterRecovery() {
           <div className="flex justify-end">
             <button
               onClick={runDrill}
-              className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-500 transition flex items-center gap-1.5"
+              className="px-4 py-2 bg-purple-600 text-content-primary rounded-lg text-sm hover:bg-purple-500 transition flex items-center gap-1.5"
             >
               {Icons.beaker('w-4 h-4')} Run DR Drill
             </button>
           </div>
           {drills.length === 0 ? (
-            <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl text-center py-16">
-              <div className="mb-4 text-gray-500">{Icons.beaker('w-12 h-12')}</div>
-              <p className="text-gray-400 text-lg">No DR drills conducted</p>
-              <p className="text-gray-500 text-sm mt-1">
+            <div className="bg-surface-tertiary border border-border rounded-xl text-center py-16">
+              <div className="mb-4 text-content-tertiary">{Icons.beaker('w-12 h-12')}</div>
+              <p className="text-content-secondary text-lg">No DR drills conducted</p>
+              <p className="text-content-tertiary text-sm mt-1">
                 Run a drill to validate disaster recovery readiness
               </p>
             </div>
           ) : (
             <div className="grid gap-4">
               {drills.map((d) => (
-                <div key={d.id} className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5">
+                <div key={d.id} className="bg-surface-tertiary border border-border rounded-xl p-5">
                   <div className="flex items-center justify-between mb-3">
-                    <div className="text-white font-semibold">{d.name}</div>
+                    <div className="text-content-primary font-semibold">{d.name}</div>
                     <div className="flex items-center gap-2">
                       <span className={badge(d.type)}>{d.type}</span>
                       <span className={badge(d.status)}>{d.status}</span>
                     </div>
                   </div>
                   <div className="grid grid-cols-4 gap-4 mb-3">
-                    <div className="bg-gray-700/30 rounded-lg p-3 text-center">
-                      <div className="text-gray-500 text-xs mb-1">RPO Achieved</div>
+                    <div className="bg-surface-hover rounded-lg p-3 text-center">
+                      <div className="text-content-tertiary text-xs mb-1">RPO Achieved</div>
                       <div
                         className={`font-bold flex items-center gap-1 ${d.rpo_met ? 'text-emerald-400' : 'text-red-400'}`}
                       >
@@ -525,8 +525,8 @@ export function DisasterRecovery() {
                         {d.rpo_met ? Icons.checkCircle('w-4 h-4') : Icons.xCircle('w-4 h-4')}
                       </div>
                     </div>
-                    <div className="bg-gray-700/30 rounded-lg p-3 text-center">
-                      <div className="text-gray-500 text-xs mb-1">RTO Achieved</div>
+                    <div className="bg-surface-hover rounded-lg p-3 text-center">
+                      <div className="text-content-tertiary text-xs mb-1">RTO Achieved</div>
                       <div
                         className={`font-bold flex items-center gap-1 ${d.rto_met ? 'text-emerald-400' : 'text-red-400'}`}
                       >
@@ -534,20 +534,20 @@ export function DisasterRecovery() {
                         {d.rto_met ? Icons.checkCircle('w-4 h-4') : Icons.xCircle('w-4 h-4')}
                       </div>
                     </div>
-                    <div className="bg-gray-700/30 rounded-lg p-3 text-center">
-                      <div className="text-gray-500 text-xs mb-1">VMs Recovered</div>
-                      <div className="text-white font-bold">
+                    <div className="bg-surface-hover rounded-lg p-3 text-center">
+                      <div className="text-content-tertiary text-xs mb-1">VMs Recovered</div>
+                      <div className="text-content-primary font-bold">
                         {d.recovered_vms}/{d.total_vms}
                       </div>
                     </div>
-                    <div className="bg-gray-700/30 rounded-lg p-3 text-center">
-                      <div className="text-gray-500 text-xs mb-1">Started</div>
-                      <div className="text-gray-300 text-xs">
+                    <div className="bg-surface-hover rounded-lg p-3 text-center">
+                      <div className="text-content-tertiary text-xs mb-1">Started</div>
+                      <div className="text-content-secondary text-xs">
                         {d.started_at ? new Date(d.started_at).toLocaleString() : '—'}
                       </div>
                     </div>
                   </div>
-                  <div className="text-gray-400 text-xs">{d.notes}</div>
+                  <div className="text-content-secondary text-xs">{d.notes}</div>
                 </div>
               ))}
             </div>
@@ -559,18 +559,18 @@ export function DisasterRecovery() {
       {tab === 'events' && (
         <div className="space-y-4">
           {events.length === 0 ? (
-            <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl text-center py-16">
-              <div className="mb-4 text-gray-500">{Icons.bolt('w-12 h-12')}</div>
-              <p className="text-gray-400 text-lg">No failover events</p>
-              <p className="text-gray-500 text-sm mt-1">
+            <div className="bg-surface-tertiary border border-border rounded-xl text-center py-16">
+              <div className="mb-4 text-content-tertiary">{Icons.bolt('w-12 h-12')}</div>
+              <p className="text-content-secondary text-lg">No failover events</p>
+              <p className="text-content-tertiary text-sm mt-1">
                 Failover and failback events will appear here
               </p>
             </div>
           ) : (
-            <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl overflow-hidden">
+            <div className="bg-surface-tertiary border border-border rounded-xl overflow-hidden">
               <table className="w-full text-sm">
-                <thead className="bg-gray-700/30">
-                  <tr className="text-left text-gray-400 text-xs uppercase">
+                <thead className="bg-surface-hover">
+                  <tr className="text-left text-content-secondary text-xs uppercase">
                     <th className="px-4 py-3">Type</th>
                     <th className="px-4 py-3">Status</th>
                     <th className="px-4 py-3">Reason</th>
@@ -583,7 +583,7 @@ export function DisasterRecovery() {
                   {events.map((e) => (
                     <tr
                       key={e.id}
-                      className="border-t border-gray-700/30 hover:bg-gray-700/20 transition"
+                      className="border-t border-border hover:bg-surface-hover transition"
                     >
                       <td className="px-4 py-3">
                         <span className={badge(e.type)}>{e.type}</span>
@@ -591,12 +591,12 @@ export function DisasterRecovery() {
                       <td className="px-4 py-3">
                         <span className={badge(e.status)}>{e.status}</span>
                       </td>
-                      <td className="px-4 py-3 text-gray-300">{e.reason}</td>
-                      <td className="px-4 py-3 text-white font-mono">
+                      <td className="px-4 py-3 text-content-secondary">{e.reason}</td>
+                      <td className="px-4 py-3 text-content-primary font-mono">
                         {Math.round(e.duration_seconds / 60)}m
                       </td>
-                      <td className="px-4 py-3 text-white">{e.affected_vms}</td>
-                      <td className="px-4 py-3 text-gray-400 text-xs">
+                      <td className="px-4 py-3 text-content-primary">{e.affected_vms}</td>
+                      <td className="px-4 py-3 text-content-secondary text-xs">
                         {new Date(e.started_at).toLocaleString()}
                       </td>
                     </tr>

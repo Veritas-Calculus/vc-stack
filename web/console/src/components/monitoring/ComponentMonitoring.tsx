@@ -68,7 +68,7 @@ export function ComponentMonitoring() {
           </select>
           <button
             onClick={loadData}
-            className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+            className="px-4 py-2 bg-gray-500 text-content-primary rounded hover:bg-gray-600"
           >
             Refresh
           </button>
@@ -82,29 +82,29 @@ export function ComponentMonitoring() {
       {latestMetric && (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-600">CPU Usage</div>
+            <div className="text-sm text-content-tertiary">CPU Usage</div>
             <div className="text-2xl font-bold">
               {latestMetric.cpu_usage_percent?.toFixed(2) || 0}%
             </div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Memory Usage</div>
+            <div className="text-sm text-content-tertiary">Memory Usage</div>
             <div className="text-2xl font-bold">{latestMetric.memory_usage_mb || 0} MB</div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Goroutines</div>
+            <div className="text-sm text-content-tertiary">Goroutines</div>
             <div className="text-2xl font-bold">{latestMetric.goroutine_count || 0}</div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Requests</div>
+            <div className="text-sm text-content-tertiary">Requests</div>
             <div className="text-2xl font-bold">{latestMetric.request_count || 0}</div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Errors</div>
+            <div className="text-sm text-content-tertiary">Errors</div>
             <div className="text-2xl font-bold text-red-600">{latestMetric.error_count || 0}</div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Avg Response Time</div>
+            <div className="text-sm text-content-tertiary">Avg Response Time</div>
             <div className="text-2xl font-bold">
               {latestMetric.avg_response_time_ms?.toFixed(2) || 0} ms
             </div>
@@ -115,19 +115,19 @@ export function ComponentMonitoring() {
       <div className="bg-white p-6 rounded-lg shadow">
         <h2 className="text-xl font-semibold mb-4">Recent Errors</h2>
         {errors.length === 0 ? (
-          <p className="text-gray-600">No errors recorded</p>
+          <p className="text-content-tertiary">No errors recorded</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-content-tertiary uppercase tracking-wider">
                     Time
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-content-tertiary uppercase tracking-wider">
                     Component
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-content-tertiary uppercase tracking-wider">
                     Count
                   </th>
                 </tr>

@@ -49,7 +49,7 @@ export function MetricsDashboard() {
     label: string,
     value: string | number,
     sub?: string,
-    color = 'text-white'
+    color = 'text-content-primary'
   ) => (
     <div className="bg-zinc-900/60 border border-white/5 rounded-xl p-5">
       <div className="text-xs text-zinc-500 uppercase tracking-wider mb-2">{label}</div>
@@ -90,7 +90,7 @@ export function MetricsDashboard() {
           'Goroutines',
           sys.goroutines ?? '—',
           undefined,
-          (sys.goroutines ?? 0) > 1000 ? 'text-amber-400' : 'text-white'
+          (sys.goroutines ?? 0) > 1000 ? 'text-amber-400' : 'text-content-primary'
         )}
         {metricCard(
           'Memory Usage',

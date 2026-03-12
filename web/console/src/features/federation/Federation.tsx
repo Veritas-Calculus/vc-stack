@@ -230,7 +230,7 @@ export function Federation() {
 
   const typeColor = (t: string) =>
     t === 'oidc'
-      ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
+      ? 'bg-blue-500/15 text-accent border-blue-500/30'
       : 'bg-purple-500/15 text-purple-400 border-purple-500/30'
 
   const tabs = [
@@ -250,8 +250,8 @@ export function Federation() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Federation</h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <h1 className="text-2xl font-bold text-content-primary">Federation</h1>
+          <p className="text-sm text-content-secondary mt-1">
             Manage external identity providers, SSO, and federated users
           </p>
         </div>
@@ -261,7 +261,7 @@ export function Federation() {
               resetForm()
               setShowCreate(true)
             }}
-            className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-colors"
+            className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium transition-colors"
           >
             Add Provider
           </button>
@@ -269,7 +269,7 @@ export function Federation() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 border-b border-oxide-800 pb-px">
+      <div className="flex gap-1 mb-6 border-b border-border pb-px">
         {tabs.map((t) => (
           <button
             key={t.key}
@@ -278,10 +278,10 @@ export function Federation() {
               setSelectedIDP(null)
               setTestResult(null)
             }}
-            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${tab === t.key ? 'bg-oxide-800 text-white border-b-2 border-blue-500' : 'text-gray-400 hover:text-white hover:bg-oxide-800/50'}`}
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${tab === t.key ? 'bg-surface-tertiary text-content-primary border-b-2 border-blue-500' : 'text-content-secondary hover:text-content-primary hover:bg-surface-tertiary'}`}
           >
             {t.label}
-            <span className="ml-1.5 px-1.5 py-0.5 rounded text-[10px] bg-oxide-700 text-gray-400">
+            <span className="ml-1.5 px-1.5 py-0.5 rounded text-[10px] bg-surface-hover text-content-secondary">
               {t.count}
             </span>
           </button>
@@ -304,7 +304,7 @@ export function Federation() {
                   {idps.map((idp) => (
                     <div
                       key={idp.id}
-                      className="rounded-xl border border-oxide-800 bg-oxide-900/50 p-5 hover:border-oxide-600 transition-colors cursor-pointer"
+                      className="rounded-xl border border-border bg-surface-secondary p-5 hover:border-border-strong transition-colors cursor-pointer"
                       onClick={() => {
                         setSelectedIDP(idp)
                         loadMappings(idp.id)
@@ -318,18 +318,18 @@ export function Federation() {
                           >
                             {idp.type}
                           </span>
-                          <span className="text-lg font-medium text-white">{idp.name}</span>
+                          <span className="text-lg font-medium text-content-primary">{idp.name}</span>
                           {idp.is_enabled ? (
                             <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 text-[10px] uppercase">
                               Active
                             </span>
                           ) : (
-                            <span className="px-2 py-0.5 rounded bg-gray-500/15 text-gray-500 text-[10px] uppercase">
+                            <span className="px-2 py-0.5 rounded bg-gray-500/15 text-content-tertiary text-[10px] uppercase">
                               Disabled
                             </span>
                           )}
                         </div>
-                        <div className="flex items-center gap-4 text-xs text-gray-500">
+                        <div className="flex items-center gap-4 text-xs text-content-tertiary">
                           <span>{idp.federated_user_count} users</span>
                           <span>{idp.role_mapping_count} mappings</span>
                           <button
@@ -346,16 +346,16 @@ export function Federation() {
                               e.stopPropagation()
                               handleDeleteIDP(idp.id)
                             }}
-                            className="px-2 py-1 rounded text-xs text-gray-400 hover:text-red-400 hover:bg-red-500/10"
+                            className="px-2 py-1 rounded text-xs text-content-secondary hover:text-red-400 hover:bg-red-500/10"
                           >
                             Delete
                           </button>
                         </div>
                       </div>
-                      <div className="mt-2 text-xs text-gray-500 flex gap-4">
+                      <div className="mt-2 text-xs text-content-tertiary flex gap-4">
                         {idp.issuer && <span>Issuer: {idp.issuer}</span>}
                         {idp.auto_provision && (
-                          <span className="text-blue-400">Auto-provision</span>
+                          <span className="text-accent">Auto-provision</span>
                         )}
                         {idp.auto_link && <span className="text-cyan-400">Auto-link</span>}
                       </div>
@@ -374,13 +374,13 @@ export function Federation() {
                   setSelectedIDP(null)
                   setTestResult(null)
                 }}
-                className="text-sm text-gray-400 hover:text-white mb-4 flex items-center gap-1"
+                className="text-sm text-content-secondary hover:text-content-primary mb-4 flex items-center gap-1"
               >
                 ← Back to Providers
               </button>
 
               {/* Header Card */}
-              <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 p-5 mb-6">
+              <div className="rounded-xl border border-border bg-surface-secondary p-5 mb-6">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <span
@@ -388,13 +388,13 @@ export function Federation() {
                     >
                       {selectedIDP.type}
                     </span>
-                    <span className="text-xl font-semibold text-white">{selectedIDP.name}</span>
+                    <span className="text-xl font-semibold text-content-primary">{selectedIDP.name}</span>
                     {selectedIDP.is_enabled ? (
                       <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 text-[10px] uppercase">
                         Active
                       </span>
                     ) : (
-                      <span className="px-2 py-0.5 rounded bg-gray-500/15 text-gray-500 text-[10px] uppercase">
+                      <span className="px-2 py-0.5 rounded bg-gray-500/15 text-content-tertiary text-[10px] uppercase">
                         Disabled
                       </span>
                     )}
@@ -402,13 +402,13 @@ export function Federation() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleTestIDP(selectedIDP.id)}
-                      className="px-3 py-1.5 rounded-lg text-xs border border-blue-500/30 text-blue-400 hover:bg-blue-500/10"
+                      className="px-3 py-1.5 rounded-lg text-xs border border-blue-500/30 text-accent hover:bg-blue-500/10"
                     >
                       Test Connection
                     </button>
                     <button
                       onClick={() => handleToggleIDP(selectedIDP)}
-                      className="px-3 py-1.5 rounded-lg text-xs border border-oxide-700 text-gray-400 hover:text-white"
+                      className="px-3 py-1.5 rounded-lg text-xs border border-border text-content-secondary hover:text-content-primary"
                     >
                       {selectedIDP.is_enabled ? 'Disable' : 'Enable'}
                     </button>
@@ -441,11 +441,11 @@ export function Federation() {
                 </div>
 
                 {/* SSO Login URL */}
-                <div className="mt-4 p-3 rounded-lg bg-oxide-800/50 border border-oxide-700">
-                  <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">
+                <div className="mt-4 p-3 rounded-lg bg-surface-tertiary border border-border">
+                  <div className="text-[10px] text-content-tertiary uppercase tracking-wider mb-1">
                     SSO Login URL
                   </div>
-                  <code className="text-xs text-blue-400 break-all">
+                  <code className="text-xs text-accent break-all">
                     {window.location.origin}/api/v1/auth/sso/login/{selectedIDP.name}
                   </code>
                 </div>
@@ -453,29 +453,29 @@ export function Federation() {
 
               {/* Test Results */}
               {testResult && (
-                <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 p-5 mb-6">
-                  <h3 className="text-sm font-medium text-white mb-3">Connection Test Results</h3>
-                  <pre className="text-xs text-gray-300 bg-oxide-800 rounded-lg p-3 overflow-x-auto">
+                <div className="rounded-xl border border-border bg-surface-secondary p-5 mb-6">
+                  <h3 className="text-sm font-medium text-content-primary mb-3">Connection Test Results</h3>
+                  <pre className="text-xs text-content-secondary bg-surface-tertiary rounded-lg p-3 overflow-x-auto">
                     {JSON.stringify(testResult, null, 2)}
                   </pre>
                 </div>
               )}
 
               {/* Role Mappings */}
-              <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 p-5 mb-6">
+              <div className="rounded-xl border border-border bg-surface-secondary p-5 mb-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-medium text-white">
+                  <h3 className="text-sm font-medium text-content-primary">
                     Group &rarr; Role Mappings ({mappings.length})
                   </h3>
                   <button
                     onClick={() => setShowMapping(true)}
-                    className="px-3 py-1.5 rounded-lg text-xs bg-blue-600 hover:bg-blue-500 text-white"
+                    className="px-3 py-1.5 rounded-lg text-xs bg-blue-600 hover:bg-blue-500 text-content-primary"
                   >
                     Add Mapping
                   </button>
                 </div>
                 {mappings.length === 0 ? (
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-content-tertiary">
                     No group mappings configured. Map IdP groups to local roles to auto-assign
                     permissions on SSO login.
                   </p>
@@ -484,20 +484,20 @@ export function Federation() {
                     {mappings.map((m) => (
                       <div
                         key={m.id}
-                        className="flex items-center justify-between bg-oxide-800/50 rounded-lg px-4 py-2.5"
+                        className="flex items-center justify-between bg-surface-tertiary rounded-lg px-4 py-2.5"
                       >
                         <div className="flex items-center gap-3">
                           <span className="px-2.5 py-1 rounded bg-purple-500/15 text-purple-400 border border-purple-500/30 text-xs font-mono">
                             {m.external_group}
                           </span>
-                          <span className="text-gray-500 text-xs">&rarr;</span>
-                          <span className="px-2.5 py-1 rounded bg-blue-500/15 text-blue-400 border border-blue-500/30 text-xs font-medium">
+                          <span className="text-content-tertiary text-xs">&rarr;</span>
+                          <span className="px-2.5 py-1 rounded bg-blue-500/15 text-accent border border-blue-500/30 text-xs font-medium">
                             {m.role.name}
                           </span>
                         </div>
                         <button
                           onClick={() => handleDeleteMapping(m.id)}
-                          className="text-xs text-gray-500 hover:text-red-400"
+                          className="text-xs text-content-tertiary hover:text-red-400"
                         >
                           Remove
                         </button>
@@ -508,19 +508,19 @@ export function Federation() {
               </div>
 
               {/* Federated Users for this provider */}
-              <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 p-5">
-                <h3 className="text-sm font-medium text-white mb-3">
+              <div className="rounded-xl border border-border bg-surface-secondary p-5">
+                <h3 className="text-sm font-medium text-content-primary mb-3">
                   Federated Users ({selectedIDP.federated_user_count})
                 </h3>
                 {fedUsers.filter((fu) => fu.provider_id === selectedIDP.id).length === 0 ? (
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-content-tertiary">
                     No users have logged in via this provider yet.
                   </p>
                 ) : (
-                  <div className="rounded-lg border border-oxide-800 overflow-hidden">
+                  <div className="rounded-lg border border-border overflow-hidden">
                     <table className="w-full text-sm">
                       <thead>
-                        <tr className="bg-oxide-900/80 text-gray-400 text-xs uppercase tracking-wider">
+                        <tr className="bg-surface-secondary text-content-secondary text-xs uppercase tracking-wider">
                           <th className="px-4 py-2 text-left">Local User</th>
                           <th className="px-4 py-2 text-left">External ID</th>
                           <th className="px-4 py-2 text-left">Email</th>
@@ -528,18 +528,18 @@ export function Federation() {
                           <th className="px-4 py-2 text-left">Last Login</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-oxide-800/50">
+                      <tbody className="divide-y divide-border/50">
                         {fedUsers
                           .filter((fu) => fu.provider_id === selectedIDP.id)
                           .map((fu) => (
-                            <tr key={fu.id} className="hover:bg-oxide-800/30">
-                              <td className="px-4 py-2 text-white font-medium">
+                            <tr key={fu.id} className="hover:bg-surface-tertiary">
+                              <td className="px-4 py-2 text-content-primary font-medium">
                                 {fu.user?.username}
                               </td>
-                              <td className="px-4 py-2 text-xs text-gray-400 font-mono">
+                              <td className="px-4 py-2 text-xs text-content-secondary font-mono">
                                 {fu.external_id.substring(0, 20)}…
                               </td>
-                              <td className="px-4 py-2 text-xs text-gray-400">
+                              <td className="px-4 py-2 text-xs text-content-secondary">
                                 {fu.external_email}
                               </td>
                               <td className="px-4 py-2">
@@ -548,7 +548,7 @@ export function Federation() {
                                     ? fu.external_groups.split(',').map((g, i) => (
                                         <span
                                           key={i}
-                                          className="px-1.5 py-0.5 rounded text-[10px] bg-oxide-700 text-gray-400"
+                                          className="px-1.5 py-0.5 rounded text-[10px] bg-surface-hover text-content-secondary"
                                         >
                                           {g.trim()}
                                         </span>
@@ -556,7 +556,7 @@ export function Federation() {
                                     : '—'}
                                 </div>
                               </td>
-                              <td className="px-4 py-2 text-xs text-gray-500">
+                              <td className="px-4 py-2 text-xs text-content-tertiary">
                                 {new Date(fu.last_login_at).toLocaleString()}
                               </td>
                             </tr>
@@ -575,10 +575,10 @@ export function Federation() {
               {fedUsers.length === 0 ? (
                 <EmptyState title="No federated users" />
               ) : (
-                <div className="rounded-xl border border-oxide-800 overflow-hidden">
+                <div className="rounded-xl border border-border overflow-hidden">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-oxide-900/80 text-gray-400 text-xs uppercase tracking-wider">
+                      <tr className="bg-surface-secondary text-content-secondary text-xs uppercase tracking-wider">
                         <th className="px-4 py-3 text-left">User</th>
                         <th className="px-4 py-3 text-left">Email</th>
                         <th className="px-4 py-3 text-left">Provider</th>
@@ -587,11 +587,11 @@ export function Federation() {
                         <th className="px-4 py-3 text-left">Last Login</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-oxide-800/50">
+                    <tbody className="divide-y divide-border/50">
                       {fedUsers.map((fu) => (
-                        <tr key={fu.id} className="hover:bg-oxide-800/30 transition-colors">
-                          <td className="px-4 py-3 font-medium text-white">{fu.user?.username}</td>
-                          <td className="px-4 py-3 text-gray-400 text-xs">{fu.external_email}</td>
+                        <tr key={fu.id} className="hover:bg-surface-tertiary transition-colors">
+                          <td className="px-4 py-3 font-medium text-content-primary">{fu.user?.username}</td>
+                          <td className="px-4 py-3 text-content-secondary text-xs">{fu.external_email}</td>
                           <td className="px-4 py-3">
                             <span
                               className={`px-2 py-0.5 rounded text-xs border ${typeColor(fu.provider?.type || 'oidc')}`}
@@ -599,7 +599,7 @@ export function Federation() {
                               {fu.provider?.name || `Provider #${fu.provider_id}`}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-xs text-gray-500 font-mono">
+                          <td className="px-4 py-3 text-xs text-content-tertiary font-mono">
                             {fu.external_id.substring(0, 16)}…
                           </td>
                           <td className="px-4 py-3">
@@ -608,7 +608,7 @@ export function Federation() {
                                 ? fu.external_groups.split(',').map((g, i) => (
                                     <span
                                       key={i}
-                                      className="px-1.5 py-0.5 rounded text-[10px] bg-oxide-700 text-gray-400"
+                                      className="px-1.5 py-0.5 rounded text-[10px] bg-surface-hover text-content-secondary"
                                     >
                                       {g.trim()}
                                     </span>
@@ -616,7 +616,7 @@ export function Federation() {
                                 : '—'}
                             </div>
                           </td>
-                          <td className="px-4 py-3 text-xs text-gray-500">
+                          <td className="px-4 py-3 text-xs text-content-tertiary">
                             {new Date(fu.last_login_at).toLocaleString()}
                           </td>
                         </tr>
@@ -656,8 +656,8 @@ export function Federation() {
               </Field>
             </div>
 
-            <div className="border-t border-oxide-800 pt-3">
-              <p className="text-xs font-medium text-gray-400 mb-3">OIDC Configuration</p>
+            <div className="border-t border-border pt-3">
+              <p className="text-xs font-medium text-content-secondary mb-3">OIDC Configuration</p>
               <div className="space-y-3">
                 <Field label="Issuer URL">
                   <input
@@ -706,8 +706,8 @@ export function Federation() {
               </div>
             </div>
 
-            <div className="border-t border-oxide-800 pt-3">
-              <p className="text-xs font-medium text-gray-400 mb-3">Advanced</p>
+            <div className="border-t border-border pt-3">
+              <p className="text-xs font-medium text-content-secondary mb-3">Advanced</p>
               <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="Authorization Endpoint">
@@ -780,47 +780,47 @@ export function Federation() {
               </div>
             </div>
 
-            <div className="border-t border-oxide-800 pt-3 flex gap-6">
-              <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+            <div className="border-t border-border pt-3 flex gap-6">
+              <label className="flex items-center gap-2 text-sm text-content-secondary cursor-pointer">
                 <input
                   type="checkbox"
                   checked={form.auto_provision}
                   onChange={(e) => setForm({ ...form, auto_provision: e.target.checked })}
-                  className="rounded border-oxide-700"
+                  className="rounded border-border"
                 />
                 Auto-provision users
               </label>
-              <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+              <label className="flex items-center gap-2 text-sm text-content-secondary cursor-pointer">
                 <input
                   type="checkbox"
                   checked={form.auto_link}
                   onChange={(e) => setForm({ ...form, auto_link: e.target.checked })}
-                  className="rounded border-oxide-700"
+                  className="rounded border-border"
                 />
                 Auto-link by email
               </label>
-              <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+              <label className="flex items-center gap-2 text-sm text-content-secondary cursor-pointer">
                 <input
                   type="checkbox"
                   checked={form.is_enabled}
                   onChange={(e) => setForm({ ...form, is_enabled: e.target.checked })}
-                  className="rounded border-oxide-700"
+                  className="rounded border-border"
                 />
                 Enabled
               </label>
             </div>
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-oxide-800">
+            <div className="flex justify-end gap-2 pt-2 border-t border-border">
               <button
                 onClick={() => setShowCreate(false)}
-                className="px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-oxide-800"
+                className="px-4 py-2 rounded-lg text-sm text-content-secondary hover:text-content-primary hover:bg-surface-tertiary"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreateIDP}
                 disabled={!form.name || !form.type}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium disabled:opacity-50"
+                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium disabled:opacity-50"
               >
                 Create Provider
               </button>
@@ -841,7 +841,7 @@ export function Federation() {
                 onChange={(e) => setMappingGroup(e.target.value)}
                 className="input-field"
               />
-              <p className="text-[10px] text-gray-500 mt-1">
+              <p className="text-[10px] text-content-tertiary mt-1">
                 This should match the group name from the IdP&apos;s group claim
               </p>
             </Field>
@@ -862,14 +862,14 @@ export function Federation() {
             <div className="flex justify-end gap-2 pt-2">
               <button
                 onClick={() => setShowMapping(false)}
-                className="px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-oxide-800"
+                className="px-4 py-2 rounded-lg text-sm text-content-secondary hover:text-content-primary hover:bg-surface-tertiary"
               >
                 Cancel
               </button>
               <button
                 onClick={handleAddMapping}
                 disabled={!mappingGroup || !mappingRoleId}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium disabled:opacity-50"
+                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium disabled:opacity-50"
               >
                 Add Mapping
               </button>
@@ -896,12 +896,12 @@ function Modal({
       onClick={onClose}
     >
       <div
-        className="bg-oxide-900 border border-oxide-700 rounded-2xl shadow-2xl w-full max-w-2xl mx-4 p-6"
+        className="bg-surface-secondary border border-border rounded-2xl shadow-2xl w-full max-w-2xl mx-4 p-6"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-semibold text-white">{title}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white text-xl leading-none">
+          <h2 className="text-lg font-semibold text-content-primary">{title}</h2>
+          <button onClick={onClose} className="text-content-secondary hover:text-content-primary text-xl leading-none">
             ×
           </button>
         </div>
@@ -922,7 +922,7 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-xs font-medium text-gray-300 mb-1">
+      <label className="block text-xs font-medium text-content-secondary mb-1">
         {label} {required && <span className="text-red-400">*</span>}
       </label>
       {children}
@@ -932,9 +932,9 @@ function Field({
 
 function ConfigItem({ label, value }: { label: string; value?: string }) {
   return (
-    <div className="bg-oxide-800/30 rounded-lg px-3 py-2">
-      <div className="text-[10px] text-gray-500 uppercase tracking-wider">{label}</div>
-      <div className="text-xs text-gray-300 mt-0.5 truncate">{value || '—'}</div>
+    <div className="bg-surface-tertiary rounded-lg px-3 py-2">
+      <div className="text-[10px] text-content-tertiary uppercase tracking-wider">{label}</div>
+      <div className="text-xs text-content-secondary mt-0.5 truncate">{value || '—'}</div>
     </div>
   )
 }
@@ -943,7 +943,7 @@ function Toggle({ label, enabled }: { label: string; enabled: boolean }) {
   return (
     <span className="flex items-center gap-1.5 text-xs">
       <span className={`w-2 h-2 rounded-full ${enabled ? 'bg-emerald-400' : 'bg-gray-600'}`} />
-      <span className={enabled ? 'text-emerald-400' : 'text-gray-500'}>{label}</span>
+      <span className={enabled ? 'text-emerald-400' : 'text-content-tertiary'}>{label}</span>
     </span>
   )
 }

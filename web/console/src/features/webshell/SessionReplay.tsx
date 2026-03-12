@@ -313,7 +313,7 @@ export function SessionReplay() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="text-gray-500 dark:text-gray-400">加载中...</div>
+        <div className="text-content-tertiary dark:text-content-secondary">加载中...</div>
       </div>
     )
   }
@@ -322,10 +322,10 @@ export function SessionReplay() {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <p className="text-gray-500 dark:text-gray-400 mb-4">会话未找到</p>
+          <p className="text-content-tertiary dark:text-content-secondary mb-4">会话未找到</p>
           <button
             onClick={() => navigate('/webshell/sessions')}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="px-4 py-2 bg-blue-600 text-content-primary rounded hover:bg-blue-700"
           >
             返回列表
           </button>
@@ -337,18 +337,18 @@ export function SessionReplay() {
   return (
     <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900">
       {/* Header */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-border px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate('/webshell/sessions')}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+              className="p-2 hover:bg-gray-100 dark:hover:bg-surface-hover rounded"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">会话回放</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <h1 className="text-xl font-bold text-gray-900 dark:text-content-primary">会话回放</h1>
+              <p className="text-sm text-content-tertiary dark:text-content-secondary">
                 {session.username} @ {session.remote_host}:{session.remote_port} ·{' '}
                 {new Date(session.started_at).toLocaleString('zh-CN')}
               </p>
@@ -357,7 +357,7 @@ export function SessionReplay() {
 
           <button
             onClick={exportSession}
-            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-600"
+            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-surface-hover border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-600"
           >
             <Download className="w-4 h-4" />
             导出
@@ -373,11 +373,11 @@ export function SessionReplay() {
       </div>
 
       {/* Controls */}
-      <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-6 py-4">
+      <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-border px-6 py-4">
         <div className="space-y-4">
           {/* Progress bar */}
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600 dark:text-gray-400 font-mono w-16">
+            <span className="text-sm text-content-tertiary dark:text-content-secondary font-mono w-16">
               {formatTime(currentTime)}
             </span>
             <div className="flex-1">
@@ -387,13 +387,13 @@ export function SessionReplay() {
                 max={totalDuration}
                 value={currentTime}
                 onChange={(e) => handleSeek(parseInt(e.target.value))}
-                className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-gray-200 dark:bg-surface-hover rounded-lg appearance-none cursor-pointer"
                 style={{
                   background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${(currentTime / totalDuration) * 100}%, #e5e7eb ${(currentTime / totalDuration) * 100}%, #e5e7eb 100%)`
                 }}
               />
             </div>
-            <span className="text-sm text-gray-600 dark:text-gray-400 font-mono w-16">
+            <span className="text-sm text-content-tertiary dark:text-content-secondary font-mono w-16">
               {formatTime(totalDuration)}
             </span>
           </div>
@@ -402,7 +402,7 @@ export function SessionReplay() {
           <div className="flex items-center justify-center gap-4">
             <button
               onClick={handleRestart}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+              className="p-2 hover:bg-gray-100 dark:hover:bg-surface-hover rounded"
               title="重新开始"
             >
               <SkipBack className="w-5 h-5" />
@@ -410,7 +410,7 @@ export function SessionReplay() {
 
             <button
               onClick={handleSkipBackward}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+              className="p-2 hover:bg-gray-100 dark:hover:bg-surface-hover rounded"
               title="后退"
             >
               <SkipBack className="w-4 h-4" />
@@ -418,25 +418,25 @@ export function SessionReplay() {
 
             <button
               onClick={handlePlayPause}
-              className="p-3 bg-blue-600 text-white rounded-full hover:bg-blue-700"
+              className="p-3 bg-blue-600 text-content-primary rounded-full hover:bg-blue-700"
             >
               {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />}
             </button>
 
             <button
               onClick={handleSkipForward}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+              className="p-2 hover:bg-gray-100 dark:hover:bg-surface-hover rounded"
               title="前进"
             >
               <SkipForward className="w-4 h-4" />
             </button>
 
             <div className="flex items-center gap-2 ml-4">
-              <span className="text-sm text-gray-600 dark:text-gray-400">速度:</span>
+              <span className="text-sm text-content-tertiary dark:text-content-secondary">速度:</span>
               <select
                 value={playbackSpeed}
                 onChange={(e) => setPlaybackSpeed(parseFloat(e.target.value))}
-                className="px-2 py-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm"
+                className="px-2 py-1 bg-white dark:bg-surface-hover border border-gray-300 dark:border-gray-600 rounded text-sm"
               >
                 <option value={0.5}>0.5x</option>
                 <option value={1}>1x</option>
@@ -448,7 +448,7 @@ export function SessionReplay() {
           </div>
 
           {/* Stats */}
-          <div className="flex items-center justify-center gap-8 text-sm text-gray-600 dark:text-gray-400">
+          <div className="flex items-center justify-center gap-8 text-sm text-content-tertiary dark:text-content-secondary">
             <span>
               事件: {currentEventIndex} / {events.length}
             </span>

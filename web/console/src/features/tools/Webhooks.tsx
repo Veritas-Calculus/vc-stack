@@ -89,14 +89,14 @@ export function Webhooks() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Webhooks</h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <h1 className="text-2xl font-bold text-content-primary">Webhooks</h1>
+          <p className="text-sm text-content-secondary mt-1">
             Event notification callbacks — {webhooks.length} webhooks
           </p>
         </div>
         <button
           onClick={() => setShowCreate(true)}
-          className="px-4 py-2 rounded-lg text-sm bg-blue-600 text-white hover:bg-blue-500 font-medium"
+          className="px-4 py-2 rounded-lg text-sm bg-blue-600 text-content-primary hover:bg-blue-500 font-medium"
         >
           Create Webhook
         </button>
@@ -109,60 +109,60 @@ export function Webhooks() {
         >
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
           <div
-            className="relative rounded-xl border border-oxide-700 bg-oxide-900 p-6 w-full max-w-md shadow-2xl"
+            className="relative rounded-xl border border-border bg-surface-secondary p-6 w-full max-w-md shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-lg font-semibold text-white mb-4">Create Webhook</h3>
+            <h3 className="text-lg font-semibold text-content-primary mb-4">Create Webhook</h3>
             <div className="space-y-3">
               <div>
-                <label className="block text-xs text-gray-400 mb-1">Name</label>
+                <label className="block text-xs text-content-secondary mb-1">Name</label>
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   autoFocus
                   placeholder="e.g., Slack notification"
-                  className="w-full px-3 py-2 rounded-lg border border-oxide-600 bg-oxide-800 text-gray-200 text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 rounded-lg border border-border-strong bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-400 mb-1">URL</label>
+                <label className="block text-xs text-content-secondary mb-1">URL</label>
                 <input
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://..."
-                  className="w-full px-3 py-2 rounded-lg border border-oxide-600 bg-oxide-800 text-gray-200 text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 rounded-lg border border-border-strong bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-400 mb-1">Secret (HMAC)</label>
+                <label className="block text-xs text-content-secondary mb-1">Secret (HMAC)</label>
                 <input
                   value={secret}
                   onChange={(e) => setSecret(e.target.value)}
                   placeholder="Optional signing secret"
-                  className="w-full px-3 py-2 rounded-lg border border-oxide-600 bg-oxide-800 text-gray-200 text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 rounded-lg border border-border-strong bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-400 mb-1">Events (comma-separated)</label>
+                <label className="block text-xs text-content-secondary mb-1">Events (comma-separated)</label>
                 <input
                   value={events}
                   onChange={(e) => setEvents(e.target.value)}
                   placeholder="instance.create,instance.delete"
-                  className="w-full px-3 py-2 rounded-lg border border-oxide-600 bg-oxide-800 text-gray-200 text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 rounded-lg border border-border-strong bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
             </div>
             <div className="flex justify-end gap-2 mt-5">
               <button
                 onClick={() => setShowCreate(false)}
-                className="px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white"
+                className="px-4 py-2 rounded-lg text-sm text-content-secondary hover:text-content-primary"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreate}
                 disabled={!name || !url}
-                className="px-4 py-2 rounded-lg text-sm bg-blue-600 text-white hover:bg-blue-500 disabled:opacity-50"
+                className="px-4 py-2 rounded-lg text-sm bg-blue-600 text-content-primary hover:bg-blue-500 disabled:opacity-50"
               >
                 Create
               </button>
@@ -185,7 +185,7 @@ export function Webhooks() {
           {webhooks.map((wh) => (
             <div
               key={wh.id}
-              className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur overflow-hidden hover:border-oxide-700 transition-colors"
+              className="rounded-xl border border-border bg-surface-secondary backdrop-blur overflow-hidden hover:border-border transition-colors"
             >
               <div className="px-5 py-4 flex items-center justify-between">
                 <div className="flex items-center gap-3 min-w-0">
@@ -193,8 +193,8 @@ export function Webhooks() {
                     className={`w-2 h-2 rounded-full shrink-0 ${wh.enabled ? 'bg-emerald-400' : 'bg-gray-500'}`}
                   />
                   <div className="min-w-0">
-                    <div className="text-sm font-medium text-white">{wh.name}</div>
-                    <div className="text-xs text-gray-500 font-mono truncate">{wh.url}</div>
+                    <div className="text-sm font-medium text-content-primary">{wh.name}</div>
+                    <div className="text-xs text-content-tertiary font-mono truncate">{wh.url}</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
@@ -206,7 +206,7 @@ export function Webhooks() {
                         .map((evt, i) => (
                           <span
                             key={i}
-                            className="px-1.5 py-0.5 rounded text-[10px] bg-oxide-700 text-gray-400"
+                            className="px-1.5 py-0.5 rounded text-[10px] bg-surface-hover text-content-secondary"
                           >
                             {evt.trim()}
                           </span>
@@ -215,19 +215,19 @@ export function Webhooks() {
                   )}
                   <button
                     onClick={() => handleTest(wh.id)}
-                    className="px-2 py-1 rounded text-xs text-gray-400 hover:text-blue-400 hover:bg-blue-500/10"
+                    className="px-2 py-1 rounded text-xs text-content-secondary hover:text-accent hover:bg-blue-500/10"
                   >
                     Test
                   </button>
                   <button
                     onClick={() => handleToggle(wh)}
-                    className="px-2 py-1 rounded text-xs text-gray-400 hover:text-amber-400 hover:bg-amber-500/10"
+                    className="px-2 py-1 rounded text-xs text-content-secondary hover:text-amber-400 hover:bg-amber-500/10"
                   >
                     {wh.enabled ? 'Pause' : 'Resume'}
                   </button>
                   <button
                     onClick={() => handleDelete(wh.id)}
-                    className="px-2 py-1 rounded text-xs text-gray-400 hover:text-red-400 hover:bg-red-500/10"
+                    className="px-2 py-1 rounded text-xs text-content-secondary hover:text-red-400 hover:bg-red-500/10"
                   >
                     Delete
                   </button>

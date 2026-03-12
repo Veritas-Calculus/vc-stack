@@ -69,7 +69,7 @@ export function ManagedElasticsearch() {
             href={r.kibana_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-blue-400 hover:underline"
+            className="text-xs text-accent hover:underline"
           >
             Open
           </a>

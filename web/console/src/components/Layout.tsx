@@ -211,7 +211,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                       )
                     }}
                   >
-                    <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-white/25">
+                    <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-content-tertiary">
                       {s.label}
                     </div>
                     {s.children.map((c) => (
@@ -588,7 +588,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <button
               type="button"
               aria-label="User menu"
-              className="h-8 w-8 rounded-full bg-gradient-to-br from-apple-blue to-apple-purple grid place-items-center text-white text-[11px] font-bold"
+              className="h-8 w-8 rounded-full bg-gradient-to-br from-apple-blue to-apple-purple grid place-items-center text-content-primary text-[11px] font-bold"
               onClick={() => setUserMenuOpen((v) => !v)}
             >
               U

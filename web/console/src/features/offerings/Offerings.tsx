@@ -130,25 +130,25 @@ export function Offerings() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white">Service Offerings</h1>
-        <p className="text-sm text-gray-400 mt-1">
+        <h1 className="text-2xl font-bold text-content-primary">Service Offerings</h1>
+        <p className="text-sm text-content-secondary mt-1">
           Manage compute, disk, and network resource templates
         </p>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 p-1 rounded-xl bg-oxide-900/80 border border-oxide-800 w-fit">
+      <div className="flex gap-1 mb-6 p-1 rounded-xl bg-surface-secondary border border-border w-fit">
         {(Object.keys(TAB_CONFIG) as Tab[]).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
               tab === t
-                ? 'bg-oxide-700 text-white shadow-sm'
-                : 'text-gray-400 hover:text-gray-200 hover:bg-oxide-800'
+                ? 'bg-surface-hover text-content-primary shadow-sm'
+                : 'text-content-secondary hover:text-content-primary hover:bg-surface-tertiary'
             }`}
           >
-            <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-oxide-700 text-gray-400">
+            <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-surface-hover text-content-secondary">
               {TAB_CONFIG[t].abbrev}
             </span>
             {TAB_CONFIG[t].label}
@@ -157,12 +157,12 @@ export function Offerings() {
       </div>
 
       <div className="mb-4 flex items-center gap-3">
-        <span className="px-2 py-1 rounded text-xs font-mono bg-oxide-700 text-gray-300">
+        <span className="px-2 py-1 rounded text-xs font-mono bg-surface-hover text-content-secondary">
           {cfg.abbrev}
         </span>
         <div>
-          <h2 className="text-lg font-semibold text-white">{cfg.label}</h2>
-          <p className="text-xs text-gray-500">{cfg.desc}</p>
+          <h2 className="text-lg font-semibold text-content-primary">{cfg.label}</h2>
+          <p className="text-xs text-content-tertiary">{cfg.desc}</p>
         </div>
       </div>
 
@@ -190,10 +190,10 @@ function ComputeTable({
 }) {
   if (data.length === 0) return <EmptyState text="No compute offerings" />
   return (
-    <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur overflow-hidden">
+    <div className="rounded-xl border border-border bg-surface-secondary backdrop-blur overflow-hidden">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-oxide-800 bg-oxide-900/80 text-gray-400 text-xs uppercase tracking-wider">
+          <tr className="border-b border-border bg-surface-secondary text-content-secondary text-xs uppercase tracking-wider">
             <th className="text-left px-4 py-3 font-medium">Name</th>
             <th className="text-center px-4 py-3 font-medium">vCPUs</th>
             <th className="text-center px-4 py-3 font-medium">RAM</th>
@@ -204,24 +204,24 @@ function ComputeTable({
             <th className="text-right px-4 py-3 font-medium">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-oxide-800/30">
+        <tbody className="divide-y divide-border">
           {data.map((o) => (
-            <tr key={o.id} className="hover:bg-oxide-800/20 transition-colors">
-              <td className="px-4 py-3 text-gray-200 font-medium">{o.name}</td>
-              <td className="px-4 py-3 text-center text-gray-300">{o.vcpus}</td>
-              <td className="px-4 py-3 text-center text-gray-300">
+            <tr key={o.id} className="hover:bg-surface-tertiary/20 transition-colors">
+              <td className="px-4 py-3 text-content-primary font-medium">{o.name}</td>
+              <td className="px-4 py-3 text-center text-content-secondary">{o.vcpus}</td>
+              <td className="px-4 py-3 text-center text-content-secondary">
                 {o.ram >= 1024 ? `${(o.ram / 1024).toFixed(0)} GB` : `${o.ram} MB`}
               </td>
-              <td className="px-4 py-3 text-center text-gray-300">{o.disk} GB</td>
-              <td className="px-4 py-3 text-center text-gray-400">{o.ephemeral || '—'}</td>
-              <td className="px-4 py-3 text-center text-gray-400">{o.swap || '—'}</td>
+              <td className="px-4 py-3 text-center text-content-secondary">{o.disk} GB</td>
+              <td className="px-4 py-3 text-center text-content-secondary">{o.ephemeral || '—'}</td>
+              <td className="px-4 py-3 text-center text-content-secondary">{o.swap || '—'}</td>
               <td className="px-4 py-3 text-center">
                 <StatusBadge active={!o.disabled} />
               </td>
               <td className="px-4 py-3 text-right">
                 <button
                   onClick={() => onDelete(o.id)}
-                  className="text-xs text-gray-500 hover:text-red-400 transition-colors"
+                  className="text-xs text-content-tertiary hover:text-red-400 transition-colors"
                 >
                   Delete
                 </button>
@@ -237,10 +237,10 @@ function ComputeTable({
 function DiskTable({ data, onDelete }: { data: DiskOffering[]; onDelete: (id: number) => void }) {
   if (data.length === 0) return <EmptyState text="No disk offerings" />
   return (
-    <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur overflow-hidden">
+    <div className="rounded-xl border border-border bg-surface-secondary backdrop-blur overflow-hidden">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-oxide-800 bg-oxide-900/80 text-gray-400 text-xs uppercase tracking-wider">
+          <tr className="border-b border-border bg-surface-secondary text-content-secondary text-xs uppercase tracking-wider">
             <th className="text-left px-4 py-3 font-medium">Name</th>
             <th className="text-left px-4 py-3 font-medium">Description</th>
             <th className="text-center px-4 py-3 font-medium">Size</th>
@@ -250,14 +250,14 @@ function DiskTable({ data, onDelete }: { data: DiskOffering[]; onDelete: (id: nu
             <th className="text-right px-4 py-3 font-medium">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-oxide-800/30">
+        <tbody className="divide-y divide-border">
           {data.map((o) => (
-            <tr key={o.id} className="hover:bg-oxide-800/20 transition-colors">
-              <td className="px-4 py-3 text-gray-200 font-medium">{o.name}</td>
-              <td className="px-4 py-3 text-gray-400 text-xs">{o.display_text || '—'}</td>
-              <td className="px-4 py-3 text-center text-gray-300">
+            <tr key={o.id} className="hover:bg-surface-tertiary/20 transition-colors">
+              <td className="px-4 py-3 text-content-primary font-medium">{o.name}</td>
+              <td className="px-4 py-3 text-content-secondary text-xs">{o.display_text || '—'}</td>
+              <td className="px-4 py-3 text-center text-content-secondary">
                 {o.is_custom ? (
-                  <span className="text-blue-400 text-xs">Custom</span>
+                  <span className="text-accent text-xs">Custom</span>
                 ) : (
                   `${o.disk_size_gb} GB`
                 )}
@@ -265,16 +265,16 @@ function DiskTable({ data, onDelete }: { data: DiskOffering[]; onDelete: (id: nu
               <td className="px-4 py-3 text-center">
                 <StorageTypeBadge type={o.storage_type} />
               </td>
-              <td className="px-4 py-3 text-center text-gray-400 text-xs font-mono">
+              <td className="px-4 py-3 text-center text-content-secondary text-xs font-mono">
                 {o.min_iops || o.max_iops ? `${o.min_iops} / ${o.max_iops}` : '—'}
               </td>
-              <td className="px-4 py-3 text-center text-gray-400 text-xs">
+              <td className="px-4 py-3 text-center text-content-secondary text-xs">
                 {o.throughput ? `${o.throughput} MB/s` : '—'}
               </td>
               <td className="px-4 py-3 text-right">
                 <button
                   onClick={() => onDelete(o.id)}
-                  className="text-xs text-gray-500 hover:text-red-400 transition-colors"
+                  className="text-xs text-content-tertiary hover:text-red-400 transition-colors"
                 >
                   Delete
                 </button>
@@ -296,10 +296,10 @@ function NetworkTable({
 }) {
   if (data.length === 0) return <EmptyState text="No network offerings" />
   return (
-    <div className="rounded-xl border border-oxide-800 bg-oxide-900/50 backdrop-blur overflow-hidden">
+    <div className="rounded-xl border border-border bg-surface-secondary backdrop-blur overflow-hidden">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-oxide-800 bg-oxide-900/80 text-gray-400 text-xs uppercase tracking-wider">
+          <tr className="border-b border-border bg-surface-secondary text-content-secondary text-xs uppercase tracking-wider">
             <th className="text-left px-4 py-3 font-medium">Name</th>
             <th className="text-left px-4 py-3 font-medium">Description</th>
             <th className="text-center px-4 py-3 font-medium">Type</th>
@@ -308,11 +308,11 @@ function NetworkTable({
             <th className="text-right px-4 py-3 font-medium">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-oxide-800/30">
+        <tbody className="divide-y divide-border">
           {data.map((o) => (
-            <tr key={o.id} className="hover:bg-oxide-800/20 transition-colors">
-              <td className="px-4 py-3 text-gray-200 font-medium">{o.name}</td>
-              <td className="px-4 py-3 text-gray-400 text-xs">{o.display_text || '—'}</td>
+            <tr key={o.id} className="hover:bg-surface-tertiary/20 transition-colors">
+              <td className="px-4 py-3 text-content-primary font-medium">{o.name}</td>
+              <td className="px-4 py-3 text-content-secondary text-xs">{o.display_text || '—'}</td>
               <td className="px-4 py-3 text-center">
                 <span className="px-2 py-0.5 rounded text-xs bg-purple-500/15 text-purple-400 border border-purple-500/20">
                   {o.guest_ip_type}
@@ -337,7 +337,7 @@ function NetworkTable({
               <td className="px-4 py-3 text-right">
                 <button
                   onClick={() => onDelete(o.id)}
-                  className="text-xs text-gray-500 hover:text-red-400 transition-colors"
+                  className="text-xs text-content-tertiary hover:text-red-400 transition-colors"
                 >
                   Delete
                 </button>
@@ -352,7 +352,7 @@ function NetworkTable({
 
 function ServiceTag({ label }: { label: string }) {
   return (
-    <span className="px-1.5 py-0.5 rounded text-[10px] bg-oxide-700 text-gray-300 border border-oxide-600">
+    <span className="px-1.5 py-0.5 rounded text-[10px] bg-surface-hover text-content-secondary border border-border-strong">
       {label}
     </span>
   )
@@ -360,8 +360,8 @@ function ServiceTag({ label }: { label: string }) {
 
 function StorageTypeBadge({ type }: { type: string }) {
   const colors: Record<string, string> = {
-    shared: 'bg-gray-500/15 text-gray-400 border-gray-500/20',
-    ssd: 'bg-blue-500/15 text-blue-400 border-blue-500/20',
+    shared: 'bg-gray-500/15 text-content-secondary border-gray-500/20',
+    ssd: 'bg-blue-500/15 text-accent border-blue-500/20',
     nvme: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20',
     local: 'bg-amber-500/15 text-amber-400 border-amber-500/20'
   }
@@ -383,5 +383,5 @@ function StatusBadge({ active }: { active: boolean }) {
 }
 
 function EmptyState({ text }: { text: string }) {
-  return <div className="text-center py-16 text-gray-500">{text}</div>
+  return <div className="text-center py-16 text-content-tertiary">{text}</div>
 }

@@ -42,7 +42,7 @@ export function ManagedTiDB() {
       key: 'version',
       header: 'Version',
       render: (r) => (
-        <span className="text-xs bg-blue-500/15 text-blue-400 px-1.5 py-0.5 rounded">
+        <span className="text-xs bg-blue-500/15 text-accent px-1.5 py-0.5 rounded">
           v{r.version}
         </span>
       )
@@ -71,7 +71,7 @@ export function ManagedTiDB() {
           href={r.dashboard_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs text-blue-400 hover:underline"
+          className="text-xs text-accent hover:underline"
         >
           Open
         </a>

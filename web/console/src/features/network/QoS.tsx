@@ -155,7 +155,7 @@ export default function QoSManagement() {
         <span
           className={`text-xs px-1.5 py-0.5 rounded ${
             r.direction === 'egress'
-              ? 'bg-blue-900/30 text-blue-400'
+              ? 'bg-blue-900/30 text-accent'
               : 'bg-purple-900/30 text-purple-400'
           }`}
         >
@@ -170,7 +170,7 @@ export default function QoSManagement() {
         <div>
           <span className="font-mono text-emerald-400">{formatBandwidth(r.max_kbps)}</span>
           {r.max_burst_kb > 0 && (
-            <span className="text-xs text-gray-500 ml-1">
+            <span className="text-xs text-content-tertiary ml-1">
               (burst: {formatBandwidth(r.max_burst_kb)})
             </span>
           )}
@@ -181,7 +181,7 @@ export default function QoSManagement() {
       key: 'target',
       header: 'Target',
       render: (r) => (
-        <span className="text-xs text-gray-300">
+        <span className="text-xs text-content-secondary">
           {r.network_id
             ? `Network: ${getNetworkName(r.network_id)}`
             : r.port_id
@@ -194,7 +194,7 @@ export default function QoSManagement() {
       key: 'status',
       header: 'Status',
       render: (r) => (
-        <span className={`text-xs ${r.status === 'active' ? 'text-green-400' : 'text-gray-500'}`}>
+        <span className={`text-xs ${r.status === 'active' ? 'text-green-400' : 'text-content-tertiary'}`}>
           {r.status}
         </span>
       )

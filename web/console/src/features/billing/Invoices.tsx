@@ -22,7 +22,7 @@ export function Invoices() {
   const statusBadge = (s: string) => {
     const c: Record<string, string> = {
       draft: 'bg-zinc-600/20 text-zinc-400',
-      issued: 'bg-blue-500/15 text-blue-400',
+      issued: 'bg-blue-500/15 text-accent',
       paid: 'bg-emerald-500/15 text-emerald-400',
       void: 'bg-red-500/15 text-red-400'
     }
@@ -74,7 +74,7 @@ export function Invoices() {
         <div className="flex justify-end gap-2">
           {r.status === 'draft' && (
             <button
-              className="text-xs text-blue-400 hover:underline"
+              className="text-xs text-accent hover:underline"
               onClick={async () => {
                 await issueInvoice(r.id)
                 load()

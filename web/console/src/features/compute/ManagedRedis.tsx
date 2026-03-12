@@ -35,7 +35,7 @@ export function ManagedRedis() {
 
   const modeBadge = (m: string) => {
     const c: Record<string, string> = {
-      sentinel: 'bg-blue-500/15 text-blue-400',
+      sentinel: 'bg-blue-500/15 text-accent',
       cluster: 'bg-purple-500/15 text-purple-400'
     }
     return (

@@ -107,12 +107,12 @@ export function RateLimiting() {
 
   const scopeBadge = (s: string) => {
     const colors: Record<string, string> = {
-      global: 'bg-blue-500/20 text-blue-400',
+      global: 'bg-blue-500/20 text-accent',
       tenant: 'bg-purple-500/20 text-purple-400',
       user: 'bg-emerald-500/20 text-emerald-400',
       path: 'bg-amber-500/20 text-amber-400'
     }
-    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colors[s] || 'bg-gray-500/20 text-gray-400'}`
+    return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colors[s] || 'bg-gray-500/20 text-content-secondary'}`
   }
 
   const formatTime = (t?: string) => (t ? new Date(t).toLocaleString() : '—')
@@ -127,8 +127,8 @@ export function RateLimiting() {
   if (loading && !status) {
     return (
       <div className="p-8">
-        <h1 className="text-2xl font-bold text-white mb-2">Rate Limiting</h1>
-        <p className="text-gray-400">Loading...</p>
+        <h1 className="text-2xl font-bold text-content-primary mb-2">Rate Limiting</h1>
+        <p className="text-content-secondary">Loading...</p>
       </div>
     )
   }
@@ -137,8 +137,8 @@ export function RateLimiting() {
     <div className="p-8 max-w-[1400px] mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">API Rate Limiting</h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-content-primary">API Rate Limiting</h1>
+          <p className="text-content-secondary text-sm mt-1">
             Multi-tier rate limiting with adaptive throttling
           </p>
         </div>
@@ -150,16 +150,16 @@ export function RateLimiting() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 border-b border-gray-700/50">
+      <div className="flex gap-1 mb-6 border-b border-border/50">
         {tabs.map((t) => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${tab === t.key ? 'text-blue-400 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-400' : 'text-gray-400 hover:text-gray-300'}`}
+            className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${tab === t.key ? 'text-accent after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-400' : 'text-content-secondary hover:text-content-secondary'}`}
           >
             {t.label}
             {'count' in t && t.count !== undefined && (
-              <span className="ml-2 px-1.5 py-0.5 bg-gray-700/60 rounded text-xs">{t.count}</span>
+              <span className="ml-2 px-1.5 py-0.5 bg-surface-hover/60 rounded text-xs">{t.count}</span>
             )}
           </button>
         ))}
@@ -173,7 +173,7 @@ export function RateLimiting() {
               {
                 label: 'Total Requests',
                 value: status.total_requests.toLocaleString(),
-                color: 'text-blue-400',
+                color: 'text-accent',
                 icon: Icons.chart('w-5 h-5')
               },
               {
@@ -197,9 +197,9 @@ export function RateLimiting() {
             ].map((s) => (
               <div
                 key={s.label}
-                className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5"
+                className="bg-surface-tertiary border border-border rounded-xl p-5"
               >
-                <div className="flex items-center gap-2 text-gray-400 text-sm mb-2">
+                <div className="flex items-center gap-2 text-content-secondary text-sm mb-2">
                   <span>{s.icon}</span> {s.label}
                 </div>
                 <div className={`text-3xl font-bold ${s.color}`}>{s.value}</div>
@@ -208,8 +208,8 @@ export function RateLimiting() {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5">
-              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-3">
+            <div className="bg-surface-tertiary border border-border rounded-xl p-5">
+              <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider mb-3">
                 Enforcement Layers
               </h3>
               <div className="space-y-2 text-sm">
@@ -237,13 +237,13 @@ export function RateLimiting() {
                 ].map((l) => (
                   <div
                     key={l.scope}
-                    className="flex items-center justify-between py-2 border-b border-gray-700/20 last:border-0"
+                    className="flex items-center justify-between py-2 border-b border-border/20 last:border-0"
                   >
                     <div>
                       <span className={scopeBadge(l.scope.toLowerCase())}>{l.scope}</span>
-                      <span className="text-gray-500 ml-2">{l.desc}</span>
+                      <span className="text-content-tertiary ml-2">{l.desc}</span>
                     </div>
-                    <span className="text-white font-mono text-xs">
+                    <span className="text-content-primary font-mono text-xs">
                       {l.rpm}
                       {typeof l.rpm === 'number' ? ' req/min' : ''}
                     </span>
@@ -251,26 +251,26 @@ export function RateLimiting() {
                 ))}
               </div>
             </div>
-            <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5">
-              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-3">
+            <div className="bg-surface-tertiary border border-border rounded-xl p-5">
+              <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider mb-3">
                 Adaptive Throttling
               </h3>
               <div className="space-y-3 text-sm">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Status</span>
+                  <span className="text-content-secondary">Status</span>
                   <span
-                    className={`px-2 py-0.5 rounded text-xs font-medium ${status.adaptive.enabled ? 'bg-emerald-500/20 text-emerald-400' : 'bg-gray-500/20 text-gray-400'}`}
+                    className={`px-2 py-0.5 rounded text-xs font-medium ${status.adaptive.enabled ? 'bg-emerald-500/20 text-emerald-400' : 'bg-gray-500/20 text-content-secondary'}`}
                   >
                     {status.adaptive.enabled ? 'Enabled' : 'Disabled'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Current Scale</span>
-                  <span className="text-white font-mono">
+                  <span className="text-content-secondary">Current Scale</span>
+                  <span className="text-content-primary font-mono">
                     {(status.adaptive.current_scale * 100).toFixed(0)}%
                   </span>
                 </div>
-                <div className="mt-2 h-2 bg-gray-700 rounded-full overflow-hidden">
+                <div className="mt-2 h-2 bg-surface-hover rounded-full overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-red-500 via-amber-500 to-emerald-500 rounded-full transition-all duration-500"
                     style={{ width: `${status.adaptive.current_scale * 100}%` }}
@@ -282,51 +282,51 @@ export function RateLimiting() {
 
           {/* Recent violations */}
           {eventStats && (
-            <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-5">
-              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-3">
+            <div className="bg-surface-tertiary border border-border rounded-xl p-5">
+              <h3 className="text-sm font-semibold text-content-secondary uppercase tracking-wider mb-3">
                 Last 24h — {Number(eventStats.total || 0).toLocaleString()} Violations
               </h3>
               {Array.isArray(eventStats.by_ip) &&
               (eventStats.by_ip as Array<{ client_ip: string; count: number }>).length > 0 ? (
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <p className="text-xs text-gray-500 mb-2">Top IPs</p>
+                    <p className="text-xs text-content-tertiary mb-2">Top IPs</p>
                     {(eventStats.by_ip as Array<{ client_ip: string; count: number }>)
                       .slice(0, 5)
                       .map((i) => (
                         <div key={i.client_ip} className="flex justify-between text-xs py-1">
-                          <span className="text-gray-300 font-mono">{i.client_ip}</span>
+                          <span className="text-content-secondary font-mono">{i.client_ip}</span>
                           <span className="text-red-400">{i.count}</span>
                         </div>
                       ))}
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 mb-2">Top Policies</p>
+                    <p className="text-xs text-content-tertiary mb-2">Top Policies</p>
                     {Array.isArray(eventStats.by_policy) &&
                       (eventStats.by_policy as Array<{ policy_name: string; count: number }>)
                         .slice(0, 5)
                         .map((p) => (
                           <div key={p.policy_name} className="flex justify-between text-xs py-1">
-                            <span className="text-gray-300">{p.policy_name}</span>
+                            <span className="text-content-secondary">{p.policy_name}</span>
                             <span className="text-amber-400">{p.count}</span>
                           </div>
                         ))}
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 mb-2">Top Tenants</p>
+                    <p className="text-xs text-content-tertiary mb-2">Top Tenants</p>
                     {Array.isArray(eventStats.by_tenant) &&
                       (eventStats.by_tenant as Array<{ tenant_id: string; count: number }>)
                         .slice(0, 5)
                         .map((t) => (
                           <div key={t.tenant_id} className="flex justify-between text-xs py-1">
-                            <span className="text-gray-300">{t.tenant_id || '(anonymous)'}</span>
+                            <span className="text-content-secondary">{t.tenant_id || '(anonymous)'}</span>
                             <span className="text-purple-400">{t.count}</span>
                           </div>
                         ))}
                   </div>
                 </div>
               ) : (
-                <p className="text-gray-500 text-sm">No violations recorded</p>
+                <p className="text-content-tertiary text-sm">No violations recorded</p>
               )}
             </div>
           )}
@@ -339,15 +339,15 @@ export function RateLimiting() {
           <div className="flex justify-end">
             <button
               onClick={() => setShowCreate(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-500 transition"
+              className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition"
             >
               + Create Policy
             </button>
           </div>
-          <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl overflow-hidden">
+          <div className="bg-surface-tertiary border border-border rounded-xl overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="bg-gray-700/30">
-                <tr className="text-left text-gray-400 text-xs uppercase">
+              <thead className="bg-surface-hover">
+                <tr className="text-left text-content-secondary text-xs uppercase">
                   <th className="px-4 py-3">Name</th>
                   <th className="px-4 py-3">Scope</th>
                   <th className="px-4 py-3">Target</th>
@@ -362,28 +362,28 @@ export function RateLimiting() {
                 {policies.map((p) => (
                   <tr
                     key={p.id}
-                    className="border-t border-gray-700/30 hover:bg-gray-700/20 transition"
+                    className="border-t border-border hover:bg-surface-hover transition"
                   >
                     <td className="px-4 py-3">
-                      <div className="text-white font-medium">{p.name}</div>
+                      <div className="text-content-primary font-medium">{p.name}</div>
                       {p.description && (
-                        <div className="text-gray-500 text-xs">{p.description}</div>
+                        <div className="text-content-tertiary text-xs">{p.description}</div>
                       )}
                     </td>
                     <td className="px-4 py-3">
                       <span className={scopeBadge(p.scope)}>{p.scope}</span>
                     </td>
-                    <td className="px-4 py-3 text-gray-300 font-mono text-xs">{p.scope_id}</td>
-                    <td className="px-4 py-3 text-white">
+                    <td className="px-4 py-3 text-content-secondary font-mono text-xs">{p.scope_id}</td>
+                    <td className="px-4 py-3 text-content-primary">
                       {p.requests_per_min}
-                      <span className="text-gray-500 text-xs">/min</span>
+                      <span className="text-content-tertiary text-xs">/min</span>
                     </td>
-                    <td className="px-4 py-3 text-gray-300">{p.burst_size}</td>
-                    <td className="px-4 py-3 text-gray-300">{p.priority}</td>
+                    <td className="px-4 py-3 text-content-secondary">{p.burst_size}</td>
+                    <td className="px-4 py-3 text-content-secondary">{p.priority}</td>
                     <td className="px-4 py-3">
                       <button
                         onClick={() => togglePolicy(p)}
-                        className={`px-2 py-0.5 rounded text-xs font-medium cursor-pointer transition ${p.enabled ? 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30' : 'bg-gray-500/20 text-gray-400 hover:bg-gray-500/30'}`}
+                        className={`px-2 py-0.5 rounded text-xs font-medium cursor-pointer transition ${p.enabled ? 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30' : 'bg-gray-500/20 text-content-secondary hover:bg-gray-500/30'}`}
                       >
                         {p.enabled ? 'enabled' : 'disabled'}
                       </button>
@@ -410,19 +410,19 @@ export function RateLimiting() {
       {/* Events */}
       {tab === 'events' && (
         <div className="space-y-4">
-          <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl overflow-hidden">
+          <div className="bg-surface-tertiary border border-border rounded-xl overflow-hidden">
             {events.length === 0 ? (
               <div className="text-center py-12">
                 <div className="mb-3 text-emerald-400">{Icons.checkCircle('w-10 h-10')}</div>
-                <p className="text-gray-400">No rate limit violations</p>
-                <p className="text-gray-500 text-sm mt-1">
+                <p className="text-content-secondary">No rate limit violations</p>
+                <p className="text-content-tertiary text-sm mt-1">
                   All API requests are within configured limits
                 </p>
               </div>
             ) : (
               <table className="w-full text-sm">
-                <thead className="bg-gray-700/30">
-                  <tr className="text-left text-gray-400 text-xs uppercase">
+                <thead className="bg-surface-hover">
+                  <tr className="text-left text-content-secondary text-xs uppercase">
                     <th className="px-4 py-3">Time</th>
                     <th className="px-4 py-3">Policy</th>
                     <th className="px-4 py-3">Path</th>
@@ -435,20 +435,20 @@ export function RateLimiting() {
                   {events.map((e) => (
                     <tr
                       key={e.id}
-                      className="border-t border-gray-700/30 hover:bg-gray-700/20 transition"
+                      className="border-t border-border hover:bg-surface-hover transition"
                     >
-                      <td className="px-4 py-3 text-gray-400 text-xs">
+                      <td className="px-4 py-3 text-content-secondary text-xs">
                         {formatTime(e.created_at)}
                       </td>
                       <td className="px-4 py-3">
                         <span className={scopeBadge(e.scope)}>{e.policy_name}</span>
                       </td>
-                      <td className="px-4 py-3 text-gray-300 font-mono text-xs">
+                      <td className="px-4 py-3 text-content-secondary font-mono text-xs">
                         {e.method} {e.path}
                       </td>
-                      <td className="px-4 py-3 text-gray-300 font-mono text-xs">{e.client_ip}</td>
-                      <td className="px-4 py-3 text-gray-400 text-xs">{e.tenant_id || '—'}</td>
-                      <td className="px-4 py-3 text-gray-400 text-xs">{e.user_id || '—'}</td>
+                      <td className="px-4 py-3 text-content-secondary font-mono text-xs">{e.client_ip}</td>
+                      <td className="px-4 py-3 text-content-secondary text-xs">{e.tenant_id || '—'}</td>
+                      <td className="px-4 py-3 text-content-secondary text-xs">{e.user_id || '—'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -461,9 +461,9 @@ export function RateLimiting() {
       {/* Adaptive Throttling */}
       {tab === 'adaptive' && adaptive && (
         <div className="space-y-6">
-          <div className="bg-gray-800/60 border border-gray-700/40 rounded-xl p-6">
-            <h3 className="text-white font-semibold text-lg mb-4">Adaptive Throttling</h3>
-            <p className="text-gray-400 text-sm mb-4">
+          <div className="bg-surface-tertiary border border-border rounded-xl p-6">
+            <h3 className="text-content-primary font-semibold text-lg mb-4">Adaptive Throttling</h3>
+            <p className="text-content-secondary text-sm mb-4">
               When enabled, the system automatically adjusts rate limits based on real-time CPU
               utilization and API latency. Under high load, limits are reduced to protect system
               stability; as load normalizes, limits are gradually restored.
@@ -471,28 +471,28 @@ export function RateLimiting() {
             <div className="grid grid-cols-2 gap-6 text-sm">
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Status</span>
+                  <span className="text-content-secondary">Status</span>
                   <span
-                    className={`px-2 py-0.5 rounded text-xs font-medium ${(adaptive.config as Record<string, unknown>)?.enabled ? 'bg-emerald-500/20 text-emerald-400' : 'bg-gray-500/20 text-gray-400'}`}
+                    className={`px-2 py-0.5 rounded text-xs font-medium ${(adaptive.config as Record<string, unknown>)?.enabled ? 'bg-emerald-500/20 text-emerald-400' : 'bg-gray-500/20 text-content-secondary'}`}
                   >
                     {(adaptive.config as Record<string, unknown>)?.enabled ? 'Enabled' : 'Disabled'}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Current Scale</span>
-                  <span className="text-white font-mono">
+                  <span className="text-content-secondary">Current Scale</span>
+                  <span className="text-content-primary font-mono">
                     {((adaptive.current_scale as number) * 100).toFixed(0)}%
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">CPU Threshold</span>
-                  <span className="text-white font-mono">
+                  <span className="text-content-secondary">CPU Threshold</span>
+                  <span className="text-content-primary font-mono">
                     {String((adaptive.config as Record<string, unknown>)?.cpu_threshold || 80)}%
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Latency Threshold</span>
-                  <span className="text-white font-mono">
+                  <span className="text-content-secondary">Latency Threshold</span>
+                  <span className="text-content-primary font-mono">
                     {String(
                       (adaptive.config as Record<string, unknown>)?.latency_threshold || 1000
                     )}
@@ -502,27 +502,27 @@ export function RateLimiting() {
               </div>
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Scale Down Factor</span>
-                  <span className="text-white font-mono">
+                  <span className="text-content-secondary">Scale Down Factor</span>
+                  <span className="text-content-primary font-mono">
                     {String((adaptive.config as Record<string, unknown>)?.scale_down_factor || 0.5)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Scale Up Factor</span>
-                  <span className="text-white font-mono">
+                  <span className="text-content-secondary">Scale Up Factor</span>
+                  <span className="text-content-primary font-mono">
                     {String((adaptive.config as Record<string, unknown>)?.scale_up_factor || 1.2)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Cooldown</span>
-                  <span className="text-white font-mono">
+                  <span className="text-content-secondary">Cooldown</span>
+                  <span className="text-content-primary font-mono">
                     {String((adaptive.config as Record<string, unknown>)?.cooldown_seconds || 30)}s
                   </span>
                 </div>
               </div>
             </div>
-            <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg text-sm text-gray-400">
-              <p className="text-blue-400 font-medium mb-1">How it works:</p>
+            <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg text-sm text-content-secondary">
+              <p className="text-accent font-medium mb-1">How it works:</p>
               <p>
                 CPU &gt; threshold OR latency &gt; threshold &rarr; limits × scale_down_factor (min 10%)
               </p>
@@ -559,27 +559,27 @@ function CreatePolicyModal({
       onClick={onClose}
     >
       <div
-        className="bg-gray-800 border border-gray-700 rounded-xl p-6 w-[520px]"
+        className="bg-gray-800 border border-border rounded-xl p-6 w-[520px]"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-lg font-semibold text-white mb-4">Create Rate Limit Policy</h2>
+        <h2 className="text-lg font-semibold text-content-primary mb-4">Create Rate Limit Policy</h2>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Name</label>
+            <label className="block text-sm text-content-secondary mb-1">Name</label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+              className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
               placeholder="e.g. high-volume-tenant"
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Scope</label>
+              <label className="block text-sm text-content-secondary mb-1">Scope</label>
               <select
                 value={scope}
                 onChange={(e) => setScope(e.target.value)}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
               >
                 <option value="global">Global</option>
                 <option value="tenant">Tenant</option>
@@ -588,11 +588,11 @@ function CreatePolicyModal({
               </select>
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Scope ID</label>
+              <label className="block text-sm text-content-secondary mb-1">Scope ID</label>
               <input
                 value={scopeId}
                 onChange={(e) => setScopeId(e.target.value)}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
                 placeholder={
                   scope === 'global' ? '*' : scope === 'path' ? '/api/v1/...' : 'ID or *'
                 }
@@ -601,46 +601,46 @@ function CreatePolicyModal({
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Requests / min</label>
+              <label className="block text-sm text-content-secondary mb-1">Requests / min</label>
               <input
                 type="number"
                 value={rpm}
                 onChange={(e) => setRpm(parseInt(e.target.value))}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Burst</label>
+              <label className="block text-sm text-content-secondary mb-1">Burst</label>
               <input
                 type="number"
                 value={burst}
                 onChange={(e) => setBurst(parseInt(e.target.value))}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Priority</label>
+              <label className="block text-sm text-content-secondary mb-1">Priority</label>
               <input
                 type="number"
                 value={priority}
                 onChange={(e) => setPriority(parseInt(e.target.value))}
-                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+                className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
               />
             </div>
           </div>
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Description</label>
+            <label className="block text-sm text-content-secondary mb-1">Description</label>
             <input
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none"
+              className="w-full bg-surface-hover/50 border border-gray-600 rounded-lg px-3 py-2 text-content-primary text-sm focus:border-blue-500 outline-none"
             />
           </div>
         </div>
         <div className="flex justify-end gap-3 mt-6">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-400 hover:text-white text-sm transition"
+            className="px-4 py-2 text-content-secondary hover:text-content-primary text-sm transition"
           >
             Cancel
           </button>
@@ -657,7 +657,7 @@ function CreatePolicyModal({
               })
             }
             disabled={!name}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-500 transition disabled:opacity-50"
+            className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition disabled:opacity-50"
           >
             Create Policy
           </button>

@@ -36,11 +36,11 @@ export function Utilization() {
       {/* Top summary */}
       <div className="grid md:grid-cols-3 gap-3">
         <div className="card p-4">
-          <div className="text-gray-400">vCPU used</div>
+          <div className="text-content-secondary">vCPU used</div>
           <div className="text-2xl font-semibold">
             {totals.vcpu} / {capacity.vcpu}
           </div>
-          <div className="h-2 bg-oxide-800 rounded mt-2">
+          <div className="h-2 bg-surface-tertiary rounded mt-2">
             <div
               className="h-2 bg-oxide-500 rounded"
               style={{ width: `${Math.min(100, (totals.vcpu / capacity.vcpu) * 100).toFixed(0)}%` }}
@@ -48,11 +48,11 @@ export function Utilization() {
           </div>
         </div>
         <div className="card p-4">
-          <div className="text-gray-400">Memory used (GiB)</div>
+          <div className="text-content-secondary">Memory used (GiB)</div>
           <div className="text-2xl font-semibold">
             {totals.memGiB} / {capacity.memGiB}
           </div>
-          <div className="h-2 bg-oxide-800 rounded mt-2">
+          <div className="h-2 bg-surface-tertiary rounded mt-2">
             <div
               className="h-2 bg-oxide-500 rounded"
               style={{
@@ -62,11 +62,11 @@ export function Utilization() {
           </div>
         </div>
         <div className="card p-4">
-          <div className="text-gray-400">Storage used (GiB)</div>
+          <div className="text-content-secondary">Storage used (GiB)</div>
           <div className="text-2xl font-semibold">
             {totals.storageGiB} / {capacity.storageGiB}
           </div>
-          <div className="h-2 bg-oxide-800 rounded mt-2">
+          <div className="h-2 bg-surface-tertiary rounded mt-2">
             <div
               className="h-2 bg-oxide-500 rounded"
               style={{
@@ -79,7 +79,7 @@ export function Utilization() {
 
       {/* Controls */}
       <div className="card p-4 flex items-center justify-between">
-        <div className="text-sm text-gray-300">Utilization by project</div>
+        <div className="text-sm text-content-secondary">Utilization by project</div>
         <div className="flex items-center gap-2">
           <label className="label">Range</label>
           <select
@@ -104,9 +104,9 @@ export function Utilization() {
           return (
             <div key={proj.id} className="card p-4 space-y-2">
               <div className="font-medium">{proj.name}</div>
-              <div className="text-sm text-gray-400">vCPU: {v.vcpu}</div>
-              <div className="text-sm text-gray-400">Memory: {v.memGiB} GiB</div>
-              <div className="text-sm text-gray-400">Storage: {v.storageGiB} GiB</div>
+              <div className="text-sm text-content-secondary">vCPU: {v.vcpu}</div>
+              <div className="text-sm text-content-secondary">Memory: {v.memGiB} GiB</div>
+              <div className="text-sm text-content-secondary">Storage: {v.storageGiB} GiB</div>
             </div>
           )
         })}
