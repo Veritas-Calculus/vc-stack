@@ -2,7 +2,6 @@ package management
 
 import (
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/Veritas-Calculus/vc-stack/internal/management/apidocs"
@@ -56,6 +55,7 @@ import (
 
 	"github.com/Veritas-Calculus/vc-stack/internal/management/abac"
 
+	"github.com/Veritas-Calculus/vc-stack/pkg/appconfig"
 	"github.com/Veritas-Calculus/vc-stack/pkg/dlock"
 	"github.com/Veritas-Calculus/vc-stack/pkg/mq"
 	"github.com/Veritas-Calculus/vc-stack/pkg/vcredis"
@@ -94,6 +94,10 @@ type Config struct {
 	// MQ is an optional message bus (Kafka).
 	// If nil, synchronous REST dispatch is used.
 	MQ mq.MessageBus
+
+	// AppCfg is the centralized application configuration.
+	// Modules should use this instead of calling os.Getenv() directly.
+	AppCfg *appconfig.AppConfig
 }
 
 // Service composes all management plane services
@@ -199,15 +203,17 @@ func (s *Service) Modules() map[string]Module {
 func New(cfg Config) (*Service, error) {
 	// Validate JWT secret.
 	jwtSecret := cfg.JWTSecret
+	ginMode := ""
+	if cfg.AppCfg != nil {
+		ginMode = cfg.AppCfg.Server.GinMode
+	}
 	if jwtSecret == "" {
-		ginMode := os.Getenv("GIN_MODE")
 		if ginMode == "release" {
 			return nil, fmt.Errorf("JWT_SECRET is required in production (GIN_MODE=release)")
 		}
 		cfg.Logger.Warn("JWT_SECRET not set, using insecure default for development")
 		jwtSecret = "vc-stack-jwt-secret-change-me-in-production" // #nosec G101
 	} else if len(jwtSecret) < 32 {
-		ginMode := os.Getenv("GIN_MODE")
 		if ginMode == "release" {
 			return nil, fmt.Errorf("JWT_SECRET is too short (%d chars); minimum 32 characters required for production", len(jwtSecret))
 		}

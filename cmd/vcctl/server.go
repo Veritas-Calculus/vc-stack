@@ -2,6 +2,10 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"syscall"
 
 	"github.com/spf13/cobra"
 )
@@ -15,8 +19,13 @@ func newServerCommand() *cobra.Command {
 		Long:  `Start and manage VC Stack server components (management, compute)`,
 	}
 
-	cmd.AddCommand(newServerManagementCommand())
-	cmd.AddCommand(newServerComputeCommand())
+	mgmt := newServerManagementCommand()
+	mgmt.Flags().StringP("config", "c", "/etc/vc-stack/management.yaml", "Path to management config file")
+	cmd.AddCommand(mgmt)
+
+	comp := newServerComputeCommand()
+	comp.Flags().StringP("config", "c", "/etc/vc-stack/compute.yaml", "Path to compute node config file")
+	cmd.AddCommand(comp)
 
 	return cmd
 }
@@ -27,10 +36,9 @@ func newServerManagementCommand() *cobra.Command {
 		Use:   "management",
 		Short: "Start the management plane server",
 		Long:  `Start the VC Stack management plane server (includes gateway, identity, network, scheduler)`,
-		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("Starting VC Stack Management...")
-			fmt.Println("TODO: Launch vc-management server")
-			fmt.Println("Hint: Use 'vc-management' binary directly or implement server start logic here")
+		RunE: func(cmd *cobra.Command, args []string) error {
+			configPath, _ := cmd.Flags().GetString("config")
+			return launchBinary("vc-management", configPath)
 		},
 	}
 }
@@ -41,10 +49,40 @@ func newServerComputeCommand() *cobra.Command {
 		Use:   "compute",
 		Short: "Start the compute node server",
 		Long:  `Start the VC Stack compute node server (includes VM management, network agent, storage agent)`,
-		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("Starting VC Stack Compute...")
-			fmt.Println("TODO: Launch vc-compute server")
-			fmt.Println("Hint: Use 'vc-compute' binary directly or implement server start logic here")
+		RunE: func(cmd *cobra.Command, args []string) error {
+			configPath, _ := cmd.Flags().GetString("config")
+			return launchBinary("vc-compute", configPath)
 		},
 	}
+}
+
+// launchBinary finds and exec's the given VC Stack binary.
+func launchBinary(name, configPath string) error {
+	// 1. Look in the same directory as vcctl
+	selfPath, _ := os.Executable()
+	selfDir := filepath.Dir(selfPath)
+	candidate := filepath.Join(selfDir, name)
+
+	// 2. Fall back to PATH lookup
+	binPath, err := exec.LookPath(candidate)
+	if err != nil {
+		binPath, err = exec.LookPath(name)
+		if err != nil {
+			return fmt.Errorf("cannot find %q binary — ensure it is installed or in the same directory as vcctl", name)
+		}
+	}
+
+	fmt.Printf("Starting %s (binary: %s)\n", name, binPath)
+	if configPath != "" {
+		fmt.Printf("Config: %s\n", configPath)
+	}
+
+	// Build args: pass --config if provided
+	execArgs := []string{name}
+	if configPath != "" {
+		execArgs = append(execArgs, "--config", configPath)
+	}
+
+	// Replace this process with the target binary (exec)
+	return syscall.Exec(binPath, execArgs, os.Environ()) // #nosec G204 -- binPath from exec.LookPath
 }

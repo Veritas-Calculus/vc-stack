@@ -202,6 +202,7 @@ func main() {
 		DLock:     dlockMgr,
 		Redis:     redisMgr,
 		MQ:        mqBus,
+		AppCfg:    appCfg,
 	}
 	mgmtCfg.SchedulerOvercommit.CPURatio = appCfg.Scheduler.CPUOvercommitRatio
 	mgmtCfg.SchedulerOvercommit.RAMRatio = appCfg.Scheduler.RAMOvercommitRatio

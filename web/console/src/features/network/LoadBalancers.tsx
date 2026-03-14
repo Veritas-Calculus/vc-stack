@@ -226,7 +226,7 @@ export default function LoadBalancers() {
                 label: 'Edit Backends',
                 onClick: () => {
                   setSelectedLb(lb)
-                  setEditBackends(lb.backends.join('\n'))
+                  setEditBackends((lb.backends ?? []).join('\n'))
                   setShowBackends(true)
                 }
               },

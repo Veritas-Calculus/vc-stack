@@ -1,7 +1,7 @@
 package management
 
 import (
-	"os"
+	"fmt"
 	"time"
 
 	"github.com/Veritas-Calculus/vc-stack/internal/management/apidocs"
@@ -81,16 +81,22 @@ func RegisterCoreModules(r *ModuleRegistry) {
 	r.Register(ModuleDescriptor{
 		Name: "network", Core: true, DependsOn: []string{"identity"},
 		Factory: func(svc *Service, cfg Config) error {
-			sdnProvider := os.Getenv("VC_SDN_PROVIDER")
-			if sdnProvider == "" {
-				sdnProvider = "ovn"
+			sdnProvider := "ovn"
+			if cfg.AppCfg != nil && cfg.AppCfg.SDNProvider != "" {
+				sdnProvider = cfg.AppCfg.SDNProvider
+			}
+			bridgeMappings := ""
+			ovnNBAddr := ""
+			if cfg.AppCfg != nil {
+				bridgeMappings = cfg.AppCfg.BridgeMappings
+				ovnNBAddr = cfg.AppCfg.Network.OVNNBAddress
 			}
 			s, err := network.NewService(network.Config{
 				DB: cfg.DB, Logger: cfg.Logger,
 				SDN: network.SDNConfig{
 					Provider:       sdnProvider,
-					BridgeMappings: os.Getenv("VC_BRIDGE_MAPPINGS"),
-					OVN:            network.OVNConfig{NBAddress: os.Getenv("OVN_NB_ADDRESS")},
+					BridgeMappings: bridgeMappings,
+					OVN:            network.OVNConfig{NBAddress: ovnNBAddr},
 				},
 				IPAM: network.IPAMOptions{ReserveGateway: true},
 			})
@@ -106,9 +112,13 @@ func RegisterCoreModules(r *ModuleRegistry) {
 	r.Register(ModuleDescriptor{
 		Name: "host", Core: true,
 		Factory: func(svc *Service, cfg Config) error {
+			externalURL := ""
+			if cfg.AppCfg != nil {
+				externalURL = cfg.AppCfg.ExternalURL
+			}
 			s, err := host.NewService(host.Config{
 				DB: cfg.DB, Logger: cfg.Logger.Named("host"),
-				ExternalURL: os.Getenv("EXTERNAL_URL"),
+				ExternalURL: externalURL,
 			})
 			if err != nil {
 				return err
@@ -214,13 +224,15 @@ func RegisterCoreModules(r *ModuleRegistry) {
 	r.Register(ModuleDescriptor{
 		Name: "compute", Core: true, DependsOn: []string{"network", "event", "quota"},
 		Factory: func(svc *Service, cfg Config) error {
-			mgmtPort := os.Getenv("VC_MANAGEMENT_PORT")
-			if mgmtPort == "" {
-				mgmtPort = "8080"
-			}
+			mgmtPort := "8080"
 			mgmtScheme := "http"
-			if os.Getenv("VC_MANAGEMENT_TLS") == "true" {
-				mgmtScheme = "https"
+			if cfg.AppCfg != nil {
+				if cfg.AppCfg.Server.Port != 0 {
+					mgmtPort = fmt.Sprintf("%d", cfg.AppCfg.Server.Port)
+				}
+				if cfg.AppCfg.ManagementTLS {
+					mgmtScheme = "https"
+				}
 			}
 			s, err := compute.NewService(compute.Config{
 				DB: cfg.DB, Logger: cfg.Logger.Named("compute"),
@@ -257,6 +269,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.Config = s
+				svc.RegisterModule(WrapModule("config", s))
 				return nil
 			}},
 		{"domain", func(mc ModulesConfig) bool { return isEnabled(mc.EnableDomain) }, nil,
@@ -266,6 +279,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.Domain = s
+				svc.RegisterModule(WrapModule("domain", s))
 				return nil
 			}},
 		{"tools", func(mc ModulesConfig) bool { return isEnabled(mc.EnableTools) }, nil,
@@ -275,6 +289,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.Tools = s
+				svc.RegisterModule(WrapModule("tools", s))
 				return nil
 			}},
 		{"usage", func(mc ModulesConfig) bool { return isEnabled(mc.EnableUsage) }, nil,
@@ -284,6 +299,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.Usage = s
+				svc.RegisterModule(WrapModule("usage", s))
 				return nil
 			}},
 		{"vpn", func(mc ModulesConfig) bool { return isEnabled(mc.EnableVPN) }, nil,
@@ -293,6 +309,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.VPN = s
+				svc.RegisterModule(WrapModule("vpn", s))
 				return nil
 			}},
 		{"backup", func(mc ModulesConfig) bool { return isEnabled(mc.EnableBackup) }, nil,
@@ -302,6 +319,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.Backup = s
+				svc.RegisterModule(WrapModule("backup", s))
 				return nil
 			}},
 		{"autoscale", func(mc ModulesConfig) bool { return isEnabled(mc.EnableAutoScale) }, nil,
@@ -311,6 +329,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.AutoScale = s
+				svc.RegisterModule(WrapModule("autoscale", s))
 				return nil
 			}},
 		{"storage", func(mc ModulesConfig) bool { return isEnabled(mc.EnableStorage) }, []string{"quota"},
@@ -323,6 +342,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.Storage = s
+				svc.RegisterModule(WrapModule("storage", s))
 				return nil
 			}},
 		{"task", func(mc ModulesConfig) bool { return isEnabled(mc.EnableTask) }, nil,
@@ -332,6 +352,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.Task = s
+				svc.RegisterModule(WrapModule("task", s))
 				return nil
 			}},
 		{"tag", func(mc ModulesConfig) bool { return isEnabled(mc.EnableTag) }, nil,
@@ -341,6 +362,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.Tag = s
+				svc.RegisterModule(WrapModule("tag", s))
 				return nil
 			}},
 		{"notification", func(mc ModulesConfig) bool { return isEnabled(mc.EnableNotify) }, nil,
@@ -350,6 +372,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.Notification = s
+				svc.RegisterModule(WrapModule("notification", s))
 				return nil
 			}},
 		{"image", func(mc ModulesConfig) bool { return isEnabled(mc.EnableImage) }, nil,
@@ -359,11 +382,14 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.Image = s
+				svc.RegisterModule(WrapModule("image", s))
 				return nil
 			}},
 		{"apidocs", func(mc ModulesConfig) bool { return isEnabled(mc.EnableAPIDocs) }, nil,
 			func(svc *Service, _ Config) error {
-				svc.APIDocs = apidocs.NewService(apidocs.Config{Logger: svc.logger.Named("apidocs")})
+				s := apidocs.NewService(apidocs.Config{Logger: svc.logger.Named("apidocs")})
+				svc.APIDocs = s
+				svc.RegisterModule(WrapModule("apidocs", s))
 				return nil
 			}},
 		{"dns", func(mc ModulesConfig) bool { return isEnabled(mc.EnableDNS) }, nil,
@@ -373,20 +399,30 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.DNS = s
+				// Note: DNS uses SetupRoutes(*gin.RouterGroup), registered in routes.go Phase 4b.
 				return nil
 			}},
 		{"objectstorage", func(mc ModulesConfig) bool { return isEnabled(mc.EnableObjStorage) }, nil,
 			func(svc *Service, cfg Config) error {
+				rgwEndpoint := ""
+				rgwAccess := ""
+				rgwSecret := ""
+				if cfg.AppCfg != nil {
+					rgwEndpoint = cfg.AppCfg.CephRGWEndpoint
+					rgwAccess = cfg.AppCfg.CephRGWAccessKey
+					rgwSecret = cfg.AppCfg.CephRGWSecretKey
+				}
 				s, err := objectstorage.NewService(objectstorage.Config{
 					DB: cfg.DB, Logger: cfg.Logger.Named("objectstorage"),
-					RGWEndpoint: os.Getenv("CEPH_RGW_ENDPOINT"),
-					RGWAccess:   os.Getenv("CEPH_RGW_ACCESS_KEY"),
-					RGWSecret:   os.Getenv("CEPH_RGW_SECRET_KEY"),
+					RGWEndpoint: rgwEndpoint,
+					RGWAccess:   rgwAccess,
+					RGWSecret:   rgwSecret,
 				})
 				if err != nil {
 					return err
 				}
 				svc.ObjStorage = s
+				// Note: ObjStorage uses SetupRoutes(*gin.RouterGroup), registered in routes.go Phase 4b.
 				return nil
 			}},
 		{"orchestration", func(mc ModulesConfig) bool { return isEnabled(mc.EnableOrch) }, nil,
@@ -396,6 +432,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.Orchestration = s
+				// Note: Orchestration uses SetupRoutes(*gin.RouterGroup), registered in routes.go Phase 4b.
 				return nil
 			}},
 		{"ha", func(mc ModulesConfig) bool { return isEnabled(mc.EnableHA) }, nil,
@@ -405,6 +442,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.HA = s
+				svc.RegisterModule(WrapModule("ha", s))
 				return nil
 			}},
 		{"kms", func(mc ModulesConfig) bool { return isEnabled(mc.EnableKMS) }, nil,
@@ -414,6 +452,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.KMS = s
+				svc.RegisterModule(WrapModule("kms", s))
 				return nil
 			}},
 		{"ratelimit", func(mc ModulesConfig) bool { return isEnabled(mc.EnableRateLimit) }, nil,
@@ -423,6 +462,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.RateLimit = s
+				svc.RegisterModule(WrapModule("ratelimit", s))
 				return nil
 			}},
 		{"encryption", func(mc ModulesConfig) bool { return isEnabled(mc.EnableEncryption) }, []string{"kms"},
@@ -432,6 +472,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.Encryption = s
+				svc.RegisterModule(WrapModule("encryption", s))
 				return nil
 			}},
 		{"caas", func(mc ModulesConfig) bool { return isEnabled(mc.EnableCaaS) },
@@ -447,6 +488,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.CaaS = s
+				svc.RegisterModule(WrapModule("caas", s))
 				return nil
 			}},
 		{"audit", func(mc ModulesConfig) bool { return isEnabled(mc.EnableAudit) }, nil,
@@ -456,6 +498,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.Audit = s
+				svc.RegisterModule(WrapModule("audit", s))
 				return nil
 			}},
 		{"dr", func(mc ModulesConfig) bool { return isEnabled(mc.EnableDR) }, nil,
@@ -465,6 +508,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.DR = s
+				svc.RegisterModule(WrapModule("dr", s))
 				return nil
 			}},
 		{"baremetal", func(mc ModulesConfig) bool { return isEnabled(mc.EnableBareMetal) }, nil,
@@ -474,6 +518,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.BareMetal = s
+				svc.RegisterModule(WrapModule("baremetal", s))
 				return nil
 			}},
 		{"catalog", func(mc ModulesConfig) bool { return isEnabled(mc.EnableCatalog) }, nil,
@@ -483,6 +528,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.Catalog = s
+				svc.RegisterModule(WrapModule("catalog", s))
 				return nil
 			}},
 		{"selfheal", func(mc ModulesConfig) bool { return isEnabled(mc.EnableSelfHeal) }, nil,
@@ -492,6 +538,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.SelfHeal = s
+				svc.RegisterModule(WrapModule("selfheal", s))
 				return nil
 			}},
 		{"registry", func(mc ModulesConfig) bool { return isEnabled(mc.EnableRegistry) }, nil,
@@ -501,6 +548,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.Registry = s
+				svc.RegisterModule(WrapModule("registry", s))
 				return nil
 			}},
 		{"configcenter", func(mc ModulesConfig) bool { return isEnabled(mc.EnableConfigCtr) }, nil,
@@ -510,6 +558,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.ConfigCenter = s
+				svc.RegisterModule(WrapModule("configcenter", s))
 				return nil
 			}},
 		{"eventbus", func(mc ModulesConfig) bool { return isEnabled(mc.EnableEventBus) }, nil,
@@ -519,6 +568,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.EventBus = s
+				svc.RegisterModule(WrapModule("eventbus", s))
 				return nil
 			}},
 		{"hpc", func(mc ModulesConfig) bool { return isEnabled(mc.EnableHPC) },
@@ -534,6 +584,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.HPC = s
+				svc.RegisterModule(s) // hpc.Service natively implements Module
 				return nil
 			}},
 		// ── N7-N9 modules ──
@@ -544,6 +595,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.RedisManaged = s
+				svc.RegisterModule(WrapModule("redis", s))
 				return nil
 			}},
 		{"natgateway", func(mc ModulesConfig) bool { return isEnabled(mc.EnableNATGW) }, nil,
@@ -553,6 +605,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.NATGateway = s
+				svc.RegisterModule(WrapModule("natgateway", s))
 				return nil
 			}},
 		{"abac", func(mc ModulesConfig) bool { return isEnabled(mc.EnableABAC) }, nil,
@@ -562,6 +615,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.ABAC = s
+				svc.RegisterModule(WrapModule("abac", s))
 				return nil
 			}},
 		{"tidb", func(mc ModulesConfig) bool { return isEnabled(mc.EnableTiDB) }, nil,
@@ -571,6 +625,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.TiDB = s
+				svc.RegisterModule(WrapModule("tidb", s))
 				return nil
 			}},
 		{"elasticsearch", func(mc ModulesConfig) bool { return isEnabled(mc.EnableES) }, nil,
@@ -580,6 +635,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.Elastic = s
+				svc.RegisterModule(WrapModule("elasticsearch", s))
 				return nil
 			}},
 		{"invoice", func(mc ModulesConfig) bool { return isEnabled(mc.EnableInvoice) }, nil,
@@ -589,6 +645,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.Invoice = s
+				svc.RegisterModule(WrapModule("invoice", s))
 				return nil
 			}},
 		{"stackdrift", func(mc ModulesConfig) bool { return isEnabled(mc.EnableStackDrift) }, nil,
@@ -598,6 +655,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.StackDrift = s
+				svc.RegisterModule(WrapModule("stackdrift", s))
 				return nil
 			}},
 		{"gpuscheduler", func(mc ModulesConfig) bool { return isEnabled(mc.EnableGPU) }, nil,
@@ -607,170 +665,18 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 					return err
 				}
 				svc.GPUScheduler = s
+				svc.RegisterModule(WrapModule("gpuscheduler", s))
 				return nil
 			}},
 	}
 
 	for _, sm := range simples {
-		capturedInit := sm.init
-		capturedName := sm.name
-		wrappedInit := func(svc *Service, cfg Config) error {
-			if err := capturedInit(svc, cfg); err != nil {
-				return err
-			}
-			// Auto-register into the interface-based module map.
-			// Find the service that was just set and wrap it.
-			switch capturedName {
-			case "config":
-				if svc.Config != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.Config))
-				}
-			case "domain":
-				if svc.Domain != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.Domain))
-				}
-			case "tools":
-				if svc.Tools != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.Tools))
-				}
-			case "usage":
-				if svc.Usage != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.Usage))
-				}
-			case "vpn":
-				if svc.VPN != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.VPN))
-				}
-			case "backup":
-				if svc.Backup != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.Backup))
-				}
-			case "autoscale":
-				if svc.AutoScale != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.AutoScale))
-				}
-			case "storage":
-				if svc.Storage != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.Storage))
-				}
-			case "task":
-				if svc.Task != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.Task))
-				}
-			case "tag":
-				if svc.Tag != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.Tag))
-				}
-			case "notification":
-				if svc.Notification != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.Notification))
-				}
-			case "image":
-				if svc.Image != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.Image))
-				}
-			case "apidocs":
-				if svc.APIDocs != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.APIDocs))
-				}
-			case "ha":
-				if svc.HA != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.HA))
-				}
-			case "kms":
-				if svc.KMS != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.KMS))
-				}
-			case "ratelimit":
-				if svc.RateLimit != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.RateLimit))
-				}
-			case "encryption":
-				if svc.Encryption != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.Encryption))
-				}
-			case "caas":
-				if svc.CaaS != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.CaaS))
-				}
-			case "audit":
-				if svc.Audit != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.Audit))
-				}
-			case "dr":
-				if svc.DR != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.DR))
-				}
-			case "baremetal":
-				if svc.BareMetal != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.BareMetal))
-				}
-			case "catalog":
-				if svc.Catalog != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.Catalog))
-				}
-			case "selfheal":
-				if svc.SelfHeal != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.SelfHeal))
-				}
-			case "registry":
-				if svc.Registry != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.Registry))
-				}
-			case "configcenter":
-				if svc.ConfigCenter != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.ConfigCenter))
-				}
-			case "eventbus":
-				if svc.EventBus != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.EventBus))
-				}
-			case "hpc":
-				if svc.HPC != nil {
-					svc.RegisterModule(svc.HPC)
-				}
-			case "redis":
-				if svc.RedisManaged != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.RedisManaged))
-				}
-			case "natgateway":
-				if svc.NATGateway != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.NATGateway))
-				}
-			case "abac":
-				if svc.ABAC != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.ABAC))
-				}
-			case "tidb":
-				if svc.TiDB != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.TiDB))
-				}
-			case "elasticsearch":
-				if svc.Elastic != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.Elastic))
-				}
-			case "invoice":
-				if svc.Invoice != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.Invoice))
-				}
-			case "stackdrift":
-				if svc.StackDrift != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.StackDrift))
-				}
-			case "gpuscheduler":
-				if svc.GPUScheduler != nil {
-					svc.RegisterModule(WrapModule(capturedName, svc.GPUScheduler))
-				}
-			}
-			return nil
-		}
-		desc := ModuleDescriptor{
+		r.Register(ModuleDescriptor{
 			Name:      sm.name,
 			Core:      false,
 			DependsOn: sm.deps,
 			EnabledFn: sm.enabled,
-			Factory:   wrappedInit,
-		}
-		r.Register(desc)
+			Factory:   sm.init,
+		})
 	}
 }

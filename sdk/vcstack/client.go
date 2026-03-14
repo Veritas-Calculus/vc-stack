@@ -47,6 +47,8 @@ type Client struct {
 	FloatingIPs     *FloatingIPClient
 	SSHKeys         *SSHKeyClient
 	ServiceAccounts *ServiceAccountClient
+	Projects        *ProjectClient
+	Users           *UserClient
 }
 
 // NewClient creates a new VC Stack API client.
@@ -65,6 +67,8 @@ func NewClient(baseURL string) *Client {
 	c.FloatingIPs = &FloatingIPClient{c: c}
 	c.SSHKeys = &SSHKeyClient{c: c}
 	c.ServiceAccounts = &ServiceAccountClient{c: c}
+	c.Projects = &ProjectClient{c: c}
+	c.Users = &UserClient{c: c}
 	return c
 }
 

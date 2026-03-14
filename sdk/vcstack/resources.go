@@ -99,6 +99,14 @@ type Flavor struct {
 	Disk  int    `json:"disk,omitempty"`
 }
 
+// CreateFlavorRequest specifies parameters for creating a flavor.
+type CreateFlavorRequest struct {
+	Name  string `json:"name"`
+	VCPUs int    `json:"vcpus"`
+	RAM   int    `json:"ram"`
+	Disk  int    `json:"disk,omitempty"`
+}
+
 // FlavorClient handles flavor operations.
 type FlavorClient struct{ c *Client }
 
@@ -124,6 +132,22 @@ func (fc *FlavorClient) Get(ctx context.Context, id string) (*Flavor, error) {
 	return &resp.Flavor, nil
 }
 
+// Create creates a new flavor.
+func (fc *FlavorClient) Create(ctx context.Context, req *CreateFlavorRequest) (*Flavor, error) {
+	var resp struct {
+		Flavor Flavor `json:"flavor"`
+	}
+	if err := fc.c.do(ctx, http.MethodPost, "/v1/flavors", req, &resp); err != nil {
+		return nil, err
+	}
+	return &resp.Flavor, nil
+}
+
+// Delete deletes a flavor.
+func (fc *FlavorClient) Delete(ctx context.Context, id string) error {
+	return fc.c.do(ctx, http.MethodDelete, "/v1/flavors/"+id, nil, nil)
+}
+
 // ──────────────────────────────────────────────────────────────────────
 // Image
 // ──────────────────────────────────────────────────────────────────────
@@ -137,6 +161,17 @@ type Image struct {
 	MinDisk    int    `json:"min_disk,omitempty"`
 	DiskFormat string `json:"disk_format,omitempty"`
 	OwnerID    int    `json:"owner_id,omitempty"`
+}
+
+// CreateImageRequest specifies parameters for creating an image.
+type CreateImageRequest struct {
+	Name         string `json:"name"`
+	DiskFormat   string `json:"disk_format,omitempty"`
+	ContainerFmt string `json:"container_format,omitempty"`
+	MinDisk      int    `json:"min_disk,omitempty"`
+	MinRAM       int    `json:"min_ram,omitempty"`
+	Visibility   string `json:"visibility,omitempty"`
+	URL          string `json:"url,omitempty"`
 }
 
 // ImageClient handles image operations.
@@ -162,6 +197,22 @@ func (imc *ImageClient) Get(ctx context.Context, id string) (*Image, error) {
 		return nil, err
 	}
 	return &resp.Image, nil
+}
+
+// Create uploads a new image (metadata only; upload handled separately).
+func (imc *ImageClient) Create(ctx context.Context, req *CreateImageRequest) (*Image, error) {
+	var resp struct {
+		Image Image `json:"image"`
+	}
+	if err := imc.c.do(ctx, http.MethodPost, "/v1/images", req, &resp); err != nil {
+		return nil, err
+	}
+	return &resp.Image, nil
+}
+
+// Delete deletes an image.
+func (imc *ImageClient) Delete(ctx context.Context, id string) error {
+	return imc.c.do(ctx, http.MethodDelete, "/v1/images/"+id, nil, nil)
 }
 
 // ──────────────────────────────────────────────────────────────────────
@@ -624,4 +675,132 @@ func (sac *ServiceAccountClient) RotateKey(ctx context.Context, id string) (*Cre
 		return nil, err
 	}
 	return &resp, nil
+}
+
+// ──────────────────────────────────────────────────────────────────────
+// Project
+// ──────────────────────────────────────────────────────────────────────
+
+// Project represents a tenant project for resource isolation.
+type Project struct {
+	ID          int    `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+	UserID      int    `json:"user_id,omitempty"`
+	CreatedAt   string `json:"created_at,omitempty"`
+	UpdatedAt   string `json:"updated_at,omitempty"`
+}
+
+// CreateProjectRequest specifies parameters for creating a project.
+type CreateProjectRequest struct {
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+}
+
+// ProjectClient handles project operations.
+type ProjectClient struct{ c *Client }
+
+// List returns all projects.
+func (pc *ProjectClient) List(ctx context.Context) ([]Project, error) {
+	var resp struct {
+		Projects []Project `json:"projects"`
+	}
+	if err := pc.c.do(ctx, http.MethodGet, "/v1/projects", nil, &resp); err != nil {
+		return nil, err
+	}
+	return resp.Projects, nil
+}
+
+// Get returns a single project by ID.
+func (pc *ProjectClient) Get(ctx context.Context, id string) (*Project, error) {
+	var resp struct {
+		Project Project `json:"project"`
+	}
+	if err := pc.c.do(ctx, http.MethodGet, "/v1/projects/"+id, nil, &resp); err != nil {
+		return nil, err
+	}
+	return &resp.Project, nil
+}
+
+// Create creates a new project.
+func (pc *ProjectClient) Create(ctx context.Context, req *CreateProjectRequest) (*Project, error) {
+	var resp struct {
+		Project Project `json:"project"`
+	}
+	if err := pc.c.do(ctx, http.MethodPost, "/v1/projects", req, &resp); err != nil {
+		return nil, err
+	}
+	return &resp.Project, nil
+}
+
+// Delete deletes a project.
+func (pc *ProjectClient) Delete(ctx context.Context, id string) error {
+	return pc.c.do(ctx, http.MethodDelete, "/v1/projects/"+id, nil, nil)
+}
+
+// ──────────────────────────────────────────────────────────────────────
+// User (IAM)
+// ──────────────────────────────────────────────────────────────────────
+
+// User represents a platform user.
+type User struct {
+	ID        int    `json:"id"`
+	Username  string `json:"username"`
+	Email     string `json:"email"`
+	FirstName string `json:"first_name,omitempty"`
+	LastName  string `json:"last_name,omitempty"`
+	IsActive  bool   `json:"is_active"`
+	IsAdmin   bool   `json:"is_admin"`
+	CreatedAt string `json:"created_at,omitempty"`
+}
+
+// CreateUserRequest specifies parameters for creating a user.
+type CreateUserRequest struct {
+	Username  string `json:"username"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	FirstName string `json:"first_name,omitempty"`
+	LastName  string `json:"last_name,omitempty"`
+	IsAdmin   bool   `json:"is_admin,omitempty"`
+}
+
+// UserClient handles user operations.
+type UserClient struct{ c *Client }
+
+// List returns all users.
+func (uc *UserClient) List(ctx context.Context) ([]User, error) {
+	var resp struct {
+		Users []User `json:"users"`
+	}
+	if err := uc.c.do(ctx, http.MethodGet, "/v1/users", nil, &resp); err != nil {
+		return nil, err
+	}
+	return resp.Users, nil
+}
+
+// Get returns a single user by ID.
+func (uc *UserClient) Get(ctx context.Context, id string) (*User, error) {
+	var resp struct {
+		User User `json:"user"`
+	}
+	if err := uc.c.do(ctx, http.MethodGet, "/v1/users/"+id, nil, &resp); err != nil {
+		return nil, err
+	}
+	return &resp.User, nil
+}
+
+// Create creates a new user.
+func (uc *UserClient) Create(ctx context.Context, req *CreateUserRequest) (*User, error) {
+	var resp struct {
+		User User `json:"user"`
+	}
+	if err := uc.c.do(ctx, http.MethodPost, "/v1/users", req, &resp); err != nil {
+		return nil, err
+	}
+	return &resp.User, nil
+}
+
+// Delete deletes a user.
+func (uc *UserClient) Delete(ctx context.Context, id string) error {
+	return uc.c.do(ctx, http.MethodDelete, "/v1/users/"+id, nil, nil)
 }
