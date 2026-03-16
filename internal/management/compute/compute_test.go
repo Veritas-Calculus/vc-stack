@@ -53,6 +53,17 @@ func setupTestDB(t *testing.T) *gorm.DB {
 		metadata TEXT, created_at DATETIME, updated_at DATETIME,
 		launched_at DATETIME, terminated_at DATETIME, deleted_at DATETIME
 	)`)
+	// Stub tables referenced by handler_instance.go during dispatch/rebuild.
+	db.Exec(`CREATE TABLE IF NOT EXISTS hosts (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		uuid TEXT, hostname TEXT, status TEXT, ip_address TEXT,
+		management_ip TEXT, port INTEGER DEFAULT 8090,
+		deleted_at DATETIME
+	)`)
+	db.Exec(`CREATE TABLE IF NOT EXISTS ports (
+		id TEXT PRIMARY KEY,
+		mac_address TEXT, device_id TEXT, network_id TEXT
+	)`)
 	return db
 }
 
