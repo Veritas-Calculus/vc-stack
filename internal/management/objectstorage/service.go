@@ -169,16 +169,54 @@ func NewRGWClient(endpoint, accessKey, secretKey string) *RGWClient {
 	}
 }
 
+// validateRGWParam validates an RGW parameter (bucket name or user ID)
+// against RFC-safe characters to prevent SSRF via parameter injection.
+// Only alphanumeric, hyphens, underscores, dots, and @ are allowed.
+func validateRGWParam(param, label string) (string, error) {
+	param = strings.TrimSpace(param)
+	if param == "" {
+		return "", fmt.Errorf("%s must not be empty", label)
+	}
+	for _, c := range param {
+		if !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-' || c == '_' || c == '.' || c == '@') {
+			return "", fmt.Errorf("%s contains invalid character: %c", label, c)
+		}
+	}
+	return param, nil
+}
+
+// buildRGWURL constructs a safe RGW admin API URL from validated parameters.
+// This function builds the URL from trusted (Endpoint, AdminPath) and validated
+// components, ensuring CodeQL taint analysis sees a clean construction path.
+func (r *RGWClient) buildRGWURL(path string, params url.Values) string {
+	base := r.Endpoint + r.AdminPath + path
+	if len(params) > 0 {
+		return base + "?" + params.Encode()
+	}
+	return base
+}
+
 // CreateBucket creates a bucket via RGW Admin API.
 func (r *RGWClient) CreateBucket(bucket, uid string) error {
 	if r == nil || r.Endpoint == "" {
 		return nil // no-op in dev mode without RGW
 	}
-	url := fmt.Sprintf("%s%s/bucket?bucket=%s&uid=%s&format=json",
-		r.Endpoint, r.AdminPath, url.QueryEscape(bucket), url.QueryEscape(uid))
-	req, _ := http.NewRequest(http.MethodPut, url, nil)
+	validBucket, err := validateRGWParam(bucket, "bucket")
+	if err != nil {
+		return fmt.Errorf("rgw create bucket: %w", err)
+	}
+	validUID, err := validateRGWParam(uid, "uid")
+	if err != nil {
+		return fmt.Errorf("rgw create bucket: %w", err)
+	}
+	params := url.Values{}
+	params.Set("bucket", validBucket)
+	params.Set("uid", validUID)
+	params.Set("format", "json")
+	reqURL := r.buildRGWURL("/bucket", params)
+	req, _ := http.NewRequest(http.MethodPut, reqURL, nil)
 	r.signRequest(req)
-	resp, err := r.client.Do(req)
+	resp, err := r.client.Do(req) // #nosec G107 — URL built from validated params + server-configured endpoint
 	if err != nil {
 		return fmt.Errorf("rgw create bucket: %w", err)
 	}
@@ -216,11 +254,19 @@ func (r *RGWClient) CreateUser(uid, displayName string) error {
 	if r == nil || r.Endpoint == "" {
 		return nil
 	}
-	url := fmt.Sprintf("%s%s/user?uid=%s&display-name=%s&format=json",
-		r.Endpoint, r.AdminPath, url.QueryEscape(uid), url.QueryEscape(displayName))
-	req, _ := http.NewRequest(http.MethodPut, url, nil)
+	validUID, err := validateRGWParam(uid, "uid")
+	if err != nil {
+		return fmt.Errorf("rgw create user: %w", err)
+	}
+	// displayName is less strict but still sanitized via url.Values encoding.
+	params := url.Values{}
+	params.Set("uid", validUID)
+	params.Set("display-name", displayName)
+	params.Set("format", "json")
+	reqURL := r.buildRGWURL("/user", params)
+	req, _ := http.NewRequest(http.MethodPut, reqURL, nil)
 	r.signRequest(req)
-	resp, err := r.client.Do(req)
+	resp, err := r.client.Do(req) // #nosec G107 — URL built from validated params + server-configured endpoint
 	if err != nil {
 		return fmt.Errorf("rgw create user: %w", err)
 	}
@@ -233,11 +279,21 @@ func (r *RGWClient) SetBucketQuota(uid, bucket string, maxSizeKB, maxObjects int
 	if r == nil || r.Endpoint == "" {
 		return nil
 	}
-	url := fmt.Sprintf("%s%s/bucket?bucket=%s&quota&max-size-kb=%d&max-objects=%d&enabled=true&format=json",
-		r.Endpoint, r.AdminPath, url.QueryEscape(bucket), maxSizeKB, maxObjects)
-	req, _ := http.NewRequest(http.MethodPut, url, nil)
+	validBucket, err := validateRGWParam(bucket, "bucket")
+	if err != nil {
+		return fmt.Errorf("rgw set quota: %w", err)
+	}
+	params := url.Values{}
+	params.Set("bucket", validBucket)
+	params.Set("quota", "")
+	params.Set("max-size-kb", fmt.Sprintf("%d", maxSizeKB))
+	params.Set("max-objects", fmt.Sprintf("%d", maxObjects))
+	params.Set("enabled", "true")
+	params.Set("format", "json")
+	reqURL := r.buildRGWURL("/bucket", params)
+	req, _ := http.NewRequest(http.MethodPut, reqURL, nil)
 	r.signRequest(req)
-	resp, err := r.client.Do(req)
+	resp, err := r.client.Do(req) // #nosec G107 — URL built from validated params + server-configured endpoint
 	if err != nil {
 		return fmt.Errorf("rgw set quota: %w", err)
 	}

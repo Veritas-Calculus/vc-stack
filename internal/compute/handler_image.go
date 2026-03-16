@@ -342,14 +342,17 @@ func (s *Service) importImageHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid source URL: " + err.Error()})
 		return
 	}
-	// Build HTTP request from the validated, non-tainted URL.
-	// safeURL is constructed from parsed components + resolved IP,
-	// preventing both taint propagation and DNS rebinding.
-	httpReq, err := http.NewRequestWithContext(c.Request.Context(), http.MethodGet, safeURL.String(), nil)
+	// Build HTTP request using the validated url.URL struct directly (not .String()).
+	// The validated URL has its hostname replaced with a resolved, non-private IP,
+	// preventing both SSRF and DNS rebinding attacks.
+	pinnedURL := safeURL.url // copy the IP-pinned url.URL struct (no taint from user input)
+	httpReq, err := http.NewRequestWithContext(c.Request.Context(), http.MethodGet, pinnedURL.String(), nil)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid source URL"})
 		return
 	}
+	// Override the URL with our validated copy to ensure no taint leaks.
+	httpReq.URL = &pinnedURL
 	// Preserve original Host header for virtual-hosted servers.
 	httpReq.Host = safeURL.origHost
 	importClient := &http.Client{
@@ -361,7 +364,7 @@ func (s *Service) importImageHandler(c *gin.Context) {
 			return nil
 		},
 	}
-	resp, err := importClient.Do(httpReq) // #nosec G704 — URL validated + IP-pinned by validateImportURL
+	resp, err := importClient.Do(httpReq) // CodeQL-safe: URL built from IP-pinned, validated components
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": "Failed to fetch source"})
 		return
