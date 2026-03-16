@@ -154,7 +154,7 @@ export function DisasterRecovery() {
   const badge = (s: string) => {
     const m: Record<string, string> = {
       active: 'bg-emerald-500/20 text-status-text-success',
-      primary: 'bg-blue-500/20 text-accent',
+      primary: 'bg-accent-subtle text-accent',
       warm_standby: 'bg-amber-500/20 text-status-text-warning',
       cold_standby: 'bg-content-tertiary/20 text-content-secondary',
       offline: 'bg-red-500/20 text-status-text-error',
@@ -166,8 +166,8 @@ export function DisasterRecovery() {
       low: 'bg-content-tertiary/20 text-content-secondary',
       completed: 'bg-emerald-500/20 text-status-text-success',
       failed: 'bg-red-500/20 text-status-text-error',
-      running: 'bg-blue-500/20 text-accent',
-      sync: 'bg-blue-500/20 text-accent',
+      running: 'bg-accent-subtle text-accent',
+      sync: 'bg-accent-subtle text-accent',
       async: 'bg-cyan-500/20 text-status-cyan',
       scheduled: 'bg-purple-500/20 text-status-purple',
       failover: 'bg-red-500/20 text-status-text-error',
@@ -217,7 +217,7 @@ export function DisasterRecovery() {
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition ${tab === t.key ? 'bg-surface-hover text-content-primary' : 'text-content-secondary hover:text-content-primary'}`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition ${tab === t.key ? 'bg-surface-hover text-content-primary' : 'text-content-secondary hover:text-content-primary'}`}
           >
             {t.label}
           </button>
@@ -299,7 +299,7 @@ export function DisasterRecovery() {
                     <div className="mt-1">
                       <div className="w-full h-1.5 bg-surface-hover rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-blue-500 rounded-full"
+                          className="h-full bg-accent rounded-full"
                           style={{
                             width: `${site.storage_total_gb ? (site.storage_used_gb / site.storage_total_gb) * 100 : 0}%`
                           }}
@@ -393,7 +393,7 @@ export function DisasterRecovery() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div
-                    className={`w-14 h-14 rounded-lg flex items-center justify-center text-2xl ${site.type === 'primary' ? 'bg-blue-500/20' : site.type === 'warm_standby' ? 'bg-amber-500/20' : 'bg-content-tertiary/20'}`}
+                    className={`w-14 h-14 rounded-lg flex items-center justify-center text-2xl ${site.type === 'primary' ? 'bg-accent-subtle' : site.type === 'warm_standby' ? 'bg-amber-500/20' : 'bg-content-tertiary/20'}`}
                   >
                     {site.type === 'primary'
                       ? Icons.building('w-4 h-4')
@@ -417,7 +417,7 @@ export function DisasterRecovery() {
                     <div className="mt-1 w-32">
                       <div className="w-full h-1.5 bg-surface-hover rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-blue-500 rounded-full"
+                          className="h-full bg-accent rounded-full"
                           style={{
                             width: `${site.storage_total_gb ? (site.storage_used_gb / site.storage_total_gb) * 100 : 0}%`
                           }}

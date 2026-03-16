@@ -73,7 +73,7 @@ export function DBClusters() {
       healthy: 'bg-emerald-500/15 text-status-text-success',
       degraded: 'bg-amber-500/15 text-status-text-warning',
       critical: 'bg-red-500/15 text-status-text-error',
-      creating: 'bg-blue-500/15 text-accent'
+      creating: 'bg-accent-subtle text-accent'
     }
     return (
       <span
@@ -86,7 +86,7 @@ export function DBClusters() {
 
   const roleBadge = (r: string) => {
     const c: Record<string, string> = {
-      primary: 'bg-blue-500/15 text-accent',
+      primary: 'bg-accent-subtle text-accent',
       replica: 'bg-zinc-600/20 text-zinc-400',
       arbiter: 'bg-purple-500/15 text-purple-400'
     }

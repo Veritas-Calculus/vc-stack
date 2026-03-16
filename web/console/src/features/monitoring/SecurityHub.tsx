@@ -73,7 +73,7 @@ export function SecurityHub() {
       CRITICAL: 'bg-red-500/15 text-status-text-error',
       HIGH: 'bg-orange-500/15 text-orange-400',
       MEDIUM: 'bg-amber-500/15 text-status-text-warning',
-      LOW: 'bg-blue-500/15 text-accent',
+      LOW: 'bg-accent-subtle text-accent',
       INFORMATIONAL: 'bg-zinc-600/20 text-zinc-400'
     }
     return (
@@ -88,7 +88,7 @@ export function SecurityHub() {
   const srcBadge = (s: string) => {
     const c: Record<string, string> = {
       WAF: 'bg-purple-500/15 text-purple-400',
-      IAM: 'bg-blue-500/15 text-accent',
+      IAM: 'bg-accent-subtle text-accent',
       Network: 'bg-cyan-500/15 text-cyan-400',
       Compliance: 'bg-emerald-500/15 text-status-text-success',
       Vulnerability: 'bg-red-500/15 text-status-text-error'

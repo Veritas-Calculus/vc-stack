@@ -230,7 +230,7 @@ export function Federation() {
 
   const typeColor = (t: string) =>
     t === 'oidc'
-      ? 'bg-blue-500/15 text-accent border-blue-500/30'
+      ? 'bg-accent-subtle text-accent border-accent/30'
       : 'bg-purple-500/15 text-status-purple border-purple-500/30'
 
   const tabs = [
@@ -261,7 +261,7 @@ export function Federation() {
               resetForm()
               setShowCreate(true)
             }}
-            className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium transition-colors"
+            className="px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-content-primary text-sm font-medium transition-colors"
           >
             Add Provider
           </button>
@@ -278,7 +278,7 @@ export function Federation() {
               setSelectedIDP(null)
               setTestResult(null)
             }}
-            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${tab === t.key ? 'bg-surface-tertiary text-content-primary border-b-2 border-blue-500' : 'text-content-secondary hover:text-content-primary hover:bg-surface-tertiary'}`}
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${tab === t.key ? 'bg-surface-tertiary text-content-primary border-b-2 border-accent' : 'text-content-secondary hover:text-content-primary hover:bg-surface-tertiary'}`}
           >
             {t.label}
             <span className="ml-1.5 px-1.5 py-0.5 rounded text-[10px] bg-surface-hover text-content-secondary">
@@ -290,7 +290,7 @@ export function Federation() {
 
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
         <>
@@ -404,7 +404,7 @@ export function Federation() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleTestIDP(selectedIDP.id)}
-                      className="px-3 py-1.5 rounded-lg text-xs border border-blue-500/30 text-accent hover:bg-blue-500/10"
+                      className="px-3 py-1.5 rounded-lg text-xs border border-accent/30 text-accent hover:bg-accent-hover/10"
                     >
                       Test Connection
                     </button>
@@ -473,7 +473,7 @@ export function Federation() {
                   </h3>
                   <button
                     onClick={() => setShowMapping(true)}
-                    className="px-3 py-1.5 rounded-lg text-xs bg-blue-600 hover:bg-blue-500 text-content-primary"
+                    className="px-3 py-1.5 rounded-lg text-xs bg-accent hover:bg-accent-hover text-content-primary"
                   >
                     Add Mapping
                   </button>
@@ -495,7 +495,7 @@ export function Federation() {
                             {m.external_group}
                           </span>
                           <span className="text-content-tertiary text-xs">&rarr;</span>
-                          <span className="px-2.5 py-1 rounded bg-blue-500/15 text-accent border border-blue-500/30 text-xs font-medium">
+                          <span className="px-2.5 py-1 rounded bg-accent-subtle text-accent border border-accent/30 text-xs font-medium">
                             {m.role.name}
                           </span>
                         </div>
@@ -828,7 +828,7 @@ export function Federation() {
               <button
                 onClick={handleCreateIDP}
                 disabled={!form.name || !form.type}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium disabled:opacity-50"
+                className="px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-content-primary text-sm font-medium disabled:opacity-50"
               >
                 Create Provider
               </button>
@@ -877,7 +877,7 @@ export function Federation() {
               <button
                 onClick={handleAddMapping}
                 disabled={!mappingGroup || !mappingRoleId}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium disabled:opacity-50"
+                className="px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-content-primary text-sm font-medium disabled:opacity-50"
               >
                 Add Mapping
               </button>

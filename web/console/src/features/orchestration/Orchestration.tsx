@@ -182,7 +182,7 @@ export function Orchestration() {
   const statusColor = (status: string) => {
     if (status.includes('COMPLETE') && !status.includes('DELETE'))
       return 'bg-emerald-500/15 text-status-text-success'
-    if (status.includes('IN_PROGRESS')) return 'bg-blue-500/15 text-accent'
+    if (status.includes('IN_PROGRESS')) return 'bg-accent-subtle text-accent'
     if (status.includes('FAILED')) return 'bg-red-500/15 text-status-text-error'
     if (status.includes('ROLLBACK')) return 'bg-amber-500/15 text-status-text-warning'
     if (status.includes('DELETE')) return 'bg-content-tertiary/15 text-content-secondary'
@@ -192,7 +192,7 @@ export function Orchestration() {
   const typeShort = (type: string) => type.split('::').pop() || type
 
   const typeColor = (type: string) => {
-    if (type.includes('Compute')) return 'bg-blue-500/15 text-accent'
+    if (type.includes('Compute')) return 'bg-accent-subtle text-accent'
     if (type.includes('Network')) return 'bg-purple-500/15 text-status-purple'
     if (type.includes('Storage') || type.includes('Volume'))
       return 'bg-amber-500/15 text-status-text-warning'
@@ -203,7 +203,7 @@ export function Orchestration() {
 
   const catColor = (cat: string) => {
     const colors: Record<string, string> = {
-      web: 'bg-blue-500/15 text-accent',
+      web: 'bg-accent-subtle text-accent',
       database: 'bg-amber-500/15 text-status-text-warning',
       network: 'bg-purple-500/15 text-status-purple',
       compute: 'bg-emerald-500/15 text-status-text-success'
@@ -239,7 +239,7 @@ export function Orchestration() {
               setStackTemplate('')
               setShowCreate(true)
             }}
-            className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium transition-colors"
+            className="px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-content-primary text-sm font-medium transition-colors"
           >
             Launch Stack
           </button>
@@ -255,7 +255,7 @@ export function Orchestration() {
               setTab(t.key)
               setSelectedStack(null)
             }}
-            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${tab === t.key ? 'bg-surface-tertiary text-content-primary border-b-2 border-blue-500' : 'text-content-secondary hover:text-content-primary hover:bg-surface-tertiary'}`}
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${tab === t.key ? 'bg-surface-tertiary text-content-primary border-b-2 border-accent' : 'text-content-secondary hover:text-content-primary hover:bg-surface-tertiary'}`}
           >
             {t.label}
             <span className="ml-1.5 px-1.5 py-0.5 rounded text-[10px] bg-surface-hover text-content-secondary">
@@ -267,7 +267,7 @@ export function Orchestration() {
 
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
         <>
@@ -393,13 +393,13 @@ export function Orchestration() {
               <div className="flex gap-1 mb-4 border-b border-border pb-px">
                 <button
                   onClick={() => setDetailTab('resources')}
-                  className={`px-3 py-1.5 text-sm rounded-t ${detailTab === 'resources' ? 'bg-surface-tertiary text-content-primary border-b-2 border-blue-500' : 'text-content-secondary hover:text-content-primary'}`}
+                  className={`px-3 py-1.5 text-sm rounded-t ${detailTab === 'resources' ? 'bg-surface-tertiary text-content-primary border-b-2 border-accent' : 'text-content-secondary hover:text-content-primary'}`}
                 >
                   Resources ({resources.length})
                 </button>
                 <button
                   onClick={() => setDetailTab('events')}
-                  className={`px-3 py-1.5 text-sm rounded-t ${detailTab === 'events' ? 'bg-surface-tertiary text-content-primary border-b-2 border-blue-500' : 'text-content-secondary hover:text-content-primary'}`}
+                  className={`px-3 py-1.5 text-sm rounded-t ${detailTab === 'events' ? 'bg-surface-tertiary text-content-primary border-b-2 border-accent' : 'text-content-secondary hover:text-content-primary'}`}
                 >
                   Events ({events.length})
                 </button>
@@ -522,7 +522,7 @@ export function Orchestration() {
                         <div className="flex items-center gap-2">
                           <span className="text-content-tertiary">v{t.version}</span>
                           {t.is_public && (
-                            <span className="px-1.5 py-0.5 rounded bg-blue-500/15 text-accent">
+                            <span className="px-1.5 py-0.5 rounded bg-accent-subtle text-accent">
                               Public
                             </span>
                           )}
@@ -530,7 +530,7 @@ export function Orchestration() {
                         <div className="flex gap-1">
                           <button
                             onClick={() => handleLaunchFromTemplate(t)}
-                            className="px-2 py-1 rounded text-accent hover:bg-blue-500/10"
+                            className="px-2 py-1 rounded text-accent hover:bg-accent-hover/10"
                           >
                             Launch
                           </button>
@@ -601,7 +601,7 @@ export function Orchestration() {
               <button
                 onClick={handleCreate}
                 disabled={!stackName || !stackTemplate}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-content-primary text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Launch Stack
               </button>
@@ -676,7 +676,7 @@ export function Orchestration() {
               <button
                 onClick={handleCreateTemplate}
                 disabled={!tplName || !tplContent}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-content-primary text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Save Template
               </button>

@@ -478,7 +478,7 @@ const apiDocs: ServiceDocs[] = [
 ]
 
 const METHOD_COLORS: Record<Method, { bg: string; text: string; border: string }> = {
-  GET: { bg: 'bg-blue-500/15', text: 'text-accent', border: 'border-blue-500/30' },
+  GET: { bg: 'bg-accent-subtle', text: 'text-accent', border: 'border-accent/30' },
   POST: {
     bg: 'bg-emerald-500/15',
     text: 'text-status-text-success',
@@ -582,7 +582,7 @@ export function Docs() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500 focus:border-accent"
+            className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-accent focus:border-accent"
             placeholder="Search endpoints (e.g. instances, POST, security-groups)..."
           />
         </div>
@@ -638,7 +638,7 @@ export function Docs() {
                     }}
                     className={`w-full text-left px-4 py-2.5 flex items-center gap-2.5 transition-colors text-sm ${
                       activeService === doc.name
-                        ? 'bg-blue-500/10 text-accent border-l-2 border-l-blue-500'
+                        ? 'bg-accent-subtle text-accent border-l-2 border-l-accent'
                         : 'text-content-secondary hover:bg-surface-tertiary hover:text-content-primary border-l-2 border-l-transparent'
                     }`}
                   >
@@ -719,7 +719,7 @@ function EndpointRow({
       {endpoint.method === 'GET' && !endpoint.path.includes(':') && (
         <button
           onClick={() => onTryIt(endpoint.method, endpoint.path)}
-          className="opacity-0 group-hover:opacity-100 px-2 py-1 rounded text-xs bg-blue-500/20 text-accent hover:bg-blue-500/30 transition-all"
+          className="opacity-0 group-hover:opacity-100 px-2 py-1 rounded text-xs bg-accent-subtle text-accent hover:bg-accent-hover/30 transition-all"
         >
           Try It
         </button>
@@ -847,7 +847,7 @@ function EndpointCard({
                 <button
                   onClick={() => onTryIt(endpoint.method, endpoint.path)}
                   disabled={tryItLoading}
-                  className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-content-primary text-sm font-medium transition-colors flex items-center gap-2"
+                  className="px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover disabled:opacity-50 text-content-primary text-sm font-medium transition-colors flex items-center gap-2"
                 >
                   {tryItLoading ? (
                     <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />

@@ -195,7 +195,7 @@ export function DNSManagement() {
         </div>
         <button
           onClick={() => setShowCreateZone(true)}
-          className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium transition-colors"
+          className="px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-content-primary text-sm font-medium transition-colors"
         >
           Create Zone
         </button>
@@ -207,7 +207,7 @@ export function DNSManagement() {
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${tab === t.key ? 'bg-surface-tertiary text-content-primary border-b-2 border-blue-500' : 'text-content-secondary hover:text-content-primary hover:bg-surface-tertiary'}`}
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${tab === t.key ? 'bg-surface-tertiary text-content-primary border-b-2 border-accent' : 'text-content-secondary hover:text-content-primary hover:bg-surface-tertiary'}`}
           >
             {t.label}
             <span className="ml-1.5 px-1.5 py-0.5 rounded text-[10px] bg-surface-hover text-content-secondary">
@@ -219,7 +219,7 @@ export function DNSManagement() {
 
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
         <>
@@ -296,7 +296,7 @@ export function DNSManagement() {
                             >
                               <button
                                 onClick={() => handleExportZone(z.id)}
-                                className="px-2 py-1 rounded text-xs text-content-secondary hover:text-accent hover:bg-blue-500/10"
+                                className="px-2 py-1 rounded text-xs text-content-secondary hover:text-accent hover:bg-accent-hover/10"
                                 title="Export BIND format"
                               >
                                 Export
@@ -352,7 +352,7 @@ export function DNSManagement() {
                       </select>
                       <button
                         onClick={() => setShowCreateRecord(true)}
-                        className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium transition-colors"
+                        className="px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-content-primary text-sm font-medium transition-colors"
                       >
                         Add Record
                       </button>
@@ -384,7 +384,7 @@ export function DNSManagement() {
                                 <span
                                   className={`px-2 py-0.5 rounded text-xs font-medium ${
                                     r.type === 'A' || r.type === 'AAAA'
-                                      ? 'bg-blue-500/15 text-accent'
+                                      ? 'bg-accent-subtle text-accent'
                                       : r.type === 'CNAME'
                                         ? 'bg-purple-500/15 text-status-purple'
                                         : r.type === 'MX'
@@ -490,7 +490,7 @@ export function DNSManagement() {
               <button
                 onClick={handleCreateZone}
                 disabled={!zoneName}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-content-primary text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Create Zone
               </button>
@@ -571,7 +571,7 @@ export function DNSManagement() {
               <button
                 onClick={handleCreateRecord}
                 disabled={!recordName || !recordData}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-content-primary text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Add Record
               </button>

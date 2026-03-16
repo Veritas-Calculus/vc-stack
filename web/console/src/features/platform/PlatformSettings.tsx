@@ -84,10 +84,10 @@ export function PlatformSettings() {
       up: 'bg-emerald-500/20 text-status-text-success',
       down: 'bg-red-500/20 text-status-text-error',
       draining: 'bg-amber-500/20 text-status-text-warning',
-      starting: 'bg-blue-500/20 text-accent',
+      starting: 'bg-accent-subtle text-accent',
       active: 'bg-emerald-500/20 text-status-text-success',
       paused: 'bg-amber-500/20 text-status-text-warning',
-      published: 'bg-blue-500/20 text-accent',
+      published: 'bg-accent-subtle text-accent',
       delivered: 'bg-emerald-500/20 text-status-text-success'
     }
     return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-content-tertiary/20 text-content-secondary'}`
@@ -120,7 +120,7 @@ export function PlatformSettings() {
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition flex items-center gap-2 ${tab === t.key ? 'bg-surface-hover text-content-primary' : 'text-content-secondary hover:text-content-primary'}`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 ${tab === t.key ? 'bg-surface-hover text-content-primary' : 'text-content-secondary hover:text-content-primary'}`}
           >
             {tabIcons[t.key]}
             {t.label}
@@ -291,7 +291,7 @@ export function PlatformSettings() {
                   <button
                     key={String(ns.name)}
                     onClick={() => setSelectedNs(String(ns.name))}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition ${selectedNs === String(ns.name) ? 'bg-blue-600/20 text-accent border border-blue-500/30' : 'text-content-secondary hover:bg-surface-hover'}`}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition ${selectedNs === String(ns.name) ? 'bg-accent-subtle text-accent border border-accent/30' : 'text-content-secondary hover:bg-surface-hover'}`}
                   >
                     <div className="font-medium">{String(ns.name)}</div>
                     <div className="text-xs text-content-tertiary">
@@ -344,7 +344,7 @@ export function PlatformSettings() {
                                 : String(item.value_type) === 'bool'
                                   ? 'bg-purple-500/20 text-status-purple'
                                   : String(item.value_type) === 'int'
-                                    ? 'bg-blue-500/20 text-accent'
+                                    ? 'bg-accent-subtle text-accent'
                                     : 'bg-content-tertiary/20 text-content-secondary'
                             }`}
                           >

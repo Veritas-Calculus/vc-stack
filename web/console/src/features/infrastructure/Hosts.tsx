@@ -203,7 +203,7 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
         {(['script', 'ssh', 'manual'] as const).map((t) => (
           <button
             key={t}
-            className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
               tab === t
                 ? 'bg-accent text-content-inverse'
                 : 'text-content-secondary hover:text-content-primary'
@@ -257,7 +257,7 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
             Run this command on the target node as <code className="text-accent">root</code>:
           </p>
           <div className="relative">
-            <pre className="bg-surface-primary border border-border rounded-lg p-3 pr-20 text-xs text-green-400 font-mono overflow-x-auto whitespace-pre-wrap break-all">
+            <pre className="bg-surface-primary border border-border rounded-lg p-3 pr-20 text-xs text-status-text-success font-mono overflow-x-auto whitespace-pre-wrap break-all">
               {curlCommand}
             </pre>
             <button
@@ -338,7 +338,7 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
                   const latest = deploySteps.filter((s) => s.step === stepNum).pop()
                   let color = 'bg-surface-hover text-content-tertiary'
                   if (latest?.status === 'running')
-                    color = 'bg-blue-600 text-content-primary animate-pulse'
+                    color = 'bg-accent text-content-primary animate-pulse'
                   else if (latest?.status === 'success' || latest?.status === 'done')
                     color = 'bg-emerald-600 text-content-primary'
                   else if (latest?.status === 'error') color = 'bg-red-600 text-content-primary'
@@ -511,7 +511,7 @@ function AddHostWizard({ onClose }: { onClose: () => void }) {
             <p className="text-xs text-status-text-error mt-1">{connectionError}</p>
           )}
           {connectionTested && connectionOk && (
-            <p className="text-xs text-green-400 mt-1">
+            <p className="text-xs text-status-text-success mt-1">
               Host is reachable. You can now register it.
             </p>
           )}

@@ -61,7 +61,7 @@ export function MonitoringDashboard() {
           </select>
           <button
             onClick={runAnalysis}
-            className="px-4 py-2 bg-blue-500 text-content-primary rounded hover:bg-blue-600"
+            className="px-4 py-2 bg-accent text-content-primary rounded hover:bg-accent-hover"
           >
             Analyze Performance
           </button>
@@ -96,7 +96,7 @@ export function MonitoringDashboard() {
               </ul>
             )}
           </div>
-          <div className="p-4 bg-blue-50 border border-blue-200 rounded">
+          <div className="p-4 bg-accent-subtle border border-accent/30 rounded">
             <h3 className="text-lg font-semibold mb-2">Recommendations</h3>
             {analysis.recommendations.length === 0 ? (
               <p className="text-content-tertiary">No recommendations</p>

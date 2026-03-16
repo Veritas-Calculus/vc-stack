@@ -221,7 +221,7 @@ export default function ConsoleViewer() {
         {phase === 'loading' && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center space-y-3">
-              <div className="w-8 h-8 border-2 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto" />
+              <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin mx-auto" />
               <p className="text-content-secondary text-sm">Checking instance status…</p>
             </div>
           </div>
@@ -318,7 +318,7 @@ export default function ConsoleViewer() {
         {phase === 'connecting' && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center space-y-3">
-              <div className="w-8 h-8 border-2 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto" />
+              <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin mx-auto" />
               <p className="text-accent text-sm">Connecting to console…</p>
             </div>
           </div>
@@ -351,7 +351,7 @@ export default function ConsoleViewer() {
               <div className="flex items-center justify-center gap-3">
                 {isRunning && (
                   <button
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm transition-colors"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-content-primary text-sm transition-colors"
                     onClick={handleReconnect}
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">

@@ -246,7 +246,9 @@ export default function RouterManagement() {
       header: 'External Gateway',
       render: (r) => (
         <span
-          className={r.external_gateway_network_id ? 'text-green-400' : 'text-content-tertiary'}
+          className={
+            r.external_gateway_network_id ? 'text-status-text-success' : 'text-content-tertiary'
+          }
         >
           {getNetworkName(r.external_gateway_network_id)}
         </span>
@@ -256,7 +258,7 @@ export default function RouterManagement() {
       key: 'snat',
       header: 'SNAT',
       render: (r) => (
-        <span className={r.enable_snat ? 'text-green-400' : 'text-content-tertiary'}>
+        <span className={r.enable_snat ? 'text-status-text-success' : 'text-content-tertiary'}>
           {r.enable_snat ? 'Enabled' : 'Disabled'}
         </span>
       )
@@ -460,7 +462,7 @@ export default function RouterManagement() {
               ))}
             </select>
           </div>
-          <div className="p-3 bg-blue-900/20 border border-blue-800/30 rounded text-sm text-content-secondary">
+          <div className="p-3 bg-accent-subtle border border-accent/30 rounded text-sm text-content-secondary">
             <p>
               After setting gateway, internal networks connected to this router can access the
               internet.

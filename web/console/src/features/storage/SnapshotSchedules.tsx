@@ -83,7 +83,7 @@ export function SnapshotSchedules() {
 
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
         </div>
       ) : schedules.length === 0 ? (
         <EmptyState
@@ -99,7 +99,7 @@ export function SnapshotSchedules() {
             >
               <div className="px-4 py-3 border-b border-border/50 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-blue-500 inline-block" />
+                  <span className="w-2 h-2 rounded-full bg-accent inline-block" />
                   <span className="text-sm font-medium text-content-primary">{s.name}</span>
                 </div>
                 <span
@@ -139,7 +139,7 @@ export function SnapshotSchedules() {
               <div className="px-4 py-2 border-t border-border/50 flex justify-end gap-2">
                 <button
                   onClick={() => handleToggle(s.id, s.enabled)}
-                  className="px-2 py-1 rounded text-xs text-content-secondary hover:text-accent hover:bg-blue-500/10 transition-colors"
+                  className="px-2 py-1 rounded text-xs text-content-secondary hover:text-accent hover:bg-accent-hover/10 transition-colors"
                 >
                   {s.enabled ? 'Pause' : 'Resume'}
                 </button>

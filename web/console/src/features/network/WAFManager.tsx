@@ -71,7 +71,7 @@ export function WAFManager() {
     const c: Record<string, string> = {
       allow: 'bg-emerald-500/15 text-status-text-success',
       block: 'bg-red-500/15 text-status-text-error',
-      count: 'bg-blue-500/15 text-accent'
+      count: 'bg-accent-subtle text-accent'
     }
     return (
       <span

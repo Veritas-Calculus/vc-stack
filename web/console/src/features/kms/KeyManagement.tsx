@@ -194,7 +194,7 @@ export function KeyManagement() {
   const statusBadge = (s: string) => {
     const colors: Record<string, string> = {
       active: 'bg-emerald-500/20 text-status-text-success',
-      'pre-active': 'bg-blue-500/20 text-accent',
+      'pre-active': 'bg-accent-subtle text-accent',
       deactivated: 'bg-amber-500/20 text-status-text-warning',
       destroyed: 'bg-red-500/20 text-status-text-error',
       expired: 'bg-content-tertiary/20 text-content-secondary',
@@ -341,7 +341,7 @@ export function KeyManagement() {
                   Master Key (KEK)
                 </span>
                 <span className="text-content-tertiary">&rarr; encrypts &rarr;</span>
-                <span className="px-2 py-1 bg-blue-500/20 text-accent rounded text-xs">
+                <span className="px-2 py-1 bg-accent-subtle text-accent rounded text-xs">
                   Data Encryption Key (DEK)
                 </span>
                 <span className="text-content-tertiary">&rarr; encrypts &rarr;</span>
@@ -365,7 +365,7 @@ export function KeyManagement() {
           <div className="flex justify-end">
             <button
               onClick={() => setShowCreateSecret(true)}
-              className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition"
+              className="px-4 py-2 bg-accent text-content-primary rounded-lg text-sm hover:bg-accent-hover transition"
             >
               + Store Secret
             </button>
@@ -443,7 +443,7 @@ export function KeyManagement() {
           <div className="flex justify-end">
             <button
               onClick={() => setShowCreateKey(true)}
-              className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition"
+              className="px-4 py-2 bg-accent text-content-primary rounded-lg text-sm hover:bg-accent-hover transition"
             >
               + Create Key
             </button>
@@ -630,7 +630,7 @@ export function KeyManagement() {
                 (cryptoMode === 'encrypt' && !plaintext) ||
                 (cryptoMode === 'decrypt' && !ciphertext)
               }
-              className="px-6 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition disabled:opacity-50"
+              className="px-6 py-2 bg-accent text-content-primary rounded-lg text-sm hover:bg-accent-hover transition disabled:opacity-50"
             >
               {cryptoMode === 'encrypt'
                 ? 'Encrypt'
@@ -725,7 +725,7 @@ function CreateSecretModal({
             </div>
           )}
           {secretType === 'symmetric' && (
-            <p className="text-content-tertiary text-sm bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+            <p className="text-content-tertiary text-sm bg-accent-subtle border border-accent/20 rounded-lg p-3">
               A 256-bit symmetric key will be auto-generated.
             </p>
           )}
@@ -756,7 +756,7 @@ function CreateSecretModal({
               onSubmit(data)
             }}
             disabled={!name}
-            className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition disabled:opacity-50"
+            className="px-4 py-2 bg-accent text-content-primary rounded-lg text-sm hover:bg-accent-hover transition disabled:opacity-50"
           >
             Store Secret
           </button>
@@ -832,7 +832,7 @@ function CreateKeyModal({
               onSubmit({ name, algorithm: 'aes', bit_length: bitLength, mode: 'gcm', description })
             }
             disabled={!name}
-            className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition disabled:opacity-50"
+            className="px-4 py-2 bg-accent text-content-primary rounded-lg text-sm hover:bg-accent-hover transition disabled:opacity-50"
           >
             Create Key
           </button>

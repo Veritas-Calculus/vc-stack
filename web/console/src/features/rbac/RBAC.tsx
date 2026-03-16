@@ -142,7 +142,7 @@ export function RBAC() {
     const colors: Record<string, string> = {
       admin: 'bg-red-500/15 text-status-text-error border-red-500/30',
       operator: 'bg-amber-500/15 text-status-text-warning border-amber-500/30',
-      member: 'bg-blue-500/15 text-accent border-blue-500/30',
+      member: 'bg-accent-subtle text-accent border-accent/30',
       viewer: 'bg-emerald-500/15 text-status-text-success border-emerald-500/30'
     }
     return colors[name] || 'bg-purple-500/15 text-status-purple border-purple-500/30'
@@ -170,7 +170,7 @@ export function RBAC() {
       host: 'text-content-secondary',
       cluster: 'text-content-secondary',
       flavor: 'text-content-secondary',
-      image: 'text-green-400'
+      image: 'text-status-text-success'
     }
     return colors[resource] || 'text-content-secondary'
   }
@@ -197,7 +197,7 @@ export function RBAC() {
                 setSelectedPerms([])
                 setShowCreateRole(true)
               }}
-              className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium transition-colors"
+              className="px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-content-primary text-sm font-medium transition-colors"
             >
               Create Role
             </button>
@@ -205,7 +205,7 @@ export function RBAC() {
           {tab === 'assignments' && (
             <button
               onClick={() => setShowAssign(true)}
-              className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium transition-colors"
+              className="px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-content-primary text-sm font-medium transition-colors"
             >
               Assign Role
             </button>
@@ -222,7 +222,7 @@ export function RBAC() {
               setTab(t.key)
               setSelectedRole(null)
             }}
-            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${tab === t.key ? 'bg-surface-tertiary text-content-primary border-b-2 border-blue-500' : 'text-content-secondary hover:text-content-primary hover:bg-surface-tertiary'}`}
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${tab === t.key ? 'bg-surface-tertiary text-content-primary border-b-2 border-accent' : 'text-content-secondary hover:text-content-primary hover:bg-surface-tertiary'}`}
           >
             {t.label}
             <span className="ml-1.5 px-1.5 py-0.5 rounded text-[10px] bg-surface-hover text-content-secondary">
@@ -234,7 +234,7 @@ export function RBAC() {
 
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
         <>
@@ -463,7 +463,7 @@ export function RBAC() {
                                 setAssignUserId(u.id)
                                 setShowAssign(true)
                               }}
-                              className="px-2 py-1 rounded text-xs text-accent hover:bg-blue-500/10"
+                              className="px-2 py-1 rounded text-xs text-accent hover:bg-accent-hover/10"
                             >
                               + Assign
                             </button>
@@ -514,7 +514,7 @@ export function RBAC() {
                         {perms.map((p) => (
                           <label
                             key={p.id}
-                            className={`flex items-center gap-1 px-2 py-0.5 rounded text-xs cursor-pointer transition-colors ${selectedPerms.includes(p.id) ? 'bg-blue-600/30 text-status-link border border-blue-500/30' : 'bg-surface-tertiary text-content-secondary border border-border hover:border-border-strong'}`}
+                            className={`flex items-center gap-1 px-2 py-0.5 rounded text-xs cursor-pointer transition-colors ${selectedPerms.includes(p.id) ? 'bg-accent-subtle text-status-link border border-accent/30' : 'bg-surface-tertiary text-content-secondary border border-border hover:border-border-strong'}`}
                           >
                             <input
                               type="checkbox"
@@ -549,7 +549,7 @@ export function RBAC() {
               <button
                 onClick={handleCreateRole}
                 disabled={!roleName}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium disabled:opacity-50"
+                className="px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-content-primary text-sm font-medium disabled:opacity-50"
               >
                 Create Role
               </button>
@@ -606,7 +606,7 @@ export function RBAC() {
               <button
                 onClick={handleAssignRole}
                 disabled={!assignUserId || !assignRoleId}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium disabled:opacity-50"
+                className="px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-content-primary text-sm font-medium disabled:opacity-50"
               >
                 Assign Role
               </button>

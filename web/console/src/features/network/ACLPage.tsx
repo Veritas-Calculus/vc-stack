@@ -199,7 +199,7 @@ function ACLPage() {
                         <span
                           className={`px-1.5 py-0.5 rounded text-xs border ${
                             rule.direction === 'ingress'
-                              ? 'bg-blue-500/15 text-accent border-blue-500/30'
+                              ? 'bg-accent-subtle text-accent border-accent/30'
                               : 'bg-purple-500/15 text-status-purple border-purple-500/30'
                           }`}
                         >

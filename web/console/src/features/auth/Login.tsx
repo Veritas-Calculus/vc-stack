@@ -168,18 +168,10 @@ export function Login() {
   // ── Credentials step ──────────────────────────────────────
   if (step === 'credentials') {
     return (
-      <div
-        className="min-h-screen grid place-items-center px-4"
-        style={{ background: 'var(--color-bg-primary)' }}
-      >
+      <div className="min-h-screen grid place-items-center px-4 bg-surface-primary">
         <form
           onSubmit={onSubmitCredentials}
-          className="w-full max-w-sm p-6 rounded-xl shadow-card space-y-4"
-          style={{
-            background: 'var(--color-bg-secondary)',
-            border: '1px solid var(--color-border)',
-            color: 'var(--color-text-primary)'
-          }}
+          className="w-full max-w-sm p-6 rounded-xl shadow-card space-y-4 bg-surface-secondary border border-border text-content-primary"
         >
           <div className="flex items-center gap-2">
             {logoDataUrl ? (
@@ -187,15 +179,15 @@ export function Login() {
             ) : (
               <img src="/logo-42.svg" alt="logo" className="h-6 w-6 rounded object-contain" />
             )}
-            <h1 className="text-xl font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+            <h1 className="text-xl font-semibold text-content-primary">
               {t('auth.loginTitle', 'Sign in to VC Console')}
             </h1>
           </div>
-          <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+          <p className="text-sm text-content-secondary">
             {t('auth.loginSubtitle', 'Use your account to access the console.')}
           </p>
           {error && (
-            <div className="rounded-md bg-red-500/10 border border-red-500/30 px-3 py-2 text-sm text-status-text-error">
+            <div className="rounded-lg bg-red-500/10 border border-red-500/30 px-3 py-2 text-sm text-status-text-error">
               {error}
             </div>
           )}
@@ -203,32 +195,25 @@ export function Login() {
             <div className="space-y-2">
               <button
                 type="button"
-                className="btn-secondary w-full h-9 rounded-md text-sm"
+                className="btn-secondary w-full h-9 rounded-lg text-sm"
                 onClick={startOidc}
               >
                 {t('auth.ssoLogin', 'Continue with OpenID Connect')}
               </button>
-              <div
-                className="flex items-center gap-2 text-xs"
-                style={{ color: 'var(--color-text-tertiary)' }}
-              >
-                <div className="h-px flex-1" style={{ background: 'var(--color-border)' }} />
+              <div className="flex items-center gap-2 text-xs text-content-tertiary">
+                <div className="h-px flex-1 bg-border" />
                 <span>or</span>
-                <div className="h-px flex-1" style={{ background: 'var(--color-border)' }} />
+                <div className="h-px flex-1 bg-border" />
               </div>
             </div>
           )}
           <div className="space-y-2">
-            <label
-              className="label"
-              htmlFor="username"
-              style={{ color: 'var(--color-text-secondary)' }}
-            >
+            <label className="label text-content-secondary" htmlFor="username">
               {t('auth.username', 'Username')}
             </label>
             <input
               id="username"
-              className="input w-full rounded-md px-3 py-2 text-sm"
+              className="input w-full rounded-lg px-3 py-2 text-sm"
               value={username}
               onChange={(e) => {
                 setUsername(e.target.value)
@@ -238,17 +223,13 @@ export function Login() {
             />
           </div>
           <div className="space-y-2">
-            <label
-              className="label"
-              htmlFor="password"
-              style={{ color: 'var(--color-text-secondary)' }}
-            >
+            <label className="label text-content-secondary" htmlFor="password">
               {t('auth.password', 'Password')}
             </label>
             <input
               id="password"
               type="password"
-              className="input w-full rounded-md px-3 py-2 text-sm"
+              className="input w-full rounded-lg px-3 py-2 text-sm"
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value)
@@ -258,7 +239,7 @@ export function Login() {
           </div>
           <button
             type="submit"
-            className="btn-primary w-full inline-flex items-center justify-center rounded-md h-9 disabled:opacity-50"
+            className="btn-primary w-full inline-flex items-center justify-center rounded-lg h-9 disabled:opacity-50"
             disabled={loading}
           >
             {loading ? t('auth.signingIn', 'Signing in...') : t('auth.signIn', 'Sign in')}
@@ -305,7 +286,7 @@ export function Login() {
         </div>
 
         {error && (
-          <div className="rounded-md bg-red-500/10 border border-red-500/30 px-3 py-2 text-sm text-status-text-error">
+          <div className="rounded-lg bg-red-500/10 border border-red-500/30 px-3 py-2 text-sm text-status-text-error">
             {error}
           </div>
         )}
@@ -326,7 +307,7 @@ export function Login() {
             {projects.length > 5 && (
               <div>
                 <input
-                  className="input w-full rounded-md px-3 py-2 text-sm"
+                  className="input w-full rounded-lg px-3 py-2 text-sm"
                   placeholder={t('common.search', 'Search...')}
                   value={projectFilter}
                   onChange={(e) => setProjectFilter(e.target.value)}
@@ -446,14 +427,14 @@ export function Login() {
             <div className="flex gap-2">
               <button
                 type="button"
-                className="btn-secondary flex-1 h-9 rounded-md text-sm"
+                className="btn-secondary flex-1 h-9 rounded-lg text-sm"
                 onClick={() => navigateAfterLogin(null)}
               >
                 {t('common.cancel', 'Skip')}
               </button>
               <button
                 type="submit"
-                className="btn-primary flex-1 inline-flex items-center justify-center rounded-md h-9 disabled:opacity-50"
+                className="btn-primary flex-1 inline-flex items-center justify-center rounded-lg h-9 disabled:opacity-50"
                 disabled={!selectedProjectId}
               >
                 <svg

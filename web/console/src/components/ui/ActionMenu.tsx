@@ -21,7 +21,7 @@ export function ActionMenu({ actions }: { actions: Action[] }) {
     <div className="relative" ref={ref}>
       <button
         type="button"
-        className="px-2 h-7 inline-flex items-center rounded-md border border-border bg-surface-secondary hover:bg-surface-hover text-content-primary"
+        className="px-2 h-7 inline-flex items-center rounded-lg border border-border bg-surface-secondary hover:bg-surface-hover text-content-primary"
         aria-label="Actions"
         onClick={(e) => {
           const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()

@@ -22,7 +22,7 @@ export function Invoices() {
   const statusBadge = (s: string) => {
     const c: Record<string, string> = {
       draft: 'bg-zinc-600/20 text-zinc-400',
-      issued: 'bg-blue-500/15 text-accent',
+      issued: 'bg-accent-subtle text-accent',
       paid: 'bg-emerald-500/15 text-status-text-success',
       void: 'bg-red-500/15 text-status-text-error'
     }

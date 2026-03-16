@@ -84,9 +84,9 @@ export function PITRManager() {
       pending: 'bg-amber-500/15 text-status-text-warning',
       completed: 'bg-emerald-500/15 text-status-text-success',
       failed: 'bg-red-500/15 text-status-text-error',
-      restoring_base: 'bg-blue-500/15 text-accent',
-      replaying_wal: 'bg-blue-500/15 text-accent',
-      finalizing: 'bg-blue-500/15 text-accent'
+      restoring_base: 'bg-accent-subtle text-accent',
+      replaying_wal: 'bg-accent-subtle text-accent',
+      finalizing: 'bg-accent-subtle text-accent'
     }
     return (
       <span

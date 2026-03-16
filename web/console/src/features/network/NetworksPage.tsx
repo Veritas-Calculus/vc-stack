@@ -320,7 +320,7 @@ function NetworksPage() {
       render: (r) => (
         <div className="flex gap-1">
           {r.shared && (
-            <span className="px-1.5 py-0.5 text-xs bg-green-900/30 text-green-400 rounded">
+            <span className="px-1.5 py-0.5 text-xs bg-emerald-500/15 text-status-text-success rounded">
               Shared
             </span>
           )}
@@ -552,7 +552,7 @@ function NetworksPage() {
                 {s.label}
               </button>
               {i < 2 && (
-                <div className={`flex-1 h-px ${step > s.n ? 'bg-blue-600' : 'bg-surface-hover'}`} />
+                <div className={`flex-1 h-px ${step > s.n ? 'bg-accent' : 'bg-surface-hover'}`} />
               )}
             </span>
           ))}
@@ -612,7 +612,7 @@ function NetworksPage() {
               </div>
             </div>
             {(networkType === 'vlan' || networkType === 'flat') && (
-              <div className="grid grid-cols-2 gap-3 p-3 bg-blue-900/10 border border-blue-800/30 rounded">
+              <div className="grid grid-cols-2 gap-3 p-3 bg-accent-subtle border border-accent/30 rounded">
                 <div>
                   <label className="label">Physical Network *</label>
                   {bridgeMappings.length > 0 && !customPhysicalNetwork ? (
@@ -772,7 +772,7 @@ function NetworksPage() {
                       type="button"
                       className={`text-xs px-2 py-0.5 rounded border transition-colors ${
                         cidr === tpl.cidr
-                          ? 'border-blue-500 bg-blue-500/20 text-status-link'
+                          ? 'border-accent bg-accent-subtle text-status-link'
                           : 'border-border-strong text-content-secondary hover:border-border-strong hover:text-content-secondary'
                       }`}
                       onClick={() => setCidr(tpl.cidr)}

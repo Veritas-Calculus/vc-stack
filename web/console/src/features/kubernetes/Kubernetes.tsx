@@ -167,8 +167,8 @@ export function Kubernetes() {
       active: 'bg-emerald-500/20 text-status-text-success',
       ready: 'bg-emerald-500/20 text-status-text-success',
       established: 'bg-emerald-500/20 text-status-text-success',
-      provisioning: 'bg-blue-500/20 text-accent',
-      upgrading: 'bg-blue-500/20 text-accent',
+      provisioning: 'bg-accent-subtle text-accent',
+      upgrading: 'bg-accent-subtle text-accent',
       pending: 'bg-amber-500/20 text-status-text-warning',
       draining: 'bg-amber-500/20 text-status-text-warning',
       error: 'bg-red-500/20 text-status-text-error',
@@ -268,7 +268,7 @@ export function Kubernetes() {
           <div className="flex justify-end">
             <button
               onClick={() => setShowCreate(true)}
-              className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition"
+              className="px-4 py-2 bg-accent text-content-primary rounded-lg text-sm hover:bg-accent-hover transition"
             >
               + Create Cluster
             </button>
@@ -287,11 +287,11 @@ export function Kubernetes() {
                 <div
                   key={c.id}
                   onClick={() => openCluster(c)}
-                  className="bg-surface-tertiary border border-border rounded-xl p-5 cursor-pointer hover:border-blue-500/40 transition group"
+                  className="bg-surface-tertiary border border-border rounded-xl p-5 cursor-pointer hover:border-accent/40 transition group"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center text-accent">
+                      <div className="w-12 h-12 rounded-lg bg-accent-subtle flex items-center justify-center text-accent">
                         {Icons.kubernetes('w-7 h-7')}
                       </div>
                       <div>
@@ -456,7 +456,7 @@ export function Kubernetes() {
               </h3>
               <button
                 onClick={() => setShowCreateLB(true)}
-                className="px-3 py-1 bg-blue-600 text-content-primary rounded text-xs hover:bg-blue-500 transition"
+                className="px-3 py-1 bg-accent text-content-primary rounded text-xs hover:bg-accent-hover transition"
               >
                 + Create LB
               </button>
@@ -541,7 +541,7 @@ export function Kubernetes() {
               Network Architecture
             </h3>
             <div className="flex items-center justify-center gap-3 py-4 text-sm">
-              <div className="text-center p-3 border border-blue-500/30 rounded-lg bg-blue-500/5 w-32">
+              <div className="text-center p-3 border border-accent/30 rounded-lg bg-accent-subtle w-32">
                 <div className="text-lg mb-1 text-accent">{Icons.globe('w-5 h-5')}</div>
                 <div className="text-content-primary font-medium text-xs">External</div>
                 <div className="text-content-tertiary text-xs">Floating IP</div>
@@ -898,7 +898,7 @@ function CreateClusterModal({
                 type="checkbox"
                 checked={haEnabled}
                 onChange={(e) => setHAEnabled(e.target.checked)}
-                className="accent-blue-500"
+                className="accent-accent"
               />{' '}
               HA (Multi-Master)
             </label>
@@ -907,7 +907,7 @@ function CreateClusterModal({
                 type="checkbox"
                 checked={bgpEnabled}
                 onChange={(e) => setBGPEnabled(e.target.checked)}
-                className="accent-blue-500"
+                className="accent-accent"
               />{' '}
               BGP Peering
             </label>
@@ -959,7 +959,7 @@ function CreateClusterModal({
               })
             }
             disabled={!name}
-            className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition disabled:opacity-50"
+            className="px-4 py-2 bg-accent text-content-primary rounded-lg text-sm hover:bg-accent-hover transition disabled:opacity-50"
           >
             Create Cluster
           </button>
@@ -1065,7 +1065,7 @@ function CreateLBModal({
               })
             }
             disabled={!svcName}
-            className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition disabled:opacity-50"
+            className="px-4 py-2 bg-accent text-content-primary rounded-lg text-sm hover:bg-accent-hover transition disabled:opacity-50"
           >
             Create LB
           </button>

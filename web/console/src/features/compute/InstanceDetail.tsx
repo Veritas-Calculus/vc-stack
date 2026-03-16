@@ -396,7 +396,7 @@ export default function InstanceDetail() {
               </button>
             ) : (
               <button
-                className="btn-secondary text-green-400"
+                className="btn-secondary text-status-text-success"
                 onClick={() => doAction(() => unlockInstance(String(inst.id)))}
               >
                 Unlock
@@ -438,7 +438,7 @@ export default function InstanceDetail() {
             onClick={() => setTab(t.key)}
             className={`px-4 py-2 text-sm transition-colors border-b-2 -mb-px ${
               tab === t.key
-                ? 'border-blue-500 text-accent'
+                ? 'border-accent text-accent'
                 : 'border-transparent text-content-secondary hover:text-content-primary'
             }`}
           >
@@ -936,7 +936,7 @@ export default function InstanceDetail() {
         }
       >
         <div className="space-y-3">
-          <div className="p-3 bg-blue-900/20 border border-blue-800/30 rounded text-sm text-content-secondary">
+          <div className="p-3 bg-accent-subtle border border-accent/30 rounded text-sm text-content-secondary">
             Snapshots the root disk and registers as a bootable image. The instance stays running.
           </div>
           <div>
@@ -973,7 +973,7 @@ function InfoRow({ label, children }: { label: string; children: React.ReactNode
 }
 
 const colorMap: Record<string, string> = {
-  blue: 'from-blue-500/20 to-blue-600/5 border-blue-500/30 text-accent',
+  blue: 'from-blue-500/20 to-blue-600/5 border-accent/30 text-accent',
   purple: 'from-purple-500/20 to-purple-600/5 border-purple-500/30 text-status-purple',
   emerald: 'from-emerald-500/20 to-emerald-600/5 border-emerald-500/30 text-status-text-success',
   amber: 'from-amber-500/20 to-amber-600/5 border-amber-500/30 text-status-text-warning',

@@ -35,7 +35,7 @@ export function PlacementGroups() {
 
   const stratBadge = (s: string) => {
     const c: Record<string, string> = {
-      'anti-affinity': 'bg-blue-500/15 text-accent',
+      'anti-affinity': 'bg-accent-subtle text-accent',
       affinity: 'bg-purple-500/15 text-status-purple',
       'soft-anti-affinity': 'bg-zinc-600/20 text-zinc-400'
     }

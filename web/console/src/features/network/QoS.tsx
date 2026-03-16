@@ -155,7 +155,7 @@ export default function QoSManagement() {
         <span
           className={`text-xs px-1.5 py-0.5 rounded ${
             r.direction === 'egress'
-              ? 'bg-blue-900/30 text-accent'
+              ? 'bg-accent-subtle text-accent'
               : 'bg-purple-900/30 text-status-purple'
           }`}
         >
@@ -195,7 +195,7 @@ export default function QoSManagement() {
       header: 'Status',
       render: (r) => (
         <span
-          className={`text-xs ${r.status === 'active' ? 'text-green-400' : 'text-content-tertiary'}`}
+          className={`text-xs ${r.status === 'active' ? 'text-status-text-success' : 'text-content-tertiary'}`}
         >
           {r.status}
         </span>

@@ -117,9 +117,9 @@ export function ConfirmDialog({
           <line x1="12" y1="8" x2="12.01" y2="8" />
         </svg>
       ),
-      bg: 'bg-blue-500/10',
-      border: 'border-blue-500/20',
-      btn: 'bg-blue-600 hover:bg-blue-500 focus:ring-blue-500/50'
+      bg: 'bg-accent-subtle',
+      border: 'border-accent/20',
+      btn: 'bg-accent hover:bg-accent-hover focus:ring-accent/50'
     }
   }
 

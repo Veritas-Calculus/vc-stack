@@ -72,7 +72,7 @@ export function AffinityGroups() {
         </div>
         <button
           onClick={() => setShowCreate(true)}
-          className="px-4 py-2 rounded-lg text-sm bg-blue-600 text-content-primary hover:bg-blue-500 font-medium"
+          className="px-4 py-2 rounded-lg text-sm bg-accent text-content-primary hover:bg-accent-hover font-medium"
         >
           Create Group
         </button>
@@ -99,7 +99,7 @@ export function AffinityGroups() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   autoFocus
-                  className="w-full px-3 py-2 rounded-lg border border-border-strong bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 rounded-lg border border-border-strong bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-accent"
                 />
               </div>
               <div>
@@ -118,7 +118,7 @@ export function AffinityGroups() {
                 <input
                   value={desc}
                   onChange={(e) => setDesc(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-border-strong bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 rounded-lg border border-border-strong bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-accent"
                 />
               </div>
             </div>
@@ -132,7 +132,7 @@ export function AffinityGroups() {
               <button
                 onClick={handleCreate}
                 disabled={!name}
-                className="px-4 py-2 rounded-lg text-sm bg-blue-600 text-content-primary hover:bg-blue-500 disabled:opacity-50"
+                className="px-4 py-2 rounded-lg text-sm bg-accent text-content-primary hover:bg-accent-hover disabled:opacity-50"
               >
                 Create
               </button>
@@ -143,7 +143,7 @@ export function AffinityGroups() {
 
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
         </div>
       ) : groups.length === 0 ? (
         <EmptyState title="No affinity groups" subtitle="Create a group to manage VM placement" />
@@ -157,12 +157,12 @@ export function AffinityGroups() {
               <div className="px-4 py-3 border-b border-border/50 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span
-                    className={`w-2 h-2 rounded-full inline-block ${g.type === 'host-affinity' ? 'bg-amber-400' : 'bg-blue-400'}`}
+                    className={`w-2 h-2 rounded-full inline-block ${g.type === 'host-affinity' ? 'bg-amber-400' : 'bg-accent'}`}
                   />
                   <span className="text-sm font-medium text-content-primary">{g.name}</span>
                 </div>
                 <span
-                  className={`px-2 py-0.5 rounded text-xs ${g.type === 'host-affinity' ? 'bg-amber-500/15 text-status-text-warning' : 'bg-blue-500/15 text-accent'}`}
+                  className={`px-2 py-0.5 rounded text-xs ${g.type === 'host-affinity' ? 'bg-amber-500/15 text-status-text-warning' : 'bg-accent-subtle text-accent'}`}
                 >
                   {g.type}
                 </span>

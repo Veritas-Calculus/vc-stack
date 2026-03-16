@@ -112,7 +112,7 @@ export function FlameGraphViewer() {
         </div>
       )}
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <div className="bg-accent-subtle border border-accent/30 rounded-lg p-4">
         <h3 className="font-semibold mb-2">About Flamegraphs</h3>
         <ul className="list-disc list-inside space-y-1 text-sm">
           <li>

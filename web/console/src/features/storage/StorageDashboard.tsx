@@ -130,7 +130,7 @@ export default function StorageDashboard() {
               >
                 <div className="flex justify-between items-start mb-2">
                   <span className="font-medium text-content-primary text-sm">{o.name}</span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/20 text-accent uppercase">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent-subtle text-accent uppercase">
                     {o.storage_type}
                   </span>
                 </div>

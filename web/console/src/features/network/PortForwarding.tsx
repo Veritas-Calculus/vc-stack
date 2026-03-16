@@ -287,7 +287,7 @@ export default function PortForwarding() {
               placeholder="Optional"
             />
           </div>
-          <div className="p-3 bg-blue-900/20 border border-blue-800/30 rounded text-sm text-content-secondary">
+          <div className="p-3 bg-accent-subtle border border-accent/30 rounded text-sm text-content-secondary">
             Traffic to{' '}
             <span className="font-mono text-accent">
               {fipId ? getFipAddress(fipId) : '<FIP>'}:{extPort || '<port>'}

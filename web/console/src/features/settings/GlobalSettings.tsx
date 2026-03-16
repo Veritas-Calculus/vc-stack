@@ -128,7 +128,7 @@ export function GlobalSettings() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-accent"
             placeholder="Search settings by key or description..."
           />
         </div>
@@ -151,7 +151,7 @@ export function GlobalSettings() {
                     onClick={() => setActiveCategory(cat)}
                     className={`w-full text-left px-4 py-2.5 flex items-center justify-between transition-colors text-sm ${
                       activeCategory === cat
-                        ? 'bg-blue-500/10 text-accent border-l-2 border-l-blue-500'
+                        ? 'bg-accent-subtle text-accent border-l-2 border-l-accent'
                         : 'text-content-secondary hover:bg-surface-tertiary hover:text-content-primary border-l-2 border-l-transparent'
                     }`}
                   >
@@ -172,7 +172,7 @@ export function GlobalSettings() {
         <div className="col-span-12 lg:col-span-9 space-y-4">
           {loading ? (
             <div className="flex items-center justify-center py-16">
-              <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+              <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
             </div>
           ) : settings.length === 0 ? (
             <div className="text-center py-16 text-content-tertiary">
@@ -305,7 +305,7 @@ function SettingRow({
               <select
                 value={editValue}
                 onChange={(e) => onChangeValue(e.target.value)}
-                className="px-2 py-1 rounded border border-border-strong bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                className="px-2 py-1 rounded border border-border-strong bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-accent"
               >
                 <option value="true">true</option>
                 <option value="false">false</option>
@@ -315,7 +315,7 @@ function SettingRow({
                 type={setting.data_type === 'integer' ? 'number' : 'text'}
                 value={editValue}
                 onChange={(e) => onChangeValue(e.target.value)}
-                className="w-48 px-2 py-1 rounded border border-border-strong bg-surface-tertiary text-content-primary text-sm font-mono outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-48 px-2 py-1 rounded border border-border-strong bg-surface-tertiary text-content-primary text-sm font-mono outline-none focus:ring-1 focus:ring-accent"
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') onSave()
@@ -326,7 +326,7 @@ function SettingRow({
             <button
               onClick={onSave}
               disabled={saving}
-              className="px-2 py-1 rounded text-xs bg-blue-600 text-content-primary hover:bg-blue-500 disabled:opacity-50"
+              className="px-2 py-1 rounded text-xs bg-accent text-content-primary hover:bg-accent-hover disabled:opacity-50"
             >
               {saving ? '...' : 'Save'}
             </button>
@@ -343,7 +343,7 @@ function SettingRow({
             {!setting.read_only && (
               <button
                 onClick={onStartEdit}
-                className="px-2 py-1 rounded text-xs text-content-secondary hover:text-accent hover:bg-blue-500/10 transition-colors"
+                className="px-2 py-1 rounded text-xs text-content-secondary hover:text-accent hover:bg-accent-hover/10 transition-colors"
               >
                 Edit
               </button>

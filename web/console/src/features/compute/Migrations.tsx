@@ -92,7 +92,7 @@ export default function Migrations() {
             onClick={() => setFilter(f)}
             className={`px-3 py-1 text-xs rounded-full transition-colors ${
               filter === f
-                ? 'bg-blue-500/20 text-accent border border-blue-500/50'
+                ? 'bg-accent-subtle text-accent border border-accent/50'
                 : 'bg-surface-hover text-content-secondary border border-border hover:bg-surface-hover'
             }`}
           >
@@ -132,7 +132,7 @@ export default function Migrations() {
                   {(m.status === 'migrating' || m.status === 'preparing') && (
                     <div className="w-full bg-surface-hover rounded-full h-1.5 mt-1">
                       <div
-                        className="bg-blue-500 h-1.5 rounded-full transition-all duration-500"
+                        className="bg-accent h-1.5 rounded-full transition-all duration-500"
                         style={{ width: `${m.progress}%` }}
                       />
                     </div>

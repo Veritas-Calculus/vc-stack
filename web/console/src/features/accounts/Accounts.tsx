@@ -131,7 +131,7 @@ export function Accounts() {
         </div>
         <button
           onClick={() => setShowCreate(true)}
-          className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium transition-colors flex items-center gap-2"
+          className="px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-content-primary text-sm font-medium transition-colors flex items-center gap-2"
         >
           <svg
             width="14"
@@ -165,7 +165,7 @@ export function Accounts() {
               <tr>
                 <td colSpan={6} className="text-center py-12 text-content-tertiary">
                   <div className="flex items-center justify-center gap-2">
-                    <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                    <div className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full animate-spin" />
                     Loading accounts...
                   </div>
                 </td>
@@ -314,7 +314,7 @@ export function Accounts() {
                     (selectedUser.roles || []).map((r) => (
                       <span
                         key={r.id}
-                        className="px-2 py-1 rounded-md bg-surface-tertiary text-xs text-content-secondary border border-border"
+                        className="px-2 py-1 rounded-lg bg-surface-tertiary text-xs text-content-secondary border border-border"
                       >
                         {r.name}
                       </span>
@@ -333,7 +333,7 @@ export function Accounts() {
                     (selectedUser.policies || []).map((p) => (
                       <span
                         key={p.id}
-                        className="px-2 py-1 rounded-md bg-blue-500/10 text-xs text-accent border border-blue-500/30"
+                        className="px-2 py-1 rounded-lg bg-accent-subtle text-xs text-accent border border-accent/30"
                       >
                         {p.name}
                       </span>
@@ -389,7 +389,7 @@ export function Accounts() {
                   type="text"
                   value={newUsername}
                   onChange={(e) => setNewUsername(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-accent"
                   placeholder="johndoe"
                 />
               </div>
@@ -400,7 +400,7 @@ export function Accounts() {
                     type="text"
                     value={newFirstName}
                     onChange={(e) => setNewFirstName(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full px-3 py-2 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-accent"
                     placeholder="John"
                   />
                 </div>
@@ -410,7 +410,7 @@ export function Accounts() {
                     type="text"
                     value={newLastName}
                     onChange={(e) => setNewLastName(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full px-3 py-2 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-accent"
                     placeholder="Doe"
                   />
                 </div>
@@ -421,7 +421,7 @@ export function Accounts() {
                   type="email"
                   value={newEmail}
                   onChange={(e) => setNewEmail(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-accent"
                   placeholder="john@example.com"
                 />
               </div>
@@ -431,7 +431,7 @@ export function Accounts() {
                   type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-accent"
                   placeholder="••••••••"
                 />
               </div>
@@ -454,7 +454,7 @@ export function Accounts() {
               </button>
               <button
                 onClick={handleCreate}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium"
+                className="px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-content-primary text-sm font-medium"
               >
                 Create
               </button>

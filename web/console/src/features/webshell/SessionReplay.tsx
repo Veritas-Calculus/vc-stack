@@ -325,7 +325,7 @@ export function SessionReplay() {
           <p className="text-content-tertiary dark:text-content-secondary mb-4">会话未找到</p>
           <button
             onClick={() => navigate('/webshell/sessions')}
-            className="px-4 py-2 bg-blue-600 text-content-primary rounded hover:bg-blue-700"
+            className="px-4 py-2 bg-accent text-content-primary rounded hover:bg-accent-hover"
           >
             返回列表
           </button>
@@ -418,7 +418,7 @@ export function SessionReplay() {
 
             <button
               onClick={handlePlayPause}
-              className="p-3 bg-blue-600 text-content-primary rounded-full hover:bg-blue-700"
+              className="p-3 bg-accent text-content-primary rounded-full hover:bg-accent-hover"
             >
               {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />}
             </button>

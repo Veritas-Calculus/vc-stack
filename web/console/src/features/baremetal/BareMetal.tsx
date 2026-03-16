@@ -105,7 +105,7 @@ export function BareMetal() {
   const badge = (s: string) => {
     const m: Record<string, string> = {
       available: 'bg-emerald-500/20 text-status-text-success',
-      active: 'bg-blue-500/20 text-accent',
+      active: 'bg-accent-subtle text-accent',
       provisioning: 'bg-amber-500/20 text-status-text-warning',
       maintenance: 'bg-orange-500/20 text-status-orange',
       error: 'bg-red-500/20 text-status-text-error',
@@ -113,7 +113,7 @@ export function BareMetal() {
       on: 'bg-emerald-500/20 text-status-text-success',
       off: 'bg-content-tertiary/20 text-content-secondary',
       linux: 'bg-amber-500/20 text-status-text-warning',
-      windows: 'bg-blue-500/20 text-status-link',
+      windows: 'bg-accent-subtle text-status-link',
       esxi: 'bg-cyan-500/20 text-status-cyan',
       nvme: 'bg-purple-500/20 text-status-purple',
       ssd: 'bg-cyan-500/20 text-status-cyan',
@@ -158,7 +158,7 @@ export function BareMetal() {
               setTab(t.key)
               setSelectedServer(null)
             }}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition ${tab === t.key ? 'bg-surface-hover text-content-primary' : 'text-content-secondary hover:text-content-primary'}`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition ${tab === t.key ? 'bg-surface-hover text-content-primary' : 'text-content-secondary hover:text-content-primary'}`}
           >
             {t.label}
           </button>
@@ -243,7 +243,7 @@ export function BareMetal() {
                             setSelectedServer(srv.id)
                             setTab('servers')
                           }}
-                          className="flex items-center justify-between p-3 bg-surface-tertiary border border-border rounded-lg cursor-pointer hover:border-blue-500/40 transition"
+                          className="flex items-center justify-between p-3 bg-surface-tertiary border border-border rounded-lg cursor-pointer hover:border-accent/40 transition"
                         >
                           <div className="flex items-center gap-3">
                             <div className="text-xs text-content-tertiary font-mono w-8">
@@ -287,7 +287,7 @@ export function BareMetal() {
             <div
               key={srv.id}
               onClick={() => setSelectedServer(srv.id)}
-              className="bg-surface-tertiary border border-border rounded-xl p-4 cursor-pointer hover:border-blue-500/40 transition"
+              className="bg-surface-tertiary border border-border rounded-xl p-4 cursor-pointer hover:border-accent/40 transition"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -474,7 +474,7 @@ export function BareMetal() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div
-                    className={`w-14 h-14 rounded-lg flex items-center justify-center text-2xl ${p.family === 'linux' ? 'bg-amber-500/20' : p.family === 'windows' ? 'bg-blue-500/20' : 'bg-cyan-500/20'}`}
+                    className={`w-14 h-14 rounded-lg flex items-center justify-center text-2xl ${p.family === 'linux' ? 'bg-amber-500/20' : p.family === 'windows' ? 'bg-accent-subtle' : 'bg-cyan-500/20'}`}
                   >
                     {p.family === 'linux'
                       ? Icons.server('w-7 h-7')

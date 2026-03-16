@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { useState, useEffect, useCallback } from 'react'
 import api from '@/lib/api'
+import { toast } from '@/lib/toast'
 import { EmptyState } from '@/components/ui/EmptyState'
 
 interface Webhook {
@@ -79,7 +80,7 @@ export function Webhooks() {
   const handleTest = async (id: number) => {
     try {
       await api.post(`/v1/webhooks/${id}/test`)
-      alert('Test event sent!')
+      toast.success('Test event sent!')
     } catch (err) {
       console.error(err)
     }
@@ -96,7 +97,7 @@ export function Webhooks() {
         </div>
         <button
           onClick={() => setShowCreate(true)}
-          className="px-4 py-2 rounded-lg text-sm bg-blue-600 text-content-primary hover:bg-blue-500 font-medium"
+          className="px-4 py-2 rounded-lg text-sm bg-accent text-content-primary hover:bg-accent-hover font-medium"
         >
           Create Webhook
         </button>
@@ -121,7 +122,7 @@ export function Webhooks() {
                   onChange={(e) => setName(e.target.value)}
                   autoFocus
                   placeholder="e.g., Slack notification"
-                  className="w-full px-3 py-2 rounded-lg border border-border-strong bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 rounded-lg border border-border-strong bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-accent"
                 />
               </div>
               <div>
@@ -130,7 +131,7 @@ export function Webhooks() {
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://..."
-                  className="w-full px-3 py-2 rounded-lg border border-border-strong bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 rounded-lg border border-border-strong bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-accent"
                 />
               </div>
               <div>
@@ -139,7 +140,7 @@ export function Webhooks() {
                   value={secret}
                   onChange={(e) => setSecret(e.target.value)}
                   placeholder="Optional signing secret"
-                  className="w-full px-3 py-2 rounded-lg border border-border-strong bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 rounded-lg border border-border-strong bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-accent"
                 />
               </div>
               <div>
@@ -150,7 +151,7 @@ export function Webhooks() {
                   value={events}
                   onChange={(e) => setEvents(e.target.value)}
                   placeholder="instance.create,instance.delete"
-                  className="w-full px-3 py-2 rounded-lg border border-border-strong bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 rounded-lg border border-border-strong bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-accent"
                 />
               </div>
             </div>
@@ -164,7 +165,7 @@ export function Webhooks() {
               <button
                 onClick={handleCreate}
                 disabled={!name || !url}
-                className="px-4 py-2 rounded-lg text-sm bg-blue-600 text-content-primary hover:bg-blue-500 disabled:opacity-50"
+                className="px-4 py-2 rounded-lg text-sm bg-accent text-content-primary hover:bg-accent-hover disabled:opacity-50"
               >
                 Create
               </button>
@@ -175,7 +176,7 @@ export function Webhooks() {
 
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
         </div>
       ) : webhooks.length === 0 ? (
         <EmptyState
@@ -217,7 +218,7 @@ export function Webhooks() {
                   )}
                   <button
                     onClick={() => handleTest(wh.id)}
-                    className="px-2 py-1 rounded text-xs text-content-secondary hover:text-accent hover:bg-blue-500/10"
+                    className="px-2 py-1 rounded text-xs text-content-secondary hover:text-accent hover:bg-accent-hover/10"
                   >
                     Test
                   </button>

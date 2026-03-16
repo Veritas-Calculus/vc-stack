@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { toast } from '@/lib/toast'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   fetchVolumeById,
@@ -132,9 +133,9 @@ export default function VolumeDetail() {
     if (!name) return
     try {
       await cloneVolume(String(volume.id), name)
-      alert('Clone created successfully')
+      toast.success('Clone created successfully')
     } catch (err) {
-      alert('Clone failed: ' + (err as Error).message)
+      toast.error('Clone failed: ' + (err as Error).message)
     }
   }
 
@@ -144,7 +145,7 @@ export default function VolumeDetail() {
       await detachVolumeFromVM(String(volume.id), String(instanceId))
       await load()
     } catch (err) {
-      alert('Detach failed: ' + (err as Error).message)
+      toast.error('Detach failed: ' + (err as Error).message)
     }
   }
 
@@ -189,7 +190,7 @@ export default function VolumeDetail() {
             onClick={() => setTab(t.id)}
             className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px ${
               tab === t.id
-                ? 'border-blue-500 text-accent'
+                ? 'border-accent text-accent'
                 : 'border-transparent text-content-tertiary hover:text-content-secondary'
             }`}
           >

@@ -165,7 +165,7 @@ export function ComplianceAudit() {
 
   const badge = (s: string) => {
     const m: Record<string, string> = {
-      info: 'bg-blue-500/20 text-accent',
+      info: 'bg-accent-subtle text-accent',
       warning: 'bg-amber-500/20 text-status-text-warning',
       critical: 'bg-red-500/20 text-status-text-error',
       alert: 'bg-red-500/20 text-status-text-error',
@@ -177,7 +177,7 @@ export function ComplianceAudit() {
       partially_compliant: 'bg-amber-500/20 text-status-text-warning',
       not_assessed: 'bg-content-tertiary/20 text-content-secondary',
       ready: 'bg-emerald-500/20 text-status-text-success',
-      generating: 'bg-blue-500/20 text-accent'
+      generating: 'bg-accent-subtle text-accent'
     }
     return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-content-tertiary/20 text-content-secondary'}`
   }
@@ -218,7 +218,7 @@ export function ComplianceAudit() {
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition ${tab === t.key ? 'bg-surface-hover text-content-primary' : 'text-content-secondary hover:text-content-primary'}`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition ${tab === t.key ? 'bg-surface-hover text-content-primary' : 'text-content-secondary hover:text-content-primary'}`}
           >
             {t.label}
           </button>
@@ -587,7 +587,7 @@ export function ComplianceAudit() {
           <div className="flex justify-end">
             <button
               onClick={generateReport}
-              className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition flex items-center gap-1.5"
+              className="px-4 py-2 bg-accent text-content-primary rounded-lg text-sm hover:bg-accent-hover transition flex items-center gap-1.5"
             >
               {Icons.chart('w-4 h-4')} Generate Report
             </button>

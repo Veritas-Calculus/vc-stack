@@ -37,7 +37,7 @@ export function SecretsManager() {
       key: 'version_id',
       header: 'Version',
       render: (r) => (
-        <span className="text-xs bg-blue-500/15 text-accent px-1.5 py-0.5 rounded">
+        <span className="text-xs bg-accent-subtle text-accent px-1.5 py-0.5 rounded">
           v{r.version_id}
         </span>
       )

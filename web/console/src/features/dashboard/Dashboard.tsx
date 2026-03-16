@@ -74,9 +74,9 @@ const RESOURCE_ABBREV: Record<string, string> = {
 }
 
 const STATUS_DOT: Record<string, string> = {
-  success: 'bg-emerald-500',
-  failure: 'bg-red-500',
-  pending: 'bg-amber-500'
+  success: 'bg-status-success',
+  failure: 'bg-status-error',
+  pending: 'bg-status-warning'
 }
 
 export function Dashboard() {
@@ -140,7 +140,7 @@ export function Dashboard() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <div className="w-8 h-8 border-3 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <div className="w-8 h-8 border-3 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-3" />
           <p className="text-content-secondary text-sm">Loading dashboard...</p>
         </div>
       </div>
@@ -280,7 +280,7 @@ export function Dashboard() {
           </div>
           <div className="w-full h-3 rounded-full bg-surface-tertiary overflow-hidden">
             <div
-              className={`h-full rounded-full transition-all duration-700 ${d.compute.cpu_usage_percent > 80 ? 'bg-red-500' : d.compute.cpu_usage_percent > 60 ? 'bg-amber-500' : 'bg-emerald-500'}`}
+              className={`h-full rounded-full transition-all duration-700 ${d.compute.cpu_usage_percent > 80 ? 'bg-status-error' : d.compute.cpu_usage_percent > 60 ? 'bg-status-warning' : 'bg-status-success'}`}
               style={{ width: `${Math.min(100, d.compute.cpu_usage_percent)}%` }}
             />
           </div>
@@ -303,7 +303,7 @@ export function Dashboard() {
           </div>
           <div className="w-full h-3 rounded-full bg-surface-tertiary overflow-hidden">
             <div
-              className={`h-full rounded-full transition-all duration-700 ${d.compute.ram_usage_percent > 80 ? 'bg-red-500' : d.compute.ram_usage_percent > 60 ? 'bg-amber-500' : 'bg-blue-500'}`}
+              className={`h-full rounded-full transition-all duration-700 ${d.compute.ram_usage_percent > 80 ? 'bg-status-error' : d.compute.ram_usage_percent > 60 ? 'bg-status-warning' : 'bg-accent'}`}
               style={{ width: `${Math.min(100, d.compute.ram_usage_percent)}%` }}
             />
           </div>
@@ -327,7 +327,7 @@ export function Dashboard() {
           <div className="w-full h-3 rounded-full bg-surface-tertiary overflow-hidden">
             {d.storage.total_size_gb > 0 && (
               <div
-                className="h-full rounded-full bg-purple-500 transition-all duration-700"
+                className="h-full rounded-full bg-status-purple transition-all duration-700"
                 style={{
                   width: `${Math.min(100, (d.storage.used_size_gb / d.storage.total_size_gb) * 100)}%`
                 }}
@@ -402,10 +402,10 @@ export function Dashboard() {
                 <div
                   className={`h-full rounded-full transition-all duration-700 ${
                     securityScore >= 80
-                      ? 'bg-emerald-500'
+                      ? 'bg-status-success'
                       : securityScore >= 60
-                        ? 'bg-amber-500'
-                        : 'bg-red-500'
+                        ? 'bg-status-warning'
+                        : 'bg-status-error'
                   }`}
                   style={{ width: `${Math.min(100, securityScore)}%` }}
                 />
@@ -522,7 +522,7 @@ export function Dashboard() {
                 >
                   <div className="flex items-center gap-2.5">
                     <span
-                      className={`w-1.5 h-1.5 rounded-full ${alert.level === 'critical' ? 'bg-red-500' : alert.level === 'warning' ? 'bg-amber-500' : 'bg-blue-500'}`}
+                      className={`w-1.5 h-1.5 rounded-full ${alert.level === 'critical' ? 'bg-status-error' : alert.level === 'warning' ? 'bg-status-warning' : 'bg-status-info'}`}
                     />
                     <span className="text-sm text-content-primary">{alert.message}</span>
                   </div>

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { toast } from '@/lib/toast'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { TableToolbar } from '@/components/ui/TableToolbar'
 import { DataTable } from '@/components/ui/DataTable'
@@ -102,7 +103,7 @@ function StoragePoolManager({
       void load()
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Delete failed'
-      alert(msg)
+      toast.error(msg)
     }
   }
 

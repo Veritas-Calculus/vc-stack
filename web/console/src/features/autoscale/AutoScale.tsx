@@ -76,7 +76,7 @@ export function AutoScale() {
 
   const stateColor = (s: string) => {
     if (s === 'enabled') return 'bg-emerald-500/15 text-status-text-success'
-    if (s === 'scaling') return 'bg-blue-500/15 text-accent'
+    if (s === 'scaling') return 'bg-accent-subtle text-accent'
     return 'bg-content-tertiary/15 text-content-secondary'
   }
 
@@ -91,7 +91,7 @@ export function AutoScale() {
 
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
         </div>
       ) : groups.length === 0 ? (
         <EmptyState
@@ -106,7 +106,7 @@ export function AutoScale() {
               <div
                 key={g.id}
                 onClick={() => loadPolicies(g)}
-                className={`rounded-xl border bg-surface-secondary overflow-hidden cursor-pointer transition-colors ${selectedGroup?.id === g.id ? 'border-blue-500/50 ring-1 ring-blue-500/30' : 'border-border hover:border-border'}`}
+                className={`rounded-xl border bg-surface-secondary overflow-hidden cursor-pointer transition-colors ${selectedGroup?.id === g.id ? 'border-accent/50 ring-1 ring-accent/30' : 'border-border hover:border-border'}`}
               >
                 <div className="px-4 py-3 flex items-center justify-between">
                   <div>

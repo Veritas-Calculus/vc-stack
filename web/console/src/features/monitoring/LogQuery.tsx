@@ -86,7 +86,7 @@ export function LogQuery() {
       FATAL: 'bg-red-600/20 text-red-400',
       ERROR: 'bg-red-500/15 text-status-text-error',
       WARN: 'bg-amber-500/15 text-status-text-warning',
-      INFO: 'bg-blue-500/15 text-accent',
+      INFO: 'bg-accent-subtle text-accent',
       DEBUG: 'bg-zinc-600/20 text-zinc-400'
     }
     return (

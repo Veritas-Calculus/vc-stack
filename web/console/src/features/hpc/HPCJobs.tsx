@@ -88,7 +88,7 @@ export function HPCJobs() {
     const m: Record<string, string> = {
       pending: 'bg-content-tertiary/20 text-content-secondary',
       queued: 'bg-amber-500/20 text-status-text-warning',
-      running: 'bg-blue-500/20 text-accent animate-pulse',
+      running: 'bg-accent-subtle text-accent animate-pulse',
       completed: 'bg-emerald-500/20 text-status-text-success',
       failed: 'bg-red-500/20 text-status-text-error',
       cancelled: 'bg-content-tertiary/20 text-content-tertiary'
@@ -98,7 +98,7 @@ export function HPCJobs() {
 
   const schedulerBadge = (s: string) => {
     const m: Record<string, string> = {
-      kubernetes: 'bg-blue-500/15 text-accent border border-blue-500/30',
+      kubernetes: 'bg-accent-subtle text-accent border border-accent/30',
       slurm: 'bg-orange-500/15 text-status-orange border border-orange-500/30'
     }
     return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[s] || 'bg-content-tertiary/20 text-content-secondary'}`
@@ -148,7 +148,7 @@ export function HPCJobs() {
             label: 'Running',
             value: runningCount,
             color: 'text-accent',
-            dot: 'bg-blue-400 animate-pulse'
+            dot: 'bg-accent animate-pulse'
           },
           { label: 'Queued', value: queuedCount, color: 'text-accent', dot: 'bg-amber-400' },
           {
@@ -185,7 +185,7 @@ export function HPCJobs() {
               <button
                 key={s}
                 onClick={() => setFilterStatus(s)}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
                   filterStatus === s
                     ? 'bg-surface-hover text-content-primary'
                     : 'text-content-tertiary hover:text-content-secondary'
@@ -201,7 +201,7 @@ export function HPCJobs() {
             <button
               key={s}
               onClick={() => setFilterScheduler(s)}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
                 filterScheduler === s
                   ? 'bg-surface-hover text-content-primary'
                   : 'text-content-tertiary hover:text-content-secondary'
@@ -474,7 +474,7 @@ function SubmitJobModal({
                   className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition border ${
                     scheduler === s
                       ? s === 'kubernetes'
-                        ? 'bg-blue-600/20 border-blue-500/40 text-accent'
+                        ? 'bg-accent-subtle border-accent/40 text-accent'
                         : 'bg-orange-600/20 border-orange-500/40 text-status-orange'
                       : 'bg-surface-hover border-border text-content-tertiary hover:text-content-secondary'
                   }`}

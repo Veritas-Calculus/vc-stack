@@ -168,7 +168,7 @@ export function Offerings() {
 
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
         </div>
       ) : tab === 'compute' ? (
         <ComputeTable data={computeData} onDelete={handleDeleteCompute} />
@@ -361,7 +361,7 @@ function ServiceTag({ label }: { label: string }) {
 function StorageTypeBadge({ type }: { type: string }) {
   const colors: Record<string, string> = {
     shared: 'bg-content-tertiary/15 text-content-secondary border-border',
-    ssd: 'bg-blue-500/15 text-accent border-blue-500/20',
+    ssd: 'bg-accent-subtle text-accent border-accent/20',
     nvme: 'bg-emerald-500/15 text-status-text-success border-emerald-500/20',
     local: 'bg-amber-500/15 text-status-text-warning border-amber-500/20'
   }

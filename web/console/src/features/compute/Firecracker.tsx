@@ -332,7 +332,7 @@ export function Firecracker() {
                 handleStart(r.id)
               }}
               disabled={r.power_state === 'running'}
-              className="icon-btn text-green-400 disabled:opacity-30 disabled:cursor-not-allowed"
+              className="icon-btn text-status-text-success disabled:opacity-30 disabled:cursor-not-allowed"
               title="Start"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -480,7 +480,7 @@ export function Firecracker() {
               value={memoryMB}
               onChange={(e) => setMemoryMB(e.target.value)}
             />
-            <p className="text-xs text-muted mt-1">Minimum 128 MB recommended</p>
+            <p className="text-xs text-content-tertiary mt-1">Minimum 128 MB recommended</p>
           </div>
 
           <div>
@@ -506,7 +506,7 @@ export function Firecracker() {
                   </option>
                 ))}
             </select>
-            <p className="text-xs text-muted mt-1">
+            <p className="text-xs text-content-tertiary mt-1">
               Only raw/ext4 rootfs images are shown. Firecracker does not support qcow2.
             </p>
           </div>
@@ -521,7 +521,7 @@ export function Firecracker() {
               value={diskGB}
               onChange={(e) => setDiskGB(e.target.value)}
             />
-            <p className="text-xs text-muted mt-1">Root disk size (default: 10GB)</p>
+            <p className="text-xs text-content-tertiary mt-1">Root disk size (default: 10GB)</p>
           </div>
 
           <div>
@@ -543,7 +543,7 @@ export function Firecracker() {
               onChange={(e) => setSshPublicKey(e.target.value)}
               placeholder="ssh-rsa AAAA... user@host"
             />
-            <p className="text-xs text-muted mt-1">Injected via MMDS for cloud-init</p>
+            <p className="text-xs text-content-tertiary mt-1">Injected via MMDS for cloud-init</p>
           </div>
 
           <div>
@@ -555,7 +555,7 @@ export function Firecracker() {
               onChange={(e) => setUserData(e.target.value)}
               placeholder={'#cloud-config\npackages:\n  - nginx'}
             />
-            <p className="text-xs text-muted mt-1">Cloud-init config or shell script</p>
+            <p className="text-xs text-content-tertiary mt-1">Cloud-init config or shell script</p>
           </div>
         </div>
       </Modal>
@@ -571,11 +571,13 @@ export function Firecracker() {
           </button>
         }
       >
-        <div className="bg-neutral-950 rounded-md p-3 min-h-[300px] max-h-[500px] overflow-auto">
+        <div className="bg-neutral-950 rounded-lg p-3 min-h-[300px] max-h-[500px] overflow-auto">
           {consoleLoading ? (
-            <div className="text-muted text-sm animate-pulse">Loading console output...</div>
+            <div className="text-content-tertiary text-sm animate-pulse">
+              Loading console output...
+            </div>
           ) : (
-            <pre className="font-mono text-xs text-green-400 whitespace-pre-wrap break-all leading-relaxed">
+            <pre className="font-mono text-xs text-status-text-success whitespace-pre-wrap break-all leading-relaxed">
               {consoleLog}
             </pre>
           )}

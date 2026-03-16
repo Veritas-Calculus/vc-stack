@@ -195,7 +195,7 @@ export function Projects() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setShowAddMember(true)}
-                  className="px-3 py-1.5 rounded-lg text-xs bg-blue-600 text-content-primary hover:bg-blue-500"
+                  className="px-3 py-1.5 rounded-lg text-xs bg-accent text-content-primary hover:bg-accent-hover"
                 >
                   Add Member
                 </button>
@@ -252,7 +252,7 @@ export function Projects() {
                     <button
                       onClick={handleAddMember}
                       disabled={!addUserId}
-                      className="px-3 py-1 rounded text-xs bg-blue-600 text-content-primary hover:bg-blue-500 disabled:opacity-50"
+                      className="px-3 py-1 rounded text-xs bg-accent text-content-primary hover:bg-accent-hover disabled:opacity-50"
                     >
                       Add
                     </button>
@@ -262,7 +262,7 @@ export function Projects() {
 
               {membersLoading ? (
                 <div className="flex justify-center py-8">
-                  <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
                 </div>
               ) : members.length === 0 ? (
                 <div className="text-center py-8 text-content-tertiary">No members yet</div>

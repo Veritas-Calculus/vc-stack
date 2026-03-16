@@ -149,7 +149,7 @@ export default function LoadBalancers() {
   const statusColor = (s: string) => {
     switch (s) {
       case 'active':
-        return 'text-green-400'
+        return 'text-status-text-success'
       case 'creating':
         return 'text-yellow-400'
       case 'error':
@@ -203,7 +203,9 @@ export default function LoadBalancers() {
       header: 'Health Check',
       render: (r) => (
         <span
-          className={r.health_check ? 'text-green-400 text-xs' : 'text-content-tertiary text-xs'}
+          className={
+            r.health_check ? 'text-status-text-success text-xs' : 'text-content-tertiary text-xs'
+          }
         >
           {r.health_check ? 'Enabled' : 'Disabled'}
         </span>
@@ -377,7 +379,7 @@ export default function LoadBalancers() {
             />
             <p className="text-xs text-content-secondary mt-1">One backend per line (IP:Port)</p>
           </div>
-          <div className="p-3 bg-blue-900/20 border border-blue-800/30 rounded text-sm text-content-secondary">
+          <div className="p-3 bg-accent-subtle border border-accent/30 rounded text-sm text-content-secondary">
             Current VIP: <span className="font-mono text-accent">{selectedLb?.vip}</span> |
             Protocol: <span className="uppercase">{selectedLb?.protocol}</span>
           </div>

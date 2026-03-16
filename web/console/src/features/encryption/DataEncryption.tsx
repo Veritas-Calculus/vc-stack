@@ -137,7 +137,7 @@ export function DataEncryption() {
   const certTypeBadge = (t: string) => {
     const m: Record<string, string> = {
       ca: 'bg-purple-500/20 text-status-purple',
-      server: 'bg-blue-500/20 text-accent',
+      server: 'bg-accent-subtle text-accent',
       client: 'bg-cyan-500/20 text-status-cyan'
     }
     return `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${m[t] || 'bg-content-tertiary/20 text-content-secondary'}`
@@ -352,7 +352,7 @@ export function DataEncryption() {
           <div className="flex justify-end">
             <button
               onClick={() => setShowCreateProfile(true)}
-              className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition"
+              className="px-4 py-2 bg-accent text-content-primary rounded-lg text-sm hover:bg-accent-hover transition"
             >
               + Create Profile
             </button>
@@ -380,7 +380,7 @@ export function DataEncryption() {
                       <div className="text-content-primary font-medium">
                         {p.name}
                         {p.is_default && (
-                          <span className="ml-2 px-1.5 py-0.5 bg-blue-500/20 text-accent rounded text-xs">
+                          <span className="ml-2 px-1.5 py-0.5 bg-accent-subtle text-accent rounded text-xs">
                             default
                           </span>
                         )}
@@ -510,7 +510,7 @@ export function DataEncryption() {
           <div className="flex justify-end">
             <button
               onClick={() => setShowIssueCert(true)}
-              className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition"
+              className="px-4 py-2 bg-accent text-content-primary rounded-lg text-sm hover:bg-accent-hover transition"
             >
               + Issue Certificate
             </button>
@@ -737,7 +737,7 @@ function CreateProfileModal({
               onSubmit({ name, provider, cipher, key_size: keySize, description: desc })
             }
             disabled={!name}
-            className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition disabled:opacity-50"
+            className="px-4 py-2 bg-accent text-content-primary rounded-lg text-sm hover:bg-accent-hover transition disabled:opacity-50"
           >
             Create
           </button>
@@ -842,7 +842,7 @@ function IssueCertModal({
               })
             }
             disabled={!serviceName || !cn}
-            className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition disabled:opacity-50"
+            className="px-4 py-2 bg-accent text-content-primary rounded-lg text-sm hover:bg-accent-hover transition disabled:opacity-50"
           >
             Issue Certificate
           </button>

@@ -63,7 +63,7 @@ export function CertificateManager() {
   const statusBadge = (s: string) => {
     const c: Record<string, string> = {
       active: 'bg-emerald-500/15 text-status-text-success',
-      pending: 'bg-blue-500/15 text-accent',
+      pending: 'bg-accent-subtle text-accent',
       expired: 'bg-red-500/15 text-status-text-error',
       renewing: 'bg-amber-500/15 text-status-text-warning'
     }

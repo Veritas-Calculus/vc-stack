@@ -94,7 +94,7 @@ export function AutoScale() {
           <span className="text-xs text-zinc-500">{r.min_size}</span>
           <div className="h-1 w-16 bg-zinc-800 rounded-full overflow-hidden">
             <div
-              className="h-full bg-blue-500 rounded-full"
+              className="h-full bg-accent rounded-full"
               style={{
                 width: `${((r.current_size - r.min_size) / Math.max(r.max_size - r.min_size, 1)) * 100}%`
               }}

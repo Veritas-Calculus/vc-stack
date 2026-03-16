@@ -154,7 +154,7 @@ export function Events() {
             setFilterType(e.target.value)
             setPage(1)
           }}
-          className="px-3 py-1.5 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm focus:ring-1 focus:ring-blue-500 focus:border-accent outline-none"
+          className="px-3 py-1.5 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm focus:ring-1 focus:ring-accent focus:border-accent outline-none"
         >
           <option value="">All Actions</option>
           <option value="create">Create</option>
@@ -170,7 +170,7 @@ export function Events() {
             setFilterResource(e.target.value)
             setPage(1)
           }}
-          className="px-3 py-1.5 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm focus:ring-1 focus:ring-blue-500 focus:border-accent outline-none"
+          className="px-3 py-1.5 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm focus:ring-1 focus:ring-accent focus:border-accent outline-none"
         >
           <option value="">All Resources</option>
           <option value="instance">Instance</option>
@@ -189,7 +189,7 @@ export function Events() {
             setFilterStatus(e.target.value)
             setPage(1)
           }}
-          className="px-3 py-1.5 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm focus:ring-1 focus:ring-blue-500 focus:border-accent outline-none"
+          className="px-3 py-1.5 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm focus:ring-1 focus:ring-accent focus:border-accent outline-none"
         >
           <option value="">All Statuses</option>
           <option value="success">Success</option>
@@ -229,7 +229,7 @@ export function Events() {
               <tr>
                 <td colSpan={6} className="text-center py-12 text-content-tertiary">
                   <div className="flex items-center justify-center gap-2">
-                    <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                    <div className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full animate-spin" />
                     Loading events...
                   </div>
                 </td>
@@ -318,7 +318,7 @@ export function Events() {
                   <button
                     key={pageNum}
                     onClick={() => setPage(pageNum)}
-                    className={`px-3 py-1 rounded border text-sm ${page === pageNum ? 'border-blue-500 bg-blue-500/20 text-accent' : 'border-border text-content-secondary hover:bg-surface-hover'}`}
+                    className={`px-3 py-1 rounded border text-sm ${page === pageNum ? 'border-accent bg-accent-subtle text-accent' : 'border-border text-content-secondary hover:bg-surface-hover'}`}
                   >
                     {pageNum}
                   </button>

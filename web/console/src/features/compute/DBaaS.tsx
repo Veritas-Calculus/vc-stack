@@ -63,7 +63,7 @@ export function DBaaS() {
   const statusBadge = (s: string) => {
     const c: Record<string, string> = {
       available: 'bg-emerald-500/15 text-status-text-success',
-      provisioning: 'bg-blue-500/15 text-accent',
+      provisioning: 'bg-accent-subtle text-accent',
       stopped: 'bg-zinc-600/20 text-zinc-500',
       error: 'bg-red-500/15 text-status-text-error',
       deleting: 'bg-amber-500/15 text-status-text-warning'

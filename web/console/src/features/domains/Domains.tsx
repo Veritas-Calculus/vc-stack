@@ -104,7 +104,7 @@ export function Domains() {
         </div>
         <button
           onClick={() => setShowCreate(true)}
-          className="px-4 py-2 rounded-lg text-sm bg-blue-600 text-content-primary hover:bg-blue-500 font-medium"
+          className="px-4 py-2 rounded-lg text-sm bg-accent text-content-primary hover:bg-accent-hover font-medium"
         >
           Create Domain
         </button>
@@ -128,7 +128,7 @@ export function Domains() {
                 <input
                   value={createName}
                   onChange={(e) => setCreateName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-border-strong bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 rounded-lg border border-border-strong bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-accent"
                   placeholder="e.g., Engineering"
                   autoFocus
                 />
@@ -154,7 +154,7 @@ export function Domains() {
                 <input
                   value={createDesc}
                   onChange={(e) => setCreateDesc(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-border-strong bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 rounded-lg border border-border-strong bg-surface-tertiary text-content-primary text-sm outline-none focus:ring-1 focus:ring-accent"
                   placeholder="Optional description"
                 />
               </div>
@@ -169,7 +169,7 @@ export function Domains() {
               <button
                 onClick={handleCreate}
                 disabled={!createName}
-                className="px-4 py-2 rounded-lg text-sm bg-blue-600 text-content-primary hover:bg-blue-500 disabled:opacity-50"
+                className="px-4 py-2 rounded-lg text-sm bg-accent text-content-primary hover:bg-accent-hover disabled:opacity-50"
               >
                 Create
               </button>
@@ -190,7 +190,7 @@ export function Domains() {
             <div className="p-2">
               {loading ? (
                 <div className="flex justify-center py-8">
-                  <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
                 </div>
               ) : tree.length === 0 ? (
                 <div className="text-center py-8 text-content-tertiary text-sm">No domains</div>
@@ -225,7 +225,7 @@ export function Domains() {
                   </span>
                   <button
                     onClick={() => handleToggleState(selected)}
-                    className="px-2 py-1 rounded text-xs text-content-secondary hover:text-accent hover:bg-blue-500/10"
+                    className="px-2 py-1 rounded text-xs text-content-secondary hover:text-accent hover:bg-accent-hover/10"
                   >
                     {selected.state === 'active' ? 'Disable' : 'Enable'}
                   </button>
@@ -309,7 +309,7 @@ function TreeItem({
     <div>
       <button
         onClick={() => onSelect(d)}
-        className={`w-full text-left px-3 py-2 rounded-lg flex items-center gap-2 text-sm transition-colors ${isSelected ? 'bg-blue-500/10 text-accent' : 'text-content-secondary hover:bg-surface-tertiary'}`}
+        className={`w-full text-left px-3 py-2 rounded-lg flex items-center gap-2 text-sm transition-colors ${isSelected ? 'bg-accent-subtle text-accent' : 'text-content-secondary hover:bg-surface-tertiary'}`}
         style={{ paddingLeft: `${depth * 16 + 12}px` }}
       >
         {hasChildren && (

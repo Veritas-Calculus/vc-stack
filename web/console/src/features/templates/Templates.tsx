@@ -110,7 +110,7 @@ export function Templates() {
             accept=".qcow2,.raw,.img"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           />
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-content-secondary">
             支持 qcow2/raw/img 文件，上传后将保存到后端的 VC_IMAGE_DIR 并注册为镜像。
           </p>
         </div>
@@ -154,7 +154,7 @@ export function Templates() {
             value={registerUrl}
             onChange={(e) => setRegisterUrl(e.target.value)}
           />
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-content-secondary">
             支持 RGW/HTTP URL；注册后可在 Images 页面点击 Import 将其落地到 RBD 或文件路径。
           </p>
         </div>

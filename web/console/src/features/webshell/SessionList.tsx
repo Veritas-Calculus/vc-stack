@@ -147,7 +147,7 @@ export function SessionList() {
   const getStatusColor = (status: string): string => {
     switch (status) {
       case 'active':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+        return 'bg-emerald-500/10 text-status-text-success dark:bg-emerald-500/15 dark:text-status-text-success'
       case 'closed':
         return 'bg-surface-hover text-content-secondary'
       case 'connection_failed':

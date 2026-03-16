@@ -99,7 +99,7 @@ export function Isos() {
       >
         <div className="space-y-3">
           <input type="file" accept=".iso" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-content-secondary">
             上传 ISO 文件用于手动安装系统，保存到后端的 VC_IMAGE_DIR。
           </p>
         </div>
@@ -224,7 +224,7 @@ export function K8sIsos() {
       >
         <div className="space-y-3">
           <input type="file" accept=".iso" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-content-secondary">
             上传 Kubernetes 集群节点镜像 ISO，保存到后端的 VC_IMAGE_DIR。
           </p>
         </div>
@@ -283,7 +283,7 @@ function RegisterFromUrlBody({ placeholder }: { placeholder: string }) {
   return (
     <div className="space-y-3">
       <input id="register-url" className="input w-full" placeholder={placeholder} />
-      <p className="text-xs text-muted-foreground">
+      <p className="text-xs text-content-secondary">
         支持 RGW/HTTP URL；注册后可在 Images 页面点击 Import 将其落地到 RBD 或文件路径。
       </p>
     </div>

@@ -107,7 +107,7 @@ export function CompositeAlerts() {
     const c: Record<string, string> = {
       critical: 'bg-red-500/15 text-status-text-error',
       warning: 'bg-amber-500/15 text-status-text-warning',
-      info: 'bg-blue-500/15 text-accent'
+      info: 'bg-accent-subtle text-accent'
     }
     return (
       <span

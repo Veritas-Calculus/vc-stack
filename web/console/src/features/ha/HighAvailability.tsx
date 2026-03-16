@@ -178,17 +178,17 @@ export function HighAvailability() {
   const statusBadge = (s: string) => {
     const colors: Record<string, string> = {
       completed: 'bg-emerald-500/20 text-status-text-success',
-      running: 'bg-blue-500/20 text-accent',
+      running: 'bg-accent-subtle text-accent',
       partial: 'bg-amber-500/20 text-status-text-warning',
       failed: 'bg-red-500/20 text-status-text-error',
       pending: 'bg-content-tertiary/20 text-content-secondary',
       fenced: 'bg-red-500/20 text-status-text-error',
       released: 'bg-emerald-500/20 text-status-text-success',
-      migrating: 'bg-blue-500/20 text-accent',
+      migrating: 'bg-accent-subtle text-accent',
       skipped: 'bg-content-tertiary/20 text-content-secondary',
       active: 'bg-emerald-500/20 text-status-text-success',
       error: 'bg-red-500/20 text-status-text-error',
-      building: 'bg-blue-500/20 text-accent',
+      building: 'bg-accent-subtle text-accent',
       stopped: 'bg-content-tertiary/20 text-content-secondary',
       rebuilding: 'bg-amber-500/20 text-status-text-warning'
     }
@@ -408,7 +408,7 @@ export function HighAvailability() {
           <div className="flex justify-end">
             <button
               onClick={() => setShowCreatePolicy(true)}
-              className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition"
+              className="px-4 py-2 bg-accent text-content-primary rounded-lg text-sm hover:bg-accent-hover transition"
             >
               + Create Policy
             </button>
@@ -572,7 +572,7 @@ export function HighAvailability() {
                     </td>
                     <td className="px-4 py-3">
                       <span
-                        className={`px-2 py-0.5 rounded text-xs ${e.trigger === 'heartbeat_timeout' ? 'bg-red-500/20 text-status-text-error' : e.trigger === 'maintenance' ? 'bg-amber-500/20 text-status-text-warning' : 'bg-blue-500/20 text-accent'}`}
+                        className={`px-2 py-0.5 rounded text-xs ${e.trigger === 'heartbeat_timeout' ? 'bg-red-500/20 text-status-text-error' : e.trigger === 'maintenance' ? 'bg-amber-500/20 text-status-text-warning' : 'bg-accent-subtle text-accent'}`}
                       >
                         {e.trigger}
                       </span>
@@ -821,7 +821,7 @@ function CreatePolicyModal({
               })
             }
             disabled={!name}
-            className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition disabled:opacity-50"
+            className="px-4 py-2 bg-accent text-content-primary rounded-lg text-sm hover:bg-accent-hover transition disabled:opacity-50"
           >
             Create
           </button>

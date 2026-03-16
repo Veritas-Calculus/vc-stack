@@ -65,7 +65,7 @@ export function TransitGateway() {
   const statusBadge = (s: string) => {
     const c: Record<string, string> = {
       available: 'bg-emerald-500/15 text-status-text-success',
-      creating: 'bg-blue-500/15 text-accent',
+      creating: 'bg-accent-subtle text-accent',
       deleting: 'bg-amber-500/15 text-status-text-warning'
     }
     return (

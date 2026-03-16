@@ -76,7 +76,7 @@ export function SelfHealing() {
       unknown: 'bg-content-tertiary/20 text-content-secondary',
       success: 'bg-emerald-500/20 text-status-text-success',
       failed: 'bg-red-500/20 text-status-text-error',
-      triggered: 'bg-blue-500/20 text-accent',
+      triggered: 'bg-accent-subtle text-accent',
       executing: 'bg-amber-500/20 text-status-text-warning',
       escalated: 'bg-orange-500/20 text-status-orange'
     }
@@ -121,7 +121,7 @@ export function SelfHealing() {
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition ${tab === t.key ? 'bg-surface-hover text-content-primary' : 'text-content-secondary hover:text-content-primary'}`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition ${tab === t.key ? 'bg-surface-hover text-content-primary' : 'text-content-secondary hover:text-content-primary'}`}
           >
             {t.label}
           </button>
@@ -275,7 +275,7 @@ export function SelfHealing() {
                   <span className={badge(c.status as string)}>{c.status as string}</span>
                   <button
                     onClick={() => runCheck(c.id as string)}
-                    className="px-3 py-1 bg-blue-600 text-content-primary rounded text-xs hover:bg-blue-500"
+                    className="px-3 py-1 bg-accent text-content-primary rounded text-xs hover:bg-accent-hover"
                   >
                     Run
                   </button>

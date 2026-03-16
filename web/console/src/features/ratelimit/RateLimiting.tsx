@@ -107,7 +107,7 @@ export function RateLimiting() {
 
   const scopeBadge = (s: string) => {
     const colors: Record<string, string> = {
-      global: 'bg-blue-500/20 text-accent',
+      global: 'bg-accent-subtle text-accent',
       tenant: 'bg-purple-500/20 text-status-purple',
       user: 'bg-emerald-500/20 text-status-text-success',
       path: 'bg-amber-500/20 text-status-text-warning'
@@ -344,7 +344,7 @@ export function RateLimiting() {
           <div className="flex justify-end">
             <button
               onClick={() => setShowCreate(true)}
-              className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition"
+              className="px-4 py-2 bg-accent text-content-primary rounded-lg text-sm hover:bg-accent-hover transition"
             >
               + Create Policy
             </button>
@@ -536,7 +536,7 @@ export function RateLimiting() {
                 </div>
               </div>
             </div>
-            <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg text-sm text-content-secondary">
+            <div className="mt-6 p-4 bg-accent-subtle border border-accent/20 rounded-lg text-sm text-content-secondary">
               <p className="text-accent font-medium mb-1">How it works:</p>
               <p>
                 CPU &gt; threshold OR latency &gt; threshold &rarr; limits × scale_down_factor (min
@@ -675,7 +675,7 @@ function CreatePolicyModal({
               })
             }
             disabled={!name}
-            className="px-4 py-2 bg-blue-600 text-content-primary rounded-lg text-sm hover:bg-blue-500 transition disabled:opacity-50"
+            className="px-4 py-2 bg-accent text-content-primary rounded-lg text-sm hover:bg-accent-hover transition disabled:opacity-50"
           >
             Create Policy
           </button>

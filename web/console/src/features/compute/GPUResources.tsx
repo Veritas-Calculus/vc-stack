@@ -44,7 +44,7 @@ export function GPUResources() {
       key: 'vendor',
       header: 'Vendor',
       render: (r) => (
-        <span className="text-xs bg-green-500/15 text-green-400 px-1.5 py-0.5 rounded uppercase">
+        <span className="text-xs bg-emerald-500/15 text-status-text-success px-1.5 py-0.5 rounded uppercase">
           {r.vendor}
         </span>
       )
@@ -73,7 +73,7 @@ export function GPUResources() {
       header: 'Status',
       render: (r) => (
         <span
-          className={`text-xs px-2 py-0.5 rounded-full ${r.status === 'available' ? 'bg-emerald-500/15 text-status-text-success' : r.status === 'allocated' ? 'bg-blue-500/15 text-accent' : 'bg-zinc-600/20 text-zinc-400'}`}
+          className={`text-xs px-2 py-0.5 rounded-full ${r.status === 'available' ? 'bg-emerald-500/15 text-status-text-success' : r.status === 'allocated' ? 'bg-accent-subtle text-accent' : 'bg-zinc-600/20 text-zinc-400'}`}
         >
           {r.status}
         </span>

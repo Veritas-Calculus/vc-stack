@@ -253,7 +253,7 @@ export function Instances() {
           return (
             <Badge variant="info">
               provisioning
-              <span className="ml-1 inline-block w-3 h-3 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></span>
+              <span className="ml-1 inline-block w-3 h-3 border-2 border-accent border-t-transparent rounded-full animate-spin"></span>
             </Badge>
           )
         if (r.status === 'building' || r.status === 'spawning')
@@ -622,7 +622,7 @@ export function Instances() {
                 value={disk}
                 onChange={(e) => setDisk(e.target.value)}
               />
-              <p className="text-xs text-muted mt-1">
+              <p className="text-xs text-content-tertiary mt-1">
                 Minimum {minDiskGiB} GiB based on flavor/image
               </p>
             </div>

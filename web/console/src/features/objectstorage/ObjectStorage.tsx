@@ -140,7 +140,7 @@ export function ObjectStorage() {
     if (acl === 'private') return 'bg-content-tertiary/15 text-content-secondary'
     if (acl === 'public-read') return 'bg-amber-500/15 text-status-text-warning'
     if (acl === 'public-read-write') return 'bg-red-500/15 text-status-text-error'
-    return 'bg-blue-500/15 text-accent'
+    return 'bg-accent-subtle text-accent'
   }
 
   const filteredBuckets = buckets.filter(
@@ -171,7 +171,7 @@ export function ObjectStorage() {
           </button>
           <button
             onClick={() => setShowCreateBucket(true)}
-            className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium transition-colors"
+            className="px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-content-primary text-sm font-medium transition-colors"
           >
             Create Bucket
           </button>
@@ -184,7 +184,7 @@ export function ObjectStorage() {
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${tab === t.key ? 'bg-surface-tertiary text-content-primary border-b-2 border-blue-500' : 'text-content-secondary hover:text-content-primary hover:bg-surface-tertiary'}`}
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${tab === t.key ? 'bg-surface-tertiary text-content-primary border-b-2 border-accent' : 'text-content-secondary hover:text-content-primary hover:bg-surface-tertiary'}`}
           >
             {t.label}
             {t.count !== undefined && (
@@ -198,7 +198,7 @@ export function ObjectStorage() {
 
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
         <>
@@ -255,7 +255,7 @@ export function ObjectStorage() {
               <div className="grid grid-cols-2 gap-4">
                 <a
                   href="/object-storage/versioning"
-                  className="rounded-xl border border-border bg-surface-secondary p-4 hover:border-blue-500/50 transition-colors block"
+                  className="rounded-xl border border-border bg-surface-secondary p-4 hover:border-accent/50 transition-colors block"
                 >
                   <h3 className="text-sm font-medium text-content-primary">Object Versioning</h3>
                   <p className="text-xs text-content-tertiary mt-1">
@@ -264,7 +264,7 @@ export function ObjectStorage() {
                 </a>
                 <a
                   href="/object-storage/lifecycle"
-                  className="rounded-xl border border-border bg-surface-secondary p-4 hover:border-blue-500/50 transition-colors block"
+                  className="rounded-xl border border-border bg-surface-secondary p-4 hover:border-accent/50 transition-colors block"
                 >
                   <h3 className="text-sm font-medium text-content-primary">Lifecycle Policies</h3>
                   <p className="text-xs text-content-tertiary mt-1">
@@ -472,7 +472,7 @@ export function ObjectStorage() {
               <button
                 onClick={handleCreateBucket}
                 disabled={!bucketName || bucketName.length < 3}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-content-primary text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Create Bucket
               </button>
@@ -519,7 +519,7 @@ export function ObjectStorage() {
             <div className="flex justify-end pt-2">
               <button
                 onClick={() => setNewSecret(null)}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium"
+                className="px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-content-primary text-sm font-medium"
               >
                 Done
               </button>

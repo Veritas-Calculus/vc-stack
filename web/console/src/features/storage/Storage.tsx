@@ -1,4 +1,5 @@
 import { Route, Routes, useParams } from 'react-router-dom'
+import { toast } from '@/lib/toast'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { TableToolbar } from '@/components/ui/TableToolbar'
 import { DataTable, type Column } from '@/components/ui/DataTable'
@@ -81,7 +82,7 @@ function Volumes() {
       await cloneVolume(row.id, cloneName)
       await load()
     } catch (err) {
-      alert('Clone failed: ' + (err as Error).message)
+      toast.error('Clone failed: ' + (err as Error).message)
     }
   }
 
@@ -152,11 +153,11 @@ function Volumes() {
                 } catch (err: unknown) {
                   const status = (err as { response?: { status?: number } })?.response?.status
                   if (status === 409) {
-                    alert(
+                    toast.error(
                       'Volume is in use by an instance; please detach or delete the instance first.'
                     )
                   } else {
-                    alert('Failed to delete volume: ' + (err as Error).message)
+                    toast.error('Failed to delete volume: ' + (err as Error).message)
                   }
                 }
               }
@@ -223,7 +224,7 @@ function Volumes() {
                     setOpen(false)
                     await load()
                   } catch (err) {
-                    alert('Failed to create volume: ' + (err as Error).message)
+                    toast.error('Failed to create volume: ' + (err as Error).message)
                   } finally {
                     setBusy(false)
                   }
@@ -278,7 +279,7 @@ function Volumes() {
                     setResizeOpen(false)
                     await load()
                   } catch (err) {
-                    alert('Failed to resize volume: ' + (err as Error).message)
+                    toast.error('Failed to resize volume: ' + (err as Error).message)
                   } finally {
                     setResizeBusy(false)
                   }

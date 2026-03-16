@@ -166,7 +166,7 @@ export function DashboardBuilder() {
 
   const widgetTypeBadge = (t: string) => {
     const c: Record<string, string> = {
-      line: 'bg-blue-500/15 text-accent',
+      line: 'bg-accent-subtle text-accent',
       bar: 'bg-purple-500/15 text-purple-400',
       gauge: 'bg-amber-500/15 text-status-text-warning',
       table: 'bg-zinc-600/20 text-zinc-400',

@@ -1,5 +1,6 @@
 import { Route, Routes, useParams } from 'react-router-dom'
 import axios from 'axios'
+import { toast } from '@/lib/toast'
 import { useDataStore } from '@/lib/dataStore'
 import { DataTable, type Column } from '@/components/ui/DataTable'
 import { Badge } from '@/components/ui/Badge'
@@ -137,10 +138,10 @@ function FlavorsPage() {
                 setFlavors(flavors.filter((f) => f.id !== row.id))
               } catch (e) {
                 if (axios.isAxiosError(e) && e.response?.status === 409) {
-                  alert('Flavor is in use and cannot be deleted')
+                  toast.error('Flavor is in use and cannot be deleted')
                 } else {
                   const msg = e instanceof Error ? e.message : 'unknown error'
-                  alert('Delete failed: ' + msg)
+                  toast.error('Delete failed: ' + msg)
                 }
               }
             }}
@@ -484,7 +485,7 @@ function InstanceVolumes() {
               onChange={(e) => setAttachVolId(e.target.value)}
               placeholder="Enter available volume ID"
             />
-            <p className="text-xs text-muted mt-1">
+            <p className="text-xs text-content-tertiary mt-1">
               Attach an existing available volume by its ID. You can find IDs on the Storage &rarr;
               Volumes page.
             </p>

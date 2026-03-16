@@ -26,7 +26,7 @@ interface SecurityGroup {
 }
 
 const DIRECTION_COLORS: Record<string, string> = {
-  ingress: 'bg-blue-500/15 text-accent border-blue-500/30',
+  ingress: 'bg-accent-subtle text-accent border-accent/30',
   egress: 'bg-purple-500/15 text-status-purple border-purple-500/30'
 }
 
@@ -167,7 +167,7 @@ export function SecurityGroups() {
         </div>
         <button
           onClick={() => setShowCreate(true)}
-          className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium transition-colors flex items-center gap-2"
+          className="px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-content-primary text-sm font-medium transition-colors flex items-center gap-2"
         >
           <svg
             width="14"
@@ -193,12 +193,12 @@ export function SecurityGroups() {
             <div className="divide-y divide-border/50">
               {loading ? (
                 <div className="px-4 py-8 text-center text-content-tertiary">
-                  <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                  <div className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-2" />
                   Loading...
                 </div>
               ) : securityGroups.length === 0 ? (
                 <div className="px-4 py-8 text-center text-content-tertiary">
-                  <div className="w-8 h-8 rounded-lg bg-blue-500/15 flex items-center justify-center mb-1">
+                  <div className="w-8 h-8 rounded-lg bg-accent-subtle flex items-center justify-center mb-1">
                     <svg
                       className="w-4 h-4 text-accent"
                       fill="none"
@@ -220,7 +220,7 @@ export function SecurityGroups() {
                   <button
                     key={sg.id}
                     onClick={() => setSelectedSG(sg)}
-                    className={`w-full text-left px-4 py-3 hover:bg-surface-tertiary transition-colors ${selectedSG?.id === sg.id ? 'bg-surface-tertiary/70 border-l-2 border-l-blue-500' : ''}`}
+                    className={`w-full text-left px-4 py-3 hover:bg-surface-tertiary transition-colors ${selectedSG?.id === sg.id ? 'bg-surface-tertiary/70 border-l-2 border-l-accent' : ''}`}
                   >
                     <div className="flex items-center justify-between">
                       <div>
@@ -276,7 +276,7 @@ export function SecurityGroups() {
                 </div>
                 <button
                   onClick={() => setShowAddRule(true)}
-                  className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-xs font-medium transition-colors flex items-center gap-1.5"
+                  className="px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-content-primary text-xs font-medium transition-colors flex items-center gap-1.5"
                 >
                   <svg
                     width="12"
@@ -295,7 +295,7 @@ export function SecurityGroups() {
               {/* Ingress Rules */}
               <div className="p-4">
                 <h3 className="text-xs font-semibold text-content-secondary uppercase tracking-wider mb-3 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-blue-500" />
+                  <span className="w-2 h-2 rounded-full bg-accent" />
                   Ingress Rules (Inbound)
                 </h3>
                 <RulesTable
@@ -347,7 +347,7 @@ export function SecurityGroups() {
                   type="text"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm focus:ring-1 focus:ring-blue-500 focus:border-accent outline-none"
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm focus:ring-1 focus:ring-accent focus:border-accent outline-none"
                   placeholder="my-security-group"
                 />
               </div>
@@ -357,7 +357,7 @@ export function SecurityGroups() {
                   type="text"
                   value={newDesc}
                   onChange={(e) => setNewDesc(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm focus:ring-1 focus:ring-blue-500 focus:border-accent outline-none"
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-surface-tertiary text-content-primary text-sm focus:ring-1 focus:ring-accent focus:border-accent outline-none"
                   placeholder="Allow web traffic"
                 />
               </div>
@@ -371,7 +371,7 @@ export function SecurityGroups() {
               </button>
               <button
                 onClick={handleCreate}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium"
+                className="px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-content-primary text-sm font-medium"
               >
                 Create
               </button>
@@ -461,7 +461,7 @@ export function SecurityGroups() {
               </button>
               <button
                 onClick={handleAddRule}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-content-primary text-sm font-medium"
+                className="px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-content-primary text-sm font-medium"
               >
                 Add Rule
               </button>

@@ -72,7 +72,7 @@ export function DeletionProgress({ instanceIds, onComplete, onClose }: DeletionP
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed':
-        return 'text-green-400'
+        return 'text-status-text-success'
       case 'failed':
         return 'text-status-text-error'
       case 'processing':
@@ -89,7 +89,7 @@ export function DeletionProgress({ instanceIds, onComplete, onClose }: DeletionP
       case 'completed':
         return (
           <svg
-            className="w-5 h-5 text-green-400"
+            className="w-5 h-5 text-status-text-success"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -183,7 +183,7 @@ export function DeletionProgress({ instanceIds, onComplete, onClose }: DeletionP
           </div>
           <div className="w-full bg-surface-hover rounded-full h-2">
             <div
-              className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+              className="bg-accent h-2 rounded-full transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -223,7 +223,7 @@ export function DeletionProgress({ instanceIds, onComplete, onClose }: DeletionP
         {!polling && (
           <div className="pt-4 border-t border-border">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-green-400">Completed: {completedCount}</span>
+              <span className="text-status-text-success">Completed: {completedCount}</span>
               {failedCount > 0 && (
                 <span className="text-status-text-error">Failed: {failedCount}</span>
               )}
@@ -235,7 +235,7 @@ export function DeletionProgress({ instanceIds, onComplete, onClose }: DeletionP
         {!polling && (
           <button
             onClick={onClose}
-            className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-content-primary rounded-lg transition-colors"
+            className="w-full px-4 py-2 bg-accent hover:bg-accent-hover text-content-primary rounded-lg transition-colors"
           >
             Close
           </button>

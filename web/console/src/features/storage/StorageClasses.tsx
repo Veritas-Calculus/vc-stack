@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { toast } from '@/lib/toast'
 import { fetchDiskOfferings, createDiskOffering, deleteDiskOffering } from '@/lib/api'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { DataTable, type Column } from '@/components/ui/DataTable'
@@ -67,7 +68,7 @@ export default function StorageClasses() {
       setOpen(false)
       await load()
     } catch (err) {
-      alert('Failed: ' + (err as Error).message)
+      toast.error('Failed: ' + (err as Error).message)
     } finally {
       setBusy(false)
     }
@@ -81,9 +82,9 @@ export default function StorageClasses() {
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number } })?.response?.status
       if (status === 409) {
-        alert('Storage class is in use by volumes and cannot be deleted.')
+        toast.error('Storage class is in use by volumes and cannot be deleted.')
       } else {
-        alert('Failed: ' + (err as Error).message)
+        toast.error('Failed: ' + (err as Error).message)
       }
     }
   }

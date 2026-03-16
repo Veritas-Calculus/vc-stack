@@ -190,7 +190,7 @@ export function Images() {
                 />
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-content-secondary">
               至少提供一种来源（RGW URL 或 FilePath 或 RBD）；注册后可在列表中对含 RGW URL
               的镜像点击 Import 执行落地。
             </p>

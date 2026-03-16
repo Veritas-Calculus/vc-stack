@@ -103,8 +103,8 @@ export function HPCClusters() {
     const m: Record<string, string> = {
       active: 'bg-emerald-500/20 text-status-text-success',
       ready: 'bg-emerald-500/20 text-status-text-success',
-      provisioning: 'bg-blue-500/20 text-accent animate-pulse',
-      upgrading: 'bg-blue-500/20 text-accent',
+      provisioning: 'bg-accent-subtle text-accent animate-pulse',
+      upgrading: 'bg-accent-subtle text-accent',
       pending: 'bg-amber-500/20 text-status-text-warning',
       error: 'bg-red-500/20 text-status-text-error',
       deleting: 'bg-red-500/20 text-status-text-error'
@@ -159,9 +159,9 @@ export function HPCClusters() {
             setSelectedSlurm(null)
             setComponents(null)
           }}
-          className={`px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition ${
+          className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition ${
             tab === 'k8s'
-              ? 'bg-blue-600/20 text-accent border border-blue-500/30'
+              ? 'bg-accent-subtle text-accent border border-accent/30'
               : 'text-content-tertiary hover:text-content-secondary'
           }`}
         >
@@ -174,7 +174,7 @@ export function HPCClusters() {
             setSelectedSlurm(null)
             setComponents(null)
           }}
-          className={`px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition ${
+          className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition ${
             tab === 'slurm'
               ? 'bg-orange-600/20 text-status-orange border border-orange-500/30'
               : 'text-content-tertiary hover:text-content-secondary'
@@ -206,13 +206,13 @@ export function HPCClusters() {
                   }}
                   className={`bg-surface-tertiary border rounded-xl p-5 cursor-pointer transition group ${
                     selectedK8s?.id === c.id
-                      ? 'border-blue-500/40'
-                      : 'border-border hover:border-blue-500/20'
+                      ? 'border-accent/40'
+                      : 'border-border hover:border-accent/20'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center text-accent">
+                      <div className="w-12 h-12 rounded-lg bg-accent-subtle flex items-center justify-center text-accent">
                         {Icons.kubernetes('w-7 h-7')}
                       </div>
                       <div>
@@ -252,7 +252,7 @@ export function HPCClusters() {
 
           {/* K8s Detail Panel */}
           {selectedK8s && (
-            <div className="bg-surface-tertiary border border-blue-500/30 rounded-xl p-6 space-y-4">
+            <div className="bg-surface-tertiary border border-accent/30 rounded-xl p-6 space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-content-primary">
                   {selectedK8s.name} — HPC Components

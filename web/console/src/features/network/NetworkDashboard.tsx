@@ -131,7 +131,7 @@ export default function NetworkDashboard() {
             {stats.network_status.map((ns) => {
               const variant =
                 ns.status === 'active'
-                  ? 'bg-green-500/20 text-green-400'
+                  ? 'bg-emerald-500/15 text-status-text-success'
                   : ns.status === 'creating'
                     ? 'bg-yellow-500/20 text-yellow-400'
                     : ns.status === 'error'

@@ -92,7 +92,7 @@ export function DBParameterGroups() {
       render: (r) => (
         <span
           className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-            r.is_default ? 'bg-blue-500/15 text-accent' : 'bg-zinc-600/20 text-zinc-400'
+            r.is_default ? 'bg-accent-subtle text-accent' : 'bg-zinc-600/20 text-zinc-400'
           }`}
         >
           {r.is_default ? 'Default' : 'Custom'}
