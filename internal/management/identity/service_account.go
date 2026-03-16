@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -16,6 +17,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/crypto/hkdf"
 	"gorm.io/gorm"
 
 	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
@@ -123,6 +125,19 @@ func computeHMAC(secretKey, accessKeyID, timestamp, method, path string) string 
 	mac := hmac.New(sha256.New, []byte(secretKey))
 	mac.Write([]byte(signingString))
 	return hex.EncodeToString(mac.Sum(nil))
+}
+
+// deriveHMACKey derives a per-service-account HMAC signing key using HKDF.
+// This avoids sharing the raw JWT secret for a different purpose.
+// The derivation uses: HKDF-SHA256(IKM=serverSecret, salt=nil, info=accessKeyID).
+func deriveHMACKey(serverSecret, accessKeyID string) string {
+	hkdfReader := hkdf.New(sha256.New, []byte(serverSecret), nil, []byte("vc-hmac-apikey:"+accessKeyID))
+	derived := make([]byte, 32)
+	if _, err := io.ReadFull(hkdfReader, derived); err != nil {
+		// Should never happen with sufficient entropy; fall back to raw concat.
+		return accessKeyID + ":" + serverSecret
+	}
+	return hex.EncodeToString(derived)
 }
 
 // ──────────────────────────────────────────────────────────────────────
@@ -342,7 +357,7 @@ func (s *Service) AuthenticateByAPIKey(accessKeyID, signature, timestamp, method
 		return nil, fmt.Errorf("service account has expired")
 	}
 
-	// 3. Validate timestamp (max 15 min clock skew).
+	// 3. Validate timestamp (max 5 min clock skew — M-4: tightened from 15 min).
 	ts, err := strconv.ParseInt(timestamp, 10, 64)
 	if err != nil {
 		return nil, fmt.Errorf("invalid timestamp")
@@ -352,22 +367,13 @@ func (s *Service) AuthenticateByAPIKey(accessKeyID, signature, timestamp, method
 	if skew < 0 {
 		skew = -skew
 	}
-	if skew > 15*time.Minute {
+	if skew > 5*time.Minute {
 		return nil, fmt.Errorf("request timestamp too old or too far in the future")
 	}
 
 	// 4. Verify HMAC signature.
-	// We need to try the plaintext secret against our bcrypt hash.
-	// Since we store a bcrypt hash, we can't compute the HMAC server-side.
-	// Instead, we use a derived signing key approach:
-	// The "secret key" shown to the user IS the signing key (not bcrypt-hashed for HMAC).
-	// We store a separate hmac_key for signature verification.
-	//
-	// DESIGN NOTE: For HMAC verification, we actually need the raw secret.
-	// Since bcrypt is one-way, we need to store an additional HMAC-capable key.
-	// We'll use the AccessKeyID + a server-side secret as the HMAC key instead.
-	serverSecret := s.config.JWT.Secret
-	hmacKey := accessKeyID + ":" + serverSecret
+	// ── M-3: Derive HMAC signing key using HKDF from a dedicated secret or JWT secret ──
+	hmacKey := deriveHMACKey(s.config.JWT.Secret, accessKeyID)
 	expectedSig := computeHMAC(hmacKey, accessKeyID, timestamp, method, path)
 
 	if !hmac.Equal([]byte(signature), []byte(expectedSig)) {

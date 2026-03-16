@@ -8,6 +8,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -186,9 +187,25 @@ type WebShellMessage struct {
 //
 //nolint:gocyclo,gocognit // Complex WebSocket SSH session handling
 func (s *Service) webShellHandler(c *gin.Context) {
+	// ── C-3: Require authentication before allowing WebSocket upgrade ──
+	rawUID, hasAuth := c.Get("user_id")
+	if !hasAuth || rawUID == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authentication required for WebShell access"})
+		c.Abort()
+		return
+	}
+
 	upgrader := websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
-			return true
+			// Accept same-origin and configured origins.
+			// In production, restrict this further via env configuration.
+			origin := r.Header.Get("Origin")
+			if origin == "" {
+				return true // No Origin header (non-browser client)
+			}
+			host := r.Host
+			// Allow same-origin.
+			return strings.Contains(origin, host)
 		},
 		HandshakeTimeout: 10 * time.Second,
 	}
@@ -217,6 +234,16 @@ func (s *Service) webShellHandler(c *gin.Context) {
 		zap.Bool("has_password", req.Password != ""),
 		zap.Bool("has_key", req.PrivateKey != ""))
 
+	// ── C-2: Validate target host against registered compute nodes ──
+	if err := s.validateWebShellTarget(req.Host, req.Port); err != nil {
+		s.logger.Warn("WebShell target validation failed",
+			zap.String("host", req.Host),
+			zap.Int("port", req.Port),
+			zap.Error(err))
+		s.sendWebShellError(conn, "Target host is not a registered compute node: "+err.Error())
+		return
+	}
+
 	// Validate request.
 	if req.Port == 0 {
 		req.Port = 22
@@ -239,10 +266,11 @@ func (s *Service) webShellHandler(c *gin.Context) {
 	// Get client IP for audit.
 	clientIP := c.ClientIP()
 
-	// Parse user ID from context.
+	// ── L-2: Extract authenticated user ID for audit records ──
 	var userID *uint
-	// Convert string to uint if needed in the future.
-	// For now, leave it nil if not properly set from c.GetString("user_id").
+	if uid, ok := extractUintFromContext(rawUID); ok {
+		userID = &uid
+	}
 
 	// Create session record.
 	sessionRecord := models.WebShellSession{
@@ -545,4 +573,49 @@ func (s *Service) sendWebShellError(conn *websocket.Conn, message string) {
 	if err := conn.WriteJSON(msg); err != nil {
 		s.logger.Warn("Failed to send error message", zap.Error(err))
 	}
+}
+
+// validateWebShellTarget ensures the SSH target is a registered compute node.
+// This prevents SSRF attacks where an attacker uses the management plane to
+// pivot into arbitrary internal hosts or scan internal networks.
+func (s *Service) validateWebShellTarget(host string, port int) error {
+	if host == "" {
+		return fmt.Errorf("host cannot be empty")
+	}
+
+	// Restrict port range to standard SSH.
+	if port != 0 && port != 22 && (port < 1024 || port > 65535) {
+		return fmt.Errorf("SSH port %d is outside allowed range (22, 1024-65535)", port)
+	}
+
+	// Check if host is a registered compute node.
+	var count int64
+	if err := s.db.Model(&models.Host{}).
+		Where("ip_address = ? AND status IN ?", host, []string{"online", "maintenance"}).
+		Count(&count).Error; err != nil {
+		return fmt.Errorf("failed to verify host: %w", err)
+	}
+	if count == 0 {
+		return fmt.Errorf("host %s is not a registered compute node", host)
+	}
+
+	return nil
+}
+
+// extractUintFromContext extracts a uint from a context value that may be
+// stored as float64 (JSON), uint, int, or string.
+func extractUintFromContext(v interface{}) (uint, bool) {
+	switch id := v.(type) {
+	case float64:
+		return uint(id), true
+	case uint:
+		return id, true
+	case int:
+		return uint(id), true
+	case string:
+		if n, err := strconv.ParseUint(id, 10, 32); err == nil {
+			return uint(n), true
+		}
+	}
+	return 0, false
 }

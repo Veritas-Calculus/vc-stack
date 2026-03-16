@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -24,9 +25,92 @@ type JSONMap = models.JSONMap
 
 // Service represents the identity service.
 type Service struct {
-	db     *gorm.DB
-	logger *zap.Logger
-	config Config
+	db             *gorm.DB
+	logger         *zap.Logger
+	config         Config
+	loginThrottle  *loginThrottle
+}
+
+// loginThrottle provides per-username brute-force protection.
+// After maxFailures within the lockout window, further login
+// attempts for that username are rejected until the window expires.
+type loginThrottle struct {
+	mu          sync.Mutex
+	failures    map[string]*loginAttempts
+	maxFailures int
+	lockout     time.Duration
+}
+
+type loginAttempts struct {
+	count    int
+	firstAt  time.Time
+}
+
+func newLoginThrottle() *loginThrottle {
+	lt := &loginThrottle{
+		failures:    make(map[string]*loginAttempts),
+		maxFailures: 5,
+		lockout:     15 * time.Minute,
+	}
+	// Background cleanup of stale entries.
+	go func() {
+		ticker := time.NewTicker(5 * time.Minute)
+		defer ticker.Stop()
+		for range ticker.C {
+			lt.mu.Lock()
+			now := time.Now()
+			for k, v := range lt.failures {
+				if now.Sub(v.firstAt) > lt.lockout {
+					delete(lt.failures, k)
+				}
+			}
+			lt.mu.Unlock()
+		}
+	}()
+	return lt
+}
+
+// check returns (true, remaining lockout) if the user is currently locked out.
+func (lt *loginThrottle) check(username string) (bool, time.Duration) {
+	lt.mu.Lock()
+	defer lt.mu.Unlock()
+
+	a, ok := lt.failures[username]
+	if !ok {
+		return false, 0
+	}
+
+	elapsed := time.Since(a.firstAt)
+	if elapsed > lt.lockout {
+		// Window expired, clear and allow.
+		delete(lt.failures, username)
+		return false, 0
+	}
+
+	if a.count >= lt.maxFailures {
+		return true, lt.lockout - elapsed
+	}
+	return false, 0
+}
+
+// recordFailure increments the failure count for a username.
+func (lt *loginThrottle) recordFailure(username string) {
+	lt.mu.Lock()
+	defer lt.mu.Unlock()
+
+	a, ok := lt.failures[username]
+	if !ok || time.Since(a.firstAt) > lt.lockout {
+		lt.failures[username] = &loginAttempts{count: 1, firstAt: time.Now()}
+		return
+	}
+	a.count++
+}
+
+// clear removes the failure record for a username (called on successful login).
+func (lt *loginThrottle) clear(username string) {
+	lt.mu.Lock()
+	defer lt.mu.Unlock()
+	delete(lt.failures, username)
 }
 
 // Config represents the identity service configuration.
@@ -231,9 +315,10 @@ type Claims struct {
 // NewService creates a new identity service.
 func NewService(config Config) (*Service, error) {
 	service := &Service{
-		db:     config.DB,
-		logger: config.Logger,
-		config: config,
+		db:            config.DB,
+		logger:        config.Logger,
+		config:        config,
+		loginThrottle: newLoginThrottle(),
 	}
 
 	// Auto-migrate database schema.
@@ -336,7 +421,10 @@ func (s *Service) createDefaultAdmin() error {
 			// Determine the initial password from environment.
 			defaultPassword := os.Getenv("ADMIN_DEFAULT_PASSWORD")
 			if defaultPassword == "" {
-				defaultPassword = "ChangeMe123!"
+				if os.Getenv("GIN_MODE") == "release" {
+					return fmt.Errorf("ADMIN_DEFAULT_PASSWORD must be set in production; refusing to start with a default password")
+				}
+				defaultPassword = "ChangeMe123!" // #nosec G101 -- dev-only fallback
 				s.logger.Warn("ADMIN_DEFAULT_PASSWORD not set, using fallback default. Set this env var in production!")
 			}
 
@@ -386,13 +474,25 @@ func (s *Service) createDefaultAdmin() error {
 // If the user has MFA enabled and no TOTP code is provided, it returns
 // a partial response with mfa_required=true and a temporary MFA token.
 func (s *Service) Login(ctx context.Context, req *LoginRequest) (*LoginResponse, error) {
+	// ── H-4: Per-username login rate limiting ──
+	if blocked, remaining := s.loginThrottle.check(req.Username); blocked {
+		s.logger.Warn("Login throttled — too many failed attempts",
+			zap.String("username", req.Username),
+			zap.Duration("lockout_remaining", remaining))
+		return nil, fmt.Errorf("too many failed login attempts, try again in %d seconds", int(remaining.Seconds()))
+	}
+
 	user, err := s.authenticateUser(req.Username, req.Password)
 	if err != nil {
+		s.loginThrottle.recordFailure(req.Username)
 		s.logger.Warn("Authentication failed",
 			zap.String("username", req.Username),
 			zap.Error(err))
 		return nil, fmt.Errorf("invalid credentials")
 	}
+
+	// Clear failed attempts on successful login.
+	s.loginThrottle.clear(req.Username)
 
 	// Check if MFA is enabled.
 	if user.MFAEnabled {
@@ -550,7 +650,7 @@ func (s *Service) RefreshAccessToken(ctx context.Context, refreshToken string) (
 
 // ValidateToken validates and parses a JWT token.
 func (s *Service) ValidateToken(ctx context.Context, tokenString string) (*Claims, error) {
-	s.logger.Debug("Validating token", zap.String("token_prefix", tokenString[:20]))
+	s.logger.Debug("Validating token", zap.Int("token_length", len(tokenString)))
 
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

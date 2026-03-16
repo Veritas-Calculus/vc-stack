@@ -3,6 +3,8 @@ package middleware
 // Package middleware provides HTTP middleware for the control plane.
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"net/http"
 	"strings"
 	"sync"
@@ -705,20 +707,18 @@ func RequestIDMiddleware() gin.HandlerFunc {
 	}
 }
 
-// CORSMiddleware handles CORS with security best practices.
+// Deprecated: CORSMiddleware is superseded by gateway.SetupMiddleware which
+// uses gin-contrib/cors with fail-secure defaults. Do NOT use this function;
+// it is retained only for backwards compatibility reference.
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// In production, replace "*" with specific allowed origins
-		origin := c.GetHeader("Origin")
-		if origin == "" {
-			origin = "*"
-		}
-		c.Header("Access-Control-Allow-Origin", origin)
+		// SECURITY: Never reflect arbitrary Origin with credentials.
+		// Use gateway.SetupMiddleware() for production CORS handling.
+		c.Header("Access-Control-Allow-Origin", "")
 		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS")
 		c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Authorization, X-Request-ID")
 		c.Header("Access-Control-Expose-Headers", "X-Request-ID")
 		c.Header("Access-Control-Max-Age", "86400")
-		c.Header("Access-Control-Allow-Credentials", "true")
 
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(http.StatusNoContent)
@@ -741,11 +741,13 @@ func SecurityHeadersMiddleware() gin.HandlerFunc {
 		// Enable XSS protection (deprecated but still useful for older browsers)
 		c.Header("X-XSS-Protection", "1; mode=block")
 
-		// HSTS - force HTTPS (only enable in production with HTTPS)
-		// c.Header("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload")
+		// HSTS - force HTTPS in production.
+		if gin.Mode() == gin.ReleaseMode {
+			c.Header("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+		}
 
-		// CSP - Content Security Policy
-		c.Header("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'")
+		// CSP - Content Security Policy (no unsafe-eval to mitigate XSS).
+		c.Header("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'")
 
 		// Referrer policy
 		c.Header("Referrer-Policy", "strict-origin-when-cross-origin")
@@ -828,16 +830,12 @@ func AdminOnlyMiddleware() gin.HandlerFunc {
 	}
 }
 
-// generateRequestID generates a unique request ID.
+// generateRequestID generates a cryptographically random request ID.
 func generateRequestID() string {
-	return time.Now().Format("20060102150405") + "-" + randomString(8)
-}
-
-func randomString(n int) string {
-	const letters = "abcdefghijklmnopqrstuvwxyz0123456789"
-	b := make([]byte, n)
-	for i := range b {
-		b[i] = letters[time.Now().UnixNano()%int64(len(letters))]
+	b := make([]byte, 12)
+	if _, err := rand.Read(b); err != nil {
+		// Fallback: timestamp-based (should never happen).
+		return time.Now().Format("20060102150405.000000")
 	}
-	return string(b)
+	return hex.EncodeToString(b)
 }
