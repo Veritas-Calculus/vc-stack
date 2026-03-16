@@ -40,7 +40,7 @@ func (ObjectVersion) TableName() string { return "s3_object_versions" }
 // ── Handlers ──
 
 func (s *Service) handleGetVersioning(c *gin.Context) {
-	bucketID := c.Param("id")
+	bucketID := c.Param("bucket_id")
 	var v BucketVersioning
 	if err := s.db.Where("bucket_id = ?", bucketID).First(&v).Error; err != nil {
 		c.JSON(http.StatusOK, gin.H{"versioning": gin.H{"status": "disabled"}})
@@ -50,7 +50,7 @@ func (s *Service) handleGetVersioning(c *gin.Context) {
 }
 
 func (s *Service) handlePutVersioning(c *gin.Context) {
-	bucketID := c.Param("id")
+	bucketID := c.Param("bucket_id")
 	var req struct {
 		Status string `json:"status" binding:"required"` // enabled, suspended
 	}
@@ -81,7 +81,7 @@ func (s *Service) handlePutVersioning(c *gin.Context) {
 }
 
 func (s *Service) handleListObjectVersions(c *gin.Context) {
-	bucketID := c.Param("id")
+	bucketID := c.Param("bucket_id")
 	key := c.Query("key")
 	query := s.db.Where("bucket_id = ?", bucketID)
 	if key != "" {

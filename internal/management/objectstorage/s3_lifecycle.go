@@ -23,7 +23,7 @@ type LifecyclePolicy struct {
 func (LifecyclePolicy) TableName() string { return "s3_lifecycle_policies" }
 
 func (s *Service) handleGetLifecyclePolicy(c *gin.Context) {
-	bucketID := c.Param("id")
+	bucketID := c.Param("bucket_id")
 	var policy LifecyclePolicy
 	if err := s.db.Where("bucket_id = ?", bucketID).First(&policy).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "No lifecycle policy"})
@@ -35,7 +35,7 @@ func (s *Service) handleGetLifecyclePolicy(c *gin.Context) {
 }
 
 func (s *Service) handlePutLifecyclePolicy(c *gin.Context) {
-	bucketID := c.Param("id")
+	bucketID := c.Param("bucket_id")
 	var config LifecycleConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -61,7 +61,7 @@ func (s *Service) handlePutLifecyclePolicy(c *gin.Context) {
 }
 
 func (s *Service) handleDeleteLifecyclePolicy(c *gin.Context) {
-	bucketID := c.Param("id")
+	bucketID := c.Param("bucket_id")
 	s.db.Where("bucket_id = ?", bucketID).Delete(&LifecyclePolicy{})
 	c.JSON(http.StatusOK, gin.H{"message": "Lifecycle policy deleted"})
 }

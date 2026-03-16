@@ -336,14 +336,14 @@ func (s *Service) SetupRoutes(rg *gin.RouterGroup) {
 		os.GET("/stats/top-buckets", rp("storage", "get"), s.getBucketTopN) // S3.2
 
 		// P6-04: Lifecycle policies (DB-backed).
-		os.GET("/buckets/:id/lifecycle-policy", rp("storage", "get"), s.handleGetLifecyclePolicy)
-		os.PUT("/buckets/:id/lifecycle-policy", rp("storage", "update"), s.handlePutLifecyclePolicy)
-		os.DELETE("/buckets/:id/lifecycle-policy", rp("storage", "delete"), s.handleDeleteLifecyclePolicy)
+		os.GET("/buckets/:bucket_id/lifecycle-policy", rp("storage", "get"), s.handleGetLifecyclePolicy)
+		os.PUT("/buckets/:bucket_id/lifecycle-policy", rp("storage", "update"), s.handlePutLifecyclePolicy)
+		os.DELETE("/buckets/:bucket_id/lifecycle-policy", rp("storage", "delete"), s.handleDeleteLifecyclePolicy)
 
 		// P6-05: Object versioning.
-		os.GET("/buckets/:id/versioning", rp("storage", "get"), s.handleGetVersioning)
-		os.PUT("/buckets/:id/versioning", rp("storage", "update"), s.handlePutVersioning)
-		os.GET("/buckets/:id/versions", rp("storage", "list"), s.handleListObjectVersions)
+		os.GET("/buckets/:bucket_id/versioning", rp("storage", "get"), s.handleGetVersioning)
+		os.PUT("/buckets/:bucket_id/versioning", rp("storage", "update"), s.handlePutVersioning)
+		os.GET("/buckets/:bucket_id/versions", rp("storage", "list"), s.handleListObjectVersions)
 		os.POST("/versions/:versionId/restore", rp("storage", "update"), s.handleRestoreObjectVersion)
 		os.DELETE("/versions/:versionId", rp("storage", "delete"), s.handleDeleteObjectVersion)
 	}

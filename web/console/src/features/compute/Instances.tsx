@@ -125,18 +125,18 @@ export function Instances() {
     ]).then((results) => {
       if (!alive) return
       const [flv, im, nw, keys, projects, users] = results
-      if (flv.status === 'fulfilled') setFlavors(flv.value)
-      if (im.status === 'fulfilled') setImgs(im.value)
-      if (nw.status === 'fulfilled') setNets(nw.value)
-      if (keys.status === 'fulfilled') setSshKeys(keys.value)
-      if (projects.status === 'fulfilled') {
+      if (flv.status === 'fulfilled' && Array.isArray(flv.value)) setFlavors(flv.value)
+      if (im.status === 'fulfilled' && Array.isArray(im.value)) setImgs(im.value)
+      if (nw.status === 'fulfilled' && Array.isArray(nw.value)) setNets(nw.value)
+      if (keys.status === 'fulfilled' && Array.isArray(keys.value)) setSshKeys(keys.value)
+      if (projects.status === 'fulfilled' && Array.isArray(projects.value)) {
         const pmap: Record<string, string> = {}
         projects.value.forEach((p: UIProject) => {
           pmap[String(p.id)] = p.name
         })
         setProjNames(pmap)
       }
-      if (users.status === 'fulfilled') {
+      if (users.status === 'fulfilled' && Array.isArray(users.value)) {
         const umap: Record<string, string> = {}
         users.value.forEach((u: UIUser) => {
           umap[String(u.id)] =
