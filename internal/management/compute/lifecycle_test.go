@@ -14,18 +14,19 @@ import (
 
 func TestRebuildInstance_ImageNotFound(t *testing.T) {
 	svc, db := setupTestService(t)
-	seedFlavor(t, db)
-	seedImage(t, db)
+	f := seedFlavor(t, db)
+	img := seedImage(t, db)
 
 	// Create instance.
-	db.Create(&Instance{Name: "rebuild-test", FlavorID: 1, ImageID: 1, Status: "active", PowerState: "running"})
+	inst := &Instance{Name: "rebuild-test", FlavorID: f.ID, ImageID: img.ID, Status: "active", PowerState: "running"}
+	db.Create(inst)
 
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
 	svc.SetupRoutes(router)
 
-	body := `{"image_id": 999}`
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/instances/1/rebuild", strings.NewReader(body))
+	body := `{"image_id": 999999}`
+	req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/instances/%d/rebuild", inst.ID), strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -37,17 +38,18 @@ func TestRebuildInstance_ImageNotFound(t *testing.T) {
 
 func TestRebuildInstance_MissingImageID(t *testing.T) {
 	svc, db := setupTestService(t)
-	seedFlavor(t, db)
-	seedImage(t, db)
+	f := seedFlavor(t, db)
+	img := seedImage(t, db)
 
-	db.Create(&Instance{Name: "rebuild-miss", FlavorID: 1, ImageID: 1, Status: "active"})
+	inst := &Instance{Name: "rebuild-miss", FlavorID: f.ID, ImageID: img.ID, Status: "active"}
+	db.Create(inst)
 
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
 	svc.SetupRoutes(router)
 
 	body := `{}`
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/instances/1/rebuild", strings.NewReader(body))
+	req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/instances/%d/rebuild", inst.ID), strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -59,19 +61,20 @@ func TestRebuildInstance_MissingImageID(t *testing.T) {
 
 func TestRebuildInstance_LockedRejected(t *testing.T) {
 	svc, db := setupTestService(t)
-	seedFlavor(t, db)
+	f := seedFlavor(t, db)
 	img := seedImage(t, db)
 
-	// Create a locked instance.
-	db.Exec(`INSERT INTO instances (name, flavor_id, image_id, status, power_state, metadata) VALUES (?, ?, ?, ?, ?, ?)`,
-		"locked-vm", 1, img.ID, "active", "running", `{"locked":"true"}`)
+	// Create a locked instance using metadata.
+	inst := &Instance{Name: "locked-vm", FlavorID: f.ID, ImageID: img.ID, Status: "active", PowerState: "running"}
+	db.Create(inst)
+	db.Model(inst).Update("metadata", JSONMap{"locked": "true"})
 
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
 	svc.SetupRoutes(router)
 
-	body := `{"image_id": 1}`
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/instances/1/rebuild", strings.NewReader(body))
+	body := fmt.Sprintf(`{"image_id": %d}`, img.ID)
+	req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/instances/%d/rebuild", inst.ID), strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -90,14 +93,15 @@ func TestRebuildInstance_Success(t *testing.T) {
 	img2 := &Image{Name: "new-os", UUID: "uuid-img2-rebuild", Status: "active", DiskFormat: "qcow2", FilePath: "/tmp/new.qcow2"}
 	db.Create(img2)
 
-	db.Create(&Instance{Name: "rebuild-ok", FlavorID: f.ID, ImageID: img1.ID, Status: "active", PowerState: "shutdown"})
+	inst := &Instance{Name: "rebuild-ok", FlavorID: f.ID, ImageID: img1.ID, Status: "active", PowerState: "shutdown"}
+	db.Create(inst)
 
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
 	svc.SetupRoutes(router)
 
 	body := fmt.Sprintf(`{"image_id": %d}`, img2.ID)
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/instances/1/rebuild", strings.NewReader(body))
+	req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/instances/%d/rebuild", inst.ID), strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -122,17 +126,15 @@ func TestRebuildInstance_Success(t *testing.T) {
 
 func TestUpdateInstance_Rename(t *testing.T) {
 	svc, db := setupTestService(t)
-	seedFlavor(t, db)
-	seedImage(t, db)
 
-	db.Create(&Instance{Name: "old-name", FlavorID: 1, ImageID: 1, Status: "active"})
+	inst := seedInstance(t, db, "old-name", "active")
 
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
 	svc.SetupRoutes(router)
 
 	body := `{"name": "new-name"}`
-	req := httptest.NewRequest(http.MethodPut, "/api/v1/instances/1", strings.NewReader(body))
+	req := httptest.NewRequest(http.MethodPut, fmt.Sprintf("/api/v1/instances/%d", inst.ID), strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -145,26 +147,24 @@ func TestUpdateInstance_Rename(t *testing.T) {
 	}
 
 	// Verify in DB.
-	var inst Instance
-	db.First(&inst, 1)
-	if inst.Name != "new-name" {
-		t.Errorf("expected name 'new-name', got '%s'", inst.Name)
+	var updated Instance
+	db.First(&updated, inst.ID)
+	if updated.Name != "new-name" {
+		t.Errorf("expected name 'new-name', got '%s'", updated.Name)
 	}
 }
 
 func TestUpdateInstance_NoFields(t *testing.T) {
 	svc, db := setupTestService(t)
-	seedFlavor(t, db)
-	seedImage(t, db)
 
-	db.Create(&Instance{Name: "no-change", FlavorID: 1, ImageID: 1, Status: "active"})
+	inst := seedInstance(t, db, "no-change", "active")
 
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
 	svc.SetupRoutes(router)
 
 	body := `{}`
-	req := httptest.NewRequest(http.MethodPut, "/api/v1/instances/1", strings.NewReader(body))
+	req := httptest.NewRequest(http.MethodPut, fmt.Sprintf("/api/v1/instances/%d", inst.ID), strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -178,17 +178,18 @@ func TestUpdateInstance_NoFields(t *testing.T) {
 
 func TestCreateImageFromInstance_Success(t *testing.T) {
 	svc, db := setupTestService(t)
-	seedFlavor(t, db)
-	seedImage(t, db)
+	f := seedFlavor(t, db)
+	img := seedImage(t, db)
 
-	db.Create(&Instance{Name: "img-source", FlavorID: 1, ImageID: 1, Status: "active", UserID: 1})
+	inst := &Instance{Name: "img-source", FlavorID: f.ID, ImageID: img.ID, Status: "active", UserID: 1}
+	db.Create(inst)
 
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
 	svc.SetupRoutes(router)
 
 	body := `{"name": "my-template"}`
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/instances/1/create-image", strings.NewReader(body))
+	req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/instances/%d/create-image", inst.ID), strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -213,17 +214,15 @@ func TestCreateImageFromInstance_Success(t *testing.T) {
 
 func TestCreateImageFromInstance_MissingName(t *testing.T) {
 	svc, db := setupTestService(t)
-	seedFlavor(t, db)
-	seedImage(t, db)
 
-	db.Create(&Instance{Name: "img-miss", FlavorID: 1, ImageID: 1, Status: "active"})
+	inst := seedInstance(t, db, "img-miss", "active")
 
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
 	svc.SetupRoutes(router)
 
 	body := `{}`
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/instances/1/create-image", strings.NewReader(body))
+	req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/instances/%d/create-image", inst.ID), strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -238,14 +237,14 @@ func TestCreateImageFromInstance_MissingName(t *testing.T) {
 func TestLockUnlockInstance(t *testing.T) {
 	svc, db := setupTestService(t)
 
-	db.Create(&Instance{Name: "lock-test", Status: "active"})
+	inst := seedInstance(t, db, "lock-test", "active")
 
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
 	svc.SetupRoutes(router)
 
 	// Lock.
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/instances/1/lock", nil)
+	req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/instances/%d/lock", inst.ID), nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -257,7 +256,7 @@ func TestLockUnlockInstance(t *testing.T) {
 	}
 
 	// Unlock.
-	req = httptest.NewRequest(http.MethodPost, "/api/v1/instances/1/unlock", nil)
+	req = httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/instances/%d/unlock", inst.ID), nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -273,14 +272,17 @@ func TestLockUnlockInstance(t *testing.T) {
 
 func TestPauseInstance_NotRunning(t *testing.T) {
 	svc, db := setupTestService(t)
+	f := seedFlavor(t, db)
+	img := seedImage(t, db)
 
-	db.Create(&Instance{Name: "pause-not-running", Status: "active", PowerState: "shutdown"})
+	inst := &Instance{Name: "pause-not-running", FlavorID: f.ID, ImageID: img.ID, Status: "active", PowerState: "shutdown"}
+	db.Create(inst)
 
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
 	svc.SetupRoutes(router)
 
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/instances/1/pause", nil)
+	req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/instances/%d/pause", inst.ID), nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -291,14 +293,17 @@ func TestPauseInstance_NotRunning(t *testing.T) {
 
 func TestUnpauseInstance_NotPaused(t *testing.T) {
 	svc, db := setupTestService(t)
+	f := seedFlavor(t, db)
+	img := seedImage(t, db)
 
-	db.Create(&Instance{Name: "unpause-not-paused", Status: "active", PowerState: "running"})
+	inst := &Instance{Name: "unpause-not-paused", FlavorID: f.ID, ImageID: img.ID, Status: "active", PowerState: "running"}
+	db.Create(inst)
 
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
 	svc.SetupRoutes(router)
 
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/instances/1/unpause", nil)
+	req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/instances/%d/unpause", inst.ID), nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -312,13 +317,13 @@ func TestUnpauseInstance_NotPaused(t *testing.T) {
 func TestUnrescueInstance_NotInRescue(t *testing.T) {
 	svc, db := setupTestService(t)
 
-	db.Create(&Instance{Name: "unrescue-nope", Status: "active"})
+	inst := seedInstance(t, db, "unrescue-nope", "active")
 
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
 	svc.SetupRoutes(router)
 
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/instances/1/unrescue", nil)
+	req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/instances/%d/unrescue", inst.ID), nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -332,13 +337,13 @@ func TestUnrescueInstance_NotInRescue(t *testing.T) {
 func TestListInstanceActions_HTTP(t *testing.T) {
 	svc, db := setupTestService(t)
 
-	db.Create(&Instance{Name: "action-test", Status: "active"})
+	inst := seedInstance(t, db, "action-test", "active")
 
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
 	svc.SetupRoutes(router)
 
-	req := httptest.NewRequest(http.MethodGet, "/api/v1/instances/1/actions", nil)
+	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/instances/%d/actions", inst.ID), nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -355,15 +360,17 @@ func TestListInstanceActions_HTTP(t *testing.T) {
 func TestCreateVolumeFromSnapshot(t *testing.T) {
 	svc, db := setupTestService(t)
 
-	db.Create(&Volume{Name: "src-vol", SizeGB: 20, Status: "available"})
-	db.Create(&Snapshot{Name: "snap-1", VolumeID: 1, Status: "available"})
+	vol := &Volume{Name: "src-vol", SizeGB: 20, Status: "available"}
+	db.Create(vol)
+	snap := &Snapshot{Name: "snap-1", VolumeID: vol.ID, Status: "available"}
+	db.Create(snap)
 
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
 	svc.SetupRoutes(router)
 
 	body := `{"name":"vol-from-snap","size_gb":25}`
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/snapshots/1/create-volume", strings.NewReader(body))
+	req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/snapshots/%d/create-volume", snap.ID), strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -376,25 +383,27 @@ func TestCreateVolumeFromSnapshot(t *testing.T) {
 	}
 
 	// Verify volume in DB.
-	var vol Volume
-	db.Where("name = ?", "vol-from-snap").First(&vol)
-	if vol.SizeGB != 25 {
-		t.Errorf("expected size_gb=25, got %d", vol.SizeGB)
+	var v Volume
+	db.Where("name = ?", "vol-from-snap").First(&v)
+	if v.SizeGB != 25 {
+		t.Errorf("expected size_gb=25, got %d", v.SizeGB)
 	}
 }
 
 func TestCreateVolumeFromSnapshot_DefaultName(t *testing.T) {
 	svc, db := setupTestService(t)
 
-	db.Create(&Volume{Name: "src-vol", SizeGB: 30, Status: "available"})
-	db.Create(&Snapshot{Name: "snap-auto", VolumeID: 1, Status: "available"})
+	vol := &Volume{Name: "src-vol", SizeGB: 30, Status: "available"}
+	db.Create(vol)
+	snap := &Snapshot{Name: "snap-auto", VolumeID: vol.ID, Status: "available"}
+	db.Create(snap)
 
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
 	svc.SetupRoutes(router)
 
 	body := `{}`
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/snapshots/1/create-volume", strings.NewReader(body))
+	req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/snapshots/%d/create-volume", snap.ID), strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -409,9 +418,9 @@ func TestCreateVolumeFromSnapshot_DefaultName(t *testing.T) {
 	}
 
 	// Verify size comes from source volume.
-	var vol Volume
-	db.Where("name = ?", "vol-from-snap-auto").First(&vol)
-	if vol.SizeGB != 30 {
-		t.Errorf("expected size_gb=30 (from source volume), got %d", vol.SizeGB)
+	var v Volume
+	db.Where("name = ?", "vol-from-snap-auto").First(&v)
+	if v.SizeGB != 30 {
+		t.Errorf("expected size_gb=30 (from source volume), got %d", v.SizeGB)
 	}
 }

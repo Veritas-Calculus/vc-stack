@@ -1,6 +1,7 @@
 package compute
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -19,7 +20,7 @@ func TestMigrateInstance_InstanceNotFound(t *testing.T) {
 	svc.SetupRoutes(router)
 
 	body := `{}`
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/instances/999/migrate", strings.NewReader(body))
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/instances/999999/migrate", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -32,14 +33,18 @@ func TestMigrateInstance_InstanceNotFound(t *testing.T) {
 // TestMigrateInstance_MustBeActive verifies only active instances can migrate.
 func TestMigrateInstance_MustBeActive(t *testing.T) {
 	svc, db := setupTestService(t)
-	db.Create(&Instance{Name: "stopped-vm", Status: "stopped", HostID: "host-1"})
+	f := seedFlavor(t, db)
+	img := seedImage(t, db)
+
+	inst := &Instance{Name: "stopped-vm", FlavorID: f.ID, ImageID: img.ID, Status: "stopped", HostID: "host-1"}
+	db.Create(inst)
 
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
 	svc.SetupRoutes(router)
 
 	body := `{}`
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/instances/1/migrate", strings.NewReader(body))
+	req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/instances/%d/migrate", inst.ID), strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -52,14 +57,18 @@ func TestMigrateInstance_MustBeActive(t *testing.T) {
 // TestMigrateInstance_NoHostAssigned verifies error when instance has no host.
 func TestMigrateInstance_NoHostAssigned(t *testing.T) {
 	svc, db := setupTestService(t)
-	db.Create(&Instance{Name: "no-host-vm", Status: "active", HostID: ""})
+	f := seedFlavor(t, db)
+	img := seedImage(t, db)
+
+	inst := &Instance{Name: "no-host-vm", FlavorID: f.ID, ImageID: img.ID, Status: "active", HostID: ""}
+	db.Create(inst)
 
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
 	svc.SetupRoutes(router)
 
 	body := `{}`
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/instances/1/migrate", strings.NewReader(body))
+	req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/instances/%d/migrate", inst.ID), strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -72,11 +81,15 @@ func TestMigrateInstance_NoHostAssigned(t *testing.T) {
 // TestMigrateInstance_DuplicateBlocked verifies only one active migration per instance.
 func TestMigrateInstance_DuplicateBlocked(t *testing.T) {
 	svc, db := setupTestService(t)
-	db.Create(&Instance{Name: "migrating-vm", Status: "active", HostID: "host-1"})
+	f := seedFlavor(t, db)
+	img := seedImage(t, db)
+
+	inst := &Instance{Name: "migrating-vm", FlavorID: f.ID, ImageID: img.ID, Status: "active", HostID: "host-1"}
+	db.Create(inst)
 	db.AutoMigrate(&Migration{})
 	db.Create(&Migration{
 		UUID:         "existing-migration",
-		InstanceID:   1,
+		InstanceID:   inst.ID,
 		InstanceUUID: "inst-uuid",
 		InstanceName: "migrating-vm",
 		Status:       "migrating",
@@ -87,7 +100,7 @@ func TestMigrateInstance_DuplicateBlocked(t *testing.T) {
 	svc.SetupRoutes(router)
 
 	body := `{}`
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/instances/1/migrate", strings.NewReader(body))
+	req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/api/v1/instances/%d/migrate", inst.ID), strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -161,9 +174,13 @@ func TestGetMigration_ByUUID(t *testing.T) {
 // TestCancelMigration verifies cancellation of an active migration.
 func TestCancelMigration(t *testing.T) {
 	svc, db := setupTestService(t)
+	f := seedFlavor(t, db)
+	img := seedImage(t, db)
+
+	inst := &Instance{Name: "cancel-vm", FlavorID: f.ID, ImageID: img.ID, Status: "migrating", HostID: "host-1"}
+	db.Create(inst)
 	db.AutoMigrate(&Migration{})
-	db.Create(&Instance{Name: "cancel-vm", Status: "migrating", HostID: "host-1"})
-	db.Create(&Migration{UUID: "cancel-mig", InstanceID: 1, InstanceName: "cancel-vm", Status: "preparing"})
+	db.Create(&Migration{UUID: "cancel-mig", InstanceID: inst.ID, InstanceName: "cancel-vm", Status: "preparing"})
 
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
@@ -185,10 +202,10 @@ func TestCancelMigration(t *testing.T) {
 	}
 
 	// Verify instance restored to active.
-	var inst Instance
-	db.First(&inst, 1)
-	if inst.Status != "active" {
-		t.Errorf("expected instance status 'active', got '%s'", inst.Status)
+	var updated Instance
+	db.First(&updated, inst.ID)
+	if updated.Status != "active" {
+		t.Errorf("expected instance status 'active', got '%s'", updated.Status)
 	}
 }
 
