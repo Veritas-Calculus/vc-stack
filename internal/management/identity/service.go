@@ -25,10 +25,10 @@ type JSONMap = models.JSONMap
 
 // Service represents the identity service.
 type Service struct {
-	db             *gorm.DB
-	logger         *zap.Logger
-	config         Config
-	loginThrottle  *loginThrottle
+	db            *gorm.DB
+	logger        *zap.Logger
+	config        Config
+	loginThrottle *loginThrottle
 }
 
 // loginThrottle provides per-username brute-force protection.
@@ -42,8 +42,8 @@ type loginThrottle struct {
 }
 
 type loginAttempts struct {
-	count    int
-	firstAt  time.Time
+	count   int
+	firstAt time.Time
 }
 
 func newLoginThrottle() *loginThrottle {
