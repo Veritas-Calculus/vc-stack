@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Veritas-Calculus/vc-stack/pkg/circuitbreaker"
 	"go.uber.org/zap"
 )
 
@@ -24,10 +25,18 @@ type ControllerClient struct {
 	httpClient *http.Client
 	logger     *zap.Logger
 	nodeID     string
+	cb         *circuitbreaker.Breaker
 }
 
 // NewControllerClient creates a new controller client.
 func NewControllerClient(baseURL, nodeID string, logger *zap.Logger) *ControllerClient {
+	cb := circuitbreaker.New("management", circuitbreaker.Options{
+		FailureThreshold: 5,
+		SuccessThreshold: 2,
+		ResetTimeout:     30 * time.Second,
+		Logger:           logger.Named("circuit-breaker"),
+	})
+
 	return &ControllerClient{
 		baseURL: baseURL,
 		httpClient: &http.Client{
@@ -35,6 +44,7 @@ func NewControllerClient(baseURL, nodeID string, logger *zap.Logger) *Controller
 		},
 		logger: logger,
 		nodeID: nodeID,
+		cb:     cb,
 	}
 }
 
@@ -85,25 +95,27 @@ func (c *ControllerClient) ReportVMStatus(ctx context.Context, config *QEMUConfi
 
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := c.httpClient.Do(req) // #nosec
-	if err != nil {
-		return fmt.Errorf("send request: %w", err)
-	}
-	defer func() { _ = resp.Body.Close() }()
-
-	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusAccepted {
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return fmt.Errorf("unexpected status %d and failed to read body: %w", resp.StatusCode, err)
+	return c.cb.Execute(func() error {
+		resp, doErr := c.httpClient.Do(req) // #nosec
+		if doErr != nil {
+			return fmt.Errorf("send request: %w", doErr)
 		}
-		return fmt.Errorf("unexpected status %d: %s", resp.StatusCode, string(body))
-	}
+		defer func() { _ = resp.Body.Close() }()
 
-	c.logger.Debug("Reported VM status to management",
-		zap.String("vm_id", config.ID),
-		zap.String("status", config.Status))
+		if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusAccepted {
+			body, readErr := io.ReadAll(resp.Body)
+			if readErr != nil {
+				return fmt.Errorf("unexpected status %d and failed to read body: %w", resp.StatusCode, readErr)
+			}
+			return fmt.Errorf("unexpected status %d: %s", resp.StatusCode, string(body))
+		}
 
-	return nil
+		c.logger.Debug("Reported VM status to management",
+			zap.String("vm_id", config.ID),
+			zap.String("status", config.Status))
+
+		return nil
+	})
 }
 
 // RegisterNode registers this compute node with the management server.
@@ -223,33 +235,44 @@ func (c *ControllerClient) SendHeartbeat(ctx context.Context, stats NodeStats) e
 
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := c.httpClient.Do(req) // #nosec
-	if err != nil {
-		return fmt.Errorf("send request: %w", err)
-	}
-	defer func() { _ = resp.Body.Close() }()
-
-	if resp.StatusCode == http.StatusNotFound {
-		body, _ := io.ReadAll(resp.Body)
-		c.logger.Warn("Heartbeat rejected: host not found (node may need re-registration)",
-			zap.String("body", string(body)))
-		return ErrHostNotFound
-	}
-
-	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusAccepted {
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			c.logger.Warn("Heartbeat rejected and failed to read body",
-				zap.Int("status", resp.StatusCode),
-				zap.Error(err))
-		} else {
-			c.logger.Warn("Heartbeat rejected",
-				zap.Int("status", resp.StatusCode),
-				zap.String("body", string(body)))
+	var heartbeatErr error
+	cbErr := c.cb.Execute(func() error {
+		resp, doErr := c.httpClient.Do(req) // #nosec
+		if doErr != nil {
+			return fmt.Errorf("send request: %w", doErr)
 		}
-	}
+		defer func() { _ = resp.Body.Close() }()
 
-	return nil
+		if resp.StatusCode == http.StatusNotFound {
+			body, _ := io.ReadAll(resp.Body)
+			c.logger.Warn("Heartbeat rejected: host not found (node may need re-registration)",
+				zap.String("body", string(body)))
+			// ErrHostNotFound is a business error, not a transport failure.
+			// Store it separately and return nil so it doesn't trip the breaker.
+			heartbeatErr = ErrHostNotFound
+			return nil
+		}
+
+		if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusAccepted {
+			body, readErr := io.ReadAll(resp.Body)
+			if readErr != nil {
+				c.logger.Warn("Heartbeat rejected and failed to read body",
+					zap.Int("status", resp.StatusCode),
+					zap.Error(readErr))
+			} else {
+				c.logger.Warn("Heartbeat rejected",
+					zap.Int("status", resp.StatusCode),
+					zap.String("body", string(body)))
+			}
+		}
+
+		return nil
+	})
+
+	if cbErr != nil {
+		return cbErr
+	}
+	return heartbeatErr
 }
 
 // FetchVMConfig fetches VM configuration from management.
@@ -260,25 +283,32 @@ func (c *ControllerClient) FetchVMConfig(ctx context.Context, vmID string) (*QEM
 		return nil, fmt.Errorf("create request: %w", err)
 	}
 
-	resp, err := c.httpClient.Do(req) // #nosec
-	if err != nil {
-		return nil, fmt.Errorf("send request: %w", err)
-	}
-	defer func() { _ = resp.Body.Close() }()
-
-	if resp.StatusCode != http.StatusOK {
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return nil, fmt.Errorf("fetch failed: status %d and failed to read body: %w", resp.StatusCode, err)
-		}
-		return nil, fmt.Errorf("fetch failed: status %d: %s", resp.StatusCode, string(body))
-	}
-
 	var config QEMUConfig
-	if err := json.NewDecoder(resp.Body).Decode(&config); err != nil {
-		return nil, fmt.Errorf("decode config: %w", err)
-	}
+	cbErr := c.cb.Execute(func() error {
+		resp, doErr := c.httpClient.Do(req) // #nosec
+		if doErr != nil {
+			return fmt.Errorf("send request: %w", doErr)
+		}
+		defer func() { _ = resp.Body.Close() }()
 
+		if resp.StatusCode != http.StatusOK {
+			body, readErr := io.ReadAll(resp.Body)
+			if readErr != nil {
+				return fmt.Errorf("fetch failed: status %d and failed to read body: %w", resp.StatusCode, readErr)
+			}
+			return fmt.Errorf("fetch failed: status %d: %s", resp.StatusCode, string(body))
+		}
+
+		if decodeErr := json.NewDecoder(resp.Body).Decode(&config); decodeErr != nil {
+			return fmt.Errorf("decode config: %w", decodeErr)
+		}
+
+		return nil
+	})
+
+	if cbErr != nil {
+		return nil, cbErr
+	}
 	return &config, nil
 }
 
@@ -376,7 +406,8 @@ func (a *SyncAgent) syncLoop() {
 
 // performSync performs one sync iteration.
 func (a *SyncAgent) performSync() {
-	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
 
 	var vms []*QEMUConfig
 

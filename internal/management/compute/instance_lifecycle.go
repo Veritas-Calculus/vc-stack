@@ -80,7 +80,11 @@ func (s *Service) rebuildInstance(c *gin.Context) {
 	}
 
 	// Execute rebuild asynchronously: stop -> delete VM -> create VM.
-	go s.executeRebuild(context.Background(), &instance, &instance.Flavor, &newImage)
+	go func() {
+		rebuildCtx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+		defer cancel()
+		s.executeRebuild(rebuildCtx, &instance, &instance.Flavor, &newImage)
+	}()
 
 	s.emitEvent("action", instance.UUID, "rebuild", "initiated", "", map[string]interface{}{
 		"name": instance.Name, "new_image_id": req.ImageID, "new_image": newImage.Name,
@@ -248,7 +252,11 @@ func (s *Service) createImageFromInstance(c *gin.Context) {
 	}
 
 	// Execute snapshot+clone asynchronously.
-	go s.executeCreateImage(context.Background(), &instance, newImage)
+	go func() {
+		snapCtx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+		defer cancel()
+		s.executeCreateImage(snapCtx, &instance, newImage)
+	}()
 
 	s.emitEvent("action", instance.UUID, "create_image", "initiated", "", map[string]interface{}{
 		"image_name": req.Name, "image_uuid": newImage.UUID,

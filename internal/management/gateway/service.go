@@ -16,6 +16,8 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/time/rate"
 	"gorm.io/gorm"
+
+	"github.com/Veritas-Calculus/vc-stack/pkg/circuitbreaker"
 )
 
 // Service represents the gateway service.
@@ -25,8 +27,10 @@ type Service struct {
 	config    Config
 	services  map[string]*ServiceProxy
 	limiters  map[string]*rate.Limiter
+	cbManager *circuitbreaker.Manager
 	mu        sync.RWMutex
 	startTime time.Time
+	stopCh    chan struct{}
 }
 
 // Config represents the gateway service configuration.
@@ -93,13 +97,22 @@ type ServiceProxy struct {
 
 // NewService creates a new gateway service.
 func NewService(config *Config) (*Service, error) {
+	cbMgr := circuitbreaker.NewManager(circuitbreaker.Options{
+		FailureThreshold: 5,
+		SuccessThreshold: 2,
+		ResetTimeout:     30 * time.Second,
+		Logger:           config.Logger.Named("circuit-breaker"),
+	})
+
 	service := &Service{
 		logger:    config.Logger,
 		db:        config.DB,
 		config:    *config,
 		services:  make(map[string]*ServiceProxy),
 		limiters:  make(map[string]*rate.Limiter),
+		cbManager: cbMgr,
 		startTime: time.Now(),
+		stopCh:    make(chan struct{}),
 	}
 
 	// Initialize service proxies.
@@ -230,13 +243,24 @@ func (s *Service) startHealthChecking() {
 		ticker := time.NewTicker(30 * time.Second)
 		defer ticker.Stop()
 
-		for range ticker.C {
-			s.checkServicesHealth()
+		for {
+			select {
+			case <-s.stopCh:
+				s.logger.Info("health checker stopped")
+				return
+			case <-ticker.C:
+				s.checkServicesHealth()
+			}
 		}
 	}()
 }
 
-// checkServicesHealth checks the health of all backend services.
+// Stop gracefully shuts down the gateway service, stopping background goroutines.
+func (s *Service) Stop() {
+	close(s.stopCh)
+}
+
+// checkServicesHealth checks the health of all backend services and feeds circuit breakers.
 func (s *Service) checkServicesHealth() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -251,12 +275,27 @@ func (s *Service) checkServicesHealth() {
 			continue
 		}
 
-		resp, err := http.DefaultClient.Do(req) // #nosec G107 -- internal service URL, not user-controlled
-		if err != nil || resp.StatusCode != http.StatusOK {
+		// Run health check through circuit breaker so failures accumulate.
+		cb := s.cbManager.Get(name)
+		healthErr := cb.Execute(func() error {
+			resp, doErr := http.DefaultClient.Do(req) // #nosec G107 -- internal service URL, not user-controlled
+			if resp != nil {
+				_ = resp.Body.Close()
+			}
+			if doErr != nil {
+				return doErr
+			}
+			if resp.StatusCode != http.StatusOK {
+				return fmt.Errorf("health check returned status %d", resp.StatusCode)
+			}
+			return nil
+		})
+
+		if healthErr != nil {
 			if proxy.HealthOK {
 				s.logger.Warn("Service health check failed",
 					zap.String("service", name),
-					zap.Error(err))
+					zap.Error(healthErr))
 				proxy.HealthOK = false
 			}
 		} else {
@@ -264,12 +303,11 @@ func (s *Service) checkServicesHealth() {
 				s.logger.Info("Service health check recovered",
 					zap.String("service", name))
 				proxy.HealthOK = true
+				// Explicitly reset breaker on recovery to allow traffic immediately.
+				cb.Reset()
 			}
 		}
 
-		if resp != nil {
-			_ = resp.Body.Close()
-		}
 		cancel()
 	}
 }
@@ -347,6 +385,9 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 
 	// Health check under gateway prefix to avoid conflicts.
 	router.GET("/api/gateway/health", s.healthHandler)
+
+	// Circuit breaker diagnostics.
+	router.GET("/api/gateway/circuit-breakers", s.listGatewayCircuitBreakers)
 
 	// Gateway status.
 	router.GET("/gateway/status", s.statusHandler)

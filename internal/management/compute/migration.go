@@ -214,7 +214,11 @@ func (s *Service) migrateInstance(c *gin.Context) {
 	}, "")
 
 	// Dispatch migration asynchronously.
-	go s.executeMigration(context.Background(), migration)
+	go func() {
+		migrateCtx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+		defer cancel()
+		s.executeMigration(migrateCtx, migration)
+	}()
 
 	c.JSON(http.StatusAccepted, gin.H{
 		"migration": migration,

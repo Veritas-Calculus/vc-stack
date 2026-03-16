@@ -205,7 +205,11 @@ func (s *Service) createInstance(c *gin.Context) {
 	}
 
 	// Dispatch to scheduler asynchronously.
-	go s.dispatchInstance(context.Background(), instance, &flavor, &image, nics)
+	go func() {
+		dispatchCtx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+		defer cancel()
+		s.dispatchInstance(dispatchCtx, instance, &flavor, &image, nics)
+	}()
 
 	c.JSON(http.StatusAccepted, gin.H{"instance": instance})
 }
@@ -544,7 +548,11 @@ func (s *Service) deleteInstance(c *gin.Context) {
 	}
 
 	// Dispatch deletion asynchronously.
-	go s.deleteInstanceOnNode(context.Background(), &instance)
+	go func() {
+		delCtx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+		defer cancel()
+		s.deleteInstanceOnNode(delCtx, &instance)
+	}()
 
 	s.emitEvent("delete", instance.UUID, "delete", "success", "", map[string]interface{}{
 		"name": instance.Name,

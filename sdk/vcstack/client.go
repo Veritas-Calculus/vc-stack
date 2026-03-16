@@ -43,6 +43,7 @@ type Client struct {
 	Volumes         *VolumeClient
 	Networks        *NetworkClient
 	Subnets         *SubnetClient
+	Routers         *RouterClient
 	SecurityGroups  *SecurityGroupClient
 	FloatingIPs     *FloatingIPClient
 	SSHKeys         *SSHKeyClient
@@ -63,6 +64,7 @@ func NewClient(baseURL string) *Client {
 	c.Volumes = &VolumeClient{c: c}
 	c.Networks = &NetworkClient{c: c}
 	c.Subnets = &SubnetClient{c: c}
+	c.Routers = &RouterClient{c: c}
 	c.SecurityGroups = &SecurityGroupClient{c: c}
 	c.FloatingIPs = &FloatingIPClient{c: c}
 	c.SSHKeys = &SSHKeyClient{c: c}

@@ -44,14 +44,16 @@ func New() *schema.Provider {
 			"vcstack_instance":       resourceInstance(),
 			"vcstack_network":        resourceNetwork(),
 			"vcstack_subnet":         resourceSubnet(),
+			"vcstack_router":         resourceRouter(),
 			"vcstack_volume":         resourceVolume(),
 			"vcstack_security_group": resourceSecurityGroup(),
 			"vcstack_floating_ip":    resourceFloatingIP(),
 			"vcstack_ssh_key":        resourceSSHKey(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"vcstack_flavor": dataSourceFlavor(),
-			"vcstack_image":  dataSourceImage(),
+			"vcstack_flavor":  dataSourceFlavor(),
+			"vcstack_image":   dataSourceImage(),
+			"vcstack_network": dataSourceNetwork(),
 		},
 		ConfigureContextFunc: configure,
 	}

@@ -250,3 +250,21 @@ func New(cfg Config) (*Service, error) {
 
 	return svc, nil
 }
+
+// Stop gracefully shuts down all background goroutines in management services.
+// Call this during process shutdown to clean up resources.
+func (s *Service) Stop() {
+	s.logger.Info("stopping management services")
+
+	// Stop gateway health checker.
+	if s.Gateway != nil {
+		s.Gateway.Stop()
+	}
+
+	// Stop monitoring collectors (if they have a Stop method).
+	if s.Monitoring != nil {
+		_ = s.Monitoring.Stop()
+	}
+
+	s.logger.Info("management services stopped")
+}

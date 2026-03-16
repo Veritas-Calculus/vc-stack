@@ -32,6 +32,7 @@ type AppConfig struct {
 	Logging   LoggingConfig   `mapstructure:"logging"`
 	Modules   ModulesConfig   `mapstructure:"modules"`
 	Scheduler SchedulerConfig `mapstructure:"scheduler"`
+	Gateway   GatewayConfig   `mapstructure:"gateway"`
 	Etcd      dlock.Config    `mapstructure:"etcd"`
 	Redis     vcredis.Config  `mapstructure:"redis"`
 	Kafka     mq.KafkaConfig  `mapstructure:"kafka"`
@@ -116,6 +117,20 @@ type SchedulerConfig struct {
 	RAMOvercommitRatio float64 `mapstructure:"ram_overcommit_ratio"`
 	// DiskOvercommitRatio for thin-provisioned storage. Default: 1.0.
 	DiskOvercommitRatio float64 `mapstructure:"disk_overcommit_ratio"`
+}
+
+// GatewayConfig holds service endpoint configuration for the API gateway.
+// In monolithic mode all services share the same host:port, but in distributed
+// mode each service can be addressed independently.
+type GatewayConfig struct {
+	IdentityHost  string `mapstructure:"identity_host"`
+	IdentityPort  int    `mapstructure:"identity_port"`
+	NetworkHost   string `mapstructure:"network_host"`
+	NetworkPort   int    `mapstructure:"network_port"`
+	SchedulerHost string `mapstructure:"scheduler_host"`
+	SchedulerPort int    `mapstructure:"scheduler_port"`
+	ComputeHost   string `mapstructure:"compute_host"`
+	ComputePort   int    `mapstructure:"compute_port"`
 }
 
 // LoggingConfig holds log output settings.
@@ -268,6 +283,16 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("scheduler.ram_overcommit_ratio", 1.0)
 	v.SetDefault("scheduler.disk_overcommit_ratio", 1.0)
 
+	// Gateway service endpoints (monolithic defaults)
+	v.SetDefault("gateway.identity_host", "localhost")
+	v.SetDefault("gateway.identity_port", 8080)
+	v.SetDefault("gateway.network_host", "localhost")
+	v.SetDefault("gateway.network_port", 8080)
+	v.SetDefault("gateway.scheduler_host", "localhost")
+	v.SetDefault("gateway.scheduler_port", 8080)
+	v.SetDefault("gateway.compute_host", "localhost")
+	v.SetDefault("gateway.compute_port", 8080)
+
 	// etcd (distributed lock / leader election)
 	// Empty endpoints = etcd disabled (single-instance mode).
 	v.SetDefault("etcd.endpoints", []string{})
@@ -334,6 +359,16 @@ func bindEnvVars(v *viper.Viper) {
 	_ = v.BindEnv("scheduler.cpu_overcommit_ratio", "SCHEDULER_CPU_OVERCOMMIT")
 	_ = v.BindEnv("scheduler.ram_overcommit_ratio", "SCHEDULER_RAM_OVERCOMMIT")
 	_ = v.BindEnv("scheduler.disk_overcommit_ratio", "SCHEDULER_DISK_OVERCOMMIT")
+
+	// Gateway service endpoints
+	_ = v.BindEnv("gateway.identity_host", "GATEWAY_IDENTITY_HOST")
+	_ = v.BindEnv("gateway.identity_port", "GATEWAY_IDENTITY_PORT")
+	_ = v.BindEnv("gateway.network_host", "GATEWAY_NETWORK_HOST")
+	_ = v.BindEnv("gateway.network_port", "GATEWAY_NETWORK_PORT")
+	_ = v.BindEnv("gateway.scheduler_host", "GATEWAY_SCHEDULER_HOST")
+	_ = v.BindEnv("gateway.scheduler_port", "GATEWAY_SCHEDULER_PORT")
+	_ = v.BindEnv("gateway.compute_host", "GATEWAY_COMPUTE_HOST")
+	_ = v.BindEnv("gateway.compute_port", "GATEWAY_COMPUTE_PORT")
 
 	// etcd
 	_ = v.BindEnv("etcd.endpoints", "ETCD_ENDPOINTS")

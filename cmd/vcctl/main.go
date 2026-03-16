@@ -66,6 +66,7 @@ For more information, visit: https://github.com/Veritas-Calculus/vc-stack`,
 	cmd.AddCommand(newComputeCommand())
 	cmd.AddCommand(newNetworkCommand())
 	cmd.AddCommand(newStorageCommand())
+	cmd.AddCommand(newImageCommand())
 	cmd.AddCommand(newClusterCommand())
 	cmd.AddCommand(newIdentityCommand())
 	cmd.AddCommand(newServerCommand())

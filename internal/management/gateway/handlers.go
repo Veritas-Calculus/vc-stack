@@ -8,6 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"golang.org/x/time/rate"
+
+	"github.com/Veritas-Calculus/vc-stack/pkg/circuitbreaker"
 )
 
 // rateLimitMiddleware implements rate limiting.
@@ -129,9 +131,17 @@ func (s *Service) proxyHandler(serviceName string) gin.HandlerFunc {
 			return
 		}
 
-		// Note: c.Request.URL.Path contains the full path including router group prefix.
-		// Gateway routes are under /api group, so path will be /api/v1/...
-		// Compute and lite services also expect /api/v1/..., so no path rewriting needed.
+		// Check circuit breaker before forwarding.
+		cb := s.cbManager.Get(serviceName)
+		if cb.State() == circuitbreaker.StateOpen {
+			s.logger.Warn("circuit breaker open, rejecting request",
+				zap.String("service", serviceName),
+				zap.String("path", c.Request.URL.Path))
+			c.JSON(http.StatusServiceUnavailable, gin.H{
+				"error": circuitbreaker.FormatError(serviceName, circuitbreaker.ErrCircuitOpen).Error(),
+			})
+			return
+		}
 
 		c.Request.URL.Host = proxy.Target.Host
 		c.Request.URL.Scheme = proxy.Target.Scheme
@@ -140,6 +150,11 @@ func (s *Service) proxyHandler(serviceName string) gin.HandlerFunc {
 
 		proxy.Proxy.ServeHTTP(c.Writer, c.Request) // #nosec G107 -- reverse proxy to vetted backend
 	}
+}
+
+// listGatewayCircuitBreakers returns circuit breaker metrics for all proxied services.
+func (s *Service) listGatewayCircuitBreakers(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"circuit_breakers": s.cbManager.AllMetrics()})
 }
 
 // metricsHandler returns Prometheus metrics for standalone gateway mode.

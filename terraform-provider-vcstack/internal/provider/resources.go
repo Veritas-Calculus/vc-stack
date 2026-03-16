@@ -497,5 +497,112 @@ func dataSourceImageRead(ctx context.Context, d *schema.ResourceData, meta inter
 	return diag.Errorf("image %q not found", name)
 }
 
+// ──────────────────────────────────────────────────────────────────────
+// Router Resource
+// ──────────────────────────────────────────────────────────────────────
+
+func resourceRouter() *schema.Resource {
+	return &schema.Resource{
+		Description:   "Manages a VC Stack virtual router.",
+		CreateContext: resourceRouterCreate,
+		ReadContext:   resourceRouterRead,
+		DeleteContext: resourceRouterDelete,
+		Schema: map[string]*schema.Schema{
+			"name":                {Type: schema.TypeString, Required: true, ForceNew: true},
+			"description":         {Type: schema.TypeString, Optional: true, ForceNew: true},
+			"external_network_id": {Type: schema.TypeInt, Optional: true, ForceNew: true, Description: "ID of the external network for gateway"},
+			"enable_snat":         {Type: schema.TypeBool, Optional: true, Default: false, ForceNew: true},
+			// Computed
+			"status":     {Type: schema.TypeString, Computed: true},
+			"gateway_ip": {Type: schema.TypeString, Computed: true},
+		},
+	}
+}
+
+func resourceRouterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*vcstack.Client)
+	req := &vcstack.CreateRouterRequest{
+		Name:        d.Get("name").(string),
+		Description: d.Get("description").(string),
+		EnableSNAT:  d.Get("enable_snat").(bool),
+	}
+	if v, ok := d.GetOk("external_network_id"); ok {
+		req.ExternalNetworkID = v.(int)
+	}
+	router, err := client.Routers.Create(ctx, req)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	d.SetId(strconv.Itoa(router.ID))
+	d.Set("status", router.Status)
+	d.Set("gateway_ip", router.GatewayIP)
+	return nil
+}
+
+func resourceRouterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*vcstack.Client)
+	router, err := client.Routers.Get(ctx, d.Id())
+	if err != nil {
+		d.SetId("")
+		return nil
+	}
+	d.Set("name", router.Name)
+	d.Set("description", router.Description)
+	d.Set("status", router.Status)
+	d.Set("gateway_ip", router.GatewayIP)
+	d.Set("enable_snat", router.EnableSNAT)
+	if router.ExternalNetworkID != 0 {
+		d.Set("external_network_id", router.ExternalNetworkID)
+	}
+	return nil
+}
+
+func resourceRouterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*vcstack.Client)
+	if err := client.Routers.Delete(ctx, d.Id()); err != nil {
+		return diag.FromErr(err)
+	}
+	d.SetId("")
+	return nil
+}
+
+// ──────────────────────────────────────────────────────────────────────
+// Network Data Source
+// ──────────────────────────────────────────────────────────────────────
+
+func dataSourceNetwork() *schema.Resource {
+	return &schema.Resource{
+		Description: "Look up a VC Stack network by name.",
+		ReadContext: dataSourceNetworkRead,
+		Schema: map[string]*schema.Schema{
+			"name":     {Type: schema.TypeString, Required: true},
+			"external": {Type: schema.TypeBool, Computed: true},
+			"shared":   {Type: schema.TypeBool, Computed: true},
+			"status":   {Type: schema.TypeString, Computed: true},
+		},
+	}
+}
+
+func dataSourceNetworkRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*vcstack.Client)
+	networks, err := client.Networks.List(ctx)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	name := d.Get("name").(string)
+	for _, n := range networks {
+		if n.Name == name {
+			d.SetId(strconv.Itoa(n.ID))
+			d.Set("external", n.External)
+			d.Set("shared", n.Shared)
+			d.Set("status", n.Status)
+			return nil
+		}
+	}
+
+	return diag.Errorf("network %q not found", name)
+}
+
 // Compile-time check to satisfy fmt.Stringer for unused import.
 var _ = fmt.Sprint

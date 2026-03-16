@@ -804,3 +804,84 @@ func (uc *UserClient) Create(ctx context.Context, req *CreateUserRequest) (*User
 func (uc *UserClient) Delete(ctx context.Context, id string) error {
 	return uc.c.do(ctx, http.MethodDelete, "/v1/users/"+id, nil, nil)
 }
+
+// ──────────────────────────────────────────────────────────────────────
+// Router
+// ──────────────────────────────────────────────────────────────────────
+
+// Router represents a virtual router.
+type Router struct {
+	ID                int    `json:"id"`
+	Name              string `json:"name"`
+	Description       string `json:"description,omitempty"`
+	Status            string `json:"status,omitempty"`
+	ExternalNetworkID int    `json:"external_network_id,omitempty"`
+	GatewayIP         string `json:"gateway_ip,omitempty"`
+	TenantID          string `json:"tenant_id,omitempty"`
+	EnableSNAT        bool   `json:"enable_snat,omitempty"`
+	CreatedAt         string `json:"created_at,omitempty"`
+}
+
+// CreateRouterRequest specifies parameters for creating a router.
+type CreateRouterRequest struct {
+	Name              string `json:"name"`
+	Description       string `json:"description,omitempty"`
+	ExternalNetworkID int    `json:"external_network_id,omitempty"`
+	EnableSNAT        bool   `json:"enable_snat,omitempty"`
+}
+
+// RouterInterfaceRequest specifies parameters for adding/removing router interfaces.
+type RouterInterfaceRequest struct {
+	SubnetID string `json:"subnet_id"`
+}
+
+// RouterClient handles router operations.
+type RouterClient struct{ c *Client }
+
+// List returns all routers.
+func (rc *RouterClient) List(ctx context.Context) ([]Router, error) {
+	var resp struct {
+		Routers []Router `json:"routers"`
+	}
+	if err := rc.c.do(ctx, http.MethodGet, "/v1/routers", nil, &resp); err != nil {
+		return nil, err
+	}
+	return resp.Routers, nil
+}
+
+// Get returns a single router by ID.
+func (rc *RouterClient) Get(ctx context.Context, id string) (*Router, error) {
+	var resp struct {
+		Router Router `json:"router"`
+	}
+	if err := rc.c.do(ctx, http.MethodGet, "/v1/routers/"+id, nil, &resp); err != nil {
+		return nil, err
+	}
+	return &resp.Router, nil
+}
+
+// Create creates a new router.
+func (rc *RouterClient) Create(ctx context.Context, req *CreateRouterRequest) (*Router, error) {
+	var resp struct {
+		Router Router `json:"router"`
+	}
+	if err := rc.c.do(ctx, http.MethodPost, "/v1/routers", req, &resp); err != nil {
+		return nil, err
+	}
+	return &resp.Router, nil
+}
+
+// Delete deletes a router.
+func (rc *RouterClient) Delete(ctx context.Context, id string) error {
+	return rc.c.do(ctx, http.MethodDelete, "/v1/routers/"+id, nil, nil)
+}
+
+// AddInterface adds a subnet interface to a router.
+func (rc *RouterClient) AddInterface(ctx context.Context, routerID string, req *RouterInterfaceRequest) error {
+	return rc.c.do(ctx, http.MethodPut, fmt.Sprintf("/v1/routers/%s/add-interface", routerID), req, nil)
+}
+
+// RemoveInterface removes a subnet interface from a router.
+func (rc *RouterClient) RemoveInterface(ctx context.Context, routerID string, req *RouterInterfaceRequest) error {
+	return rc.c.do(ctx, http.MethodPut, fmt.Sprintf("/v1/routers/%s/remove-interface", routerID), req, nil)
+}

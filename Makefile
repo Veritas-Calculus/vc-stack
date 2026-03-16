@@ -83,6 +83,21 @@ test-coverage: ## Run tests with detailed coverage
 	@go tool cover -html=coverage.out -o coverage.html
 	@echo "Coverage report: coverage.html"
 
+# Minimum coverage threshold (percentage). Override: make test-coverage-check MIN_COVERAGE_PCT=40
+MIN_COVERAGE_PCT ?= 30
+
+test-coverage-check: ## Run tests and fail if coverage is below threshold
+	@echo "Running tests with coverage gate (minimum: $(MIN_COVERAGE_PCT)%)..."
+	@CGO_ENABLED=0 go test -short -coverprofile=coverage.out -covermode=atomic ./... > /dev/null 2>&1 || true
+	@total=$$(go tool cover -func=coverage.out | grep '^total:' | awk '{print $$NF}' | tr -d '%'); \
+	echo "Total coverage: $${total}%"; \
+	if [ $$(echo "$${total} < $(MIN_COVERAGE_PCT)" | bc -l) -eq 1 ]; then \
+		echo "❌ Coverage $${total}% is below minimum threshold of $(MIN_COVERAGE_PCT)%"; \
+		exit 1; \
+	else \
+		echo "✅ Coverage $${total}% meets minimum threshold of $(MIN_COVERAGE_PCT)%"; \
+	fi
+
 test-with-cgo: ## Run tests with CGO enabled (requires libvirt, ceph dev libraries)
 	@echo "Running tests with CGO enabled..."
 	@CGO_ENABLED=1 go test -v -race -coverprofile=coverage.out -covermode=atomic ./...

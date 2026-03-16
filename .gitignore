@@ -115,3 +115,4 @@ temp/
 # Playwright
 web/console/playwright-report/
 web/console/test-results/
+vcctl
