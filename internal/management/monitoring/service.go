@@ -109,6 +109,18 @@ func NewService(cfg Config) (*Service, error) {
 	// Start background health checks.
 	go s.runHealthChecks()
 
+	// P7: Auto-migrate observability models.
+	if cfg.DB != nil {
+		_ = cfg.DB.AutoMigrate(
+			&TraceSpan{},
+			&MetricNamespace{}, &CustomMetricDatum{},
+			&CustomDashboard{}, &DashboardWidget{},
+			&CompositeAlertRule{}, &AlertCondition{}, &AlertHistory{},
+			&LogEntry{}, &SavedQuery{},
+			&SecurityFinding{}, &RemediationAction{},
+		)
+	}
+
 	return s, nil
 }
 
@@ -145,6 +157,18 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	// Setup additional monitoring routes if handlers are available.
 	if s.handlers != nil {
 		s.handlers.SetupRoutes(router)
+	}
+
+	// P7: Observability sub-module routes.
+	if s.db != nil {
+		p7api := router.Group("/api/v1/monitoring")
+		p7api.Use(middleware.AuthMiddleware("", s.logger))
+		SetupOtelRoutes(p7api, s.db, s.logger)
+		SetupCustomMetricsRoutes(p7api, s.db, s.logger)
+		SetupDashboardBuilderRoutes(p7api, s.db, s.logger)
+		SetupCompositeAlertRoutes(p7api, s.db, s.logger)
+		SetupLogQueryRoutes(p7api, s.db, s.logger)
+		SetupSecurityHubRoutes(p7api, s.db, s.logger)
 	}
 }
 

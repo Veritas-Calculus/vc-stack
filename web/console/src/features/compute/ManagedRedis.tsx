@@ -130,6 +130,20 @@ export function ManagedRedis() {
       ) : (
         <DataTable columns={cols} data={instances} empty="No Redis instances" />
       )}
+      {/* Related Feature Link */}
+      <div className="card p-3 max-w-md">
+        <a href="/compute/databases/clusters" className="flex items-center justify-between group">
+          <div>
+            <p className="text-sm font-medium text-zinc-200 group-hover:text-accent transition-colors">
+              Redis Cluster Management
+            </p>
+            <p className="text-xs text-zinc-500 mt-0.5">
+              Manage sharded Redis clusters with automatic slot rebalancing
+            </p>
+          </div>
+          <span className="text-zinc-500 group-hover:text-accent">&rarr;</span>
+        </a>
+      </div>
       <Modal
         title="New Redis Instance"
         open={createOpen}

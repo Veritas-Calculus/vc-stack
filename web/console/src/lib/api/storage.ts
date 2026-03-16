@@ -215,14 +215,10 @@ export async function fetchStorageSummary(): Promise<any> {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function fetchDiskOfferings(): Promise<any[]> {
   const res = await api.get('/v1/storage/disk-offerings')
   return res.data.disk_offerings ?? []
 }
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function createDiskOffering(body: Record<string, unknown>): Promise<any> {
@@ -236,8 +232,6 @@ export async function deleteDiskOffering(id: string): Promise<void> {
 
 // ── Storage Pool Management ───────────────────────────────
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-
 // ── Storage Pool Management ───────────────────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -248,14 +242,10 @@ export async function fetchStoragePools(scope?: string): Promise<any> {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function createStoragePool(body: Record<string, unknown>): Promise<any> {
   const res = await api.post('/v1/storage/storage-pools', body)
   return res.data.pool
 }
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function updateStoragePool(id: number, body: Record<string, unknown>): Promise<any> {
@@ -268,14 +258,10 @@ export async function deleteStoragePool(id: number): Promise<void> {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function fetchVolumeById(volumeId: string): Promise<any> {
   const res = await api.get(`/v1/storage/volumes/${volumeId}`)
   return res.data.volume ?? res.data
 }
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function fetchVolumeSnapshotsByVolume(volumeId: string): Promise<any[]> {
@@ -361,3 +347,99 @@ export async function deleteStorageQoSPolicy(id: number): Promise<void> {
 }
 
 // ── N6: Preemptible Instances ───────────────────────────────
+
+// ── P6: S3 Lifecycle Policies ───────────────────────────────
+
+export type UIS3LifecyclePolicy = {
+  id: number
+  bucket_id: number
+  name: string
+  prefix: string
+  enabled: boolean
+  transition_days: number | null
+  transition_class: string | null
+  expiration_days: number | null
+  noncurrent_days: number | null
+  abort_multipart_days: number | null
+  created_at: string
+}
+
+export async function fetchS3LifecyclePolicies(bucketId: string): Promise<UIS3LifecyclePolicy[]> {
+  const res = await api.get<{ policies: UIS3LifecyclePolicy[] }>(
+    `/v1/storage/buckets/${bucketId}/lifecycle`
+  )
+  return res.data.policies ?? []
+}
+
+export async function createS3LifecyclePolicy(
+  bucketId: string,
+  body: {
+    name: string
+    prefix?: string
+    transition_days?: number
+    transition_class?: string
+    expiration_days?: number
+    noncurrent_days?: number
+    abort_multipart_days?: number
+  }
+): Promise<UIS3LifecyclePolicy> {
+  const res = await api.post<{ policy: UIS3LifecyclePolicy }>(
+    `/v1/storage/buckets/${bucketId}/lifecycle`,
+    body
+  )
+  return res.data.policy
+}
+
+export async function deleteS3LifecyclePolicy(bucketId: string, policyId: number): Promise<void> {
+  await api.delete(`/v1/storage/buckets/${bucketId}/lifecycle/${policyId}`)
+}
+
+export async function toggleS3LifecyclePolicy(
+  bucketId: string,
+  policyId: number,
+  enabled: boolean
+): Promise<void> {
+  await api.put(`/v1/storage/buckets/${bucketId}/lifecycle/${policyId}`, { enabled })
+}
+
+// ── P6: S3 Versioning ───────────────────────────────────────
+
+export type UIS3VersioningConfig = {
+  bucket_id: string
+  status: string // enabled, suspended
+  mfa_delete: boolean
+}
+
+export type UIS3ObjectVersion = {
+  key: string
+  version_id: string
+  is_latest: boolean
+  is_delete_marker: boolean
+  size: number
+  last_modified: string
+  etag: string
+}
+
+export async function fetchS3Versioning(bucketId: string): Promise<UIS3VersioningConfig> {
+  const res = await api.get<{ versioning: UIS3VersioningConfig }>(
+    `/v1/storage/buckets/${bucketId}/versioning`
+  )
+  return res.data.versioning
+}
+
+export async function setS3Versioning(
+  bucketId: string,
+  body: { status: string; mfa_delete?: boolean }
+): Promise<void> {
+  await api.put(`/v1/storage/buckets/${bucketId}/versioning`, body)
+}
+
+export async function fetchObjectVersions(
+  bucketId: string,
+  key: string
+): Promise<UIS3ObjectVersion[]> {
+  const res = await api.get<{ versions: UIS3ObjectVersion[] }>(
+    `/v1/storage/buckets/${bucketId}/objects/${encodeURIComponent(key)}/versions`
+  )
+  return res.data.versions ?? []
+}

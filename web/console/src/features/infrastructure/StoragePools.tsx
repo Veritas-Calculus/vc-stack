@@ -203,7 +203,7 @@ function StoragePoolManager({
             Add Pool
           </button>
         </div>
-        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+        {}
         <DataTable<Record<string, unknown>>
           columns={
             columns as unknown as {

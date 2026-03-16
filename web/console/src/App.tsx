@@ -17,6 +17,9 @@ const Network = lazy(() =>
 const Compute = lazy(() =>
   import('@/features/compute/Compute').then((m) => ({ default: m.Compute }))
 )
+const LaunchWizard = lazy(() =>
+  import('@/features/compute/LaunchWizard').then((m) => ({ default: m.LaunchWizard }))
+)
 const Storage = lazy(() =>
   import('@/features/storage/Storage').then((m) => ({ default: m.Storage }))
 )
@@ -66,8 +69,26 @@ const LogViewer = lazy(() =>
 const MetricsDashboard = lazy(() =>
   import('@/features/monitoring/MetricsDashboard').then((m) => ({ default: m.MetricsDashboard }))
 )
+const TraceViewer = lazy(() =>
+  import('@/features/monitoring/TraceViewer').then((m) => ({ default: m.TraceViewer }))
+)
+const SecurityHub = lazy(() =>
+  import('@/features/monitoring/SecurityHub').then((m) => ({ default: m.SecurityHub }))
+)
+const CompositeAlerts = lazy(() =>
+  import('@/features/monitoring/CompositeAlerts').then((m) => ({ default: m.CompositeAlerts }))
+)
 const LoadBalancersL7 = lazy(() =>
   import('@/features/network/LoadBalancersL7').then((m) => ({ default: m.LoadBalancersL7 }))
+)
+const TransitGateway = lazy(() =>
+  import('@/features/network/TransitGateway').then((m) => ({ default: m.TransitGateway }))
+)
+const WAFManager = lazy(() =>
+  import('@/features/network/WAFManager').then((m) => ({ default: m.WAFManager }))
+)
+const CertificateManager = lazy(() =>
+  import('@/features/network/CertificateManager').then((m) => ({ default: m.CertificateManager }))
 )
 const FlowLogs = lazy(() =>
   import('@/features/network/FlowLogs').then((m) => ({ default: m.FlowLogs }))
@@ -76,6 +97,15 @@ const VPCPeering = lazy(() =>
   import('@/features/network/VPCPeering').then((m) => ({ default: m.VPCPeering }))
 )
 const DBaaS = lazy(() => import('@/features/compute/DBaaS').then((m) => ({ default: m.DBaaS })))
+const DBClusters = lazy(() =>
+  import('@/features/compute/DBClusters').then((m) => ({ default: m.DBClusters }))
+)
+const DBParameterGroups = lazy(() =>
+  import('@/features/compute/DBParameterGroups').then((m) => ({ default: m.DBParameterGroups }))
+)
+const S3Versioning = lazy(() =>
+  import('@/features/objectstorage/S3Versioning').then((m) => ({ default: m.S3Versioning }))
+)
 const AutoScaleV2 = lazy(() =>
   import('@/features/compute/AutoScale').then((m) => ({ default: m.AutoScale }))
 )
@@ -121,6 +151,9 @@ const NATGateways = lazy(() =>
 )
 const ABACPolicies = lazy(() =>
   import('@/features/iam/ABACPolicies').then((m) => ({ default: m.ABACPolicies }))
+)
+const AccessLogs = lazy(() =>
+  import('@/features/iam/AccessLogs').then((m) => ({ default: m.AccessLogs }))
 )
 const Invoices = lazy(() =>
   import('@/features/billing/Invoices').then((m) => ({ default: m.Invoices }))
@@ -227,6 +260,24 @@ const HPCClusters = lazy(() =>
 )
 const GPUResources = lazy(() =>
   import('@/features/hpc/GPUResources').then((m) => ({ default: m.GPUResources }))
+)
+const AssumeRole = lazy(() =>
+  import('@/features/iam/AssumeRole').then((m) => ({ default: m.AssumeRole }))
+)
+const WireGuardVPN = lazy(() =>
+  import('@/features/network/WireGuardVPN').then((m) => ({ default: m.WireGuardVPN }))
+)
+const PITRManager = lazy(() =>
+  import('@/features/compute/PITRManager').then((m) => ({ default: m.PITRManager }))
+)
+const S3Lifecycle = lazy(() =>
+  import('@/features/objectstorage/S3Lifecycle').then((m) => ({ default: m.S3Lifecycle }))
+)
+const DashboardBuilder = lazy(() =>
+  import('@/features/monitoring/DashboardBuilder').then((m) => ({ default: m.DashboardBuilder }))
+)
+const LogQuery = lazy(() =>
+  import('@/features/monitoring/LogQuery').then((m) => ({ default: m.LogQuery }))
 )
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -374,12 +425,27 @@ export default function App() {
                   <Route path="/monitoring/alerts" element={<AlertRules />} />
                   <Route path="/monitoring/logs" element={<LogViewer />} />
                   <Route path="/monitoring/metrics" element={<MetricsDashboard />} />
+                  <Route path="/monitoring/traces" element={<TraceViewer />} />
+                  <Route path="/monitoring/security-hub" element={<SecurityHub />} />
+                  <Route path="/monitoring/composite-alerts" element={<CompositeAlerts />} />
+                  <Route path="/monitoring/dashboards" element={<DashboardBuilder />} />
+                  <Route path="/monitoring/log-query" element={<LogQuery />} />
                   {/* Network Enhancement */}
                   <Route path="/network/alb" element={<LoadBalancersL7 />} />
                   <Route path="/network/flow-logs" element={<FlowLogs />} />
                   <Route path="/network/peering" element={<VPCPeering />} />
+                  <Route path="/network/transit-gateway" element={<TransitGateway />} />
+                  <Route path="/network/waf" element={<WAFManager />} />
+                  <Route path="/network/certificates" element={<CertificateManager />} />
                   {/* Managed Services */}
+                  <Route path="/compute/instances/launch" element={<LaunchWizard />} />
                   <Route path="/compute/databases" element={<DBaaS />} />
+                  <Route path="/compute/databases/clusters" element={<DBClusters />} />
+                  <Route
+                    path="/compute/databases/parameter-groups"
+                    element={<DBParameterGroups />}
+                  />
+                  <Route path="/compute/databases/pitr" element={<PITRManager />} />
                   <Route path="/compute/autoscale" element={<AutoScaleV2 />} />
                   <Route path="/compute/registry" element={<ContainerRegistry />} />
                   {/* N5: IAM & Cost Governance */}
@@ -395,6 +461,8 @@ export default function App() {
                   <Route path="/compute/redis" element={<ManagedRedis />} />
                   <Route path="/network/nat-gateways" element={<NATGateways />} />
                   <Route path="/iam/abac" element={<ABACPolicies />} />
+                  <Route path="/iam/access-logs" element={<AccessLogs />} />
+                  <Route path="/iam/assume-role" element={<AssumeRole />} />
                   {/* N8: Data Services */}
                   <Route path="/compute/tidb" element={<ManagedTiDB />} />
                   <Route path="/compute/elasticsearch" element={<ManagedElasticsearch />} />
@@ -421,6 +489,7 @@ export default function App() {
                   <Route path="/webhooks" element={<Webhooks />} />
                   {/* VPN */}
                   <Route path="/vpn" element={<VPNManagement />} />
+                  <Route path="/vpn/wireguard" element={<WireGuardVPN />} />
                   {/* Backups */}
                   <Route path="/backups" element={<Backups />} />
                   {/* Auto Scale */}
@@ -429,6 +498,8 @@ export default function App() {
                   <Route path="/dns" element={<DNSManagement />} />
                   {/* Object Storage */}
                   <Route path="/object-storage" element={<ObjectStorage />} />
+                  <Route path="/object-storage/versioning" element={<S3Versioning />} />
+                  <Route path="/object-storage/lifecycle" element={<S3Lifecycle />} />
                   {/* Orchestration */}
                   <Route path="/orchestration" element={<Orchestration />} />
                   {/* RBAC */}

@@ -244,6 +244,14 @@ const PAGE_ENTRIES: SearchResult[] = [
     icon: 'settings'
   },
   {
+    id: 'p-access-logs',
+    type: 'page',
+    title: 'Access Logs',
+    subtitle: 'IAM authorization audit trail',
+    path: '/iam/access-logs',
+    icon: 'clipboard'
+  },
+  {
     id: 'p-platform',
     type: 'page',
     title: 'Platform Settings',
@@ -282,6 +290,135 @@ const PAGE_ENTRIES: SearchResult[] = [
     subtitle: 'Nodes, zones, clusters',
     path: '/infrastructure',
     icon: 'server'
+  },
+  // P4-P7 features
+  {
+    id: 'p-assume-role',
+    type: 'page',
+    title: 'Assume Role (STS)',
+    subtitle: 'Temporary credentials',
+    path: '/iam/assume-role',
+    icon: 'key'
+  },
+  {
+    id: 'p-alb',
+    type: 'page',
+    title: 'L7 Load Balancers',
+    subtitle: 'Application load balancing',
+    path: '/network/alb',
+    icon: 'globe'
+  },
+  {
+    id: 'p-transit-gw',
+    type: 'page',
+    title: 'Transit Gateway',
+    subtitle: 'Multi-VPC connectivity',
+    path: '/network/transit-gateway',
+    icon: 'globe'
+  },
+  {
+    id: 'p-waf',
+    type: 'page',
+    title: 'WAF',
+    subtitle: 'Web Application Firewall',
+    path: '/network/waf',
+    icon: 'shield'
+  },
+  {
+    id: 'p-certs',
+    type: 'page',
+    title: 'Certificates',
+    subtitle: 'TLS certificate management',
+    path: '/network/certificates',
+    icon: 'shield'
+  },
+  {
+    id: 'p-wireguard',
+    type: 'page',
+    title: 'WireGuard VPN',
+    subtitle: 'VPN server & peer management',
+    path: '/vpn/wireguard',
+    icon: 'shield'
+  },
+  {
+    id: 'p-db-clusters',
+    type: 'page',
+    title: 'DB Clusters',
+    subtitle: 'HA database clusters',
+    path: '/compute/databases/clusters',
+    icon: 'database'
+  },
+  {
+    id: 'p-param-groups',
+    type: 'page',
+    title: 'Parameter Groups',
+    subtitle: 'Database parameters',
+    path: '/compute/databases/parameter-groups',
+    icon: 'database'
+  },
+  {
+    id: 'p-pitr',
+    type: 'page',
+    title: 'Point-in-Time Recovery',
+    subtitle: 'Database PITR',
+    path: '/compute/databases/pitr',
+    icon: 'database'
+  },
+  {
+    id: 'p-s3-versioning',
+    type: 'page',
+    title: 'Object Versioning',
+    subtitle: 'S3 bucket versioning',
+    path: '/object-storage/versioning',
+    icon: 'database'
+  },
+  {
+    id: 'p-s3-lifecycle',
+    type: 'page',
+    title: 'Lifecycle Policies',
+    subtitle: 'Object lifecycle rules',
+    path: '/object-storage/lifecycle',
+    icon: 'database'
+  },
+  {
+    id: 'p-traces',
+    type: 'page',
+    title: 'Distributed Tracing',
+    subtitle: 'OpenTelemetry traces',
+    path: '/monitoring/traces',
+    icon: 'trending-up'
+  },
+  {
+    id: 'p-composite-alerts',
+    type: 'page',
+    title: 'Composite Alerts',
+    subtitle: 'Multi-metric alerts',
+    path: '/monitoring/composite-alerts',
+    icon: 'bell'
+  },
+  {
+    id: 'p-dashboards',
+    type: 'page',
+    title: 'Custom Dashboards',
+    subtitle: 'Build monitoring dashboards',
+    path: '/monitoring/dashboards',
+    icon: 'grid'
+  },
+  {
+    id: 'p-log-query',
+    type: 'page',
+    title: 'Log Query',
+    subtitle: 'Search structured logs',
+    path: '/monitoring/log-query',
+    icon: 'file-text'
+  },
+  {
+    id: 'p-security-hub',
+    type: 'page',
+    title: 'Security Hub',
+    subtitle: 'Security findings & score',
+    path: '/monitoring/security-hub',
+    icon: 'shield'
   }
 ]
 
@@ -326,15 +463,74 @@ export function CommandPalette() {
     }
   }, [open])
 
-  // Filter results
-  const results = useMemo(() => {
+  // Path mapping for resource types
+  const resourcePaths: Record<string, (id: string) => string> = {
+    instance: (id) => `/compute/instances/${id}`,
+    volume: (id) => `/storage/volumes/${id}`,
+    network: (id) => `/network/vpc/${id}`,
+    image: (id) => `/images/${id}`,
+    security_group: (id) => `/network/security-groups/${id}`
+  }
+
+  // Debounced API search for resources
+  const [apiResults, setApiResults] = useState<SearchResult[]>([])
+  const [searching, setSearching] = useState(false)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    if (!query.trim() || query.trim().length < 2) {
+      setApiResults([])
+      return
+    }
+    setSearching(true)
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const token = localStorage.getItem('token') || ''
+        const resp = await fetch(`/api/v1/search?q=${encodeURIComponent(query.trim())}&limit=8`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        if (resp.ok) {
+          const data = await resp.json()
+          const mapped = (data.results || []).map(
+            (r: { type: string; id: string; name: string; subtitle?: string }) => ({
+              id: `r-${r.type}-${r.id}`,
+              type: r.type as SearchResult['type'],
+              title: r.name,
+              subtitle: r.subtitle || r.type,
+              path: resourcePaths[r.type]?.(r.id) || `/compute/instances/${r.id}`,
+              icon: typeIcons[r.type] || 'file-text'
+            })
+          )
+          setApiResults(mapped)
+        }
+      } catch {
+        // Silently ignore search errors
+      } finally {
+        setSearching(false)
+      }
+    }, 300)
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query])
+
+  // Filter page results
+  const pageResults = useMemo(() => {
     if (!query.trim()) return PAGE_ENTRIES.slice(0, 8) // Show first 8 popular pages
     const q = query.toLowerCase()
     return PAGE_ENTRIES.filter(
       (r) =>
         r.title.toLowerCase().includes(q) || (r.subtitle && r.subtitle.toLowerCase().includes(q))
-    ).slice(0, 12)
+    ).slice(0, 8)
   }, [query])
+
+  // Combined results: pages first, then API resources
+  const results = useMemo(() => {
+    if (!query.trim()) return pageResults
+    return [...pageResults, ...apiResults]
+  }, [pageResults, apiResults, query])
 
   // Keyboard navigation
   const handleKeyDown = useCallback(
@@ -404,41 +600,99 @@ export function CommandPalette() {
 
         {/* Results */}
         <div ref={listRef} className="max-h-80 overflow-y-auto py-2">
-          {results.length === 0 ? (
+          {results.length === 0 && !searching ? (
             <div className="px-4 py-8 text-center text-sm text-content-tertiary">
               No results for &quot;{query}&quot;
             </div>
           ) : (
-            results.map((r, i) => (
-              <button
-                key={r.id}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
-                  i === selectedIndex
-                    ? 'bg-accent-subtle text-content-primary'
-                    : 'text-content-secondary hover:bg-surface-hover'
-                }`}
-                onClick={() => {
-                  navigate(r.path)
-                  setOpen(false)
-                }}
-                onMouseEnter={() => setSelectedIndex(i)}
-              >
-                <span className="text-base w-6 text-center shrink-0">
-                  {typeIcons[r.type] || 'file-text'}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium truncate">{r.title}</div>
-                  {r.subtitle && (
-                    <div className="text-xs text-content-tertiary truncate">{r.subtitle}</div>
-                  )}
+            <>
+              {/* Page results section */}
+              {pageResults.length > 0 && query.trim() && (
+                <div className="px-4 pt-1 pb-1 text-[10px] font-medium uppercase tracking-wider text-content-tertiary">
+                  Pages
                 </div>
-                {i === selectedIndex && (
-                  <kbd className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-mono text-content-tertiary bg-surface-tertiary border border-border">
-                    &#x23CE;
-                  </kbd>
-                )}
-              </button>
-            ))
+              )}
+              {pageResults.map((r) => {
+                const globalIdx = results.indexOf(r)
+                return (
+                  <button
+                    key={r.id}
+                    className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
+                      globalIdx === selectedIndex
+                        ? 'bg-accent-subtle text-content-primary'
+                        : 'text-content-secondary hover:bg-surface-hover'
+                    }`}
+                    onClick={() => {
+                      navigate(r.path)
+                      setOpen(false)
+                    }}
+                    onMouseEnter={() => setSelectedIndex(globalIdx)}
+                  >
+                    <span className="text-base w-6 text-center shrink-0">
+                      {typeIcons[r.type] || 'file-text'}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium truncate">{r.title}</div>
+                      {r.subtitle && (
+                        <div className="text-xs text-content-tertiary truncate">{r.subtitle}</div>
+                      )}
+                    </div>
+                    {globalIdx === selectedIndex && (
+                      <kbd className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-mono text-content-tertiary bg-surface-tertiary border border-border">
+                        &#x23CE;
+                      </kbd>
+                    )}
+                  </button>
+                )
+              })}
+
+              {/* API resource results section */}
+              {apiResults.length > 0 && (
+                <>
+                  <div className="px-4 pt-3 pb-1 text-[10px] font-medium uppercase tracking-wider text-content-tertiary border-t border-border mt-1">
+                    Resources
+                  </div>
+                  {apiResults.map((r) => {
+                    const globalIdx = results.indexOf(r)
+                    return (
+                      <button
+                        key={r.id}
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
+                          globalIdx === selectedIndex
+                            ? 'bg-accent-subtle text-content-primary'
+                            : 'text-content-secondary hover:bg-surface-hover'
+                        }`}
+                        onClick={() => {
+                          navigate(r.path)
+                          setOpen(false)
+                        }}
+                        onMouseEnter={() => setSelectedIndex(globalIdx)}
+                      >
+                        <span className="text-base w-6 text-center shrink-0">
+                          {typeIcons[r.type] || 'file-text'}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium truncate">{r.title}</div>
+                          <div className="text-xs text-content-tertiary truncate">{r.subtitle}</div>
+                        </div>
+                        {globalIdx === selectedIndex && (
+                          <kbd className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-mono text-content-tertiary bg-surface-tertiary border border-border">
+                            &#x23CE;
+                          </kbd>
+                        )}
+                      </button>
+                    )
+                  })}
+                </>
+              )}
+
+              {/* Loading indicator */}
+              {searching && (
+                <div className="px-4 py-2 text-xs text-content-tertiary text-center">
+                  Searching resources...
+                </div>
+              )}
+            </>
           )}
         </div>
 

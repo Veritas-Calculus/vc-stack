@@ -250,6 +250,28 @@ export function ObjectStorage() {
                   </div>
                 </div>
               </div>
+
+              {/* Feature Links */}
+              <div className="grid grid-cols-2 gap-4">
+                <a
+                  href="/object-storage/versioning"
+                  className="rounded-xl border border-border bg-surface-secondary p-4 hover:border-blue-500/50 transition-colors block"
+                >
+                  <h3 className="text-sm font-medium text-content-primary">Object Versioning</h3>
+                  <p className="text-xs text-content-tertiary mt-1">
+                    Enable version control for objects across buckets
+                  </p>
+                </a>
+                <a
+                  href="/object-storage/lifecycle"
+                  className="rounded-xl border border-border bg-surface-secondary p-4 hover:border-blue-500/50 transition-colors block"
+                >
+                  <h3 className="text-sm font-medium text-content-primary">Lifecycle Policies</h3>
+                  <p className="text-xs text-content-tertiary mt-1">
+                    Automated transition and expiration rules for cost optimization
+                  </p>
+                </a>
+              </div>
             </div>
           )}
 

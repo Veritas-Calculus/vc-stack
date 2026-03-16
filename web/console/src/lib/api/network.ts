@@ -407,14 +407,10 @@ export async function fetchBGPPeers(): Promise<any[]> {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function createBGPPeer(body: Record<string, unknown>): Promise<any> {
   const res = await api.post('/v1/bgp-peers', body)
   return res.data.bgp_peer
 }
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function fetchASNRanges(): Promise<any[]> {
@@ -423,14 +419,10 @@ export async function fetchASNRanges(): Promise<any[]> {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function createASNRange(body: Record<string, unknown>): Promise<any> {
   const res = await api.post('/v1/asn-ranges', body)
   return res.data.asn_range
 }
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function fetchASNAllocations(): Promise<any[]> {
@@ -439,16 +431,12 @@ export async function fetchASNAllocations(): Promise<any[]> {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function fetchAdvertisedRoutes(): Promise<any[]> {
   const res = await api.get('/v1/advertised-routes')
   return res.data.routes ?? []
 }
 
 // ── Storage Extended API ──────────────────────────────────
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 
 // ── L7 Application Load Balancers (ALB) ─────────────────────
 
@@ -905,5 +893,204 @@ export async function fetchInstallScript(opts?: {
   cluster_id?: string
 }): Promise<string> {
   const res = await api.get('/v1/hosts/install-script', { params: opts })
+  return res.data
+}
+
+// ── P5: Transit Gateway ─────────────────────────────────────
+
+export type UITransitGateway = {
+  id: string
+  name: string
+  description: string
+  asn: number
+  status: string
+  auto_accept_attachments: boolean
+  tenant_id: string
+  attachments?: UITGWAttachment[]
+  created_at: string
+}
+
+export type UITGWAttachment = {
+  id: string
+  resource_type: string
+  resource_id: string
+  status: string
+  created_at: string
+}
+
+export async function fetchTransitGateways(): Promise<UITransitGateway[]> {
+  const res = await api.get<{ transit_gateways: UITransitGateway[] }>('/v1/transit-gateways')
+  return res.data.transit_gateways ?? []
+}
+
+export async function createTransitGateway(body: {
+  name: string
+  description?: string
+  asn?: number
+  tenant_id: string
+}): Promise<UITransitGateway> {
+  const res = await api.post<{ transit_gateway: UITransitGateway }>('/v1/transit-gateways', body)
+  return res.data.transit_gateway
+}
+
+export async function deleteTransitGateway(id: string): Promise<void> {
+  await api.delete(`/v1/transit-gateways/${id}`)
+}
+
+// ── P5: WAF (Web Application Firewall) ──────────────────────
+
+export type UIWAFWebACL = {
+  id: number
+  name: string
+  description: string
+  default_action: string
+  status: string
+  rule_count: number
+  rules?: UIWAFRule[]
+  created_at: string
+}
+
+export type UIWAFRule = {
+  id: number
+  name: string
+  priority: number
+  action: string
+  rule_type: string
+  enabled: boolean
+}
+
+export async function fetchWAFWebACLs(): Promise<UIWAFWebACL[]> {
+  const res = await api.get<{ web_acls: UIWAFWebACL[] }>('/v1/waf/acls')
+  return res.data.web_acls ?? []
+}
+
+export async function createWAFWebACL(body: {
+  name: string
+  description?: string
+  default_action?: string
+}): Promise<UIWAFWebACL> {
+  const res = await api.post<{ web_acl: UIWAFWebACL }>('/v1/waf/acls', body)
+  return res.data.web_acl
+}
+
+export async function deleteWAFWebACL(id: number): Promise<void> {
+  await api.delete(`/v1/waf/acls/${id}`)
+}
+
+export async function seedWAFRules(aclId: number): Promise<void> {
+  await api.post(`/v1/waf/acls/${aclId}/seed`)
+}
+
+// ── P5: Certificate Management ──────────────────────────────
+
+export type UICertificate = {
+  id: string
+  name: string
+  domains: string
+  provider: string
+  status: string
+  challenge_type: string
+  issued_at: string | null
+  expires_at: string | null
+  auto_renew: boolean
+  created_at: string
+}
+
+export async function fetchCertificates(): Promise<UICertificate[]> {
+  const res = await api.get<{ certificates: UICertificate[] }>('/v1/network/certificates')
+  return res.data.certificates ?? []
+}
+
+export async function createCertificate(body: {
+  name: string
+  domains: string
+  provider?: string
+  challenge_type?: string
+}): Promise<UICertificate> {
+  const res = await api.post<{ certificate: UICertificate }>('/v1/network/certificates', body)
+  return res.data.certificate
+}
+
+export async function deleteCertificate(id: string): Promise<void> {
+  await api.delete(`/v1/network/certificates/${id}`)
+}
+
+export async function renewCertificate(id: string): Promise<void> {
+  await api.post(`/v1/network/certificates/${id}/renew`)
+}
+
+// ── P5: WireGuard VPN ───────────────────────────────────────
+
+export type UIWireGuardServer = {
+  id: number
+  name: string
+  endpoint: string
+  listen_port: number
+  address_cidr: string
+  dns: string
+  status: string
+  max_peers: number
+  peers?: UIWireGuardPeer[]
+  created_at: string
+}
+
+export type UIWireGuardPeer = {
+  id: number
+  name: string
+  public_key: string
+  allowed_ips: string
+  status: string
+  transfer_rx: number
+  transfer_tx: number
+  last_handshake: string | null
+  created_at: string
+}
+
+export async function fetchWireGuardServers(): Promise<UIWireGuardServer[]> {
+  const res = await api.get<{ servers: UIWireGuardServer[] }>('/v1/vpn/wireguard/servers')
+  return res.data.servers ?? []
+}
+
+export async function getWireGuardServer(id: number): Promise<UIWireGuardServer> {
+  const res = await api.get<{ server: UIWireGuardServer }>(`/v1/vpn/wireguard/servers/${id}`)
+  return res.data.server
+}
+
+export async function createWireGuardServer(body: {
+  name: string
+  endpoint?: string
+  listen_port?: number
+  address_cidr: string
+  dns?: string
+  tenant_id: string
+}): Promise<UIWireGuardServer> {
+  const res = await api.post<{ server: UIWireGuardServer }>('/v1/vpn/wireguard/servers', body)
+  return res.data.server
+}
+
+export async function deleteWireGuardServer(id: number): Promise<void> {
+  await api.delete(`/v1/vpn/wireguard/servers/${id}`)
+}
+
+export async function addWireGuardPeer(
+  serverId: number,
+  body: { name: string; allowed_ips: string }
+): Promise<UIWireGuardPeer> {
+  const res = await api.post<{ peer: UIWireGuardPeer }>(
+    `/v1/vpn/wireguard/servers/${serverId}/peers`,
+    body
+  )
+  return res.data.peer
+}
+
+export async function deleteWireGuardPeer(serverId: number, peerId: number): Promise<void> {
+  await api.delete(`/v1/vpn/wireguard/servers/${serverId}/peers/${peerId}`)
+}
+
+export async function downloadPeerConfig(serverId: number, peerId: number): Promise<string> {
+  const res = await api.get<string>(
+    `/v1/vpn/wireguard/servers/${serverId}/peers/${peerId}/config`,
+    { responseType: 'text' as never }
+  )
   return res.data
 }

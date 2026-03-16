@@ -346,3 +346,22 @@ export async function deleteABACPolicy(id: number): Promise<void> {
 }
 
 // ── N8: Managed TiDB ────────────────────────────────────────
+
+// ── P4: STS AssumeRole ──────────────────────────────────────
+
+export type UISTSCredentials = {
+  access_key_id: string
+  secret_access_key: string
+  session_token: string
+  expiration: string
+}
+
+export async function assumeRole(body: {
+  role_arn: string
+  session_name: string
+  duration_seconds?: number
+  policy?: string
+}): Promise<UISTSCredentials> {
+  const res = await api.post<{ credentials: UISTSCredentials }>('/v1/sts/assume-role', body)
+  return res.data.credentials
+}

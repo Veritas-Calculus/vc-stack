@@ -84,11 +84,25 @@ export function Dashboard() {
   const activeProjectId = useAppStore((s) => s.activeProjectId)
   const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [securityScore, setSecurityScore] = useState<number | null>(null)
+  const [activeAlertCount, setActiveAlertCount] = useState<number | null>(null)
 
   const fetchDashboard = useCallback(async () => {
     try {
       const res = await api.get<DashboardData>('/v1/dashboard/summary')
       setData(res.data)
+      // Fetch security score & active alert count (best-effort)
+      try {
+        const [secRes, alertRes] = await Promise.all([
+          api.get<{ summary: { security_score: number } }>('/v1/monitoring/security-hub/summary'),
+          api.get<{ rules: Array<{ state: string }> }>('/v1/alerts/rules')
+        ])
+        setSecurityScore(secRes.data.summary?.security_score ?? null)
+        const firing = (alertRes.data.rules ?? []).filter((r) => r.state === 'firing').length
+        setActiveAlertCount(firing)
+      } catch {
+        // security hub / alerts may not be ready yet
+      }
     } catch (err) {
       console.error('Dashboard fetch failed:', err)
     } finally {
@@ -358,6 +372,78 @@ export function Dashboard() {
             <div className="text-xs text-content-tertiary">{item.desc}</div>
           </div>
         ))}
+      </div>
+
+      {/* Security & Alerts Quick Status */}
+      <div className="grid grid-cols-2 gap-4 mb-6">
+        <button
+          onClick={() => navigate('/monitoring/security-hub')}
+          className="rounded-xl border border-border bg-surface-secondary backdrop-blur p-5 text-left hover:bg-surface-tertiary transition-all group"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-medium text-content-secondary">Security Score</h3>
+            <span className="text-xs text-accent group-hover:underline">View Hub &rarr;</span>
+          </div>
+          {securityScore !== null ? (
+            <div className="flex items-end gap-3">
+              <span
+                className={`text-4xl font-bold ${
+                  securityScore >= 80
+                    ? 'text-status-text-success'
+                    : securityScore >= 60
+                      ? 'text-status-text-warning'
+                      : 'text-status-text-error'
+                }`}
+              >
+                {securityScore}
+              </span>
+              <span className="text-content-tertiary text-sm mb-1">/ 100</span>
+              <div className="flex-1 h-2.5 rounded-full bg-surface-tertiary overflow-hidden mb-2">
+                <div
+                  className={`h-full rounded-full transition-all duration-700 ${
+                    securityScore >= 80
+                      ? 'bg-emerald-500'
+                      : securityScore >= 60
+                        ? 'bg-amber-500'
+                        : 'bg-red-500'
+                  }`}
+                  style={{ width: `${Math.min(100, securityScore)}%` }}
+                />
+              </div>
+            </div>
+          ) : (
+            <span className="text-content-tertiary text-sm">Not available</span>
+          )}
+        </button>
+        <button
+          onClick={() => navigate('/monitoring/alerts')}
+          className="rounded-xl border border-border bg-surface-secondary backdrop-blur p-5 text-left hover:bg-surface-tertiary transition-all group"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-medium text-content-secondary">Active Alerts</h3>
+            <span className="text-xs text-accent group-hover:underline">View Rules &rarr;</span>
+          </div>
+          {activeAlertCount !== null ? (
+            <div className="flex items-end gap-2">
+              <span
+                className={`text-4xl font-bold ${
+                  activeAlertCount === 0
+                    ? 'text-status-text-success'
+                    : activeAlertCount <= 3
+                      ? 'text-status-text-warning'
+                      : 'text-status-text-error'
+                }`}
+              >
+                {activeAlertCount}
+              </span>
+              <span className="text-content-tertiary text-sm mb-1">
+                {activeAlertCount === 0 ? 'All clear' : 'firing'}
+              </span>
+            </div>
+          ) : (
+            <span className="text-content-tertiary text-sm">Not available</span>
+          )}
+        </button>
       </div>
 
       {/* Recent Events */}

@@ -400,24 +400,11 @@ export function Instances() {
           </select>
           <button
             className="btn-primary h-9 w-40"
-            onClick={async () => {
-              setOpen(true)
-              // Ensure latest images/networks/ssh keys are shown when opening the modal
-              try {
-                const [im, nw, keys] = await Promise.allSettled([
-                  fetchImages(projectId),
-                  fetchNetworks(projectId),
-                  fetchSSHKeys(projectId)
-                ])
-                if (im.status === 'fulfilled') setImgs(im.value)
-                if (nw.status === 'fulfilled') setNets(nw.value)
-                if (keys.status === 'fulfilled') setSshKeys(keys.value)
-              } catch {
-                /* noop */
-              }
+            onClick={() => {
+              window.location.href = `/project/${projectId}/compute/instances/launch`
             }}
           >
-            Add Instance
+            Launch Instance
           </button>
           {selectedIds.size > 0 && (
             <div className="flex items-center gap-2 ml-2">

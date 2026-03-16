@@ -393,6 +393,24 @@ func (s *Service) migrateDatabase() error {
 		// DNS models.
 		&DNSRecord{},
 		&DNSZoneConfig{},
+		// P5: L7 Load Balancer models.
+		&L7LoadBalancer{},
+		&L7Listener{},
+		&L7Rule{},
+		&L7BackendPool{},
+		&L7PoolMember{},
+		// P5: Transit Gateway models.
+		&TransitGateway{},
+		&TGWAttachment{},
+		&TGWRouteTable{},
+		&TGWRoute{},
+		// P5: WAF models.
+		&WAFWebACL{},
+		&WAFRuleGroup{},
+		&WAFRule{},
+		// P5: Certificate models.
+		&Certificate{},
+		&CertificateDomainValidation{},
 	); err != nil {
 		return err
 	}
@@ -753,6 +771,63 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		// DNS zone config per network.
 		networks.GET("/:id/dns-zone", rp("dns_zone", "list"), s.getDNSZoneConfig)
 		networks.PUT("/:id/dns-zone", rp("dns_zone", "update"), s.upsertDNSZoneConfig)
+
+		// P5-01: L7 Load Balancer routes.
+		l7lbs := api.Group("/l7-loadbalancers")
+		{
+			l7lbs.GET("", rp("network", "list"), s.listL7LoadBalancers)
+			l7lbs.POST("", rp("network", "create"), s.createL7LoadBalancer)
+			l7lbs.GET("/:id", rp("network", "get"), s.getL7LoadBalancer)
+			l7lbs.DELETE("/:id", rp("network", "delete"), s.deleteL7LoadBalancer)
+			// Listeners.
+			l7lbs.POST("/:id/listeners", rp("network", "create"), s.createL7Listener)
+			l7lbs.POST("/:id/listeners/:listenerId/rules", rp("network", "create"), s.createL7Rule)
+			l7lbs.DELETE("/:id/listeners/:listenerId/rules/:ruleId", rp("network", "delete"), s.deleteL7Rule)
+			// Pools.
+			l7lbs.POST("/:id/pools", rp("network", "create"), s.createL7Pool)
+			l7lbs.POST("/:id/pools/:poolId/members", rp("network", "create"), s.addL7PoolMember)
+			l7lbs.DELETE("/:id/pools/:poolId/members/:memberId", rp("network", "delete"), s.removeL7PoolMember)
+		}
+
+		// P5-04: Transit Gateway routes.
+		tgws := api.Group("/transit-gateways")
+		{
+			tgws.GET("", rp("network", "list"), s.listTransitGateways)
+			tgws.POST("", rp("network", "create"), s.createTransitGateway)
+			tgws.GET("/:id", rp("network", "get"), s.getTransitGateway)
+			tgws.DELETE("/:id", rp("network", "delete"), s.deleteTransitGateway)
+			// Attachments.
+			tgws.POST("/:id/attachments", rp("network", "create"), s.createTGWAttachment)
+			tgws.DELETE("/:id/attachments/:attachmentId", rp("network", "delete"), s.deleteTGWAttachment)
+			// Route Tables.
+			tgws.POST("/:id/route-tables/:routeTableId/routes", rp("network", "create"), s.createTGWRoute)
+			tgws.DELETE("/:id/route-tables/:routeTableId/routes/:routeId", rp("network", "delete"), s.deleteTGWRoute)
+		}
+
+		// P5-05: WAF routes.
+		waf := api.Group("/waf")
+		{
+			waf.GET("/web-acls", rp("security_group", "list"), s.listWAFWebACLs)
+			waf.POST("/web-acls", rp("security_group", "create"), s.createWAFWebACL)
+			waf.GET("/web-acls/:id", rp("security_group", "get"), s.getWAFWebACL)
+			waf.DELETE("/web-acls/:id", rp("security_group", "delete"), s.deleteWAFWebACL)
+			// Rule groups.
+			waf.POST("/web-acls/:id/rule-groups", rp("security_group", "create"), s.createWAFRuleGroup)
+			// Rules.
+			waf.POST("/rule-groups/:ruleGroupId/rules", rp("security_group", "create"), s.createWAFRule)
+			waf.DELETE("/rule-groups/:ruleGroupId/rules/:ruleId", rp("security_group", "delete"), s.deleteWAFRule)
+		}
+
+		// P5-06: Certificate management routes.
+		certs := api.Group("/certificates")
+		{
+			certs.GET("", rp("network", "list"), s.listCertificates)
+			certs.POST("", rp("network", "create"), s.createCertificate)
+			certs.GET("/:id", rp("network", "get"), s.getCertificate)
+			certs.DELETE("/:id", rp("network", "delete"), s.deleteCertificate)
+			certs.POST("/:id/upload", rp("network", "update"), s.uploadCertificate)
+			certs.POST("/:id/renew", rp("network", "update"), s.renewCertificate)
+		}
 	}
 
 	// Health check under network prefix to avoid conflicts.

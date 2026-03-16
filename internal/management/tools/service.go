@@ -92,6 +92,8 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 			webhooks.POST("/:id/test", rp("tools", "create"), s.testWebhook)
 		}
 	}
+	// Global search (accessible to all authenticated users).
+	s.setupSearchRoutes(router)
 }
 
 // --- Comment handlers ---

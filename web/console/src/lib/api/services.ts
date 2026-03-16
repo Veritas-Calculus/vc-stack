@@ -344,3 +344,254 @@ export async function fetchDepGraph(stackID: number): Promise<UIDepNode[]> {
 }
 
 // ── N9: GPU / vGPU Scheduler ────────────────────────────────
+
+// ── P6: DBaaS Cluster Management ────────────────────────────
+
+export type UIDBCluster = {
+  id: number
+  name: string
+  engine: string
+  engine_version: string
+  cluster_mode: string
+  status: string
+  primary_endpoint: string
+  reader_endpoint: string
+  port: number
+  nodes?: UIClusterNode[]
+  created_at: string
+}
+
+export type UIClusterNode = {
+  id: number
+  cluster_id: number
+  role: string
+  host_id: string
+  instance_id: string
+  status: string
+  lag_bytes: number
+  created_at: string
+}
+
+export type UIClusterEvent = {
+  id: number
+  cluster_id: number
+  event_type: string
+  severity: string
+  message: string
+  source_node: string
+  created_at: string
+}
+
+export async function fetchDBClusters(): Promise<UIDBCluster[]> {
+  const res = await api.get<{ clusters: UIDBCluster[] }>('/v1/dbaas/clusters')
+  return res.data.clusters ?? []
+}
+
+export async function getDBCluster(id: number): Promise<UIDBCluster> {
+  const res = await api.get<{ cluster: UIDBCluster }>(`/v1/dbaas/clusters/${id}`)
+  return res.data.cluster
+}
+
+export async function createDBCluster(body: {
+  name: string
+  engine: string
+  engine_version?: string
+  cluster_mode?: string
+  node_count?: number
+  tenant_id?: string
+}): Promise<UIDBCluster> {
+  const res = await api.post<{ cluster: UIDBCluster }>('/v1/dbaas/clusters', body)
+  return res.data.cluster
+}
+
+export async function deleteDBCluster(id: number): Promise<void> {
+  await api.delete(`/v1/dbaas/clusters/${id}`)
+}
+
+export async function triggerClusterFailover(id: number): Promise<void> {
+  await api.post(`/v1/dbaas/clusters/${id}/failover`)
+}
+
+export async function addClusterNode(clusterId: number, body: { role?: string }): Promise<void> {
+  await api.post(`/v1/dbaas/clusters/${clusterId}/nodes`, body)
+}
+
+export async function fetchClusterEvents(
+  clusterId: number,
+  limit?: number
+): Promise<UIClusterEvent[]> {
+  const res = await api.get<{ events: UIClusterEvent[] }>(
+    `/v1/dbaas/clusters/${clusterId}/events`,
+    { params: limit ? { limit: String(limit) } : undefined }
+  )
+  return res.data.events ?? []
+}
+
+// ── P6: DB Parameter Groups ─────────────────────────────────
+
+export type UIDBParameterGroup = {
+  id: number
+  name: string
+  family: string
+  description: string
+  is_default: boolean
+  values?: UIDBParameterValue[]
+  created_at: string
+}
+
+export type UIDBParameterValue = {
+  id: number
+  parameter_name: string
+  value: string
+  default_value: string
+  data_type: string
+  apply_method: string
+  is_modifiable: boolean
+}
+
+export async function fetchDBParameterGroups(): Promise<UIDBParameterGroup[]> {
+  const res = await api.get<{ parameter_groups: UIDBParameterGroup[] }>(
+    '/v1/dbaas/parameter-groups'
+  )
+  return res.data.parameter_groups ?? []
+}
+
+export async function getDBParameterGroup(id: number): Promise<UIDBParameterGroup> {
+  const res = await api.get<{ parameter_group: UIDBParameterGroup }>(
+    `/v1/dbaas/parameter-groups/${id}`
+  )
+  return res.data.parameter_group
+}
+
+export async function createDBParameterGroup(body: {
+  name: string
+  family: string
+  description?: string
+}): Promise<UIDBParameterGroup> {
+  const res = await api.post<{ parameter_group: UIDBParameterGroup }>(
+    '/v1/dbaas/parameter-groups',
+    body
+  )
+  return res.data.parameter_group
+}
+
+export async function deleteDBParameterGroup(id: number): Promise<void> {
+  await api.delete(`/v1/dbaas/parameter-groups/${id}`)
+}
+
+export async function updateDBParameter(
+  groupId: number,
+  paramName: string,
+  value: string
+): Promise<void> {
+  await api.put(`/v1/dbaas/parameter-groups/${groupId}/parameters/${paramName}`, { value })
+}
+
+// ── P6: Point-in-Time Recovery (PITR) ───────────────────────
+
+export type UIPITRConfig = {
+  id: number
+  instance_id: number
+  enabled: boolean
+  archive_destination: string
+  retention_days: number
+  compression_type: string
+  earliest_restore_point: string | null
+  latest_restore_point: string | null
+  status: string
+}
+
+export type UIPITRRestoreJob = {
+  id: number
+  target_name: string
+  restore_timestamp: string
+  status: string
+  progress: number
+  error_message: string
+  started_at: string | null
+  completed_at: string | null
+  created_at: string
+}
+
+export async function fetchPITRConfig(instanceId: string | number): Promise<UIPITRConfig> {
+  const res = await api.get<{ pitr_config: UIPITRConfig }>(`/v1/dbaas/instances/${instanceId}/pitr`)
+  return res.data.pitr_config
+}
+
+export async function enablePITR(
+  instanceId: string | number,
+  body: { archive_destination: string; retention_days?: number; compression_type?: string }
+): Promise<void> {
+  await api.post(`/v1/dbaas/instances/${instanceId}/pitr/enable`, body)
+}
+
+export async function disablePITR(instanceId: string | number): Promise<void> {
+  await api.post(`/v1/dbaas/instances/${instanceId}/pitr/disable`)
+}
+
+export async function startPITRRestore(
+  instanceId: string | number,
+  body: { target_name: string; restore_timestamp: string }
+): Promise<UIPITRRestoreJob> {
+  const res = await api.post<{ restore_job: UIPITRRestoreJob }>(
+    `/v1/dbaas/instances/${instanceId}/pitr/restore`,
+    body
+  )
+  return res.data.restore_job
+}
+
+export async function fetchPITRRestoreJobs(
+  instanceId: string | number
+): Promise<UIPITRRestoreJob[]> {
+  const res = await api.get<{ restore_jobs: UIPITRRestoreJob[] }>(
+    `/v1/dbaas/instances/${instanceId}/pitr/restore-jobs`
+  )
+  return res.data.restore_jobs ?? []
+}
+
+// ── P6: Managed Redis Clusters ──────────────────────────────
+
+export type UIRedisCluster = {
+  id: number
+  name: string
+  version: string
+  cluster_mode: string
+  status: string
+  shard_count: number
+  replicas_per_shard: number
+  endpoint: string
+  auth_token: string
+  nodes?: UIRedisClusterNode[]
+  created_at: string
+}
+
+export type UIRedisClusterNode = {
+  id: number
+  role: string
+  shard_index: number
+  host_id: string
+  address: string
+  slots: string
+  status: string
+}
+
+export async function fetchRedisClusters(): Promise<UIRedisCluster[]> {
+  const res = await api.get<{ clusters: UIRedisCluster[] }>('/v1/redis/clusters')
+  return res.data.clusters ?? []
+}
+
+export async function createRedisCluster(body: {
+  name: string
+  version?: string
+  cluster_mode?: string
+  shard_count?: number
+  replicas_per_shard?: number
+  tenant_id?: string
+}): Promise<UIRedisCluster> {
+  const res = await api.post<{ cluster: UIRedisCluster }>('/v1/redis/clusters', body)
+  return res.data.cluster
+}
+
+export async function deleteRedisCluster(id: number): Promise<void> {
+  await api.delete(`/v1/redis/clusters/${id}`)
+}

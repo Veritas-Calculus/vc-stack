@@ -29,7 +29,11 @@ export function getGlobalSections(): SidebarSection[] {
         { to: '/kubernetes', label: 'Kubernetes' },
         { to: '/bare-metal', label: 'Bare Metal' },
         { to: '/autoscale', label: 'Auto Scale' },
-        { to: '/affinity-groups', label: 'Affinity Groups' }
+        { to: '/affinity-groups', label: 'Affinity Groups' },
+        { to: '/compute/databases', label: 'Managed Databases' },
+        { to: '/compute/databases/clusters', label: 'DB Clusters' },
+        { to: '/compute/databases/parameter-groups', label: 'Parameter Groups' },
+        { to: '/compute/databases/pitr', label: 'Point-in-Time Recovery' }
       ]
     },
 
@@ -40,6 +44,8 @@ export function getGlobalSections(): SidebarSection[] {
       base: '/_storage',
       children: [
         { to: '/object-storage', label: 'Object Storage' },
+        { to: '/object-storage/versioning', label: 'Object Versioning' },
+        { to: '/object-storage/lifecycle', label: 'Lifecycle Policies' },
         { to: '/backups', label: 'Backups' }
       ]
     },
@@ -51,7 +57,12 @@ export function getGlobalSections(): SidebarSection[] {
       base: '/_network',
       children: [
         { to: '/vpn', label: 'VPN' },
-        { to: '/dns', label: 'DNS' }
+        { to: '/vpn/wireguard', label: 'WireGuard VPN' },
+        { to: '/dns', label: 'DNS' },
+        { to: '/network/alb', label: 'L7 Load Balancers' },
+        { to: '/network/transit-gateway', label: 'Transit Gateway' },
+        { to: '/network/waf', label: 'WAF' },
+        { to: '/network/certificates', label: 'Certificates' }
       ]
     },
 
@@ -82,10 +93,28 @@ export function getGlobalSections(): SidebarSection[] {
       base: '/_security',
       children: [
         { to: '/rbac', label: 'Access Control' },
+        { to: '/iam/assume-role', label: 'Assume Role (STS)' },
         { to: '/kms', label: 'Key Management' },
         { to: '/encryption', label: 'Data Encryption' },
         { to: '/federation', label: 'Federation' },
-        { to: '/compliance-audit', label: 'Compliance' }
+        { to: '/compliance-audit', label: 'Compliance' },
+        { to: '/monitoring/security-hub', label: 'Security Hub' }
+      ]
+    },
+
+    // -- Observability ----------------------------------------
+    {
+      type: 'group',
+      label: 'Observability',
+      base: '/_observability',
+      children: [
+        { to: '/monitoring/metrics', label: 'Metrics' },
+        { to: '/monitoring/alerts', label: 'Alert Rules' },
+        { to: '/monitoring/composite-alerts', label: 'Composite Alerts' },
+        { to: '/monitoring/logs', label: 'Logs' },
+        { to: '/monitoring/log-query', label: 'Log Query' },
+        { to: '/monitoring/traces', label: 'Traces' },
+        { to: '/monitoring/dashboards', label: 'Dashboards' }
       ]
     },
 
@@ -194,10 +223,15 @@ export function getProjectSections(projectId: string): SidebarSection[] {
         { to: `${prefix}/network/port-forwarding`, label: 'Port Forwarding' },
         { to: `${prefix}/network/qos`, label: 'QoS Policies' },
         { to: `${prefix}/network/vpn`, label: 'VPN' },
+        { to: '/vpn/wireguard', label: 'WireGuard VPN' },
         { to: `${prefix}/dns`, label: 'DNS' },
         { to: `${prefix}/network/acl`, label: 'Network ACL' },
         { to: `${prefix}/network/asns`, label: 'ASNs' },
-        { to: `${prefix}/network/bgp`, label: 'BGP / Dynamic Routing' }
+        { to: `${prefix}/network/bgp`, label: 'BGP / Dynamic Routing' },
+        { to: '/network/alb', label: 'L7 Load Balancers' },
+        { to: '/network/transit-gateway', label: 'Transit Gateway' },
+        { to: '/network/waf', label: 'WAF' },
+        { to: '/network/certificates', label: 'Certificates' }
       ]
     },
 
@@ -241,10 +275,28 @@ export function getProjectSections(projectId: string): SidebarSection[] {
       base: `${prefix}/security`,
       children: [
         { to: `${prefix}/rbac`, label: 'Access Control' },
+        { to: '/iam/assume-role', label: 'Assume Role (STS)' },
         { to: `${prefix}/kms`, label: 'Key Management' },
         { to: `${prefix}/encryption`, label: 'Data Encryption' },
         { to: `${prefix}/federation`, label: 'Federation' },
-        { to: `${prefix}/compliance-audit`, label: 'Compliance' }
+        { to: `${prefix}/compliance-audit`, label: 'Compliance' },
+        { to: '/monitoring/security-hub', label: 'Security Hub' }
+      ]
+    },
+
+    // -- Observability ----------------------------------------
+    {
+      type: 'group',
+      label: 'Observability',
+      base: `${prefix}/observability`,
+      children: [
+        { to: '/monitoring/metrics', label: 'Metrics' },
+        { to: '/monitoring/alerts', label: 'Alert Rules' },
+        { to: '/monitoring/composite-alerts', label: 'Composite Alerts' },
+        { to: '/monitoring/logs', label: 'Logs' },
+        { to: '/monitoring/log-query', label: 'Log Query' },
+        { to: '/monitoring/traces', label: 'Traces' },
+        { to: '/monitoring/dashboards', label: 'Dashboards' }
       ]
     },
 

@@ -71,7 +71,10 @@ type Service struct {
 }
 
 func NewService(cfg Config) (*Service, error) {
-	if err := cfg.DB.AutoMigrate(&Instance{}, &Snapshot{}); err != nil {
+	if err := cfg.DB.AutoMigrate(&Instance{}, &Snapshot{},
+		// P6 models.
+		&RedisCluster{}, &RedisNode{},
+	); err != nil {
 		return nil, fmt.Errorf("redis auto-migrate: %w", err)
 	}
 	return &Service{db: cfg.DB, logger: cfg.Logger, jwtSecret: cfg.JWTSecret}, nil
@@ -170,6 +173,13 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		api.POST("/instances/:id/scale", s.handleScale)
 		api.GET("/instances/:id/snapshots", s.handleListSnapshots)
 		api.POST("/instances/:id/snapshots", s.handleCreateSnapshot)
+		// P6-06: Redis cluster orchestration.
+		api.GET("/clusters", s.handleListClusters)
+		api.POST("/clusters", s.handleCreateCluster)
+		api.GET("/clusters/:clusterId", s.handleGetCluster)
+		api.DELETE("/clusters/:clusterId", s.handleDeleteCluster)
+		api.POST("/clusters/:clusterId/failover", s.handleFailover)
+		api.POST("/clusters/:clusterId/rebalance", s.handleRebalance)
 	}
 }
 

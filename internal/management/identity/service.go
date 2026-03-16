@@ -294,6 +294,9 @@ func (s *Service) migrate() error {
 		&PermissionBoundary{},
 		// Access Log table (P6)
 		&AccessLogEntry{},
+		// STS tables (P4)
+		&STSSession{},
+		&RoleTrustPolicy{},
 	); err != nil {
 		return fmt.Errorf("failed to auto-migrate identity models: %w", err)
 	}

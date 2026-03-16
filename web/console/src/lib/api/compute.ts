@@ -500,8 +500,6 @@ export async function resetInstancePassword(instanceId: string, adminPass: strin
 
 // ── BGP / ASN API ─────────────────────────────────────────
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-
 // ── Launch Templates & Scaling Groups ───────────────────────
 
 export type UILaunchTemplate = {

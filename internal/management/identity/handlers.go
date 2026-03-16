@@ -131,6 +131,9 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 
 			// Access Logging, Simulator, Analyzer (P6).
 			s.SetupAccessAnalyticsRoutes(protected)
+
+			// STS / AssumeRole (P4).
+			s.SetupSTSRoutes(protected)
 		}
 	}
 

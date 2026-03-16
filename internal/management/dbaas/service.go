@@ -89,7 +89,12 @@ type Service struct {
 
 // NewService creates a new DBaaS service.
 func NewService(cfg Config) (*Service, error) {
-	if err := cfg.DB.AutoMigrate(&DBInstance{}, &DBReplica{}, &DBBackup{}); err != nil {
+	if err := cfg.DB.AutoMigrate(&DBInstance{}, &DBReplica{}, &DBBackup{},
+		// P6 models.
+		&DBCluster{}, &ClusterNode{}, &ClusterEvent{},
+		&DBParameterGroup{},
+		&PITRConfig{}, &PITRRestoreJob{},
+	); err != nil {
 		return nil, fmt.Errorf("dbaas auto-migrate: %w", err)
 	}
 	return &Service{db: cfg.DB, logger: cfg.Logger}, nil
@@ -263,11 +268,38 @@ func (s *Service) SetupRoutes(router *gin.Engine, jwtSecret string) {
 		api.GET("/:id/backups", s.handleListBackups)
 		api.POST("/:id/backups", s.handleCreateBackup)
 		api.DELETE("/backups/:bid", s.handleDeleteBackup)
+		// P6-01: Cluster orchestration.
+		api.GET("/clusters", s.handleListClusters)
+		api.POST("/clusters", s.handleCreateCluster)
+		api.GET("/clusters/:id", s.handleGetCluster)
+		api.DELETE("/clusters/:id", s.handleDeleteCluster)
+		api.POST("/clusters/:id/failover", s.handleFailover)
+		api.POST("/clusters/:id/switchover", s.handleSwitchover)
+		api.POST("/clusters/:id/nodes", s.handleAddNode)
+		api.DELETE("/clusters/:id/nodes/:nodeId", s.handleRemoveNode)
+		api.GET("/clusters/:id/status", s.handleClusterStatus)
+		// P6-02: Parameter groups.
+		api.GET("/parameter-groups", s.handleListParameterGroups)
+		api.POST("/parameter-groups", s.handleCreateParameterGroup)
+		api.GET("/parameter-groups/:pgId", s.handleGetParameterGroup)
+		api.PUT("/parameter-groups/:pgId", s.handleUpdateParameterGroup)
+		api.DELETE("/parameter-groups/:pgId", s.handleDeleteParameterGroup)
+		api.POST("/parameter-groups/:pgId/apply", s.handleApplyParameterGroup)
+		// P6-03: PITR.
+		api.GET("/:id/pitr", s.handleGetPITRConfig)
+		api.POST("/:id/pitr/enable", s.handleEnablePITR)
+		api.POST("/:id/pitr/disable", s.handleDisablePITR)
+		api.POST("/:id/pitr/restore", s.handleRestorePITR)
+		api.GET("/:id/pitr/jobs", s.handleListRestoreJobs)
 	}
+
+	// Seed default parameter groups.
+	s.seedDefaultParameterGroups()
 }
 
 func (s *Service) handleList(c *gin.Context) {
-	instances, err := s.List(0)
+	projectID := extractProjectID(c)
+	instances, err := s.List(projectID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -281,7 +313,8 @@ func (s *Service) handleCreate(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	inst, err := s.Create(0, &req)
+	projectID := extractProjectID(c)
+	inst, err := s.Create(projectID, &req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -388,6 +421,25 @@ func (s *Service) handleDeleteBackup(c *gin.Context) {
 }
 
 // ──────────────────────────────────────────────────────────────────────
+
+// extractProjectID safely extracts the project_id from gin context.
+// JWT MapClaims stores numeric values as float64.
+func extractProjectID(c *gin.Context) uint {
+	v, exists := c.Get("project_id")
+	if !exists {
+		return 0
+	}
+	switch pid := v.(type) {
+	case float64:
+		return uint(pid)
+	case uint:
+		return pid
+	case int:
+		return uint(pid)
+	default:
+		return 0
+	}
+}
 
 func defaultStr(v, d string) string {
 	if v == "" {

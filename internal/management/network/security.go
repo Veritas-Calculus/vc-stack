@@ -5,6 +5,7 @@ package network
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/Veritas-Calculus/vc-stack/pkg/naming"
 	"github.com/gin-gonic/gin"
@@ -230,6 +231,12 @@ func (s *Service) createSecurityGroupRule(c *gin.Context) {
 		return
 	}
 
+	// Validate mutual exclusivity of RemoteIPPrefix and RemoteGroupID.
+	if req.RemoteIPPrefix != "" && req.RemoteGroupID != "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "remote_ip_prefix and remote_group_id are mutually exclusive"})
+		return
+	}
+
 	// Check if security group exists.
 	var securityGroup SecurityGroup
 	if err := s.db.First(&securityGroup, "id = ?", req.SecurityGroupID).Error; err != nil {
@@ -315,7 +322,7 @@ func (s *Service) applyPortSecurityACLs(port *NetworkPort) error {
 			if r.Direction == "egress" {
 				dir = "from-lport"
 			}
-			match := buildOVNMatch(r)
+			match := s.buildOVNMatch(r)
 			if match == "" {
 				continue
 			}
@@ -362,7 +369,9 @@ func parseCSV(s string) []string {
 	return out
 }
 
-func buildOVNMatch(r SecurityGroupRule) string {
+// buildOVNMatch converts a SecurityGroupRule to an OVN ACL match clause.
+// When RemoteGroupID is set, it resolves the SG's member port IPs from the DB.
+func (s *Service) buildOVNMatch(r SecurityGroupRule) string {
 	// Basic conversion: protocol + (ports) + remote IP.
 	match := ""
 	if r.Protocol != "" {
@@ -370,15 +379,50 @@ func buildOVNMatch(r SecurityGroupRule) string {
 	} else {
 		match += "ip"
 	}
-	if r.RemoteIPPrefix != "" {
+
+	// Resolve remote source/destination.
+	if r.RemoteGroupID != "" {
+		// Look up all ports that reference this security group and collect their IPs.
+		ips := s.resolveSecurityGroupIPs(r.RemoteGroupID)
+		if len(ips) > 0 {
+			ipSet := "{" + strings.Join(ips, ", ") + "}"
+			if r.Direction == "ingress" {
+				match += fmt.Sprintf(" && ip4.src == %s", ipSet)
+			} else {
+				match += fmt.Sprintf(" && ip4.dst == %s", ipSet)
+			}
+		}
+	} else if r.RemoteIPPrefix != "" {
 		if r.Direction == "ingress" {
 			match += fmt.Sprintf(" && ip4.src == %s", r.RemoteIPPrefix)
 		} else {
 			match += fmt.Sprintf(" && ip4.dst == %s", r.RemoteIPPrefix)
 		}
 	}
+
 	if r.PortRangeMin > 0 && r.PortRangeMax >= r.PortRangeMin && r.Protocol != "icmp" {
 		match += fmt.Sprintf(" && %s.dst >= %d && %s.dst <= %d", r.Protocol, r.PortRangeMin, r.Protocol, r.PortRangeMax)
 	}
 	return match
+}
+
+// resolveSecurityGroupIPs looks up all network ports that reference the given
+// security group ID and returns their allocated IP addresses.
+func (s *Service) resolveSecurityGroupIPs(sgID string) []string {
+	var ports []NetworkPort
+	if err := s.db.Where("security_groups LIKE ?", "%"+sgID+"%").Find(&ports).Error; err != nil {
+		s.logger.Warn("failed to resolve SG member IPs",
+			zap.String("sg_id", sgID), zap.Error(err))
+		return nil
+	}
+
+	var ips []string
+	for _, port := range ports {
+		for _, fip := range port.FixedIPs {
+			if fip.IP != "" {
+				ips = append(ips, fip.IP)
+			}
+		}
+	}
+	return ips
 }

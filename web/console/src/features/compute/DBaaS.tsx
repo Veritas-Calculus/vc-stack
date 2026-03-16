@@ -174,6 +174,34 @@ export function DBaaS() {
           </button>
         }
       />
+      {/* Quick Navigation to Related Features */}
+      <div className="grid grid-cols-3 gap-3 mb-2">
+        <a
+          href="/compute/databases/clusters"
+          className="card p-3 hover:border-accent transition-colors block"
+        >
+          <p className="text-sm font-medium text-zinc-200">HA Clusters</p>
+          <p className="text-xs text-zinc-500 mt-0.5">
+            Patroni-orchestrated HA clusters with automatic failover
+          </p>
+        </a>
+        <a
+          href="/compute/databases/parameter-groups"
+          className="card p-3 hover:border-accent transition-colors block"
+        >
+          <p className="text-sm font-medium text-zinc-200">Parameter Groups</p>
+          <p className="text-xs text-zinc-500 mt-0.5">
+            Custom engine parameters for PostgreSQL and MySQL
+          </p>
+        </a>
+        <a
+          href="/compute/databases/pitr"
+          className="card p-3 hover:border-accent transition-colors block"
+        >
+          <p className="text-sm font-medium text-zinc-200">Point-in-Time Recovery</p>
+          <p className="text-xs text-zinc-500 mt-0.5">WAL-based continuous archiving and restore</p>
+        </a>
+      </div>
       {loading ? (
         <div className="text-center py-12 text-zinc-500">Loading...</div>
       ) : (
