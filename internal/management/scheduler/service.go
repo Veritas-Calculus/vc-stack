@@ -3,13 +3,13 @@ package scheduler
 import (
 	"context"
 	"net/http"
+	"sort"
 	"sync/atomic"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 
-	"github.com/Veritas-Calculus/vc-stack/pkg/circuitbreaker"
 	"github.com/Veritas-Calculus/vc-stack/pkg/dlock"
 	"github.com/Veritas-Calculus/vc-stack/pkg/models"
 	"github.com/Veritas-Calculus/vc-stack/pkg/mq"
@@ -49,8 +49,7 @@ type Service struct {
 	logger     *zap.Logger
 	hosts      HostProvider
 	overcommit OvercommitConfig
-	cbManager  *circuitbreaker.Manager
-	leader     dlock.LeaderElector
+	leader     dlock.LeaderElector //nolint:unused
 	isLeader   atomic.Bool
 	mq         mq.MessageBus
 }
@@ -58,6 +57,17 @@ type Service struct {
 func NewService(cfg Config) (*Service, error) {
 	if cfg.Logger == nil {
 		cfg.Logger = zap.NewNop()
+	}
+
+	// Normalize overcommit ratios: must be >= 1.0.
+	if cfg.Overcommit.CPURatio < 1.0 {
+		cfg.Overcommit.CPURatio = 1.0
+	}
+	if cfg.Overcommit.RAMRatio < 1.0 {
+		cfg.Overcommit.RAMRatio = 1.0
+	}
+	if cfg.Overcommit.DiskRatio < 1.0 {
+		cfg.Overcommit.DiskRatio = 1.0
 	}
 
 	svc := &Service{
@@ -97,21 +107,71 @@ func (s *Service) schedule(c *gin.Context) {
 }
 
 func (s *Service) selectHost(ctx context.Context, req ScheduleRequest) (*models.Host, ScheduleResponse) {
-	hosts, err := s.hosts.ListHosts(ctx)
-	if err != nil || len(hosts) == 0 {
+	var hosts []models.Host
+
+	if s.hosts != nil {
+		var err error
+		hosts, err = s.hosts.ListHosts(ctx)
+		if err != nil {
+			return nil, ScheduleResponse{Reason: "no hosts available"}
+		}
+	} else if s.db != nil {
+		// Fallback: query database directly when no HostProvider configured.
+		s.db.WithContext(ctx).
+			Where("status = ? AND resource_state = ?", models.HostStatusUp, models.ResourceStateEnabled).
+			Find(&hosts)
+	}
+
+	if len(hosts) == 0 {
 		return nil, ScheduleResponse{Reason: "no hosts available"}
 	}
 
-	// Default: return first host (Spread)
-	return &hosts[0], ScheduleResponse{NodeID: hosts[0].UUID, Strategy: req.Strategy}
+	// Default strategy.
+	strategy := req.Strategy
+	if strategy == "" {
+		strategy = StrategyLeastAllocated
+	}
+
+	// Filter hosts with sufficient capacity.
+	var eligible []models.Host
+	for _, h := range hosts {
+		cpuFree := float64(h.CPUCores)*s.overcommit.CPURatio - float64(h.CPUAllocated)
+		ramFree := float64(h.RAMMB)*s.overcommit.RAMRatio - float64(h.RAMAllocatedMB)
+		if cpuFree >= float64(req.VCPUs) && ramFree >= float64(req.RAMMB) {
+			eligible = append(eligible, h)
+		}
+	}
+	if len(eligible) == 0 {
+		return nil, ScheduleResponse{Reason: "no hosts with sufficient capacity"}
+	}
+
+	// Sort by strategy.
+	sort.Slice(eligible, func(i, j int) bool {
+		loadI := float64(eligible[i].CPUAllocated) / float64(max(eligible[i].CPUCores, 1))
+		loadJ := float64(eligible[j].CPUAllocated) / float64(max(eligible[j].CPUCores, 1))
+		if strategy == StrategyMostAllocated {
+			return loadI > loadJ // pack: prefer more loaded.
+		}
+		return loadI < loadJ // spread (default): prefer less loaded.
+	})
+
+	return &eligible[0], ScheduleResponse{NodeID: eligible[0].UUID, Strategy: strategy}
 }
 
 func (s *Service) listNodes(c *gin.Context) {
-	hosts, err := s.hosts.ListHosts(c.Request.Context())
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+	var hosts []models.Host
+
+	if s.hosts != nil {
+		var err error
+		hosts, err = s.hosts.ListHosts(c.Request.Context())
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+	} else if s.db != nil {
+		s.db.WithContext(c.Request.Context()).Find(&hosts)
 	}
+
 	c.JSON(http.StatusOK, gin.H{"nodes": hosts})
 }
 

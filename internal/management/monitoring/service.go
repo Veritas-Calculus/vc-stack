@@ -3,7 +3,6 @@ package monitoring
 
 import (
 	"net/http"
-	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -29,12 +28,8 @@ type Service struct {
 	db               *gorm.DB
 	logger           *zap.Logger
 	startTime        time.Time
-	healthData       sync.Map
 	metricsCollector *MetricsCollector
-	flameGraph       *FlameGraphGenerator
-	handlers         *MonitoringHandlers
 	internalToken    string
-	mu               sync.RWMutex
 	requestCounts    map[string]uint64
 }
 
@@ -87,6 +82,7 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	api := router.Group("/api/v1/monitoring")
 	{
 		api.GET("/status", rp("monitoring", "list"), s.healthCheck)
+		api.GET("/dashboard", rp("monitoring", "list"), s.dashboardSummary)
 	}
 
 	// Internal M2M endpoints (Compute nodes only)

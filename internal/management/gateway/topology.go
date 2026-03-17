@@ -56,7 +56,7 @@ func (s *Service) topologyHandler(c *gin.Context) {
 		if tenantID != "" {
 			req.Header.Set("X-Project-ID", tenantID)
 		}
-		resp, err := (&http.Client{Timeout: 10 * time.Second}).Do(req) //nolint:bodyclose // closed below
+		resp, err := (&http.Client{Timeout: 10 * time.Second}).Do(req)
 		if err != nil {
 			return httpGetResult{nil, http.StatusBadGateway, err}
 		}

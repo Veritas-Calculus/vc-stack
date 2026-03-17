@@ -220,6 +220,7 @@ func (s *StepConfigureNodeNetwork) Compensate(ctx context.Context, t *workflow.T
 
 // ── Helpers ───────────────────────────────────────────────────────────
 
+//nolint:unused // TODO: wire into routes when feature is enabled
 func updatePayloadField(payload, key, value string) string {
 	var data map[string]interface{}
 	_ = json.Unmarshal([]byte(payload), &data)

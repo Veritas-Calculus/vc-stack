@@ -14,7 +14,6 @@ import (
 
 // RegisterOptionalModules registers all optional modules with IoC assembly.
 func RegisterOptionalModules(r *ModuleRegistry) {
-
 	r.Register(ModuleDescriptor{
 		Name:      "audit",
 		EnabledFn: func(mc ModulesConfig) bool { return isEnabled(mc.EnableAudit) },

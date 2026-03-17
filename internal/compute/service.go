@@ -5,7 +5,7 @@ package compute
 import (
 	"go.uber.org/zap"
 
-	fc "github.com/Veritas-Calculus/vc-stack/internal/compute/firecracker"
+	"github.com/Veritas-Calculus/vc-stack/internal/compute/firecracker"
 	"github.com/Veritas-Calculus/vc-stack/internal/compute/vm"
 	"github.com/Veritas-Calculus/vc-stack/pkg/models"
 )
@@ -22,10 +22,8 @@ type Service struct {
 	// rbdManager manages local Ceph/RBD attachments.
 	rbdManager *RBDManager
 
-	// fcRegistry tracks running Firecracker microVM processes.
-	fcRegistry *fc.Registry
 	// fcNetMgr manages TAP devices for Firecracker.
-	fcNetMgr *fc.NetworkManager
+	fcNetMgr *firecracker.NetworkManager
 }
 
 // Config represents the compute agent configuration.

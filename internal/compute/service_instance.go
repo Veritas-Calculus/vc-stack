@@ -39,7 +39,7 @@ func (s *Service) StartVM(ctx context.Context, inst *Instance) error {
 	s.reportStatus(ctx, inst.UUID, "spawning", "shutdown")
 
 	// 3. Launch the VM using the local driver.
-	go func() {
+	go func() { //nolint:gosec // G118: intentionally outlives request scope
 		bgCtx := context.Background()
 
 		if s.vmDriver == nil {

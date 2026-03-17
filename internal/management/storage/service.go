@@ -90,7 +90,7 @@ func parseUserContext(c *gin.Context) (uint, uint) {
 	return uid, pid
 }
 
-// NoopStorageDriver for initial setup
+// NoopStorageDriver for initial setup.
 type NoopStorageDriver struct{ logger *zap.Logger }
 
 func (d *NoopStorageDriver) CreateVolume(ctx context.Context, vol *models.Volume) error { return nil }

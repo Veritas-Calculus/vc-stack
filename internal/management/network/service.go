@@ -109,14 +109,6 @@ func ValidateCIDR(cidr string) error {
 	return err
 }
 
-func (s *Service) migrateDatabase() error {
-	return s.db.AutoMigrate(
-		&Network{}, &Subnet{}, &NetworkPort{}, &Router{}, &RouterInterface{},
-		&FloatingIP{}, &SecurityGroup{}, &SecurityGroupRule{}, &PhysicalNetwork{},
-		&IPAllocation{},
-	)
-}
-
 // --- Config Types ---
 
 type Config struct {

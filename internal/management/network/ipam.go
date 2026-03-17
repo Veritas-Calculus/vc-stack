@@ -49,7 +49,7 @@ func (i *IPAM) Allocate(ctx context.Context, subnet *Subnet, portID string) (str
 		query := tx.Where("id = ?", subnet.ID)
 
 		// Detection: SQLite doesn't support FOR UPDATE
-		dialect := tx.Dialector.Name()
+		dialect := tx.Dialector.Name() //nolint:staticcheck // Dialector is not embedded, Name() is on the interface
 		if dialect != "sqlite" {
 			query = query.Clauses(clause.Locking{Strength: "UPDATE"})
 		}
@@ -178,7 +178,7 @@ func lastUsableIP(n *net.IPNet, end string) net.IP {
 		}
 		return prevIP(bcast)
 	}
-	return prevIP(net.IP(n.IP.Mask(n.Mask)))
+	return prevIP(n.IP.Mask(n.Mask))
 }
 
 func isNetworkOrBroadcast(ip net.IP, n *net.IPNet) bool {

@@ -16,11 +16,13 @@ type DiskOffering = models.DiskOffering
 type NetworkOffering = models.NetworkOffering
 
 // migrateOfferings runs auto-migration for offering tables.
+//nolint:unused // TODO: wire into routes when feature is enabled
 func (s *Service) migrateOfferings() error {
 	return s.db.AutoMigrate(&DiskOffering{}, &NetworkOffering{})
 }
 
 // seedDefaultDiskOfferings seeds starter disk offerings.
+//nolint:unused // TODO: wire into routes when feature is enabled
 func (s *Service) seedDefaultDiskOfferings() {
 	var count int64
 	s.db.Model(&DiskOffering{}).Count(&count)
@@ -41,6 +43,7 @@ func (s *Service) seedDefaultDiskOfferings() {
 }
 
 // seedDefaultNetworkOfferings seeds starter network offerings.
+//nolint:unused // TODO: wire into routes when feature is enabled
 func (s *Service) seedDefaultNetworkOfferings() {
 	var count int64
 	s.db.Model(&NetworkOffering{}).Count(&count)
@@ -61,6 +64,7 @@ func (s *Service) seedDefaultNetworkOfferings() {
 
 // --- Disk Offering handlers ---
 
+//nolint:unused // TODO: wire into routes when feature is enabled
 func (s *Service) listDiskOfferings(c *gin.Context) {
 	var offerings []DiskOffering
 	if err := s.db.Order("id").Find(&offerings).Error; err != nil {
@@ -82,6 +86,7 @@ type CreateDiskOfferingRequest struct {
 	Throughput  int    `json:"throughput"`
 }
 
+//nolint:unused // TODO: wire into routes when feature is enabled
 func (s *Service) createDiskOffering(c *gin.Context) {
 	var req CreateDiskOfferingRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -112,6 +117,7 @@ func (s *Service) createDiskOffering(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"disk_offering": offering})
 }
 
+//nolint:unused // TODO: wire into routes when feature is enabled
 func (s *Service) deleteDiskOffering(c *gin.Context) {
 	id := c.Param("id")
 	if err := s.db.Delete(&DiskOffering{}, id).Error; err != nil {
@@ -123,6 +129,7 @@ func (s *Service) deleteDiskOffering(c *gin.Context) {
 
 // --- Network Offering handlers ---
 
+//nolint:unused // TODO: wire into routes when feature is enabled
 func (s *Service) listNetworkOfferings(c *gin.Context) {
 	var offerings []NetworkOffering
 	if err := s.db.Order("id").Find(&offerings).Error; err != nil {
@@ -145,6 +152,7 @@ type CreateNetworkOfferingRequest struct {
 	MaxConnections  int    `json:"max_connections"`
 }
 
+//nolint:unused // TODO: wire into routes when feature is enabled
 func (s *Service) createNetworkOffering(c *gin.Context) {
 	var req CreateNetworkOfferingRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -179,6 +187,7 @@ func (s *Service) createNetworkOffering(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"network_offering": offering})
 }
 
+//nolint:unused // TODO: wire into routes when feature is enabled
 func (s *Service) deleteNetworkOffering(c *gin.Context) {
 	id := c.Param("id")
 	if err := s.db.Delete(&NetworkOffering{}, id).Error; err != nil {

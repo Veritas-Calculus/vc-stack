@@ -157,7 +157,7 @@ func (s *Service) lookupNodeAddress(ctx context.Context, nodeID string) (string,
 		return "", err
 	}
 
-	resp, err := (&http.Client{Timeout: 10 * time.Second}).Do(req) //nolint:bodyclose // closed below
+	resp, err := (&http.Client{Timeout: 10 * time.Second}).Do(req)
 	if err != nil {
 		return "", fmt.Errorf("scheduler request failed: %w", err)
 	}

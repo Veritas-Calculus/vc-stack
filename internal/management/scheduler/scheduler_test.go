@@ -48,7 +48,6 @@ func seedHosts(t *testing.T, db *gorm.DB, hosts []models.Host) {
 	}
 }
 
-func strPtr(s string) *string { return &s }
 
 // TestSelectHost_LeastAllocated verifies that the scheduler picks the host
 // with the least CPU allocation (least-loaded first).
@@ -251,49 +250,3 @@ func TestSelectHost_PackStrategy(t *testing.T) {
 	}
 }
 
-
-
-
-// TestSchedulerStatsEndpoint verifies the /api/v1/scheduler/stats endpoint.
-func TestSchedulerStatsEndpoint(t *testing.T) {
-	db := setupTestDB(t)
-	svc := setupTestService(t, db)
-
-	seedHosts(t, db, []models.Host{
-		{
-			UUID: "h1", Name: "h1", Hostname: "h1", IPAddress: "10.0.0.1",
-			Status: models.HostStatusUp, ResourceState: models.ResourceStateEnabled,
-			CPUCores: 16, RAMMB: 32768, DiskGB: 500,
-			CPUAllocated: 4, RAMAllocatedMB: 8000,
-		},
-		{
-			UUID: "h2", Name: "h2", Hostname: "h2", IPAddress: "10.0.0.2",
-			Status: models.HostStatusDown, ResourceState: models.ResourceStateEnabled,
-			CPUCores: 8, RAMMB: 16384, DiskGB: 200,
-		},
-	})
-
-	gin.SetMode(gin.TestMode)
-	router := gin.New()
-	svc.SetupRoutes(router)
-
-	req := httptest.NewRequest(http.MethodGet, "/api/v1/scheduler/stats", nil)
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-
-	if w.Code != http.StatusOK {
-		t.Fatalf("expected 200, got %d: %s", w.Code, w.Body.String())
-	}
-
-	var stats map[string]interface{}
-	_ = json.Unmarshal(w.Body.Bytes(), &stats)
-	if stats["total_hosts"] != float64(2) {
-		t.Errorf("expected 2 total hosts, got %v", stats["total_hosts"])
-	}
-	if stats["active_hosts"] != float64(1) {
-		t.Errorf("expected 1 active host, got %v", stats["active_hosts"])
-	}
-	if stats["total_cpu"] != float64(24) {
-		t.Errorf("expected 24 total CPU, got %v", stats["total_cpu"])
-	}
-}

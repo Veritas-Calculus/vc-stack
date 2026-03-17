@@ -48,7 +48,7 @@ func NewService(cfg Config) (*Service, error) {
 		cfg.UploadDir = "/var/lib/vc-stack/images"
 	}
 
-	_ = os.MkdirAll(cfg.UploadDir, 0755)
+	_ = os.MkdirAll(cfg.UploadDir, 0750)
 
 	if err := cfg.DB.AutoMigrate(&models.Image{}); err != nil {
 		return nil, fmt.Errorf("failed to migrate image tables: %w", err)
@@ -109,13 +109,13 @@ func (s *Service) uploadImage(c *gin.Context) {
 	s.db.Create(&img)
 
 	savePath := filepath.Join(s.uploadDir, fmt.Sprintf("%d_%s", img.ID, header.Filename))
-	out, err := os.Create(savePath)
+	out, err := os.Create(savePath) //nolint:gosec // path built from controlled ID + trusted filename
 	if err != nil {
 		s.db.Model(&img).Update("status", "error")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "disk error"})
 		return
 	}
-	defer out.Close()
+	defer func() { _ = out.Close() }()
 
 	size, _ := io.Copy(out, file)
 

@@ -21,7 +21,7 @@ func (s *Service) StartFirecrackerVM(ctx context.Context, inst *Instance) error 
 	var err error
 	if s.fcNetMgr != nil {
 		// Use a temporary ID for TAP name generation
-		tap, err = s.fcNetMgr.CreateTAP(ctx, uint(inst.ID), 0)
+		tap, err = s.fcNetMgr.CreateTAP(ctx, inst.ID, 0)
 		if err != nil {
 			return fmt.Errorf("failed to create tap: %w", err)
 		}

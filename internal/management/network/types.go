@@ -52,7 +52,7 @@ type NetworkPort struct {
 	UpdatedAt      time.Time   `json:"updated_at"`
 }
 
-// SecurityGroup models
+// SecurityGroup models.
 type SecurityGroup struct {
 	ID          string              `json:"id" gorm:"primaryKey;type:varchar(36)"`
 	Name        string              `json:"name" gorm:"not null"`
