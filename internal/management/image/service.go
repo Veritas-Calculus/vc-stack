@@ -73,15 +73,126 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	api := router.Group("/api/v1/images")
 	{
 		api.GET("", rp("image", "list"), s.listImages)
+		api.POST("", rp("image", "create"), s.createImage)
 		api.POST("/upload", rp("image", "create"), s.uploadImage)
+		api.POST("/register", rp("image", "create"), s.registerImage)
 		api.GET("/:id", rp("image", "get"), s.getImage)
+		api.PUT("/:id", rp("image", "update"), s.updateImage)
 		api.DELETE("/:id", rp("image", "delete"), s.deleteImage)
 	}
 }
 
+func (s *Service) createImage(c *gin.Context) {
+	var req struct {
+		Name           string `json:"name" binding:"required"`
+		DiskFormat     string `json:"disk_format"`
+		OSType         string `json:"os_type"`
+		OSVersion      string `json:"os_version"`
+		Architecture   string `json:"architecture"`
+		Category       string `json:"category"`
+		Visibility     string `json:"visibility"`
+		HypervisorType string `json:"hypervisor_type"`
+		FilePath       string `json:"file_path"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Defaults.
+	if req.Visibility == "" {
+		req.Visibility = "private"
+	}
+	if req.Category == "" {
+		req.Category = "user"
+	}
+	if req.Architecture == "" {
+		req.Architecture = "x86_64"
+	}
+	if req.HypervisorType == "" {
+		req.HypervisorType = "kvm"
+	}
+
+	img := models.Image{
+		Name:           req.Name,
+		UUID:           uuid.New().String(),
+		DiskFormat:     req.DiskFormat,
+		OSType:         req.OSType,
+		OSVersion:      req.OSVersion,
+		Architecture:   req.Architecture,
+		Category:       req.Category,
+		Visibility:     req.Visibility,
+		HypervisorType: req.HypervisorType,
+		FilePath:       req.FilePath,
+		Status:         "active",
+		OwnerID:        1, // TODO: from auth context
+	}
+	if err := s.db.Create(&img).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	s.logger.Info("image created", zap.String("name", img.Name), zap.String("uuid", img.UUID))
+	c.JSON(http.StatusCreated, img)
+}
+
+func (s *Service) registerImage(c *gin.Context) {
+	var req struct {
+		Name       string `json:"name" binding:"required"`
+		DiskFormat string `json:"disk_format"`
+		OSType     string `json:"os_type"`
+		FilePath   string `json:"file_path"`
+		Visibility string `json:"visibility"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if req.Visibility == "" {
+		req.Visibility = "private"
+	}
+
+	img := models.Image{
+		Name:           req.Name,
+		UUID:           uuid.New().String(),
+		DiskFormat:     req.DiskFormat,
+		OSType:         req.OSType,
+		FilePath:       req.FilePath,
+		Visibility:     req.Visibility,
+		Status:         "active",
+		Architecture:   "x86_64",
+		HypervisorType: "kvm",
+		Category:       "user",
+		OwnerID:        1,
+	}
+	if err := s.db.Create(&img).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	s.logger.Info("image registered", zap.String("name", img.Name), zap.String("path", req.FilePath))
+	c.JSON(http.StatusCreated, img)
+}
+
 func (s *Service) listImages(c *gin.Context) {
 	var images []models.Image
-	s.db.Find(&images)
+	q := s.db.Order("created_at DESC")
+
+	if v := c.Query("visibility"); v != "" {
+		q = q.Where("visibility = ?", v)
+	}
+	if v := c.Query("os_type"); v != "" {
+		q = q.Where("os_type = ?", v)
+	}
+	if v := c.Query("category"); v != "" {
+		q = q.Where("category = ?", v)
+	}
+	if v := c.Query("search"); v != "" {
+		q = q.Where("name LIKE ?", "%"+v+"%")
+	}
+
+	q.Find(&images)
 	c.JSON(http.StatusOK, images)
 }
 
@@ -136,21 +247,101 @@ func (s *Service) uploadImage(c *gin.Context) {
 func (s *Service) getImage(c *gin.Context) {
 	id := c.Param("id")
 	var img models.Image
-	if err := s.db.First(&img, id).Error; err != nil {
+	if err := s.db.Where("uuid = ?", id).First(&img).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
 		return
 	}
+
+	// Count instances using this image.
+	var instanceCount int64
+	s.db.Table("instances").Where("image_id = ?", img.ID).Count(&instanceCount)
+
+	type imageWithCount struct {
+		models.Image
+		InstanceCount int64 `json:"instance_count"`
+	}
+	c.JSON(http.StatusOK, imageWithCount{Image: img, InstanceCount: instanceCount})
+}
+
+func (s *Service) updateImage(c *gin.Context) {
+	id := c.Param("id")
+	var img models.Image
+	if err := s.db.Where("uuid = ?", id).First(&img).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+		return
+	}
+
+	var req struct {
+		Visibility     *string `json:"visibility"`
+		Category       *string `json:"category"`
+		OSVersion      *string `json:"os_version"`
+		OSType         *string `json:"os_type"`
+		Architecture   *string `json:"architecture"`
+		HypervisorType *string `json:"hypervisor_type"`
+		Protected      *bool   `json:"protected"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	updates := map[string]interface{}{}
+	if req.Visibility != nil {
+		updates["visibility"] = *req.Visibility
+	}
+	if req.Category != nil {
+		updates["category"] = *req.Category
+	}
+	if req.OSVersion != nil {
+		updates["os_version"] = *req.OSVersion
+	}
+	if req.OSType != nil {
+		updates["os_type"] = *req.OSType
+	}
+	if req.Architecture != nil {
+		updates["architecture"] = *req.Architecture
+	}
+	if req.HypervisorType != nil {
+		updates["hypervisor_type"] = *req.HypervisorType
+	}
+	if req.Protected != nil {
+		updates["protected"] = *req.Protected
+	}
+
+	s.db.Model(&img).Updates(updates)
+	s.db.Where("uuid = ?", id).First(&img)
 	c.JSON(http.StatusOK, img)
 }
 
 func (s *Service) deleteImage(c *gin.Context) {
 	id := c.Param("id")
 	var img models.Image
-	if err := s.db.First(&img, id).Error; err == nil {
-		if img.FilePath != "" {
-			_ = os.Remove(img.FilePath)
-		}
-		s.db.Delete(&img)
+	if err := s.db.Where("uuid = ?", id).First(&img).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+		return
 	}
+
+	// Protected check.
+	if img.Protected {
+		c.JSON(http.StatusForbidden, gin.H{"error": "image is protected"})
+		return
+	}
+
+	// In-use check.
+	var instanceCount int64
+	s.db.Table("instances").Where("image_id = ?", img.ID).Count(&instanceCount)
+	if instanceCount > 0 {
+		c.JSON(http.StatusConflict, gin.H{
+			"error":          "image is in use",
+			"instance_count": instanceCount,
+		})
+		return
+	}
+
+	if img.FilePath != "" {
+		_ = os.Remove(img.FilePath)
+	}
+	s.db.Delete(&img)
 	c.Status(http.StatusNoContent)
 }
+

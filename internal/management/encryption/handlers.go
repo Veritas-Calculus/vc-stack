@@ -580,17 +580,7 @@ func (s *Service) getCACert(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, gin.H{
-		"ca_certificate": gin.H{
-			"uuid":        ca.UUID,
-			"common_name": ca.CommonName,
-			"not_before":  ca.NotBefore,
-			"not_after":   ca.NotAfter,
-			"serial":      ca.SerialNum,
-			"fingerprint": ca.Fingerprint,
-			"certificate": ca.CertPEM,
-		},
-	})
+	c.JSON(200, gin.H{"certificate": ca})
 }
 
 // safePercent returns a / b * 100, or 0 if b is zero.

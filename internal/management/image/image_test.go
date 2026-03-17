@@ -43,6 +43,7 @@ func setupTestDB(t *testing.T) *gorm.DB {
 		status TEXT DEFAULT 'building', power_state TEXT DEFAULT 'shutdown',
 		user_id INTEGER DEFAULT 0, project_id INTEGER DEFAULT 0,
 		host_id TEXT, node_address TEXT, ip_address TEXT,
+		root_rbd_image TEXT,
 		floating_ip TEXT, user_data TEXT, ssh_key TEXT,
 		enable_tpm INTEGER DEFAULT 0, metadata TEXT,
 		created_at DATETIME, updated_at DATETIME,
