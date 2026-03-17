@@ -19,13 +19,20 @@ func TestListNetworks(t *testing.T) {
 	db, _ := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	logger := zap.NewNop()
 
-	svc, _ := NewService(Config{
-		DB:     db,
-		Logger: logger,
-	})
+	// Migrate only the models needed for this test (avoid PostgreSQL-specific types)
+	err := db.AutoMigrate(&Network{}, &Subnet{}, &NetworkPort{}, &Router{}, &RouterInterface{},
+		&FloatingIP{}, &SecurityGroup{}, &SecurityGroupRule{})
+	if err != nil {
+		t.Fatalf("AutoMigrate failed: %v", err)
+	}
 
-	// Perform migration
-	svc.migrateDatabase()
+	svc := &Service{
+		db:     db,
+		logger: logger,
+		config: Config{DB: db, Logger: logger},
+		driver: NewOVNDriver(logger, OVNConfig{}),
+		ipam:   NewIPAM(db, logger),
+	}
 
 	// Seed
 	svc.db.Create(&Network{ID: "net-1", Name: "default"})
@@ -54,10 +61,16 @@ func TestIPAMConcurrency(t *testing.T) {
 	sqlDB.SetMaxOpenConns(1)                // Force serialize for SQLite
 
 	logger := zap.NewNop()
-	svc, _ := NewService(Config{DB: db, Logger: logger})
+	svc := &Service{
+		db:     db,
+		logger: logger,
+		config: Config{DB: db, Logger: logger},
+		driver: NewOVNDriver(logger, OVNConfig{}),
+		ipam:   NewIPAM(db, logger),
+	}
 
-	// Ensure tables exist
-	svc.migrateDatabase()
+	// Ensure tables exist (avoid migrateDatabase which includes PostgreSQL-specific types)
+	db.AutoMigrate(&Network{}, &Subnet{}, &NetworkPort{}, &IPAllocation{})
 
 	// 1. Create a subnet
 	subnet := Subnet{

@@ -13,6 +13,7 @@
 
 # ---- Build stage (Debian for Ceph dev libs) ----
 FROM --platform=$BUILDPLATFORM golang:1.24-bookworm AS builder
+ENV GOTOOLCHAIN=auto
 
 ARG TARGETOS=linux
 ARG TARGETARCH

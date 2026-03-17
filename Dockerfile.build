@@ -1,5 +1,6 @@
 # Build stage: Go on Debian Bookworm (with Ceph dev libs)
 FROM golang:1.24-bookworm AS builder
+ENV GOTOOLCHAIN=auto
 
 # Build argument to toggle Chinese mirror (default: false)
 ARG USE_MIRROR=false
@@ -24,7 +25,6 @@ WORKDIR /app
 
 # Conditional GOPROXY setup
 ENV GOPROXY=${USE_MIRROR:+"https://goproxy.cn,direct"}
-ENV GOTOOLCHAIN=auto
 
 # Copy dependencies
 COPY go.mod go.sum ./
