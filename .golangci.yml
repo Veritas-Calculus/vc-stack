@@ -60,6 +60,10 @@ linters:
       - linters:
           - gosec
         text: "G115"
+      # G118: Goroutine with context.Background — intentional for fire-and-forget ops.
+      - linters:
+          - gosec
+        text: "G118"
       # G204: Subprocess with variable — required for infra tooling (OVS, IPMI).
       - linters:
           - gosec

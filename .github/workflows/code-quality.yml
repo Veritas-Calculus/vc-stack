@@ -124,7 +124,7 @@ jobs:
       - name: Run Gosec Security Scanner
         uses: securego/gosec@master
         with:
-          args: '-tags ceph -fmt sarif -out gosec-results.sarif -exclude=G101,G104,G107,G110,G115,G204,G304,G306,G402,G501,G505,G705 -exclude-dir=vendor ./...'
+          args: '-tags ceph -fmt sarif -out gosec-results.sarif -exclude=G101,G104,G107,G110,G115,G118,G204,G304,G306,G402,G501,G505,G705 -exclude-dir=vendor ./...'
 
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v3
@@ -179,7 +179,7 @@ jobs:
           sudo apt-get install -y librados-dev librbd-dev
 
       - name: Run tests with coverage
-        run: CGO_ENABLED=0 go test -short -coverprofile=coverage.out -covermode=atomic ./...
+        run: CGO_ENABLED=1 go test -short -coverprofile=coverage.out -covermode=atomic ./...
 
       - name: Check coverage threshold (30%)
         run: |
