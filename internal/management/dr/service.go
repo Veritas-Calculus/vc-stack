@@ -146,46 +146,8 @@ func NewService(cfg Config) (*Service, error) {
 	); err != nil {
 		return nil, fmt.Errorf("dr: migrate: %w", err)
 	}
-	s.seedDefaults()
 	s.logger.Info("Disaster recovery service initialized")
 	return s, nil
-}
-
-func (s *Service) seedDefaults() {
-	// Seed primary site
-	primary := DRSite{
-		ID: uuid.New().String(), Name: "dc-primary", Type: "primary", Location: "US-East-1",
-		Endpoint: "https://primary.vc-stack.local", Status: "active", Healthy: true,
-		StorageUsedGB: 1250, StorageTotalGB: 5000,
-	}
-	s.db.Where("name = ?", primary.Name).FirstOrCreate(&primary)
-
-	standby := DRSite{
-		ID: uuid.New().String(), Name: "dc-standby", Type: "warm_standby", Location: "US-West-2",
-		Endpoint: "https://standby.vc-stack.local", Status: "active", Healthy: true,
-		StorageUsedGB: 800, StorageTotalGB: 5000,
-	}
-	s.db.Where("name = ?", standby.Name).FirstOrCreate(&standby)
-
-	cold := DRSite{
-		ID: uuid.New().String(), Name: "dc-archive", Type: "cold_standby", Location: "EU-Central-1",
-		Endpoint: "https://archive.vc-stack.local", Status: "active", Healthy: true,
-		StorageUsedGB: 450, StorageTotalGB: 10000,
-	}
-	s.db.Where("name = ?", cold.Name).FirstOrCreate(&cold)
-
-	// Seed default DR plan
-	now := time.Now().Add(-5 * time.Minute)
-	plan := DRPlan{
-		ID: uuid.New().String(), Name: "production-dr", Description: "Production environment disaster recovery",
-		Priority: "critical", Status: "active",
-		RPOMinutes: 15, RTOMinutes: 60,
-		SourceSiteID: primary.ID, TargetSiteID: standby.ID,
-		ReplicationType: "async", Schedule: "*/15 * * * *",
-		RetentionDays: 30, LastReplication: &now,
-		ReplicationLag: 12, ProtectedCount: 8,
-	}
-	s.db.Where("name = ?", plan.Name).FirstOrCreate(&plan)
 }
 
 // ---------- Routes ----------

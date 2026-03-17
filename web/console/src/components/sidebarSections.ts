@@ -96,7 +96,6 @@ export function getGlobalSections(): SidebarSection[] {
         { to: '/iam/assume-role', label: 'Assume Role (STS)' },
         { to: '/kms', label: 'Key Management' },
         { to: '/encryption', label: 'Data Encryption' },
-        { to: '/federation', label: 'Federation' },
         { to: '/compliance-audit', label: 'Compliance' },
         { to: '/monitoring/security-hub', label: 'Security Hub' }
       ]
@@ -157,6 +156,9 @@ export function getGlobalSections(): SidebarSection[] {
         { to: '/usage', label: 'Usage & Billing' },
         { to: '/rate-limits', label: 'Rate Limiting' },
         { to: '/settings/global', label: 'Global Settings' },
+        { to: '/settings/branding', label: 'Branding' },
+        { to: '/settings/version', label: 'Version' },
+        { to: '/sso', label: 'SSO' },
         { to: '/utilization', label: 'Utilization' },
         { to: '/docs', label: 'Docs' }
       ]
@@ -278,7 +280,6 @@ export function getProjectSections(projectId: string): SidebarSection[] {
         { to: '/iam/assume-role', label: 'Assume Role (STS)' },
         { to: `${prefix}/kms`, label: 'Key Management' },
         { to: `${prefix}/encryption`, label: 'Data Encryption' },
-        { to: `${prefix}/federation`, label: 'Federation' },
         { to: `${prefix}/compliance-audit`, label: 'Compliance' },
         { to: '/monitoring/security-hub', label: 'Security Hub' }
       ]
@@ -339,6 +340,9 @@ export function getProjectSections(projectId: string): SidebarSection[] {
         { to: `${prefix}/usage`, label: 'Usage & Billing' },
         { to: `${prefix}/rate-limits`, label: 'Rate Limiting' },
         { to: `${prefix}/settings/global`, label: 'Global Settings' },
+        { to: `${prefix}/settings/branding`, label: 'Branding' },
+        { to: `${prefix}/settings/version`, label: 'Version' },
+        { to: `${prefix}/sso`, label: 'SSO' },
         { to: `${prefix}/utilization`, label: 'Utilization' },
         { to: `${prefix}/docs`, label: 'Docs' }
       ]

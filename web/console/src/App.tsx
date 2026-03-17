@@ -11,6 +11,12 @@ import { useAppStore } from '@/lib/appStore'
 const SettingsIndex = lazy(() =>
   import('@/features/settings/SettingsIndex').then((m) => ({ default: m.SettingsIndex }))
 )
+const SettingsBranding = lazy(() =>
+  import('@/features/settings/sections/Branding').then((m) => ({ default: m.SettingsBranding }))
+)
+const SettingsVersion = lazy(() =>
+  import('@/features/settings/sections/Version').then((m) => ({ default: m.SettingsVersion }))
+)
 const Network = lazy(() =>
   import('@/features/network/Network').then((m) => ({ default: m.Network }))
 )
@@ -217,9 +223,7 @@ const Orchestration = lazy(() =>
   import('@/features/orchestration/Orchestration').then((m) => ({ default: m.Orchestration }))
 )
 const RBAC = lazy(() => import('@/features/rbac/RBAC').then((m) => ({ default: m.RBAC })))
-const Federation = lazy(() =>
-  import('@/features/federation/Federation').then((m) => ({ default: m.Federation }))
-)
+const SSO = lazy(() => import('@/features/sso/SSO').then((m) => ({ default: m.SSO })))
 const HighAvailability = lazy(() =>
   import('@/features/ha/HighAvailability').then((m) => ({ default: m.HighAvailability }))
 )
@@ -477,6 +481,8 @@ export default function App() {
                   <Route path="/offerings" element={<Offerings />} />
                   {/* Global Settings */}
                   <Route path="/settings/global" element={<GlobalSettings />} />
+                  <Route path="/settings/branding" element={<SettingsBranding />} />
+                  <Route path="/settings/version" element={<SettingsVersion />} />
                   {/* Domains */}
                   <Route path="/domains" element={<Domains />} />
                   {/* Snapshot Schedules */}
@@ -504,8 +510,8 @@ export default function App() {
                   <Route path="/orchestration" element={<Orchestration />} />
                   {/* RBAC */}
                   <Route path="/rbac" element={<RBAC />} />
-                  {/* Federation */}
-                  <Route path="/federation" element={<Federation />} />
+                  {/* SSO */}
+                  <Route path="/sso" element={<SSO />} />
                   {/* High Availability */}
                   <Route path="/ha" element={<HighAvailability />} />
                   <Route path="/kms" element={<KeyManagement />} />
@@ -640,10 +646,10 @@ export default function App() {
                     }
                   />
                   <Route
-                    path="/project/:projectId/federation"
+                    path="/project/:projectId/sso"
                     element={
                       <ProjectContextSetter>
-                        <Federation />
+                        <SSO />
                       </ProjectContextSetter>
                     }
                   />
@@ -740,6 +746,22 @@ export default function App() {
                     element={
                       <ProjectContextSetter>
                         <GlobalSettings />
+                      </ProjectContextSetter>
+                    }
+                  />
+                  <Route
+                    path="/project/:projectId/settings/branding"
+                    element={
+                      <ProjectContextSetter>
+                        <SettingsBranding />
+                      </ProjectContextSetter>
+                    }
+                  />
+                  <Route
+                    path="/project/:projectId/settings/version"
+                    element={
+                      <ProjectContextSetter>
+                        <SettingsVersion />
                       </ProjectContextSetter>
                     }
                   />
@@ -881,6 +903,7 @@ export default function App() {
                       </ProjectContextSetter>
                     }
                   />
+                  {/* Settings sub-routes (accessible from Administration sidebar) */}
                   <Route path="/settings/*" element={<SettingsIndex />} />
                   <Route path="/notifications" element={<Notifications />} />
                 </Routes>

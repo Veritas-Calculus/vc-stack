@@ -75,7 +75,7 @@ func TestCreateAndListIDPs(t *testing.T) {
 		"scopes":         "openid profile email groups",
 		"group_claim":    "groups",
 	})
-	req, _ := http.NewRequest("POST", "/api/v1/idps", bytes.NewBuffer(body))
+	req, _ := http.NewRequest("POST", "/api/v1/sso/providers", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
 	w := httptest.NewRecorder()
@@ -86,7 +86,7 @@ func TestCreateAndListIDPs(t *testing.T) {
 	}
 
 	// List IDPs.
-	req2, _ := http.NewRequest("GET", "/api/v1/idps", nil)
+	req2, _ := http.NewRequest("GET", "/api/v1/sso/providers", nil)
 	req2.Header.Set("Authorization", "Bearer "+token)
 	w2 := httptest.NewRecorder()
 	r.ServeHTTP(w2, req2)
@@ -125,7 +125,7 @@ func TestDuplicateIDPName(t *testing.T) {
 		"type":       "oidc",
 		"is_enabled": true,
 	})
-	req, _ := http.NewRequest("POST", "/api/v1/idps", bytes.NewBuffer(body))
+	req, _ := http.NewRequest("POST", "/api/v1/sso/providers", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
 	w := httptest.NewRecorder()
@@ -137,7 +137,7 @@ func TestDuplicateIDPName(t *testing.T) {
 
 	// Second create with same name.
 	w2 := httptest.NewRecorder()
-	req2, _ := http.NewRequest("POST", "/api/v1/idps", bytes.NewBuffer(body))
+	req2, _ := http.NewRequest("POST", "/api/v1/sso/providers", bytes.NewBuffer(body))
 	req2.Header.Set("Content-Type", "application/json")
 	req2.Header.Set("Authorization", "Bearer "+token)
 	r.ServeHTTP(w2, req2)
@@ -162,7 +162,7 @@ func TestGetAndUpdateIDP(t *testing.T) {
 	svc.db.Create(idp)
 
 	// Get IDP.
-	req, _ := http.NewRequest("GET", fmt.Sprintf("/api/v1/idps/%d", idp.ID), nil)
+	req, _ := http.NewRequest("GET", fmt.Sprintf("/api/v1/sso/providers/%d", idp.ID), nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
@@ -176,7 +176,7 @@ func TestGetAndUpdateIDP(t *testing.T) {
 		"issuer":         "https://updated.example.com",
 		"auto_provision": true,
 	})
-	req2, _ := http.NewRequest("PUT", fmt.Sprintf("/api/v1/idps/%d", idp.ID), bytes.NewBuffer(updateBody))
+	req2, _ := http.NewRequest("PUT", fmt.Sprintf("/api/v1/sso/providers/%d", idp.ID), bytes.NewBuffer(updateBody))
 	req2.Header.Set("Content-Type", "application/json")
 	req2.Header.Set("Authorization", "Bearer "+token)
 	w2 := httptest.NewRecorder()
@@ -216,7 +216,7 @@ func TestDeleteIDPWithForce(t *testing.T) {
 	svc.db.Create(fedUser)
 
 	// Delete without force should fail.
-	req, _ := http.NewRequest("DELETE", fmt.Sprintf("/api/v1/idps/%d", idp.ID), nil)
+	req, _ := http.NewRequest("DELETE", fmt.Sprintf("/api/v1/sso/providers/%d", idp.ID), nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
@@ -226,7 +226,7 @@ func TestDeleteIDPWithForce(t *testing.T) {
 	}
 
 	// Delete with force.
-	req2, _ := http.NewRequest("DELETE", fmt.Sprintf("/api/v1/idps/%d?force=true", idp.ID), nil)
+	req2, _ := http.NewRequest("DELETE", fmt.Sprintf("/api/v1/sso/providers/%d?force=true", idp.ID), nil)
 	req2.Header.Set("Authorization", "Bearer "+token)
 	w2 := httptest.NewRecorder()
 	r.ServeHTTP(w2, req2)
@@ -253,7 +253,7 @@ func TestIDPRoleMappings(t *testing.T) {
 		"external_group": "cloud-admins",
 		"role_id":        operatorRole.ID,
 	})
-	req, _ := http.NewRequest("POST", fmt.Sprintf("/api/v1/idps/%d/mappings", idp.ID), bytes.NewBuffer(body))
+	req, _ := http.NewRequest("POST", fmt.Sprintf("/api/v1/sso/providers/%d/mappings", idp.ID), bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
 	w := httptest.NewRecorder()
@@ -264,7 +264,7 @@ func TestIDPRoleMappings(t *testing.T) {
 	}
 
 	// List mappings.
-	req2, _ := http.NewRequest("GET", fmt.Sprintf("/api/v1/idps/%d/mappings", idp.ID), nil)
+	req2, _ := http.NewRequest("GET", fmt.Sprintf("/api/v1/sso/providers/%d/mappings", idp.ID), nil)
 	req2.Header.Set("Authorization", "Bearer "+token)
 	w2 := httptest.NewRecorder()
 	r.ServeHTTP(w2, req2)
@@ -287,7 +287,7 @@ func TestIDPRoleMappings(t *testing.T) {
 
 	// Delete mapping.
 	mappingID := int(mp["id"].(float64))
-	req3, _ := http.NewRequest("DELETE", fmt.Sprintf("/api/v1/idps/%d/mappings/%d", idp.ID, mappingID), nil)
+	req3, _ := http.NewRequest("DELETE", fmt.Sprintf("/api/v1/sso/providers/%d/mappings/%d", idp.ID, mappingID), nil)
 	req3.Header.Set("Authorization", "Bearer "+token)
 	w3 := httptest.NewRecorder()
 	r.ServeHTTP(w3, req3)
@@ -545,7 +545,7 @@ func TestListFederatedUsers(t *testing.T) {
 	svc.db.Create(fedUser)
 
 	// List per provider.
-	req, _ := http.NewRequest("GET", fmt.Sprintf("/api/v1/idps/%d/users", idp.ID), nil)
+	req, _ := http.NewRequest("GET", fmt.Sprintf("/api/v1/sso/providers/%d/users", idp.ID), nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
@@ -562,7 +562,7 @@ func TestListFederatedUsers(t *testing.T) {
 	}
 
 	// List all federated users.
-	req2, _ := http.NewRequest("GET", "/api/v1/federation/users", nil)
+	req2, _ := http.NewRequest("GET", "/api/v1/sso/users", nil)
 	req2.Header.Set("Authorization", "Bearer "+token)
 	w2 := httptest.NewRecorder()
 	r.ServeHTTP(w2, req2)
@@ -600,7 +600,7 @@ func TestInvalidIDPType(t *testing.T) {
 		"name": "bad-type",
 		"type": "ldap",
 	})
-	req, _ := http.NewRequest("POST", "/api/v1/idps", bytes.NewBuffer(body))
+	req, _ := http.NewRequest("POST", "/api/v1/sso/providers", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
 	w := httptest.NewRecorder()

@@ -164,39 +164,6 @@ func (s *Service) seedDefaults() {
 	for _, p := range profiles {
 		s.db.Where("name = ?", p.Name).FirstOrCreate(&p)
 	}
-
-	// Seed sample servers
-	servers := []Server{
-		{ID: uuid.New().String(), Name: "bm-node-01", Status: "available",
-			Manufacturer: "Dell", Model: "PowerEdge R750", SerialNumber: "SN-DELL-001",
-			CPUModel: "Intel Xeon Gold 6348", CPUCores: 56, CPUSockets: 2, MemoryGB: 512,
-			StorageType: "nvme", StorageTotalGB: 7680, PrimaryMAC: "00:1A:2B:3C:4D:01",
-			IPMIIP: "10.0.100.11", IPMIUser: "admin", NICCount: 4, NICSpeed: "25G",
-			NetworkBondMode: "802.3ad", Datacenter: "US-East-1", Rack: "A-12", RackUnit: 1, PowerStatus: "off"},
-		{ID: uuid.New().String(), Name: "bm-node-02", Status: "available",
-			Manufacturer: "HPE", Model: "ProLiant DL380 Gen10+", SerialNumber: "SN-HPE-002",
-			CPUModel: "AMD EPYC 9354", CPUCores: 64, CPUSockets: 2, MemoryGB: 1024,
-			StorageType: "nvme", StorageTotalGB: 15360, PrimaryMAC: "00:1A:2B:3C:4D:02",
-			IPMIIP: "10.0.100.12", IPMIUser: "admin", NICCount: 4, NICSpeed: "100G",
-			NetworkBondMode: "802.3ad", Datacenter: "US-East-1", Rack: "A-12", RackUnit: 3, PowerStatus: "off"},
-		{ID: uuid.New().String(), Name: "bm-gpu-01", Status: "available",
-			Manufacturer: "Supermicro", Model: "SYS-420GP-TNR", SerialNumber: "SN-SMC-003",
-			CPUModel: "Intel Xeon w9-3495X", CPUCores: 112, CPUSockets: 2, MemoryGB: 2048,
-			StorageType: "nvme", StorageTotalGB: 30720, PrimaryMAC: "00:1A:2B:3C:4D:03",
-			IPMIIP: "10.0.100.13", IPMIUser: "admin", NICCount: 8, NICSpeed: "100G",
-			NetworkBondMode: "802.3ad", Datacenter: "US-East-1", Rack: "B-05", RackUnit: 1,
-			PowerStatus: "off", Tags: `["gpu","hpc","ai-training"]`},
-		{ID: uuid.New().String(), Name: "bm-storage-01", Status: "active",
-			Manufacturer: "Dell", Model: "PowerEdge R760", SerialNumber: "SN-DELL-004",
-			CPUModel: "Intel Xeon Gold 6430", CPUCores: 32, CPUSockets: 1, MemoryGB: 256,
-			StorageType: "ssd", StorageTotalGB: 122880, PrimaryMAC: "00:1A:2B:3C:4D:04",
-			PrimaryIP: "10.0.1.50", IPMIIP: "10.0.100.14", IPMIUser: "admin", NICCount: 4, NICSpeed: "25G",
-			NetworkBondMode: "active-backup", Datacenter: "US-East-1", Rack: "C-01", RackUnit: 1,
-			PowerStatus: "on", OSProfile: "Ubuntu 22.04 LTS", TenantID: "storage-team"},
-	}
-	for _, srv := range servers {
-		s.db.Where("serial_number = ?", srv.SerialNumber).FirstOrCreate(&srv)
-	}
 }
 
 // ---------- Routes ----------

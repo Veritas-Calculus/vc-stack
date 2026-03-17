@@ -1,12 +1,10 @@
 import { Link, Route, Routes, useLocation } from 'react-router-dom'
 import { SettingsBranding } from './sections/Branding'
 import { SettingsGlobal } from './sections/Global'
-import { SettingsIdp } from './sections/Idp'
 import { SettingsVersion } from './sections/Version'
 
 const items = [
   { to: 'global', label: 'Global Parameters' },
-  { to: 'idp', label: 'IDP' },
   { to: 'branding', label: 'Branding' },
   { to: 'version', label: 'Version' }
 ]
@@ -35,7 +33,6 @@ export function SettingsIndex() {
       <section className="space-y-4">
         <Routes>
           <Route path="global" element={<SettingsGlobal />} />
-          <Route path="idp" element={<SettingsIdp />} />
           <Route path="branding" element={<SettingsBranding />} />
           <Route path="version" element={<SettingsVersion />} />
           <Route path="*" element={<SettingsGlobal />} />

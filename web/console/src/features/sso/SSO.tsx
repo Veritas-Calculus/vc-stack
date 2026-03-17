@@ -64,7 +64,7 @@ interface Role {
   description: string
 }
 
-export function Federation() {
+export function SSO() {
   const [tab, setTab] = useState<'providers' | 'users'>('providers')
   const [idps, setIdps] = useState<IDP[]>([])
   const [fedUsers, setFedUsers] = useState<FederatedUser[]>([])
@@ -105,7 +105,7 @@ export function Federation() {
   const loadIDPs = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await api.get<{ idps: IDP[] }>('/v1/idps')
+      const res = await api.get<{ idps: IDP[] }>('/v1/sso/providers')
       setIdps(res.data.idps || [])
     } catch (err) {
       console.error('Failed to load IDPs:', err)
@@ -116,7 +116,7 @@ export function Federation() {
 
   const loadFedUsers = useCallback(async () => {
     try {
-      const res = await api.get<{ federated_users: FederatedUser[] }>('/v1/federation/users')
+      const res = await api.get<{ federated_users: FederatedUser[] }>('/v1/sso/users')
       setFedUsers(res.data.federated_users || [])
     } catch (err) {
       console.error('Failed to load federated users:', err)
@@ -134,7 +134,7 @@ export function Federation() {
 
   const loadMappings = useCallback(async (idpId: number) => {
     try {
-      const res = await api.get<{ mappings: RoleMapping[] }>(`/v1/idps/${idpId}/mappings`)
+      const res = await api.get<{ mappings: RoleMapping[] }>(`/v1/sso/providers/${idpId}/mappings`)
       setMappings(res.data.mappings || [])
     } catch (err) {
       console.error('Failed to load mappings:', err)
@@ -149,7 +149,7 @@ export function Federation() {
 
   const handleCreateIDP = async () => {
     try {
-      await api.post('/v1/idps', form)
+      await api.post('/v1/sso/providers', form)
       setShowCreate(false)
       resetForm()
       loadIDPs()
@@ -160,7 +160,7 @@ export function Federation() {
 
   const handleDeleteIDP = async (id: number) => {
     if (confirm('Delete this identity provider?')) {
-      await api.delete(`/v1/idps/${id}?force=true`)
+      await api.delete(`/v1/sso/providers/${id}?force=true`)
       if (selectedIDP?.id === id) setSelectedIDP(null)
       loadIDPs()
       loadFedUsers()
@@ -168,7 +168,7 @@ export function Federation() {
   }
 
   const handleToggleIDP = async (idp: IDP) => {
-    await api.put(`/v1/idps/${idp.id}`, { is_enabled: !idp.is_enabled })
+    await api.put(`/v1/sso/providers/${idp.id}`, { is_enabled: !idp.is_enabled })
     loadIDPs()
     if (selectedIDP?.id === idp.id) {
       setSelectedIDP({ ...idp, is_enabled: !idp.is_enabled })
@@ -177,7 +177,9 @@ export function Federation() {
 
   const handleTestIDP = async (id: number) => {
     try {
-      const res = await api.post<{ test_results: Record<string, unknown> }>(`/v1/idps/${id}/test`)
+      const res = await api.post<{ test_results: Record<string, unknown> }>(
+        `/v1/sso/providers/${id}/test`
+      )
       setTestResult(res.data.test_results)
     } catch (err) {
       console.error('Test failed:', err)
@@ -188,7 +190,7 @@ export function Federation() {
   const handleAddMapping = async () => {
     if (!selectedIDP || !mappingGroup || !mappingRoleId) return
     try {
-      await api.post(`/v1/idps/${selectedIDP.id}/mappings`, {
+      await api.post(`/v1/sso/providers/${selectedIDP.id}/mappings`, {
         external_group: mappingGroup,
         role_id: mappingRoleId
       })
@@ -203,7 +205,7 @@ export function Federation() {
 
   const handleDeleteMapping = async (mappingId: number) => {
     if (!selectedIDP) return
-    await api.delete(`/v1/idps/${selectedIDP.id}/mappings/${mappingId}`)
+    await api.delete(`/v1/sso/providers/${selectedIDP.id}/mappings/${mappingId}`)
     loadMappings(selectedIDP.id)
   }
 
@@ -250,9 +252,9 @@ export function Federation() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-content-primary">Federation</h1>
+          <h1 className="text-2xl font-bold text-content-primary">Single Sign-On (SSO)</h1>
           <p className="text-sm text-content-secondary mt-1">
-            Manage external identity providers, SSO, and federated users
+            Manage SSO providers, role mappings, and federated users by protocol
           </p>
         </div>
         {tab === 'providers' && !selectedIDP && (

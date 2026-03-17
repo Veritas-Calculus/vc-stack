@@ -1,10 +1,18 @@
-import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@/lib/auth'
 import { useSettingsStore } from '@/lib/store'
 import { useAppStore } from '@/lib/appStore'
 import { loginApi, fetchProjects, type UIProject } from '@/lib/api'
+import api from '@/lib/api'
 import { useTranslation } from 'react-i18next'
+
+interface SSOProvider {
+  id: number
+  name: string
+  type: string
+  is_enabled: boolean
+}
 
 type LoginStep = 'credentials' | 'project'
 
@@ -14,6 +22,9 @@ export function Login() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // SSO providers from backend
+  const [ssoProviders, setSsoProviders] = useState<SSOProvider[]>([])
 
   // Step management: 'credentials' -> 'project'
   const [step, setStep] = useState<LoginStep>('credentials')
@@ -28,36 +39,23 @@ export function Login() {
   const setActiveProjectId = useAppStore((s) => s.setActiveProjectId)
   const setProjectContext = useAppStore((s) => s.setProjectContext)
   const logoDataUrl = useSettingsStore((s) => s.logoDataUrl)
-  const idpProvider = useSettingsStore((s) => s.idpProvider)
-  const idpIssuer = useSettingsStore((s) => s.idpIssuer)
-  const idpClientId = useSettingsStore((s) => s.idpClientId)
-  const idpRedirectUrl = useSettingsStore((s) => s.idpRedirectUrl)
 
-  const oidcSupported = idpProvider === 'OIDC' && !!idpIssuer && !!idpClientId
-  const redirectUrl = useMemo(
-    () => idpRedirectUrl || `${window.location.origin}/auth/oidc/callback`,
-    [idpRedirectUrl]
-  )
-  const authUrl = useMemo(
-    () => (idpIssuer ? `${idpIssuer.replace(/\/$/, '')}/authorize` : ''),
-    [idpIssuer]
-  )
+  // Load enabled SSO providers from backend
+  useEffect(() => {
+    api
+      .get<{ idps: SSOProvider[] }>('/v1/sso/providers')
+      .then((res) => {
+        const enabled = (res.data.idps || []).filter((p) => p.is_enabled)
+        setSsoProviders(enabled)
+      })
+      .catch(() => {
+        // If not authenticated yet or no providers, silently ignore
+      })
+  }, [])
 
-  function startOidc() {
-    if (!oidcSupported) return
-    const state = Math.random().toString(36).slice(2)
-    try {
-      sessionStorage.setItem('oidc_state', state)
-    } catch {
-      /* ignore */
-    }
-    const url = new URL(authUrl)
-    url.searchParams.set('client_id', idpClientId!)
-    url.searchParams.set('redirect_uri', redirectUrl)
-    url.searchParams.set('response_type', 'code')
-    url.searchParams.set('scope', 'openid profile email')
-    url.searchParams.set('state', state)
-    window.location.href = url.toString()
+  function startSSO(providerName: string) {
+    // Redirect via backend SSO login endpoint
+    window.location.href = `${window.location.origin}/api/v1/auth/sso/login/${encodeURIComponent(providerName)}`
   }
 
   // Only clear state on first mount, but DON'T clear the token
@@ -180,7 +178,7 @@ export function Login() {
               <img src="/logo-42.svg" alt="logo" className="h-6 w-6 rounded object-contain" />
             )}
             <h1 className="text-xl font-semibold text-content-primary">
-              {t('auth.loginTitle', 'Sign in to VC Console')}
+              {t('auth.loginTitle', 'Sign in to VC Stack')}
             </h1>
           </div>
           <p className="text-sm text-content-secondary">
@@ -191,15 +189,21 @@ export function Login() {
               {error}
             </div>
           )}
-          {oidcSupported && (
+          {ssoProviders.length > 0 && (
             <div className="space-y-2">
-              <button
-                type="button"
-                className="btn-secondary w-full h-9 rounded-lg text-sm"
-                onClick={startOidc}
-              >
-                {t('auth.ssoLogin', 'Continue with OpenID Connect')}
-              </button>
+              {ssoProviders.map((provider) => (
+                <button
+                  key={provider.id}
+                  type="button"
+                  className="btn-secondary w-full h-9 rounded-lg text-sm"
+                  onClick={() => startSSO(provider.name)}
+                >
+                  {t('auth.ssoLoginWith', `Continue with {{name}} ({{type}})`, {
+                    name: provider.name,
+                    type: provider.type.toUpperCase()
+                  })}
+                </button>
+              ))}
               <div className="flex items-center gap-2 text-xs text-content-tertiary">
                 <div className="h-px flex-1 bg-border" />
                 <span>or</span>

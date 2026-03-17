@@ -93,30 +93,30 @@ func (s *Service) SetupFederationRoutes(router *gin.Engine) {
 		sso.POST("/callback/:provider", s.ssoCallbackHandler) // SAML POST binding
 	}
 
-	// Protected admin routes — IDP management.
-	idps := router.Group("/api/v1/idps")
-	idps.Use(s.authMiddleware())
+	// Protected admin routes — SSO provider management.
+	providers := router.Group("/api/v1/sso/providers")
+	providers.Use(s.authMiddleware())
 	{
-		idps.GET("", s.listIDPsFullHandler)
-		idps.POST("", s.createIDPFullHandler)
-		idps.GET("/:id", s.getIDPHandler)
-		idps.PUT("/:id", s.updateIDPHandler)
-		idps.DELETE("/:id", s.deleteIDPFullHandler)
+		providers.GET("", s.listIDPsFullHandler)
+		providers.POST("", s.createIDPFullHandler)
+		providers.GET("/:id", s.getIDPHandler)
+		providers.PUT("/:id", s.updateIDPHandler)
+		providers.DELETE("/:id", s.deleteIDPFullHandler)
 		// Test connectivity.
-		idps.POST("/:id/test", s.testIDPHandler)
+		providers.POST("/:id/test", s.testIDPHandler)
 		// Role mappings.
-		idps.GET("/:id/mappings", s.listIDPMappingsHandler)
-		idps.POST("/:id/mappings", s.createIDPMappingHandler)
-		idps.DELETE("/:id/mappings/:mappingId", s.deleteIDPMappingHandler)
+		providers.GET("/:id/mappings", s.listIDPMappingsHandler)
+		providers.POST("/:id/mappings", s.createIDPMappingHandler)
+		providers.DELETE("/:id/mappings/:mappingId", s.deleteIDPMappingHandler)
 		// Federated users per provider.
-		idps.GET("/:id/users", s.listFederatedUsersHandler)
+		providers.GET("/:id/users", s.listFederatedUsersHandler)
 	}
 
-	// Federated identity overview (separate path to avoid /:id conflict).
-	federation := router.Group("/api/v1/federation")
-	federation.Use(s.authMiddleware())
+	// Federated identity overview.
+	ssoGroup := router.Group("/api/v1/sso")
+	ssoGroup.Use(s.authMiddleware())
 	{
-		federation.GET("/users", s.listAllFederatedUsersHandler)
+		ssoGroup.GET("/users", s.listAllFederatedUsersHandler)
 	}
 }
 

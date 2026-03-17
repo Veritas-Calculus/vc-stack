@@ -30,6 +30,45 @@ func setupTest(t *testing.T) (*Service, *gin.Engine) {
 	return svc, r
 }
 
+// seedTestData creates test-local DR fixtures (3 sites + 1 plan) for tests that need pre-existing data.
+func seedTestData(t *testing.T, r *gin.Engine) (siteIDs []string, planID string) {
+	t.Helper()
+
+	sites := []map[string]interface{}{
+		{"name": "dc-primary", "type": "primary", "location": "US-East-1",
+			"endpoint": "https://primary.vc-stack.local", "storage_total_gb": 5000},
+		{"name": "dc-standby", "type": "warm_standby", "location": "US-West-2",
+			"endpoint": "https://standby.vc-stack.local", "storage_total_gb": 5000},
+		{"name": "dc-archive", "type": "cold_standby", "location": "EU-Central-1",
+			"endpoint": "https://archive.vc-stack.local", "storage_total_gb": 10000},
+	}
+	for _, s := range sites {
+		w := doReq(r, "POST", "/api/v1/dr/sites", s)
+		if w.Code != http.StatusCreated {
+			t.Fatalf("failed to seed test site: %s", w.Body.String())
+		}
+		data := parseJSON(w)
+		site := data["site"].(map[string]interface{})
+		siteIDs = append(siteIDs, site["id"].(string))
+	}
+
+	// Create a DR plan
+	plan := map[string]interface{}{
+		"name": "production-dr", "priority": "critical",
+		"rpo_minutes": 15, "rto_minutes": 60,
+		"source_site_id": siteIDs[0], "target_site_id": siteIDs[1],
+		"replication_type": "async", "schedule": "*/15 * * * *",
+	}
+	w := doReq(r, "POST", "/api/v1/dr/plans", plan)
+	if w.Code != http.StatusCreated {
+		t.Fatalf("failed to seed test plan: %s", w.Body.String())
+	}
+	data := parseJSON(w)
+	planID = data["plan"].(map[string]interface{})["id"].(string)
+
+	return siteIDs, planID
+}
+
 func doReq(r *gin.Engine, method, path string, body interface{}) *httptest.ResponseRecorder {
 	var buf bytes.Buffer
 	if body != nil {
@@ -48,7 +87,7 @@ func parseJSON(w *httptest.ResponseRecorder) map[string]interface{} {
 	return result
 }
 
-func TestGetStatus(t *testing.T) {
+func TestGetStatusEmpty(t *testing.T) {
 	_, r := setupTest(t)
 	w := doReq(r, "GET", "/api/v1/dr/status", nil)
 	if w.Code != http.StatusOK {
@@ -58,6 +97,20 @@ func TestGetStatus(t *testing.T) {
 	if data["status"] != "operational" {
 		t.Error("expected operational")
 	}
+	sites := int(data["sites"].(float64))
+	if sites != 0 {
+		t.Errorf("expected 0 sites on fresh init, got %d", sites)
+	}
+}
+
+func TestGetStatus(t *testing.T) {
+	_, r := setupTest(t)
+	seedTestData(t, r)
+	w := doReq(r, "GET", "/api/v1/dr/status", nil)
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", w.Code)
+	}
+	data := parseJSON(w)
 	sites := int(data["sites"].(float64))
 	if sites != 3 {
 		t.Errorf("expected 3 sites, got %d", sites)
@@ -70,11 +123,12 @@ func TestGetStatus(t *testing.T) {
 
 func TestListSites(t *testing.T) {
 	_, r := setupTest(t)
+	seedTestData(t, r)
 	w := doReq(r, "GET", "/api/v1/dr/sites", nil)
 	data := parseJSON(w)
 	sites := data["sites"].([]interface{})
 	if len(sites) != 3 {
-		t.Errorf("expected 3 default sites, got %d", len(sites))
+		t.Errorf("expected 3 sites, got %d", len(sites))
 	}
 	names := map[string]bool{}
 	for _, s := range sites {
@@ -90,6 +144,7 @@ func TestListSites(t *testing.T) {
 
 func TestCreateSite(t *testing.T) {
 	_, r := setupTest(t)
+	seedTestData(t, r)
 	w := doReq(r, "POST", "/api/v1/dr/sites", map[string]interface{}{
 		"name": "dc-backup", "type": "cold_standby", "location": "AP-Southeast-1",
 		"endpoint": "https://backup.vc.local", "storage_total_gb": 8000,
@@ -108,11 +163,12 @@ func TestCreateSite(t *testing.T) {
 
 func TestListPlans(t *testing.T) {
 	_, r := setupTest(t)
+	seedTestData(t, r)
 	w := doReq(r, "GET", "/api/v1/dr/plans", nil)
 	data := parseJSON(w)
 	plans := data["plans"].([]interface{})
 	if len(plans) != 1 {
-		t.Errorf("expected 1 default plan, got %d", len(plans))
+		t.Errorf("expected 1 plan, got %d", len(plans))
 	}
 	plan := plans[0].(map[string]interface{})
 	if plan["name"] != "production-dr" {
@@ -140,17 +196,13 @@ func TestCreatePlan(t *testing.T) {
 
 func TestGetPlan(t *testing.T) {
 	_, r := setupTest(t)
-	// Get plan ID
-	w := doReq(r, "GET", "/api/v1/dr/plans", nil)
-	data := parseJSON(w)
-	plans := data["plans"].([]interface{})
-	planID := plans[0].(map[string]interface{})["id"].(string)
+	_, planID := seedTestData(t, r)
 
-	w = doReq(r, "GET", "/api/v1/dr/plans/"+planID, nil)
+	w := doReq(r, "GET", "/api/v1/dr/plans/"+planID, nil)
 	if w.Code != http.StatusOK {
 		t.Fatalf("expected 200")
 	}
-	data = parseJSON(w)
+	data := parseJSON(w)
 	if data["plan"] == nil {
 		t.Error("expected plan in response")
 	}
@@ -161,13 +213,10 @@ func TestGetPlan(t *testing.T) {
 
 func TestProtectedResources(t *testing.T) {
 	_, r := setupTest(t)
-	// Get plan ID
-	w := doReq(r, "GET", "/api/v1/dr/plans", nil)
-	data := parseJSON(w)
-	planID := data["plans"].([]interface{})[0].(map[string]interface{})["id"].(string)
+	_, planID := seedTestData(t, r)
 
 	// Add resource
-	w = doReq(r, "POST", "/api/v1/dr/plans/"+planID+"/resources", map[string]interface{}{
+	w := doReq(r, "POST", "/api/v1/dr/plans/"+planID+"/resources", map[string]interface{}{
 		"resource_type": "instance", "resource_id": "vm-001", "resource_name": "web-server-1", "data_size_mb": 50000,
 	})
 	if w.Code != http.StatusCreated {
@@ -176,7 +225,7 @@ func TestProtectedResources(t *testing.T) {
 
 	// List resources
 	w = doReq(r, "GET", "/api/v1/dr/plans/"+planID+"/resources", nil)
-	data = parseJSON(w)
+	data := parseJSON(w)
 	resources := data["resources"].([]interface{})
 	if len(resources) != 1 {
 		t.Errorf("expected 1 resource, got %d", len(resources))
@@ -185,19 +234,16 @@ func TestProtectedResources(t *testing.T) {
 
 func TestDRDrill(t *testing.T) {
 	_, r := setupTest(t)
-	// Get plan ID
-	w := doReq(r, "GET", "/api/v1/dr/plans", nil)
-	data := parseJSON(w)
-	planID := data["plans"].([]interface{})[0].(map[string]interface{})["id"].(string)
+	_, planID := seedTestData(t, r)
 
 	// Create drill
-	w = doReq(r, "POST", "/api/v1/dr/drills", map[string]interface{}{
+	w := doReq(r, "POST", "/api/v1/dr/drills", map[string]interface{}{
 		"plan_id": planID, "name": "Q1 DR Drill", "type": "planned",
 	})
 	if w.Code != http.StatusCreated {
 		t.Fatalf("expected 201, got %d: %s", w.Code, w.Body.String())
 	}
-	data = parseJSON(w)
+	data := parseJSON(w)
 	drill := data["drill"].(map[string]interface{})
 	if drill["status"] != "completed" {
 		t.Errorf("expected completed")
@@ -220,19 +266,16 @@ func TestDRDrill(t *testing.T) {
 
 func TestFailoverAndFailback(t *testing.T) {
 	_, r := setupTest(t)
-	// Get plan ID
-	w := doReq(r, "GET", "/api/v1/dr/plans", nil)
-	data := parseJSON(w)
-	planID := data["plans"].([]interface{})[0].(map[string]interface{})["id"].(string)
+	_, planID := seedTestData(t, r)
 
 	// Initiate failover
-	w = doReq(r, "POST", "/api/v1/dr/failover", map[string]interface{}{
+	w := doReq(r, "POST", "/api/v1/dr/failover", map[string]interface{}{
 		"plan_id": planID, "reason": "Primary site outage",
 	})
 	if w.Code != http.StatusCreated {
 		t.Fatalf("expected 201, got %d", w.Code)
 	}
-	data = parseJSON(w)
+	data := parseJSON(w)
 	event := data["event"].(map[string]interface{})
 	if event["type"] != "failover" {
 		t.Error("expected failover type")

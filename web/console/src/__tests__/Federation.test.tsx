@@ -52,12 +52,12 @@ vi.mock('@/lib/appStore', () => ({
 
 afterEach(() => cleanup())
 
-describe('Federation', () => {
+describe('SSO', () => {
   it('renders without crashing', async () => {
-    const { Federation } = await import('@/features/federation/Federation')
+    const { SSO } = await import('@/features/sso/SSO')
     const { container } = render(
       <BrowserRouter>
-        <Federation />
+        <SSO />
       </BrowserRouter>
     )
     expect(container).toBeTruthy()

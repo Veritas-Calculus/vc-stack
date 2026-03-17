@@ -30,6 +30,45 @@ func setupTest(t *testing.T) (*Service, *gin.Engine) {
 	return svc, r
 }
 
+// seedTestServers creates test-local server fixtures for tests that need pre-existing data.
+func seedTestServers(t *testing.T, r *gin.Engine) []string {
+	t.Helper()
+	servers := []map[string]interface{}{
+		{"name": "bm-node-01", "serial_number": "SN-TEST-001", "status": "available",
+			"manufacturer": "Dell", "model": "PowerEdge R750",
+			"cpu_model": "Intel Xeon Gold 6348", "cpu_cores": 56, "memory_gb": 512,
+			"storage_type": "nvme", "storage_total_gb": 7680,
+			"ipmi_ip": "10.0.100.11", "datacenter": "US-East-1", "rack": "A-12", "rack_unit": 1},
+		{"name": "bm-node-02", "serial_number": "SN-TEST-002", "status": "available",
+			"manufacturer": "HPE", "model": "ProLiant DL380",
+			"cpu_model": "AMD EPYC 9354", "cpu_cores": 64, "memory_gb": 1024,
+			"storage_type": "nvme", "storage_total_gb": 15360,
+			"ipmi_ip": "10.0.100.12", "datacenter": "US-East-1", "rack": "A-12", "rack_unit": 3},
+		{"name": "bm-node-03", "serial_number": "SN-TEST-003", "status": "available",
+			"manufacturer": "Supermicro", "model": "SYS-420GP",
+			"cpu_model": "Intel Xeon w9-3495X", "cpu_cores": 112, "memory_gb": 2048,
+			"storage_type": "nvme", "storage_total_gb": 30720,
+			"ipmi_ip": "10.0.100.13", "datacenter": "US-East-1", "rack": "B-05", "rack_unit": 1},
+		{"name": "bm-storage-01", "serial_number": "SN-TEST-004", "status": "active",
+			"manufacturer": "Dell", "model": "PowerEdge R760",
+			"cpu_model": "Intel Xeon Gold 6430", "cpu_cores": 32, "memory_gb": 256,
+			"storage_type": "ssd", "storage_total_gb": 122880,
+			"ipmi_ip": "10.0.100.14", "datacenter": "US-East-1", "rack": "C-01", "rack_unit": 1},
+	}
+
+	var ids []string
+	for _, srv := range servers {
+		w := doReq(r, "POST", "/api/v1/baremetal/servers", srv)
+		if w.Code != http.StatusCreated {
+			t.Fatalf("failed to seed test server: %s", w.Body.String())
+		}
+		data := parseJSON(w)
+		s := data["server"].(map[string]interface{})
+		ids = append(ids, s["id"].(string))
+	}
+	return ids
+}
+
 func doReq(r *gin.Engine, method, path string, body interface{}) *httptest.ResponseRecorder {
 	var buf bytes.Buffer
 	if body != nil {
@@ -48,7 +87,7 @@ func parseJSON(w *httptest.ResponseRecorder) map[string]interface{} {
 	return result
 }
 
-func TestGetStatus(t *testing.T) {
+func TestGetStatusEmpty(t *testing.T) {
 	_, r := setupTest(t)
 	w := doReq(r, "GET", "/api/v1/baremetal/status", nil)
 	if w.Code != http.StatusOK {
@@ -59,12 +98,8 @@ func TestGetStatus(t *testing.T) {
 		t.Error("expected operational")
 	}
 	total := int(data["total"].(float64))
-	if total != 4 {
-		t.Errorf("expected 4 servers, got %d", total)
-	}
-	available := int(data["available"].(float64))
-	if available != 3 {
-		t.Errorf("expected 3 available, got %d", available)
+	if total != 0 {
+		t.Errorf("expected 0 servers on fresh init, got %d", total)
 	}
 	profiles := int(data["os_profiles"].(float64))
 	if profiles != 5 {
@@ -72,8 +107,24 @@ func TestGetStatus(t *testing.T) {
 	}
 }
 
+func TestGetStatusWithServers(t *testing.T) {
+	_, r := setupTest(t)
+	seedTestServers(t, r)
+	w := doReq(r, "GET", "/api/v1/baremetal/status", nil)
+	data := parseJSON(w)
+	total := int(data["total"].(float64))
+	if total != 4 {
+		t.Errorf("expected 4 servers, got %d", total)
+	}
+	available := int(data["available"].(float64))
+	if available != 3 {
+		t.Errorf("expected 3 available, got %d", available)
+	}
+}
+
 func TestListServers(t *testing.T) {
 	_, r := setupTest(t)
+	seedTestServers(t, r)
 	w := doReq(r, "GET", "/api/v1/baremetal/servers", nil)
 	data := parseJSON(w)
 	servers := data["servers"].([]interface{})
@@ -84,6 +135,7 @@ func TestListServers(t *testing.T) {
 
 func TestListServersByStatus(t *testing.T) {
 	_, r := setupTest(t)
+	seedTestServers(t, r)
 	w := doReq(r, "GET", "/api/v1/baremetal/servers?status=active", nil)
 	data := parseJSON(w)
 	servers := data["servers"].([]interface{})
@@ -104,26 +156,23 @@ func TestCreateServer(t *testing.T) {
 	if w.Code != http.StatusCreated {
 		t.Fatalf("expected 201, got %d: %s", w.Code, w.Body.String())
 	}
-	// Now 5 servers
+	// Now 1 server
 	w = doReq(r, "GET", "/api/v1/baremetal/servers", nil)
 	data := parseJSON(w)
-	if len(data["servers"].([]interface{})) != 5 {
-		t.Error("expected 5 servers")
+	if len(data["servers"].([]interface{})) != 1 {
+		t.Error("expected 1 server")
 	}
 }
 
 func TestGetServer(t *testing.T) {
 	_, r := setupTest(t)
-	// Get a server ID
-	w := doReq(r, "GET", "/api/v1/baremetal/servers", nil)
-	data := parseJSON(w)
-	serverID := data["servers"].([]interface{})[0].(map[string]interface{})["id"].(string)
+	ids := seedTestServers(t, r)
 
-	w = doReq(r, "GET", "/api/v1/baremetal/servers/"+serverID, nil)
+	w := doReq(r, "GET", "/api/v1/baremetal/servers/"+ids[0], nil)
 	if w.Code != http.StatusOK {
 		t.Fatalf("expected 200")
 	}
-	data = parseJSON(w)
+	data := parseJSON(w)
 	if data["server"] == nil {
 		t.Error("expected server in response")
 	}
@@ -131,25 +180,22 @@ func TestGetServer(t *testing.T) {
 
 func TestPowerAction(t *testing.T) {
 	_, r := setupTest(t)
-	// Get first server ID
-	w := doReq(r, "GET", "/api/v1/baremetal/servers", nil)
-	data := parseJSON(w)
-	serverID := data["servers"].([]interface{})[0].(map[string]interface{})["id"].(string)
+	ids := seedTestServers(t, r)
 
 	// Power on
-	w = doReq(r, "POST", "/api/v1/baremetal/servers/"+serverID+"/power", map[string]interface{}{
+	w := doReq(r, "POST", "/api/v1/baremetal/servers/"+ids[0]+"/power", map[string]interface{}{
 		"action": "power_on",
 	})
 	if w.Code != http.StatusOK {
 		t.Fatalf("expected 200, got %d", w.Code)
 	}
-	data = parseJSON(w)
+	data := parseJSON(w)
 	if data["power_status"] != "on" {
 		t.Error("expected power_status on")
 	}
 
 	// Check IPMI log
-	w = doReq(r, "GET", "/api/v1/baremetal/servers/"+serverID+"/ipmi-log", nil)
+	w = doReq(r, "GET", "/api/v1/baremetal/servers/"+ids[0]+"/ipmi-log", nil)
 	data = parseJSON(w)
 	actions := data["actions"].([]interface{})
 	if len(actions) < 1 {
@@ -159,15 +205,13 @@ func TestPowerAction(t *testing.T) {
 
 func TestProvisionServer(t *testing.T) {
 	_, r := setupTest(t)
-	// Get available server
-	w := doReq(r, "GET", "/api/v1/baremetal/servers?status=available", nil)
-	data := parseJSON(w)
-	servers := data["servers"].([]interface{})
-	serverID := servers[0].(map[string]interface{})["id"].(string)
+	ids := seedTestServers(t, r)
+	// Use first available server (ids[0])
+	serverID := ids[0]
 
 	// Get profile
-	w = doReq(r, "GET", "/api/v1/baremetal/profiles", nil)
-	data = parseJSON(w)
+	w := doReq(r, "GET", "/api/v1/baremetal/profiles", nil)
+	data := parseJSON(w)
 	profiles := data["profiles"].([]interface{})
 	profileID := profiles[0].(map[string]interface{})["id"].(string)
 
@@ -217,11 +261,9 @@ func TestListProfiles(t *testing.T) {
 
 func TestInvalidPowerAction(t *testing.T) {
 	_, r := setupTest(t)
-	w := doReq(r, "GET", "/api/v1/baremetal/servers", nil)
-	data := parseJSON(w)
-	serverID := data["servers"].([]interface{})[0].(map[string]interface{})["id"].(string)
+	ids := seedTestServers(t, r)
 
-	w = doReq(r, "POST", "/api/v1/baremetal/servers/"+serverID+"/power", map[string]interface{}{
+	w := doReq(r, "POST", "/api/v1/baremetal/servers/"+ids[0]+"/power", map[string]interface{}{
 		"action": "destroy",
 	})
 	if w.Code != http.StatusBadRequest {
@@ -231,18 +273,13 @@ func TestInvalidPowerAction(t *testing.T) {
 
 func TestProvisionNonAvailableServer(t *testing.T) {
 	_, r := setupTest(t)
-	// Get active server
-	w := doReq(r, "GET", "/api/v1/baremetal/servers?status=active", nil)
-	data := parseJSON(w)
-	servers := data["servers"].([]interface{})
-	if len(servers) == 0 {
-		t.Skip("no active servers to test")
-	}
-	serverID := servers[0].(map[string]interface{})["id"].(string)
+	ids := seedTestServers(t, r)
+	// ids[3] is "active" status
+	serverID := ids[3]
 
 	// Get profile
-	w = doReq(r, "GET", "/api/v1/baremetal/profiles", nil)
-	data = parseJSON(w)
+	w := doReq(r, "GET", "/api/v1/baremetal/profiles", nil)
+	data := parseJSON(w)
 	profileID := data["profiles"].([]interface{})[0].(map[string]interface{})["id"].(string)
 
 	w = doReq(r, "POST", "/api/v1/baremetal/servers/"+serverID+"/provision", map[string]interface{}{
