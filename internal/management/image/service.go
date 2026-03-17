@@ -344,4 +344,3 @@ func (s *Service) deleteImage(c *gin.Context) {
 	s.db.Delete(&img)
 	c.Status(http.StatusNoContent)
 }
-

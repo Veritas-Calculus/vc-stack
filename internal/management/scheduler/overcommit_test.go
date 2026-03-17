@@ -125,7 +125,6 @@ func TestOvercommit_NormalizesInvalidRatios(t *testing.T) {
 	}
 }
 
-
 // TestServerGroupPolicyValidation tests policy string validation.
 func TestServerGroupPolicyValidation(t *testing.T) {
 	valid := []string{"affinity", "anti-affinity", "soft-affinity", "soft-anti-affinity"}

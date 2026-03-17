@@ -187,6 +187,7 @@ func (s *Service) SetPortAllocator(pa PortAllocator) {
 }
 
 // emitEvent is a helper to log events.
+//
 //nolint:unused // TODO: wire into routes when feature is enabled
 func (s *Service) emitEvent(eventType, resourceID, action, status, userID string, details map[string]interface{}, errMsg string) {
 	if s.eventLogger != nil {

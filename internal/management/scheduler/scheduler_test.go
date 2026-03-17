@@ -48,7 +48,6 @@ func seedHosts(t *testing.T, db *gorm.DB, hosts []models.Host) {
 	}
 }
 
-
 // TestSelectHost_LeastAllocated verifies that the scheduler picks the host
 // with the least CPU allocation (least-loaded first).
 func TestSelectHost_LeastAllocated(t *testing.T) {
@@ -217,7 +216,6 @@ func TestListNodesEndpoint(t *testing.T) {
 	}
 }
 
-
 // TestSelectHost_PackStrategy verifies bin-packing sorts by most loaded.
 func TestSelectHost_PackStrategy(t *testing.T) {
 	db := setupTestDB(t)
@@ -249,4 +247,3 @@ func TestSelectHost_PackStrategy(t *testing.T) {
 		t.Errorf("pack strategy should prefer loaded host, got %s", host.UUID)
 	}
 }
-

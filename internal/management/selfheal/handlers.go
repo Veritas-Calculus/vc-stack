@@ -19,12 +19,12 @@ func (s *Service) getStatus(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"status":          "operational",
-		"total_checks":    len(s.checks),
-		"healthy":         healthy,
-		"degraded":        len(s.checks) - healthy,
-		"active_policies": len(s.policies),
-		"total_events":    len(s.events),
+		"status":           "operational",
+		"total_checks":     len(s.checks),
+		"healthy":          healthy,
+		"degraded":         len(s.checks) - healthy,
+		"active_policies":  len(s.policies),
+		"total_events":     len(s.events),
 		"healing_rate_pct": s.healingRate(),
 	})
 }

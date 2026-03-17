@@ -16,12 +16,14 @@ type DiskOffering = models.DiskOffering
 type NetworkOffering = models.NetworkOffering
 
 // migrateOfferings runs auto-migration for offering tables.
+//
 //nolint:unused // TODO: wire into routes when feature is enabled
 func (s *Service) migrateOfferings() error {
 	return s.db.AutoMigrate(&DiskOffering{}, &NetworkOffering{})
 }
 
 // seedDefaultDiskOfferings seeds starter disk offerings.
+//
 //nolint:unused // TODO: wire into routes when feature is enabled
 func (s *Service) seedDefaultDiskOfferings() {
 	var count int64
@@ -43,6 +45,7 @@ func (s *Service) seedDefaultDiskOfferings() {
 }
 
 // seedDefaultNetworkOfferings seeds starter network offerings.
+//
 //nolint:unused // TODO: wire into routes when feature is enabled
 func (s *Service) seedDefaultNetworkOfferings() {
 	var count int64

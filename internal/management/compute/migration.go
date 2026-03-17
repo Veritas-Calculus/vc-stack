@@ -52,6 +52,7 @@ type MigrateRequest struct {
 }
 
 // setupMigrationRoutes registers migration-related routes.
+//
 //nolint:unused // TODO: wire into routes when feature is enabled
 func (s *Service) setupMigrationRoutes(api *gin.RouterGroup) {
 	api.POST("/instances/:id/migrate", s.migrateInstance)
@@ -61,12 +62,14 @@ func (s *Service) setupMigrationRoutes(api *gin.RouterGroup) {
 }
 
 // migrateMigrationTable auto-migrates the migration table.
+//
 //nolint:unused // TODO: wire into routes when feature is enabled
 func (s *Service) migrateMigrationTable() error {
 	return s.db.AutoMigrate(&Migration{})
 }
 
 // migrateInstance handles POST /api/v1/instances/:id/migrate.
+//
 //nolint:unused // TODO: wire into routes when feature is enabled
 func (s *Service) migrateInstance(c *gin.Context) {
 	id := c.Param("id")
@@ -230,6 +233,7 @@ func (s *Service) migrateInstance(c *gin.Context) {
 }
 
 // executeMigration orchestrates the migration process.
+//
 //nolint:unused // TODO: wire into routes when feature is enabled
 func (s *Service) executeMigration(ctx context.Context, m *Migration) {
 	s.logger.Info("starting migration",
@@ -286,6 +290,7 @@ func (s *Service) executeMigration(ctx context.Context, m *Migration) {
 }
 
 // preMigrationCheck verifies the destination host can accept the instance.
+//
 //nolint:unused // TODO: wire into routes when feature is enabled
 func (s *Service) preMigrationCheck(ctx context.Context, m *Migration) error {
 	// Verify dest host is still up.
@@ -303,6 +308,7 @@ func (s *Service) preMigrationCheck(ctx context.Context, m *Migration) error {
 }
 
 // sendMigrationCommand sends the migrate command to the source compute node.
+//
 //nolint:unused // TODO: wire into routes when feature is enabled
 func (s *Service) sendMigrationCommand(ctx context.Context, m *Migration) error {
 	if m.SourceNodeAddr == "" {
@@ -324,6 +330,7 @@ func (s *Service) sendMigrationCommand(ctx context.Context, m *Migration) error 
 }
 
 // waitForMigration polls migration status until completion or timeout.
+//
 //nolint:unused // TODO: wire into routes when feature is enabled
 func (s *Service) waitForMigration(ctx context.Context, m *Migration) error {
 	// In production: poll source node for QEMU migration status.
@@ -341,6 +348,7 @@ func (s *Service) waitForMigration(ctx context.Context, m *Migration) error {
 }
 
 // postMigration updates the instance's host assignment after successful migration.
+//
 //nolint:unused // TODO: wire into routes when feature is enabled
 func (s *Service) postMigration(m *Migration) error {
 	// Update instance to point to the new host.
@@ -372,6 +380,7 @@ func (s *Service) postMigration(m *Migration) error {
 }
 
 // failMigration marks a migration as failed and restores instance state.
+//
 //nolint:unused // TODO: wire into routes when feature is enabled
 func (s *Service) failMigration(m *Migration, reason string) {
 	s.logger.Error("migration failed",
@@ -394,6 +403,7 @@ func (s *Service) failMigration(m *Migration, reason string) {
 }
 
 // updateMigrationStatus updates the migration progress in the database.
+//
 //nolint:unused // TODO: wire into routes when feature is enabled
 func (s *Service) updateMigrationStatus(id uint, status string, progress int, startedAt, completedAt *time.Time, errorMsg string) {
 	updates := map[string]interface{}{
@@ -413,6 +423,7 @@ func (s *Service) updateMigrationStatus(id uint, status string, progress int, st
 }
 
 // listMigrations handles GET /api/v1/migrations.
+//
 //nolint:unused // TODO: wire into routes when feature is enabled
 func (s *Service) listMigrations(c *gin.Context) {
 	var migrations []Migration
@@ -437,6 +448,7 @@ func (s *Service) listMigrations(c *gin.Context) {
 }
 
 // getMigration handles GET /api/v1/migrations/:id.
+//
 //nolint:unused // TODO: wire into routes when feature is enabled
 func (s *Service) getMigration(c *gin.Context) {
 	id := c.Param("id")
@@ -455,6 +467,7 @@ func (s *Service) getMigration(c *gin.Context) {
 }
 
 // cancelMigration handles POST /api/v1/migrations/:id/cancel.
+//
 //nolint:unused // TODO: wire into routes when feature is enabled
 func (s *Service) cancelMigration(c *gin.Context) {
 	id := c.Param("id")
