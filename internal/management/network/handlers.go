@@ -27,7 +27,7 @@ func (s *Service) setupRoutes(router *gin.Engine) {
 		api.GET("/ports", s.listPorts)
 		api.POST("/ports", s.createPort)
 		api.DELETE("/ports/:id", s.deletePort)
-		
+
 		// Physical Networks (CloudStack-like)
 		api.GET("/physical-networks", s.listPhysicalNetworks)
 		api.POST("/physical-networks", s.createPhysicalNetwork)

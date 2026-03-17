@@ -31,10 +31,10 @@ type ControllerClient interface {
 
 // Proxy serves EC2/OpenStack-compatible metadata to VMs.
 type Proxy struct {
-	controller    ControllerClient
-	logger        *zap.Logger
-	port          string
-	mux           *http.ServeMux
+	controller ControllerClient
+	logger     *zap.Logger
+	port       string
+	mux        *http.ServeMux
 }
 
 // instanceInfo holds the data returned to the VM.
@@ -68,7 +68,7 @@ func NewProxy(cfg ProxyConfig) (*Proxy, error) {
 	// For bootstrapping via NewProxy, we can't easily inject the 'compute.ControllerClient'
 	// due to circular imports. The caller (NewNode) is responsible for ensuring
 	// compatibility or we can define a local implementation.
-	
+
 	p.registerRoutes()
 	return p, nil
 }

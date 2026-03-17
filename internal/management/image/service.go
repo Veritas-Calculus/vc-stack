@@ -65,7 +65,7 @@ func (s *Service) SetStorage(svc StorageService) {
 	s.storage = svc
 }
 
-func (s *Service) Name() string { return "image" }
+func (s *Service) Name() string                 { return "image" }
 func (s *Service) ServiceInstance() interface{} { return s }
 
 func (s *Service) SetupRoutes(router *gin.Engine) {
@@ -147,7 +147,9 @@ func (s *Service) deleteImage(c *gin.Context) {
 	id := c.Param("id")
 	var img models.Image
 	if err := s.db.First(&img, id).Error; err == nil {
-		if img.FilePath != "" { _ = os.Remove(img.FilePath) }
+		if img.FilePath != "" {
+			_ = os.Remove(img.FilePath)
+		}
 		s.db.Delete(&img)
 	}
 	c.Status(http.StatusNoContent)

@@ -14,9 +14,9 @@ import (
 
 // RegisterOptionalModules registers all optional modules with IoC assembly.
 func RegisterOptionalModules(r *ModuleRegistry) {
-	
+
 	r.Register(ModuleDescriptor{
-		Name: "audit",
+		Name:      "audit",
 		EnabledFn: func(mc ModulesConfig) bool { return isEnabled(mc.EnableAudit) },
 		Factory: func(mctx ModuleContext) error {
 			cfg := mctx.GetConfig()
@@ -27,7 +27,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 	})
 
 	r.Register(ModuleDescriptor{
-		Name: "backup",
+		Name:      "backup",
 		EnabledFn: func(mc ModulesConfig) bool { return isEnabled(mc.EnableBackup) },
 		DependsOn: []string{"storage"},
 		Factory: func(mctx ModuleContext) error {
@@ -42,7 +42,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 	})
 
 	r.Register(ModuleDescriptor{
-		Name: "usage",
+		Name:      "usage",
 		EnabledFn: func(mc ModulesConfig) bool { return isEnabled(mc.EnableUsage) },
 		DependsOn: []string{"event"},
 		Factory: func(mctx ModuleContext) error {
@@ -57,7 +57,7 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 	})
 
 	r.Register(ModuleDescriptor{
-		Name: "invoice",
+		Name:      "invoice",
 		EnabledFn: func(mc ModulesConfig) bool { return isEnabled(mc.EnableInvoice) },
 		DependsOn: []string{"usage"},
 		Factory: func(mctx ModuleContext) error {
@@ -72,21 +72,25 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 	})
 
 	r.Register(ModuleDescriptor{
-		Name: "selfheal",
+		Name:      "selfheal",
 		EnabledFn: func(mc ModulesConfig) bool { return isEnabled(mc.EnableSelfHeal) },
 		DependsOn: []string{"compute", "notification"},
 		Factory: func(mctx ModuleContext) error {
 			cfg := mctx.GetConfig()
 			s, _ := selfheal.NewService(selfheal.Config{DB: cfg.DB, Logger: cfg.Logger.Named("selfheal")})
-			if comp := mctx.GetModule("compute"); comp != nil { s.SetCompute(comp) }
-			if notify := mctx.GetModule("notification"); notify != nil { s.SetNotification(notify) }
+			if comp := mctx.GetModule("compute"); comp != nil {
+				s.SetCompute(comp)
+			}
+			if notify := mctx.GetModule("notification"); notify != nil {
+				s.SetNotification(notify)
+			}
 			mctx.RegisterModule(WrapModule("selfheal", s))
 			return nil
 		},
 	})
 
 	r.Register(ModuleDescriptor{
-		Name: "autoscale",
+		Name:      "autoscale",
 		EnabledFn: func(mc ModulesConfig) bool { return isEnabled(mc.EnableAutoScale) },
 		DependsOn: []string{"compute", "monitoring"},
 		Factory: func(mctx ModuleContext) error {
@@ -102,7 +106,8 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 		Name: "kms", EnabledFn: func(mc ModulesConfig) bool { return isEnabled(mc.EnableKMS) },
 		Factory: func(mctx ModuleContext) error {
 			s, _ := kms.NewService(kms.Config{DB: mctx.GetConfig().DB, Logger: mctx.GetConfig().Logger.Named("kms")})
-			mctx.RegisterModule(WrapModule("kms", s)); return nil
+			mctx.RegisterModule(WrapModule("kms", s))
+			return nil
 		},
 	})
 
@@ -110,7 +115,8 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 		Name: "vpn", EnabledFn: func(mc ModulesConfig) bool { return isEnabled(mc.EnableVPN) },
 		Factory: func(mctx ModuleContext) error {
 			s, _ := vpn.NewService(vpn.Config{DB: mctx.GetConfig().DB, Logger: mctx.GetConfig().Logger.Named("vpn")})
-			mctx.RegisterModule(WrapModule("vpn", s)); return nil
+			mctx.RegisterModule(WrapModule("vpn", s))
+			return nil
 		},
 	})
 
@@ -118,7 +124,8 @@ func RegisterOptionalModules(r *ModuleRegistry) {
 		Name: "notification", EnabledFn: func(mc ModulesConfig) bool { return isEnabled(mc.EnableNotify) },
 		Factory: func(mctx ModuleContext) error {
 			s, _ := notification.NewService(notification.Config{DB: mctx.GetConfig().DB, Logger: mctx.GetConfig().Logger.Named("notify")})
-			mctx.RegisterModule(WrapModule("notification", s)); return nil
+			mctx.RegisterModule(WrapModule("notification", s))
+			return nil
 		},
 	})
 }

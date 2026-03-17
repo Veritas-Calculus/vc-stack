@@ -1,6 +1,5 @@
 package network
 
-
 // Driver abstracts SDN backend operations used by network service.
 type Driver interface {
 	EnsureNetwork(n *Network, s *Subnet) error
@@ -16,7 +15,7 @@ type Driver interface {
 	SetRouterSNAT(router string, enable bool, internalCIDR, externalIP string) error
 	EnsureFIPNAT(router, floatingIP, fixedIP string) error
 	RemoveFIPNAT(router, floatingIP, fixedIP string) error
-	
+
 	// Security Groups via Port Groups
 	EnsurePortGroup(name string) error
 	DeletePortGroup(name string) error

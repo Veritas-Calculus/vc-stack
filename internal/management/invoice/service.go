@@ -1,10 +1,10 @@
 package invoice
 
 import (
-	"net/http"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+	"net/http"
 )
 
 type Config struct {
@@ -25,7 +25,7 @@ func NewService(cfg Config) (*Service, error) {
 	}, nil
 }
 
-func (s *Service) Name() string { return "invoice" }
+func (s *Service) Name() string                 { return "invoice" }
 func (s *Service) ServiceInstance() interface{} { return s }
 
 // SetUsageService injects usage data source.

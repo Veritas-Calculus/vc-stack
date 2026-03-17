@@ -41,7 +41,7 @@ func (s *Service) StartVM(ctx context.Context, inst *Instance) error {
 	// 3. Launch the VM using the local driver.
 	go func() {
 		bgCtx := context.Background()
-		
+
 		if s.vmDriver == nil {
 			s.logger.Error("no hypervisor driver available on node", zap.String("uuid", inst.UUID))
 			s.reportStatus(bgCtx, inst.UUID, "error", "shutdown")
@@ -56,10 +56,10 @@ func (s *Service) StartVM(ctx context.Context, inst *Instance) error {
 		}
 
 		s.logger.Info("VM process launched", zap.String("uuid", inst.UUID), zap.String("vmid", vmMetadata.ID))
-		
+
 		// 4. Update status to active/running.
 		s.reportStatus(bgCtx, inst.UUID, "active", "running")
-		
+
 		// Report additional runtime details (VNC port, PID if available)
 		_ = s.controller.UpdateInstanceStatus(bgCtx, inst.UUID, map[string]interface{}{
 			"launched_at": time.Now(),
@@ -72,7 +72,7 @@ func (s *Service) StartVM(ctx context.Context, inst *Instance) error {
 // StopVM terminates a running virtual machine on this node.
 func (s *Service) StopVM(ctx context.Context, instanceUUID string) error {
 	s.logger.Info("Stopping VM", zap.String("uuid", instanceUUID))
-	
+
 	if s.vmDriver != nil {
 		if err := s.vmDriver.StopVMDirect(instanceUUID, false); err != nil {
 			return err
@@ -90,7 +90,7 @@ func (s *Service) reportStatus(ctx context.Context, uuid, status, powerState str
 		"power_state": powerState,
 	}
 	if err := s.controller.UpdateInstanceStatus(ctx, uuid, updates); err != nil {
-		s.logger.Error("Failed to report status to controller", 
+		s.logger.Error("Failed to report status to controller",
 			zap.String("uuid", uuid), zap.Error(err))
 	}
 }

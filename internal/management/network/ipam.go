@@ -11,9 +11,9 @@ import (
 	"strings"
 	"time"
 
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
-	"go.uber.org/zap"
 )
 
 // IPAllocation tracks allocated IPs per subnet.
@@ -43,17 +43,17 @@ func (i *IPAM) Allocate(ctx context.Context, subnet *Subnet, portID string) (str
 
 	// Use a transaction to ensure atomicity.
 	err := i.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		// 1. Pessimistic Lock: Lock the Subnet row. 
+		// 1. Pessimistic Lock: Lock the Subnet row.
 		// Use dialect-aware locking (Postgres/MySQL use FOR UPDATE, SQLite ignores it).
 		var s Subnet
 		query := tx.Where("id = ?", subnet.ID)
-		
+
 		// Detection: SQLite doesn't support FOR UPDATE
 		dialect := tx.Dialector.Name()
 		if dialect != "sqlite" {
 			query = query.Clauses(clause.Locking{Strength: "UPDATE"})
 		}
-		
+
 		if err := query.First(&s).Error; err != nil {
 			return fmt.Errorf("failed to acquire lock on subnet: %w", err)
 		}
@@ -79,7 +79,7 @@ func (i *IPAM) Allocate(ctx context.Context, subnet *Subnet, portID string) (str
 			_, _ = crypto_rand.Read(b)
 			offset = int(binary.BigEndian.Uint64(b) % uint64(totalUsable))
 		}
-		
+
 		curr := begin
 		for k := 0; k < offset; k++ {
 			curr = nextIP(curr)
@@ -88,7 +88,7 @@ func (i *IPAM) Allocate(ctx context.Context, subnet *Subnet, portID string) (str
 		// 3. Search for the first available IP starting from offset
 		for attempts := 0; attempts < totalUsable; attempts++ {
 			ipStr := curr.String()
-			
+
 			// Skip gateway and network/broadcast
 			if isNetworkOrBroadcast(curr, ipnet) || (s.Gateway != "" && ipStr == s.Gateway) {
 				curr = i.nextWrapped(curr, begin, cutoff)
@@ -98,7 +98,7 @@ func (i *IPAM) Allocate(ctx context.Context, subnet *Subnet, portID string) (str
 			// Check if IP is taken using the SAME transaction
 			var exists int64
 			tx.Model(&IPAllocation{}).Where("subnet_id = ? AND ip = ?", s.ID, ipStr).Count(&exists)
-			
+
 			if exists == 0 {
 				// FOUND! Create allocation under the lock.
 				rec := IPAllocation{
@@ -137,9 +137,13 @@ func (i *IPAM) nextWrapped(curr, begin, cutoff net.IP) net.IP {
 func (i *IPAM) countRange(begin, end net.IP, ipnet *net.IPNet, gateway string) int {
 	count := 0
 	for ip := begin; compareIP(ip, end) <= 0; ip = nextIP(ip) {
-		if !ipnet.Contains(ip) { break }
+		if !ipnet.Contains(ip) {
+			break
+		}
 		count++
-		if count > 2048 { return 2048 } // Safety cap
+		if count > 2048 {
+			return 2048
+		} // Safety cap
 	}
 	return count
 }
@@ -153,7 +157,9 @@ func (i *IPAM) Release(ctx context.Context, subnetID, ip string) error {
 
 func firstUsableIP(n *net.IPNet, start string) net.IP {
 	if start != "" {
-		if ip := net.ParseIP(start); ip != nil { return ip }
+		if ip := net.ParseIP(start); ip != nil {
+			return ip
+		}
 	}
 	ip := n.IP.Mask(n.Mask)
 	return nextIP(ip)
@@ -161,22 +167,32 @@ func firstUsableIP(n *net.IPNet, start string) net.IP {
 
 func lastUsableIP(n *net.IPNet, end string) net.IP {
 	if end != "" {
-		if ip := net.ParseIP(end); ip != nil { return ip }
+		if ip := net.ParseIP(end); ip != nil {
+			return ip
+		}
 	}
 	if v4 := n.IP.To4(); v4 != nil {
 		bcast := make(net.IP, 4)
-		for i := 0; i < 4; i++ { bcast[i] = n.IP.To4()[i] | ^n.Mask[i] }
+		for i := 0; i < 4; i++ {
+			bcast[i] = n.IP.To4()[i] | ^n.Mask[i]
+		}
 		return prevIP(bcast)
 	}
 	return prevIP(net.IP(n.IP.Mask(n.Mask)))
 }
 
 func isNetworkOrBroadcast(ip net.IP, n *net.IPNet) bool {
-	if !n.Contains(ip) { return false }
-	if ip.Equal(n.IP.Mask(n.Mask)) { return true }
+	if !n.Contains(ip) {
+		return false
+	}
+	if ip.Equal(n.IP.Mask(n.Mask)) {
+		return true
+	}
 	if v4 := ip.To4(); v4 != nil {
 		bcast := make(net.IP, 4)
-		for i := 0; i < 4; i++ { bcast[i] = n.IP.To4()[i] | ^n.Mask[i] }
+		for i := 0; i < 4; i++ {
+			bcast[i] = n.IP.To4()[i] | ^n.Mask[i]
+		}
 		return v4.Equal(bcast)
 	}
 	return false

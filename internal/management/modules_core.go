@@ -148,7 +148,7 @@ func RegisterCoreModules(r *ModuleRegistry) {
 		Name: "scheduler", Core: true, DependsOn: []string{"host"}, // Add dependency
 		Factory: func(mctx ModuleContext) error {
 			cfg := mctx.GetConfig()
-			
+
 			// IoC: Resolve host provider
 			hostSvc, _ := mctx.GetModule("host").(scheduler.HostProvider)
 
@@ -278,7 +278,7 @@ func RegisterCoreModules(r *ModuleRegistry) {
 		Name: "gateway", Core: true, DependsOn: []string{"compute", "identity"},
 		Factory: func(mctx ModuleContext) error {
 			cfg := mctx.GetConfig()
-			
+
 			s, err := gateway.NewService(&gateway.Config{
 				DB:     cfg.DB,
 				Logger: cfg.Logger.Named("gateway"),

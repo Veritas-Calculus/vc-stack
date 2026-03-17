@@ -90,7 +90,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25'
+          go-version-file: go.mod
 
       - name: Install Ceph dev libraries
         run: |
@@ -114,12 +114,17 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25'
+          go-version-file: go.mod
+
+      - name: Install Ceph dev libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y librados-dev librbd-dev
 
       - name: Run Gosec Security Scanner
         uses: securego/gosec@master
         with:
-          args: '-fmt sarif -out gosec-results.sarif -exclude=G101,G104,G107,G110,G115,G204,G304,G306,G402,G501,G505,G705 -exclude-dir=vendor ./...'
+          args: '-tags ceph -fmt sarif -out gosec-results.sarif -exclude=G101,G104,G107,G110,G115,G204,G304,G306,G402,G501,G505,G705 -exclude-dir=vendor ./...'
 
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v3
@@ -166,7 +171,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25'
+          go-version-file: go.mod
 
       - name: Install Ceph dev libraries
         run: |

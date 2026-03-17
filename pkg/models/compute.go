@@ -63,34 +63,34 @@ type Image struct {
 // Instance represents a virtual machine instance.
 // This is the unified model merging management and compute fields.
 type Instance struct {
-	ID           uint           `gorm:"primaryKey" json:"id"`
-	Name         string         `gorm:"not null" json:"name"`
-	UUID         string         `gorm:"type:uuid;default:uuid_generate_v4();uniqueIndex" json:"uuid"`
-	VMID         string         `gorm:"column:vm_id;index" json:"vm_id"` // Node-assigned QEMU VM identifier
-	RootDiskGB   int            `gorm:"column:root_disk_gb;default:0" json:"root_disk_gb"`
-	FlavorID     uint           `gorm:"not null" json:"flavor_id"`
-	Flavor       Flavor         `gorm:"foreignKey:FlavorID" json:"flavor"`
-	ImageID      uint           `gorm:"not null" json:"image_id"`
-	Image        Image          `gorm:"foreignKey:ImageID" json:"image"`
-	Status       string         `gorm:"not null;default:'building'" json:"status"`
-	PowerState   string         `gorm:"not null;default:'shutdown'" json:"power_state"`
-	UserID       uint           `gorm:"not null" json:"user_id"`
-	ProjectID    uint           `gorm:"not null" json:"project_id"`
-	HostID       string         `json:"host_id"`      // Scheduler node ID
-	NodeAddress  string         `json:"node_address"` // vc-compute address
-	IPAddress    string         `json:"ip_address"`   // Primary fixed IP from port allocation
-	RootRBDImage string         `json:"root_rbd_image"` // Added for workflow
-	FloatingIP   string         `json:"floating_ip"`  // Associated floating IP for external access
-	UserData     string         `gorm:"type:text" json:"user_data,omitempty"`
-	SSHKey       string         `gorm:"type:text" json:"ssh_key,omitempty"`
-	EnableTPM    bool           `gorm:"default:false" json:"enable_tpm"`
-	Metadata     JSONMap        `gorm:"type:jsonb" json:"metadata,omitempty"`
+	ID           uint              `gorm:"primaryKey" json:"id"`
+	Name         string            `gorm:"not null" json:"name"`
+	UUID         string            `gorm:"type:uuid;default:uuid_generate_v4();uniqueIndex" json:"uuid"`
+	VMID         string            `gorm:"column:vm_id;index" json:"vm_id"` // Node-assigned QEMU VM identifier
+	RootDiskGB   int               `gorm:"column:root_disk_gb;default:0" json:"root_disk_gb"`
+	FlavorID     uint              `gorm:"not null" json:"flavor_id"`
+	Flavor       Flavor            `gorm:"foreignKey:FlavorID" json:"flavor"`
+	ImageID      uint              `gorm:"not null" json:"image_id"`
+	Image        Image             `gorm:"foreignKey:ImageID" json:"image"`
+	Status       string            `gorm:"not null;default:'building'" json:"status"`
+	PowerState   string            `gorm:"not null;default:'shutdown'" json:"power_state"`
+	UserID       uint              `gorm:"not null" json:"user_id"`
+	ProjectID    uint              `gorm:"not null" json:"project_id"`
+	HostID       string            `json:"host_id"`        // Scheduler node ID
+	NodeAddress  string            `json:"node_address"`   // vc-compute address
+	IPAddress    string            `json:"ip_address"`     // Primary fixed IP from port allocation
+	RootRBDImage string            `json:"root_rbd_image"` // Added for workflow
+	FloatingIP   string            `json:"floating_ip"`    // Associated floating IP for external access
+	UserData     string            `gorm:"type:text" json:"user_data,omitempty"`
+	SSHKey       string            `gorm:"type:text" json:"ssh_key,omitempty"`
+	EnableTPM    bool              `gorm:"default:false" json:"enable_tpm"`
+	Metadata     JSONMap           `gorm:"type:jsonb" json:"metadata,omitempty"`
 	Networks     []InstanceNetwork `json:"networks" gorm:"-"` // Added for workflow
-	CreatedAt    time.Time      `json:"created_at"`
-	UpdatedAt    time.Time      `json:"updated_at"`
-	LaunchedAt   *time.Time     `json:"launched_at"`
-	TerminatedAt *time.Time     `json:"terminated_at"`
-	DeletedAt    gorm.DeletedAt `gorm:"index" json:"-"`
+	CreatedAt    time.Time         `json:"created_at"`
+	UpdatedAt    time.Time         `json:"updated_at"`
+	LaunchedAt   *time.Time        `json:"launched_at"`
+	TerminatedAt *time.Time        `json:"terminated_at"`
+	DeletedAt    gorm.DeletedAt    `gorm:"index" json:"-"`
 }
 
 // InstanceNetwork represents a network attachment for an instance.

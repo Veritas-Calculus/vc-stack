@@ -85,7 +85,7 @@ func (s *Service) attachVolumeHandler(c *gin.Context) {
 	}
 
 	s.db.Model(&volume).Update("status", "in-use")
-	
+
 	c.JSON(http.StatusOK, gin.H{"attachment": attachment})
 }
 

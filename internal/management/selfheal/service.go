@@ -1,10 +1,10 @@
 package selfheal
 
 import (
-	"net/http"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+	"net/http"
 )
 
 type Config struct {
@@ -26,7 +26,7 @@ func NewService(cfg Config) (*Service, error) {
 	}, nil
 }
 
-func (s *Service) Name() string { return "selfheal" }
+func (s *Service) Name() string                 { return "selfheal" }
 func (s *Service) ServiceInstance() interface{} { return s }
 
 func (s *Service) SetCompute(m interface{})      { s.compute = m }

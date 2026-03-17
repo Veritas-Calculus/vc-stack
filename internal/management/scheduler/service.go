@@ -11,14 +11,14 @@ import (
 
 	"github.com/Veritas-Calculus/vc-stack/pkg/circuitbreaker"
 	"github.com/Veritas-Calculus/vc-stack/pkg/dlock"
-	"github.com/Veritas-Calculus/vc-stack/pkg/mq"
 	"github.com/Veritas-Calculus/vc-stack/pkg/models"
+	"github.com/Veritas-Calculus/vc-stack/pkg/mq"
 )
 
 // Scheduling strategies.
 const (
 	StrategyLeastAllocated = "spread"
-	StrategyMostAllocated = "pack"
+	StrategyMostAllocated  = "pack"
 )
 
 // HostProvider defines the interface for resource discovery.
@@ -56,8 +56,10 @@ type Service struct {
 }
 
 func NewService(cfg Config) (*Service, error) {
-	if cfg.Logger == nil { cfg.Logger = zap.NewNop() }
-	
+	if cfg.Logger == nil {
+		cfg.Logger = zap.NewNop()
+	}
+
 	svc := &Service{
 		db:         cfg.DB,
 		logger:     cfg.Logger,
@@ -69,7 +71,7 @@ func NewService(cfg Config) (*Service, error) {
 	return svc, nil
 }
 
-func (s *Service) Name() string { return "scheduler" }
+func (s *Service) Name() string                 { return "scheduler" }
 func (s *Service) ServiceInstance() interface{} { return s }
 
 func (s *Service) SetupRoutes(r *gin.Engine) {
@@ -99,7 +101,7 @@ func (s *Service) selectHost(ctx context.Context, req ScheduleRequest) (*models.
 	if err != nil || len(hosts) == 0 {
 		return nil, ScheduleResponse{Reason: "no hosts available"}
 	}
-	
+
 	// Default: return first host (Spread)
 	return &hosts[0], ScheduleResponse{NodeID: hosts[0].UUID, Strategy: req.Strategy}
 }
@@ -114,9 +116,14 @@ func (s *Service) listNodes(c *gin.Context) {
 }
 
 type ScheduleRequest struct {
-	VCPUs int `json:"vcpus"`; RAMMB int `json:"ram_mb"`; DiskGB int `json:"disk_gb"`; Strategy string `json:"strategy"`
+	VCPUs    int    `json:"vcpus"`
+	RAMMB    int    `json:"ram_mb"`
+	DiskGB   int    `json:"disk_gb"`
+	Strategy string `json:"strategy"`
 }
 
 type ScheduleResponse struct {
-	NodeID string `json:"node"`; Reason string `json:"reason"`; Strategy string `json:"strategy"`
+	NodeID   string `json:"node"`
+	Reason   string `json:"reason"`
+	Strategy string `json:"strategy"`
 }

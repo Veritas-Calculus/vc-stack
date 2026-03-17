@@ -3,7 +3,6 @@
 package compute
 
 import (
-
 	"go.uber.org/zap"
 
 	fc "github.com/Veritas-Calculus/vc-stack/internal/compute/firecracker"
@@ -16,13 +15,13 @@ type Service struct {
 	logger     *zap.Logger
 	config     Config
 	controller *ControllerClient
-	
+
 	// vmDriver provides direct access to the QEMU/KVM driver.
 	vmDriver *vm.Service
-	
+
 	// rbdManager manages local Ceph/RBD attachments.
 	rbdManager *RBDManager
-	
+
 	// fcRegistry tracks running Firecracker microVM processes.
 	fcRegistry *fc.Registry
 	// fcNetMgr manages TAP devices for Firecracker.

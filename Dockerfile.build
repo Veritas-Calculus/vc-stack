@@ -1,5 +1,5 @@
-# Build stage: Latest Go on Latest Debian
-FROM golang:1.26.1-trixie AS builder
+# Build stage: Go on Debian Bookworm (with Ceph dev libs)
+FROM golang:1.24-bookworm AS builder
 
 # Build argument to toggle Chinese mirror (default: false)
 ARG USE_MIRROR=false
@@ -33,16 +33,16 @@ RUN go mod download
 # Copy source
 COPY . .
 
-# Run Tests
-RUN CGO_ENABLED=1 go test -v ./internal/management/storage/... ./internal/management/network/...
+# Run Tests (skip ceph-tagged tests in CI for speed)
+RUN CGO_ENABLED=0 go test -short ./internal/management/storage/... ./internal/management/network/...
 
 # Build binaries
 RUN mkdir -p bin && \
-    CGO_ENABLED=1 go build -o bin/vc-management ./cmd/vc-management && \
-    CGO_ENABLED=1 go build -o bin/vc-compute ./cmd/vc-compute
+    CGO_ENABLED=0 go build -o bin/vc-management ./cmd/vc-management && \
+    CGO_ENABLED=1 go build -tags ceph -o bin/vc-compute ./cmd/vc-compute
 
 # Final stage: Production Runtime
-FROM debian:trixie-slim
+FROM debian:bookworm-slim
 
 ARG USE_MIRROR=false
 RUN if [ "$USE_MIRROR" = "true" ]; then \

@@ -36,6 +36,8 @@ jobs:
         with:
           context: .
           file: Dockerfile.build
+          load: true
+          tags: vc-stack-builder:latest
           push: false
           # GHA Caching for maximum speed
           cache-from: type=gha
@@ -117,9 +119,9 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: Dockerfile.build
+          file: Dockerfile
+          target: ${{ matrix.target }}
           push: true
-          # Note: We reuse GHA cache from the 'build' job
           cache-from: type=gha
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

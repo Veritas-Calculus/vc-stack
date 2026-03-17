@@ -38,7 +38,7 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 	v1 := router.Group("/api/v1")
 	for _, name := range names {
 		mod := s.modules[name]
-		
+
 		// Skip special handling if already done
 		if name == "gateway" {
 			continue

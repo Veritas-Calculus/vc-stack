@@ -31,7 +31,7 @@ func NewService(cfg Config) (*Service, error) {
 	}, nil
 }
 
-func (s *Service) Name() string { return "usage" }
+func (s *Service) Name() string                 { return "usage" }
 func (s *Service) ServiceInstance() interface{} { return s }
 
 // SetEventManager injects the event bus and starts listeners.

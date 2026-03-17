@@ -115,7 +115,9 @@ func (d *OVNDriver) SetPortGroupACLs(name string, rules []ACLRule) error {
 	_ = d.nbctl("pg-acl-del", pgName)
 	for _, r := range rules {
 		logStr := "false"
-		if r.Log { logStr = "true" }
+		if r.Log {
+			logStr = "true"
+		}
 		_ = d.nbctl("acl-add", pgName, r.Direction, fmt.Sprintf("%d", r.Priority), r.Match, r.Action, "--log="+logStr)
 	}
 	return nil
@@ -145,4 +147,3 @@ func (d *OVNDriver) AddStaticRoute(routerName, destination, nexthop string) erro
 func (d *OVNDriver) DeleteStaticRoute(routerName, destination, nexthop string) error {
 	return d.nbctl("lr-route-del", routerName, destination)
 }
-

@@ -82,7 +82,7 @@ func (s *Service) SetInternalToken(token string) {
 // SetupRoutes registers HTTP routes for the monitoring service.
 func (s *Service) SetupRoutes(router *gin.Engine) {
 	rp := middleware.RequirePermission
-	
+
 	// Public/Management API
 	api := router.Group("/api/v1/monitoring")
 	{

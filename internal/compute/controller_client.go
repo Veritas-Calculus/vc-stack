@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"time"
 
-	"go.uber.org/zap"
 	"github.com/Veritas-Calculus/vc-stack/pkg/models"
+	"go.uber.org/zap"
 )
 
 // ControllerClient handles communication with the vc-management internal APIs.

@@ -45,7 +45,7 @@ func NewService(config Config) (*Service, error) {
 		ovnCfg.NBAddress = env
 	}
 	ovnCfg.BridgeMappings = config.SDN.BridgeMappings
-	
+
 	service.driver = NewOVNDriver(config.Logger, ovnCfg)
 	service.ipam = NewIPAM(config.DB, config.Logger)
 
@@ -54,7 +54,7 @@ func NewService(config Config) (*Service, error) {
 
 // --- IoC Module Implementation ---
 
-func (s *Service) Name() string { return "network" }
+func (s *Service) Name() string                 { return "network" }
 func (s *Service) ServiceInstance() interface{} { return Interface(s) }
 
 type Interface interface {
@@ -130,7 +130,7 @@ type SDNConfig struct {
 	Provider       string
 	Bridge         string
 	OVN            OVNConfig
-	PluginEndpoint string 
+	PluginEndpoint string
 	BridgeMappings string
 }
 

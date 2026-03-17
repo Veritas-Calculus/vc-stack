@@ -9,17 +9,17 @@ import (
 
 // Network represents a virtual network.
 type Network struct {
-	ID              string    `json:"id" gorm:"primaryKey;type:varchar(36)"`
-	Name            string    `json:"name" gorm:"not null"`
-	DisplayName     string    `json:"display_name"`
-	Description     string    `json:"description"`
-	Type            string    `json:"type" gorm:"default:'vxlan'"`
-	CIDR            string    `json:"cidr"`
-	External        bool      `json:"external" gorm:"default:false"`
-	Status          string    `json:"status" gorm:"default:'active'"`
-	TenantID        string    `json:"tenant_id" gorm:"index"`
-	CreatedAt       time.Time `json:"created_at"`
-	UpdatedAt       time.Time `json:"updated_at"`
+	ID          string    `json:"id" gorm:"primaryKey;type:varchar(36)"`
+	Name        string    `json:"name" gorm:"not null"`
+	DisplayName string    `json:"display_name"`
+	Description string    `json:"description"`
+	Type        string    `json:"type" gorm:"default:'vxlan'"`
+	CIDR        string    `json:"cidr"`
+	External    bool      `json:"external" gorm:"default:false"`
+	Status      string    `json:"status" gorm:"default:'active'"`
+	TenantID    string    `json:"tenant_id" gorm:"index"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 // Subnet represents an IP address range.
@@ -81,15 +81,20 @@ type FixedIPList []FixedIP
 
 func (f FixedIPList) Value() (driver.Value, error) {
 	b, err := json.Marshal(f)
-	if err != nil { return nil, err }
+	if err != nil {
+		return nil, err
+	}
 	return string(b), nil
 }
 
 func (f *FixedIPList) Scan(src any) error {
 	switch v := src.(type) {
-	case []byte: return json.Unmarshal(v, f)
-	case string: return json.Unmarshal([]byte(v), f)
-	default: return fmt.Errorf("unsupported type for FixedIPList: %T", src)
+	case []byte:
+		return json.Unmarshal(v, f)
+	case string:
+		return json.Unmarshal([]byte(v), f)
+	default:
+		return fmt.Errorf("unsupported type for FixedIPList: %T", src)
 	}
 }
 
@@ -120,10 +125,10 @@ type FloatingIP struct {
 }
 
 type PhysicalNetwork struct {
-	ID           string   `json:"id" gorm:"primaryKey;type:varchar(36)"`
-	Name         string   `json:"name" gorm:"not null"`
-	TrafficTypes []string `json:"traffic_types" gorm:"type:jsonb"`
-	BridgeName   string   `json:"bridge_name"`
+	ID           string    `json:"id" gorm:"primaryKey;type:varchar(36)"`
+	Name         string    `json:"name" gorm:"not null"`
+	TrafficTypes []string  `json:"traffic_types" gorm:"type:jsonb"`
+	BridgeName   string    `json:"bridge_name"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 }

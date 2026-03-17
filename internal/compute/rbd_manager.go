@@ -51,7 +51,9 @@ func (m *RBDManager) DeleteVolume(pool, name string) error {
 
 func (m *RBDManager) MapImage(pool, name string) (string, error) {
 	device, err := m.rbdExec(context.Background(), "map", pool+"/"+name)
-	if err != nil { return "", err }
+	if err != nil {
+		return "", err
+	}
 	return device, nil
 }
 

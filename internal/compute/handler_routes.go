@@ -14,7 +14,7 @@ func (s *Service) setupHTTPRoutes(router *gin.Engine) {
 
 	// 2. Legacy/Compatibility Health Check
 	router.GET("/api/compute/health", s.healthCheck)
-	
+
 	// 3. Simple Node Info
 	router.GET("/api/v1/node/info", s.handleNodeInfo)
 }
