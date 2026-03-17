@@ -23,8 +23,9 @@ type Config struct {
 
 // Service provides metadata operations for instances.
 type Service struct {
-	db     *gorm.DB
-	logger *zap.Logger
+	db            *gorm.DB
+	logger        *zap.Logger
+	internalToken string
 }
 
 // Metadata represents instance metadata.
@@ -54,6 +55,11 @@ func NewService(cfg Config) (*Service, error) {
 	return &Service{db: cfg.DB, logger: cfg.Logger}, nil
 }
 
+// SetInternalToken sets the shared secret for M2M authentication.
+func (s *Service) SetInternalToken(token string) {
+	s.internalToken = token
+}
+
 // SetupRoutes registers HTTP routes for the metadata service.
 func (s *Service) SetupRoutes(router *gin.Engine) {
 	rp := middleware.RequirePermission
@@ -74,6 +80,46 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		api.PUT("/instances/:id", rp("metadata", "update"), s.updateMetadata)
 		api.DELETE("/instances/:id", rp("metadata", "delete"), s.deleteMetadata)
 	}
+
+	// Internal M2M endpoints (Compute nodes only)
+	internalAuth := middleware.InternalAuthMiddleware(s.internalToken, s.logger)
+	internal := router.Group("/api/v1/internal")
+	internal.Use(internalAuth)
+	{
+		internal.GET("/metadata", s.resolveMetadataByIP)
+	}
+}
+
+// resolveMetadataByIP finds instance metadata by source IP address.
+func (s *Service) resolveMetadataByIP(c *gin.Context) {
+	ip := c.Query("ip")
+	if ip == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ip address required"})
+		return
+	}
+
+	// Find instance by IP address.
+	var inst models.Instance
+	if err := s.db.Preload("Flavor").Preload("Image").
+		Where("ip_address = ? AND status <> ?", ip, "deleted").
+		First(&inst).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "instance not found for IP"})
+		return
+	}
+
+	// Prepare result similar to instanceInfo in internal/compute/metadata/proxy.go
+	result := gin.H{
+		"uuid":        inst.UUID,
+		"name":        inst.Name,
+		"flavor_name": inst.Flavor.Name,
+		"image_uuid":  inst.Image.UUID,
+		"ssh_key":     inst.SSHKey,
+		"user_data":   inst.UserData,
+		"ip_address":  inst.IPAddress,
+		"metadata":    inst.Metadata,
+	}
+
+	c.JSON(http.StatusOK, result)
 }
 
 // getMetadata returns all metadata for the requesting instance.

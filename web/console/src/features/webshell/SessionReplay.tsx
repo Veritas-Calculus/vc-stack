@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { Terminal as XTerm } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import { Play, Pause, SkipBack, SkipForward, ArrowLeft, Download } from 'lucide-react'
-import { resolveApiBase } from '@/lib/api'
+import { resolveApiBase, getAuthToken } from '@/lib/api'
 import '@xterm/xterm/css/xterm.css'
 
 const api = resolveApiBase()
@@ -70,7 +70,7 @@ export function SessionReplay() {
       try {
         const response = await fetch(`${api}/v1/webshell/sessions/${sessionId}/events`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
+            Authorization: `Bearer ${getAuthToken()}`
           }
         })
 
@@ -290,7 +290,7 @@ export function SessionReplay() {
     try {
       const response = await fetch(`${api}/v1/webshell/sessions/${sessionId}/export`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${getAuthToken()}`
         }
       })
 

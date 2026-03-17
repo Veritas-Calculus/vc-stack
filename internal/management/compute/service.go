@@ -1,6 +1,7 @@
 package compute
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -11,35 +12,52 @@ import (
 
 	"github.com/Veritas-Calculus/vc-stack/internal/management/event"
 	"github.com/Veritas-Calculus/vc-stack/internal/management/middleware"
+	"github.com/Veritas-Calculus/vc-stack/internal/management/workflow"
+	"github.com/Veritas-Calculus/vc-stack/pkg/vcredis"
 )
 
 // QuotaChecker is the interface for quota enforcement.
-// It is implemented by quota.Service and injected into the compute service.
 type QuotaChecker interface {
 	CheckQuota(tenantID, resourceType string, delta int) error
 	UpdateUsage(tenantID, resourceType string, delta int) error
+}
+
+// PortAllocator is the interface for network port allocation.
+type PortAllocator interface {
+	AllocateIP(ctx context.Context, instanceUUID string, networkID string) (string, error)
+	ReleaseIP(ctx context.Context, instanceUUID string) error
+}
+
+// HostManager defines the interface to look up node information.
+type HostManager interface {
+	GetHostAddress(ctx context.Context, hostID string) (string, error)
 }
 
 // Config represents the compute service configuration.
 type Config struct {
 	DB           *gorm.DB
 	Logger       *zap.Logger
-	Scheduler    string // Scheduler URL (e.g., http://localhost:8092)
-	JWTSecret    string // #nosec // This is a configuration field, not a hardcoded secret
+	Scheduler    string
+	JWTSecret    string
 	EventLogger  event.EventLogger
 	QuotaService QuotaChecker
+	Redis        *vcredis.Manager
 }
 
 // Service represents the controller compute service.
 type Service struct {
 	db            *gorm.DB
 	logger        *zap.Logger
+	workflow      *workflow.Engine
 	scheduler     string
 	client        *http.Client
 	jwtSecret     string
+	internalToken string
 	eventLogger   event.EventLogger
 	portAllocator PortAllocator
+	hostManager   HostManager
 	quotaService  QuotaChecker
+	agentClient   *AgentClient
 }
 
 // NewService creates a new compute service.
@@ -51,9 +69,12 @@ func NewService(cfg Config) (*Service, error) {
 		cfg.Logger = zap.NewNop()
 	}
 
+	wfAudit := &workflowAuditor{logger: cfg.EventLogger}
+
 	s := &Service{
 		db:        cfg.DB,
 		logger:    cfg.Logger,
+		workflow:  workflow.NewEngine(cfg.DB, cfg.Logger, wfAudit, cfg.Redis),
 		scheduler: cfg.Scheduler,
 		client: &http.Client{
 			Timeout: 30 * time.Second,
@@ -63,211 +84,122 @@ func NewService(cfg Config) (*Service, error) {
 		quotaService: cfg.QuotaService,
 	}
 
-	// Auto-migrate database schema.
-	if err := s.migrate(); err != nil {
-		return nil, fmt.Errorf("failed to migrate database: %w", err)
-	}
-
-	// Seed default flavors if none exist.
-	s.seedDefaultFlavors()
-
-	// Migrate and seed offerings.
-	if err := s.migrateOfferings(); err != nil {
-		s.logger.Warn("failed to migrate offerings", zap.Error(err))
-	}
-	s.seedDefaultDiskOfferings()
-	s.seedDefaultNetworkOfferings()
-
-	// Migrate snapshot schedules.
-	if err := s.migrateSchedules(); err != nil {
-		s.logger.Warn("failed to migrate snapshot schedules", zap.Error(err))
-	}
-
-	// Migrate affinity groups.
-	if err := s.migrateAffinityGroups(); err != nil {
-		s.logger.Warn("failed to migrate affinity groups", zap.Error(err))
-	}
-
-	// Migrate migration table.
-	if err := s.migrateMigrationTable(); err != nil {
-		s.logger.Warn("failed to migrate migration table", zap.Error(err))
-	}
-
 	return s, nil
 }
 
-// SetPortAllocator injects the network port allocator into the compute service.
-// This must be called after both compute and network services are initialized.
-func (s *Service) SetPortAllocator(pa PortAllocator) {
-	s.portAllocator = pa
+// Name returns the unique identifier for this module.
+func (s *Service) Name() string { return "compute" }
+
+// ServiceInstance returns the concrete service instance.
+func (s *Service) ServiceInstance() interface{} { return s }
+
+// GetWorkflowEngine returns the underlying task engine.
+func (s *Service) GetWorkflowEngine() *workflow.Engine {
+	return s.workflow
 }
 
-// emitEvent logs an event if the event logger is configured.
-func (s *Service) emitEvent(eventType, resourceID, action, status, userID string, details map[string]interface{}, errMsg string) {
-	if s.eventLogger == nil {
-		return
-	}
-	go s.eventLogger.LogEvent(eventType, "instance", resourceID, action, status, userID, "", details, errMsg)
+// SetHostManager injects the host service dependency.
+func (s *Service) SetHostManager(hm HostManager) {
+	s.hostManager = hm
 }
 
-// migrate runs database migrations.
-func (s *Service) migrate() error {
-	return s.db.AutoMigrate(
-		&SSHKey{},
-		&VolumeAttachment{},
-		&AuditLog{},
-	)
+func (s *Service) resolveNodeAddress(ctx context.Context, hostID string) string {
+	if s.hostManager == nil {
+		return ""
+	}
+	addr, _ := s.hostManager.GetHostAddress(ctx, hostID)
+	return addr
 }
 
-// seedDefaultFlavors creates default compute flavors if none exist.
-func (s *Service) seedDefaultFlavors() {
-	var count int64
-	if err := s.db.Model(&Flavor{}).Count(&count).Error; err != nil {
-		s.logger.Warn("failed to count flavors for seeding", zap.Error(err))
-		return
-	}
-	if count > 0 {
-		return // Already have flavors
-	}
+// RegisterWorkflows defines and registers all VM-related workflows.
+func (s *Service) RegisterWorkflows() {
+	// 1. Create VM Workflow
+	s.workflow.RegisterWorkflow("instance.create", &workflow.Workflow{
+		Name: "CreateInstance",
+		Steps: []workflow.Step{
+			&StepAllocateIP{NetMgr: s.portAllocator.(NetworkManager), Logger: s.logger},
+			&StepCreateVolume{Storage: s.quotaService.(StorageManager), Logger: s.logger},
+			&StepStartInstance{Agent: s.agentClient, Resolver: s, Logger: s.logger},
+		},
+	})
 
-	defaults := []Flavor{
-		// Micro / Nano (dev & testing)
-		{Name: "vc.nano", VCPUs: 1, RAM: 512, Disk: 10, IsPublic: true},
-		{Name: "vc.micro", VCPUs: 1, RAM: 1024, Disk: 20, IsPublic: true},
-		// Small–Medium
-		{Name: "vc.small", VCPUs: 1, RAM: 2048, Disk: 40, IsPublic: true},
-		{Name: "vc.medium", VCPUs: 2, RAM: 4096, Disk: 60, IsPublic: true},
-		// Standard
-		{Name: "vc.large", VCPUs: 4, RAM: 8192, Disk: 80, IsPublic: true},
-		{Name: "vc.xlarge", VCPUs: 8, RAM: 16384, Disk: 160, IsPublic: true},
-		{Name: "vc.2xlarge", VCPUs: 16, RAM: 32768, Disk: 320, IsPublic: true},
-		// Memory-optimized
-		{Name: "vc.mem.small", VCPUs: 2, RAM: 8192, Disk: 40, IsPublic: true},
-		{Name: "vc.mem.medium", VCPUs: 4, RAM: 16384, Disk: 80, IsPublic: true},
-		{Name: "vc.mem.large", VCPUs: 8, RAM: 32768, Disk: 160, IsPublic: true},
-		// CPU-optimized
-		{Name: "vc.cpu.small", VCPUs: 4, RAM: 4096, Disk: 40, IsPublic: true},
-		{Name: "vc.cpu.medium", VCPUs: 8, RAM: 8192, Disk: 80, IsPublic: true},
-		{Name: "vc.cpu.large", VCPUs: 16, RAM: 16384, Disk: 160, IsPublic: true},
-	}
+	// 2. Stop VM Workflow
+	s.workflow.RegisterWorkflow("instance.stop", &workflow.Workflow{
+		Name: "StopInstance",
+		Steps: []workflow.Step{
+			&StepStopInstance{Agent: s.agentClient, Resolver: s, Logger: s.logger},
+		},
+	})
 
-	for _, f := range defaults {
-		if err := s.db.Create(&f).Error; err != nil {
-			s.logger.Warn("failed to seed flavor", zap.String("name", f.Name), zap.Error(err))
-		}
-	}
-	s.logger.Info("seeded default flavors", zap.Int("count", len(defaults)))
+	// 3. Delete VM Workflow
+	s.workflow.RegisterWorkflow("instance.delete", &workflow.Workflow{
+		Name: "DeleteInstance",
+		Steps: []workflow.Step{
+			&StepStopInstance{Agent: s.agentClient, Resolver: s, Logger: s.logger},
+			&StepDeleteInstance{Agent: s.agentClient, Resolver: s, Logger: s.logger},
+			&StepAllocateIP{NetMgr: s.portAllocator.(NetworkManager), Logger: s.logger},
+		},
+	})
+
+	s.logger.Info("Compute workflows registered")
+}
+
+// SetInternalToken sets the shared secret for M2M authentication and initializes the agent client.
+func (s *Service) SetInternalToken(token string) {
+	s.internalToken = token
+	s.agentClient = NewAgentClient(token)
 }
 
 // SetupRoutes registers HTTP routes for the compute service.
 func (s *Service) SetupRoutes(router *gin.Engine) {
+	rp := middleware.RequirePermission
 	api := router.Group("/api/v1")
-	if s.jwtSecret != "" {
-		api.Use(middleware.AuthMiddleware(s.jwtSecret, s.logger))
-	}
 	{
-		// Flavor routes.
-		api.POST("/flavors", middleware.RequirePermission("flavor", "create"), s.createFlavor)
-		api.GET("/flavors", middleware.RequirePermission("flavor", "list"), s.listFlavors)
-		api.GET("/flavors/:id", middleware.RequirePermission("flavor", "list"), s.getFlavor)
-		api.DELETE("/flavors/:id", middleware.RequirePermission("flavor", "delete"), s.deleteFlavor)
+		// Instances
+		api.GET("/instances", rp("instance", "list"), s.listInstances)
+		api.POST("/instances", rp("instance", "create"), s.createInstance)
+		api.GET("/instances/:id", rp("instance", "get"), s.getInstance)
+		api.PUT("/instances/:id", rp("instance", "update"), s.updateInstance)
+		api.DELETE("/instances/:id", rp("instance", "delete"), s.deleteInstance)
+		api.POST("/instances/:id/start", rp("instance", "update"), s.startInstance)
+		api.POST("/instances/:id/stop", rp("instance", "update"), s.stopInstance)
+		api.POST("/instances/:id/reboot", rp("instance", "update"), s.rebootInstance)
 
-		// Image management is handled entirely by the image service (management/image).
-		// Instance routes.
-		api.POST("/instances", middleware.RequirePermission("compute", "create"), s.createInstance)
-		api.GET("/instances", middleware.RequirePermission("compute", "list"), s.listInstances)
-		api.GET("/instances/:id", middleware.RequirePermission("compute", "get"), s.getInstance)
-		api.DELETE("/instances/:id", middleware.RequirePermission("compute", "delete"), s.deleteInstance)
-		api.POST("/instances/:id/force-delete", middleware.RequirePermission("compute", "delete"), s.forceDeleteInstance)
-		api.GET("/instances/:id/deletion-status", middleware.RequirePermission("compute", "get"), s.getInstanceDeletionStatus)
-		api.POST("/instances/:id/start", middleware.RequirePermission("compute", "start"), s.startInstance)
-		api.POST("/instances/:id/stop", middleware.RequirePermission("compute", "stop"), s.stopInstance)
-		api.POST("/instances/:id/force-stop", middleware.RequirePermission("compute", "stop"), s.forceStopInstance)
-		api.POST("/instances/:id/reboot", middleware.RequirePermission("compute", "reboot"), s.rebootInstance)
-		api.POST("/instances/:id/resize", middleware.RequirePermission("compute", "update"), s.resizeInstance)
-		api.PUT("/instances/:id", middleware.RequirePermission("compute", "update"), s.updateInstance)
-		api.POST("/instances/:id/rebuild", middleware.RequirePermission("compute", "update"), s.rebuildInstance)
-		api.POST("/instances/:id/create-image", middleware.RequirePermission("image", "create"), s.createImageFromInstance)
-		api.POST("/instances/:id/lock", middleware.RequirePermission("compute", "update"), s.lockInstance)
-		api.POST("/instances/:id/unlock", middleware.RequirePermission("compute", "update"), s.unlockInstance)
-		api.POST("/instances/:id/pause", middleware.RequirePermission("compute", "stop"), s.pauseInstance)
-		api.POST("/instances/:id/unpause", middleware.RequirePermission("compute", "start"), s.unpauseInstance)
-		api.POST("/instances/:id/rescue", middleware.RequirePermission("compute", "update"), s.rescueInstance)
-		api.POST("/instances/:id/unrescue", middleware.RequirePermission("compute", "update"), s.unrescueInstance)
-		api.GET("/instances/:id/actions", middleware.RequirePermission("compute", "get"), s.listInstanceActions)
-		api.POST("/instances/:id/console", middleware.RequirePermission("compute", "console"), s.getInstanceConsole)
-		api.GET("/instances/:id/volumes", middleware.RequirePermission("compute", "get"), s.listInstanceVolumes)
-		api.POST("/instances/:id/volumes", middleware.RequirePermission("volume", "attach"), s.attachVolume)
-		api.DELETE("/instances/:id/volumes/:volumeId", middleware.RequirePermission("volume", "detach"), s.detachVolume)
-		api.GET("/instances/:id/interfaces", middleware.RequirePermission("compute", "get"), s.listInterfaces)
-		api.POST("/instances/:id/interfaces", middleware.RequirePermission("compute", "update"), s.attachInterface)
-		api.DELETE("/instances/:id/interfaces/:portId", middleware.RequirePermission("compute", "update"), s.detachInterface)
-		api.GET("/instances/:id/metrics", middleware.RequirePermission("compute", "get"), s.getInstanceMetrics)
-		api.GET("/instances/:id/metrics/history", middleware.RequirePermission("compute", "get"), s.getInstanceMetricsHistory)
-		api.GET("/instances/:id/diagnostics", middleware.RequirePermission("compute", "get"), s.getInstanceDiagnostics)
+		// Flavors
+		api.GET("/flavors", rp("flavor", "list"), s.listFlavors)
+		api.POST("/flavors", rp("flavor", "create"), s.createFlavor)
+		api.GET("/flavors/:id", rp("flavor", "get"), s.getFlavor)
+		api.DELETE("/flavors/:id", rp("flavor", "delete"), s.deleteFlavor)
+	}
 
-		// GPU passthrough routes.
-		api.GET("/gpu-devices", middleware.RequirePermission("compute", "list"), s.listGPUDevices)
-		api.GET("/gpu-devices/:id", middleware.RequirePermission("compute", "get"), s.getGPUDevice)
-		api.GET("/instances/:id/gpus", middleware.RequirePermission("compute", "get"), s.listInstanceGPUs)
-		api.POST("/instances/:id/gpus", middleware.RequirePermission("compute", "update"), s.attachGPU)
-		api.DELETE("/instances/:id/gpus/:gpuId", middleware.RequirePermission("compute", "update"), s.detachGPU)
+	// Internal M2M endpoints (Compute nodes only)
+	internalAuth := middleware.InternalAuthMiddleware(s.internalToken, s.logger)
+	internal := router.Group("/api/v1/internal")
+	internal.Use(internalAuth)
+	{
+		internal.PATCH("/instances/:uuid/status", s.updateInstanceStatusInternal)
+	}
+}
 
-		// Volume routes.
-		api.POST("/volumes", middleware.RequirePermission("volume", "create"), s.createVolume)
-		api.GET("/volumes", middleware.RequirePermission("volume", "list"), s.listVolumes)
-		api.GET("/volumes/:id", middleware.RequirePermission("volume", "get"), s.getVolume)
-		api.DELETE("/volumes/:id", middleware.RequirePermission("volume", "delete"), s.deleteVolume)
-		api.POST("/volumes/:id/resize", middleware.RequirePermission("volume", "update"), s.resizeVolume)
+// SetPortAllocator injects the network port allocator into the compute service.
+func (s *Service) SetPortAllocator(pa PortAllocator) {
+	s.portAllocator = pa
+}
 
-		// Snapshot routes.
-		api.POST("/snapshots", middleware.RequirePermission("snapshot", "create"), s.createSnapshot)
-		api.GET("/snapshots", middleware.RequirePermission("snapshot", "list"), s.listSnapshots)
-		api.GET("/snapshots/:id", middleware.RequirePermission("snapshot", "get"), s.getSnapshot)
-		api.DELETE("/snapshots/:id", middleware.RequirePermission("snapshot", "delete"), s.deleteSnapshot)
-		api.POST("/snapshots/:id/create-volume", middleware.RequirePermission("volume", "create"), s.createVolumeFromSnapshot)
+// emitEvent is a helper to log events.
+func (s *Service) emitEvent(eventType, resourceID, action, status, userID string, details map[string]interface{}, errMsg string) {
+	if s.eventLogger != nil {
+		go s.eventLogger.LogEvent(eventType, "instance", resourceID, action, status, userID, "", details, errMsg)
+	}
+}
 
-		// SSH key routes.
-		api.POST("/ssh-keys", middleware.RequirePermission("compute", "create"), s.createSSHKey)
-		api.GET("/ssh-keys", middleware.RequirePermission("compute", "list"), s.listSSHKeys)
-		api.DELETE("/ssh-keys/:id", middleware.RequirePermission("compute", "delete"), s.deleteSSHKey)
+// workflowAuditor bridges workflow events to the global event logger.
+type workflowAuditor struct {
+	logger event.EventLogger
+}
 
-		// Advanced lifecycle routes (C4).
-		api.POST("/instances/:id/suspend", middleware.RequirePermission("compute", "stop"), s.suspendInstance)
-		api.POST("/instances/:id/resume", middleware.RequirePermission("compute", "start"), s.resumeInstance)
-		api.POST("/instances/:id/shelve", middleware.RequirePermission("compute", "stop"), s.shelveInstance)
-		api.POST("/instances/:id/unshelve", middleware.RequirePermission("compute", "start"), s.unshelveInstance)
-		api.POST("/instances/:id/iso", middleware.RequirePermission("compute", "update"), s.attachISO)
-		api.DELETE("/instances/:id/iso", middleware.RequirePermission("compute", "update"), s.detachISO)
-		api.POST("/instances/:id/reset-password", middleware.RequirePermission("compute", "update"), s.resetInstancePassword)
-
-		// Audit routes.
-		api.GET("/audit", middleware.RequirePermission("compute", "list"), s.listAudit)
-
-		// Disk Offering routes.
-		api.GET("/disk-offerings", middleware.RequirePermission("flavor", "list"), s.listDiskOfferings)
-		api.POST("/disk-offerings", middleware.RequirePermission("flavor", "create"), s.createDiskOffering)
-		api.DELETE("/disk-offerings/:id", middleware.RequirePermission("flavor", "delete"), s.deleteDiskOffering)
-		api.GET("/network-offerings", middleware.RequirePermission("flavor", "list"), s.listNetworkOfferings)
-		api.POST("/network-offerings", middleware.RequirePermission("flavor", "create"), s.createNetworkOffering)
-		api.DELETE("/network-offerings/:id", middleware.RequirePermission("flavor", "delete"), s.deleteNetworkOffering)
-
-		// Note: Network Offering routes are registered by the network module (N-BGP4).
-
-		// Snapshot Schedule routes.
-		api.GET("/snapshot-schedules", middleware.RequirePermission("snapshot", "list"), s.listSnapshotSchedules)
-		api.POST("/snapshot-schedules", middleware.RequirePermission("snapshot", "create"), s.createSnapshotSchedule)
-		api.PUT("/snapshot-schedules/:id", middleware.RequirePermission("snapshot", "update"), s.updateSnapshotSchedule)
-		api.DELETE("/snapshot-schedules/:id", middleware.RequirePermission("snapshot", "delete"), s.deleteSnapshotSchedule)
-
-		// Affinity Group routes.
-		api.GET("/affinity-groups", middleware.RequirePermission("compute", "list"), s.listAffinityGroups)
-		api.POST("/affinity-groups", middleware.RequirePermission("compute", "create"), s.createAffinityGroup)
-		api.DELETE("/affinity-groups/:id", middleware.RequirePermission("compute", "delete"), s.deleteAffinityGroup)
-		api.POST("/affinity-groups/:id/members", middleware.RequirePermission("compute", "update"), s.addAffinityGroupMember)
-		api.DELETE("/affinity-groups/:id/members/:memberId", middleware.RequirePermission("compute", "update"), s.removeAffinityGroupMember)
-
-		// Migration routes.
-		s.setupMigrationRoutes(api)
+func (a *workflowAuditor) LogEvent(resource, resourceID, action, status, userID, message string) {
+	if a.logger != nil {
+		a.logger.LogEvent("workflow", resource, resourceID, action, status, userID, "", nil, message)
 	}
 }

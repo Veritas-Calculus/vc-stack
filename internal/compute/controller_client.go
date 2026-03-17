@@ -1,482 +1,204 @@
-// Package compute provides controller integration for QEMU compute nodes.
 package compute
 
 import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"time"
 
-	"github.com/Veritas-Calculus/vc-stack/pkg/circuitbreaker"
 	"go.uber.org/zap"
+	"github.com/Veritas-Calculus/vc-stack/pkg/models"
 )
 
-// ErrHostNotFound is returned when management responds with 404 to a heartbeat,
-// indicating the node is no longer registered (e.g. database was reset).
-var ErrHostNotFound = errors.New("host not found on management server")
-
-// ControllerClient manages communication with VC management.
+// ControllerClient handles communication with the vc-management internal APIs.
 type ControllerClient struct {
-	baseURL    string
-	httpClient *http.Client
-	logger     *zap.Logger
-	nodeID     string
-	cb         *circuitbreaker.Breaker
+	baseURL       string
+	internalToken string
+	nodeID        string
+	httpClient    *http.Client
+	logger        *zap.Logger
 }
 
-// NewControllerClient creates a new controller client.
-func NewControllerClient(baseURL, nodeID string, logger *zap.Logger) *ControllerClient {
-	cb := circuitbreaker.New("management", circuitbreaker.Options{
-		FailureThreshold: 5,
-		SuccessThreshold: 2,
-		ResetTimeout:     30 * time.Second,
-		Logger:           logger.Named("circuit-breaker"),
-	})
-
+// NewControllerClient creates a new client for vc-management.
+func NewControllerClient(baseURL, internalToken string, logger *zap.Logger) *ControllerClient {
 	return &ControllerClient{
-		baseURL: baseURL,
+		baseURL:       baseURL,
+		internalToken: internalToken,
 		httpClient: &http.Client{
-			Timeout: 30 * time.Second,
+			Timeout: 10 * time.Second,
 		},
 		logger: logger,
-		nodeID: nodeID,
-		cb:     cb,
 	}
 }
 
-// SetNodeID updates the node identifier (e.g. to use the UUID returned from registration).
-func (c *ControllerClient) SetNodeID(id string) {
-	c.nodeID = id
-}
-
-// VMStatusUpdate represents VM status update to management.
-type VMStatusUpdate struct {
-	NodeID    string    `json:"node_id"`
-	VMID      string    `json:"vm_id"`
-	Name      string    `json:"name"`
-	Status    string    `json:"status"`
-	VCPUs     int       `json:"vcpus"`
-	MemoryMB  int       `json:"memory_mb"`
-	DiskGB    int       `json:"disk_gb"`
-	PID       int       `json:"pid"`
-	VNCPort   int       `json:"vnc_port"`
-	UpdatedAt time.Time `json:"updated_at"`
-}
-
-// ReportVMStatus reports VM status to management.
-func (c *ControllerClient) ReportVMStatus(ctx context.Context, config *QEMUConfig) error {
-	update := VMStatusUpdate{
-		NodeID:    c.nodeID,
-		VMID:      config.ID,
-		Name:      config.Name,
-		Status:    config.Status,
-		VCPUs:     config.VCPUs,
-		MemoryMB:  config.MemoryMB,
-		DiskGB:    config.DiskGB,
-		PID:       config.PID,
-		VNCPort:   config.VNCPort,
-		UpdatedAt: config.UpdatedAt,
-	}
-
-	data, err := json.Marshal(update)
-	if err != nil {
-		return fmt.Errorf("marshal update: %w", err)
-	}
-
-	url := fmt.Sprintf("%s/api/v1/nodes/%s/vms/%s/status", c.baseURL, c.nodeID, config.ID)
-	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewReader(data))
-	if err != nil {
-		return fmt.Errorf("create request: %w", err)
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-
-	return c.cb.Execute(func() error {
-		resp, doErr := c.httpClient.Do(req) // #nosec
-		if doErr != nil {
-			return fmt.Errorf("send request: %w", doErr)
+// do sends an authenticated request to the management plane.
+func (c *ControllerClient) do(ctx context.Context, method, path string, body interface{}) (*http.Response, error) {
+	var bodyReader io.Reader
+	if body != nil {
+		data, err := json.Marshal(body)
+		if err != nil {
+			return nil, fmt.Errorf("marshal request body: %w", err)
 		}
-		defer func() { _ = resp.Body.Close() }()
-
-		if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusAccepted {
-			body, readErr := io.ReadAll(resp.Body)
-			if readErr != nil {
-				return fmt.Errorf("unexpected status %d and failed to read body: %w", resp.StatusCode, readErr)
-			}
-			return fmt.Errorf("unexpected status %d: %s", resp.StatusCode, string(body))
-		}
-
-		c.logger.Debug("Reported VM status to management",
-			zap.String("vm_id", config.ID),
-			zap.String("status", config.Status))
-
-		return nil
-	})
-}
-
-// RegisterNode registers this compute node with the management server.
-func (c *ControllerClient) RegisterNode(ctx context.Context, info NodeInfo, port int, zoneID, clusterID string) (string, error) {
-	type regReq struct {
-		Name              string            `json:"name"`
-		Hostname          string            `json:"hostname"`
-		IPAddress         string            `json:"ip_address"`
-		ManagementPort    int               `json:"management_port"`
-		HostType          string            `json:"host_type"`
-		HypervisorType    string            `json:"hypervisor_type"`
-		HypervisorVersion string            `json:"hypervisor_version"`
-		CPUCores          int               `json:"cpu_cores"`
-		CPUSockets        int               `json:"cpu_sockets"`
-		CPUMhz            int64             `json:"cpu_mhz"`
-		RAMMB             int64             `json:"ram_mb"`
-		DiskGB            int64             `json:"disk_gb"`
-		AgentVersion      string            `json:"agent_version"`
-		Labels            map[string]string `json:"labels"`
-		ZoneID            *string           `json:"zone_id,omitempty"`
-		ClusterID         *string           `json:"cluster_id,omitempty"`
+		bodyReader = bytes.NewReader(data)
 	}
 
-	req := regReq{
-		Name:              info.Hostname,
-		Hostname:          info.Hostname,
-		IPAddress:         info.IPAddress,
-		ManagementPort:    port,
-		HostType:          "compute",
-		HypervisorType:    info.HypervisorType,
-		HypervisorVersion: info.HypervisorVersion,
-		CPUCores:          info.CPUCores,
-		CPUSockets:        info.CPUSockets,
-		CPUMhz:            info.CPUMhz,
-		RAMMB:             info.RAMMB,
-		DiskGB:            info.DiskGB,
-		AgentVersion:      "vc-compute",
-		Labels: map[string]string{
-			"kernel": info.Kernel,
-			"os":     info.OS + " " + info.OSVersion,
-			"arch":   info.Arch,
-		},
-	}
-
-	if zoneID != "" {
-		req.ZoneID = &zoneID
-	}
-	if clusterID != "" {
-		req.ClusterID = &clusterID
-	}
-
-	data, err := json.Marshal(req)
-	if err != nil {
-		return "", fmt.Errorf("marshal register: %w", err)
-	}
-
-	url := fmt.Sprintf("%s/api/v1/hosts/register", c.baseURL)
-	httpReq, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewReader(data))
-	if err != nil {
-		return "", fmt.Errorf("create request: %w", err)
-	}
-	httpReq.Header.Set("Content-Type", "application/json")
-
-	resp, err := c.httpClient.Do(httpReq) // #nosec
-	if err != nil {
-		return "", fmt.Errorf("send request: %w", err)
-	}
-	defer func() { _ = resp.Body.Close() }()
-
-	body, _ := io.ReadAll(resp.Body)
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("register failed: status %d: %s", resp.StatusCode, string(body))
-	}
-
-	// Extract UUID from response
-	var result struct {
-		UUID string `json:"uuid"`
-	}
-	if err := json.Unmarshal(body, &result); err != nil {
-		return "", fmt.Errorf("decode response: %w", err)
-	}
-
-	c.logger.Info("Node registered with management",
-		zap.String("uuid", result.UUID),
-		zap.String("ip", info.IPAddress))
-
-	return result.UUID, nil
-}
-
-// SendHeartbeat sends heartbeat to the host service on management.
-func (c *ControllerClient) SendHeartbeat(ctx context.Context, stats NodeStats) error {
-	// Matches management host.HeartbeatRequest struct.
-	heartbeat := struct {
-		UUID            string `json:"uuid"`
-		CPUAllocated    int    `json:"cpu_allocated"`
-		RAMAllocatedMB  int64  `json:"ram_allocated_mb"`
-		DiskAllocatedGB int64  `json:"disk_allocated_gb"`
-		AgentVersion    string `json:"agent_version"`
-	}{
-		UUID:            c.nodeID,
-		CPUAllocated:    stats.AllocatedCPU,
-		RAMAllocatedMB:  stats.AllocatedRAMMB,
-		DiskAllocatedGB: stats.AllocatedDiskGB,
-		AgentVersion:    "vc-compute",
-	}
-
-	data, err := json.Marshal(heartbeat)
-	if err != nil {
-		return fmt.Errorf("marshal heartbeat: %w", err)
-	}
-
-	url := fmt.Sprintf("%s/api/v1/hosts/heartbeat", c.baseURL)
-	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewReader(data))
-	if err != nil {
-		return fmt.Errorf("create request: %w", err)
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-
-	var heartbeatErr error
-	cbErr := c.cb.Execute(func() error {
-		resp, doErr := c.httpClient.Do(req) // #nosec
-		if doErr != nil {
-			return fmt.Errorf("send request: %w", doErr)
-		}
-		defer func() { _ = resp.Body.Close() }()
-
-		if resp.StatusCode == http.StatusNotFound {
-			body, _ := io.ReadAll(resp.Body)
-			c.logger.Warn("Heartbeat rejected: host not found (node may need re-registration)",
-				zap.String("body", string(body)))
-			// ErrHostNotFound is a business error, not a transport failure.
-			// Store it separately and return nil so it doesn't trip the breaker.
-			heartbeatErr = ErrHostNotFound
-			return nil
-		}
-
-		if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusAccepted {
-			body, readErr := io.ReadAll(resp.Body)
-			if readErr != nil {
-				c.logger.Warn("Heartbeat rejected and failed to read body",
-					zap.Int("status", resp.StatusCode),
-					zap.Error(readErr))
-			} else {
-				c.logger.Warn("Heartbeat rejected",
-					zap.Int("status", resp.StatusCode),
-					zap.String("body", string(body)))
-			}
-		}
-
-		return nil
-	})
-
-	if cbErr != nil {
-		return cbErr
-	}
-	return heartbeatErr
-}
-
-// FetchVMConfig fetches VM configuration from management.
-func (c *ControllerClient) FetchVMConfig(ctx context.Context, vmID string) (*QEMUConfig, error) {
-	url := fmt.Sprintf("%s/api/v1/vms/%s/config", c.baseURL, vmID)
-	req, err := http.NewRequestWithContext(ctx, "GET", url, http.NoBody)
+	url := fmt.Sprintf("%s/api/v1/internal%s", c.baseURL, path)
+	req, err := http.NewRequestWithContext(ctx, method, url, bodyReader)
 	if err != nil {
 		return nil, fmt.Errorf("create request: %w", err)
 	}
 
-	var config QEMUConfig
-	cbErr := c.cb.Execute(func() error {
-		resp, doErr := c.httpClient.Do(req) // #nosec
-		if doErr != nil {
-			return fmt.Errorf("send request: %w", doErr)
-		}
-		defer func() { _ = resp.Body.Close() }()
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Internal-Token", c.internalToken)
 
-		if resp.StatusCode != http.StatusOK {
-			body, readErr := io.ReadAll(resp.Body)
-			if readErr != nil {
-				return fmt.Errorf("fetch failed: status %d and failed to read body: %w", resp.StatusCode, readErr)
-			}
-			return fmt.Errorf("fetch failed: status %d: %s", resp.StatusCode, string(body))
-		}
-
-		if decodeErr := json.NewDecoder(resp.Body).Decode(&config); decodeErr != nil {
-			return fmt.Errorf("decode config: %w", decodeErr)
-		}
-
-		return nil
-	})
-
-	if cbErr != nil {
-		return nil, cbErr
-	}
-	return &config, nil
-}
-
-// ResourceUpdateRequest represents resource adjustment request.
-type ResourceUpdateRequest struct {
-	VCPUs    *int `json:"vcpus,omitempty"`
-	MemoryMB *int `json:"memory_mb,omitempty"`
-}
-
-// UpdateVMResources applies resource updates from management.
-func (c *ControllerClient) UpdateVMResources(ctx context.Context, vmID string, update ResourceUpdateRequest) error {
-	// This would use QMP to hot-plug CPU/memory.
-	c.logger.Info("Resource update requested",
-		zap.String("vm_id", vmID),
-		zap.Any("update", update))
-
-	// TODO: Implement QMP-based resource updates.
-	return fmt.Errorf("resource updates not yet implemented")
-}
-
-// NodeStats represents compute node statistics.
-type NodeStats struct {
-	TotalVMs        int
-	RunningVMs      int
-	StoppedVMs      int
-	AllocatedCPU    int
-	AllocatedRAMMB  int64
-	AllocatedDiskGB int64
-	CPUUsage        float64
-	MemoryUsage     float64
-}
-
-// SyncAgentRegInfo holds registration details so the SyncAgent can
-// re-register the node if management forgets it (e.g. DB reset).
-type SyncAgentRegInfo struct {
-	NodeInfo  NodeInfo
-	Port      int
-	ZoneID    string
-	ClusterID string
-}
-
-// SyncAgent periodically syncs with management.
-type SyncAgent struct {
-	client       *ControllerClient
-	manager      *QEMUManager
-	logger       *zap.Logger
-	syncInterval time.Duration
-	stopCh       chan struct{}
-	regInfo      *SyncAgentRegInfo // nil = no auto-re-registration
-}
-
-// NewSyncAgent creates a new sync agent.
-func NewSyncAgent(client *ControllerClient, manager *QEMUManager, logger *zap.Logger, interval time.Duration) *SyncAgent {
-	return &SyncAgent{
-		client:       client,
-		manager:      manager,
-		logger:       logger,
-		syncInterval: interval,
-		stopCh:       make(chan struct{}),
-	}
-}
-
-// SetRegistrationInfo stores node registration info for auto-re-registration.
-func (a *SyncAgent) SetRegistrationInfo(info SyncAgentRegInfo) {
-	a.regInfo = &info
-}
-
-// Start begins periodic sync.
-func (a *SyncAgent) Start() {
-	go a.syncLoop()
-}
-
-// Stop stops the sync agent.
-func (a *SyncAgent) Stop() {
-	close(a.stopCh)
-}
-
-// syncLoop runs periodic sync.
-func (a *SyncAgent) syncLoop() {
-	ticker := time.NewTicker(a.syncInterval)
-	defer ticker.Stop()
-
-	// Initial sync.
-	a.performSync()
-
-	for {
-		select {
-		case <-ticker.C:
-			a.performSync()
-		case <-a.stopCh:
-			return
-		}
-	}
-}
-
-// performSync performs one sync iteration.
-func (a *SyncAgent) performSync() {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-
-	var vms []*QEMUConfig
-
-	if a.manager != nil {
-		// Sync VM states.
-		if err := a.manager.SyncVMs(ctx); err != nil {
-			a.logger.Warn("VM sync failed", zap.Error(err))
-		}
-
-		// Get all VMs.
-		var err error
-		vms, err = a.manager.ListVMs(ctx)
-		if err != nil {
-			a.logger.Error("Failed to list VMs", zap.Error(err))
-			return
-		}
-
-		// Report each VM status.
-		for _, vm := range vms {
-			if err := a.client.ReportVMStatus(ctx, vm); err != nil {
-				a.logger.Warn("Failed to report VM status",
-					zap.String("vm_id", vm.ID),
-					zap.Error(err))
-			}
-		}
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("http request failed: %w", err)
 	}
 
-	// Calculate and send node stats.
-	stats := a.calculateStats(vms)
-	if err := a.client.SendHeartbeat(ctx, stats); err != nil {
-		if errors.Is(err, ErrHostNotFound) && a.regInfo != nil {
-			// Management doesn't know about us anymore — re-register.
-			a.logger.Warn("Host not found on management, attempting re-registration")
-			regCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
-			uuid, regErr := a.client.RegisterNode(regCtx, a.regInfo.NodeInfo, a.regInfo.Port, a.regInfo.ZoneID, a.regInfo.ClusterID)
-			cancel()
-			if regErr != nil {
-				a.logger.Error("Auto re-registration failed", zap.Error(regErr))
-			} else {
-				a.client.SetNodeID(uuid)
-				a.logger.Info("Node re-registered with management", zap.String("uuid", uuid))
-			}
-		} else {
-			a.logger.Warn("Failed to send heartbeat", zap.Error(err))
-		}
-	}
-
-	a.logger.Debug("Sync completed",
-		zap.Int("vms", len(vms)),
-		zap.Int("running", stats.RunningVMs))
+	return resp, nil
 }
 
-// calculateStats calculates node statistics.
-func (a *SyncAgent) calculateStats(vms []*QEMUConfig) NodeStats {
-	stats := NodeStats{
-		TotalVMs: len(vms),
+// SetNodeID sets the assigned node UUID for heartbeats.
+func (c *ControllerClient) SetNodeID(id string) {
+	c.nodeID = id
+}
+
+// RegisterNode registers this compute node with the management plane.
+func (c *ControllerClient) RegisterNode(ctx context.Context, info interface{}, port int, zoneID, clusterID string) (string, error) {
+	payload := map[string]interface{}{
+		"info":       info,
+		"port":       port,
+		"zone_id":    zoneID,
+		"cluster_id": clusterID,
 	}
 
-	for _, vm := range vms {
-		switch vm.Status {
-		case "running":
-			stats.RunningVMs++
-			stats.AllocatedCPU += vm.VCPUs
-			stats.AllocatedRAMMB += int64(vm.MemoryMB)
-			stats.AllocatedDiskGB += int64(vm.DiskGB)
-		case "stopped":
-			stats.StoppedVMs++
-		}
+	resp, err := c.do(ctx, http.MethodPost, "/hosts/register", payload)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
+		body, _ := io.ReadAll(resp.Body)
+		return "", fmt.Errorf("registration failed (%d): %s", resp.StatusCode, string(body))
 	}
 
-	return stats
+	var result struct {
+		UUID string `json:"uuid"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return "", fmt.Errorf("decode registration response: %w", err)
+	}
+
+	c.nodeID = result.UUID
+	return result.UUID, nil
+}
+
+// ReportHeartbeat sends host resource usage and health status.
+func (c *ControllerClient) ReportHeartbeat(ctx context.Context, req interface{}) error {
+	resp, err := c.do(ctx, http.MethodPost, "/hosts/heartbeat", req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
+		return fmt.Errorf("heartbeat failed with status %d", resp.StatusCode)
+	}
+	return nil
+}
+
+// GetMyInstances retrieves the list of instances assigned to this host.
+func (c *ControllerClient) GetMyInstances(ctx context.Context, hostID string) ([]models.Instance, error) {
+	path := fmt.Sprintf("/hosts/%s/instances", hostID)
+	resp, err := c.do(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("get instances failed with status %d", resp.StatusCode)
+	}
+
+	var instances []models.Instance
+	if err := json.NewDecoder(resp.Body).Decode(&instances); err != nil {
+		return nil, fmt.Errorf("decode instances: %w", err)
+	}
+	return instances, nil
+}
+
+// GetInstance retrieves detailed information for a single instance.
+func (c *ControllerClient) GetInstance(ctx context.Context, uuid string) (*models.Instance, error) {
+	path := fmt.Sprintf("/instances/%s", uuid)
+	resp, err := c.do(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("get instance %s failed with status %d", uuid, resp.StatusCode)
+	}
+
+	var instance models.Instance
+	if err := json.NewDecoder(resp.Body).Decode(&instance); err != nil {
+		return nil, fmt.Errorf("decode instance: %w", err)
+	}
+	return &instance, nil
+}
+
+// UpdateInstanceStatus reports state changes of a virtual machine.
+func (c *ControllerClient) UpdateInstanceStatus(ctx context.Context, uuid string, updates map[string]interface{}) error {
+	path := fmt.Sprintf("/instances/%s/status", uuid)
+	resp, err := c.do(ctx, http.MethodPatch, path, updates)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("update status failed (%d): %s", resp.StatusCode, string(body))
+	}
+	return nil
+}
+
+// PushMetrics sends node performance metrics to the management plane.
+func (c *ControllerClient) PushMetrics(ctx context.Context, hostID string, metrics interface{}) error {
+	path := fmt.Sprintf("/monitoring/nodes/%s/metrics", hostID)
+	resp, err := c.do(ctx, http.MethodPost, path, metrics)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusAccepted {
+		return fmt.Errorf("push metrics failed with status %d", resp.StatusCode)
+	}
+	return nil
+}
+
+// GetMetadataByIP resolves instance metadata by source IP.
+func (c *ControllerClient) GetMetadataByIP(ctx context.Context, ip string) (map[string]interface{}, error) {
+	path := fmt.Sprintf("/metadata?ip=%s", ip)
+	resp, err := c.do(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("metadata resolution failed with status %d", resp.StatusCode)
+	}
+
+	var result map[string]interface{}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("decode metadata: %w", err)
+	}
+	return result, nil
 }

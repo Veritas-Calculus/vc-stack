@@ -23,7 +23,7 @@ export async function fetchVolumes(projectId?: string): Promise<UIVolume[]> {
       rbd_pool?: string
       rbd_image?: string
     }>
-  }>('/v1/volumes', withProjectHeader(projectId))
+  }>('/api/v1/storage/volumes', withProjectHeader(projectId))
   return (res.data.volumes ?? []).map((v) => ({
     id: String(v.id),
     name: v.name,
@@ -49,7 +49,7 @@ export async function createVolume(
       rbd_pool?: string
       rbd_image?: string
     }
-  }>('/v1/volumes', body, withProjectHeader(projectId))
+  }>('/v1/storage/volumes', body, withProjectHeader(projectId))
   const v = res.data.volume
   return {
     id: String(v.id),

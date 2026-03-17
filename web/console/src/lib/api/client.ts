@@ -19,32 +19,14 @@ export function resolveApiBase(): string {
 
 const api = axios.create({
   baseURL: resolveApiBase(),
-  // We use Bearer tokens, not cookies; disable credentials to simplify CORS
-  withCredentials: false
+  // SEC-02: Enable credentials so the browser sends HttpOnly cookies.
+  withCredentials: true
 })
 
+// SEC-02: The request interceptor no longer manually reads tokens from
+// localStorage. The HttpOnly cookie is sent automatically by the browser.
+// The console.log statements for token debugging are also removed.
 api.interceptors.request.use((config) => {
-  // Read token from the persisted Zustand auth store
-  const authData = localStorage.getItem('auth')
-  let token: string | null = null
-  if (authData) {
-    try {
-      const parsed = JSON.parse(authData)
-      token = parsed?.state?.token || null
-      // eslint-disable-next-line no-console
-      console.log('[API] Token from localStorage:', token ? 'Found' : 'Not found')
-    } catch {
-      // eslint-disable-next-line no-console
-      console.log('[API] Failed to parse auth data')
-    }
-  } else {
-    // eslint-disable-next-line no-console
-    console.log('[API] No auth data in localStorage')
-  }
-  if (token) {
-    config.headers = config.headers ?? {}
-    config.headers.Authorization = `Bearer ${token}`
-  }
   return config
 })
 
@@ -57,17 +39,19 @@ api.interceptors.response.use(
       // eslint-disable-next-line no-console
       console.error(msg)
 
-      // Log to persistent storage
-      try {
-        const logs = JSON.parse(localStorage.getItem('debug_logs') || '[]')
-        logs.push({ time: new Date().toISOString(), msg })
-        if (logs.length > 50) logs.shift()
-        localStorage.setItem('debug_logs', JSON.stringify(logs))
-      } catch {
-        // ignore
+      // SEC-10: Only persist debug logs in development to prevent XSS data leakage
+      if (import.meta.env.DEV) {
+        try {
+          const logs = JSON.parse(localStorage.getItem('debug_logs') || '[]')
+          logs.push({ time: new Date().toISOString(), msg })
+          if (logs.length > 50) logs.shift()
+          localStorage.setItem('debug_logs', JSON.stringify(logs))
+        } catch {
+          // ignore
+        }
       }
 
-      // Clear the token on 401 to prevent redirect loop
+      // SEC-02: Clear legacy auth store (Zustand localStorage) on 401.
       localStorage.removeItem('auth')
 
       // Don't redirect if we're already on the login page
@@ -82,6 +66,25 @@ api.interceptors.response.use(
 )
 
 export default api
+
+/**
+ * Centralized token accessor — returns the JWT from the legacy Zustand store.
+ *
+ * SEC-02: With HttpOnly cookies, the browser sends the token automatically.
+ * This function is kept for backward compatibility with WebSocket connections
+ * that still need a raw token (e.g. for URL params or custom headers).
+ * In cookie-only mode this will return '' since the token is not in localStorage.
+ */
+export function getAuthToken(): string {
+  try {
+    const authData = localStorage.getItem('auth')
+    if (!authData) return ''
+    const parsed = JSON.parse(authData)
+    return parsed?.state?.token || ''
+  } catch {
+    return ''
+  }
+}
 
 // Helper to attach project header
 export function withProjectHeader(projectId?: string) {

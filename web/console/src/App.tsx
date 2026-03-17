@@ -289,18 +289,21 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   const location = useLocation()
   const [isReady, setIsReady] = useState(false)
 
-  // Helper to log to both console and localStorage for debugging
+  // Helper to log to both console and (dev only) localStorage for debugging
   const debugLog = (msg: string) => {
     // eslint-disable-next-line no-console
     console.log(msg)
-    try {
-      const logs = JSON.parse(localStorage.getItem('debug_logs') || '[]')
-      logs.push({ time: new Date().toISOString(), msg })
-      // Keep only last 50 logs
-      if (logs.length > 50) logs.shift()
-      localStorage.setItem('debug_logs', JSON.stringify(logs))
-    } catch {
-      // ignore
+    // SEC-10: Only persist debug logs in development to prevent XSS data leakage
+    if (import.meta.env.DEV) {
+      try {
+        const logs = JSON.parse(localStorage.getItem('debug_logs') || '[]')
+        logs.push({ time: new Date().toISOString(), msg })
+        // Keep only last 50 logs
+        if (logs.length > 50) logs.shift()
+        localStorage.setItem('debug_logs', JSON.stringify(logs))
+      } catch {
+        // ignore
+      }
     }
   }
 

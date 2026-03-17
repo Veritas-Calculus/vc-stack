@@ -78,10 +78,17 @@ func isEnabled(flag *bool) bool {
 	return *flag
 }
 
+// ModuleContext provides access to other modules and shared resources
+// during module initialization, without exposing the entire Service object.
+type ModuleContext interface {
+	GetModule(name string) interface{}
+	GetConfig() Config
+	RegisterModule(m Module)
+}
+
 // ModuleFactory is a function that creates and registers a service module.
-// It receives the partially built Service and the shared Config, and should
-// set the appropriate field on svc. It may return an error.
-type ModuleFactory func(svc *Service, cfg Config) error
+// It receives a ModuleContext to resolve dependencies and register itself.
+type ModuleFactory func(ctx ModuleContext) error
 
 // ModuleDescriptor describes a service module for the registry.
 type ModuleDescriptor struct {
@@ -98,24 +105,58 @@ type ModuleDescriptor struct {
 	// If nil, the module is always enabled. Core modules ignore this.
 	EnabledFn func(mc ModulesConfig) bool
 
-	// Factory creates the module and attaches it to the Service struct.
+	// Factory creates the module and registers it via ModuleContext.
 	Factory ModuleFactory
 }
 
 // ModuleRegistry manages module registration and ordered initialization.
 type ModuleRegistry struct {
 	descriptors []ModuleDescriptor
+	instances   map[string]interface{}
 	logger      *zap.Logger
 }
 
 // NewModuleRegistry creates a new module registry.
 func NewModuleRegistry(logger *zap.Logger) *ModuleRegistry {
-	return &ModuleRegistry{logger: logger}
+	return &ModuleRegistry{
+		logger:    logger,
+		instances: make(map[string]interface{}),
+	}
 }
 
 // Register adds a module descriptor to the registry.
 func (r *ModuleRegistry) Register(desc ModuleDescriptor) {
 	r.descriptors = append(r.descriptors, desc)
+}
+
+// GetModule returns a registered module instance by name.
+func (r *ModuleRegistry) GetModule(name string) interface{} {
+	return r.instances[name]
+}
+
+// moduleContextImpl implements ModuleContext for the registry.
+type moduleContextImpl struct {
+	registry *ModuleRegistry
+	svc      *Service
+	cfg      Config
+}
+
+func (c *moduleContextImpl) GetModule(name string) interface{} {
+	return c.registry.GetModule(name)
+}
+
+func (c *moduleContextImpl) GetConfig() Config {
+	return c.cfg
+}
+
+func (c *moduleContextImpl) RegisterModule(m Module) {
+	c.svc.RegisterModule(m)
+	// Also register the module instance itself.
+	if provider, ok := m.(InstanceProvider); ok {
+		c.registry.instances[m.Name()] = provider.ServiceInstance()
+	} else {
+		c.registry.instances[m.Name()] = m
+	}
 }
 
 // InitializeAll initializes all registered modules in dependency order.
@@ -124,6 +165,12 @@ func (r *ModuleRegistry) InitializeAll(svc *Service, cfg Config, mc ModulesConfi
 	ordered, err := r.topologicalSort()
 	if err != nil {
 		return fmt.Errorf("module dependency error: %w", err)
+	}
+
+	mctx := &moduleContextImpl{
+		registry: r,
+		svc:      svc,
+		cfg:      cfg,
 	}
 
 	initialized := make(map[string]bool)
@@ -151,8 +198,8 @@ func (r *ModuleRegistry) InitializeAll(svc *Service, cfg Config, mc ModulesConfi
 			continue
 		}
 
-		// Initialize the module.
-		if err := desc.Factory(svc, cfg); err != nil {
+		// Initialize the module via the IoC context.
+		if err := desc.Factory(mctx); err != nil {
 			if desc.Core {
 				return fmt.Errorf("core module %q failed: %w", desc.Name, err)
 			}

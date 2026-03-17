@@ -1,8 +1,8 @@
 // Barrel re-export — all domain modules re-exported for backward compatibility.
 // New code should import directly from the domain module, e.g.:
 //   import { fetchInstances } from '@/lib/api/compute'
-import api, { resolveApiBase } from './client'
-export { resolveApiBase }
+import api, { resolveApiBase, getAuthToken } from './client'
+export { resolveApiBase, getAuthToken }
 export default api
 
 export * from './compute'

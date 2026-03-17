@@ -76,6 +76,8 @@ export type Instance = {
   name: string
   ip: string
   state: 'running' | 'stopped'
+  rootImage?: string
+  networks?: Array<{ uuid: string; ip: string }>
 }
 export type PublicIP = {
   id: string

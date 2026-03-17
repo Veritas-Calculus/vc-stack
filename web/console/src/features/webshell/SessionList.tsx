@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Download, Play, Filter, Clock, HardDrive, Terminal, User, Server } from 'lucide-react'
-import { resolveApiBase } from '@/lib/api'
+import { resolveApiBase, getAuthToken } from '@/lib/api'
 
 const api = resolveApiBase()
 
@@ -66,7 +66,7 @@ export function SessionList() {
 
         const response = await fetch(`${api}/v1/webshell/sessions?${params}`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
+            Authorization: `Bearer ${getAuthToken()}`
           }
         })
 
@@ -124,7 +124,7 @@ export function SessionList() {
     try {
       const response = await fetch(`${api}/v1/webshell/sessions/${session.session_id}/export`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${getAuthToken()}`
         }
       })
 

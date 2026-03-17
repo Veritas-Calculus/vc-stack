@@ -1,13 +1,10 @@
 // Package metadata provides an EC2/OpenStack-compatible metadata proxy for
-// compute nodes. It resolves the requesting VM by source IP (via the
-// net_ports table) and returns instance metadata from the database.
-//
-// This enables cloud-init inside VMs to retrieve instance-id, hostname,
-// SSH keys, and user-data without requiring a dedicated metadata service.
+// compute nodes. It resolves the requesting VM by source IP and retrieves
+// metadata from the management plane via internal API.
 package metadata
 
 import (
-	"database/sql"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -16,22 +13,28 @@ import (
 	"time"
 
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 )
 
 // ProxyConfig configures the metadata proxy.
 type ProxyConfig struct {
-	DB     *gorm.DB
-	Logger *zap.Logger
-	Port   string // Listen port, default "8082"
+	Logger        *zap.Logger
+	Port          string // Listen port, default "8082"
+	ControllerURL string
+	InternalToken string
+}
+
+// ControllerClient defines the subset of methods needed from the compute package
+// to avoid circular dependencies (Proxy -> Compute -> ControllerClient -> Proxy).
+type ControllerClient interface {
+	GetMetadataByIP(ctx context.Context, ip string) (map[string]interface{}, error)
 }
 
 // Proxy serves EC2/OpenStack-compatible metadata to VMs.
 type Proxy struct {
-	db     *gorm.DB
-	logger *zap.Logger
-	port   string
-	mux    *http.ServeMux
+	controller    ControllerClient
+	logger        *zap.Logger
+	port          string
+	mux           *http.ServeMux
 }
 
 // instanceInfo holds the data returned to the VM.
@@ -46,33 +49,6 @@ type instanceInfo struct {
 	Metadata   map[string]interface{}
 }
 
-// portRow is used for querying the net_ports table.
-type portRow struct {
-	DeviceID   string         `gorm:"column:device_id"`
-	FixedIPs   sql.NullString `gorm:"column:fixed_ips"`
-	MACAddress string         `gorm:"column:mac_address"`
-}
-
-// instanceRow is used for querying the instances table.
-type instanceRow struct {
-	UUID      string         `gorm:"column:uuid"`
-	Name      string         `gorm:"column:name"`
-	SSHKey    string         `gorm:"column:ssh_key"`
-	UserData  string         `gorm:"column:user_data"`
-	IPAddress string         `gorm:"column:ip_address"`
-	Metadata  sql.NullString `gorm:"column:metadata"`
-}
-
-// flavorRow is used for querying flavors.
-type flavorRow struct {
-	Name string `gorm:"column:name"`
-}
-
-// imageRow is used for querying images.
-type imageRow struct {
-	UUID string `gorm:"column:uuid"`
-}
-
 // NewProxy creates a new metadata proxy.
 func NewProxy(cfg ProxyConfig) (*Proxy, error) {
 	if cfg.Logger == nil {
@@ -83,17 +59,27 @@ func NewProxy(cfg ProxyConfig) (*Proxy, error) {
 	}
 
 	p := &Proxy{
-		db:     cfg.DB,
 		logger: cfg.Logger,
 		port:   cfg.Port,
 		mux:    http.NewServeMux(),
 	}
+
+	// In production, the controller client will be injected.
+	// For bootstrapping via NewProxy, we can't easily inject the 'compute.ControllerClient'
+	// due to circular imports. The caller (NewNode) is responsible for ensuring
+	// compatibility or we can define a local implementation.
+	
 	p.registerRoutes()
 	return p, nil
 }
 
+// SetController injects the controller client after initialization to avoid
+// circular import issues if needed.
+func (p *Proxy) SetController(c ControllerClient) {
+	p.controller = c
+}
+
 // ListenAndServe starts the metadata proxy HTTP server.
-// This blocks, so call it in a goroutine.
 func (p *Proxy) ListenAndServe() error {
 	addr := "0.0.0.0:" + p.port
 	srv := &http.Server{
@@ -126,74 +112,49 @@ func (p *Proxy) registerRoutes() {
 
 // resolveInstance finds the instance by the request's source IP address.
 func (p *Proxy) resolveInstance(r *http.Request) (*instanceInfo, error) {
+	if p.controller == nil {
+		return nil, fmt.Errorf("controller client not initialized")
+	}
+
 	srcIP, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
 		srcIP = r.RemoteAddr
 	}
 
-	// Also check X-Forwarded-For (for DNAT scenarios).
 	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
 		srcIP = strings.TrimSpace(strings.Split(xff, ",")[0])
 	}
 
-	// Query net_ports: find port where fixed_ips JSON contains this IP.
-	var port portRow
-	err = p.db.Table("net_ports").
-		Select("device_id, fixed_ips, mac_address").
-		Where("fixed_ips::text LIKE ?", "%"+srcIP+"%").
-		First(&port).Error
-	if err != nil {
-		return nil, fmt.Errorf("no port found for IP %s: %w", srcIP, err)
-	}
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
 
-	if port.DeviceID == "" {
-		return nil, fmt.Errorf("port for IP %s has no device_id", srcIP)
-	}
-
-	// Query instances table.
-	var inst instanceRow
-	err = p.db.Table("instances").
-		Select("uuid, name, ssh_key, user_data, ip_address, metadata").
-		Where("uuid = ? AND deleted_at IS NULL", port.DeviceID).
-		First(&inst).Error
+	data, err := p.controller.GetMetadataByIP(ctx, srcIP)
 	if err != nil {
-		return nil, fmt.Errorf("instance %s not found: %w", port.DeviceID, err)
+		return nil, fmt.Errorf("lookup failed for IP %s: %w", srcIP, err)
 	}
 
 	info := &instanceInfo{
-		UUID:      inst.UUID,
-		Name:      inst.Name,
-		SSHKey:    inst.SSHKey,
-		UserData:  inst.UserData,
-		IPAddress: inst.IPAddress,
+		UUID:       getString(data, "uuid"),
+		Name:       getString(data, "name"),
+		FlavorName: getString(data, "flavor_name"),
+		ImageUUID:  getString(data, "image_uuid"),
+		SSHKey:     getString(data, "ssh_key"),
+		UserData:   getString(data, "user_data"),
+		IPAddress:  getString(data, "ip_address"),
 	}
 
-	// Parse metadata JSON.
-	if inst.Metadata.Valid && inst.Metadata.String != "" {
-		_ = json.Unmarshal([]byte(inst.Metadata.String), &info.Metadata)
-	}
-
-	// Get flavor name.
-	var flavor flavorRow
-	if err := p.db.Table("instances").
-		Select("flavors.name").
-		Joins("JOIN flavors ON flavors.id = instances.flavor_id").
-		Where("instances.uuid = ?", inst.UUID).
-		First(&flavor).Error; err == nil {
-		info.FlavorName = flavor.Name
-	}
-
-	// Get image UUID.
-	var image imageRow
-	if err := p.db.Table("instances").
-		Select("images.uuid").
-		Joins("JOIN images ON images.id = instances.image_id").
-		Where("instances.uuid = ?", inst.UUID).
-		First(&image).Error; err == nil {
-		info.ImageUUID = image.UUID
+	if m, ok := data["metadata"].(map[string]interface{}); ok {
+		info.Metadata = m
 	}
 
 	return info, nil
+}
+
+func getString(m map[string]interface{}, key string) string {
+	if v, ok := m[key].(string); ok {
+		return v
+	}
+	return ""
 }
 
 // handleRoot returns the list of API versions.
@@ -241,7 +202,6 @@ func (p *Proxy) handleMetaData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Extract the key from the path (after /meta-data/).
 	path := r.URL.Path
 	var key string
 	for _, prefix := range []string{"/latest/meta-data/", "/2009-04-04/meta-data/", "/2007-01-19/meta-data/"} {
@@ -286,7 +246,6 @@ func (p *Proxy) handleMetaData(w http.ResponseWriter, r *http.Request) {
 			http.NotFound(w, r)
 		}
 	case "":
-		// Directory listing.
 		p.handleMetaDataDir(w, r)
 	default:
 		http.NotFound(w, r)
@@ -307,12 +266,10 @@ func (p *Proxy) handleUserData(w http.ResponseWriter, r *http.Request) {
 	if info.UserData != "" {
 		fmt.Fprint(w, info.UserData)
 	} else {
-		// Return empty 200 (not 404) — cloud-init expects this.
 		w.WriteHeader(http.StatusOK)
 	}
 }
 
-// openStackMeta is the JSON format for OpenStack metadata.
 type openStackMeta struct {
 	UUID             string                 `json:"uuid"`
 	Hostname         string                 `json:"hostname"`
@@ -330,7 +287,6 @@ type sshKeyEntry struct {
 	Data string `json:"data"`
 }
 
-// handleOpenStackMetaData returns OpenStack-format metadata JSON.
 func (p *Proxy) handleOpenStackMetaData(w http.ResponseWriter, r *http.Request) {
 	info, err := p.resolveInstance(r)
 	if err != nil {

@@ -56,6 +56,22 @@ type AppConfig struct {
 
 	// Web console directory.
 	WebConsoleDir string `mapstructure:"web_console_dir"`
+
+	// Storage and Images paths (Management plane)
+	Images  ImagesConfig  `mapstructure:"images"`
+	Volumes VolumesConfig `mapstructure:"volumes"`
+}
+
+// ImagesConfig controls local and RBD storage for OS templates.
+type ImagesConfig struct {
+	LocalPath string `mapstructure:"local_path"`
+	RBDPool   string `mapstructure:"rbd_pool"`
+}
+
+// VolumesConfig controls volume provisioning.
+type VolumesConfig struct {
+	LocalPath string `mapstructure:"local_path"`
+	RBDPool   string `mapstructure:"rbd_pool"`
 }
 
 // ServerConfig holds the HTTP server settings.
@@ -105,6 +121,11 @@ type SecurityConfig struct {
 	CORSAllowedOrigins []string `mapstructure:"cors_allowed_origins"`
 	RateLimitEnabled   bool     `mapstructure:"rate_limit_enabled"`
 	RateLimitRPM       int      `mapstructure:"rate_limit_rpm"`
+
+	// InternalToken is a shared secret for machine-to-machine (M2M)
+	// authentication between vc-compute and vc-management.
+	// If empty, internal API access is disabled.
+	InternalToken string `mapstructure:"internal_token"`
 }
 
 // SchedulerConfig holds resource scheduling configuration.

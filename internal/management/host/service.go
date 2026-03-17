@@ -4,6 +4,7 @@ package host
 // Inspired by CloudStack's host management architecture.
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"net/http"
@@ -43,6 +44,7 @@ type Service struct {
 	logger           *zap.Logger
 	heartbeatTimeout time.Duration
 	externalURL      string
+	internalToken    string
 	evacuateCallback func(hostUUID string, instanceIDs []uint)
 }
 
@@ -72,14 +74,55 @@ func NewService(cfg Config) (*Service, error) {
 	return s, nil
 }
 
+// SetInternalToken sets the shared secret for M2M authentication.
+func (s *Service) SetInternalToken(token string) {
+	s.internalToken = token
+}
+
+// Name returns the module name.
+func (s *Service) Name() string { return "host" }
+
+// ServiceInstance returns the service implementation for IoC.
+func (s *Service) ServiceInstance() interface{} { return s }
+
+// GetHostAddress returns the management URL for a host by UUID.
+func (s *Service) GetHostAddress(ctx context.Context, hostID string) (string, error) {
+	host, err := s.findHostByID(hostID)
+	if err != nil {
+		return "", err
+	}
+	return host.GetManagementURL(), nil
+}
+
+// ListHosts returns all registered hosts from the database.
+func (s *Service) ListHosts(ctx context.Context) ([]models.Host, error) {
+	var hosts []models.Host
+	if err := s.db.WithContext(ctx).Find(&hosts).Error; err != nil {
+		return nil, err
+	}
+	return hosts, nil
+}
+
+// GetHost retrieves a single host by ID or UUID.
+func (s *Service) GetHost(ctx context.Context, id string) (*models.Host, error) {
+	return s.findHostByID(id)
+}
+
+// DeleteHost removes a host from the database (soft delete).
+func (s *Service) DeleteHost(ctx context.Context, id string) error {
+	return s.db.WithContext(ctx).Where("uuid = ? OR name = ?", id, id).Delete(&models.Host{}).Error
+}
+
 // SetupRoutes registers HTTP routes for the host service.
 func (s *Service) SetupRoutes(router *gin.Engine) {
 	rp := middleware.RequirePermission
 	api := router.Group("/api/v1")
 	{
-		// Register and heartbeat are unauthenticated machine-to-machine endpoints.
+		// Legacy endpoints (can be deprecated later)
 		api.POST("/hosts/register", s.registerHost)
 		api.POST("/hosts/heartbeat", s.heartbeat)
+
+		// Regular management endpoints
 		api.POST("/hosts/test-connection", rp("host", "create"), s.testConnection)
 		api.GET("/hosts", rp("host", "list"), s.listHosts)
 		api.GET("/hosts/install-script", rp("host", "list"), s.generateInstallScript)
@@ -91,6 +134,16 @@ func (s *Service) SetupRoutes(router *gin.Engine) {
 		api.POST("/hosts/:id/disable", rp("host", "create"), s.disableHost)
 		api.POST("/hosts/:id/maintenance", rp("host", "create"), s.maintenanceMode)
 		api.POST("/hosts/:id/evacuate", rp("host", "create"), s.evacuateHostHTTP)
+	}
+
+	// Internal M2M endpoints (Compute nodes only)
+	internalAuth := middleware.InternalAuthMiddleware(s.internalToken, s.logger)
+	internal := router.Group("/api/v1/internal")
+	internal.Use(internalAuth)
+	{
+		internal.POST("/hosts/register", s.registerHost)
+		internal.POST("/hosts/heartbeat", s.heartbeat)
+		internal.GET("/hosts/:id/instances", s.getHostInstances)
 	}
 }
 
@@ -106,6 +159,30 @@ func (s *Service) findHostByID(id string) (*models.Host, error) {
 	}
 	err := query.First(&host).Error
 	return &host, err
+}
+
+// getHostInstances returns all instances assigned to a specific host.
+// This is an internal API used by vc-compute to discover its workload.
+func (s *Service) getHostInstances(c *gin.Context) {
+	hostID := c.Param("id")
+	host, err := s.findHostByID(hostID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "host not found"})
+		return
+	}
+
+	var instances []models.Instance
+	// Query instances belonging to this host.
+	// We preload Flavor and Image so the node has all the metadata it needs.
+	if err := s.db.Preload("Flavor").Preload("Image").
+		Where("host_id = ? AND status <> ?", host.UUID, "deleted").
+		Find(&instances).Error; err != nil {
+		s.logger.Error("failed to query host instances", zap.Error(err), zap.String("host", host.UUID))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "database error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, instances)
 }
 
 // RegisterRequest represents a host registration request.

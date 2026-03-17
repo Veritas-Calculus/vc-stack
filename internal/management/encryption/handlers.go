@@ -582,13 +582,13 @@ func (s *Service) getCACert(c *gin.Context) {
 
 	c.JSON(200, gin.H{
 		"ca_certificate": gin.H{
-			"uuid":         ca.UUID,
-			"common_name":  ca.CommonName,
-			"not_before":   ca.NotBefore,
-			"not_after":    ca.NotAfter,
-			"serial":       ca.SerialNum,
-			"fingerprint":  ca.Fingerprint,
-			"certificate":  ca.CertPEM,
+			"uuid":        ca.UUID,
+			"common_name": ca.CommonName,
+			"not_before":  ca.NotBefore,
+			"not_after":   ca.NotAfter,
+			"serial":      ca.SerialNum,
+			"fingerprint": ca.Fingerprint,
+			"certificate": ca.CertPEM,
 		},
 	})
 }

@@ -1,6 +1,10 @@
 package network
 
 import (
+	"context"
+	crypto_rand "crypto/rand"
+	"encoding/binary"
+	"errors"
 	"fmt"
 	"math/big"
 	"net"
@@ -8,6 +12,8 @@ import (
 	"time"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+	"go.uber.org/zap"
 )
 
 // IPAllocation tracks allocated IPs per subnet.
@@ -21,130 +27,156 @@ type IPAllocation struct {
 
 func (IPAllocation) TableName() string { return "net_ip_allocations" }
 
-// IPAM provides simple IP allocation from subnet CIDR ranges.
+// IPAM provides robust IP allocation from subnet CIDR ranges.
 type IPAM struct {
-	db  *gorm.DB
-	opt IPAMOptions
+	db     *gorm.DB
+	logger *zap.Logger
 }
 
-func NewIPAM(db *gorm.DB, opt IPAMOptions) *IPAM { return &IPAM{db: db, opt: opt} }
+func NewIPAM(db *gorm.DB, logger *zap.Logger) *IPAM {
+	return &IPAM{db: db, logger: logger}
+}
 
-// Allocate returns the next free IP in the subnet (skipping network/broadcast).
-func (i *IPAM) Allocate(subnet *Subnet, portID string) (string, error) {
-	_, ipnet, err := net.ParseCIDR(subnet.CIDR)
+// Allocate returns the next free IP in the subnet using a pessimistic row-level lock.
+func (i *IPAM) Allocate(ctx context.Context, subnet *Subnet, portID string) (string, error) {
+	var allocatedIP string
+
+	// Use a transaction to ensure atomicity.
+	err := i.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		// 1. Pessimistic Lock: Lock the Subnet row. 
+		// Use dialect-aware locking (Postgres/MySQL use FOR UPDATE, SQLite ignores it).
+		var s Subnet
+		query := tx.Where("id = ?", subnet.ID)
+		
+		// Detection: SQLite doesn't support FOR UPDATE
+		dialect := tx.Dialector.Name()
+		if dialect != "sqlite" {
+			query = query.Clauses(clause.Locking{Strength: "UPDATE"})
+		}
+		
+		if err := query.First(&s).Error; err != nil {
+			return fmt.Errorf("failed to acquire lock on subnet: %w", err)
+		}
+
+		_, ipnet, err := net.ParseCIDR(s.CIDR)
+		if err != nil {
+			return fmt.Errorf("invalid CIDR %s: %w", s.CIDR, err)
+		}
+
+		begin := firstUsableIP(ipnet, s.AllocationStart)
+		cutoff := lastUsableIP(ipnet, s.AllocationEnd)
+
+		// 2. Count usable range size for random offset
+		totalUsable := i.countRange(begin, cutoff, ipnet, s.Gateway)
+		if totalUsable <= 0 {
+			return errors.New("no usable IPs in range")
+		}
+
+		// Pick a random starting point to distribute allocations
+		var offset int
+		if totalUsable > 0 {
+			b := make([]byte, 8)
+			_, _ = crypto_rand.Read(b)
+			offset = int(binary.BigEndian.Uint64(b) % uint64(totalUsable))
+		}
+		
+		curr := begin
+		for k := 0; k < offset; k++ {
+			curr = nextIP(curr)
+		}
+
+		// 3. Search for the first available IP starting from offset
+		for attempts := 0; attempts < totalUsable; attempts++ {
+			ipStr := curr.String()
+			
+			// Skip gateway and network/broadcast
+			if isNetworkOrBroadcast(curr, ipnet) || (s.Gateway != "" && ipStr == s.Gateway) {
+				curr = i.nextWrapped(curr, begin, cutoff)
+				continue
+			}
+
+			// Check if IP is taken using the SAME transaction
+			var exists int64
+			tx.Model(&IPAllocation{}).Where("subnet_id = ? AND ip = ?", s.ID, ipStr).Count(&exists)
+			
+			if exists == 0 {
+				// FOUND! Create allocation under the lock.
+				rec := IPAllocation{
+					SubnetID: s.ID,
+					IP:       ipStr,
+					PortID:   portID,
+				}
+				if err := tx.Create(&rec).Error; err != nil {
+					return fmt.Errorf("failed to persist allocation: %w", err)
+				}
+				allocatedIP = ipStr
+				return nil
+			}
+
+			// Move to next candidate
+			curr = i.nextWrapped(curr, begin, cutoff)
+		}
+
+		return fmt.Errorf("subnet %s is full", s.ID)
+	})
+
 	if err != nil {
 		return "", err
 	}
-	start := subnet.AllocationStart
-	end := subnet.AllocationEnd
-	// Iterate usable range.
-	begin := firstUsableIP(ipnet, start)
-	// apply reserved-first offset.
-	for k := 0; k < i.opt.ReservedFirst; k++ {
-		begin = nextIP(begin)
-	}
-	// compute last usable cutoff considering reserved_last.
-	cutoff := lastUsableIP(ipnet, end)
-	for k := 0; k < i.opt.ReservedLast; k++ {
-		cutoff = prevIP(cutoff)
-	}
-
-	// Batch-load all allocated IPs for this subnet in a single query,
-	// instead of checking each candidate IP individually (O(n) -> O(1) DB queries).
-	var allocations []IPAllocation
-	i.db.Where("subnet_id = ?", subnet.ID).Find(&allocations)
-	allocated := make(map[string]struct{}, len(allocations))
-	for _, a := range allocations {
-		allocated[a.IP] = struct{}{}
-	}
-
-	for ip := begin; ipnet.Contains(ip) && compareIP(ip, cutoff) <= 0; ip = nextIP(ip) {
-		if end != "" && compareIP(ip, net.ParseIP(end)) > 0 {
-			break
-		}
-		if isNetworkOrBroadcast(ip, ipnet) {
-			continue
-		}
-		if i.opt.ReserveGateway && subnet.Gateway != "" && ip.Equal(net.ParseIP(subnet.Gateway)) {
-			continue
-		}
-		ipStr := ip.String()
-		if _, taken := allocated[ipStr]; !taken {
-			rec := IPAllocation{SubnetID: subnet.ID, IP: ipStr, PortID: portID}
-			if err := i.db.Create(&rec).Error; err != nil {
-				return "", err
-			}
-			return ipStr, nil
-		}
-	}
-	return "", fmt.Errorf("no free IPs in subnet %s", subnet.ID)
+	return allocatedIP, nil
 }
 
-// Release frees an IP if allocated.
-func (i *IPAM) Release(subnetID, ip, portID string) error {
-	q := i.db.Where("subnet_id = ? AND ip = ?", subnetID, ip)
-	if portID != "" {
-		q = q.Where("port_id = ?", portID)
+// nextWrapped moves to the next IP, wrapping around to begin if cutoff is reached.
+func (i *IPAM) nextWrapped(curr, begin, cutoff net.IP) net.IP {
+	if compareIP(curr, cutoff) >= 0 {
+		return begin
 	}
-	return q.Delete(&IPAllocation{}).Error
+	return nextIP(curr)
 }
 
-// PoolSize returns the total number of allocatable IPs in a subnet's pool.
-func (i *IPAM) PoolSize(subnet *Subnet) int {
-	_, ipnet, err := net.ParseCIDR(subnet.CIDR)
-	if err != nil {
-		return 0
-	}
-	begin := firstUsableIP(ipnet, subnet.AllocationStart)
-	for k := 0; k < i.opt.ReservedFirst; k++ {
-		begin = nextIP(begin)
-	}
-	cutoff := lastUsableIP(ipnet, subnet.AllocationEnd)
-	for k := 0; k < i.opt.ReservedLast; k++ {
-		cutoff = prevIP(cutoff)
-	}
+func (i *IPAM) countRange(begin, end net.IP, ipnet *net.IPNet, gateway string) int {
 	count := 0
-	for ip := begin; ipnet.Contains(ip) && compareIP(ip, cutoff) <= 0; ip = nextIP(ip) {
-		if subnet.AllocationEnd != "" && compareIP(ip, net.ParseIP(subnet.AllocationEnd)) > 0 {
-			break
-		}
-		if isNetworkOrBroadcast(ip, ipnet) {
-			continue
-		}
-		if i.opt.ReserveGateway && subnet.Gateway != "" && ip.Equal(net.ParseIP(subnet.Gateway)) {
-			continue
-		}
+	for ip := begin; compareIP(ip, end) <= 0; ip = nextIP(ip) {
+		if !ipnet.Contains(ip) { break }
 		count++
+		if count > 2048 { return 2048 } // Safety cap
 	}
 	return count
 }
 
-// Helpers.
+// Release frees an IP address.
+func (i *IPAM) Release(ctx context.Context, subnetID, ip string) error {
+	return i.db.WithContext(ctx).Where("subnet_id = ? AND ip = ?", subnetID, ip).Delete(&IPAllocation{}).Error
+}
+
+// --- IP Arithmetic Helpers ---
+
 func firstUsableIP(n *net.IPNet, start string) net.IP {
 	if start != "" {
-		if ip := net.ParseIP(start); ip != nil {
-			return ip
-		}
+		if ip := net.ParseIP(start); ip != nil { return ip }
 	}
 	ip := n.IP.Mask(n.Mask)
-	ip = nextIP(ip) // skip network address
-	return ip
+	return nextIP(ip)
+}
+
+func lastUsableIP(n *net.IPNet, end string) net.IP {
+	if end != "" {
+		if ip := net.ParseIP(end); ip != nil { return ip }
+	}
+	if v4 := n.IP.To4(); v4 != nil {
+		bcast := make(net.IP, 4)
+		for i := 0; i < 4; i++ { bcast[i] = n.IP.To4()[i] | ^n.Mask[i] }
+		return prevIP(bcast)
+	}
+	return prevIP(net.IP(n.IP.Mask(n.Mask)))
 }
 
 func isNetworkOrBroadcast(ip net.IP, n *net.IPNet) bool {
-	if !n.Contains(ip) {
-		return false
-	}
-	// network.
-	if ip.Equal(n.IP.Mask(n.Mask)) {
-		return true
-	}
-	// broadcast for IPv4.
+	if !n.Contains(ip) { return false }
+	if ip.Equal(n.IP.Mask(n.Mask)) { return true }
 	if v4 := ip.To4(); v4 != nil {
-		bcast := make(net.IP, len(n.IP.To4()))
-		for i := 0; i < 4; i++ {
-			bcast[i] = n.IP.To4()[i] | ^n.Mask[i]
-		}
+		bcast := make(net.IP, 4)
+		for i := 0; i < 4; i++ { bcast[i] = n.IP.To4()[i] | ^n.Mask[i] }
 		return v4.Equal(bcast)
 	}
 	return false
@@ -154,8 +186,8 @@ func nextIP(ip net.IP) net.IP {
 	x := big.NewInt(0).SetBytes(ip.To16())
 	x.Add(x, big.NewInt(1))
 	b := x.Bytes()
-	if len(b) < net.IPv6len {
-		pad := make([]byte, net.IPv6len-len(b))
+	if len(b) < 16 {
+		pad := make([]byte, 16-len(b))
 		b = append(pad, b...)
 	}
 	return net.IP(b)
@@ -165,47 +197,13 @@ func prevIP(ip net.IP) net.IP {
 	x := big.NewInt(0).SetBytes(ip.To16())
 	x.Sub(x, big.NewInt(1))
 	b := x.Bytes()
-	if len(b) < net.IPv6len {
-		pad := make([]byte, net.IPv6len-len(b))
+	if len(b) < 16 {
+		pad := make([]byte, 16-len(b))
 		b = append(pad, b...)
 	}
 	return net.IP(b)
 }
 
-func lastUsableIP(n *net.IPNet, end string) net.IP {
-	if end != "" {
-		if ip := net.ParseIP(end); ip != nil {
-			return ip
-		}
-	}
-	// broadcast - 1 for IPv4; for IPv6, just use last address in prefix minus 1.
-	if v4 := n.IP.To4(); v4 != nil {
-		bcast := make(net.IP, len(v4))
-		for i := 0; i < 4; i++ {
-			bcast[i] = n.IP.To4()[i] | ^n.Mask[i]
-		}
-		return prevIP(bcast)
-	}
-	// IPv6 last address in subnet minus 1.
-	// Build max address by OR with inverted mask.
-	base := n.IP.To16()
-	inv := make([]byte, net.IPv6len)
-	for i := 0; i < net.IPv6len; i++ {
-		inv[i] = ^n.Mask[i]
-	}
-	last := make([]byte, net.IPv6len)
-	for i := 0; i < net.IPv6len; i++ {
-		last[i] = base[i] | inv[i]
-	}
-	return prevIP(net.IP(last))
-}
-
-// compareIP compares ip a and b; returns -1,0,1.
 func compareIP(a, b net.IP) int {
-	if b == nil {
-		return -1
-	}
-	aa := a.To16()
-	bb := b.To16()
-	return strings.Compare(string(aa), string(bb))
+	return strings.Compare(string(a.To16()), string(b.To16()))
 }

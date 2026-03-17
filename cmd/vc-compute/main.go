@@ -18,7 +18,6 @@ import (
 
 	computenode "github.com/Veritas-Calculus/vc-stack/internal/compute"
 	"github.com/Veritas-Calculus/vc-stack/pkg/appconfig"
-	"github.com/Veritas-Calculus/vc-stack/pkg/database"
 	"github.com/Veritas-Calculus/vc-stack/pkg/logger"
 	pkgsentry "github.com/Veritas-Calculus/vc-stack/pkg/sentry"
 )
@@ -119,26 +118,12 @@ func runServer(_ *cobra.Command, args []string) {
 		zapLogger.Info("sentry DSN not configured, error tracking disabled")
 	}
 
-	// Initialize database (optional for compute node features).
-	db, dErr := database.New(database.Config{
-		Host:            appCfg.Database.Host,
-		Port:            appCfg.Database.Port,
-		Name:            appCfg.Database.Name,
-		Username:        appCfg.Database.Username,
-		Password:        appCfg.Database.Password,
-		SSLMode:         appCfg.Database.SSLMode,
-		MaxIdleConns:    1,
-		MaxOpenConns:    2,
-		ConnMaxLifetime: 5 * time.Minute,
-		LogLevel:        "warn",
-	})
-	if dErr != nil {
-		zapLogger.Warn("database connect failed, compute features limited", zap.Error(dErr))
-		db = nil
-	}
-
 	// Compose compute node services via aggregator.
-	nSvc, err := computenode.NewNode(computenode.NodeConfig{DB: db, Logger: zapLogger})
+	nSvc, err := computenode.NewNode(computenode.NodeConfig{
+		Logger:        zapLogger,
+		ControllerURL: os.Getenv("CONTROLLER_URL"), // Fallback to env
+		InternalToken: appCfg.Security.InternalToken,
+	})
 	if err != nil {
 		zapLogger.Fatal("failed to initialize compute services", zap.Error(err))
 	}

@@ -15,12 +15,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 )
 
 type Config struct {
 	Logger             *zap.Logger
-	DB                 *gorm.DB // Database connection for network/port lookup
 	LibvirtURI         string
 	SmbiosManufacturer string
 	SmbiosProduct      string

@@ -76,25 +76,23 @@ For in-depth information about each component, see the [Component Documentation]
 
 ### Management Plane (`vc-management`)
 
-The management plane is a single Go binary that aggregates all control-plane services. Each service registers via `modules.go` and is initialized in dependency order. See the [Detailed Management Documentation](components/management.md) for more info.
+The management plane is a single Go binary that aggregates all control-plane services using an **Inversion of Control (IoC)** container. Each service registers via a `ModuleRegistry` and interacts with other modules through interfaces via a `ModuleContext`.
 
-#### Service Initialization Flow
+#### Service Initialization Flow (IoC)
 
 ```
 main()
   → config.Load()
-  → database.Connect()        // auto-decrypts ENC() passwords
-  → identity.NewService()     // IAM, JWT, RBAC
-  → compute.NewService()      // instance scheduling
-  → network.NewService()      // OVN orchestration
-  → scheduler.NewService()    // VM placement
-  → storage.NewService()      // volume management
-  → image.NewService()        // OS image management
-  → ... (40+ services)
-  → gateway.NewService()      // API proxy and routing
-  → gateway.SetupRoutes()     // register all HTTP endpoints
-  → gin.Run()                 // start HTTP server
+  → ModuleRegistry.New()
+  → RegisterCoreModules(registry)
+  → registry.InitializeAll(mctx)  // ordered by dependency, resolves interfaces
+  → gateway.SetupRoutes()         // dynamic route discovery
+  → gin.Run()
 ```
+
+#### Orchestration via Workflow Engine
+
+Resource lifecycle operations (e.g., creating a VM) are managed by a **Declarative Workflow Engine**. Each operation is a persistent `Task` composed of atomic `Steps` with built-in **Compensation (rollback)** logic to ensure eventual consistency across distributed components.
 
 #### Key Services
 
@@ -114,31 +112,28 @@ main()
 
 ### Compute Node (`vc-compute`)
 
-The compute node is a single binary with three internal services
-composed via direct function calls (no HTTP between them).
-See the [Detailed Compute Documentation](components/compute.md) for more info.
+The compute node is a **Stateless Agent**. It does NOT connect to the global database. It receives instructions from the management plane via a secured M2M API and reports status back.
 
 #### Internal Architecture
 
 ```
-vc-compute
+vc-compute (Agent)
+  ├─ Agent Handlers (api/v1/agent/*)
+  │   ├─ StartVM (Receive models.Instance)
+  │   ├─ StopVM
+  │   └─ GetVNC (Local port mapping)
+  │
   ├─ Orchestrator (service.go)
-  │   ├─ VM lifecycle (create, delete, start, stop, resize, migrate)
-  │   ├─ Image pull and caching
-  │   ├─ Volume attach/detach
-  │   └─ Heartbeat → vc-management
+  │   ├─ Local VM lifecycle management
+  │   └─ Heartbeat → vc-management (M2M API)
   │
   ├─ VM Driver (vm/)
-  │   ├─ QEMU process management
-  │   ├─ QMP socket control
-  │   ├─ Cloud-init ISO generation
-  │   ├─ VNC console proxy
-  │   └─ UEFI/vTPM firmware
+  │   ├─ QEMU/KVM process management
+  │   └─ QMP socket control
   │
   ├─ Network Agent (network/)
   │   ├─ OVS bridge management (br-int)
-  │   ├─ OVN logical port binding
-  │   └─ Node network bootstrap
+  │   └─ OVN logical port binding
   │
   └─ Storage Agent
       ├─ Local: qcow2 file management
@@ -177,19 +172,18 @@ App (BrowserRouter)
 
 ## Data Flow
 
-### VM Creation
+### VM Creation (Workflow-driven)
 
 ```
 User → Web Console → POST /api/v1/instances
-  → Gateway (auth + rate-limit)
-    → Compute Service (validate, create record)
-      → Scheduler (select host by bin-packing)
-        → Dispatch to vc-compute
-          → Orchestrator
-            → VM Driver (QEMU launch)
-            → Network Agent (OVN port bind)
-            → Storage Agent (volume create)
-          → Heartbeat reports status back
+  → Compute Service (Create DB record "building")
+    → Start Workflow "CreateVM":
+      1. StepAllocateIP (Network Module)
+      2. StepCreateVolume (Storage Module)
+      3. StepStartInstance (Call Agent API)
+    → Agent executes locally
+    → Agent reports "active" via M2M PATCH API
+    → Task marks as "completed"
 ```
 
 ### Authentication Flow

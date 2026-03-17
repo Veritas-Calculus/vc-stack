@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { getAuthToken } from '@/lib/api'
 
 type AccessLogEntry = {
   id: number
@@ -39,7 +40,7 @@ export function AccessLogs() {
   const [page, setPage] = useState(0)
   const limit = 50
 
-  const token = localStorage.getItem('token') || ''
+  const token = getAuthToken()
   const headers = { Authorization: `Bearer ${token}` }
 
   const fetchLogs = useCallback(async () => {

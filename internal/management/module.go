@@ -20,6 +20,14 @@ type Module interface {
 	SetupRoutes(router *gin.Engine)
 }
 
+// InstanceProvider is an optional interface modules can implement to expose
+// their internal service implementation for other modules to use.
+type InstanceProvider interface {
+	Module
+	// ServiceInstance returns the concrete service instance or interface.
+	ServiceInstance() interface{}
+}
+
 // MiddlewareProvider is an optional interface that modules can implement
 // to provide Gin middleware that should be applied to all routes.
 // Middleware is applied in module registration order.

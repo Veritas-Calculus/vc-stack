@@ -9,6 +9,10 @@ import (
 	"go.uber.org/zap"
 )
 
+// cookieDomain returns the domain for auth cookies.
+// Empty string means the cookie is scoped to the current host (default).
+const cookieDomain = ""
+
 // SetupRoutes sets up HTTP routes for the identity service.
 func (s *Service) SetupRoutes(router *gin.Engine) {
 	// Health check under identity prefix to avoid conflicts.
@@ -164,6 +168,11 @@ func (s *Service) loginHandler(c *gin.Context) {
 		return
 	}
 
+	// SEC-02: Set HttpOnly cookies for browser clients.
+	if response.AccessToken != "" {
+		s.setAuthCookies(c, response)
+	}
+
 	c.JSON(http.StatusOK, response)
 }
 
@@ -182,6 +191,11 @@ func (s *Service) refreshHandler(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
+	}
+
+	// SEC-02: Refresh HttpOnly cookies for browser clients.
+	if response.AccessToken != "" {
+		s.setAuthCookies(c, response)
 	}
 
 	c.JSON(http.StatusOK, response)
@@ -204,6 +218,9 @@ func (s *Service) logoutHandler(c *gin.Context) {
 		return
 	}
 
+	// SEC-02: Clear HttpOnly cookies.
+	s.clearAuthCookies(c)
+
 	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
 }
 
@@ -211,6 +228,14 @@ func (s *Service) logoutHandler(c *gin.Context) {
 func (s *Service) authMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
+
+		// SEC-02: Fall back to HttpOnly cookie for browser clients.
+		if authHeader == "" {
+			if cookie, err := c.Cookie("vc_access_token"); err == nil && cookie != "" {
+				authHeader = "Bearer " + cookie
+			}
+		}
+
 		if authHeader == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
 			c.Abort()
@@ -240,4 +265,28 @@ func (s *Service) authMiddleware() gin.HandlerFunc {
 
 		c.Next()
 	}
+}
+
+// ── SEC-02: HttpOnly Cookie Management ──────────────────────────────
+
+// setAuthCookies sets HttpOnly, Secure, SameSite=Lax cookies for browser auth.
+func (s *Service) setAuthCookies(c *gin.Context, resp *LoginResponse) {
+	isSecure := c.Request.TLS != nil || c.GetHeader("X-Forwarded-Proto") == "https"
+	c.SetSameSite(http.SameSiteLaxMode)
+	// Access token: available on all paths.
+	c.SetCookie("vc_access_token", resp.AccessToken,
+		int(s.config.JWT.ExpiresIn.Seconds()), "/", cookieDomain, isSecure, true)
+	// Refresh token: scoped to auth endpoints only.
+	if resp.RefreshToken != "" {
+		c.SetCookie("vc_refresh_token", resp.RefreshToken,
+			int(s.config.JWT.RefreshExpiresIn.Seconds()), "/api/v1/auth", cookieDomain, isSecure, true)
+	}
+}
+
+// clearAuthCookies removes auth cookies on logout.
+func (s *Service) clearAuthCookies(c *gin.Context) {
+	isSecure := c.Request.TLS != nil || c.GetHeader("X-Forwarded-Proto") == "https"
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie("vc_access_token", "", -1, "/", cookieDomain, isSecure, true)
+	c.SetCookie("vc_refresh_token", "", -1, "/api/v1/auth", cookieDomain, isSecure, true)
 }

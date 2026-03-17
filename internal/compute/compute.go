@@ -11,15 +11,15 @@ import (
 	"github.com/Veritas-Calculus/vc-stack/internal/compute/vm"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 )
 
 // NodeConfig aggregates dependencies required by compute node components.
 // This is the top-level configuration used by cmd/vc-compute to bootstrap
 // all services within the compute node.
 type NodeConfig struct {
-	DB     *gorm.DB
-	Logger *zap.Logger
+	Logger        *zap.Logger
+	ControllerURL string
+	InternalToken string
 }
 
 // Node composes all compute node services: VM driver, orchestration, and network.
@@ -43,7 +43,6 @@ func NewNode(cfg NodeConfig) (*Node, error) {
 	// Initialize VM driver service (QEMU/KVM layer).
 	vmSvc, err := vm.NewService(vm.Config{
 		Logger: cfg.Logger,
-		DB:     cfg.DB,
 		// Enable QEMU driver by default.
 		UseQEMU:     true,
 		QEMURunDir:  getEnvOrDefault("QEMU_RUN_DIR", "/var/run/vc-compute"),
@@ -109,12 +108,12 @@ func NewNode(cfg NodeConfig) (*Node, error) {
 	// Initialize orchestration service.
 	// VMDriver is injected directly for in-process VM operations.
 	compSvc, err := NewService(Config{
-		DB:       cfg.DB,
-		Logger:   cfg.Logger,
-		VMDriver: vmSvc, // Direct in-process access to VM driver
+		Logger:        cfg.Logger,
+		ControllerURL: cfg.ControllerURL,
+		InternalToken: cfg.InternalToken,
+		VMDriver:      vmSvc, // Direct in-process access to VM driver
 		Hypervisor: HypervisorConfig{
-			Type:       "kvm",
-			LibvirtURI: "",
+			Type: "kvm",
 		},
 		Orchestrator: OrchestratorConfig{
 			SchedulerURL: getEnvOrDefault("SCHEDULER_URL", ""),
@@ -141,23 +140,24 @@ func NewNode(cfg NodeConfig) (*Node, error) {
 	}
 
 	// Initialize metadata proxy for cloud-init support.
-	// Requires DB to resolve VM identity by source IP.
 	var metaProxy *metadata.Proxy
-	if cfg.DB != nil {
-		metaProxy, err = metadata.NewProxy(metadata.ProxyConfig{
-			DB:     cfg.DB,
-			Logger: cfg.Logger.Named("metadata"),
-			Port:   getEnvOrDefault("VC_METADATA_PORT", "8082"),
-		})
-		if err != nil {
-			cfg.Logger.Warn("metadata proxy init failed, cloud-init metadata unavailable", zap.Error(err))
-		} else {
-			go func() {
-				if err := metaProxy.ListenAndServe(); err != nil {
-					cfg.Logger.Error("metadata proxy stopped", zap.Error(err))
-				}
-			}()
-		}
+	// Metadata proxy now uses Controller API to resolve VM identity if local DB is not available.
+	metaProxy, err = metadata.NewProxy(metadata.ProxyConfig{
+		Logger:        cfg.Logger.Named("metadata"),
+		Port:          getEnvOrDefault("VC_METADATA_PORT", "8082"),
+		ControllerURL: cfg.ControllerURL,
+		InternalToken: cfg.InternalToken,
+	})
+	if err != nil {
+		cfg.Logger.Warn("metadata proxy init failed, cloud-init metadata unavailable", zap.Error(err))
+	} else {
+		// Inject the controller client to avoid circular dependency during initialization.
+		metaProxy.SetController(compSvc.controller)
+		go func() {
+			if err := metaProxy.ListenAndServe(); err != nil {
+				cfg.Logger.Error("metadata proxy stopped", zap.Error(err))
+			}
+		}()
 	}
 
 	cfg.Logger.Info("compute node services initialized",

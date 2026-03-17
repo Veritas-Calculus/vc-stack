@@ -26,6 +26,20 @@ type Service struct {
 	logger *zap.Logger
 }
 
+// Interface defines the methods other modules can use.
+type Interface interface {
+	CheckQuota(tenantID, resourceType string, delta int) error
+	UpdateUsage(tenantID, resourceType string, delta int) error
+}
+
+// ServiceInstance returns the interface implementation.
+func (s *Service) ServiceInstance() interface{} {
+	return Interface(s)
+}
+
+// Name returns the module name.
+func (s *Service) Name() string { return "quota" }
+
 // QuotaSet represents resource quotas for a tenant/project.
 type QuotaSet struct {
 	ID             uint      `gorm:"primaryKey" json:"id"`

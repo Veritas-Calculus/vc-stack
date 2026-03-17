@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -156,7 +157,7 @@ func (s *Service) lookupNodeAddress(ctx context.Context, nodeID string) (string,
 		return "", err
 	}
 
-	resp, err := http.DefaultClient.Do(req) // #nosec G107 -- internal service URL, not user-controlled
+	resp, err := (&http.Client{Timeout: 10 * time.Second}).Do(req) //nolint:bodyclose // closed below
 	if err != nil {
 		return "", fmt.Errorf("scheduler request failed: %w", err)
 	}

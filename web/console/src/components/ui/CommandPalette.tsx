@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { getAuthToken } from '@/lib/api'
 
 type SearchResult = {
   id: string
@@ -486,7 +487,7 @@ export function CommandPalette() {
     setSearching(true)
     debounceRef.current = setTimeout(async () => {
       try {
-        const token = localStorage.getItem('token') || ''
+        const token = getAuthToken()
         const resp = await fetch(`/api/v1/search?q=${encodeURIComponent(query.trim())}&limit=8`, {
           headers: { Authorization: `Bearer ${token}` }
         })

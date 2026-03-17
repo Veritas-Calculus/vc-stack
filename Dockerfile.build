@@ -1,0 +1,62 @@
+# Build stage: Latest Go on Latest Debian
+FROM golang:1.26.1-trixie AS builder
+
+# Build argument to toggle Chinese mirror (default: false)
+ARG USE_MIRROR=false
+
+# Conditional mirror setup
+RUN if [ "$USE_MIRROR" = "true" ]; then \
+    sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list.d/debian.sources && \
+    sed -i 's/security.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list.d/debian.sources ; \
+    fi
+
+# Install development libraries
+RUN apt-get update && apt-get install -y \
+    librados-dev \
+	librbd-dev \
+	libvirt-dev \
+	pkg-config \
+    gcc \
+    make \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Conditional GOPROXY setup
+ENV GOPROXY=${USE_MIRROR:+"https://goproxy.cn,direct"}
+ENV GOTOOLCHAIN=auto
+
+# Copy dependencies
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy source
+COPY . .
+
+# Run Tests
+RUN CGO_ENABLED=1 go test -v ./internal/management/storage/... ./internal/management/network/...
+
+# Build binaries
+RUN mkdir -p bin && \
+    CGO_ENABLED=1 go build -o bin/vc-management ./cmd/vc-management && \
+    CGO_ENABLED=1 go build -o bin/vc-compute ./cmd/vc-compute
+
+# Final stage: Production Runtime
+FROM debian:trixie-slim
+
+ARG USE_MIRROR=false
+RUN if [ "$USE_MIRROR" = "true" ]; then \
+    sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list.d/debian.sources ; \
+    fi
+
+RUN apt-get update && apt-get install -y \
+    librados2 \
+    librbd1 \
+	libvirt0 \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY --from=builder /app/bin/* ./bin/
+
+CMD ["./bin/vc-management"]

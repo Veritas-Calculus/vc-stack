@@ -20,6 +20,8 @@ type ListInstancesResponse = {
     host_id?: string
     ip_address?: string
     floating_ip?: string
+    root_rbd_image?: string
+    networks?: Array<{ uuid: string; ip: string }>
   }>
 }
 
@@ -52,7 +54,9 @@ const mapInstance =
     state:
       x.power_state === 'running' || x.status === 'active' || x.status === 'running'
         ? 'running'
-        : 'stopped'
+        : 'stopped',
+    rootImage: x.root_rbd_image,
+    networks: x.networks
   })
 
 const mapFlavor = (x: ListFlavorsResponse['flavors'][number]): UIFlavor => ({

@@ -1,0 +1,119 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Run weekly on Monday at 06:00 UTC
+    - cron: '0 6 * * 1'
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  # ── Trivy Container Scanning ────────────────────────────────────
+  trivy-container:
+    name: Container Scan (Trivy)
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [vc-management, vc-compute]
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Build image
+        run: |
+          docker build --target ${{ matrix.target }} -t ${{ matrix.target }}:scan .
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: '${{ matrix.target }}:scan'
+          format: 'sarif'
+          output: 'trivy-${{ matrix.target }}.sarif'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-${{ matrix.target }}.sarif'
+
+  # ── Gitleaks Secrets Detection ──────────────────────────────────
+  gitleaks:
+    name: Secrets Detection (Gitleaks)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ── Go Dependency Review ────────────────────────────────────────
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+
+  # ── Go Vulnerability Check (govulncheck) ────────────────────────
+  govulncheck:
+    name: Go Vulnerability Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Install govulncheck
+        run: go install golang.org/x/vuln/cmd/govulncheck@latest
+
+      - name: Run govulncheck
+        run: govulncheck ./...
+
+  # ── npm Audit (Frontend) ────────────────────────────────────────
+  npm-audit:
+    name: npm Audit (Frontend)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        working-directory: web/console
+        run: npm ci
+
+      - name: Run npm audit
+        working-directory: web/console
+        run: npm audit --audit-level=high || true

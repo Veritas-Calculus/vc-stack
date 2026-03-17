@@ -56,7 +56,7 @@ func (s *Service) topologyHandler(c *gin.Context) {
 		if tenantID != "" {
 			req.Header.Set("X-Project-ID", tenantID)
 		}
-		resp, err := http.DefaultClient.Do(req) // #nosec G107 -- internal service URL, not user-controlled
+		resp, err := (&http.Client{Timeout: 10 * time.Second}).Do(req) //nolint:bodyclose // closed below
 		if err != nil {
 			return httpGetResult{nil, http.StatusBadGateway, err}
 		}

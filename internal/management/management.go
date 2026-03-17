@@ -4,57 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Veritas-Calculus/vc-stack/internal/management/apidocs"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/audit"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/autoscale"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/backup"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/baremetal"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/caas"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/catalog"
+
+
 	"github.com/Veritas-Calculus/vc-stack/internal/management/compute"
-	cfgpkg "github.com/Veritas-Calculus/vc-stack/internal/management/config"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/configcenter"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/dns"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/domain"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/dr"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/elasticsearch"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/encryption"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/event"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/eventbus"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/gateway"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/gpuscheduler"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/ha"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/host"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/hpc"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/identity"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/image"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/invoice"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/kms"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/metadata"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/monitoring"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/natgateway"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/network"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/notification"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/objectstorage"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/orchestration"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/quota"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/ratelimit"
-	managedredis "github.com/Veritas-Calculus/vc-stack/internal/management/redis"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/region"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/registry"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/scheduler"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/selfheal"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/stackdrift"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/storage"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/tag"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/task"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/tidb"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/tools"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/usage"
-	"github.com/Veritas-Calculus/vc-stack/internal/management/vpn"
-
-	"github.com/Veritas-Calculus/vc-stack/internal/management/abac"
-
+	"github.com/Veritas-Calculus/vc-stack/internal/management/workflow"
 	"github.com/Veritas-Calculus/vc-stack/pkg/appconfig"
 	"github.com/Veritas-Calculus/vc-stack/pkg/dlock"
 	"github.com/Veritas-Calculus/vc-stack/pkg/mq"
@@ -102,73 +55,32 @@ type Config struct {
 
 // Service composes all management plane services
 // and exposes a single SetupRoutes to register their routes on a router.
-//
-// Legacy concrete fields are retained for cross-module references (e.g.,
-// Compute depends on Quota). Use RegisterModule/GetModule for new modules.
 type Service struct {
-	// ── Concrete fields (legacy, kept for cross-module references) ────
-	Compute       *compute.Service
-	Identity      *identity.Service
-	Network       *network.Service
-	Host          *host.Service
-	Scheduler     *scheduler.Service
-	Gateway       *gateway.Service
-	Metadata      *metadata.Service
-	Event         *event.Service
-	Quota         *quota.Service
-	Monitoring    *monitoring.Service
-	Config        *cfgpkg.Service
-	Domain        *domain.Service
-	Tools         *tools.Service
-	Usage         *usage.Service
-	VPN           *vpn.Service
-	Backup        *backup.Service
-	AutoScale     *autoscale.Service
-	Storage       *storage.Service
-	Task          *task.Service
-	Tag           *tag.Service
-	Notification  *notification.Service
-	Image         *image.Service
-	APIDocs       *apidocs.Service
-	DNS           *dns.Service
-	ObjStorage    *objectstorage.Service
-	Orchestration *orchestration.Service
-	HA            *ha.Service
-	KMS           *kms.Service
-	RateLimit     *ratelimit.Service
-	Encryption    *encryption.Service
-	CaaS          *caas.Service
-	Audit         *audit.Service
-	DR            *dr.Service
-	BareMetal     *baremetal.Service
-	Catalog       *catalog.Service
-	SelfHeal      *selfheal.Service
-	Registry      *registry.Service
-	ConfigCenter  *configcenter.Service
-	EventBus      *eventbus.Service
-	HPC           *hpc.Service
-	Region        *region.Service
-	// ── N7-N9 modules ────────────────────────────────────────────
-	RedisManaged *managedredis.Service
-	NATGateway   *natgateway.Service
-	ABAC         *abac.Service
-	TiDB         *tidb.Service
-	Elastic      *elasticsearch.Service
-	Invoice      *invoice.Service
-	StackDrift   *stackdrift.Service
-	GPUScheduler *gpuscheduler.Service
-
-	// ── Module registry (new: interface-based) ────────────────────────
+	// ── Module registry (IoC based) ───────────────────────────
 	modules map[string]Module
+
 	// ── Runtime feature flags ─────────────────────────────────────────
 	Features  *FeatureFlags
 	logger    *zap.Logger
 	jwtSecret string // #nosec G101 -- stored for global auth middleware
 
-	// ── HA infrastructure (P4) ───────────────────────────────────────
+	// ── Core Infrastructure ──────────────────────────────────────────
+	DB    *gorm.DB
 	DLock *dlock.Manager   // nil = single-instance mode
 	Redis *vcredis.Manager // nil = in-memory fallback
 	MQ    mq.MessageBus    // nil = synchronous REST dispatch
+}
+
+// GetModuleInstance retrieves the service instance provided by a module.
+func (s *Service) GetModuleInstance(name string) interface{} {
+	m := s.GetModule(name)
+	if m == nil {
+		return nil
+	}
+	if p, ok := m.(InstanceProvider); ok {
+		return p.ServiceInstance()
+	}
+	return m
 }
 
 // RegisterModule registers a module by its Name(). Called by module factories
@@ -248,6 +160,19 @@ func New(cfg Config) (*Service, error) {
 		return nil, err
 	}
 
+	// ── Phase 6: Workflow Engine Setup ─────────────────────────────
+	// Ensure tasks table exists.
+	if err := svc.DB.AutoMigrate(&workflow.Task{}); err != nil {
+		svc.logger.Warn("failed to migrate workflow tasks table", zap.Error(err))
+	}
+
+	// Start task reconciliation in background to resume unfinished work.
+	if computeSvc, ok := svc.GetModule("compute").(*compute.Service); ok {
+		// Ensure workflows are registered before reconciliation.
+		computeSvc.RegisterWorkflows()
+		go computeSvc.GetWorkflowEngine().ReconcileTasks()
+	}
+
 	return svc, nil
 }
 
@@ -256,14 +181,17 @@ func New(cfg Config) (*Service, error) {
 func (s *Service) Stop() {
 	s.logger.Info("stopping management services")
 
-	// Stop gateway health checker.
-	if s.Gateway != nil {
-		s.Gateway.Stop()
-	}
-
-	// Stop monitoring collectors (if they have a Stop method).
-	if s.Monitoring != nil {
-		_ = s.Monitoring.Stop()
+	// Stop all modules that implement a Stop() method.
+	for name, mod := range s.modules {
+		if stopper, ok := mod.(interface{ Stop() }); ok {
+			s.logger.Debug("stopping module", zap.String("module", name))
+			stopper.Stop()
+		} else if inst := s.GetModuleInstance(name); inst != nil {
+			if stopper, ok := inst.(interface{ Stop() error }); ok {
+				s.logger.Debug("stopping module instance", zap.String("module", name))
+				_ = stopper.Stop()
+			}
+		}
 	}
 
 	s.logger.Info("management services stopped")

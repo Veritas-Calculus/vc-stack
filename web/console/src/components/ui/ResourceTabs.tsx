@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { getAuthToken } from '@/lib/api'
 
 type Tab = {
   id: string
@@ -79,7 +80,7 @@ function TagsPanel({ resourceType, resourceId }: { resourceType: string; resourc
   const [newKey, setNewKey] = useState('')
   const [newValue, setNewValue] = useState('')
   const [loading, setLoading] = useState(false)
-  const token = localStorage.getItem('token') || ''
+  const token = getAuthToken()
   const headers: Record<string, string> = {
     Authorization: `Bearer ${token}`,
     'Content-Type': 'application/json'
@@ -206,7 +207,7 @@ function TagsPanel({ resourceType, resourceId }: { resourceType: string; resourc
 function EventsPanel({ resourceType, resourceId }: { resourceType: string; resourceId: string }) {
   const [events, setEvents] = useState<EventEntry[]>([])
   const [loading, setLoading] = useState(false)
-  const token = localStorage.getItem('token') || ''
+  const token = getAuthToken()
   const headers = { Authorization: `Bearer ${token}` }
 
   useEffect(() => {

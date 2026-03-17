@@ -79,16 +79,24 @@ type Instance struct {
 	HostID       string         `json:"host_id"`      // Scheduler node ID
 	NodeAddress  string         `json:"node_address"` // vc-compute address
 	IPAddress    string         `json:"ip_address"`   // Primary fixed IP from port allocation
+	RootRBDImage string         `json:"root_rbd_image"` // Added for workflow
 	FloatingIP   string         `json:"floating_ip"`  // Associated floating IP for external access
 	UserData     string         `gorm:"type:text" json:"user_data,omitempty"`
 	SSHKey       string         `gorm:"type:text" json:"ssh_key,omitempty"`
 	EnableTPM    bool           `gorm:"default:false" json:"enable_tpm"`
 	Metadata     JSONMap        `gorm:"type:jsonb" json:"metadata,omitempty"`
+	Networks     []InstanceNetwork `json:"networks" gorm:"-"` // Added for workflow
 	CreatedAt    time.Time      `json:"created_at"`
 	UpdatedAt    time.Time      `json:"updated_at"`
 	LaunchedAt   *time.Time     `json:"launched_at"`
 	TerminatedAt *time.Time     `json:"terminated_at"`
 	DeletedAt    gorm.DeletedAt `gorm:"index" json:"-"`
+}
+
+// InstanceNetwork represents a network attachment for an instance.
+type InstanceNetwork struct {
+	UUID string `json:"uuid"`
+	IP   string `json:"ip"`
 }
 
 // TableName specifies the table name for Instance model.
