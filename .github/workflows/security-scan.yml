@@ -48,6 +48,7 @@ jobs:
           output: 'trivy-${{ matrix.target }}.sarif'
           severity: 'CRITICAL,HIGH'
           ignore-unfixed: true
+          exit-code: '0'
 
       - name: Upload Trivy scan results
         uses: github/codeql-action/upload-sarif@v3

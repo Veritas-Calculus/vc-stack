@@ -26,6 +26,6 @@ describe('api interceptors', () => {
   it('exports default api instance', async () => {
     const { default: api } = await import('@/lib/api')
     expect(api).toBeDefined()
-    expect(api.defaults.withCredentials).toBe(false)
+    expect(api.defaults.withCredentials).toBe(true)
   })
 })

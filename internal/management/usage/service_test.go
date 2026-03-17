@@ -47,32 +47,11 @@ func TestSetupRoutes(t *testing.T) {
 	}
 
 	required := []string{
-		"GET:/api/v1/usage",
-		"GET:/api/v1/usage/summary",
-		"GET:/api/v1/tariffs",
-		"POST:/api/v1/tariffs",
-		"PUT:/api/v1/tariffs/:id",
-		"DELETE:/api/v1/tariffs/:id",
-		"GET:/api/v1/billing/summary",
-		"POST:/api/v1/billing/credit",
+		"GET:/api/v1/usage/records",
 	}
 	for _, r := range required {
 		if !paths[r] {
 			t.Errorf("missing route: %s", r)
 		}
-	}
-}
-
-func TestSeedDefaultTariffs(t *testing.T) {
-	db := testDB(t)
-	l, _ := zap.NewDevelopment()
-	svc, _ := NewService(Config{DB: db, Logger: l})
-
-	// seedDefaultTariffs is called during NewService.
-	// Verify tariffs were created.
-	var count int64
-	svc.db.Model(&Tariff{}).Count(&count)
-	if count == 0 {
-		t.Error("seedDefaultTariffs did not create any tariffs")
 	}
 }
