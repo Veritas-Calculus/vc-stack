@@ -3,10 +3,9 @@
 # IMPORTANT: Copy .env.example to .env and set secure credentials before use.
 #
 # Usage:
-#   cp .env.example .env && vim .env          # Set DB_PASS, JWT_SECRET, etc.
-#   docker compose up -d                      # Start PG + management + nginx
-#   docker compose --profile compute up -d    # Also start compute node + OVN
-#   docker compose down -v                    # Stop and remove volumes
+#   cp .env.example .env && vim .env    # Set DB_PASS, JWT_SECRET, etc.
+#   docker compose up -d                # Start ALL services
+#   docker compose down -v              # Stop and remove volumes
 
 services:
   # ---- PostgreSQL ----
@@ -51,6 +50,11 @@ services:
       # SDN / OVN configuration
       OVN_NB_ADDRESS: "tcp:ovn-central:6641"
       VC_BRIDGE_MAPPINGS: "provider:br-provider,external:br-ex"
+      # InfluxDB (metrics collector backend)
+      INFLUXDB_URL: ${INFLUXDB_URL:-http://influxdb:8086}
+      INFLUXDB_TOKEN: ${INFLUXDB_TOKEN:-vc-stack-monitoring-token-dev}
+      INFLUXDB_ORG: ${INFLUXDB_ORG:-vc-stack}
+      INFLUXDB_BUCKET: ${INFLUXDB_BUCKET:-monitoring}
     networks:
       - vc-stack
     volumes:
@@ -75,7 +79,7 @@ services:
   ovn-central:
     image: debian:bookworm-slim
     container_name: vc-stack-ovn-central
-    profiles: [ "compute" ]
+
     command: >
       bash -c "
         apt-get update -qq && apt-get install -y -qq ovn-central > /dev/null 2>&1 &&
@@ -102,7 +106,7 @@ services:
       context: .
       target: vc-compute
     container_name: vc-stack-compute
-    profiles: [ "compute" ]
+
     depends_on:
       postgres:
         condition: service_healthy
@@ -138,6 +142,133 @@ services:
       - vc-stack
     restart: unless-stopped
 
+  # ===========================================================================
+  #  Monitoring Stack
+  # ===========================================================================
+
+  # ---- Prometheus ----
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: vc-stack-prometheus
+
+    depends_on:
+      - vc-management
+    ports:
+      - "9091:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/rules:/etc/prometheus/rules:ro
+      - prometheus_data:/prometheus
+    networks:
+      - vc-stack
+    restart: unless-stopped
+
+  # ---- Grafana ----
+  grafana:
+    image: grafana/grafana:11.1.0
+    container_name: vc-stack-grafana
+
+    depends_on:
+      - prometheus
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GF_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_ADMIN_PASSWORD:-admin}
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/cluster-overview.json
+      GF_INSTALL_PLUGINS: ""
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    networks:
+      - vc-stack
+    restart: unless-stopped
+
+  # ---- InfluxDB (time-series metrics backend) ----
+  influxdb:
+    image: influxdb:2.7
+    container_name: vc-stack-influxdb
+
+    ports:
+      - "8086:8086"
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: ${INFLUXDB_ADMIN_USER:-admin}
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUXDB_ADMIN_PASSWORD:-adminpassword123}
+      DOCKER_INFLUXDB_INIT_ORG: ${INFLUXDB_ORG:-vc-stack}
+      DOCKER_INFLUXDB_INIT_BUCKET: ${INFLUXDB_BUCKET:-monitoring}
+      DOCKER_INFLUXDB_INIT_RETENTION: 30d
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_TOKEN:-vc-stack-monitoring-token-dev}
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+      - influxdb_config:/etc/influxdb2
+    healthcheck:
+      test: [ "CMD", "influx", "ping" ]
+      interval: 10s
+      timeout: 5s
+      start_period: 15s
+      retries: 5
+    networks:
+      - vc-stack
+    restart: unless-stopped
+
+  # ---- Alertmanager ----
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: vc-stack-alertmanager
+
+    ports:
+      - "9093:9093"
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+    volumes:
+      - ./configs/alertmanager:/etc/alertmanager:ro
+    networks:
+      - vc-stack
+    restart: unless-stopped
+
+  # ---- PostgreSQL Exporter ----
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.16.0
+    container_name: vc-stack-postgres-exporter
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${DB_USER:-vcstack}:${DB_PASS:-vcstack-dev-password}@postgres:5432/${DB_NAME:-vcstack}?sslmode=disable"
+    ports:
+      - "9187:9187"
+    networks:
+      - vc-stack
+    restart: unless-stopped
+
+  # ---- Node Exporter (host-level metrics) ----
+  node-exporter:
+    image: prom/node-exporter:v1.8.0
+    container_name: vc-stack-node-exporter
+
+    ports:
+      - "9100:9100"
+    command:
+      - '--path.rootfs=/host'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /:/host:ro,rslave
+    pid: host
+    networks:
+      - vc-stack
+    restart: unless-stopped
+
 volumes:
   postgres_data:
     driver: local
@@ -148,6 +279,14 @@ volumes:
   vcstack_vm_run:
     driver: local
   vcstack_volumes:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  influxdb_data:
+    driver: local
+  influxdb_config:
     driver: local
 
 networks:

@@ -1,0 +1,18 @@
+# Grafana Datasource Provisioning — InfluxDB (Flux query language)
+# Auto-registers InfluxDB alongside Prometheus on Grafana startup.
+apiVersion: 1
+
+datasources:
+  - name: InfluxDB
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    isDefault: false
+    editable: true
+    jsonData:
+      version: Flux
+      organization: vc-stack
+      defaultBucket: monitoring
+      tlsSkipVerify: true
+    secureJsonData:
+      token: vc-stack-monitoring-token-dev
